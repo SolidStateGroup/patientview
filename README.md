@@ -3,11 +3,11 @@ Database Configuration
 
 Once PostgreSQL is installed enter the following commands :-
 
-  =>createuser superadmin --pwprompt
-  =>createuser patientview --pwprompt
-  =>createdb patientview
+  createuser superadmin --pwprompt
+  createuser patientview --pwprompt
+  createdb patientview
 
-  =>psql patientview -c "alter role superadmin with superuser" 
+  <code>psql patientview -c "alter role superadmin with superuser"</code>
   =>psql patientview -c "alter role superadmin with createdb" 
   =>psql patientview -c "alter role superadmin with createuser" 
 
