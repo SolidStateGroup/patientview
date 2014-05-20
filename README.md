@@ -8,16 +8,16 @@ Once PostgreSQL is installed enter the following commands :-
   createdb patientview
 
   <code>psql patientview -c "alter role superadmin with superuser"</code>
-  =>psql patientview -c "alter role superadmin with createdb" 
-  =>psql patientview -c "alter role superadmin with createuser" 
+  <code>psql patientview -c "alter role superadmin with createdb"</code>
+  <code>psql patientview -c "alter role superadmin with createuser"</code>
 
-  =>psql patientview -c "alter role patientview with nosuperuser" 
-  =>psql patientview -c "alter role patientview with nocreatedb" 
-  =>psql patientview -c "alter role patientview with nocreateuser" 
+  <code>psql patientview -c "alter role patientview with nosuperuser"</code> 
+  <code>psql patientview -c "alter role patientview with nocreatedb"</code> 
+  <code>psql patientview -c "alter role patientview with nocreateuser"</code>
 
 
 Then to connect to the patientview :-
 
-  =>psql patientview
+  <code>psql patientview</code>
 
-\q  #to quit
+\q to quit
