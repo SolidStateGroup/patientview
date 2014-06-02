@@ -159,6 +159,15 @@ CREATE TABLE Message (
 )
 ;
 
+CREATE TABLE Message_Read_Receipt (
+  Id BIGINT NOT NUll,
+  Message_Id BIGINT NOT NULL  REFERENCES Message (Id),
+  User_Id BIGINT NOT NULL REFERENCES User (Id),
+  Creation_Date TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+)
+;
+
 CREATE TABLE Conversation (
   Id BIGINT NOT NULL,
   Title VARCHAR(200) NOT NULL,

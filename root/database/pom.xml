@@ -22,5 +22,92 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+
+      <dependency>
+          <groupId>postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <version>9.0-801.jdbc3</version>
+      </dependency>
+
   </dependencies>
+
+    <profiles>
+        <profile>
+            <id>localhost</id>
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>localhost</value>
+                </property>
+            </activation>
+        </profile>
+
+
+    </profiles>
+
+    <build>
+
+
+        <resources>
+            <resource>
+                <directory>src/main/resources/conf</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>database.properties</include>
+                </includes>
+            </resource>
+
+            <resource>
+                <directory>src/main/resources/db</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>*.sql</include>
+                </includes>
+            </resource>
+
+            <resource>
+                <directory>src/main/resources/db/migration</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>*.sql</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <filters>
+            <filter>src/main/filters/patientview-localhost.properties</filter>
+        </filters>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+
+
+
+                </configuration>
+                <version>2.6</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <configFile>src/main/resources/conf/database.properties</configFile>
+                </configuration>
+            <dependencies>
+                <dependency>
+                    <groupId>postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                    <version>9.0-801.jdbc3</version>
+                </dependency>
+            </dependencies>
+            </plugin>
+
+        </plugins>
+    </build>
+
 </project>
