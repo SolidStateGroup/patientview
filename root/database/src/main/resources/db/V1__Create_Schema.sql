@@ -20,6 +20,7 @@ CREATE TABLE Role
 (
 	Id BIGINT NOT NULL,
 	Name VARCHAR(50) NOT NULL UNIQUE,
+  Description VARCHAR(255),
 	Creation_Date DATETIME NOT NULL,
 	Created_By BIGINT NOT NULL REFERENCES User (Id),
 	Last_Update_Date DATETIME,
@@ -37,6 +38,7 @@ CREATE TABLE User
 	Locked BOOL NOT NULL,
   Fhir_Resource_Id UUID UNIQUE,
   Email VARCHAR(200) NOT NULL,
+  Name VARCHAR (200) NOT NULL,
 	Start_Date DATE NOT NULL,
 	End_Date DATE,
 	Creation_Date TIMESTAMP NOT NULL,
