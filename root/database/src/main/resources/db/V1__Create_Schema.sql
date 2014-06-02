@@ -82,7 +82,7 @@ CREATE TABLE Feature
 )
 ;
 
-CREATE TABLE User_Feature
+CREATE TABLE Feature_User
 (
   Id BIGINT NOT NULL,
   User_Id BIGINT NOT NULL REFERENCES User (Id),
@@ -97,7 +97,7 @@ CREATE TABLE User_Feature
 )
 ;
 
-CREATE TABLE Group_Feature
+CREATE TABLE Feature_Group
 (
   Id BIGINT NOT NULL,
   Group_Id BIGINT NOT NULL REFERENCES Group (Id),
