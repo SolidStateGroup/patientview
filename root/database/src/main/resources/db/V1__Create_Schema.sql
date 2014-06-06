@@ -1,355 +1,334 @@
-CREATE TABLE Group
+CREATE TABLE PV_User
 (
-	Id BIGINT NOT NULL,
-	Name VARCHAR(200) UNIQUE,
-	Code VARCHAR(50),
-	Description VARCHAR(255),
-	Type_Id BIGINT REFERENCES Lookup_Value (Id),
-	Parent_Group_Id BIGINT,
-  Fhir_Resource_Id UUID,
-	Creation_Date DATETIME NOT NULL,
-	Created_By BIGINT REFERENCES User (Id),
-	Last_Update_Date DATETIME NOT NULL,
-	Last_Updated_By BIGINT REFERENCES User (Id),
-	PRIMARY KEY (Id)
-)
-;
-
-
-CREATE TABLE Role
-(
-	Id BIGINT NOT NULL,
-	Name VARCHAR(50) NOT NULL UNIQUE,
-  Description VARCHAR(255),
-	Creation_Date DATETIME NOT NULL,
-	Created_By BIGINT NOT NULL REFERENCES User (Id),
-	Last_Update_Date DATETIME,
-	Last_Updated_By BIGINT REFERENCES User (Id),
-	PRIMARY KEY (Id)
-)
-;
-
-CREATE TABLE User
-(
-	Id BIGINT NOT NULL,
-	Username VARCHAR(50) NOT NULL UNIQUE,
-	Password VARCHAR(100) NOT NULL,
-	Change_Password BOOL NOT NULL,
-	Locked BOOL NOT NULL,
+  Id               BIGINT       NOT NULL,
+  Username         VARCHAR(50)  NOT NULL UNIQUE,
+  Password         VARCHAR(100) NOT NULL,
+  Change_Password  BOOL         NOT NULL,
+  Locked           BOOL         NOT NULL,
   Fhir_Resource_Id UUID UNIQUE,
-  Email VARCHAR(200) NOT NULL,
-  Name VARCHAR (200) NOT NULL,
-	Start_Date DATE NOT NULL,
-	End_Date DATE,
-	Creation_Date TIMESTAMP NOT NULL,
-	Created_By BIGINT NOT NULL REFERENCES User (Id),
-	Last_Update_Date TIMESTAMP,
-	Last_Updated_By BIGINT REFERENCES User (Id),
-	PRIMARY KEY (Id)
-)
-;
+  Email            VARCHAR(200) NOT NULL,
+  Name             VARCHAR(200) NOT NULL,
+  Start_Date       DATE         NOT NULL,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP    NOT NULL,
+  Created_By       BIGINT       NOT NULL REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
 
 
-CREATE TABLE User_Group
+CREATE TABLE PV_Lookup_Type (
+  Id               BIGINT    NOT NULL,
+  Lookup_Type      VARCHAR(50) UNIQUE,
+  Description      TEXT,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Lookup_Value (
+  Id               BIGINT       NOT NULL,
+  Lookup_Type_Id   BIGINT       NOT NULL REFERENCES PV_Lookup_Type (Id),
+  Value            VARCHAR(100) NOT NULL,
+  Creation_Date    TIMESTAMP    NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+
+CREATE TABLE PV_Group
 (
-	Id BIGINT NOT NULL,
-	User_Id BIGINT NOT NULL REFERENCES User (Id),
-	Group_Id INTEGER REFERENCES Group (Id),
-	Role_Id BIGINT NOT NULL REFERENCES Role (Id),
-	Start_Date DATE,
-	End_Date DATE,
-	Creation_Date TIMESTAMP NOT NULL,
-	Created_By BIGINT REFERENCES User (Id),
-	Last_Update_Date TIMESTAMP,
-	Last_Updated_By BIGINT REFERENCES User (Id),
-	PRIMARY KEY (Id)
-)
-;
+  Id               BIGINT    NOT NULL,
+  Name             VARCHAR(200) UNIQUE,
+  Code             VARCHAR(50),
+  Description      VARCHAR(255),
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Parent_Group_Id  BIGINT,
+  Fhir_Resource_Id UUID,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
 
-CREATE TABLE Feature
+
+CREATE TABLE PV_Role
 (
-  Id BIGINT NOT NULL,
-  Name BIGINT NOT NULL UNIQUE,
-  Description VARCHAR(100),
+  Id               BIGINT      NOT NULL,
+  Name             VARCHAR(50) NOT NULL UNIQUE,
+  Description      VARCHAR(255),
+  Creation_Date    TIMESTAMP   NOT NULL,
+  Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+
+CREATE TABLE PV_User_Group_Role
+(
+  Id               BIGINT    NOT NULL,
+  User_Id          BIGINT    NOT NULL REFERENCES PV_User (Id),
+  Group_Id         BIGINT REFERENCES PV_Group (Id),
+  Role_Id          BIGINT    NOT NULL REFERENCES PV_Role (Id),
+  Start_Date       DATE,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Feature
+(
+  Id                BIGINT    NOT NULL,
+  Feature_Name      VARCHAR(50) NOT NULL UNIQUE,
+  Description       VARCHAR(100),
   Parent_Feature_Id BIGINT,
-  Start_Date DATE,
-  End_Date DATE,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
-  Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Start_Date        DATE,
+  End_Date          DATE,
+  Creation_Date     TIMESTAMP NOT NULL,
+  Created_By        BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date  TIMESTAMP,
+  Last_Updated_By   BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Feature_User
+CREATE TABLE PV_Feature_User
 (
-  Id BIGINT NOT NULL,
-  User_Id BIGINT NOT NULL REFERENCES User (Id),
-  Feature_Id BIGINT NOT NULL REFERENCES Feature (Id),
-  Start_Date DATE,
-  End_Date DATE,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+  Id               BIGINT    NOT NULL,
+  User_Id          BIGINT    NOT NULL REFERENCES PV_User (Id),
+  Feature_Id       BIGINT    NOT NULL REFERENCES PV_Feature (Id),
+  Start_Date       DATE,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Feature_Group
+CREATE TABLE PV_Feature_Group
 (
-  Id BIGINT NOT NULL,
-  Group_Id BIGINT NOT NULL REFERENCES Group (Id),
-  Feature_Id BIGINT NOT NULL REFERENCES Feature (Id),
-  Start_Date DATE NOT NULL,
-  End_Date DATE,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+  Id               BIGINT    NOT NULL,
+  Group_Id         BIGINT    NOT NULL REFERENCES PV_Group (Id),
+  Feature_Id       BIGINT    NOT NULL REFERENCES PV_Feature (Id),
+  Start_Date       DATE      NOT NULL,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
 
-CREATE TABLE User_Token
+CREATE TABLE PV_User_Token
 (
-  Id BIGINT NOT NULL,
-  User_Id BIGINT NOT NULL REFERENCES User (Id),
-  Token VARCHAR(50) NOT NULL UNIQUE,
-  Parent_Token VARCHAR(50) NOT NULL,
-  Creation_Date TIMESTAMP NOT NULL,
+  Id              BIGINT      NOT NULL,
+  User_Id         BIGINT      NOT NULL REFERENCES PV_User (Id),
+  Token           VARCHAR(50) NOT NULL UNIQUE,
+  Parent_Token    VARCHAR(50) NOT NULL,
+  Creation_Date   TIMESTAMP   NOT NULL,
   Expiration_Date TIMESTAMP,
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE News (
-  Id BIGINT NOT NULL,
-  News_Heading VARCHAR(100),
-  News TEXT NOT NULL,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_News (
+  Id               BIGINT    NOT NULL,
+  News_Heading     VARCHAR(100),
+  News             TEXT      NOT NULL,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE News_Group_Role (
-  Id BIGINT NOT NULL,
-  News_Id BIGINT NOT NULL REFERENCES News (Id),
-  Group_Id BIGINT REFERENCES Group (Id),
-  Role_Id BIGINT REFERENCES Role (Id),
+CREATE TABLE PV_News_Group_Role (
+  Id            BIGINT    NOT NULL,
+  News_Id       BIGINT    NOT NULL REFERENCES PV_News (Id),
+  Group_Id      BIGINT REFERENCES PV_Group (Id),
+  Role_Id       BIGINT REFERENCES PV_Role (Id),
   Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+  Created_By    BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Message (
-  Id BIGINT NOT NUll,
-  Conversation_Id BIGINT NOT NULL  REFERENCES Conversation (Id),
-  Type_Id BIGINT REFERENCES Lookup_Value (Id),
-  Message TEXT NOT NULL,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
-  PRIMARY KEY (Id)
-)
-;
-
-CREATE TABLE Message_Read_Receipt (
-  Id BIGINT NOT NUll,
-  Message_Id BIGINT NOT NULL  REFERENCES Message (Id),
-  User_Id BIGINT NOT NULL REFERENCES User (Id),
+CREATE TABLE PV_Message_Read_Receipt (
+  Id            BIGINT    NOT NULL,
+  Message_Id    BIGINT    NOT NULL  REFERENCES PV_Message (Id),
+  User_Id       BIGINT    NOT NULL REFERENCES PV_User (Id),
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Conversation (
-  Id BIGINT NOT NULL,
-  Title VARCHAR(200) NOT NULL,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_Conversation (
+  Id               BIGINT       NOT NULL,
+  Title            VARCHAR(200) NOT NULL,
+  Creation_Date    TIMESTAMP    NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (id)
-)
-;
+);
 
-CREATE TABLE Conversation_Participant (
-  Id BIGINT NOT NULL,
-  Conversation_Id BIGINT NOT NULL REFERENCES Conversation (Id),
-  User_Id BIGINT NOT NULL REFERENCES User (Id),
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_Message (
+  Id              BIGINT    NOT NULL,
+  Conversation_Id BIGINT    NOT NULL  REFERENCES PV_Conversation (Id),
+  Type_Id         BIGINT REFERENCES PV_Lookup_Value (Id),
+  Message         TEXT      NOT NULL,
+  Creation_Date   TIMESTAMP NOT NULL,
+  Created_By      BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Lookup_Type (
-  Id BIGINT NOT NULL,
-  Lookup_Type VARCHAR(50) UNIQUE,
-  Description TEXT,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
-  Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_Conversation_Participant (
+  Id              BIGINT    NOT NULL,
+  Conversation_Id BIGINT    NOT NULL REFERENCES PV_Conversation (Id),
+  User_Id         BIGINT    NOT NULL REFERENCES PV_User (Id),
+  Creation_Date   TIMESTAMP NOT NULL,
+  Created_By      BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Lookup_Value (
-  Id BIGINT NOT NULL,
-  Lookup_Type_Id BIGINT NOT NULL REFERENCES Lookup_Type (Id),
-  Value VARCHAR(100) NOT NULL,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
-  Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
-  PRIMARY KEY (Id)
-)
-;
-
-CREATE TABLE User_Information (
-  Id BIGINT NOT NULL,
-  User_Id BIGINT NOT NULL REFERENCES User (Id),
-  Type_Id BIGINT NOT NULL REFERENCES Lookup_Value (Id),
-  Value TEXT NOT NULL,
+CREATE TABLE PV_User_Information (
+  Id            BIGINT    NOT NULL,
+  User_Id       BIGINT    NOT NULL REFERENCES PV_User (Id),
+  Type_Id       BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
+  Value         TEXT      NOT NULL,
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Medical_Code (
-  Id BIGINT NOT NULL,
-  Code VARCHAR(20),
-  Type_Id BIGINT NOT NULL REFERENCES Lookup_Value (Id),
-  Order INTEGER NOT NULL,
+CREATE TABLE PV_Medical_Code (
+  Id               BIGINT    NOT NULL,
+  Code             VARCHAR(20),
+  Type_Id          BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
+  Display_Order    INTEGER   NOT NULL,
   Fhir_Resource_Id BIGINT,
-  Description VARCHAR(100),
+  Description      VARCHAR(100),
   External_Mapping VARCHAR(100),
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Link (
-  Id BIGINT NOT NULL,
-  Type_Id BIGINT NOT NULL  REFERENCES Lookup_Value (Id),
-  Code_Id BIGINT REFERENCES Code (Id),
-  Group_Id BIGINT  REFERENCES Group (Id),
-  Link VARCHAR(2048),
-  Name VARCHAR(200),
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_Link (
+  Id               BIGINT    NOT NULL,
+  Type_Id          BIGINT    NOT NULL  REFERENCES PV_Lookup_Value (Id),
+  Code_Id          BIGINT REFERENCES PV_Code (Id),
+  Group_Id         BIGINT REFERENCES PV_Group (Id),
+  Link             VARCHAR(2048),
+  Name             VARCHAR(200),
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Join_Request (
-  Id BIGINT NOT NULL,
-  Forename VARCHAR(200) NOT NULL,
-  Surname VARCHAR(200) NOT NULL,
-  DOB DATE NOT NULL,
-  Nhs_Number VARCHAR(10),
-  Join_Group_Id BIGINT NOT NULL  REFERENCES Group (Id),
+CREATE TABLE PV_Join_Request (
+  Id            BIGINT       NOT NULL,
+  Forename      VARCHAR(200) NOT NULL,
+  Surname       VARCHAR(200) NOT NULL,
+  DOB           DATE         NOT NULL,
+  Nhs_Number    VARCHAR(10),
+  Join_Group_Id BIGINT       NOT NULL  REFERENCES PV_Group (Id),
+  Creation_Date TIMESTAMP    NOT NULL,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Log (
+  Id            BIGINT    NOT NULL,
+  User_Id       BIGINT REFERENCES PV_User (Id),
+  Source        VARCHAR(50),
+  Message       VARCHAR(500),
+  Creation_Date TIMESTAMP NOT NULL,
+  Created_By    BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Audit (
+  Id            BIGINT    NOT NULL,
+  Action        VARCHAR(200),
+  Source        VARCHAR(50),
+  Object_id     BIGINT,
+  Pre_Value     VARCHAR(500),
+  Post_Value    VARCHAR(500),
+  Action_Date   TIMESTAMP NOT NULL,
+  Actor_Id      BIGINT    NOT NULL REFERENCES PV_User (Id),
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Log (
-  Id BIGINT NOT NULL,
-  User_Id BIGINT  REFERENCES User (Id),
-  Source VARCHAR(50),
-  Message VARCHAR(500),
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
-  PRIMARY KEY (Id)
-)
-;
-
-CREATE TABLE Audit (
-  Id BIGINT NOT NULL,
-  Action VARCHAR(200),
-  Source VARCHAR(50),
-  Object_id BIGINT,
-  Pre_Value VARCHAR(500),
-  Post_Value VARCHAR(500),
-  Action_Date TIMESTAMP NOT NULL,
-  Actor_Id BIGINT NOT NULL REFERENCES User (Id),
-  Creation_Date TIMESTAMP NOT NULL,
-  PRIMARY KEY (Id)
-)
-;
-
-CREATE TABLE Observation_Heading (
-  Id BIGINT NOT NULL,
-  Type_Id BIGINT NOT NULL  REFERENCES Lookup_Value (Id),
-  Colour VARCHAR(7),
-  Link VARCHAR(2048),
-  Name VARCHAR(200),
-  Description VARCHAR(200),
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_Observation_Heading (
+  Id               BIGINT    NOT NULL,
+  Type_Id          BIGINT    NOT NULL  REFERENCES PV_Lookup_Value (Id),
+  Colour           VARCHAR(7),
+  Link             VARCHAR(2048),
+  Name             VARCHAR(200),
+  Description      VARCHAR(200),
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Module (
-  Id BIGINT NOT NULL,
-  Name VARCHAR(200),
-  Description VARCHAR(200),
-  Route VARCHAR(2048),
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_Module (
+  Id               BIGINT    NOT NULL,
+  Name             VARCHAR(200),
+  Description      VARCHAR(200),
+  Route            VARCHAR(2048),
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
 
-CREATE TABLE Module_Group (
-  Id BIGINT NOT NULL,
-  Module_Id BIGINT REFERENCES Module (Id),
-  Group_Id BIGINT REFERENCES Group (Id),
-  Start_Date DATE NOT NULL,
-  End_Date DATE,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_Module_Group (
+  Id               BIGINT    NOT NULL,
+  Module_Id        BIGINT REFERENCES PV_Module (Id),
+  Group_Id         BIGINT REFERENCES PV_Group (Id),
+  Start_Date       DATE      NOT NULL,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-CREATE TABLE Module_Role (
-  Id BIGINT NOT NULL,
-  Module_Id BIGINT REFERENCES Module (Id),
-  Role_Id BIGINT NOT NULL REFERENCES Role (Id),
-  Start_Date DATE NOT NULL,
-  End_Date DATE,
-  Creation_Date TIMESTAMP NOT NULL,
-  Created_By BIGINT REFERENCES User (Id),
+CREATE TABLE PV_Module_Role (
+  Id               BIGINT    NOT NULL,
+  Module_Id        BIGINT REFERENCES PV_Module (Id),
+  Role_Id          BIGINT    NOT NULL REFERENCES PV_Role (Id),
+  Start_Date       DATE      NOT NULL,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
-  Last_Updated_By BIGINT REFERENCES User (Id),
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
-;
+);
 
-
-
-
-
-
+CREATE SEQUENCE hibernate_sequence
+INCREMENT 1
+MINVALUE 1
+MAXVALUE 9223372036854775807
+START 1
+CACHE 1;
+ALTER TABLE hibernate_sequence
+OWNER TO patientview;
