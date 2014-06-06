@@ -1,0 +1,46 @@
+package org.patientview;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.Column;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
+
+/**
+ * Created by james@solidstategroup.com
+ * Created on 03/06/2014
+ */
+
+public class RangeModel extends AuditModel {
+
+    @JsonIgnore
+    @Column(name = "Start_Date")
+    @Temporal(TemporalType.DATE)
+    private Date startDate = new Date();
+
+    @JsonIgnore
+    @Column(name = "End_Date")
+    @Temporal(TemporalType.DATE)
+    private Date endDate;
+
+    protected RangeModel() {
+
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(final Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(final Date endDate) {
+        this.endDate = endDate;
+    }
+}
