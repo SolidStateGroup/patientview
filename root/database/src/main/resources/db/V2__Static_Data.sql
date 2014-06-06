@@ -1,5 +1,5 @@
 INSERT INTO pv_user (id, username, password, change_password, locked, email, name, start_date, creation_date, created_by) VALUES
-  (1, 'system1','pppppp', false, false, 'system@patientview.org', 'system', now(), now(), 1);
+  (1, 'system','pppppp', false, false, 'system@patientview.org', 'system', now(), now(), 1);
 
 INSERT INTO pv_user (id, username, password, change_password, locked, email, name, start_date, creation_date, created_by) VALUES
   (2, 'migration','pppppp', false, false, 'migration@patientview.org', 'migration', now(), now(), 1);
