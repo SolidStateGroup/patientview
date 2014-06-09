@@ -1,0 +1,4 @@
+PSQL_ARGS="-p 5432"
+BUILD_DB_NAME="fhirbase_test"
+TEST_DB_NAME="fhirbase_test"
+FHIRBASE_HOME="$TRAVIS_BUILD_DIR/dev"

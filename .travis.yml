@@ -1,0 +1,15 @@
+# .travis.yml
+before_script:
+  # - echo y | sudo perl -MCPAN -e 'install TAP::Parser::SourceHandler::pgTAP' || echo 'CPAN CPANich :( - hope will work'
+  - sudo apt-get update
+  - sudo pg_ctlcluster 9.1 main stop
+  - sudo apt-get install postgresql-server-dev-9.3 postgresql-contrib-9.3 libtap-parser-sourcehandler-pgtap-perl
+  - git clone https://github.com/theory/pgtap.git /tmp/pgtap
+  - env PG_CONFIG=/etc/postgresql/9.3/main/postgresql.conf && export PERL5LIB=/home/travis/perl5/lib/perl5 && cd /tmp/pgtap && make && sudo make install
+  - sudo bash -c "echo 'max_locks_per_transaction = 200' >> /etc/postgresql/9.3/main/postgresql.conf"
+  - sudo pg_ctlcluster 9.3 main restart
+  - sudo su postgres -c 'createuser -s root'
+  - sudo pg_lsclusters
+  # - echo y | sudo perl -MCPAN -e 'install TAP::Parser::SourceHandler::pgTAP' || echo 'CPAN CPANich :( - hope will work'
+
+script: export PERL5LIB=/home/travis/perl5/lib/perl5 && cd $TRAVIS_BUILD_DIR/dev && ./runme -c cfg/config.sh.travis test #&& ./runme -c cfg/config.sh.travis build
