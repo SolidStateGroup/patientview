@@ -31,4 +31,5 @@ Add fhirbase as a remote then
 
 <code>git pull -s subtree fhirbase master</code><br>
 
+https://help.github.com/articles/working-with-subtree-merge
 
