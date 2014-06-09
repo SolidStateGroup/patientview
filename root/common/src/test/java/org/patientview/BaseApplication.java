@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Date;
 
 /**
- * Created by james@solidstategroup.com on 15/05/2014.
+ * Created by james@solidstate on 15/05/2014.
  */
 @Configuration
 public class BaseApplication {

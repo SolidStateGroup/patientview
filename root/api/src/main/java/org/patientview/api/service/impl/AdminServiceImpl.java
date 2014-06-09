@@ -10,6 +10,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -49,6 +50,9 @@ public class AdminServiceImpl implements AdminService {
     @Inject
     private RoleRepository roleRepository;
 
+    @Inject
+    private GroupRoleRepository groupRoleRepository;
+
     public User getUser(Long userId) {
         return userRepository.findOne(userId);
 
@@ -76,19 +80,20 @@ public class AdminServiceImpl implements AdminService {
      */
     public User createUser(User user) {
 
-        List<GroupRole> groupRoles = user.getGroupRoles();
+
         User newUser = userRepository.save(user);
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
 
-        if (!CollectionUtils.isEmpty(groupRoles)) {
+        if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
 
-            for (GroupRole groupRole : groupRoles) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
 
                 groupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
                 groupRole.setRole(roleRepository.findOne(groupRole.getRole().getId()));
                 groupRole.setUser(userRepository.findOne(userId));
                 groupRole.setCreator(userRepository.findOne(1L));
+                groupRoleRepository.save(groupRole);
             }
 
         }

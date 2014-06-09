@@ -1,6 +1,6 @@
 var utilities = require('../utilities/utilities.js');
 var pg = require('pg');
-var conString = "postgres://:@localhost/mydb";
+var conString = "postgres://eatek:eatek@localhost/mydb";
 
 function execute_query(sql, param, callback) {
 

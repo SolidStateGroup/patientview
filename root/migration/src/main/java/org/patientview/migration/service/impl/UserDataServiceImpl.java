@@ -2,12 +2,15 @@ package org.patientview.migration.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpPost;
+import org.patientview.Group;
 import org.patientview.GroupRole;
 import org.patientview.User;
 import org.patientview.migration.service.AdminDataService;
 import org.patientview.migration.service.UserDataService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
+import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -34,6 +38,9 @@ public class UserDataServiceImpl implements UserDataService {
 
     @Inject
     private AdminDataService adminDataService;
+
+    @Inject
+    private SpecialtyUserRoleDao specialtyUserRoleDao;
 
     public void migrate() {
 
@@ -70,6 +77,43 @@ public class UserDataServiceImpl implements UserDataService {
 
     }
 
+
+    public void migratePatientUser() {
+        for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
+
+            User newUser = createUser(oldUser);
+
+            for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
+
+                if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
+
+                    if (newUser.getGroupRoles() == null) {
+                        newUser.setGroupRoles(new ArrayList<GroupRole>());
+                    }
+
+                    GroupRole userGroup = new GroupRole();
+                    userGroup.setGroup(adminDataService.getGroupByCode(userMapping.getUnitcode()));
+                    userGroup.setRole(adminDataService.getRoleByName("PATIENT"));
+                    newUser.getGroupRoles().add(userGroup);
+                }
+
+            }
+
+            String url = JsonUtil.pvUrl + "/user";
+            newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
+
+            if (newUser != null) {
+                LOG.info("Create user: {}", newUser.getUsername());
+            } else {
+                LOG.error("Unable to create user: {}", oldUser.getUsername());
+            }
+
+        }
+
+
+
+    }
+
     public User createUser(org.patientview.patientview.model.User user) {
         User newUser = new User();
         newUser.setName(user.getFirstName() + user.getLastName());
@@ -85,6 +129,13 @@ public class UserDataServiceImpl implements UserDataService {
         return newUser;
     }
 
+    public List<Group> getUserSpecialty(org.patientview.patientview.model.User  oldUser) {
+
+        for (List<SpecialtyUserRole> specialtyUserRole : specialtyUserRoleDao.get(oldUser)) {
+
+        }
+
+    }
 
 
 
