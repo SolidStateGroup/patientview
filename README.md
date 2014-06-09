@@ -21,3 +21,14 @@ Then to connect to the patientview :-
   <code>psql patientview</code>
 
 \q to quit
+
+Git Subtree for FHIRBase
+========================
+
+Add fhirbase as a remote then
+
+<code>git read-tree --prefix=root/database/src/main/resources/db/fhirbase -u fhirbase/master</code><br>
+
+<code>git pull -s subtree fhirbase master</code><br>
+
+
