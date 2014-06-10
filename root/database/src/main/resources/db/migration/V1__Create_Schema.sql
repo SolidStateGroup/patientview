@@ -162,13 +162,6 @@ CREATE TABLE PV_News_Group_Role (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Message_Read_Receipt (
-  Id            BIGINT    NOT NULL,
-  Message_Id    BIGINT    NOT NULL  REFERENCES PV_Message (Id),
-  User_Id       BIGINT    NOT NULL REFERENCES PV_User (Id),
-  Creation_Date TIMESTAMP NOT NULL,
-  PRIMARY KEY (Id)
-);
 
 CREATE TABLE PV_Conversation (
   Id               BIGINT       NOT NULL,
@@ -199,6 +192,14 @@ CREATE TABLE PV_Conversation_Participant (
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Message_Read_Receipt (
+  Id            BIGINT    NOT NULL,
+  Message_Id    BIGINT    NOT NULL  REFERENCES PV_Message (Id),
+  User_Id       BIGINT    NOT NULL REFERENCES PV_User (Id),
+  Creation_Date TIMESTAMP NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE TABLE PV_User_Information (
   Id            BIGINT    NOT NULL,
   User_Id       BIGINT    NOT NULL REFERENCES PV_User (Id),
@@ -208,7 +209,7 @@ CREATE TABLE PV_User_Information (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Medical_Code (
+CREATE TABLE PV_Code (
   Id               BIGINT    NOT NULL,
   Code             VARCHAR(20),
   Type_Id          BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
@@ -223,19 +224,6 @@ CREATE TABLE PV_Medical_Code (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Link (
-  Id               BIGINT    NOT NULL,
-  Type_Id          BIGINT    NOT NULL  REFERENCES PV_Lookup_Value (Id),
-  Code_Id          BIGINT REFERENCES PV_Code (Id),
-  Group_Id         BIGINT REFERENCES PV_Group (Id),
-  Link             VARCHAR(2048),
-  Name             VARCHAR(200),
-  Creation_Date    TIMESTAMP NOT NULL,
-  Created_By       BIGINT REFERENCES PV_User (Id),
-  Last_Update_Date TIMESTAMP,
-  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
-  PRIMARY KEY (Id)
-);
 
 CREATE TABLE PV_Join_Request (
   Id            BIGINT       NOT NULL,
@@ -317,6 +305,20 @@ CREATE TABLE PV_Module_Role (
   Role_Id          BIGINT    NOT NULL REFERENCES PV_Role (Id),
   Start_Date       DATE      NOT NULL,
   End_Date         DATE,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Link (
+  Id               BIGINT    NOT NULL,
+  Type_Id          BIGINT    NOT NULL  REFERENCES PV_Lookup_Value (Id),
+  Code_Id          BIGINT REFERENCES PV_Code (Id),
+  Group_Id         BIGINT REFERENCES PV_Group (Id),
+  Link             VARCHAR(2048),
+  Name             VARCHAR(200),
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
