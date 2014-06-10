@@ -5,23 +5,24 @@
 #Date:   09/06/2014
 
 #Script build on the assumption that :-
-# 1) There is a Postgres database installed on Dev
+# 1) There is a Postgres database installed on Dev with
+#    the postgres-contrib package
 # 2) There is a Postgres user on the OS
 
 
-#command [environment] [os_username] [db_username]
+#command [environment] [fhir_password] [pv_password]
 
 #---------------------------------------------------------
 
 environment=$1
-os_username=$2
-db_username=$3
+fhir_password=$2
+pv_password=$3
 
 
 if test $# -ne 3
 then
 	echo "Please supply all paramaters"
-	echo "command [environment] [os_username] [db_username]"
+	echo "command [environment] [fhir_password] [pv_username]"
 	exit 2
 fi
 
@@ -40,32 +41,22 @@ else
 	else
 		echo "Switched to dev.solidstategroup.com"
 	fi
-
-	su - postgres
-
-	if test $? -ne 0
-	then
-		echo "Cannot switch to user Postgres"
-		exit 2
-	else
-		echo "Switched to user Postgres"
-	fi
 fi
 
-echo "DROP DATABASE IF EXISTS $environment;"
-echo "DROP USER IF EXISTS fhir;"
-echo "CREATE USER 'fhir' WITH PASSWORD '$db_username' SUPERUSER;"
-echo "CREATE DATABASE $environment OWNER 'fhir';"
 
 id
 hostname
 
+sudo -u postgres -s psql postgres -c "DROP USER IF EXISTS patientview;"
+sudo -u postgres -s psql postgres -c "DROP SCHEMA IF EXISTS patientview CASCADE;"
 sudo -u postgres -s psql postgres -c "DROP SCHEMA IF EXISTS fhir CASCADE;"
 sudo -u postgres -s psql postgres -c "DROP SCHEMA IF EXISTS meta CASCADE;"
 sudo -u postgres -s psql postgres -c "DROP DATABASE IF EXISTS $environment;"
 sudo -u postgres -s psql postgres -c "DROP USER IF EXISTS fhir;"
-sudo -u postgres -s psql postgres -c "CREATE USER fhir WITH PASSWORD '$db_username' SUPERUSER;"
-sudo -u postgres -s psql postgres -c "CREATE DATABASE $environment OWNER fhir;"
+sudo -u postgres -s psql postgres -c "CREATE USER fhir WITH PASSWORD '$fhir_password' SUPERUSER;"
+sudo -u postgres -s psql postgres -c "CREATE USER patientview WITH PASSWORD '$pv_password' SUPERUSER;"
+sudo -u postgres -s psql postgres -c "CREATE schema patientview AUTHORIZATION patientview;"
+
 
 
 if test $? -ne 0
