@@ -31,7 +31,7 @@ then
 else
 	echo "Switching to dev.solidstategroup.com"
 
-	ssh -T q dev.solidstategroup.com >/dev/null
+	ssh -T -q dev.solidstategroup.com >/dev/null
 
 	if test $? -ne 0
 	then
