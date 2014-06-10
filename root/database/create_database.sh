@@ -47,6 +47,8 @@ fi
 id
 hostname
 
+sudo -u postgres -s psql postgres -c "DROP USER IF EXISTS patientview;"
+sudo -u postgres -s psql postgres -c "DROP SCHEMA IF EXISTS patientview CASCADE;"
 sudo -u postgres -s psql postgres -c "DROP SCHEMA IF EXISTS fhir CASCADE;"
 sudo -u postgres -s psql postgres -c "DROP SCHEMA IF EXISTS meta CASCADE;"
 sudo -u postgres -s psql postgres -c "DROP DATABASE IF EXISTS $environment;"
