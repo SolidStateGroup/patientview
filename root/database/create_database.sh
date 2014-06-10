@@ -60,12 +60,12 @@ echo "CREATE DATABASE $environment OWNER 'fhir';"
 id
 hostname
 
-psql 'postgres' << EOF
+sudo -u postgres "psql 'postgres' << EOF
 	DROP DATABASE IF EXISTS $environment;
 	DROP USER IF EXISTS fhir;
 	CREATE USER fhir WITH PASSWORD '$db_username' SUPERUSER;
 	CREATE DATABASE $environment OWNER 'fhir';
-EOF
+EOF"
 
 if test $? -ne 0
 then
