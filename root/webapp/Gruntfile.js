@@ -363,25 +363,112 @@ module.exports = function (grunt) {
             configFile: 'karma.conf.js',
             singleRun: true
         }
-    }
+    },
+
+    // grunt-ng-constant
+    // XXXprod and XXXdev are writing file to the same place, but may change
+    //http://mindthecode.com/how-to-use-environment-variables-in-your-angular-application/
+      ngconstant: {
+          // Options for all targets
+          options: {
+              space: '  ',
+              wrap: '"use strict";\n\n {%= __ngModule %}',
+              name: 'config'
+          },
+          // Environment targets
+          apiarydev: {
+              options: {
+                  dest: '<%= yeoman.app %>/scripts/config.js'
+              },
+              constants: {
+                  ENV: {
+                      name: 'development',
+                      apiEndpoint: 'http://patientview201.apiary-mock.com/'
+                  }
+              }
+          },
+          apidev: {
+              options: {
+                  dest: '<%= yeoman.app %>/scripts/config.js'
+              },
+              constants: {
+                  ENV: {
+                      name: 'production',
+                      apiEndpoint: '/api'
+                  }
+              }
+          },
+          apiaryprod: {
+              options: {
+                  dest: '<%= yeoman.app %>/scripts/config.js'
+              },
+              constants: {
+                  ENV: {
+                      name: 'development',
+                      apiEndpoint: 'http://patientview201.apiary-mock.com/'
+                  }
+              }
+          },
+          apiprod: {
+              options: {
+                  dest: '<%= yeoman.app %>/scripts/config.js'
+              },
+              constants: {
+                  ENV: {
+                      name: 'production',
+                      apiEndpoint: '/api'
+                  }
+              }
+          }
+      }
   });
 
+    // grunt serve - uses apiary, no proxy
+    // grunt serveproxy - uses /api, with proxy to apiary (needed to test ie8)
+    // grunt serveapi - uses /api, no proxy
+    // grunt build - uses /api, no proxy
+    // grunt buildapiary - uses apiary, no proxy
 
-  grunt.registerTask('serve', function (target) {
-    if (target === 'dist') {
-      return grunt.task.run(['build', 'connect:dist:keepalive']);
-    }
+    grunt.registerTask('serve', function (target) {
+        if (target === 'dist') {
+            return grunt.task.run(['build', 'connect:dist:keepalive']);
+        }
 
-    grunt.task.run([
-      'clean:server',
-        'configureProxies',
-      'bowerInstall',
-      'concurrent:server',
-      'autoprefixer',
-      'connect:livereload',
-      'watch'
-    ]);
-  });
+        grunt.task.run([
+            'clean:server',
+            'ngconstant:apiarydev',
+            'bowerInstall',
+            'concurrent:server',
+            'autoprefixer',
+            'connect:livereload',
+            'watch'
+        ]);
+    });
+
+    grunt.registerTask('serveproxy', function (target) {
+        grunt.task.run([
+            'clean:server',
+            'ngconstant:apidev',
+            'configureProxies',
+            'bowerInstall',
+            'concurrent:server',
+            'autoprefixer',
+            'connect:livereload',
+            'watch'
+        ]);
+    });
+
+    grunt.registerTask('serveapi', function (target) {
+        grunt.task.run([
+            'clean:server',
+            'ngconstant:apidev',
+            'bowerInstall',
+            'concurrent:server',
+            'autoprefixer',
+            'connect:livereload',
+            'watch'
+        ]);
+    });
 
   grunt.registerTask('server', function (target) {
     grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
@@ -396,22 +483,41 @@ module.exports = function (grunt) {
     'karma'
   ]);
 
-  grunt.registerTask('build', [
-    'clean:dist',
-    'bowerInstall',
-    'useminPrepare',
-    'concurrent:dist',
-    'autoprefixer',
-    'concat',
-    'ngmin',
-    'copy:dist',
-    'cdnify',
-    'cssmin',
-    'uglify',
-    'rev',
-    'usemin',
-    'htmlmin'
-  ]);
+    grunt.registerTask('build', [
+        'clean:dist',
+        'ngconstant:apiprod',
+        'bowerInstall',
+        'useminPrepare',
+        'concurrent:dist',
+        'autoprefixer',
+        'concat',
+        'ngmin',
+        'copy:dist',
+        'cdnify',
+        'cssmin',
+        'uglify',
+        'rev',
+        'usemin',
+        'htmlmin'
+    ]);
+
+    grunt.registerTask('buildapiary', [
+        'clean:dist',
+        'ngconstant:apiaryprod',
+        'bowerInstall',
+        'useminPrepare',
+        'concurrent:dist',
+        'autoprefixer',
+        'concat',
+        'ngmin',
+        'copy:dist',
+        'cdnify',
+        'cssmin',
+        'uglify',
+        'rev',
+        'usemin',
+        'htmlmin'
+    ]);
 
   grunt.registerTask('default', [
     'newer:jshint',

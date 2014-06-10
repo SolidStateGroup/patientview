@@ -32,6 +32,7 @@ function pathRegExp(path, opts) {
 
 // module definition
 var patientviewApp = angular.module('patientviewApp', [
+    'config',
     'restangular',
     'ui.bootstrap',
     'ngCookies',
@@ -56,17 +57,16 @@ google.load('visualization', '1', {
     packages: ['corechart','table']
 });
 
-patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
-    function ($routeProvider, $httpProvider, RestangularProvider) {
+patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider','ENV',
+    function ($routeProvider, $httpProvider, RestangularProvider, ENV) {
         $httpProvider.interceptors.push('HttpRequestInterceptor');
         $httpProvider.interceptors.push('HttpResponseInterceptor');
-        RestangularProvider.setBaseUrl('http://patientview201.apiary-mock.com/');
-        //RestangularProvider.setBaseUrl('/api');
+        RestangularProvider.setBaseUrl(ENV.apiEndpoint);
         $routeProviderReference = $routeProvider;
     }]);
 
-patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Restangular', '$route', 'MenuService',
-    function($rootScope, $location, $cookieStore, $cookies, Restangular, $route, MenuService) {
+patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Restangular', '$route', 'MenuService','ENV',
+    function($rootScope, $location, $cookieStore, $cookies, Restangular, $route, MenuService, ENV) {
 
     $rootScope.ieTestMode = false;
 
