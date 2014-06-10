@@ -1,16 +1,9 @@
 package org.patientview;
 
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Date;
@@ -32,7 +25,7 @@ public class BaseApplication {
         SpringApplication.run(BaseApplication.class, args);
     }
 
-    @Override
+
     public void run(String... args) throws Exception {
         while (true) {
             Thread.sleep(1);
