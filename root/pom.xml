@@ -17,9 +17,7 @@
     <module>database</module>
     <module>common</module>
     <module>data</module>
-    <module>webapp</module>
     <module>importer</module>
-    <module>migration</module>
     <module>api</module>
   </modules>
 
