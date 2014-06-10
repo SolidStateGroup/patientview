@@ -1,0 +1,91 @@
+
+<div class="container" ng-show="!loading" ng-cloak>
+    <br/>
+    <div class="row">
+        <div class="col-md-2">PageSize:
+            <select data-ng-model="entryLimit" class="form-control">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>5</option>
+            </select>
+        </div>
+        <div class="col-md-3">Filter:
+            <input type="text" ng-model="search" ng-change="filter()" placeholder="Filter" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <h5>Showing {{ filtered.length }} of {{ totalItems}} total codes</h5>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-md-12" data-ng-show="filteredItems > 0">
+            <!-- <table class="table table-striped table-bordered">
+                <thead>
+                <th>Id&nbsp;<a ng-click="sortBy('id');"><i class="glyphicon glyphicon-sort"></i></a></th>
+                <th>Type&nbsp;<a ng-click="sortBy('type');"><i class="glyphicon glyphicon-sort"></i></a></th>
+                <th>Standard&nbsp;<a ng-click="sortBy('standard');"><i class="glyphicon glyphicon-sort"></i></a></th>
+                <th>Number&nbsp;<a ng-click="sortBy('number');"><i class="glyphicon glyphicon-sort"></i></a></th>
+                <th>Description&nbsp;<a ng-click="sortBy('description');"><i class="glyphicon glyphicon-sort"></i></a></th>
+                <th></th>
+                </thead>
+                <tbody>
+                <tr ng-repeat="data in filtered = (list | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                    <td>{{data.id}}</td>
+                    <td>{{data.type}}</td>
+                    <td>{{data.standard}}</td>
+                    <td>{{data.number}}</td>
+                    <td>{{data.description}}</td>
+                    <td><button ng-click="editing=!editing">Edit</button>
+                        <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-up': editing, 'glyphicon-pencil': !editing}" ng-click="custom=!custom"></i></td>
+                </tr>
+                </tbody>
+            </table>-->
+
+            <span class="hidden" ng-repeat="data in filtered = (list | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
+
+            <div accordion close-others="true" ng-show="filteredItems > 0" ng-cloak>
+                <div accordion-group is-open="status.open" ng-repeat="code in filtered = (list | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                    <div accordion-heading>
+                        <div class="row">
+                            <div class="col-sm-1 hidden">{{code.id}}</div>
+                            <div class="col-sm-2">{{code.type}}</div>
+                            <div class="col-sm-2">{{code.standard}}</div>
+                            <div class="col-sm-2">{{code.number}}</div>
+                            <div class="col-sm-4">{{code.description}}</div>
+                            <div class="col-sm-1"><i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></i></div>
+                        </div>
+                    </div accordion-heading>
+                    <form name="editCodeForm" novalidate>
+                        <div class="row">
+                            <div class="col-sm-2">Type<br/><input type="text" name="input-type" ng-model="code.type" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Standard<br/><input type="text" name="input-standard" ng-model="code.standard" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Number<br/><input type="text" name="input-number" ng-model="code.number" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-5">Description<br/><input type="text" name="input-description" ng-model="code.description" required ng-trim="false" class="form-control"></div>
+                        </div>
+                        <h3>Links</h3>
+                        <div class="row">
+                            <div class="col-sm-4">URL</div>
+                            <div class="col-sm-4">Description</div></div>
+                        <div class="row" ng-repeat="link in code.links">
+                            <div class="col-sm-4"><input type="text" name="input-type" ng-model="link.url" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-4"><input type="text" name="input-standard" ng-model="link.description" required ng-trim="false" class="form-control"></div>
+                        </div>
+                    </form>
+                    <br/><button type="button" class="btn btn-primary" ng-click="save(code)" ng-disabled="editCodeForm.$pristine">Save</button>
+                </div accordion-group>
+            </div accordion>
+        </div>
+        <div class="col-md-12" data-ng-show="filteredItems == 0">
+            <div class="col-md-12">
+                <h4>No codes found</h4>
+            </div>
+        </div>
+        <div class="col-md-12" data-ng-show="filteredItems > 0">
+            <div pagination on-select-page="setPage(page)" total-items="filteredItems" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm"></div>
+        </div>
+    </div>
+</div>
+
+<div ng-show="loading" class="container"><br/><br/>
+<div ng-show="loading" class="loading"></div></div>

@@ -1,0 +1,136 @@
+/* Space out content a bit */
+body {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Custom page header */
+.header {
+  border-bottom: 1px solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+  padding-bottom: 19px;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+    margin-top: 60px;
+}
+
+/* Customize container */
+@media (min-width: 768px) {
+  .container {
+    max-width: 90%;
+  }
+}
+.container-narrow > hr {
+  margin: 30px 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+}
+.jumbotron .btn {
+  font-size: 21px;
+  padding: 14px 24px;
+}
+
+/* Supporting marketing content */
+.marketing {
+  margin: 40px 0;
+}
+.marketing p + h4 {
+  margin-top: 28px;
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 30px;
+  }
+  /* Remove the bottom border on the jumbotron for visual effect */
+  .jumbotron {
+    border-bottom: 0;
+  }
+}
+
+/* patientview */
+
+
+div.graph{
+    margin-bottom:0px;
+}
+
+div.graph-link {
+    height: 100px;
+}
+a.graph-link {
+
+}
+span.graph-title {
+    display: block;
+    left: 80px;
+    position: relative;
+    top: 0px;
+    z-index: 10;
+    color: grey;
+    font-size: 1.4em;
+    height: 0;
+}
+div.graph-row {
+    margin: 0 0 10px 0;
+}
+.vertical-align {
+}
+.vertical-align span a{
+    margin-top: 20px;
+}
+
+div.loading{
+    background: url('../images/loading.gif') no-repeat center;
+    height: 30px;
+    width: 100%;
+}
+
+.subnav {
+    margin-top: 30px;
+}
+.subnav-row {
+    background: #fbfbfb;
+}
+
+/* http://angular-ui.github.io/bootstrap/ */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+.form-control {
+    padding: 6px 6px;
+}
+
+.pagination > .disabled {
+    display: none;
+}
