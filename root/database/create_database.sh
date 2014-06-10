@@ -60,12 +60,11 @@ echo "CREATE DATABASE $environment OWNER 'fhir';"
 id
 hostname
 
-sudo -u postgres "psql 'postgres' << EOF
-	DROP DATABASE IF EXISTS $environment;
-	DROP USER IF EXISTS fhir;
-	CREATE USER fhir WITH PASSWORD '$db_username' SUPERUSER;
-	CREATE DATABASE $environment OWNER 'fhir';
-EOF"
+ sudo -u postgres -s psql postgres -c "DROP DATABASE IF EXISTS $environment;"
+ sudo -u postgres -s psql postgres -c "DROP USER IF EXISTS fhir;"
+ sudo -u postgres -s psql postgres -c "CREATE USER fhir WITH PASSWORD '$db_username' SUPERUSER;"
+ sudo -u postgres -s psql postgres -c "CREATE DATABASE $environment OWNER 'fhir';"
+
 
 if test $? -ne 0
 then
@@ -76,6 +75,8 @@ else
 fi
 
 curl "https://raw.githubusercontent.com/fhirbase/fhirbase/master/fhirbase.sql" -o "fhirbase.sql"
+mv fhirbase.sql /home/postgres/
+chown -f postgres:postgres  /home/postgres/fhirbase.sql
 
 if test $? -ne 0
 then
@@ -84,10 +85,9 @@ then
 fi
 
 
-psql $environment $db_username << EOF
-	\i fhirbase.sql
-	\dt fhir.*;
-EOF
+sudo -u postgres -s psql postgres -c "\i /home/postgres/fhirbase.sql"
+sudo -u postgres -s psql postgres -c "\dt fhir.*";
+
 
 echo "List of created objects"
 
