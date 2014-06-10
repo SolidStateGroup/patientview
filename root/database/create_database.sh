@@ -50,7 +50,7 @@ then
 	exit 2
 fi
 
-psql $os_username << EOF
+psql 'postgres' << EOF
 	DROP DATABASE IF EXISTS $environment;
 	DROP USER IF EXISTS fhir;
 	CREATE USER $db_username WITH PASSWORD '$db_username' SUPERUSER;
