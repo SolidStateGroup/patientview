@@ -10,6 +10,7 @@ var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
 module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-connect-proxy');
+    grunt.loadNpmTasks('grunt-war');
 
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
@@ -19,6 +20,33 @@ module.exports = function (grunt) {
 
   // Define the configuration for all the tasks
   grunt.initConfig({
+
+      war: {
+          target: {
+              options: {
+                  // to
+                  war_dist_folder: '<%= yeoman.dist %>',
+                  war_verbose: true,
+                  war_name: 'webapp',
+                  webxml_welcome: 'index.html',
+                  webxml_display_name: 'PatientView webapp',
+                  webxml_mime_mapping: [
+                      {
+                          extension: 'woff',
+                          mime_type: 'application/font-woff'
+                      } ]
+              },
+              files: [
+                  {
+                      expand: true,
+                      // from
+                      cwd: '<%= yeoman.dist %>',
+                      src: ['**'],
+                      dest: ''
+                  }
+              ]
+          }
+      },
 
       secure: grunt.file.readJSON('secure.json'),
 
@@ -444,6 +472,7 @@ module.exports = function (grunt) {
             'autoprefixer',
             'connect:livereload',
             'watch'
+            //'war'
         ]);
     });
 
@@ -486,6 +515,7 @@ module.exports = function (grunt) {
   ]);
 
     grunt.registerTask('build', [
+        'test',
         'clean:dist',
         'ngconstant:apiprod',
         'bowerInstall',
@@ -504,6 +534,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('buildapiary', [
+        'test',
         'clean:dist',
         'ngconstant:apiaryprod',
         'bowerInstall',
@@ -518,7 +549,8 @@ module.exports = function (grunt) {
         'uglify',
         'rev',
         'usemin',
-        'htmlmin'
+        'htmlmin',
+        'war'
     ]);
 
   grunt.registerTask('default', [
