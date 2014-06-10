@@ -3,7 +3,6 @@ package org.patientview;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Date;
@@ -21,9 +20,9 @@ public class BaseApplication {
 
 
 
-    public static void main(String[] args) throws InterruptedException {
-        SpringApplication.run(BaseApplication.class, args);
-    }
+    //public static void main(String[] args) throws InterruptedException {
+       // SpringApplication.run(BaseApplication.class, args);
+   /// }
 
 
     public void run(String... args) throws Exception {
