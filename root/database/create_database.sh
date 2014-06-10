@@ -60,7 +60,7 @@ echo "CREATE DATABASE $environment OWNER 'fhir';"
 id
 hostname
 
-sudo -u postgres -s psql postgres -c "DROP DATABASE IF EXISTS $environment;"
+sudo -u postgres -s psql postgres -c "DROP DATABASE IF EXISTS $environment CASCADE;"
 sudo -u postgres -s psql postgres -c "DROP USER IF EXISTS fhir;"
 sudo -u postgres -s psql postgres -c "CREATE USER fhir WITH PASSWORD '$db_username' SUPERUSER;"
 sudo -u postgres -s psql postgres -c "CREATE DATABASE $environment OWNER fhir;"
