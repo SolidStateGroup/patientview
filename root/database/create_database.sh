@@ -1,15 +1,20 @@
 #!/bin/sh
 
-#
+#-------------------------------------------------------
 #Author: james@solidstategroup.com
-#Date: 09/06/2014
+#Date:   09/06/2014
+
+#Script build on the assumption that :-
+# 1) There is a Postgres database installed on Dev
+# 2) There is a Postgres user on the OS
+
 
 #command [environment] [os_username] [db_username]
 
-#
+#---------------------------------------------------------
 
 environment=$1
-username=$2
+os_username=$2
 db_username=$3
 
 if test "$environment" == "local" 
@@ -45,7 +50,7 @@ then
 	exit 2
 fi
 
-psql $username << EOF
+psql $os_username << EOF
 	DROP DATABASE IF EXISTS $environment;
 	DROP USER IF EXISTS fhir;
 	CREATE USER $db_username WITH PASSWORD '$db_username' SUPERUSER;
