@@ -20,6 +20,8 @@ module.exports = function (grunt) {
   // Define the configuration for all the tasks
   grunt.initConfig({
 
+      secure: grunt.file.readJSON('secure.json'),
+
     // Project settings
     yeoman: {
       // configurable paths
