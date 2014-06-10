@@ -53,8 +53,8 @@ fi
 psql 'postgres' << EOF
 	DROP DATABASE IF EXISTS $environment;
 	DROP USER IF EXISTS fhir;
-	CREATE USER $db_username WITH PASSWORD '$db_username' SUPERUSER;
-	CREATE DATABASE $environment OWNER $db_username;
+	CREATE USER 'fhir' WITH PASSWORD '$db_username' SUPERUSER;
+	CREATE DATABASE $environment OWNER 'fhir';
 EOF
 
 if test $? -ne 0
