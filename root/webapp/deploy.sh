@@ -10,7 +10,7 @@
 
 grunt buildapiary
 if [ $? -eq 0 ]; then
-    curl -T "dist/webapp.war" "http://username:password@localhost:8080/manager/text/deploy?path=/webapp&update=true"
+    curl -T "dist/webapp.war" "http://tomcat:tomcat@diabetes-pv.dev.solidstategroup.com/manager/text/deploy?path=/webapp&update=true"
     if [ $? -eq 0 ]; then
         echo 'done'
     else
