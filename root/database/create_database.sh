@@ -17,11 +17,20 @@ environment=$1
 os_username=$2
 db_username=$3
 
+
+if test $# -ne 3
+then
+	echo "Please supply all paramaters"
+	echo "command [environment] [os_username] [db_username]"
+	exit 2
+fi
+
 if test "$environment" == "local" 
 then 
 	echo "Running in local"
 else
 	echo "Switching to dev.solidstategroup.com" 
+
 	ssh dev.solidstategroup.com
 
 	if test $? -ne 0
@@ -43,12 +52,10 @@ else
 	fi
 fi
 
-if test $# -ne 3
-then
-	echo "Please supply all paramaters"
-	echo "command [environment] [os_username] [db_username]"
-	exit 2
-fi
+echo "DROP DATABASE IF EXISTS $environment;"
+echo "DROP USER IF EXISTS fhir;"
+echo "CREATE USER 'fhir' WITH PASSWORD '$db_username' SUPERUSER;"
+echo "CREATE DATABASE $environment OWNER 'fhir';"
 
 psql 'postgres' << EOF
 	DROP DATABASE IF EXISTS $environment;
