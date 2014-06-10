@@ -57,6 +57,9 @@ echo "DROP USER IF EXISTS fhir;"
 echo "CREATE USER 'fhir' WITH PASSWORD '$db_username' SUPERUSER;"
 echo "CREATE DATABASE $environment OWNER 'fhir';"
 
+id
+hostname
+
 psql 'postgres' << EOF
 	DROP DATABASE IF EXISTS $environment;
 	DROP USER IF EXISTS fhir;
