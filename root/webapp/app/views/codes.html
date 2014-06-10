@@ -1,0 +1,77 @@
+<script type="text/javascript">
+    document.createElement('accordion');
+    document.createElement('accordion-group');
+    document.createElement('accordion-heading');
+</script>
+
+<h1>Codes <small>for '{{group.name}}'</small></h1>
+<br/>
+<input type="text" data-ng-model="filterText"/>
+<pagination total-items="codeCount" items-per-page="pageSize" ng-model="currentPage" class="pagination-sm"></pagination>
+
+<div accordion close-others="true" ng-show="!resultsLoading" ng-cloak>
+<div accordion-group is-open="status.open" ng-repeat="code in codes | filter : paginate | filter:{description:filterText}">
+    <div accordion-heading>
+        <div class="row">
+            <div class="col-sm-1 hidden">{{code.id}}</div>
+            <div class="col-sm-2">{{code.type}}</div>
+            <div class="col-sm-2">{{code.standard}}</div>
+            <div class="col-sm-2">{{code.number}}</div>
+            <div class="col-sm-4">{{code.description}}</div>
+            <div class="col-sm-1"><i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></i></div>
+        </div>
+    </div accordion-heading>
+
+    <form name="editCodeForm" novalidate>
+    <div class="row">
+        <div class="col-sm-2">Type<br/><input type="text" name="input-type" ng-model="code.type" required ng-trim="false" class="form-control"></div>
+        <div class="col-sm-2">Standard<br/><input type="text" name="input-standard" ng-model="code.standard" required ng-trim="false" class="form-control"></div>
+        <div class="col-sm-2">Number<br/><input type="text" name="input-number" ng-model="code.number" required ng-trim="false" class="form-control"></div>
+        <div class="col-sm-5">Description<br/><input type="text" name="input-description" ng-model="code.description" required ng-trim="false" class="form-control"></div>
+    </div>
+        <h3>Links</h3>
+        <div class="row">
+        <div class="col-sm-4">URL</div>
+        <div class="col-sm-4">Description</div></div>
+        <div class="row" ng-repeat="link in code.links">
+            <div class="col-sm-4"><input type="text" name="input-type" ng-model="link.url" required ng-trim="false" class="form-control"></div>
+            <div class="col-sm-4"><input type="text" name="input-standard" ng-model="link.description" required ng-trim="false" class="form-control"></div>
+        </div>
+    </form>
+
+    <br/>
+
+    <button type="button" class="btn btn-primary" ng-click="save(code)" ng-disabled="editCodeForm.$pristine">Save</button>
+
+</div accordion-group>
+</div accordion>
+
+        <br/><br/>
+<div class="panel panel-default">
+    <div class="panel-heading">
+    <h3 class="panel-title">Add Code</h3></div>
+
+    <div  class="panel-body">
+        <form name="addCodeForm" ng-submit="add(addCodeForm.$valid, addCodeForm, newCode)" novalidate>
+            <div class="row" ng-model="newCode">
+                <div class="col-sm-2">
+                    Type<br/>
+                    <input type="text" name="input-type" ng-model="newCode.type" required ng-trim="false" class="form-control">
+                    <p ng-show="!newCode.type && !addCodeForm.$pristine" class="help-block">Required.</p>
+                </div>
+                <div class="col-sm-2">Standard<br/>
+                    <input type="text" name="input-standard" ng-model="newCode.standard" required ng-trim="false" class="form-control">
+                    <p ng-show="!newCode.standard && !addCodeForm.$pristine" class="help-block">Required</p>
+                </div>
+                <div class="col-sm-2">Number<br/>
+                    <input type="text" name="input-number" ng-model="newCode.number" required ng-trim="false" class="form-control">
+                    <p ng-show="!newCode.number && !addCodeForm.$pristine" class="help-block">Required</p></div>
+                <div class="col-sm-4">Description<br/>
+                    <input type="text" name="input-description" ng-model="newCode.description" required ng-trim="false" class="form-control">
+                    <p ng-show="!newCode.description && !addCodeForm.$pristine" class="help-block">Required</p></div>
+                <div class="col-sm-1"><br/><button type="submit" class="btn btn-primary" ng-disabled="addCodeForm.$invalid">Add Code</button></div>
+            </div>
+        </form>
+    </div>
+</div>
+
