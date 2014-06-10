@@ -25,13 +25,13 @@ then
 	exit 2
 fi
 
-if test "$environment" == "local" 
-then 
+if test "$environment" == "local"
+then
 	echo "Running in local"
 else
-	echo "Switching to dev.solidstategroup.com" 
+	echo "Switching to dev.solidstategroup.com"
 
-	ssh -tt dev.solidstategroup.com > /dev/null
+	ssh -T q dev.solidstategroup.com >/dev/null
 
 	if test $? -ne 0
 	then
@@ -88,11 +88,11 @@ EOF
 
 echo "List of created objects"
 
-if test "$environment" == "local" 
-then 
+if test "$environment" == "local"
+then
 	echo "Running in local"
 else
-	echo "Exiting to build server" 
+	echo "Exiting to build server"
 	exit;
 	exit;
 fi
