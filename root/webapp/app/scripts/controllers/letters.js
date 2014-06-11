@@ -17,7 +17,7 @@ angular.module('patientviewApp').controller('LettersCtrl',['$scope','$timeout', 
         });
     };
 
-    $scope.opened = function (code, index) {
+    $scope.opened = function (code) {
         $scope.editcode = _.clone(code);
     };
 
@@ -28,6 +28,7 @@ angular.module('patientviewApp').controller('LettersCtrl',['$scope','$timeout', 
                 $scope.list.push(addedCode);
                 $scope.newCode = '';
                 $scope.addCodeForm.$setPristine(true);
+                $scope.totalItems = $scope.list.length;
             }, function() {
 
             });

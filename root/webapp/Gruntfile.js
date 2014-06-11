@@ -329,7 +329,8 @@ module.exports = function (grunt) {
             '*.html',
             'views/{,*/}*.html',
             'images/{,*/}*.{webp}',
-            'fonts/*'
+            'fonts/*',
+            'bower_components/bootstrap/dist/fonts/*.*'
           ]
         }, {
           expand: true,
@@ -506,6 +507,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', [
+    'newer:jshint',
     'clean:server',
     'concurrent:test',
     'autoprefixer',
@@ -529,7 +531,8 @@ module.exports = function (grunt) {
         'uglify',
         'rev',
         'usemin',
-        'htmlmin'
+        'htmlmin',
+        'war'
     ]);
 
     grunt.registerTask('buildapiary', [
@@ -554,6 +557,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('buildsmall', [
         'clean:dist',
+        //'ngconstant:apiprod',
         'ngconstant:apiaryprod',
         'bowerInstall',
         'useminPrepare',

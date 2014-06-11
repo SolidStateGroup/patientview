@@ -166,4 +166,6 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
 
     //buildRoute($cookieStore, $route, MenuService);
     $rootScope.initialised = true;
+
+    $rootScope.endPoint = ENV.apiEndpoint;
 }]);

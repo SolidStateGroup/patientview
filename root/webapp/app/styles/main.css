@@ -136,3 +136,7 @@ div.loading{
 .pagination > .disabled {
     display: none;
 }
+
+.glyphicon-sort {
+    cursor: pointer;
+}
