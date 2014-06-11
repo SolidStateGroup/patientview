@@ -61,7 +61,7 @@ public class PersistenceConfig extends CommonConfig {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
         dataSource.setUrl(properties.getProperty("url"));
-        dataSource.setUsername(properties.getProperty("username"));
+        dataSource.setUsername(properties.getProperty("user"));
         dataSource.setPassword(properties.getProperty("password"));
         return dataSource;
     }
