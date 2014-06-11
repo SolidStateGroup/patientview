@@ -12,6 +12,7 @@
     <groupId>org.patientview</groupId>
     <artifactId>data</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>data</name>
     <url>http://maven.apache.org</url>
 
@@ -31,6 +32,12 @@
             <groupId>me.fhir</groupId>
             <artifactId>fhir</artifactId>
             <version>0.12.0-RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.patientview</groupId>
+            <artifactId>common</artifactId>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

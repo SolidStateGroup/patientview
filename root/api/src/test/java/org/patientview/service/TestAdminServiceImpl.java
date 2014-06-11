@@ -48,10 +48,10 @@ public class TestAdminServiceImpl {
         user.setName("Data Migration");
         user.setChangePassword(Boolean.FALSE);
         user.setLocked(Boolean.FALSE);
-        user.setEmail("support@patient.org");
+        user.setEmail("support@patientview.org");
         user.setCreator(user);
         user.setPassword("");
-        userRepository.save(user);
+       // userRepository.save(user);
     }
 
 
