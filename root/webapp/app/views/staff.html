@@ -15,7 +15,8 @@
             <input type="text" ng-model="search" ng-change="filter()" placeholder="Filter" class="form-control" />
         </div>
         <div class="col-md-4">
-            <h5>Showing {{ filtered.length }} of {{ totalItems}} total codes</h5>
+            <h5>Showing {{ filtered.length }} of {{ totalItems}} total staff users</h5>
+            <h5>{{ allGroups.length }} groups available</h5>
         </div>
     </div>
     <br/>
@@ -46,11 +47,16 @@
                             <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="edituser.email" required ng-trim="false" class="form-control"></div>
                         </div>
                         <h3>Groups</h3>
-                        <ul ng-repeat="group in edituser.groups">
-                            {{group.name}}<a id="remove-{{group.id}}" href="" ng-click="removeGroup(edituser, group)" class="close">&nbsp;&times;&nbsp;</a>
+                        <ul>
+                            <li ng-repeat="group in edituser.groups">
+                            {{group.name}}<a id="remove-{{group.id}}" href="" ng-click="removeGroup(editUserForm, edituser, group)" >&nbsp;&times;&nbsp;</a>
+                            </li>
                         </ul>
+
+                        <select ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups" ng-show="edituser.availableGroups.length > 0"></select>
+                        <button type="button" class="btn" ng-click="addGroup(editUserForm, edituser, groupToAdd)" ng-show="edituser.availableGroups.length > 0">Add</button>
                     </form>
-                    <br/><button type="button" class="btn btn-primary" ng-click="save(editCodeForm, editcode, $index)" ng-disabled="editCodeForm.$pristine">Save</button>
+                    <br/><button type="button" class="btn btn-primary" ng-click="save(editUserForm, edituser, $index)" ng-disabled="editUserForm.$pristine">Save</button>
                 </div accordion-group>
             </div accordion>
         </div>
