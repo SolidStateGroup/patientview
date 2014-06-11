@@ -1,5 +1,7 @@
 package org.patientview;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -23,7 +25,6 @@ public class GroupRole extends RangeModel {
     @JoinColumn(name = "group_id")
     private Group group;
 
-
     public Role getRole() {
         return role;
     }
@@ -40,6 +41,12 @@ public class GroupRole extends RangeModel {
         this.group = group;
     }
 
+    @JsonIgnore
+    public User getUser() {
+        return user;
+    }
 
-
+    public void setUser(final User user) {
+        this.user = user;
+    }
 }
