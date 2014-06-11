@@ -1,6 +1,6 @@
 
 <div class="container" ng-show="!loading" ng-cloak>
-    <h1>Codes<small> for {{group.name}}</small></h1>
+    <h1>Staff</h1>
     <br/>
     <div class="row">
         <div class="col-md-2">PageSize:
@@ -25,40 +25,30 @@
 
             <div class="row" ng-show="filteredItems > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
-                <div class="col-sm-2">Type&nbsp;<a ng-click="sortBy('type');"><i class="glyphicon glyphicon-sort"></i></a></div>
-                <div class="col-sm-2">Standard&nbsp;<a ng-click="sortBy('standard');"><i class="glyphicon glyphicon-sort"></i></a></div>
-                <div class="col-sm-2">Number&nbsp;<a ng-click="sortBy('number');"><i class="glyphicon glyphicon-sort"></i></a></div>
-                <div class="col-sm-4">Description&nbsp;<a ng-click="sortBy('description');"><i class="glyphicon glyphicon-sort"></i></a></div>
+                <div class="col-sm-2">Username&nbsp;<a ng-click="sortBy('type');"><i class="glyphicon glyphicon-sort"></i></a></div>
+                <div class="col-sm-2">Email&nbsp;<a ng-click="sortBy('standard');"><i class="glyphicon glyphicon-sort"></i></a></div>
                 <div class="col-sm-1"></div>
             </div>
 
             <div accordion close-others="true" ng-show="filteredItems > 0" ng-cloak>
-                <div accordion-group is-open="status.open" ng-repeat="code in filtered = (list | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                <div accordion-group is-open="status.open" ng-repeat="user in filtered = (list | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                     <div accordion-heading>
-                        <div class="row" ng-click="opened(code, $index)">
-                            <div class="col-sm-1 hidden">{{code.id}}</div>
-                            <div class="col-sm-2">{{code.type}}</div>
-                            <div class="col-sm-2">{{code.standard}}</div>
-                            <div class="col-sm-2">{{code.number}}</div>
-                            <div class="col-sm-4">{{code.description}}</div>
+                        <div class="row" ng-click="opened(user, $index)">
+                            <div class="col-sm-1 hidden">{{user.id}}</div>
+                            <div class="col-sm-2">{{user.username}}</div>
+                            <div class="col-sm-2">{{user.email}}</div>
                             <div class="col-sm-1"><i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></i></div>
                         </div>
                     </div accordion-heading>
-                    <form name="editCodeForm" novalidate>
+                    <form name="editUserForm" novalidate>
                         <div class="row">
-                            <div class="col-sm-2">Type<br/><input type="text" name="input-type" ng-model="editcode.type" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-2">Standard<br/><input type="text" name="input-standard" ng-model="editcode.standard" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-2">Number<br/><input type="text" name="input-number" ng-model="editcode.number" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-5">Description<br/><input type="text" name="input-description" ng-model="editcode.description" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="edituser.username" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="edituser.email" required ng-trim="false" class="form-control"></div>
                         </div>
-                        <h3>Links</h3>
-                        <div class="row">
-                            <div class="col-sm-4">URL</div>
-                            <div class="col-sm-4">Description</div></div>
-                        <div class="row" ng-repeat="link in editcode.links">
-                            <div class="col-sm-4"><input type="text" name="input-type" ng-model="link.url" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-4"><input type="text" name="input-standard" ng-model="link.description" required ng-trim="false" class="form-control"></div>
-                        </div>
+                        <h3>Groups</h3>
+                        <ul ng-repeat="group in edituser.groups">
+                            {{group.name}}<a id="remove-{{group.id}}" href="" ng-click="removeGroup(edituser, group)" class="close">&nbsp;&times;&nbsp;</a>
+                        </ul>
                     </form>
                     <br/><button type="button" class="btn btn-primary" ng-click="save(editCodeForm, editcode, $index)" ng-disabled="editCodeForm.$pristine">Save</button>
                 </div accordion-group>
@@ -74,7 +64,7 @@
         </div>
     </div>
 
-    <div class="panel panel-default">
+    <!--<div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Add Code</h3></div>
 
@@ -100,7 +90,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div>-->
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>

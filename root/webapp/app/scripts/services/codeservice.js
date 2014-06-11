@@ -17,6 +17,21 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular',
                     deferred.resolve(res);
                 });
                 return deferred.promise;
+            },
+            save: function (inputCode) {
+                var deferred = $q.defer();
+                Restangular.one('code', inputCode.id).get().then(function(code) {
+                    code.type = inputCode.type;
+                    code.standard = inputCode.standard;
+                    code.number = inputCode.number;
+                    code.description = inputCode.description;
+                    code.links = inputCode.links;
+
+                    code.post().then(function(res) {
+                        deferred.resolve(res);
+                    })
+                });
+                return deferred.promise;
             }
         };
     }]);
