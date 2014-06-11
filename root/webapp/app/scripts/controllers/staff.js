@@ -6,7 +6,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
     // Init
     $scope.init = function () {
         $scope.loading = true;
-        $scope.role = ["1"];
+        $scope.role = ['1'];
 
         GroupService.getAll().then(function(data) {
 
@@ -23,7 +23,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
         });
     };
 
-    $scope.opened = function (user, index) {
+    $scope.opened = function (user) {
 
         // create list of available groups (all - users)
         user.availableGroups = $scope.allGroups;
@@ -39,7 +39,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
     $scope.add = function (isValid, form, code) {
         if(isValid) {
 
-            StaffService.post($scope.group, code).then(function(added) {
+            UserService.post($scope.group, code).then(function(added) {
                 $scope.list.push(added);
                 $scope.newCode = '';
                 $scope.addCodeForm.$setPristine(true);

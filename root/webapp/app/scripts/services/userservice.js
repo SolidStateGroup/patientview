@@ -33,7 +33,7 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
 
                     user.post().then(function(res) {
                         deferred.resolve(res);
-                    })
+                    });
                 });
                 return deferred.promise;
             }

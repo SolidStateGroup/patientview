@@ -17,7 +17,7 @@ angular.module('patientviewApp').controller('LettersCtrl',['$scope','$timeout', 
         });
     };
 
-    $scope.opened = function (code, index) {
+    $scope.opened = function (code) {
         $scope.editcode = _.clone(code);
     };
 

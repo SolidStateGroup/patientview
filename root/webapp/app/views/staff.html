@@ -34,7 +34,7 @@
             <div accordion close-others="true" ng-show="filteredItems > 0" ng-cloak>
                 <div accordion-group is-open="status.open" ng-repeat="user in filtered = (list | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                     <div accordion-heading>
-                        <div class="row" ng-click="opened(user, $index)">
+                        <div class="row" ng-click="opened(user)">
                             <div class="col-sm-1 hidden">{{user.id}}</div>
                             <div class="col-sm-2">{{user.username}}</div>
                             <div class="col-sm-2">{{user.email}}</div>
