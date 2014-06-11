@@ -51,7 +51,7 @@ public class TestAdminServiceImpl {
         user.setEmail("support@patientview.org");
         user.setCreator(user);
         user.setPassword("");
-        userRepository.save(user);
+       // userRepository.save(user);
     }
 
 

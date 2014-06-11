@@ -1,5 +1,6 @@
 package org.patientview.persistence.config;
 
+import org.patientview.config.CommonConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -11,6 +12,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -22,8 +25,19 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.patientview.persistence.repository"})
 @EnableTransactionManagement
-public class PersistenceConfig {
+public class PersistenceConfig extends CommonConfig {
 
+    @Inject
+    private Properties properties;
+
+
+    @PostConstruct
+    public void init() {
+        properties.setProperty("hibernate.hbm2ddl.auto", "validate");
+        properties.setProperty("hibernate.show_sql", "true");
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+
+    }
 
     @Bean
     public EntityManagerFactory entityManagerFactory() {
@@ -35,6 +49,7 @@ public class PersistenceConfig {
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setPackagesToScan("org.patientview.persistence");
         factory.setDataSource(dataSource());
+        factory.setJpaProperties(properties);
         factory.afterPropertiesSet();
 
         return factory.getObject();
@@ -42,11 +57,12 @@ public class PersistenceConfig {
 
     @Bean
     public DataSource dataSource() {
+
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/postgres");
-        dataSource.setUsername( "patientview" );
-        dataSource.setPassword( "patientview" );
+        dataSource.setUrl(properties.getProperty("url"));
+        dataSource.setUsername(properties.getProperty("username"));
+        dataSource.setPassword(properties.getProperty("password"));
         return dataSource;
     }
 
@@ -66,11 +82,8 @@ public class PersistenceConfig {
     }
 
     Properties additionalProperties() {
-        Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "validate");
-        properties.setProperty("hibernate.show_sql", "true");
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         return properties;
     }
+
 
 }
