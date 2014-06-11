@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
+ * TODO mask to load all environment property files instead of just API
+ *
  * Created by james@solidstategroup.com
  * Created on 11/06/2014
  */
@@ -19,7 +21,7 @@ public class CommonConfig {
     static {
         environment = System.getProperty("env");
         if (environment == null) {
-            throw new IllegalStateException("Please specify and environment by using -Denv=local");
+            throw new RuntimeException("Please specify and environment by using -Denv=local");
         }
     }
 

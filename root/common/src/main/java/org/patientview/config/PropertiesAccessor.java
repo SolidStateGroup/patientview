@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * TODO this is currently unused
+ *
  * Created by james@solidstategroup.com
  * Created on 11/06/2014
  */
