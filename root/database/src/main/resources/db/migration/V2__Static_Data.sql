@@ -14,7 +14,7 @@ INSERT INTO pv_role(id, name, description, creation_date, created_by) VALUES (1,
 INSERT INTO pv_role(id, name, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', 'A unit administrator', now(), '1');
 INSERT INTO pv_role(id, name, description, creation_date, created_by) VALUES (3, 'STAFF_ADMIN', 'A radar administrator', now(), '1');
 INSERT INTO pv_role(id, name, description, creation_date, created_by) VALUES (4, 'SPECIALTY_ADMIN', 'A specialty administrator', now(), '1');
-INSERT INTO pv_role(id, name, description, creation_date, created_by) VALUES (5, 'SUPER_ADMIN', 'A superamdmin', now(), '1');
+INSERT INTO pv_role(id, name, description, creation_date, created_by) VALUES (5, 'SUPER_ADMIN', 'A superadmin', now(), '1');
 INSERT INTO pv_role(id, name, description, creation_date, created_by) VALUES (6, 'GP', 'A doctor', now(), '1');
 
 

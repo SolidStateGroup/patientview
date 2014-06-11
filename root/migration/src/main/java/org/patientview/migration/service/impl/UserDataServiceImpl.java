@@ -64,6 +64,19 @@ public class UserDataServiceImpl implements UserDataService {
 
             }
 
+           /* for (Group group : getUserSpecialty(oldUser)) {
+
+                    if (newUser.getGroupRoles() == null) {
+                        newUser.setGroupRoles(new ArrayList<GroupRole>());
+                    }
+
+                    GroupRole userGroup = new GroupRole();
+                    userGroup.setGroup(group);
+                    userGroup.setRole(adminDataService.getRoleByName("PATIENT"));
+                    newUser.getGroupRoles().add(userGroup);
+
+            }*/
+
             String url = JsonUtil.pvUrl + "/user";
             newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
 
@@ -131,9 +144,24 @@ public class UserDataServiceImpl implements UserDataService {
 
     public List<Group> getUserSpecialty(org.patientview.patientview.model.User  oldUser) {
 
-        for (List<SpecialtyUserRole> specialtyUserRole : specialtyUserRoleDao.get(oldUser)) {
+        List<Group> groups = new ArrayList<Group>();
 
+        for (SpecialtyUserRole specialtyUserRole : specialtyUserRoleDao.get(oldUser)) {
+
+            if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("ibd")) {
+                groups.add(adminDataService.getIbd());
+            }
+
+            if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("renal")) {
+                groups.add(adminDataService.getRenal());
+            }
+
+            if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("diabetes")) {
+                groups.add(adminDataService.getDiabetes());
+            }
         }
+
+        return groups;
 
     }
 

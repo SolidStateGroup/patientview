@@ -34,7 +34,6 @@ public class UserDataMigrationTest {
     @Test
     public void testUserMigration() {
 
-        //adminDataService.migrate();
         userDataService.migrate();
 
     }
