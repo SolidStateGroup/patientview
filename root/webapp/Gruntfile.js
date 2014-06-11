@@ -472,7 +472,6 @@ module.exports = function (grunt) {
             'autoprefixer',
             'connect:livereload',
             'watch'
-            //'war'
         ]);
     });
 
@@ -543,6 +542,24 @@ module.exports = function (grunt) {
         'autoprefixer',
         'concat',
         'ngmin',
+        'copy:dist',
+        'cdnify',
+        'cssmin',
+        'uglify',
+        'rev',
+        'usemin',
+        'htmlmin',
+        'war'
+    ]);
+
+    grunt.registerTask('buildsmall', [
+        'clean:dist',
+        'ngconstant:apiaryprod',
+        'bowerInstall',
+        'useminPrepare',
+        'concurrent:dist',
+        'autoprefixer',
+        'concat',
         'copy:dist',
         'cdnify',
         'cssmin',

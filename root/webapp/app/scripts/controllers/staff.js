@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').controller('LettersCtrl',['$scope','$timeout', 'CodeService', function ($scope,$timeout,CodeService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'CodeService', function ($scope,$timeout,CodeService) {
 
     // Init
     $scope.init = function () {
