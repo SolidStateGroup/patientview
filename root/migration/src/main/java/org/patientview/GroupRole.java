@@ -15,7 +15,6 @@ public class GroupRole extends RangeModel {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
     private User user;
 
     @OneToOne
@@ -25,7 +24,6 @@ public class GroupRole extends RangeModel {
     @OneToOne
     @JoinColumn(name = "group_id")
     private Group group;
-
 
     public Role getRole() {
         return role;
@@ -43,6 +41,12 @@ public class GroupRole extends RangeModel {
         this.group = group;
     }
 
+    @JsonIgnore
+    public User getUser() {
+        return user;
+    }
 
-
+    public void setUser(final User user) {
+        this.user = user;
+    }
 }
