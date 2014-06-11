@@ -13,7 +13,7 @@
     <groupId>org.patientview.api</groupId>
     <artifactId>api</artifactId>
     <version>0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <name>api</name>
     <url>http://maven.apache.org</url>
 
@@ -76,13 +76,29 @@
 
     </dependencies>
 
+
+
     <build>
         <finalName>api</finalName>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>${tomcatmanagerurl}</url>
+                    <username>tomcat</username>
+                    <password>tomcat</password>
+                    <!--<path>${warpath}</path>-->
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>

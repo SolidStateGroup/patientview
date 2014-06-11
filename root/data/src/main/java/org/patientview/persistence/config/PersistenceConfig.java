@@ -41,12 +41,12 @@ public class PersistenceConfig {
     }
 
     @Bean
-    public DataSource dataSource(){
+    public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/patientview");
-        dataSource.setUsername( "eatek" );
-        dataSource.setPassword( "eatek" );
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/local");
+        dataSource.setUsername( "patientview" );
+        dataSource.setPassword( "patientview" );
         return dataSource;
     }
 
