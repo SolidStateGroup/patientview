@@ -165,6 +165,11 @@ CREATE TABLE PV_News_Group_Role (
 
 CREATE TABLE PV_Conversation (
   Id               BIGINT       NOT NULL,
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id),
+  Image_Data       TEXT,
+  Rating           INTEGER,
+  Status           INTEGER,
+  Open             BOOL         NOT NULL,
   Title            VARCHAR(200) NOT NULL,
   Creation_Date    TIMESTAMP    NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
@@ -187,6 +192,7 @@ CREATE TABLE PV_Conversation_Participant (
   Id              BIGINT    NOT NULL,
   Conversation_Id BIGINT    NOT NULL REFERENCES PV_Conversation (Id),
   User_Id         BIGINT    NOT NULL REFERENCES PV_User (Id),
+  Anonymous       BOOL      NOT NULL,
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
@@ -323,6 +329,52 @@ CREATE TABLE PV_Link (
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Shared_Thought (
+  Id                   BIGINT    NOT NULL,
+  Conversation_Id      BIGINT    REFERENCES PV_Conversation (Id),
+  Positive             BOOL      NOT NULL,
+  Anonymous            BOOL      NOT NULL,
+  Submitted            BOOL      NOT NULL,
+  Patient              BOOL      NOT NULL,
+  Principal_Carer      BOOL      NOT NULL,
+  Relative             BOOL      NOT NULL,
+  Friend               BOOL      NOT NULL,
+  Other                BOOL      NOT NULL,
+  Other_Specify        VARCHAR(255),
+  About_Me             BOOL      NOT NULL,
+  About_Other          BOOL      NOT NULL,
+  Ongoing              BOOL      NOT NULL,
+  Location             VARCHAR(2048),
+  When_Occurred        VARCHAR(2048),
+  Description          VARCHAR(2048),
+  Suggested_Action     VARCHAR(2048),
+  Concern_Reason       VARCHAR(2048),
+  Recurrence           INTEGER,
+  Recurrence_Specify   VARCHAR(2048),
+  Serious              INTEGER,
+  Submit_Date          TIMESTAMP,
+  Creation_Date        TIMESTAMP NOT NULL,
+  Created_By           BIGINT    REFERENCES PV_User (Id),
+  Last_Update_Date     TIMESTAMP,
+  Last_Updated_By      BIGINT    REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Shared_Thought_Audit (
+  Id                   BIGINT       NOT NULL,
+  Shared_Thought_Id    BIGINT       NOT NULL REFERENCES PV_Shared_Thought (Id),
+  User_Id              BIGINT       NOT NULL REFERENCES PV_User (Id),
+  Group_Id             BIGINT       NOT NULL REFERENCES PV_Group (Id),
+  Message_Id           BIGINT       REFERENCES PV_Message (Id),
+  Responder_Id         BIGINT       REFERENCES PV_User (Id),
+  Action               VARCHAR(255) NOT NULL,
+  Creation_Date        TIMESTAMP    NOT NULL,
+  Created_By           BIGINT       REFERENCES PV_User (Id),
+  Last_Update_Date     TIMESTAMP,
+  Last_Updated_By      BIGINT       REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
