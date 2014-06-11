@@ -33,7 +33,10 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
         }
 
         $scope.edituser = _.clone(user);
-        $scope.groupToAdd = user.availableGroups[0].id;
+
+        if (user.availableGroups[0]) {
+            $scope.groupToAdd = user.availableGroups[0].id;
+        }
     };
 
     $scope.add = function (isValid, form, code) {
