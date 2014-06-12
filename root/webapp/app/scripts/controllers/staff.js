@@ -22,7 +22,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
             });
 
             RoleService.getAll().then(function(data) {
-                $scope.roles = data;
+                $scope.allRoles = data;
             });
         });
     };
@@ -30,7 +30,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
     // Opened for edit
     $scope.opened = function (user) {
 
-        user.roles = $scope.roles;
+        user.roles = $scope.allRoles;
 
         // create list of available groups (all - users)
         user.availableGroups = $scope.allGroups;
@@ -97,11 +97,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
     // add group to current group, remove from allowed
     $scope.addGroup = function (form, user, groupId) {
 
-        if(_.findWhere(user.availableGroups, {id: groupId})) {
+
+        if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere($scope.allRoles, {id: user.selectedRole})) {
             user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
            // user.groups.push(_.findWhere($scope.allGroups, {id: group}));
             var group = _.findWhere($scope.allGroups, {id: groupId});
-            group.role = user.selectedRole;
+            group.role = _.findWhere($scope.allRoles, {id: user.selectedRole});
             user.groups.push(group);
             user.selectedRole = '';
 

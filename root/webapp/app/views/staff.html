@@ -61,11 +61,10 @@
 
                                 <div class="group-add-container" ng-show="edituser.availableGroups.length > 0 ">
                                     <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups"></select>
-                                    <ul ng-show="edituser.availableGroups.length > 0" class="role-list">
-                                        <li ng-repeat="role in edituser.roles">
-                                            <input type="radio" ng-model="edituser.selectedRole" ng-value="role" name="editUserRole" > {{role.name}}
-                                        </li>
-                                    </ul>
+
+                                    <div buttongroup="justified" buttongroupname="role" model="edituser.selectedRole" options="edituser.roles"></div>
+                                    <span class="hidden">{{edituser.selectedRole}}</span>
+
                                     <button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(editUserForm, edituser, groupToAdd)" ng-disabled="!edituser.selectedRole">Add</button>
                                 </div>
                             </div>

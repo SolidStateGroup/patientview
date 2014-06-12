@@ -245,6 +245,7 @@ div.group-add-container {
 button.group-add-button {
     clear:both;
     float: left;
+    margin-top:5px;
 }
 
 div.user-save {
