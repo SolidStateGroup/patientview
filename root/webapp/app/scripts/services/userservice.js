@@ -30,6 +30,7 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                     user.username = input.username;
                     user.email = input.email;
                     user.groups = input.groups;
+                    user.features = input.features;
 
                     user.post().then(function(res) {
                         deferred.resolve(res);

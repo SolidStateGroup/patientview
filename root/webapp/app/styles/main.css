@@ -158,8 +158,15 @@ div.loading{
     border-radius:0px;
     border-bottom:0;
 }
+.accordion .panel-group .panel .panel-heading{
+    padding: 10px 0px 0px 15px;
+}
 .accordion .panel-group .panel .panel-heading h4.panel-title{
     font-size: 14px;
+}
+.accordion .panel-group .panel .panel-heading h4.panel-title a{
+    display:block;
+    height:25px;
 }
 .accordion .panel-group .panel .panel-collapse{
     font-size: 14px;
@@ -191,8 +198,8 @@ a.sort-title{
     padding:0;
 }
 
-/* groups in edit staff */
-div.group-list-item{
+/* groups/features in edit staff */
+div.group-list-item, div.feature-list-item{
     height: 40px;
     float:left;
     clear:both;
@@ -201,48 +208,50 @@ div.group-list-item{
     width: 100%;
 }
 
-div.group-list-name, div.group-list-role, div.group-list-delete {
+div.group-list-name, div.group-list-role, div.group-list-delete,
+div.feature-list-name, div.feature-list-role, div.feature-list-delete {
     height: inherit;
     float:left;
     padding: 4px;
     vertical-align: middle;
     margin:1px;
 }
-span.group-list-delete {
+span.group-list-delete, span.feature-list-delete {
     font-size: 11px;
 }
 
-span.group-list-name, span.group-list-role, span.group-list-delete {
+span.group-list-name, span.group-list-role, span.group-list-delete,
+span.feature-list-name, span.feature-list-role, span.feature-list-delete {
     position:relative;
     top:5px;
 }
 
-div.group-list-name{
+div.group-list-name, div.feature-list-name{
    /* font-size: 16px;*/
     color: #6B6B6B;
     text-align: left;
     width: 150px;
 }
-div.group-list-role{
-}
-div.group-list-delete{
+
+div.group-list-delete, div.feature-list-delete{
     background: #FF3333;
     color: #ffffff;
     float: right;
 }
-div.group-list-delete a{
+
+div.group-list-delete a, div.feature-list-delete a{
     color: #ffffff;
     text-decoration: none;
     text-align: left;
     top: 14px;
 }
 
-div.group-add-container {
+div.group-add-container, div.feature-add-container {
     clear: both;
     padding-top: 5px;
 }
 
-button.group-add-button {
+button.group-add-button, button.feature-add-button {
     clear:both;
     float: left;
     margin-top:5px;
