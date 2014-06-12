@@ -414,7 +414,7 @@ module.exports = function (grunt) {
               constants: {
                   ENV: {
                       name: 'development',
-                      apiEndpoint: 'http://patientview201.apiary-mock.com/'
+                      apiEndpoint: 'http://patientview201.apiary-mock.com/api'
                   }
               }
           },
@@ -425,7 +425,7 @@ module.exports = function (grunt) {
               constants: {
                   ENV: {
                       name: 'production',
-                      apiEndpoint: '/api'
+                      apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
                   }
               }
           },
@@ -447,7 +447,7 @@ module.exports = function (grunt) {
               constants: {
                   ENV: {
                       name: 'production',
-                      apiEndpoint: '/api'
+                      apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
                   }
               }
           }
@@ -557,8 +557,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('buildsmall', [
         'clean:dist',
-        //'ngconstant:apiprod',
-        'ngconstant:apiaryprod',
+        'ngconstant:apiprod',
+        //'ngconstant:apiaryprod',
         'bowerInstall',
         'useminPrepare',
         'concurrent:dist',

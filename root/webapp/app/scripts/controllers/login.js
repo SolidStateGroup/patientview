@@ -5,7 +5,10 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$scope'
     $scope.login = function() {
 
         if (!$rootScope.ieTestMode) {
-            AuthService.login($.param({username: $scope.username, password: $scope.password})).then(function (authenticationResult) {
+            var loginObject = {'username': $scope.username, 'password': $scope.password};
+            //console.log(loginObject);
+            //AuthService.login($.param({username: $scope.username, password: $scope.password})).then(function (authenticationResult) {
+            AuthService.login(loginObject).then(function (authenticationResult) {
                 var authToken = authenticationResult.authToken;
                 $rootScope.authToken = authToken;
                 $cookieStore.put('authToken', authToken);
