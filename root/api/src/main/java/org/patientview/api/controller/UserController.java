@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -60,5 +62,25 @@ public class UserController {
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
 
     }
+
+    @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Feature>> getUserFeatures(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
+
+        LOG.debug("Request has been received for userId : {}", user.getUsername());
+
+        user.setCreator(adminService.getUser(1L));
+        user = adminService.createUser(user);
+
+        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<List<Feature>>(headers, HttpStatus.OK);
+
+    }
+
 
 }
