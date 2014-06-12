@@ -1,17 +1,18 @@
 var express = require('express');
 var bodyParser = require('body-parser')
 var handlers = require('./handlers/handlers.js');
-
+var cors = require('cors');
 var app = express();
 
 app.use(bodyParser());
+app.use(cors());
 
 app.all('/*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     next();
 });
-app.all('/user', function(req, res) {
+app.all('/user*', function(req, res) {
     res.redirect('http://diabetes-pv.dev.solidstategroup.com/api' + req.url);
     return;
 });
