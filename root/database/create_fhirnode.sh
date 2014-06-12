@@ -29,7 +29,7 @@ then
     cp -R src/main/resources/fhirnode fhirnode_dir
 else
     fhirnode_dir="/home/patientview/"
-    scp -R src/main/resources/fhirnode dev.solidstategroup.com:$fhirnode_dir
+    scp -R src/main/resources/fhirnode root@dev.solidstategroup.com:$fhirnode_dir
 fi
 
 #echo $fhirnode_dir
@@ -41,8 +41,6 @@ fi
 #    mkdir $fhirnode_dir
 #    echo "Created fhir node directory"
 #fi
-
-
 
 
 if test $? -ne 0
