@@ -56,7 +56,7 @@
 
     <div class="container">
         <div class="footer">
-            <p class="pull-left">PatientView 2 - {{endPoint}}</p><p class="pull-right">&copy; Solid State Group 2014</p>
+            <p class="pull-left">PatientView 2 - {{endPoint}} - {{authToken}}</p><p class="pull-right">&copy; Solid State Group 2014</p>
         </div>
     </div>
 
@@ -110,9 +110,12 @@
         <script src="scripts/services/codeservice.js"></script>
         <script src="scripts/services/groupservice.js"></script>
         <script src="scripts/services/roleservice.js"></script>
+        <script src="scripts/services/featureservice.js"></script>
 
         <script src="scripts/interceptors/httprequestinterceptor.js"></script>
         <script src="scripts/interceptors/httpresponseinterceptor.js"></script>
+
+        <script src="scripts/directives/buttongroup.js"></script>
         <!-- endbuild -->
 </body>
 </html>

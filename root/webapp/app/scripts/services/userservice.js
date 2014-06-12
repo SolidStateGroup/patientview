@@ -27,9 +27,14 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
             save: function (input) {
                 var deferred = $q.defer();
                 Restangular.one('user', input.id).get().then(function(user) {
-                    user.username = input.username;
-                    user.email = input.email;
-                    user.groups = input.groups;
+
+                    var toUpdate = ['username','email','groups','features'];
+
+                    for (var name in input) {
+                        if (input.hasOwnProperty(name) && _.contains(toUpdate, name)) {
+                            user[name] = input[name];
+                        }
+                    }
 
                     user.post().then(function(res) {
                         deferred.resolve(res);
