@@ -29,7 +29,7 @@ then
     cp -R src/main/resources/fhirnode fhirnode_dir
 else
     fhirnode_dir="/home/patientview/"
-    scp -R src/main/resources/fhirnode root@dev.solidstategroup.com:$fhirnode_dir
+    scp -r src/main/resources/fhirnode root@dev.solidstategroup.com:$fhirnode_dir
 fi
 
 #echo $fhirnode_dir
