@@ -15,7 +15,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
             UserService.getByRole($scope.role).then(function(data) {
                 $scope.list = data;
                 $scope.currentPage = 1; //current page
-                $scope.entryLimit = 3; //max no of items to display in a page
+                $scope.entryLimit = 10; //max no of items to display in a page
                 $scope.filteredItems = $scope.list.length; //Initially for no filter
                 $scope.totalItems = $scope.list.length;
                 delete $scope.loading;
@@ -38,14 +38,23 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
 
         // create list of available groups (all - users)
         user.availableGroups = $scope.allGroups;
-        for(var i=0;i<user.groups.length;i++) {
-            user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: user.groups[i].id}));
+        if(user.groups) {
+            for (var i = 0; i < user.groups.length; i++) {
+                user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: user.groups[i].id}));
+            }
+        }
+        else {
+            user.groups = [];
         }
 
         // create list of available features (all - users)
         user.availableFeatures = $scope.allFeatures;
-        for(var i=0;i<user.features.length;i++) {
-            user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.features[i].id}));
+        if (user.features) {
+            for (var i = 0; i < user.features.length; i++) {
+                user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.features[i].id}));
+            }
+        } else {
+            user.features = [];
         }
 
         $scope.edituser = _.clone(user);
