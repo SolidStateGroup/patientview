@@ -16,7 +16,7 @@ describe('Service: ResultsService', function () {
         scope = $rootScope.$new();
 
         var url1 = '/api/patient/1/observations?type=calcium';
-        var url1a = 'http://patientview201.apiary-mock.com/patient/1/observations?type=calcium';
+        var url1a = 'http://patientview201.apiary-mock.com/api/patient/1/observations?type=calcium';
         var response1 = [
             {
                 'data': {
@@ -147,7 +147,7 @@ describe('Service: ResultsService', function () {
         ];
 
         var url2 = '/api/patient/1/resulttypes';
-        var url2a = 'http://patientview201.apiary-mock.com/patient/1/resulttypes';
+        var url2a = 'http://patientview201.apiary-mock.com/api/patient/1/resulttypes';
         var response2 = [
             {
                 'data': {
