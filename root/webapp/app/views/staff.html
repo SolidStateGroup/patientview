@@ -3,7 +3,7 @@
     <h1>Staff</h1>
     <br/>
     <div class="row">
-        <div class="col-md-2">PageSize:
+        <div class="col-md-2 hidden">PageSize:
             <select data-ng-model="entryLimit" class="form-control">
                 <option>1</option>
                 <option>2</option>
@@ -11,10 +11,13 @@
                 <option>5</option>
             </select>
         </div>
-        <div class="col-md-3">Filter:
-            <input type="text" ng-model="search" ng-change="filter()" placeholder="Filter" class="form-control" />
+        <div class="col-md-12">
+            <div class="left-inner-addon ">
+                <i class="glyphicon glyphicon-search"></i>
+                <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
+            </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 hidden">
             <h5>Showing {{ filtered.length }} of {{ totalItems}} total staff users</h5>
             <h5>{{ allGroups.length }} groups available</h5>
         </div>
@@ -24,15 +27,15 @@
         <div class="col-md-12" data-ng-show="filteredItems > 0">
             <span class="hidden" ng-repeat="data in filtered = (list | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
 
-            <div class="row" ng-show="filteredItems > 0" ng-cloak>
+            <div class="row accordion-title-row" ng-show="filteredItems > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
-                <div class="col-sm-2">Username&nbsp;<a ng-click="sortBy('username');"><i class="glyphicon glyphicon-sort"></i></a></div>
-                <div class="col-sm-2">Email&nbsp;<a ng-click="sortBy('email');"><i class="glyphicon glyphicon-sort"></i></a></div>
+                <div class="col-sm-2"><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort"></i></a></div>
+                <div class="col-sm-2"><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort"></i></a></div>
                 <div class="col-sm-1"></div>
             </div>
 
-            <div accordion close-others="true" ng-show="filteredItems > 0" ng-cloak>
-                <div accordion-group is-open="status.open" ng-repeat="user in filtered = (list | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+            <div accordion class="accordion" close-others="true" ng-show="filteredItems > 0" ng-cloak>
+                <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                     <div accordion-heading>
                         <div class="row" ng-click="opened(user)">
                             <div class="col-sm-1 hidden">{{user.id}}</div>
@@ -46,21 +49,44 @@
                             <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="edituser.username" required ng-trim="false" class="form-control"></div>
                             <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="edituser.email" required ng-trim="false" class="form-control"></div>
                         </div>
-                        <h3>Groups</h3>
-                        <ul>
-                            <li ng-repeat="group in edituser.groups">
-                            {{group.name}} ({{group.role.name}})<a id="remove-{{group.id}}" href="" ng-click="removeGroup(editUserForm, edituser, group)" >&nbsp;&times;&nbsp;</a>
-                            </li>
-                        </ul>
-                        <select ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups" ng-show="edituser.availableGroups.length > 0"></select>
-                        <ul ng-show="edituser.availableGroups.length > 0">
-                            <li ng-repeat="role in edituser.roles">
-                                <input type="radio" ng-model="edituser.selectedRole" ng-value="role" name="editUserRole" > {{role.name}}
-                            </li>
-                        </ul>
-                        <button type="button" class="btn" ng-click="addGroup(editUserForm, edituser, groupToAdd)" ng-show="edituser.availableGroups.length > 0">Add</button>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-5">
+                                <h5>Groups &amp; Roles </h5>
+                                <div class="group-list-item" ng-repeat="group in edituser.groups">
+                                    <div class="group-list-name"><span class="group-list-name">{{group.name}}</span></div>
+                                    <div class="group-list-role"><span class="group-list-role">{{group.role.name}}</span></div>
+                                    <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{group.id}}" href="" ng-click="removeGroup(editUserForm, edituser, group)" >Delete</a></span></div>
+                                </div>
+
+                                <div class="group-add-container" ng-show="edituser.availableGroups.length > 0 ">
+                                    <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups"></select>
+                                    <ul ng-show="edituser.availableGroups.length > 0" class="role-list">
+                                        <li ng-repeat="role in edituser.roles">
+                                            <input type="radio" ng-model="edituser.selectedRole" ng-value="role" name="editUserRole" > {{role.name}}
+                                        </li>
+                                    </ul>
+                                    <button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(editUserForm, edituser, groupToAdd)" ng-disabled="!edituser.selectedRole">Add</button>
+                                </div>
+                            </div>
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-5">
+                                <h5>Features </h5>
+                                <div class="feature-list-item" ng-repeat="features in edituser.features">
+                                    <div class="feature-list-name"><span class="feature-list-name">{{feature.name}}</span></div>
+                                    <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-{{feature.id}}" href="" ng-click="removeFeature(editUserForm, edituser, feature)" >Delete</a></span></div>
+                                </div>
+                                <div class="feature-add-container" ng-show="edituser.availableFeatures.length > 0 ">
+                                    <select class="form-control" ng-model="featureToAdd" ng-options="feature.id as feature.name for feature in edituser.availableFeatures"></select>
+                                    <button type="button" class="btn" ng-click="addFeature(editUserForm, edituser, featureToAdd)">Add</button>
+                                </div>
+                            </div>
+                        </div>
                     </form>
-                    <br/><button type="button" class="btn btn-primary" ng-click="save(editUserForm, edituser, $index)" ng-disabled="editUserForm.$pristine">Save</button>
+                    <div class="user-save-cancel pull-right">
+                        <button type="button" class="btn btn-primary" ng-click="save(editUserForm, edituser, $index)" ng-disabled="editUserForm.$pristine">Save</button>
+                        <button type="button" class="btn btn-danger" ng-click="close($index)">Cancel</button>
+                    </div>
                 </div accordion-group>
             </div accordion>
         </div>
