@@ -26,8 +26,10 @@ echo $environment
 if test "$environment" == "local"
 then
     fhirnode_dir="~/work/"
+    cp -R src/main/resources/fhirnode fhirnode_dir
 else
     fhirnode_dir="/home/patientview/"
+    scp -R src/main/resources/fhirnode dev.solidstategroup.com:$fhirnode_dir
 fi
 
 #echo $fhirnode_dir
@@ -40,7 +42,7 @@ fi
 #    echo "Created fhir node directory"
 #fi
 
-cp -R src/main/resources/fhirnode fhirnode_dir
+
 
 
 if test $? -ne 0
@@ -48,4 +50,3 @@ then
     echo "Successfully copied files"
 fi
 
-cd $fhirnode_dir
