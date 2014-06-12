@@ -24,6 +24,8 @@ public interface AdminService {
 
     User createUser(User user);
 
+    User saveUser(User user);
+
     Group getGroup(Long groupId);
 
     GroupFeature addGroupFeature(Long groupId, Long featureId);
@@ -31,5 +33,7 @@ public interface AdminService {
     List<Group> getAllGroups();
 
     List<Role> getAllRoles();
+
+    User getByUsername(String username);
 
 }

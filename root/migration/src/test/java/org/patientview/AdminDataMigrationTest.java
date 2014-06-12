@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.patientview.migration.service.AdminDataService;
+import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class AdminDataMigrationTest {
     private UnitDao unitDao;
 
     @Inject
-    private AdminDataService adminDataService;
+    private AdminDataMigrationService adminDataMigrationService;
 
     @Before
     public void setup() {
@@ -42,10 +42,10 @@ public class AdminDataMigrationTest {
     @Transactional
     public void testStaticDataMigrationFeatures()  throws Exception {
         LOG.info("Starting migration");
-        adminDataService.migrate();
-        Assert.assertNotNull("This group should not be null", adminDataService.getLookupByName("UNIT"));
-        Assert.assertNotNull("This feature should not be null", adminDataService.getFeatureByName("SHARING_THOUGHTS"));
-        Assert.assertNotNull("This feature should not be null", adminDataService.getRoleByName("PATIENT"));
+        adminDataMigrationService.migrate();
+        Assert.assertNotNull("This group should not be null", adminDataMigrationService.getLookupByName("UNIT"));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getFeatureByName("SHARING_THOUGHTS"));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("PATIENT"));
     }
 
 

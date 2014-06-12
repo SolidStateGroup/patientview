@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 05/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface AdminDataService {
+public interface AdminDataMigrationService {
     Group getRenal();
 
     Group getDiabetes();

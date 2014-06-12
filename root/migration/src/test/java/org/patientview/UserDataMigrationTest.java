@@ -2,8 +2,8 @@ package org.patientview;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.patientview.migration.service.AdminDataService;
-import org.patientview.migration.service.UserDataService;
+import org.patientview.migration.service.AdminDataMigrationService;
+import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,15 +26,15 @@ public class UserDataMigrationTest {
     private UnitDao unitDao;
 
     @Inject
-    private AdminDataService adminDataService;
+    private AdminDataMigrationService adminDataMigrationService;
 
     @Inject
-    private UserDataService userDataService;
+    private UserDataMigrationService userDataMigrationService;
 
     @Test
     public void testUserMigration() {
 
-        userDataService.migrate();
+        userDataMigrationService.migrate();
 
     }
 

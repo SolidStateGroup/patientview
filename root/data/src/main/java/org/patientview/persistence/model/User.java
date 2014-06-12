@@ -34,7 +34,7 @@ public class User extends RangeModel {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "name")
+    @Column(name = "fullname")
     private String name;
 
     @OneToMany(mappedBy = "user")

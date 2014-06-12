@@ -9,11 +9,16 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
+import org.codehaus.jettison.json.JSONObject;
+import org.hl7.fhir.instance.formats.JsonComposer;
+import org.hl7.fhir.instance.model.Resource;
 import org.patientview.Feature;
 import org.patientview.Group;
 import org.patientview.Lookup;
@@ -22,7 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
@@ -34,13 +41,13 @@ public final class JsonUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
 
-    public static final String fhirUrl = "http://localhost:8083";
-    public static final String pvUrl = "http://diabetes-pv.dev.solidstategroup.com/api";
+    public static final String fhirUrl = "http://localhost:7865/api";
+    public static final String pvUrl = "http://locahost:18080/api";
 
     private JsonUtil() {}
 
 
-    public static <T, V extends HttpEntityEnclosingRequestBase> T jsonRequest(String url, Class<T> responseObject, Object requestObject, Class<V> httpMethod) {
+    public static <T, V extends HttpRequestBase> T jsonRequest(String url, Class<T> responseObject, Object requestObject, Class<V> httpMethod) {
 
         Gson gson = new Gson();
         HttpClient httpClient = getThreadSafeClient();
@@ -64,7 +71,9 @@ public final class JsonUtil {
             String json = gson.toJson(requestObject);
             LOG.info("Adding the following to request: " + json);
             StringEntity puttingString = new StringEntity(json);
-            method.setEntity(puttingString);
+            if (method instanceof HttpEntityEnclosingRequestBase) {
+                ((HttpEntityEnclosingRequestBase) method).setEntity(puttingString);
+            }
 
         } catch (Exception e) {
             LOG.error("Error creating request object {}", e.getCause());
@@ -107,6 +116,33 @@ public final class JsonUtil {
     }
 
 
+    public static String getResourceUuid(String json) throws Exception {
+
+        HttpResponse httpResponse = gsonPost(json);
+
+        String source = EntityUtils.toString(httpResponse.getEntity());
+        System.out.println(source);
+
+        JSONObject jsonObject = new JSONObject(source);
+
+        return String.valueOf(jsonObject.get("insert_resource"));
+
+    }
+
+
+    private static HttpResponse gsonPost(String json) throws Exception {
+
+        HttpClient httpClient = new DefaultHttpClient();
+
+        String postUrl="http://localhost:8082/resource";// put in your url
+        HttpPost post = new HttpPost(postUrl);
+        StringEntity postingString = new StringEntity(json);
+
+        post.setEntity(postingString);
+        post.setHeader("Content-type", "application/json");
+        return httpClient.execute(post);
+
+    }
 
     public static HttpResponse gsonPut(String postUrl, Object object) throws Exception {
 
@@ -356,6 +392,22 @@ public final class JsonUtil {
         return data;
 
     }
+
+    public static String serializeResource(Resource resource) {
+
+        OutputStream out = new ByteArrayOutputStream();
+
+        JsonComposer jsonComposer = new JsonComposer();
+        try {
+            jsonComposer.compose(out, resource, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return out.toString();
+    }
+
+
 
 
     public static DefaultHttpClient getThreadSafeClient()  {

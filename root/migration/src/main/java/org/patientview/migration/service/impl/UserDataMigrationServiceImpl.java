@@ -5,8 +5,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.patientview.Group;
 import org.patientview.GroupRole;
 import org.patientview.User;
-import org.patientview.migration.service.AdminDataService;
-import org.patientview.migration.service.UserDataService;
+import org.patientview.migration.service.AdminDataMigrationService;
+import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
@@ -26,9 +26,9 @@ import java.util.List;
  * Created on 06/06/2014
  */
 @Service
-public class UserDataServiceImpl implements UserDataService {
+public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserDataServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserDataMigrationServiceImpl.class);
 
     @Inject
     private UserDao userDao;
@@ -37,7 +37,7 @@ public class UserDataServiceImpl implements UserDataService {
     private UserMappingDao userMappingDao;
 
     @Inject
-    private AdminDataService adminDataService;
+    private AdminDataMigrationService adminDataMigrationService;
 
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
@@ -57,8 +57,8 @@ public class UserDataServiceImpl implements UserDataService {
                     }
 
                     GroupRole userGroup = new GroupRole();
-                    userGroup.setGroup(adminDataService.getGroupByCode(userMapping.getUnitcode()));
-                    userGroup.setRole(adminDataService.getRoleByName("PATIENT"));
+                    userGroup.setGroup(adminDataMigrationService.getGroupByCode(userMapping.getUnitcode()));
+                    userGroup.setRole(adminDataMigrationService.getRoleByName("PATIENT"));
                     newUser.getGroupRoles().add(userGroup);
                 }
 
@@ -105,8 +105,8 @@ public class UserDataServiceImpl implements UserDataService {
                     }
 
                     GroupRole userGroup = new GroupRole();
-                    userGroup.setGroup(adminDataService.getGroupByCode(userMapping.getUnitcode()));
-                    userGroup.setRole(adminDataService.getRoleByName("PATIENT"));
+                    userGroup.setGroup(adminDataMigrationService.getGroupByCode(userMapping.getUnitcode()));
+                    userGroup.setRole(adminDataMigrationService.getRoleByName("PATIENT"));
                     newUser.getGroupRoles().add(userGroup);
                 }
 
@@ -149,15 +149,15 @@ public class UserDataServiceImpl implements UserDataService {
         for (SpecialtyUserRole specialtyUserRole : specialtyUserRoleDao.get(oldUser)) {
 
             if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("ibd")) {
-                groups.add(adminDataService.getIbd());
+                groups.add(adminDataMigrationService.getIbd());
             }
 
             if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("renal")) {
-                groups.add(adminDataService.getRenal());
+                groups.add(adminDataMigrationService.getRenal());
             }
 
             if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("diabetes")) {
-                groups.add(adminDataService.getDiabetes());
+                groups.add(adminDataMigrationService.getDiabetes());
             }
         }
 

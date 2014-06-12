@@ -12,12 +12,11 @@ import javax.persistence.Table;
 @Table(name = "PV_Role")
 public class Role extends AuditModel {
 
-    @Column(name = "name")
+    @Column(name = "role_name")
     private String name;
 
     @Column(name = "description")
     private String description;
-
 
     public String getName() {
         return name;

@@ -17,7 +17,7 @@ import java.util.UUID;
 @Table(name = "pv_group")
 public class Group extends AuditModel {
 
-    @Column(name = "name")
+    @Column(name = "group_name")
     private String name;
 
     @Column(name = "code")

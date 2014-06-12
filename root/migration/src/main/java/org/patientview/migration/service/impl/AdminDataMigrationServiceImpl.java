@@ -8,7 +8,7 @@ import org.patientview.Group;
 import org.patientview.GroupFeature;
 import org.patientview.Lookup;
 import org.patientview.Role;
-import org.patientview.migration.service.AdminDataService;
+import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.PvUtil;
 import org.patientview.model.Unit;
@@ -29,9 +29,9 @@ import java.util.Set;
  * Created on 05/06/2014
  */
 @Service
-public class AdminDataServiceImpl implements AdminDataService {
+public class AdminDataMigrationServiceImpl implements AdminDataMigrationService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AdminDataServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AdminDataMigrationServiceImpl.class);
 
     @Inject
     private UnitDao unitDao;

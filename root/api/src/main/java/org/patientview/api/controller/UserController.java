@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
@@ -28,9 +29,7 @@ import java.util.List;
 @RestController
 public class UserController {
 
-
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
-
 
     @Inject
     private AdminService adminService;
@@ -42,18 +41,41 @@ public class UserController {
 
     }
 
+    @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public User createUser(@RequestParam("username") String username) {
+        return adminService.getByUsername(username);
+
+    }
+
 
     @RequestMapping(value = "/user", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Void> getUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
 
-        LOG.debug("Request has been received for {}", user.getUsername());
+        LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(adminService.getUser(1L));
 
         user = adminService.createUser(user);
 
+        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+
+    }
+
+    @RequestMapping(value = "/user", method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Void> updateUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
+
+        LOG.debug("Request has been received for userId : {}", user.getUsername());
+        user.setCreator(adminService.getUser(1L));
+
+        user = adminService.saveUser(user);
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 

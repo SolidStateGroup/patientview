@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 06/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface UserDataService {
+public interface UserDataMigrationService {
 
     void migrate();
 

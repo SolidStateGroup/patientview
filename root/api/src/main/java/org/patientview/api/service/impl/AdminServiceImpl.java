@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
@@ -121,6 +122,22 @@ public class AdminServiceImpl implements AdminService {
 
     public List<Role> getAllRoles() {
         return Util.iterableToList(roleRepository.findAll());
+    }
+
+    //TODO
+    public List<Feature> getUserFeatures(User user) {
+
+        return null;
+    }
+
+    public User getByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public User saveUser(User user) {
+        User entityUser = userRepository.findOne(user.getId());
+        entityUser.setFhirResourceId(user.getFhirResourceId());
+        return userRepository.save(user);
     }
 
 

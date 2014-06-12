@@ -7,7 +7,7 @@ CREATE TABLE PV_User
   Locked           BOOL         NOT NULL,
   Fhir_Resource_Id UUID UNIQUE,
   Email            VARCHAR(200) NOT NULL,
-  Name             VARCHAR(200) NOT NULL,
+  Fullname             VARCHAR(200) NOT NULL,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE PV_Lookup_Value (
 CREATE TABLE PV_Group
 (
   Id               BIGINT    NOT NULL,
-  Name             VARCHAR(200) UNIQUE,
+  Group_Name       VARCHAR(200) UNIQUE,
   Code             VARCHAR(50),
   Description      VARCHAR(255),
   Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE PV_Group
 CREATE TABLE PV_Role
 (
   Id               BIGINT      NOT NULL,
-  Name             VARCHAR(50) NOT NULL UNIQUE,
+  Role_Name         VARCHAR(50) NOT NULL UNIQUE,
   Description      VARCHAR(255),
   Creation_Date    TIMESTAMP   NOT NULL,
   Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
@@ -375,6 +375,22 @@ CREATE TABLE PV_Shared_Thought_Audit (
   Created_By           BIGINT       REFERENCES PV_User (Id),
   Last_Update_Date     TIMESTAMP,
   Last_Updated_By      BIGINT       REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Menu_Item (
+  Id                   BIGINT        NOT NULL,
+  Type_Id              BIGINT        NOT NULL  REFERENCES PV_Lookup_Value (Id),
+  Group_Id             BIGINT        REFERENCES PV_Group (Id),
+  Role_Id              BIGINT        REFERENCES PV_Role (Id),
+  Feature_Id           BIGINT        REFERENCES PV_Feature (Id),
+  Display_Order        INTEGER       NOT NULL,
+  Url                  VARCHAR(2048) NOT NULL,
+  Controller           VARCHAR(255)  NOT NULL,
+  Template_Url         VARCHAR(2048) NOT NULL,
+  Title                VARCHAR(255)  NOT NULL,
+  Creation_Date        TIMESTAMP     NOT NULL,
+  Created_By           BIGINT        REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
