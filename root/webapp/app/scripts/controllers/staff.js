@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'UserService', 'GroupService',
-    function ($scope,$timeout,UserService,GroupService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'UserService', 'GroupService', 'RoleService',
+    function ($scope,$timeout,UserService,GroupService,RoleService) {
 
     // Init
     $scope.init = function () {
@@ -20,10 +20,17 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
                 $scope.totalItems = $scope.list.length;
                 delete $scope.loading;
             });
+
+            RoleService.getAll().then(function(data) {
+                $scope.roles = data;
+            });
         });
     };
 
+    // Opened for edit
     $scope.opened = function (user) {
+
+        user.roles = $scope.roles;
 
         // create list of available groups (all - users)
         user.availableGroups = $scope.allGroups;
@@ -88,17 +95,21 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
     };
 
     // add group to current group, remove from allowed
-    $scope.addGroup = function (form, user, group) {
+    $scope.addGroup = function (form, user, groupId) {
 
-        user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: group}));
-        user.groups.push(_.findWhere($scope.allGroups, {id: group}));
+        if(_.findWhere(user.availableGroups, {id: groupId})) {
+            user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
+           // user.groups.push(_.findWhere($scope.allGroups, {id: group}));
+            var group = _.findWhere($scope.allGroups, {id: groupId});
+            group.role = user.selectedRole;
+            user.groups.push(group);
+            user.selectedRole = '';
 
-        if (user.availableGroups[0]) {
-            $scope.groupToAdd = user.availableGroups[0].id;
+            if (user.availableGroups[0]) {
+                $scope.groupToAdd = user.availableGroups[0].id;
+            }
+            form.$setDirty(true);
         }
-
-        form.$setDirty(true);
-
     };
 
     $scope.init();

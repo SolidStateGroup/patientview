@@ -49,11 +49,15 @@
                         <h3>Groups</h3>
                         <ul>
                             <li ng-repeat="group in edituser.groups">
-                            {{group.name}}<a id="remove-{{group.id}}" href="" ng-click="removeGroup(editUserForm, edituser, group)" >&nbsp;&times;&nbsp;</a>
+                            {{group.name}} ({{group.role.name}})<a id="remove-{{group.id}}" href="" ng-click="removeGroup(editUserForm, edituser, group)" >&nbsp;&times;&nbsp;</a>
                             </li>
                         </ul>
-
                         <select ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups" ng-show="edituser.availableGroups.length > 0"></select>
+                        <ul ng-show="edituser.availableGroups.length > 0">
+                            <li ng-repeat="role in edituser.roles">
+                                <input type="radio" ng-model="edituser.selectedRole" ng-value="role" name="editUserRole" > {{role.name}}
+                            </li>
+                        </ul>
                         <button type="button" class="btn" ng-click="addGroup(editUserForm, edituser, groupToAdd)" ng-show="edituser.availableGroups.length > 0">Add</button>
                     </form>
                     <br/><button type="button" class="btn btn-primary" ng-click="save(editUserForm, edituser, $index)" ng-disabled="editUserForm.$pristine">Save</button>
