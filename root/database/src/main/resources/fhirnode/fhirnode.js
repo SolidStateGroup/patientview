@@ -11,6 +11,22 @@ app.all('/*', function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     next();
 });
+app.all('/user', function(req, res) {
+    res.redirect('http://diabetes-pv.dev.solidstategroup.com/api' + req.url);
+    return;
+});
+app.all('/group*', function(req, res) {
+    res.redirect('http://diabetes-pv.dev.solidstategroup.com/api' + req.url);
+    return;
+});
+app.all('/features*', function(req, res) {
+    res.redirect('http://diabetes-pv.dev.solidstategroup.com/api' + req.url);
+    return;
+});
+app.all('/roles*', function(req, res) {
+    res.redirect('http://diabetes-pv.dev.solidstategroup.com/api' + req.url);
+    return;
+});
 app.post('/resource', handlers.handle_resource);
 app.get('/resource', handlers.handle_test);
 app.get('/patient/:uuid/observations', handlers.handle_patient_observations);
