@@ -68,19 +68,19 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
 
         $scope.edituser.selectedRole = '';
     };
-/*
-    $scope.add = function (isValid, form, code) {
+
+    $scope.add = function (isValid, form, user) {
         if(isValid) {
 
-            UserService.post($scope.group, code).then(function(added) {
+            UserService.post(user).then(function(added) {
                 $scope.list.push(added);
-                $scope.newCode = '';
-                $scope.addCodeForm.$setPristine(true);
+                $scope.newUser = '';
+                $scope.addUserForm.$setPristine(true);
             }, function() {
 
             });
         }
-    };*/
+    };
 
     $scope.setPage = function(pageNo) {
         $scope.currentPage = pageNo;
