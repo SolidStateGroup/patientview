@@ -26,10 +26,10 @@ echo $environment
 if test "$environment" == "local"
 then
     fhirnode_dir="~/work/"
-    cp -R src/main/resources/fhirnode fhirnode_dir
+    cp -R root/database/src/main/resources/fhirnode fhirnode_dir
 else
     fhirnode_dir="/home/patientview/"
-    scp -r src/main/resources/fhirnode root@dev.solidstategroup.com:$fhirnode_dir
+    scp -r root/database/src/main/resources/fhirnode root@dev.solidstategroup.com:$fhirnode_dir
 fi
 
 #echo $fhirnode_dir
