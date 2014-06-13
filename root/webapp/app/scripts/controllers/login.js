@@ -5,23 +5,20 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$timeou
     $scope.login = function() {
         var loginObject = {'username': $scope.username, 'password': $scope.password};
         AuthService.login(loginObject).then(function (authenticationResult) {
+            var authToken = authenticationResult.authToken;
+            var user = authenticationResult.user;
+            $rootScope.authToken = authToken;
+            $cookieStore.put('authToken', authToken);
 
+            // get user details, store in session
+            $rootScope.loggedInUser = user;
+            $cookieStore.put('loggedInUser', user);
 
-                var authToken = authenticationResult.authToken;
-                var user = authenticationResult.user;
-                $rootScope.authToken = authToken;
-                $cookieStore.put('authToken', authToken);
-
-                // get user details, store in session
-                $rootScope.loggedInUser = user;
-                $cookieStore.put('loggedInUser', user);
-
-                RouteService.getRoutes(user.id).then(function (data) {
-                    $rootScope.routes = data.routes;
-                    $cookieStore.put('routes', data.routes);
-                    $location.path('/dashboard');
-                });
-
+            RouteService.getRoutes(user.id).then(function (data) {
+                $rootScope.routes = data.routes;
+                $cookieStore.put('routes', data.routes);
+                $location.path('/dashboard');
+            });
         });
     };
 

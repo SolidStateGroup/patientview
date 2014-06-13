@@ -3,6 +3,10 @@
 <div class="container" ng-show="!loading" ng-cloak>
     <h1>Staff</h1>
     <br/>
+    <div >
+        <a class="btn btn-primary" href="">Create New</a>
+    </div>
+    <br/>
     <div class="row">
         <div class="col-md-2 hidden">PageSize:
             <select data-ng-model="entryLimit" class="form-control">
@@ -50,7 +54,7 @@
 
                                     <div class="btn-group pull-right">
                                         <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
-                                            <span class="caret"></span>
+                                            Actions&nbsp;&nbsp;<span class="caret"></span>
                                             <span class="sr-only">Toggle Dropdown</span>
                                         </button>
                                         <button type="button" class="btn btn-primary pull-right">
@@ -96,7 +100,6 @@
                                         </div>
 
                                         <span class="hidden">{{edituser.selectedRole}}</span>
-
 
                                     </div>
                                 </div>

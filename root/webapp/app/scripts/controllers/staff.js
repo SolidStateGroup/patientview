@@ -9,12 +9,8 @@ $( document ).ready( function(){
     console.log("x");
 });*/
 
-angular.module('patientviewApp').controller('StaffCtrl',['$scope', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
-    function ($scope, UserService, GroupService, RoleService, FeatureService) {
-
-   /* $scope.$on('dataloaded', function () {
-        console.log("x");
-    });*/
+angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
+    function ($scope, $timeout, UserService, GroupService, RoleService, FeatureService) {
 
     // Init
     $scope.init = function () {
@@ -51,7 +47,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', 'UserService'
     // Opened for edit
     $scope.opened = function (user, $event) {
 
-        if ($event.target.className.indexOf('dropdown-toggle') != -1) {
+        if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
 
             if ($('#' + $event.target.id).parent().children('.child-menu').length > 0) {
                 $('#' + $event.target.id).parent().children('.child-menu').remove();
@@ -64,18 +60,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', 'UserService'
                 childMenu.append(dropDownMenuToAdd);
                 $('#' + $event.target.id).parent().append(childMenu);
             }
-
-            /*
-            // for existing menu
-            $event.stopPropagation();
-            $('.dropdown-menu').show();
-            $('.dropdown-menu').attr('display','static');*/
         }
 
-        if ($event.target.className.indexOf('dropdown-menu-accordion-item') != -1) {
+        if ($event.target.className.indexOf('dropdown-menu-accordion-item') !== -1) {
             $event.stopPropagation();
         }
-
 
         $scope.editing = true;
         user.roles = $scope.allRoles;
