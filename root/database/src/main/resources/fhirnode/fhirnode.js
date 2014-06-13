@@ -5,6 +5,11 @@ var handlers = require('./handlers/handlers.js');
 var cors = require('cors');
 var app = express();
 
+var dev_url = 'diabetes-pv.dev.solidstategroup.com';
+var apiary_url = 'patientview201.apiary-mock.com';
+var apiary_port = '80';
+var dev_port = '8089';
+
 // Enables CORS
 var enableCORS = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -26,9 +31,9 @@ app.use(bodyParser());
 
 app.all('/api/user*', function(req, res) {
     var options = {
-        host: 'diabetes-pv.dev.solidstategroup.com',
+        host: dev_url,
         path: req.url,
-        port: '80',
+        port: dev_port,
         method: req.method
     };
 
@@ -49,9 +54,9 @@ app.all('/api/user*', function(req, res) {
 });
 app.all('/api/group*', function(req, res) {
     var options = {
-        host: 'diabetes-pv.dev.solidstategroup.com',
+        host: dev_url,
         path: req.url,
-        port: '80',
+        port: dev_port,
         method: req.method
     };
 
@@ -72,9 +77,9 @@ app.all('/api/group*', function(req, res) {
 });
 app.all('/api/feature*', function(req, res) {
     var options = {
-        host: 'patientview201.apiary-mock.com',
+        host: apiary_url,
         path: req.url,
-        port: '80',
+        port: apiary_port,
         method: res.method
     };
 
@@ -96,9 +101,9 @@ app.all('/api/feature*', function(req, res) {
 });
 app.all('/api/roles*', function(req, res) {
     var options = {
-        host: 'diabetes-pv.dev.solidstategroup.com',
+        host: dev_url,
         path: req.url,
-        port: '80',
+        port: dev_port,
         method: req.method
     };
 
@@ -119,9 +124,9 @@ app.all('/api/roles*', function(req, res) {
 });
 app.all('/api/auth*', function(req, res) {
     var options = {
-        host: 'diabetes-pv.dev.solidstategroup.com',
+        host: dev_url,
         path: req.url,
-        port: '80',
+        port: dev_port,
         method: req.method
     };
 
@@ -147,9 +152,9 @@ app.get('/api/patient/:uuid', handlers.handle_patient_by_id);
 app.get('/api/patient*', handlers.handle_patient_by_nhs_number);
 app.all('*', function(req, res) {
     var options = {
-        host: 'patientview201.apiary-mock.com',
+        host: apiary_url,
         path: req.url,
-        port: '80',
+        port: apiary_port,
         method: req.method
     };
 
