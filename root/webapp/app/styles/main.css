@@ -159,7 +159,9 @@ div.loading{
     border-bottom:0;
 }
 .accordion .panel-group .panel .panel-heading{
-    padding: 10px 0px 0px 15px;
+    /*padding: 10px 0px 0px 15px;*/
+    padding:0 0 0px 15px;
+    margin:0;
     background: #ffffff
 }
 .accordion .panel-group .panel .panel-heading h4.panel-title{
@@ -167,7 +169,6 @@ div.loading{
 }
 .accordion .panel-group .panel .panel-heading h4.panel-title a{
     display:block;
-    height:25px;
 }
 .accordion .panel-group .panel .panel-collapse{
     font-size: 14px;
@@ -278,6 +279,9 @@ div.group-add-container, div.feature-add-container {
 button.group-add-button, button.feature-add-button {
     clear:both;
     float: right;
+}
+
+button.group-add-button {
     height: 65px;
 }
 
@@ -330,10 +334,17 @@ div.grey-right-border {
     border-right: 1px solid #DDDDDD;
 }
 
-.btn {
+.btn-group-sm > .btn, .btn {
     border-radius: 0px;
 }
 
-.accordion-expand-icon {
-    margin-right: 5px;
+.accordion-expand-button {
+    margin-right: 0px;
+}
+
+.accordion-expand-button {
+}
+
+.accordion-heading-text {
+    padding-top: 9px;
 }
