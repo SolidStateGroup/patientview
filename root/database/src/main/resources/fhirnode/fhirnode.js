@@ -117,6 +117,29 @@ app.all('/api/roles*', function(req, res) {
     req.end();
     return;
 });
+app.all('/api/auth*', function(req, res) {
+    var options = {
+        host: 'diabetes-pv.dev.solidstategroup.com',
+        path: req.url,
+        port: '80',
+        method: req.method
+    };
+
+    callback = function(response) {
+        var str = ''
+        response.on('data', function (chunk) {
+            str += chunk;
+        });
+
+        response.on('end', function () {
+            res.end(str);
+        });
+    }
+
+    req = http.request(options, callback);
+    req.end();
+    return;
+});
 app.post('/api/resource', handlers.handle_resource);
 app.get('/api/resource', handlers.handle_test);
 app.get('/api/patient/:uuid/observations', handlers.handle_patient_observations);

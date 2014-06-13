@@ -64,5 +64,15 @@ public class GroupController {
         return new ResponseEntity<GroupFeature>(adminService.addGroupFeature(groupId, featureId), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/groupfeature", method = RequestMethod.POST)
+    public ResponseEntity<GroupFeature> createGroup(@RequestBody GroupFeature groupFeature, UriComponentsBuilder uriComponentsBuilder) {
+        groupFeature = adminService.createGroupFeature(groupFeature);
+        UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(groupFeature.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+        return new ResponseEntity<GroupFeature>(groupFeature, HttpStatus.CREATED);
+
+    }
+
 
 }
