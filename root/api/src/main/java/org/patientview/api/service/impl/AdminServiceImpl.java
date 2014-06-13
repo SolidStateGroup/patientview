@@ -140,5 +140,9 @@ public class AdminServiceImpl implements AdminService {
         return userRepository.save(user);
     }
 
+    public GroupFeature createGroupFeature(GroupFeature groupFeature) {
+        return groupFeatureRepository.save(groupFeature);
+    }
+
 
 }

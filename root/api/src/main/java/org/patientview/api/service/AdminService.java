@@ -36,4 +36,6 @@ public interface AdminService {
 
     User getByUsername(String username);
 
+    GroupFeature createGroupFeature(GroupFeature groupFeature);
+
 }

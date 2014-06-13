@@ -2,7 +2,9 @@ package org.patientview.persistence.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -17,6 +19,9 @@ public class Feature extends RangeModel {
 
     @Column(name = "description")
     private String description;
+
+    @OneToMany(mappedBy = "feature")
+    private Set<MenuItem> menuItems;
 
     public String getName() {
         return name;

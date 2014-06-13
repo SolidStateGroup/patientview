@@ -1,0 +1,108 @@
+package org.patientview.persistence.model;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+/**
+ * Created by james@solidstategroup.com
+ * Created on 13/06/2014
+ */
+@Entity
+@Table(name = "pv_menu_item")
+public class MenuItem extends SimpleAuditModel {
+
+    @Column(name = "display_order" )
+    private Integer displayOrder;
+
+    @Column(name = "url")
+    private String url;
+
+    @Column(name = "template_url")
+    private String templateUrl;
+
+    @Column(name = "title")
+    private String title;
+
+    @OneToOne
+    @JoinColumn(name = "lookup_id")
+    private Lookup lookup;
+
+    @OneToOne(optional = true)
+    @JoinColumn(name = "group_id")
+    private Group group;
+
+    @OneToOne(optional = true)
+    @JoinColumn(name = "group_id")
+    private Role role;
+
+    @OneToOne(optional = true)
+    @JoinColumn(name = "group_id")
+    private Feature feature;
+
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(final Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(final String url) {
+        this.url = url;
+    }
+
+    public String getTemplateUrl() {
+        return templateUrl;
+    }
+
+    public void setTemplateUrl(final String templateUrl) {
+        this.templateUrl = templateUrl;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
+    public Lookup getLookup() {
+        return lookup;
+    }
+
+    public void setLookup(final Lookup lookup) {
+        this.lookup = lookup;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(final Group group) {
+        this.group = group;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(final Role role) {
+        this.role = role;
+    }
+
+    public Feature getFeature() {
+        return feature;
+    }
+
+    public void setFeature(final Feature feature) {
+        this.feature = feature;
+    }
+}

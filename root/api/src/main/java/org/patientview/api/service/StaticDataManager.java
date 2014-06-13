@@ -1,7 +1,6 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Feature;
-import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Lookup;
 
 import java.util.List;
@@ -16,5 +15,4 @@ public interface StaticDataManager {
 
     List<Feature> getAllFeatures();
 
-    GroupFeature createGroupFeature(GroupFeature groupFeature);
 }
