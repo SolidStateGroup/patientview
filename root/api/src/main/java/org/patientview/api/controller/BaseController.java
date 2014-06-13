@@ -1,6 +1,5 @@
 package org.patientview.api.controller;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.persistence.EntityExistsException;
-import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -34,12 +32,6 @@ public class BaseController {
     public String handleGenericException(Exception e) {
         LOG.error("Unhandled exception type {}", e.getClass());
         return e.getMessage();
-    }
-
-    protected UUID fhirRequest(JSONObject jsonObject) {
-
-        return null;
-
     }
 
 
