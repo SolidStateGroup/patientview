@@ -10,26 +10,27 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$scope'
             AuthService.login(loginObject).then(function (authenticationResult) {
                // authenticationResult = {"id": 1,"authToken": "10833ACBEF5E4E04162A815D394B271B"};
                 var authToken = authenticationResult.authToken;
+                var user = authenticationResult.user;
                 $rootScope.authToken = authToken;
                 $cookieStore.put('authToken', authToken);
 
                 // get user details, store in session
-                UserService.get(authenticationResult.id).then(function (user) {
+                //UserService.get(authenticationResult.id).then(function (user) {
                     $rootScope.loggedInUser = user;
                     $cookieStore.put('loggedInUser', user);
 
                     // get user features, store in session
-                    UserService.getFeatures(authenticationResult.id).then(function (features) {
-                        $rootScope.features = features;
-                        $cookieStore.put('features', features);
+                    //UserService.getFeatures(authenticationResult.id).then(function (features) {
+                    //    $rootScope.features = features;
+                    //    $cookieStore.put('features', features);
 
                         MenuService.getMenu(user.id).then(function (data) {
                             $rootScope.menu = data.routes;
                             $cookieStore.put('menu', data.routes);
                             $location.path('/dashboard');
                         });
-                    });
-                });
+                    //});
+                //});
             });
         } else {
             var authToken = '10833ACBEF5E4E04162A815D394B271B';

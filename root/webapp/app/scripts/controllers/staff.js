@@ -50,8 +50,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
         // create list of available features (all - users)
         user.availableFeatures = $scope.allFeatures;
         if (user.features) {
-            for (var i = 0; i < user.features.length; i++) {
-                user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.features[i].id}));
+            for (var j = 0; j < user.features.length; j++) {
+                user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.features[j].id}));
             }
         } else {
             user.features = [];
