@@ -27,7 +27,7 @@ public class RoleController {
     @Inject
     private AdminService adminService;
 
-    @RequestMapping(value = "/roles", method = RequestMethod.GET)
+    @RequestMapping(value = "/role", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Role>> getGroups() {
         return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);

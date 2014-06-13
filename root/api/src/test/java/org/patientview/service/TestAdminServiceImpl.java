@@ -4,7 +4,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.api.config.ApiConfig;
+import org.patientview.api.util.Util;
+import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -36,6 +40,9 @@ public class TestAdminServiceImpl {
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private RouteRepository routeRepository;
+
     @Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
@@ -54,6 +61,12 @@ public class TestAdminServiceImpl {
        // userRepository.save(user);
     }
 
+
+    @Test
+    public void testRoutes() {
+        List<Route> routes= Util.iterableToList(routeRepository.findAll());
+        System.out.println("Pass");
+    }
 
 
 }
