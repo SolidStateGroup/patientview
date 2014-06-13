@@ -41,14 +41,31 @@
 
 
                         <div accordion-heading>
-                            <div class="row" ng-click="opened(user)">
+                            <div class="row" ng-click="opened(user, $event)">
                                 <div class="col-sm-1 hidden">{{user.id}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.username}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.email}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.fullname}}</div>
-                                <!--<div class="col-sm-6"><i class="pull-right glyphicon accordion-expand-icon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></i></div>-->
-                                <div class="col-sm-6"><button class="pull-right  accordion-expand-button btn btn-primary">
-                                    <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit</button></div>
+                                <div class="col-sm-6">
+
+                                    <div class="btn-group pull-right">
+                                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <button type="button" class="btn btn-primary pull-right">
+                                            <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>
+                                            &nbsp;&nbsp;Edit</button>
+                                        <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
+                                            <li><a href="#/codes" class="dropdown-menu-accordion-item">Codes</a></li>
+                                            <li><a href="#/letters" class="dropdown-menu-accordion-item">Letters</a></li>
+                                            <li><a href="#/mydetails" class="dropdown-menu-accordion-item">My Details</a></li>
+                                            <li class="divider"></li>
+                                            <li><a href="#" class="dropdown-menu-accordion-item">Separated link</a></li>
+                                        </ul>
+                                    </div>
+                                    {{dropDownClicked}}
+                                </div>
                             </div>
                         </div accordion-heading>
                         <form name="editUserForm" novalidate>
