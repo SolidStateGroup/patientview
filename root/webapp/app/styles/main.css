@@ -347,6 +347,8 @@ div.grey-right-border {
 
 .accordion-heading-text {
     padding-top: 9px;
+    height:34px;
+    border-right: 1px solid #dddddd;
 }
 
 .accordion-body.in { overflow:visible; }
