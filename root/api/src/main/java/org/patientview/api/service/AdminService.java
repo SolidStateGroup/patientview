@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,5 +38,7 @@ public interface AdminService {
     User getByUsername(String username);
 
     GroupFeature createGroupFeature(GroupFeature groupFeature);
+
+    List<Route> getUserRoutes(Long userId);
 
 }

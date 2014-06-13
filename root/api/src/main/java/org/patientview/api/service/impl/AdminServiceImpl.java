@@ -7,6 +7,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
@@ -14,6 +15,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
+import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Inject
     private GroupRoleRepository groupRoleRepository;
+
+    @Inject
+    private RouteRepository routeRepository;
 
     public User getUser(Long userId) {
         return userRepository.findOne(userId);
@@ -142,6 +147,13 @@ public class AdminServiceImpl implements AdminService {
 
     public GroupFeature createGroupFeature(GroupFeature groupFeature) {
         return groupFeatureRepository.save(groupFeature);
+    }
+
+    //TODO - Currently returns all routes
+    public List<Route> getUserRoutes(Long userId) {
+
+        return Util.iterableToList(routeRepository.findAll());
+
     }
 
 
