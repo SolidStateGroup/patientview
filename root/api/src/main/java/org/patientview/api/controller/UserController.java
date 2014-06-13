@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class UserController {
     @RequestMapping(value = "/user", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Void> getUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Void> createUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(adminService.getUser(1L));
@@ -85,15 +86,16 @@ public class UserController {
 
     }
 
+    //TODO Fix returning features
     @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Feature>> getUserFeatures(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
 
-        LOG.debug("Request has been received for userId : {}", user.getUsername());
+        LOG.debug("Request has been received for userId : {}", userId);
 
-        user.setCreator(adminService.getUser(1L));
-        user = adminService.createUser(user);
+        User user = adminService.getUser(userId);
+        //user = adminService.
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
@@ -101,6 +103,23 @@ public class UserController {
         headers.setLocation(uriComponents.toUri());
 
         return new ResponseEntity<List<Feature>>(headers, HttpStatus.OK);
+
+    }
+
+    @RequestMapping(value = "/user/{userId}/routes", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Route>> getUserRoutes(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
+
+        LOG.debug("Request has been received for userId : {}", userId);
+
+
+        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<List<Route>>(adminService.getUserRoutes(userId), headers, HttpStatus.OK);
 
     }
 

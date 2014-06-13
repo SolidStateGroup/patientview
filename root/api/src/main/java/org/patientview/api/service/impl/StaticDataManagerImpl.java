@@ -40,7 +40,5 @@ public class StaticDataManagerImpl implements StaticDataManager {
         return Util.iterableToList(featureRepository.findAll());
     }
 
-    public GroupFeature createGroupFeature(GroupFeature groupFeature) {
-        return groupFeatureRepository.save(groupFeature);
-    }
+
 }

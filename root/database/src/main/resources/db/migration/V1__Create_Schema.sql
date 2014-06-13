@@ -61,7 +61,7 @@ CREATE TABLE PV_Group
 CREATE TABLE PV_Role
 (
   Id               BIGINT      NOT NULL,
-  Role_Name         VARCHAR(50) NOT NULL UNIQUE,
+  Role_Name        VARCHAR(50) NOT NULL UNIQUE,
   Description      VARCHAR(255),
   Creation_Date    TIMESTAMP   NOT NULL,
   Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
@@ -135,7 +135,7 @@ CREATE TABLE PV_User_Token
   Id              BIGINT      NOT NULL,
   User_Id         BIGINT      NOT NULL REFERENCES PV_User (Id),
   Token           VARCHAR(50) NOT NULL UNIQUE,
-  Parent_Token    VARCHAR(50) NOT NULL,
+  Parent_Token_Id BIGINT      REFERENCES PV_User_Token (Id),
   Creation_Date   TIMESTAMP   NOT NULL,
   Expiration_Date TIMESTAMP,
   PRIMARY KEY (Id)
@@ -378,7 +378,7 @@ CREATE TABLE PV_Shared_Thought_Audit (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Menu_Item (
+CREATE TABLE PV_Routes (
   Id                   BIGINT        NOT NULL,
   Type_Id              BIGINT        NOT NULL  REFERENCES PV_Lookup_Value (Id),
   Group_Id             BIGINT        REFERENCES PV_Group (Id),
