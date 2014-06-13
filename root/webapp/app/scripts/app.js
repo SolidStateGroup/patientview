@@ -65,8 +65,8 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
         $routeProviderReference = $routeProvider;
     }]);
 
-patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Restangular', '$route', 'MenuService','ENV',
-    function($rootScope, $location, $cookieStore, $cookies, Restangular, $route, MenuService, ENV) {
+patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Restangular', '$route', 'RouteService','ENV',
+    function($rootScope, $location, $cookieStore, $cookies, Restangular, $route, RouteService, ENV) {
 
     $rootScope.ieTestMode = false;
 
@@ -78,7 +78,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
         if (menu !== undefined) {
             data.routes = menu;
         } else {
-            data.routes = MenuService.getDefault().routes;
+            data.routes = RouteService.getDefault().routes;
         }
 
         if (data !== undefined) {
@@ -116,7 +116,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
     };
 
     $rootScope.$on('$locationChangeStart', function() {
-        buildRoute($cookieStore, $route, MenuService);
+        buildRoute($cookieStore, $route, RouteService);
     });
 
     //$rootScope.$on('$routeChangeSuccess', function(event, currentRoute, previousRoute) {
@@ -125,11 +125,11 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
     });
 
     $rootScope.logout = function() {
-        delete $rootScope.menu;
+        delete $rootScope.routes;
         //delete $rootScope.features;
         delete $rootScope.loggedInUser;
         delete $rootScope.authToken;
-        $cookieStore.remove('menu');
+        $cookieStore.remove('routes');
         //$cookieStore.remove('features');
         $cookieStore.remove('loggedInUser');
         $cookieStore.remove('authToken');
@@ -152,16 +152,10 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
         $rootScope.loggedInUser = loggedInUser;
     }
 
-    // get cookie features
-    //var features = $cookieStore.get('features');
-    //if (features !== undefined) {
-    //    $rootScope.features = features;
-    //}
-
-    // get cookie menu
-    var menu = $cookieStore.get('menu');
-    if (menu !== undefined) {
-        $rootScope.menu = menu;
+    // get cookie routes
+    var routes = $cookieStore.get('routes');
+    if (routes !== undefined) {
+        $rootScope.routes = routes;
     }
 
     //buildRoute($cookieStore, $route, MenuService);

@@ -1,38 +1,29 @@
 'use strict';
 
-angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$scope', '$rootScope','$cookieStore','$cookies','$routeParams','$location','AuthService','MenuService','UserService',
-    function (Restangular, $scope, $rootScope, $cookieStore, $cookies, $routeParams, $location,AuthService,MenuService,UserService) {
+angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$scope', '$rootScope','$cookieStore','$cookies','$routeParams','$location','AuthService','RouteService',
+    function (Restangular, $scope, $rootScope, $cookieStore, $cookies, $routeParams, $location,AuthService,RouteService) {
     $scope.login = function() {
 
-        if (!$rootScope.ieTestMode) {
+        //if (!$rootScope.ieTestMode) {
             var loginObject = {'username': $scope.username, 'password': $scope.password};
-            //AuthService.login($.param({username: $scope.username, password: $scope.password})).then(function (authenticationResult) {
             AuthService.login(loginObject).then(function (authenticationResult) {
-               // authenticationResult = {"id": 1,"authToken": "10833ACBEF5E4E04162A815D394B271B"};
                 var authToken = authenticationResult.authToken;
                 var user = authenticationResult.user;
                 $rootScope.authToken = authToken;
                 $cookieStore.put('authToken', authToken);
 
                 // get user details, store in session
-                //UserService.get(authenticationResult.id).then(function (user) {
-                    $rootScope.loggedInUser = user;
-                    $cookieStore.put('loggedInUser', user);
+                $rootScope.loggedInUser = user;
+                $cookieStore.put('loggedInUser', user);
 
-                    // get user features, store in session
-                    //UserService.getFeatures(authenticationResult.id).then(function (features) {
-                    //    $rootScope.features = features;
-                    //    $cookieStore.put('features', features);
-
-                        MenuService.getMenu(user.id).then(function (data) {
-                            $rootScope.menu = data.routes;
-                            $cookieStore.put('menu', data.routes);
-                            $location.path('/dashboard');
-                        });
-                    //});
-                //});
+                RouteService.getRoutes(user.id).then(function (data) {
+                    console.log(data);
+                    $rootScope.routes = data.routes;
+                    $cookieStore.put('routes', data.routes);
+                    $location.path('/dashboard');
+                });
             });
-        } else {
+        /*} else {
             var authToken = '10833ACBEF5E4E04162A815D394B271B';
             var user = {
                 'id': '1',
@@ -148,7 +139,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$scope'
             $cookieStore.put('features', features);
             $rootScope.menu = menu.routes;
             $cookieStore.put('menu', menu.routes);
-        }
+        }*/
     };
 
     $scope.init = function() {
