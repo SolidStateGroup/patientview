@@ -162,6 +162,5 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope','$timeout', 'U
         form.$setDirty(true);
     };
 
-
     $scope.init();
 }]);

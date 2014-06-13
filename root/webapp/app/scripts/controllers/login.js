@@ -1,12 +1,12 @@
 'use strict';
 
-angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$scope', '$rootScope','$cookieStore','$cookies','$routeParams','$location','AuthService','RouteService',
-    function (Restangular, $scope, $rootScope, $cookieStore, $cookies, $routeParams, $location,AuthService,RouteService) {
+angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$timeout','$scope', '$rootScope','$cookieStore','$cookies','$routeParams','$location','AuthService','RouteService',
+    function (Restangular, $timeout, $scope, $rootScope, $cookieStore, $cookies, $routeParams, $location,AuthService,RouteService) {
     $scope.login = function() {
+        var loginObject = {'username': $scope.username, 'password': $scope.password};
+        AuthService.login(loginObject).then(function (authenticationResult) {
 
-        //if (!$rootScope.ieTestMode) {
-            var loginObject = {'username': $scope.username, 'password': $scope.password};
-            AuthService.login(loginObject).then(function (authenticationResult) {
+            $timeout(function(){
                 var authToken = authenticationResult.authToken;
                 var user = authenticationResult.user;
                 $rootScope.authToken = authToken;
@@ -17,129 +17,12 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$scope'
                 $cookieStore.put('loggedInUser', user);
 
                 RouteService.getRoutes(user.id).then(function (data) {
-                    console.log(data);
                     $rootScope.routes = data.routes;
                     $cookieStore.put('routes', data.routes);
                     $location.path('/dashboard');
                 });
             });
-        /*} else {
-            var authToken = '10833ACBEF5E4E04162A815D394B271B';
-            var user = {
-                'id': '1',
-                'username': 'exampleuser1',
-                'uuid': '6b22d403-9e5f-47fd-ad78-2b49910e68d7'
-            };
-            var features = [
-                { 'name': 'SHARINGTHOUGHTS', 'friendlyName': 'Sharing Thoughts', 'notification': '10', 'href': '/sharingthoughts' },
-                { 'name': 'MESSAGING', 'friendlyName': 'Messaging', 'notification': '2', 'href': '/messaging' }
-            ];
-            var menu = {
-                'routes': [
-                    {
-                        'url': '/',
-                        'templateUrl': 'views/main.html',
-                        'controller': 'MainCtrl',
-                        'title': 'PatientView2',
-                        'menu': '0'
-                    },{
-                        'url': '/dashboard',
-                        'templateUrl': 'views/dashboard.html',
-                        'controller': 'DashboardCtrl',
-                        'title': 'Home',
-                        'menu': '1'
-                    },{
-                        'url': '/login',
-                        'templateUrl': 'views/login.html',
-                        'controller': 'LoginCtrl',
-                        'title': 'Login',
-                        'menu': '0'
-                    },{
-                        'url': '/messages',
-                        'templateUrl': 'views/messages.html',
-                        'controller': 'MessagesCtrl',
-                        'title': 'Messages',
-                        'menu': '2'
-                    },{
-                        'url': '/settings',
-                        'templateUrl': 'views/settings.html',
-                        'controller': 'SettingsCtrl',
-                        'title': 'Settings',
-                        'menu': '2'
-                    },{
-                        'url': '/feedback',
-                        'templateUrl': 'views/feedback.html',
-                        'controller': 'FeedbackCtrl',
-                        'title': 'Feedback',
-                        'menu': '2'
-                    },{
-                        'url': '/help',
-                        'templateUrl': 'views/help.html',
-                        'controller': 'HelpCtrl',
-                        'title': 'Help',
-                        'menu': '2'
-                    },{
-                        'url': '/logout',
-                        'templateUrl': 'views/logout.html',
-                        'controller': 'LogoutCtrl',
-                        'title': 'Log Out',
-                        'menu': '2'
-                    },{
-                        'url': '/mydetails',
-                        'templateUrl': 'views/mydetails.html',
-                        'controller': 'MydetailsCtrl',
-                        'title': 'My Details',
-                        'menu': '1'
-                    },{
-                        'url': '/results',
-                        'templateUrl': 'views/results.html',
-                        'controller': 'ResultsCtrl',
-                        'title': 'Results',
-                        'menu': '1'
-                    },{
-                        'url': '/resultsdetail',
-                        'templateUrl': 'views/resultsdetail.html',
-                        'controller': 'ResultsDetailCtrl',
-                        'title': 'Results Detail',
-                        'menu': '0'
-                    },{
-                        'url': '/medicines',
-                        'templateUrl': 'views/medicines.html',
-                        'controller': 'MedicinesCtrl',
-                        'title': 'Medicines',
-                        'menu': '1'
-                    },{
-                        'url': '/letters',
-                        'templateUrl': 'views/letters.html',
-                        'controller': 'LettersCtrl',
-                        'title': 'Letters',
-                        'menu': '1'
-                    },{
-                        'url': '/sharingthoughts',
-                        'templateUrl': 'views/sharingthoughts.html',
-                        'controller': 'SharingthoughtsCtrl',
-                        'title': 'Sharing Thoughts',
-                        'menu': '1'
-                    },{
-                        'url': '/contact',
-                        'templateUrl': 'views/contact.html',
-                        'controller': 'ContactCtrl',
-                        'title': 'Contact',
-                        'menu': '1'
-                    }
-                ],
-                'default':'/'
-            };
-
-            $rootScope.authToken = authToken;
-            $cookieStore.put('authToken', authToken);
-            $rootScope.loggedInUser = user;
-            $cookieStore.put('loggedInUser', user);
-            $rootScope.features = features;
-            $cookieStore.put('features', features);
-            $rootScope.menu = menu.routes;
-            $cookieStore.put('menu', menu.routes);
-        }*/
+        });
     };
 
     $scope.init = function() {
