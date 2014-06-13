@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -30,14 +32,17 @@ public class Route extends SimpleAuditModel {
     @JoinColumn(name = "lookup_id")
     private Lookup lookup;
 
+    @JsonIgnore
     @OneToOne(optional = true)
     @JoinColumn(name = "group_id")
     private Group group;
 
+    @JsonIgnore
     @OneToOne(optional = true)
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @JsonIgnore
     @OneToOne(optional = true)
     @JoinColumn(name = "feature_id")
     private Feature feature;
