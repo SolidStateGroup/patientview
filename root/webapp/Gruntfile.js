@@ -112,7 +112,7 @@ module.exports = function (grunt) {
                   headers: {
                       "Host": "patientview201.apiary-mock.com"
                   },rewrite: {
-                  '^/api': ''
+                  //'^/api': ''
                     }
               }
           ],
@@ -430,6 +430,17 @@ module.exports = function (grunt) {
                   }
               }
           },
+          apiie: {
+              options: {
+                  dest: '<%= yeoman.app %>/scripts/config.js'
+              },
+              constants: {
+                  ENV: {
+                      name: 'production',
+                      apiEndpoint: '/api'
+                  }
+              }
+          },
           apiaryprod: {
               options: {
                   dest: '<%= yeoman.app %>/scripts/config.js'
@@ -480,7 +491,7 @@ module.exports = function (grunt) {
     grunt.registerTask('serveproxy', function (target) {
         grunt.task.run([
             'clean:server',
-            'ngconstant:apidev',
+            'ngconstant:apiie',
             'configureProxies',
             'bowerInstall',
             'concurrent:server',

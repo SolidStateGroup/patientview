@@ -6,7 +6,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$timeou
         var loginObject = {'username': $scope.username, 'password': $scope.password};
         AuthService.login(loginObject).then(function (authenticationResult) {
 
-            $timeout(function(){
+
                 var authToken = authenticationResult.authToken;
                 var user = authenticationResult.user;
                 $rootScope.authToken = authToken;
@@ -21,7 +21,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$timeou
                     $cookieStore.put('routes', data.routes);
                     $location.path('/dashboard');
                 });
-            });
+
         });
     };
 
