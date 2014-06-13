@@ -74,7 +74,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
     var buildRoute = function() {
         var data = { 'default': '/' };
 
-        var menu = $cookieStore.get('menu');
+        var menu = $cookieStore.get('routes');
         if (menu !== undefined) {
             data.routes = menu;
         } else {
@@ -158,7 +158,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
         $rootScope.routes = routes;
     }
 
-    //buildRoute($cookieStore, $route, MenuService);
+    //buildRoute($cookieStore, $route, RouteService);
     $rootScope.initialised = true;
 
     $rootScope.endPoint = ENV.apiEndpoint;

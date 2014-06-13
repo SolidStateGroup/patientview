@@ -48,7 +48,7 @@
                                 <div class="col-sm-2 accordion-heading-text">{{user.fullname}}</div>
                                 <!--<div class="col-sm-6"><i class="pull-right glyphicon accordion-expand-icon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></i></div>-->
                                 <div class="col-sm-6"><button class="pull-right  accordion-expand-button btn btn-primary">
-                                    <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;Edit</button></div>
+                                    <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit</button></div>
                             </div>
                         </div accordion-heading>
                         <form name="editUserForm" novalidate>
@@ -114,7 +114,7 @@
             </div>
         </div>
         <div class="col-md-12" data-ng-show="filteredItems > 0">
-            <div pagination on-select-page="setPage(page)" total-items="filteredItems" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm"></div>
+            <div pagination on-select-page="setPage(page)" total-items="filteredItems" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filteredItems < entryLimit "></div>
         </div>
     </div>
 
