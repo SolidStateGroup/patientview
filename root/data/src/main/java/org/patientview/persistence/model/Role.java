@@ -21,7 +21,7 @@ public class Role extends AuditModel {
     private String description;
 
     @OneToMany(mappedBy = "role")
-    private Set<MenuItem> menuItems;
+    private Set<Route> routes;
 
     public String getName() {
         return name;
@@ -39,11 +39,11 @@ public class Role extends AuditModel {
         this.description = description;
     }
 
-    public Set<MenuItem> getMenuItems() {
-        return menuItems;
+    public Set<Route> getRoutes() {
+        return routes;
     }
 
-    public void setMenuItems(final Set<MenuItem> menuItems) {
-        this.menuItems = menuItems;
+    public void setRoutes(final Set<Route> routes) {
+        this.routes = routes;
     }
 }

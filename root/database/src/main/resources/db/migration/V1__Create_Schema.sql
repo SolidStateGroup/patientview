@@ -378,7 +378,7 @@ CREATE TABLE PV_Shared_Thought_Audit (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Menu_Item (
+CREATE TABLE PV_Routes (
   Id                   BIGINT        NOT NULL,
   Type_Id              BIGINT        NOT NULL  REFERENCES PV_Lookup_Value (Id),
   Group_Id             BIGINT        REFERENCES PV_Group (Id),

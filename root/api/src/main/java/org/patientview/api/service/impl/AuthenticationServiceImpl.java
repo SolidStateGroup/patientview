@@ -39,4 +39,8 @@ public class AuthenticationServiceImpl implements org.patientview.api.service.Au
 
     }
 
+    public UserToken getToken(String token) {
+        return userTokenRepository.findByToken(token);
+    }
+
 }

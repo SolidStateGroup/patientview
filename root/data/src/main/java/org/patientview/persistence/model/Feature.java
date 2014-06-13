@@ -21,7 +21,7 @@ public class Feature extends RangeModel {
     private String description;
 
     @OneToMany(mappedBy = "feature")
-    private Set<MenuItem> menuItems;
+    private Set<Route> routes;
 
     public String getName() {
         return name;

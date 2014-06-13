@@ -39,7 +39,7 @@ public class Group extends AuditModel {
     private Set<GroupFeature> groupFeatures;
 
     @OneToMany(mappedBy = "group")
-    private Set<MenuItem> menuItems;
+    private Set<Route> routes;
 
     public String getName() {
         return name;
@@ -89,11 +89,11 @@ public class Group extends AuditModel {
         this.groupFeatures = groupFeatures;
     }
 
-    public Set<MenuItem> getMenuItems() {
-        return menuItems;
+    public Set<Route> getRoutes() {
+        return routes;
     }
 
-    public void setMenuItems(final Set<MenuItem> menuItems) {
-        this.menuItems = menuItems;
+    public void setRoutes(final Set<Route> routes) {
+        this.routes = routes;
     }
 }

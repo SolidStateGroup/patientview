@@ -11,8 +11,8 @@ import javax.persistence.Table;
  * Created on 13/06/2014
  */
 @Entity
-@Table(name = "pv_menu_item")
-public class MenuItem extends SimpleAuditModel {
+@Table(name = "pv_route")
+public class Route extends SimpleAuditModel {
 
     @Column(name = "display_order" )
     private Integer displayOrder;
@@ -35,11 +35,11 @@ public class MenuItem extends SimpleAuditModel {
     private Group group;
 
     @OneToOne(optional = true)
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "role_id")
     private Role role;
 
     @OneToOne(optional = true)
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "feature_id")
     private Feature feature;
 
     public Integer getDisplayOrder() {

@@ -12,4 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AuthenticationService {
 
     UserToken authenticate(String username, String password);
+
+    UserToken getToken(String token);
 }

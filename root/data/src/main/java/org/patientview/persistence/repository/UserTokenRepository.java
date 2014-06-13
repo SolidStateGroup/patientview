@@ -14,5 +14,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface UserTokenRepository  extends CrudRepository<UserToken, Long> {
 
-
+    public UserToken findByToken(String token);
 }
