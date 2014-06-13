@@ -32,17 +32,14 @@ public class Route extends SimpleAuditModel {
     @JoinColumn(name = "type_id")
     private Lookup lookup;
 
-    @JsonIgnore
     @OneToOne(optional = true)
     @JoinColumn(name = "group_id")
     private Group group;
 
-    @JsonIgnore
     @OneToOne(optional = true)
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @JsonIgnore
     @OneToOne(optional = true)
     @JoinColumn(name = "feature_id")
     private Feature feature;
@@ -87,6 +84,7 @@ public class Route extends SimpleAuditModel {
         this.lookup = lookup;
     }
 
+    @JsonIgnore
     public Group getGroup() {
         return group;
     }
@@ -95,6 +93,7 @@ public class Route extends SimpleAuditModel {
         this.group = group;
     }
 
+    @JsonIgnore
     public Role getRole() {
         return role;
     }
@@ -103,6 +102,7 @@ public class Route extends SimpleAuditModel {
         this.role = role;
     }
 
+    @JsonIgnore
     public Feature getFeature() {
         return feature;
     }
