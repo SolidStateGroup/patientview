@@ -126,11 +126,11 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
 
     $rootScope.logout = function() {
         delete $rootScope.menu;
-        delete $rootScope.features;
+        //delete $rootScope.features;
         delete $rootScope.loggedInUser;
         delete $rootScope.authToken;
         $cookieStore.remove('menu');
-        $cookieStore.remove('features');
+        //$cookieStore.remove('features');
         $cookieStore.remove('loggedInUser');
         $cookieStore.remove('authToken');
         $location.path('/');
@@ -153,10 +153,10 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'Rest
     }
 
     // get cookie features
-    var features = $cookieStore.get('features');
-    if (features !== undefined) {
-        $rootScope.features = features;
-    }
+    //var features = $cookieStore.get('features');
+    //if (features !== undefined) {
+    //    $rootScope.features = features;
+    //}
 
     // get cookie menu
     var menu = $cookieStore.get('menu');
