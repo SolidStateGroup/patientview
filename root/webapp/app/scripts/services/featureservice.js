@@ -1,3 +1,5 @@
+// not currently used
+
 'use strict';
 
 angular.module('patientviewApp').factory('FeatureService', ['$q', 'Restangular',

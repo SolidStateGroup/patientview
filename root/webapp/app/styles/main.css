@@ -348,3 +348,10 @@ div.grey-right-border {
 .accordion-heading-text {
     padding-top: 9px;
 }
+
+.accordion-body.in { overflow:visible; }
+.accordion-body.in:hover { overflow:visible; }
+
+.dropdown-menu-accordion {
+    position: static;
+}
