@@ -29,7 +29,7 @@ public class Route extends SimpleAuditModel {
     private String title;
 
     @OneToOne
-    @JoinColumn(name = "lookup_id")
+    @JoinColumn(name = "type_id")
     private Lookup lookup;
 
     @JsonIgnore
