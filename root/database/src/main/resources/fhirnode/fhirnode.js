@@ -5,7 +5,7 @@ var handlers = require('./handlers/handlers.js');
 var cors = require('cors');
 var app = express();
 
-var dev_url = 'diabetes-pv.dev.solidstategroup.com';
+var dev_url = 'localhost';
 var apiary_url = 'patientview201.apiary-mock.com';
 var apiary_port = '80';
 var dev_port = '8089';

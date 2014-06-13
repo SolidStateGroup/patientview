@@ -19,7 +19,7 @@ import java.util.List;
  * Created on 06/06/2014
  */
 @RestController
-public class RoleController {
+public class RoleController extends BaseController {
 
 
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);

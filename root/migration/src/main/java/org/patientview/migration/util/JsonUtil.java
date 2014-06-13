@@ -23,6 +23,8 @@ import org.patientview.Feature;
 import org.patientview.Group;
 import org.patientview.Lookup;
 import org.patientview.Role;
+import org.patientview.migration.util.exception.JsonMigrationException;
+import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,8 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 
 /**
+ * Dumping ground for some Json utilities to migrate data
+ *
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
@@ -41,15 +45,17 @@ public final class JsonUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
 
-    public static final String fhirUrl = "http://localhost:7865/api";
-    public static final String pvUrl = "http://locahost:18080/api";
+    public static final String fhirUrl = "http://dev.solidstategroup.com:7865/api";
+    public static final String pvUrl = "http://dev.solidstategroup.com:7865/api";
 
     private JsonUtil() {}
 
 
-    public static <T, V extends HttpRequestBase> T jsonRequest(String url, Class<T> responseObject, Object requestObject, Class<V> httpMethod) {
+    public static <T, V extends HttpRequestBase> T jsonRequest(String url, Class<T> responseObject
+            , Object requestObject, Class<V> httpMethod) throws JsonMigrationException, JsonMigrationExistsException {
 
         Gson gson = new Gson();
+
         HttpClient httpClient = getThreadSafeClient();
         V method;
 
@@ -58,7 +64,7 @@ public final class JsonUtil {
             method = cons.newInstance(url);
         } catch (Exception e) {
             LOG.error("Error creating request type {}", e.getCause());
-            return null;
+            throw new JsonMigrationException(e);
         }
 
         try {
@@ -69,7 +75,7 @@ public final class JsonUtil {
             }
 
             String json = gson.toJson(requestObject);
-            LOG.info("Adding the following to request: " + json);
+            LOG.debug("Adding the following to request: " + json);
             StringEntity puttingString = new StringEntity(json);
             if (method instanceof HttpEntityEnclosingRequestBase) {
                 ((HttpEntityEnclosingRequestBase) method).setEntity(puttingString);
@@ -77,7 +83,7 @@ public final class JsonUtil {
 
         } catch (Exception e) {
             LOG.error("Error creating request object {}", e.getCause());
-            return null;
+            throw new JsonMigrationException(e);
         }
 
         method.setHeader("Content-type", "application/json");
@@ -89,9 +95,14 @@ public final class JsonUtil {
             HttpResponse httpResponse = httpClient.execute(method);
 
             Integer statusCode = httpResponse.getStatusLine().getStatusCode();
+
+            if (statusCode == 409) {
+                throw new JsonMigrationExistsException("A conflict response from server");
+            }
+
             if (statusCode >= 300) {
-                LOG.error("Failed to put request for {} response was {}", url, httpResponse.getStatusLine());
-                return null;
+                LOG.error("Server response " + httpResponse);
+                throw new JsonMigrationException("An " + httpResponse.getStatusLine().getStatusCode() + " error response from the server");
             }
 
             br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
@@ -102,9 +113,8 @@ public final class JsonUtil {
             br.close();
 
         } catch (Exception e) {
-            LOG.error("Exception trying to get data from: {} cause: {}", url, e.getCause());
-            e.printStackTrace();
-            return null;
+            LOG.error("Exception trying to {} data to {} cause: {}", method.getClass().getName(), url, e.getMessage());
+            throw new JsonMigrationException(e);
 
         } finally {
             //httpClient.getConnectionManager().shutdown();
@@ -134,7 +144,7 @@ public final class JsonUtil {
 
         HttpClient httpClient = new DefaultHttpClient();
 
-        String postUrl="http://localhost:8082/resource";// put in your url
+        String postUrl="http://localhost:7865/api/resource";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
 
@@ -182,11 +192,11 @@ public final class JsonUtil {
 
 
 
-    public static <T> List<T> getStaticDataList(String getUrl) {
+    public static <T> List<T> getStaticDataList(String url) {
         HttpClient httpClient = new DefaultHttpClient();
         Gson gson = new Gson();
 
-        HttpGet get = new HttpGet(getUrl);
+        HttpGet get = new HttpGet(url);
         get.addHeader("accept", "application/json");
 
         HttpResponse httpResponse = null;
@@ -214,7 +224,7 @@ public final class JsonUtil {
                 output.append(s);
             }
         } catch (Exception e) {
-            LOG.error("Exception trying to get data from: {} cause: {}", getUrl, e.getCause());
+            LOG.error("Exception trying to get data from: {} cause: {}", url, e.getCause());
             e.printStackTrace();
         }
 
@@ -242,7 +252,7 @@ public final class JsonUtil {
 
         if (httpResponse.getStatusLine().getStatusCode() != 200) {
             throw new RuntimeException("Failed : HTTP error code : "
-                    + httpResponse.getStatusLine().getStatusCode());
+                    + httpResponse.getStatusLine().getStatusCode() + getUrl);
         }
 
         BufferedReader br;

@@ -25,7 +25,7 @@ import java.util.List;
  * Created on 03/06/2014
  */
 @RestController
-public class GroupController {
+public class GroupController extends BaseController {
 
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
 
@@ -34,7 +34,9 @@ public class GroupController {
 
     @RequestMapping(value = "/group", method = RequestMethod.POST)
     public ResponseEntity<Group> createGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
+
         group = adminService.createGroup(group);
+
         LOG.info("Created group with id " + group.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(group.getId());
 

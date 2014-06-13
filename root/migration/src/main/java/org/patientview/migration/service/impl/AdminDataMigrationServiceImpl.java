@@ -11,6 +11,8 @@ import org.patientview.Role;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.PvUtil;
+import org.patientview.migration.util.exception.JsonMigrationException;
+import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Unit;
 import org.patientview.repository.FeatureDao;
 import org.patientview.repository.UnitDao;
@@ -66,62 +68,15 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     @PostConstruct
     public void init() {
-        lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookups");
-        features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/features");
-        groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/groups");
-        roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/roles");
+        lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
+        features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
+        groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
+        roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
     }
 
 
     public void migrate() {
-        createSpecialties();
         createGroups();
-    }
-
-    public void createSpecialties() {
-
-        Lookup groupType = getLookupByName("SPECIALTY");
-
-        renal = new Group();
-        renal.setName("Renal");
-        renal.setCode("RENAL");
-        renal.setDescription("The renal specialty");
-        renal.setId(1L);
-        renal.setGroupType(groupType);
-
-        try {
-            JsonUtil.gsonPost(JsonUtil.pvUrl + "/group", renal);
-        } catch (Exception e) {
-            LOG.error("Error saving group: " + e.getCause());
-        }
-
-        diabetes = new Group();
-        diabetes.setName("Diabetes");
-        diabetes.setCode("DIABETES");
-        diabetes.setDescription("The diabetes specialty");
-        diabetes.setId(2L);
-        diabetes.setGroupType(groupType);
-
-        try {
-            LOG.info("Specialty creation response: {}", JsonUtil.gsonPost(JsonUtil.pvUrl + "/group", diabetes).toString());
-        } catch (Exception e) {
-            LOG.error("Error saving group: " + e.getCause());
-        }
-
-        ibd = new Group();
-        ibd.setName("IBD");
-        ibd.setCode("IBD");
-        ibd.setDescription("The IBD specialty");
-        ibd.setId(2L);
-        ibd.setGroupType(groupType);
-
-
-        try {
-            JsonUtil.gsonPost(JsonUtil.pvUrl + "/group", ibd);
-        } catch (Exception e) {
-            LOG.error("Error saving group: " + e.getCause());
-        }
-
     }
 
     public void createGroups() {
@@ -134,22 +89,33 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             Group group = PvUtil.createGroup(unit);
             group.setGroupType(getLookupByName("UNIT"));
 
-            group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
-
-            if (group == null) {
-                LOG.error("Could not create group");
+            try {
+                group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
+            } catch (JsonMigrationException jme) {
+                LOG.error("Unable to create group: ", jme.getMessage());
+                continue;
+            } catch (JsonMigrationExistsException jee) {
+                LOG.info("Group {} already exists", unit.getName());
                 continue;
             }
+
+            LOG.info("Success: created group");
 
             if (CollectionUtils.isNotEmpty(unitFeatures)) {
 
                 for (Feature feature : unitFeatures) {
                     String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/feature/" + feature.getId();
-                    GroupFeature groupFeature = JsonUtil.jsonRequest(featureUrl, GroupFeature.class, null, HttpPut.class);
 
-                    if (groupFeature != null) {
-                        LOG.info("Feature created for group");
+                    try {
+                        GroupFeature groupFeature = JsonUtil.jsonRequest(featureUrl, GroupFeature.class, null, HttpPut.class);
+                    } catch (JsonMigrationException jme) {
+                        LOG.error("Unable to create group: ", jme.getMessage());
+                        continue;
+                    }catch (JsonMigrationExistsException jee) {
+                        LOG.info("Could not update group {} already exists", unit.getName());
                     }
+
+                    LOG.info("Success: feature created for group");
 
                 }
             }

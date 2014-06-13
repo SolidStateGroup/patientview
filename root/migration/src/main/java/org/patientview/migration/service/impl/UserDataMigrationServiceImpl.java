@@ -8,6 +8,8 @@ import org.patientview.User;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.exception.JsonMigrationException;
+import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.SpecialtyUserRoleDao;
@@ -64,27 +66,18 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             }
 
-           /* for (Group group : getUserSpecialty(oldUser)) {
-
-                    if (newUser.getGroupRoles() == null) {
-                        newUser.setGroupRoles(new ArrayList<GroupRole>());
-                    }
-
-                    GroupRole userGroup = new GroupRole();
-                    userGroup.setGroup(group);
-                    userGroup.setRole(adminDataService.getRoleByName("PATIENT"));
-                    newUser.getGroupRoles().add(userGroup);
-
-            }*/
-
             String url = JsonUtil.pvUrl + "/user";
-            newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
-
-            if (newUser != null) {
-                LOG.info("Create user: {}", newUser.getUsername());
-            } else {
+            try {
+                newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
+            } catch (JsonMigrationException jme) {
                 LOG.error("Unable to create user: {}", oldUser.getUsername());
+                continue;
+            } catch (JsonMigrationExistsException jee) {
+                LOG.info("User {} already exists", oldUser.getUsername());
+                continue;
             }
+
+             LOG.info("Create user: {}", oldUser.getUsername());
 
         }
 
@@ -113,13 +106,18 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
 
             String url = JsonUtil.pvUrl + "/user";
-            newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
-
-            if (newUser != null) {
-                LOG.info("Create user: {}", newUser.getUsername());
-            } else {
+            try {
+                newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
+            } catch (JsonMigrationException jme) {
                 LOG.error("Unable to create user: {}", oldUser.getUsername());
+                continue;
+            } catch (JsonMigrationExistsException jee) {
+                LOG.info("User already exists {}", oldUser.getUsername());
+                continue;
             }
+
+            LOG.info("Success: user {} create", newUser.getUsername());
+
 
         }
 

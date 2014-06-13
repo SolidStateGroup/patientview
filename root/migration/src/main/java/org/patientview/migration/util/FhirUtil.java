@@ -38,7 +38,9 @@ public final class FhirUtil {
 
         org.hl7.fhir.instance.model.Patient fhirPatient = new org.hl7.fhir.instance.model.Patient();
 
-        fhirPatient.setBirthDate(getDateTime(patient.getDateofbirth()));
+        if (patient.getDob() != null) {
+            fhirPatient.setBirthDate(getDateTime(patient.getDob()));
+        }
         fhirPatient.setGender(getCodeableConcept(patient.getSex()));
         fhirPatient.getName().add(getHumanName(patient));
         fhirPatient.getIdentifier().add(getIdentifer(patient.getNhsno()));

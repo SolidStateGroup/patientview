@@ -10,8 +10,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.patientview.User;
+import org.patientview.migration.service.PatientDataMigrationService;
 import org.patientview.migration.util.FhirUtil;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.exception.JsonMigrationException;
+import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Patient;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.PatientDao;
@@ -19,6 +22,7 @@ import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -28,7 +32,8 @@ import java.util.UUID;
  * Created by james@solidstategroup.com
  * Created on 12/06/2014
  */
-public class PatientDataMigrationServiceImpl {
+@Service
+public class PatientDataMigrationServiceImpl implements PatientDataMigrationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PatientDataMigrationServiceImpl.class);
 
@@ -42,7 +47,6 @@ public class PatientDataMigrationServiceImpl {
     private PatientDao patientDao;
 
 
-    @Test
     public void migrate() {
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
@@ -50,43 +54,58 @@ public class PatientDataMigrationServiceImpl {
             List<UserMapping> userMappings = userMappingDao.getAll(oldUser.getUsername());
 
             String url = JsonUtil.pvUrl + "/user?username=" + oldUser.getUsername();
-            User newUser = JsonUtil.jsonRequest(url, User.class, null, HttpGet.class);
-            Patient oldPatient = getPatient(oldUser);
+            User newUser = null;
+            try {
+                newUser = JsonUtil.jsonRequest(url, User.class, null, HttpGet.class);
+            } catch (JsonMigrationException jme) {
+                LOG.error("Unable to get user {}, cause: {}", oldUser.getUsername(), jme.getCause());
+                continue;
+            } catch (JsonMigrationExistsException jee) {
+            }
+
+            Patient oldPatient = null;
+            try {
+                oldPatient = getPatient(oldUser);
+            } catch (IllegalStateException ise) {
+                LOG.error("Cannot create patient for username: {}, cause: {}", oldUser.getUsername(), ise.getMessage() );
+                continue;
+            }
             org.hl7.fhir.instance.model.Patient newPatient =  FhirUtil.getFhirPatient(oldPatient);
 
             try {
                 String uuid = JsonUtil.getResourceUuid(JsonUtil.serializeResource(newPatient));
                 newUser.setFhirResourceId(UUID.fromString(uuid));
             } catch (Exception e) {
-                LOG.error("Failed to export patient {} ", oldPatient.getNhsno());
-                e.printStackTrace();
+                LOG.error("Failed to export patient {} cause {} ", oldPatient.getNhsno(), e.getMessage());
                 continue;
             }
 
-            newUser = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/user", User.class, newUser, HttpPut.class);
-
-            if (newUser == null) {
-                LOG.error("Failed to update user with uuid");
-            } else {
-                LOG.info("Successfully created patient");
+            try {
+                newUser = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/user", User.class, newUser, HttpPut.class);
+            } catch (JsonMigrationException jme) {
+                LOG.error("Failed to link patient record with user: {}", newUser.getUsername());
+                continue;
+            } catch (JsonMigrationExistsException jee) {
+                LOG.error("Failed to link patient record with user link exists for {}", oldUser.getUsername());
+                continue;
             }
 
+            LOG.info("Successfully created patient");
+
         }
-
-
 
     }
 
 
-    private Patient getPatient(org.patientview.patientview.model.User oldUser) {
+    private Patient getPatient(org.patientview.patientview.model.User oldUser) throws IllegalStateException {
 
         String nhsNumber = null;
-        Patient patient = null;
         List<UserMapping> userMappings = userMappingDao.getAll(oldUser.getUsername());
 
         for (UserMapping userMapping : userMappings) {
             if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
                 nhsNumber = userMapping.getNhsno();
+                break;
             }
         }
 
@@ -94,12 +113,13 @@ public class PatientDataMigrationServiceImpl {
             throw new IllegalStateException("This is not a patient");
         }
 
-        List<Patient> patients = patientDao.get(nhsNumber);
+        List<Patient> patients = patientDao.getByNhsNo(nhsNumber);
+
 
         for (Patient tempPatient : patients) {
-            if (!tempPatient.isLinked() && tempPatient.getSourceType().equalsIgnoreCase("patient")
+            if (tempPatient.getSourceType().equalsIgnoreCase("PatientView")
                     && StringUtils.isNotEmpty(tempPatient.getSurname())) {
-                return patient;
+                return tempPatient;
             }
         }
 

@@ -19,10 +19,12 @@ import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.persistence.EntityExistsException;
 import java.util.Date;
 import java.util.List;
 
@@ -64,7 +66,7 @@ public class AdminServiceImpl implements AdminService {
 
     }
 
-    public Group createGroup(Group group) {
+    public Group createGroup(Group group) throws EntityExistsException {
         if (group.getGroupType() != null) {
             group.setGroupType(lookupRepository.findOne(group.getGroupType().getId()));
         }
@@ -75,8 +77,16 @@ public class AdminServiceImpl implements AdminService {
             }
         }
 
-        return groupRepository.save(group);
-    }
+        try {
+            group = groupRepository.save(group);
+        } catch (DataIntegrityViolationException dve) {
+            LOG.debug("Group not created, duplicate: {}", dve.getCause());
+            throw new EntityExistsException("Group already exists");
+        }
+
+        return group;
+
+}
 
     /**
      * TODO Sort of the cascade model for GroupRoles
@@ -86,8 +96,13 @@ public class AdminServiceImpl implements AdminService {
      */
     public User createUser(User user) {
 
-
-        User newUser = userRepository.save(user);
+        User newUser;
+        try {
+            newUser = userRepository.save(user);
+        } catch (DataIntegrityViolationException dve) {
+            LOG.debug("user not created, duplicate user: {}", dve.getCause());
+            throw new EntityExistsException("Username already exists");
+        }
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
 

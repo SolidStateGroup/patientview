@@ -28,7 +28,7 @@ import java.util.List;
  * Created on 03/06/2014.
  */
 @RestController
-public class UserController {
+public class UserController extends BaseController {
 
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
 
@@ -95,7 +95,6 @@ public class UserController {
         LOG.debug("Request has been received for userId : {}", userId);
 
         User user = adminService.getUser(userId);
-        //user = adminService.
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
@@ -112,7 +111,6 @@ public class UserController {
     public ResponseEntity<List<Route>> getUserRoutes(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", userId);
-
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
 
