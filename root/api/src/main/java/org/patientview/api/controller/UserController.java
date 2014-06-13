@@ -107,7 +107,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/user/{userId}/routes", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Route>> getUserRoutes(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
 
@@ -119,7 +119,7 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<List<Route>>(adminService.getUserRoutes(userId), headers, HttpStatus.OK);
+        return new ResponseEntity<List<Route>>(adminService.getUserRoutes(userId), HttpStatus.OK);
 
     }
 

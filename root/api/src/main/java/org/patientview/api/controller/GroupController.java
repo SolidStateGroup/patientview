@@ -50,7 +50,7 @@ public class GroupController {
         return new ResponseEntity<Group>(adminService.getGroup(groupId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/groups", method = RequestMethod.GET)
+    @RequestMapping(value = "/group", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Group>> getGroups() {
         return new ResponseEntity<List<Group>>(adminService.getAllGroups(), HttpStatus.OK);

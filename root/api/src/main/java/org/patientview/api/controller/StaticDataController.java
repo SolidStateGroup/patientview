@@ -23,14 +23,14 @@ public class StaticDataController {
     @Inject
     private StaticDataManager staticDataManager;
 
-    @RequestMapping(value = "/lookups", method = RequestMethod.GET)
+    @RequestMapping(value = "/lookup", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Lookup>> getAllLookups() {
 
         return new ResponseEntity<List<Lookup>>(staticDataManager.getAllLookups(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/features", method = RequestMethod.GET)
+    @RequestMapping(value = "/feature", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Feature>> getAllFeatures() {
         return new ResponseEntity<List<Feature>>(staticDataManager.getAllFeatures(), HttpStatus.OK);
