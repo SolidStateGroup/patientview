@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('patientviewApp').factory('MenuService', ['$q', 'Restangular', function ($q, Restangular) {
+angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', function ($q, Restangular) {
     return {
         getDefault: function() {
-            var defaultMenu = {
+            var defaultRoutes = {
                 'routes': [{
                     'url': '/',
                     'templateUrl': 'views/main.html',
@@ -25,11 +25,11 @@ angular.module('patientviewApp').factory('MenuService', ['$q', 'Restangular', fu
                 }]
             };
 
-            return defaultMenu;
+            return defaultRoutes;
         },
-        getMenu: function (uuid) {
+        getRoutes: function (uuid) {
             var deferred = $q.defer();
-            Restangular.one('user', uuid).customGET('menus').then(function (res) {
+            Restangular.one('user', uuid).customGET('routes').then(function (res) {
                 deferred.resolve(res);
             });
             return deferred.promise;
