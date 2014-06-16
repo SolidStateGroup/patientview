@@ -1,7 +1,109 @@
 'use strict';
 
+angular.module('patientviewApp').filter('groupFilter', [function () {
+    return function (users, selectedGroup) {
+        if (!angular.isUndefined(users) && !angular.isUndefined(selectedGroup) && selectedGroup.length > 0) {
+            var tempUsers = [];
+            angular.forEach(selectedGroup, function (id) {
+                angular.forEach(users, function (user) {
+                    if (_.findWhere(user.groups, {id: id}) && !_.findWhere(tempUsers, {id:user.id})) {
+                        tempUsers.push(user);
+                    }
+                });
+            });
+            return tempUsers;
+        } else {
+            return users;
+        }
+    };
+}]);
+
+angular.module('patientviewApp').filter('roleFilter', [function () {
+    return function (users, selectedRole) {
+        if (!angular.isUndefined(users) && !angular.isUndefined(selectedRole) && selectedRole.length > 0) {
+            var tempUsers = [];
+            angular.forEach(selectedRole, function (id) {
+                angular.forEach(users, function (user) {
+                    angular.forEach(user.groups, function (group) {
+                        if ((group.role.id === id) && !_.findWhere(tempUsers, {id: user.id})) {
+                            tempUsers.push(user);
+                        }
+                    });
+                });
+            });
+            return tempUsers;
+        } else {
+            return users;
+        }
+    };
+}]);
+
 angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
     function ($scope, $timeout, UserService, GroupService, RoleService, FeatureService) {
+
+    // filter by group
+    $scope.selectedGroup = [];
+        
+    $scope.setSelectedGroup = function () {
+        var id = this.group.id;
+        if (_.contains($scope.selectedGroup, id)) {
+            $scope.selectedGroup = _.without($scope.selectedGroup, id);
+        } else {
+            $scope.selectedGroup.push(id);
+        }
+        return false;
+    };
+
+    $scope.isGroupChecked = function (id) {
+        if (_.contains($scope.selectedGroup, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+        
+    // filter by role
+    $scope.selectedRole = [];
+        
+    $scope.setSelectedRole = function () {
+        var id = this.role.id;
+        if (_.contains($scope.selectedRole, id)) {
+            $scope.selectedRole = _.without($scope.selectedRole, id);
+        } else {
+            $scope.selectedRole.push(id);
+        }
+        return false;
+    };
+
+    $scope.isRoleChecked = function (id) {
+        if (_.contains($scope.selectedRole, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+
+        // filter by role button click
+        $scope.filterByRole = function(roleName) {
+            if(roleName === 'all') {
+
+            } else {
+                var role = _.findWhere($scope.allRoles, {name: roleName});
+                console.log(role);
+            }
+        };
+
+    // pagination, sorting, basic filter    
+    $scope.setPage = function(pageNo) {
+        $scope.currentPage = pageNo;
+    };
+    $scope.filter = function() {
+        $timeout(function() {
+            $scope.filteredItems = $scope.filtered.length;
+        }, 10);
+    };
+    $scope.sortBy = function(predicate) {
+        $scope.predicate = predicate;
+        $scope.reverse = !$scope.reverse;
+    };
 
     // Init
     $scope.init = function () {
@@ -93,19 +195,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         }
 
         $scope.edituser.selectedRole = '';
-    };
-
-    $scope.setPage = function(pageNo) {
-        $scope.currentPage = pageNo;
-    };
-    $scope.filter = function() {
-        $timeout(function() {
-            $scope.filteredItems = $scope.filtered.length;
-        }, 10);
-    };
-    $scope.sortBy = function(predicate) {
-        $scope.predicate = predicate;
-        $scope.reverse = !$scope.reverse;
     };
 
     // Save from edit

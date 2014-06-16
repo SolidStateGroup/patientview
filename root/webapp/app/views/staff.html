@@ -67,12 +67,12 @@
                 <button class="btn btn-primary" ng-click="ok()">Create New</button>
             </div>
         </script>
-
         <button class="btn btn-primary" ng-click="open('lg')">Create New</button>
-        <!--<div ng-show="selected"><pre> {{ selected }}</pre></div>-->
     </div>
 
+    <!-- Filter -->
     <br/>
+    <h2>Filter</h2>
     <div class="row">
         <div class="col-md-2 hidden">PageSize:
             <select data-ng-model="entryLimit" class="form-control">
@@ -82,22 +82,64 @@
                 <option>5</option>
             </select>
         </div>
+        <div class="col-md-4 hidden">
+            <h5>Showing {{ filtered.length }} of {{ totalItems}} total staff users</h5>
+            <h5>{{ allGroups.length }} groups available</h5>
+        </div>
         <div class="col-md-12">
             <div class="left-inner-addon ">
                 <i class="glyphicon glyphicon-search"></i>
                 <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
             </div>
         </div>
-        <div class="col-md-4 hidden">
-            <h5>Showing {{ filtered.length }} of {{ totalItems}} total staff users</h5>
-            <h5>{{ allGroups.length }} groups available</h5>
-        </div>
     </div>
     <br/>
     <div class="row">
-        <div class="col-md-12" data-ng-show="filteredItems > 0">
-            <span class="hidden" ng-repeat="data in filtered = (list | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
+        <!-- filter by role -->
+        <div class="col-md-3">
+            <!--<button class="btn btn-primary" ng-click="filterByRole('all')">All</button>
+            <button class="btn btn-primary" ng-click="filterByRole('admin')">Admin</button>
+            <button class="btn btn-primary" ng-click="filterByRole('staff')">Staff</button>-->
+            <div class="form-horizontal" role="form">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="btn-group" id="filter-role" data-ng-class="{open: open2}">
+                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Role <span class="caret"></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li><a data-ng-click="selectedRole=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role"><span class="pull-left">{{role.name}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- filter by group -->
+        <div class="col-md-9">
+            <div class="form-horizontal" role="form">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="btn-group" id="filter-group" data-ng-class="{open: open-group}">
+                            <button class="btn dropdown-toggle" data-ng-click="open=!open-group">Filter By Group <span class="caret"></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li><a data-ng-click="selectedGroup=[];" class="a-filter-group"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="group in allGroups"> <a data-ng-click="setSelectedGroup()" class="a-filter-group"><span class="pull-left">{{group.name}}</span><span data-ng-class="isGroupChecked(group.id)"></span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- data grid -->
+    <br/>
+    <div class="row">
+        <div class="col-md-12" data-ng-show="filteredItems > 0">
+            <!-- header -->
+            <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="row accordion-title-row" ng-show="filteredItems > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
@@ -106,10 +148,9 @@
                 <div class="col-sm-6"></div>
             </div>
 
+            <!-- body -->
             <div accordion class="accordion" close-others="true" ng-show="filteredItems > 0" ng-cloak>
-                <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
-
-
+                <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                         <div accordion-heading>
                             <div class="row" ng-click="opened(user, $event)">
                                 <div class="col-sm-1 hidden">{{user.id}}</div>
@@ -117,7 +158,6 @@
                                 <div class="col-sm-2 accordion-heading-text">{{user.email}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.fullname}}</div>
                                 <div class="col-sm-6">
-
                                     <div class="btn-group pull-right">
                                         <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
                                             Actions&nbsp;&nbsp;<span class="caret"></span>
@@ -151,22 +191,16 @@
                                     <div class="group-list-item" ng-repeat="group in edituser.groups">
                                         <div class="group-list-name"><span class="group-list-name">{{group.name}}</span></div>
                                         <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{group.id}}" href="" ng-click="removeGroup(userForm, edituser, group)" >Delete</a></span></div>
-
-                                        <!--<div class="group-list-role" ng-repeat="role in allRoles"><span class="group-list-role">{{group.role.name}}</span></div>-->
                                         <div class="group-list-role" ng-repeat="role in allRoles" ng-class="(role.id==group.role.id) ? 'group-list-role-selected' : ''"><span class="group-list-role">{{role.name}}</span></div>
                                     </div>
-
                                     <div class="group-add-container" ng-show="edituser.availableGroups.length > 0 ">
                                         <h5 class="inner-title">Add Group &amp; Role </h5>
-
                                         <div class="row">
                                             <div class="col-sm-10"><select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups"></select>
                                                 <div buttongroup="justified" buttongroupname="role" model="edituser.selectedRole" options="edituser.roles" ng-init="edituser.selectedRole"></div></div>
                                             <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, edituser, groupToAdd)" ng-disabled="!edituser.selectedRole">Add</button></div>
                                         </div>
-
                                         <span class="hidden">{{edituser.selectedRole}}</span>
-
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -203,35 +237,7 @@
             <div pagination on-select-page="setPage(page)" total-items="filteredItems" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filteredItems < entryLimit "></div>
         </div>
     </div>
-
-    <!--<div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">Add Code</h3></div>
-
-        <div  class="panel-body">
-            <form name="addCodeForm" ng-submit="add(addCodeForm.$valid, addCodeForm, newCode)" novalidate>
-                <div class="row" ng-model="newCode">
-                    <div class="col-sm-2">
-                        Type<br/>
-                        <input type="text" name="input-type" ng-model="newCode.type" required ng-trim="false" class="form-control">
-                        <p ng-show="!newCode.type && !addCodeForm.$pristine" class="help-block">Required.</p>
-                    </div>
-                    <div class="col-sm-2">Standard<br/>
-                        <input type="text" name="input-standard" ng-model="newCode.standard" required ng-trim="false" class="form-control">
-                        <p ng-show="!newCode.standard && !addCodeForm.$pristine" class="help-block">Required</p>
-                    </div>
-                    <div class="col-sm-2">Number<br/>
-                        <input type="text" name="input-number" ng-model="newCode.number" required ng-trim="false" class="form-control">
-                        <p ng-show="!newCode.number && !addCodeForm.$pristine" class="help-block">Required</p></div>
-                    <div class="col-sm-4">Description<br/>
-                        <input type="text" name="input-description" ng-model="newCode.description" required ng-trim="false" class="form-control">
-                        <p ng-show="!newCode.description && !addCodeForm.$pristine" class="help-block">Required</p></div>
-                    <div class="col-sm-1"><br/><button type="submit" class="btn btn-primary" ng-disabled="addCodeForm.$invalid">Add Code</button></div>
-                </div>
-            </form>
-        </div>
-    </div>-->
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
+<div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>

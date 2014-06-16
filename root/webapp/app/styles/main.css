@@ -364,7 +364,12 @@ div.grey-right-border {
 
 .modal-dialog {
     background-color: #ffffff;
-
     width: 95%;
+}
+
+.a-filter-group, .a-filter-role {
+    cursor:pointer;
+    height: 25px;
+    min-width: 175px;
 }
 
