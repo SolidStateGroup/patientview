@@ -20,11 +20,10 @@ import javax.inject.Inject;
  */
 
 
-public class TestUserController {
+public class UserControllerTest {
 
     @Inject
     private WebApplicationContext  webApplicationContext;
-
 
     @Mock
     private AdminService adminService;

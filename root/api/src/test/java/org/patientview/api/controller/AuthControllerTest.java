@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
-public class TestAuthController {
+public class AuthControllerTest {
 
     @Mock
     private AuthenticationService authenticationService;

@@ -21,8 +21,9 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.inject.Inject;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,9 +34,9 @@ import static org.mockito.Mockito.when;
  */
 
 
-public class TestAdminServiceImpl {
+public class AdminServiceImplTest {
 
-    @Autowired
+    @Inject
     private WebApplicationContext webApplicationContext;
 
     @Mock
