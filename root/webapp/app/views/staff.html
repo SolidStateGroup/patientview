@@ -82,38 +82,50 @@
                 <option>5</option>
             </select>
         </div>
+        <div class="col-md-4 hidden">
+            <h5>Showing {{ filtered.length }} of {{ totalItems}} total staff users</h5>
+            <h5>{{ allGroups.length }} groups available</h5>
+        </div>
         <div class="col-md-12">
             <div class="left-inner-addon ">
                 <i class="glyphicon glyphicon-search"></i>
                 <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
             </div>
         </div>
-        <div class="col-md-4 hidden">
-            <h5>Showing {{ filtered.length }} of {{ totalItems}} total staff users</h5>
-            <h5>{{ allGroups.length }} groups available</h5>
-        </div>
     </div>
     <br/>
     <div class="row">
+        <!-- filter by role -->
         <div class="col-md-3">
-            <button class="btn btn-primary" ng-click="filterByRole('all')">All</button>
+            <!--<button class="btn btn-primary" ng-click="filterByRole('all')">All</button>
             <button class="btn btn-primary" ng-click="filterByRole('admin')">Admin</button>
-            <button class="btn btn-primary" ng-click="filterByRole('staff')">Staff</button>
+            <button class="btn btn-primary" ng-click="filterByRole('staff')">Staff</button>-->
+            <div class="form-horizontal" role="form">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="btn-group" id="filter-role" data-ng-class="{open: open2}">
+                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Role <span class="caret"></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li><a data-ng-click="selectedRole=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role"><span class="pull-left">{{role.name}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+        <!-- filter by group -->
         <div class="col-md-9">
             <div class="form-horizontal" role="form">
                 <div class="form-group">
                     <div class="col-sm-12">
-                        <!--<select class="form-control group-select" ng-options="group.id as group.name for group in allGroups" id="filter-group"></select>-->
-                        <div class="btn-group" id="filter-group" data-ng-class="{open: open}">
-                            
-                            <button class="btn dropdown-toggle" data-ng-click="open=!open">Filter By Group <span class="caret"></span></button>
+                        <div class="btn-group" id="filter-group" data-ng-class="{open: open-group}">
+                            <button class="btn dropdown-toggle" data-ng-click="open=!open-group">Filter By Group <span class="caret"></span></button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                                <li><a data-ng-click="selectedGroup=[];" class="a-filter-group"><i class="glyphicon glyphicon-remove"></i>  Uncheck All</a>
-                                </li>
+                                <li><a data-ng-click="selectedGroup=[];" class="a-filter-group"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                 <li class="divider"></li>
-                                <li data-ng-repeat="group in allGroups"> <a data-ng-click="setSelectedGroup()" class="a-filter-group"><span class="pull-left">{{group.name}}</span><span data-ng-class="isChecked(group.id)"></span></a>
-                                </li>
+                                <li data-ng-repeat="group in allGroups"> <a data-ng-click="setSelectedGroup()" class="a-filter-group"><span class="pull-left">{{group.name}}</span><span data-ng-class="isGroupChecked(group.id)"></span></a></li>
                             </ul>
                         </div>
                     </div>
@@ -126,7 +138,8 @@
     <br/>
     <div class="row">
         <div class="col-md-12" data-ng-show="filteredItems > 0">
-            <span class="hidden" ng-repeat="data in filtered = (list | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
+            <!-- header -->
+            <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="row accordion-title-row" ng-show="filteredItems > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
@@ -134,8 +147,10 @@
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('fullname');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-6"></div>
             </div>
-            <div accordion class="accordion" close-others="true" ng-show="filteredItems > 0" ng-cloak> <!-- filter: {groups:[{id:filterGroupId}]} | -->
-                <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+
+            <!-- body -->
+            <div accordion class="accordion" close-others="true" ng-show="filteredItems > 0" ng-cloak>
+                <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                         <div accordion-heading>
                             <div class="row" ng-click="opened(user, $event)">
                                 <div class="col-sm-1 hidden">{{user.id}}</div>
