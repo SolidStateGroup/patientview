@@ -1,13 +1,48 @@
 'use strict';
-/*
-$( document ).ready( function(){
 
-    $('.dropdown-toggle').on( "click", function(e) {
-        $('.dropdown-menu').show();
-        e.stopPropagation();
-    });
-    console.log("x");
-});*/
+angular.module('patientviewApp').controller('ModalDemoCtrl',['$scope','$modal',
+    function ($scope, $modal) {
+        $scope.items = ['item1', 'item2', 'item3'];
+
+        $scope.open = function (size) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'myModalContent.html',
+                controller: ModalInstanceCtrl,
+                size: size,
+                resolve: {
+                    items: function () {
+                        return $scope.items;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+                console.log("ok");
+            }, function () {
+                console.log("closed");
+            });
+        };
+    }]);
+
+// Please note that $modalInstance represents a modal window (instance) dependency.
+// It is not the same as the $modal service used above.
+var ModalInstanceCtrl = function ($scope, $modalInstance, items) {
+
+    $scope.items = items;
+    $scope.selected = {
+        item: $scope.items[0]
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close($scope.selected.item);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+};
 
 angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
     function ($scope, $timeout, UserService, GroupService, RoleService, FeatureService) {
@@ -16,6 +51,14 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
     $scope.init = function () {
         $('body').click(function () {
             $('.child-menu').remove();
+        });
+
+        // modal related (Create New Staff)
+        $('#createStaffModal').on('show.bs.modal', function (e) {
+            $scope.newUser = {};
+            $scope.opened($scope.newUser,e);
+            console.log($scope.newUser);
+            $scope.newUser.fullname = "x";
         });
 
         $scope.loading = true;
@@ -46,6 +89,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
 
     // Opened for edit
     $scope.opened = function (user, $event) {
+
+        console.log("opened");
 
         if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
 
@@ -91,6 +136,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         }
 
         $scope.edituser = _.clone(user);
+        $scope.newUser = _.clone(user);
 
         if (user.availableGroups[0]) {
             $scope.groupToAdd = user.availableGroups[0].id;
@@ -100,6 +146,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         }
 
         $scope.edituser.selectedRole = '';
+
+        console.log(user);
     };
 
     $scope.add = function (isValid, form, user) {
@@ -196,3 +244,5 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
 
     $scope.init();
 }]);
+
+

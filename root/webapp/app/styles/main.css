@@ -185,7 +185,6 @@ div.loading{
 }
 
 .accordion-title-row{
-    padding: 10px 15px;
     font-size: 14px;
     border-top: 1px solid #DDDDDD;
     border-right: 1px solid #DDDDDD;
@@ -350,6 +349,11 @@ div.grey-right-border {
     height:34px;
     border-right: 1px solid #dddddd;
 }
+.accordion-title-text {
+    padding-top:9px;
+    height:34px;
+    margin-right: 3px;
+}
 
 .accordion-body.in { overflow:visible; }
 .accordion-body.in:hover { overflow:visible; }
@@ -357,3 +361,8 @@ div.grey-right-border {
 .dropdown-menu-accordion {
     position: static;
 }
+
+.modal-dialog {
+    background-color: #ffffff;
+}
+

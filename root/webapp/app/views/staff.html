@@ -3,9 +3,97 @@
 <div class="container" ng-show="!loading" ng-cloak>
     <h1>Staff</h1>
     <br/>
-    <div >
-        <a class="btn btn-primary" href="">Create New</a>
+
+    <!-- angular modal directive -->
+    <div ng-controller="ModalDemoCtrl">
+        <script type="text/ng-template" id="myModalContent.html">
+            <div class="modal-header">
+                <h3 class="modal-title">I'm a modal!</h3>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li ng-repeat="item in items">
+                        <a ng-click="selected.item = item">{{ item }}</a>
+                    </li>
+                </ul>
+                Selected: <b>{{ selected.item }}</b>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="ok()">OK</button>
+                <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+            </div>
+        </script>
+
+        <button class="btn btn-default" ng-click="open()">Open me!</button>
+        <button class="btn btn-default" ng-click="open('lg')">Large modal</button>
+        <button class="btn btn-default" ng-click="open('sm')">Small modal</button>
+        <div ng-show="selected">Selection from a modal: {{ selected }}</div>
     </div>
+
+    <!-- Large modal -->
+    <p><button class="btn btn-primary" data-toggle="modal" data-target="#createStaffModal">Create New Staff Member</button></p>
+
+    <div class="modal fade" id="createStaffModal" tabindex="-1" role="dialog" aria-labelledby="newStaffLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="newStaffLabel">Create New Staff Member</h4>
+            </div>
+            <div class="modal-body" ng-model="newUser">
+                <form name="userForm" novalidate>
+                    <div class="row">
+                        <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="newUser.username" required ng-trim="false" class="form-control"></div>
+                        <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="newUser.email" required ng-trim="false" class="form-control"></div>
+                        <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="newUser.fullname" required ng-trim="false" class="form-control"></div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6 grey-right-border">
+                            <h5 class="inner-title">Groups &amp; Roles </h5>
+                            <div class="group-list-item" ng-repeat="group in newUser.groups">
+                                <div class="group-list-name"><span class="group-list-name">{{group.name}}</span></div>
+                                <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(userForm, newUser, group)" >Delete</a></span></div>
+
+                                <div class="group-list-role" ng-repeat="role in allRoles" ng-class="(role.id==group.role.id) ? 'group-list-role-selected' : ''"><span class="group-list-role">{{role.name}}</span></div>
+                            </div>
+
+                            <div class="group-add-container" ng-show="newUser.availableGroups.length > 0 ">
+                                <h5 class="inner-title">Add Group &amp; Role </h5>
+
+                                <div class="row">
+                                    <div class="col-sm-10"><select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in newUser.availableGroups"></select>
+                                        <div buttongroup="justified" buttongroupname="role" model="newUser.selectedRole" options="newUser.roles" ng-init="newUser.selectedRole"></div></div>
+                                    <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, newUser, groupToAdd)" ng-disabled="!newUser.selectedRole">Add</button></div>
+                                </div>
+
+                                <span class="hidden">{{newUser.selectedRole}}</span>
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <h5 class="inner-title">Features </h5>
+                            <div class="feature-list-item" ng-repeat="feature in newUser.features">
+                                <div class="feature-list-name"><span class="feature-list-name">{{feature.name}}</span></div>
+                                <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userForm, newUser, feature)" >Delete</a></span></div>
+                            </div>
+                            <div class="feature-add-container">
+                                <h5 class="inner-title">Add Feature </h5>
+                                <div class="row">
+                                    <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.id as feature.name for feature in newUser.availableFeatures"></select></div>
+                                    <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userForm, newUser, featureToAdd)">Add</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Create</button>
+            </div>
+        </div>
+    </div>
+
     <br/>
     <div class="row">
         <div class="col-md-2 hidden">PageSize:
@@ -34,10 +122,10 @@
 
             <div class="row accordion-title-row" ng-show="filteredItems > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
-                <div class="col-sm-2"><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-2"><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-2"><a ng-click="sortBy('fullname');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-1"></div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('fullname');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-6"></div>
             </div>
 
             <div accordion class="accordion" close-others="true" ng-show="filteredItems > 0" ng-cloak>
@@ -72,7 +160,7 @@
                                 </div>
                             </div>
                         </div accordion-heading>
-                        <form name="editUserForm" novalidate>
+                        <form name="userForm" novalidate>
                             <div class="row">
                                 <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="edituser.username" required ng-trim="false" class="form-control"></div>
                                 <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="edituser.email" required ng-trim="false" class="form-control"></div>
@@ -84,7 +172,7 @@
                                     <h5 class="inner-title">Groups &amp; Roles </h5>
                                     <div class="group-list-item" ng-repeat="group in edituser.groups">
                                         <div class="group-list-name"><span class="group-list-name">{{group.name}}</span></div>
-                                        <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{group.id}}" href="" ng-click="removeGroup(editUserForm, edituser, group)" >Delete</a></span></div>
+                                        <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{group.id}}" href="" ng-click="removeGroup(userForm, edituser, group)" >Delete</a></span></div>
 
                                         <!--<div class="group-list-role" ng-repeat="role in allRoles"><span class="group-list-role">{{group.role.name}}</span></div>-->
                                         <div class="group-list-role" ng-repeat="role in allRoles" ng-class="(role.id==group.role.id) ? 'group-list-role-selected' : ''"><span class="group-list-role">{{role.name}}</span></div>
@@ -96,7 +184,7 @@
                                         <div class="row">
                                             <div class="col-sm-10"><select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups"></select>
                                                 <div buttongroup="justified" buttongroupname="role" model="edituser.selectedRole" options="edituser.roles" ng-init="edituser.selectedRole"></div></div>
-                                            <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(editUserForm, edituser, groupToAdd)" ng-disabled="!edituser.selectedRole">Add</button></div>
+                                            <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, edituser, groupToAdd)" ng-disabled="!edituser.selectedRole">Add</button></div>
                                         </div>
 
                                         <span class="hidden">{{edituser.selectedRole}}</span>
@@ -107,13 +195,13 @@
                                     <h5 class="inner-title">Features </h5>
                                     <div class="feature-list-item" ng-repeat="feature in edituser.features">
                                         <div class="feature-list-name"><span class="feature-list-name">{{feature.name}}</span></div>
-                                        <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-{{feature.id}}" href="" ng-click="removeFeature(editUserForm, edituser, feature)" >Delete</a></span></div>
+                                        <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-{{feature.id}}" href="" ng-click="removeFeature(userForm, edituser, feature)" >Delete</a></span></div>
                                     </div>
                                     <div class="feature-add-container" ng-show="edituser.availableFeatures.length > 0 ">
                                         <h5 class="inner-title">Add Feature </h5>
                                         <div class="row">
                                             <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.id as feature.name for feature in edituser.availableFeatures"></select></div>
-                                            <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(editUserForm, edituser, featureToAdd)">Add</button></div>
+                                            <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userForm, edituser, featureToAdd)">Add</button></div>
                                         </div>
                                     </div>
                                 </div>
@@ -122,7 +210,7 @@
                         <hr>
                         <div class="user-save-cancel pull-right">
                             <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                            <button type="button" class="btn btn-primary" ng-click="save(editUserForm, edituser, $index)" ng-disabled="editUserForm.$pristine">Save</button>
+                            <button type="button" class="btn btn-primary" ng-click="save(userForm, edituser, $index)" ng-disabled="userForm.$pristine">Save</button>
                         </div>
 
                 </div accordion-group>
