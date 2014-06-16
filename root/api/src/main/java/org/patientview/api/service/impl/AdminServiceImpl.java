@@ -172,4 +172,13 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
+    public List<User> getUserByGroupAndRole(Long groupId, Long roleId) {
+        Group group = groupRepository.findOne(groupId);
+        Role role = roleRepository.findOne(roleId);
+
+        return Util.iterableToList(userRepository.searchByGroupAndRole(group, role));
+
+    }
+
+
 }

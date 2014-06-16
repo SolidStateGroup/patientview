@@ -1,6 +1,7 @@
 package org.patientview;
 
 import org.patientview.api.config.ApiConfig;
+import org.patientview.persistence.config.PersistenceConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -14,7 +15,7 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @EnableAutoConfiguration
-@Import(ApiConfig.class)
+@Import({ApiConfig.class, PersistenceConfig.class})
 public class Api extends SpringBootServletInitializer {
 
     private static Class<Api> applicationClass = Api.class;

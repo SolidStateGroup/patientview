@@ -41,4 +41,6 @@ public interface AdminService {
 
     List<Route> getUserRoutes(Long userId);
 
+    List<User> getUserByGroupAndRole(Long groupId, Long roleId);
+
 }
