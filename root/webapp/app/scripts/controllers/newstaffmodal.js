@@ -2,9 +2,8 @@
 
 // Please note that $modalInstance represents a modal window (instance) dependency.
 // It is not the same as the $modal service used above.
-var ModalInstanceCtrl = ['$scope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
+var NewStaffModalInstanceCtrl = ['$scope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
 function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
-//var ModalInstanceCtrl = function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
 
     $scope.newUser = newUser;
 
@@ -57,7 +56,7 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
 }];
 
 // angular-ui bootstrap modal, http://angular-ui.github.io/bootstrap/
-angular.module('patientviewApp').controller('StaffModalCtrl',['$scope','$modal','UserService',
+angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$modal','UserService',
     function ($scope, $modal, UserService) {
         $scope.open = function (size) {
             // create new user with list of available roles, groups and features
@@ -70,8 +69,8 @@ angular.module('patientviewApp').controller('StaffModalCtrl',['$scope','$modal',
             $scope.newUser.selectedRole = '';
 
             var modalInstance = $modal.open({
-                templateUrl: 'newUserModalContent.html',
-                controller: ModalInstanceCtrl,
+                templateUrl: 'newStaffModal.html',
+                controller: NewStaffModalInstanceCtrl,
                 size: size,
                 resolve: {
                     newUser: function(){
