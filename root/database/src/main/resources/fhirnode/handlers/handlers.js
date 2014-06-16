@@ -1,6 +1,6 @@
 var utilities = require('../utilities/utilities.js');
 var pg = require('pg');
-var conString = "postgres://:@localhost/";
+var conString = "postgres://fhir:fhir@localhost/local";
 
 function execute_query(sql, param, callback) {
 
@@ -84,7 +84,7 @@ function load_resource(req, callback) {
 
     var sql = "SELECT fhir.insert_resource($1::json)";
     console.log(JSON.stringify(req.body));
-    execute_query(sql,JSON.stringify(req.body), callback);
+    execute_query(sql,[JSON.stringify(req.body)], callback);
 
 };
 

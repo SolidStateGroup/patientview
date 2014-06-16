@@ -23,7 +23,7 @@ public class AuthController {
     private AuthenticationService authenticationService;
 
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
-    public ResponseEntity<UserToken> createGroup(UriComponentsBuilder uriComponentsBuilder,
+    public ResponseEntity<UserToken> authenticate(UriComponentsBuilder uriComponentsBuilder,
                                                  HttpServletRequest request) {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
