@@ -5,6 +5,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -48,4 +49,7 @@ public class AuthenticationServiceImpl implements org.patientview.api.service.Au
         return userTokenRepository.findByToken(token);
     }
 
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username);
+    }
 }
