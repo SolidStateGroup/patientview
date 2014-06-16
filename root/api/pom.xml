@@ -73,6 +73,13 @@
             <version>1.8.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>0.5</version>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
 
@@ -98,6 +105,17 @@
                     <!--<path>${warpath}</path>-->
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+
+
 
         </plugins>
     </build>
