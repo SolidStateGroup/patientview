@@ -137,10 +137,10 @@
     <!-- data grid -->
     <br/>
     <div class="row">
-        <div class="col-md-12" data-ng-show="filteredItems > 0">
+        <div class="col-md-12" data-ng-show="filtered.length  > 0">
             <!-- header -->
             <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
-            <div class="row accordion-title-row" ng-show="filteredItems > 0" ng-cloak>
+            <div class="row accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
@@ -149,7 +149,7 @@
             </div>
 
             <!-- body -->
-            <div accordion class="accordion" close-others="true" ng-show="filteredItems > 0" ng-cloak>
+            <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
                 <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                         <div accordion-heading>
                             <div class="row" ng-click="opened(user, $event)">
@@ -228,13 +228,13 @@
                 </div accordion-group>
             </div accordion>
         </div>
-        <div class="col-md-12" data-ng-show="filteredItems == 0">
+        <div class="col-md-12" data-ng-show="filtered.length == 0">
             <div class="col-md-12">
                 <h4>No users found</h4>
             </div>
         </div>
-        <div class="col-md-12" data-ng-show="filteredItems > 0">
-            <div pagination on-select-page="setPage(page)" total-items="filteredItems" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filteredItems < entryLimit "></div>
+        <div class="col-md-12" data-ng-show="filtered.length > 0">
+            <div pagination on-select-page="setPage(page)" total-items="filtered.length" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filtered.length  < entryLimit "></div>
         </div>
     </div>
 </div>

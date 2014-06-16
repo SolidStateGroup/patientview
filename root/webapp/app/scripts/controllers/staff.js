@@ -1,43 +1,5 @@
 'use strict';
 
-angular.module('patientviewApp').filter('groupFilter', [function () {
-    return function (users, selectedGroup) {
-        if (!angular.isUndefined(users) && !angular.isUndefined(selectedGroup) && selectedGroup.length > 0) {
-            var tempUsers = [];
-            angular.forEach(selectedGroup, function (id) {
-                angular.forEach(users, function (user) {
-                    if (_.findWhere(user.groups, {id: id}) && !_.findWhere(tempUsers, {id:user.id})) {
-                        tempUsers.push(user);
-                    }
-                });
-            });
-            return tempUsers;
-        } else {
-            return users;
-        }
-    };
-}]);
-
-angular.module('patientviewApp').filter('roleFilter', [function () {
-    return function (users, selectedRole) {
-        if (!angular.isUndefined(users) && !angular.isUndefined(selectedRole) && selectedRole.length > 0) {
-            var tempUsers = [];
-            angular.forEach(selectedRole, function (id) {
-                angular.forEach(users, function (user) {
-                    angular.forEach(user.groups, function (group) {
-                        if ((group.role.id === id) && !_.findWhere(tempUsers, {id: user.id})) {
-                            tempUsers.push(user);
-                        }
-                    });
-                });
-            });
-            return tempUsers;
-        } else {
-            return users;
-        }
-    };
-}]);
-
 angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
     function ($scope, $timeout, UserService, GroupService, RoleService, FeatureService) {
 
@@ -81,25 +43,17 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         return false;
     };
 
-        // filter by role button click
-        $scope.filterByRole = function(roleName) {
-            if(roleName === 'all') {
-
-            } else {
-                var role = _.findWhere($scope.allRoles, {name: roleName});
-                console.log(role);
-            }
-        };
-
     // pagination, sorting, basic filter    
     $scope.setPage = function(pageNo) {
         $scope.currentPage = pageNo;
     };
+
     $scope.filter = function() {
         $timeout(function() {
             $scope.filteredItems = $scope.filtered.length;
         }, 10);
     };
+
     $scope.sortBy = function(predicate) {
         $scope.predicate = predicate;
         $scope.reverse = !$scope.reverse;
@@ -122,7 +76,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
                 $scope.list = data;
                 $scope.currentPage = 1; //current page
                 $scope.entryLimit = 10; //max no of items to display in a page
-                $scope.filteredItems = $scope.list.length; //Initially for no filter
                 $scope.totalItems = $scope.list.length;
                 delete $scope.loading;
             });
