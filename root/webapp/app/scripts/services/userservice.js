@@ -28,10 +28,10 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                 var deferred = $q.defer();
                 Restangular.one('user', input.id).get().then(function(user) {
 
-                    var toUpdate = ['username','email','fullname','groups','features'];
+                    var toInclude = ['username','email','fullname','groups','features'];
 
                     for (var name in input) {
-                        if (input.hasOwnProperty(name) && _.contains(toUpdate, name)) {
+                        if (input.hasOwnProperty(name) && _.contains(toInclude, name)) {
                             user[name] = input[name];
                         }
                     }
@@ -39,6 +39,23 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                     user.post().then(function(res) {
                         deferred.resolve(res);
                     });
+                });
+                return deferred.promise;
+            },
+            new: function (input) {
+                var deferred = $q.defer();
+
+                var toInclude = ['username','email','fullname','groups','features'];
+                var user = {};
+
+                for (var name in input) {
+                    if (input.hasOwnProperty(name) && _.contains(toInclude, name)) {
+                        user[name] = input[name];
+                    }
+                }
+
+                Restangular.all('user').post(user).then(function(res) {
+                    deferred.resolve(res);
                 });
                 return deferred.promise;
             }

@@ -1,13 +1,4 @@
 'use strict';
-/*
-$( document ).ready( function(){
-
-    $('.dropdown-toggle').on( "click", function(e) {
-        $('.dropdown-menu').show();
-        e.stopPropagation();
-    });
-    console.log("x");
-});*/
 
 angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
     function ($scope, $timeout, UserService, GroupService, RoleService, FeatureService) {
@@ -47,23 +38,25 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
     // Opened for edit
     $scope.opened = function (user, $event) {
 
-        if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
+        if ($event) {
+            if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
 
-            if ($('#' + $event.target.id).parent().children('.child-menu').length > 0) {
-                $('#' + $event.target.id).parent().children('.child-menu').remove();
-                $event.stopPropagation();
-            } else {
-                $('.child-menu').remove();
-                $event.stopPropagation();
-                var childMenu = $('<div class="child-menu"></div>');
-                var dropDownMenuToAdd = $('#' + $event.target.id + '-menu').clone().attr('id', '').show();
-                childMenu.append(dropDownMenuToAdd);
-                $('#' + $event.target.id).parent().append(childMenu);
+                if ($('#' + $event.target.id).parent().children('.child-menu').length > 0) {
+                    $('#' + $event.target.id).parent().children('.child-menu').remove();
+                    $event.stopPropagation();
+                } else {
+                    $('.child-menu').remove();
+                    $event.stopPropagation();
+                    var childMenu = $('<div class="child-menu"></div>');
+                    var dropDownMenuToAdd = $('#' + $event.target.id + '-menu').clone().attr('id', '').show();
+                    childMenu.append(dropDownMenuToAdd);
+                    $('#' + $event.target.id).parent().append(childMenu);
+                }
             }
-        }
 
-        if ($event.target.className.indexOf('dropdown-menu-accordion-item') !== -1) {
-            $event.stopPropagation();
+            if ($event.target.className.indexOf('dropdown-menu-accordion-item') !== -1) {
+                $event.stopPropagation();
+            }
         }
 
         $scope.editing = true;
@@ -102,19 +95,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         $scope.edituser.selectedRole = '';
     };
 
-    $scope.add = function (isValid, form, user) {
-        if(isValid) {
-
-            UserService.post(user).then(function(added) {
-                $scope.list.push(added);
-                $scope.newUser = '';
-                $scope.addUserForm.$setPristine(true);
-            }, function() {
-
-            });
-        }
-    };
-
     $scope.setPage = function(pageNo) {
         $scope.currentPage = pageNo;
     };
@@ -128,9 +108,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         $scope.reverse = !$scope.reverse;
     };
 
-    // Save
+    // Save from edit
     $scope.save = function (editUserForm, user, index) {
-        //console.log(user);
         UserService.save(user).then(function() {
             editUserForm.$setPristine(true);
             $scope.list[index] = _.clone(user);
@@ -141,7 +120,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
     $scope.addGroup = function (form, user, groupId) {
         if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere($scope.allRoles, {id: user.selectedRole})) {
             user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
-           // user.groups.push(_.findWhere($scope.allGroups, {id: group}));
             var group = _.findWhere($scope.allGroups, {id: groupId});
             group.role = _.findWhere($scope.allRoles, {id: user.selectedRole});
             user.groups.push(group);
@@ -196,3 +174,5 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
 
     $scope.init();
 }]);
+
+
