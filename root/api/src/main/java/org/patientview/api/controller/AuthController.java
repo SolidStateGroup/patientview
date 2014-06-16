@@ -1,7 +1,10 @@
 package org.patientview.api.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.persistence.model.UserToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class AuthController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
+
     @Inject
     private AuthenticationService authenticationService;
 
@@ -27,6 +32,12 @@ public class AuthController {
                                                  HttpServletRequest request) {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+
+        if (StringUtils.isEmpty(username+password)) {
+            LOG.debug("The username and password where not supplied");
+            return new ResponseEntity<UserToken>(HttpStatus.BAD_REQUEST);
+
+        }
 
         return new ResponseEntity<UserToken>(authenticationService.authenticate(username, password), HttpStatus.OK);
 

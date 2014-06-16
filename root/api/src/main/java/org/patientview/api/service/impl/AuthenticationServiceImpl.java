@@ -5,6 +5,8 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import java.util.Date;
 @Service
 public class AuthenticationServiceImpl implements org.patientview.api.service.AuthenticationService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     @Inject
     private UserRepository userRepository;
@@ -28,6 +31,9 @@ public class AuthenticationServiceImpl implements org.patientview.api.service.Au
     private UserTokenRepository userTokenRepository;
 
     public UserToken authenticate(String username, String password) throws UsernameNotFoundException {
+
+        LOG.debug("Trying to authenticate user: {}", username);
+
         User user  = userRepository.findByUsername(username);
 
         if (user == null) {
