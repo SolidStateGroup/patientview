@@ -368,3 +368,7 @@ div.grey-right-border {
     width: 95%;
 }
 
+.a-filter-group {
+    cursor:pointer;
+}
+

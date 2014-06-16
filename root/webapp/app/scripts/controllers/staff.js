@@ -1,7 +1,67 @@
 'use strict';
 
+angular.module('patientviewApp').filter('groupFilter', [function () {
+    return function (users, selectedGroup) {
+        if (!angular.isUndefined(users) && !angular.isUndefined(selectedGroup) && selectedGroup.length > 0) {
+            var tempUsers = [];
+            angular.forEach(selectedGroup, function (id) {
+                angular.forEach(users, function (user) {
+                    if (_.findWhere(user.groups, {id: id}) && !_.findWhere(tempUsers, {id:user.id})) {
+                        tempUsers.push(user);
+                    }
+                });
+            });
+            return tempUsers;
+        } else {
+            return users;
+        }
+    };
+}]);
+
 angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
     function ($scope, $timeout, UserService, GroupService, RoleService, FeatureService) {
+
+
+    $scope.selectedGroup = [];
+    $scope.setSelectedGroup = function () {
+        var id = this.group.id;
+        if (_.contains($scope.selectedGroup, id)) {
+            $scope.selectedGroup = _.without($scope.selectedGroup, id);
+        } else {
+            $scope.selectedGroup.push(id);
+        }
+        return false;
+    };
+
+    $scope.isChecked = function (id) {
+        if (_.contains($scope.selectedGroup, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+
+    $scope.setPage = function(pageNo) {
+        $scope.currentPage = pageNo;
+    };
+    $scope.filter = function() {
+        $timeout(function() {
+            $scope.filteredItems = $scope.filtered.length;
+        }, 10);
+    };
+    $scope.sortBy = function(predicate) {
+        $scope.predicate = predicate;
+        $scope.reverse = !$scope.reverse;
+    };
+
+    // filter by role button click
+    $scope.filterByRole = function(roleName) {
+        if(roleName === 'all') {
+
+        } else {
+            var role = _.findWhere($scope.allRoles, {name: roleName});
+            console.log(role);
+        }
+    };
 
     // Init
     $scope.init = function () {
@@ -93,19 +153,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         }
 
         $scope.edituser.selectedRole = '';
-    };
-
-    $scope.setPage = function(pageNo) {
-        $scope.currentPage = pageNo;
-    };
-    $scope.filter = function() {
-        $timeout(function() {
-            $scope.filteredItems = $scope.filtered.length;
-        }, 10);
-    };
-    $scope.sortBy = function(predicate) {
-        $scope.predicate = predicate;
-        $scope.reverse = !$scope.reverse;
     };
 
     // Save from edit
