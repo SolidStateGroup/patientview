@@ -1,49 +1,5 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ModalDemoCtrl',['$scope','$modal',
-    function ($scope, $modal) {
-        $scope.items = ['item1', 'item2', 'item3'];
-
-        $scope.open = function (size) {
-
-            var modalInstance = $modal.open({
-                templateUrl: 'myModalContent.html',
-                controller: ModalInstanceCtrl,
-                size: size,
-                resolve: {
-                    items: function () {
-                        return $scope.items;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (selectedItem) {
-                $scope.selected = selectedItem;
-                console.log("ok");
-            }, function () {
-                console.log("closed");
-            });
-        };
-    }]);
-
-// Please note that $modalInstance represents a modal window (instance) dependency.
-// It is not the same as the $modal service used above.
-var ModalInstanceCtrl = function ($scope, $modalInstance, items) {
-
-    $scope.items = items;
-    $scope.selected = {
-        item: $scope.items[0]
-    };
-
-    $scope.ok = function () {
-        $modalInstance.close($scope.selected.item);
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-};
-
 angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
     function ($scope, $timeout, UserService, GroupService, RoleService, FeatureService) {
 
@@ -51,14 +7,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
     $scope.init = function () {
         $('body').click(function () {
             $('.child-menu').remove();
-        });
-
-        // modal related (Create New Staff)
-        $('#createStaffModal').on('show.bs.modal', function (e) {
-            $scope.newUser = {};
-            $scope.opened($scope.newUser,e);
-            console.log($scope.newUser);
-            $scope.newUser.fullname = "x";
         });
 
         $scope.loading = true;
@@ -90,25 +38,25 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
     // Opened for edit
     $scope.opened = function (user, $event) {
 
-        console.log("opened");
+        if ($event) {
+            if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
 
-        if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
-
-            if ($('#' + $event.target.id).parent().children('.child-menu').length > 0) {
-                $('#' + $event.target.id).parent().children('.child-menu').remove();
-                $event.stopPropagation();
-            } else {
-                $('.child-menu').remove();
-                $event.stopPropagation();
-                var childMenu = $('<div class="child-menu"></div>');
-                var dropDownMenuToAdd = $('#' + $event.target.id + '-menu').clone().attr('id', '').show();
-                childMenu.append(dropDownMenuToAdd);
-                $('#' + $event.target.id).parent().append(childMenu);
+                if ($('#' + $event.target.id).parent().children('.child-menu').length > 0) {
+                    $('#' + $event.target.id).parent().children('.child-menu').remove();
+                    $event.stopPropagation();
+                } else {
+                    $('.child-menu').remove();
+                    $event.stopPropagation();
+                    var childMenu = $('<div class="child-menu"></div>');
+                    var dropDownMenuToAdd = $('#' + $event.target.id + '-menu').clone().attr('id', '').show();
+                    childMenu.append(dropDownMenuToAdd);
+                    $('#' + $event.target.id).parent().append(childMenu);
+                }
             }
-        }
 
-        if ($event.target.className.indexOf('dropdown-menu-accordion-item') !== -1) {
-            $event.stopPropagation();
+            if ($event.target.className.indexOf('dropdown-menu-accordion-item') !== -1) {
+                $event.stopPropagation();
+            }
         }
 
         $scope.editing = true;
@@ -136,7 +84,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         }
 
         $scope.edituser = _.clone(user);
-        $scope.newUser = _.clone(user);
 
         if (user.availableGroups[0]) {
             $scope.groupToAdd = user.availableGroups[0].id;
@@ -146,21 +93,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         }
 
         $scope.edituser.selectedRole = '';
-
-        console.log(user);
-    };
-
-    $scope.add = function (isValid, form, user) {
-        if(isValid) {
-
-            UserService.post(user).then(function(added) {
-                $scope.list.push(added);
-                $scope.newUser = '';
-                $scope.addUserForm.$setPristine(true);
-            }, function() {
-
-            });
-        }
     };
 
     $scope.setPage = function(pageNo) {
@@ -176,9 +108,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
         $scope.reverse = !$scope.reverse;
     };
 
-    // Save
+    // Save from edit
     $scope.save = function (editUserForm, user, index) {
-        //console.log(user);
         UserService.save(user).then(function() {
             editUserForm.$setPristine(true);
             $scope.list[index] = _.clone(user);
@@ -189,7 +120,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$timeout', '
     $scope.addGroup = function (form, user, groupId) {
         if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere($scope.allRoles, {id: user.selectedRole})) {
             user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
-           // user.groups.push(_.findWhere($scope.allGroups, {id: group}));
             var group = _.findWhere($scope.allGroups, {id: groupId});
             group.role = _.findWhere($scope.allRoles, {id: user.selectedRole});
             user.groups.push(group);
