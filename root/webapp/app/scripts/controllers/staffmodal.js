@@ -2,7 +2,9 @@
 
 // Please note that $modalInstance represents a modal window (instance) dependency.
 // It is not the same as the $modal service used above.
-var ModalInstanceCtrl = function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
+var ModalInstanceCtrl = ['$scope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
+function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
+//var ModalInstanceCtrl = function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
 
     $scope.newUser = newUser;
 
@@ -43,7 +45,8 @@ var ModalInstanceCtrl = function ($scope, $modalInstance, newUser, allGroups, al
     };
 
     $scope.ok = function () {
-        UserService.new($scope.newUser).then(function() {
+        UserService.new($scope.newUser).then(function(result) {
+            $scope.newUser.id = result.id;
             $modalInstance.close($scope.newUser);
         });
     };
@@ -51,7 +54,7 @@ var ModalInstanceCtrl = function ($scope, $modalInstance, newUser, allGroups, al
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
-};
+}];
 
 // angular-ui bootstrap modal, http://angular-ui.github.io/bootstrap/
 angular.module('patientviewApp').controller('StaffModalCtrl',['$scope','$modal','UserService',
