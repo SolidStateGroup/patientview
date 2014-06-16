@@ -18,13 +18,14 @@ import java.util.Date;
 public class UserToken extends BaseModel {
 
     @OneToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "token")
     private String token;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "Expiration_Date")
+    @Column(name = "expiration_date")
     private Date expiration;
 
     @OneToOne(optional = true)

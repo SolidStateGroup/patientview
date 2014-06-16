@@ -11,6 +11,7 @@ import org.patientview.api.service.AuthenticationService;
 import org.patientview.persistence.model.UserToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Matchers.eq;
@@ -55,7 +56,8 @@ public class AuthControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                     .param("username", username)
-                    .param("password", password));
+                    .param("password", password))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             Assert.fail("Exception throw");
         }

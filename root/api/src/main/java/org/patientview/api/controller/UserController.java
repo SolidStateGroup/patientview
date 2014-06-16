@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
@@ -120,6 +121,23 @@ public class UserController extends BaseController {
         return new ResponseEntity<List<Route>>(adminService.getUserRoutes(userId), HttpStatus.OK);
 
     }
+
+    @RequestMapping(value = "/user/role/{roleId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Role>> getUserByRoles(@PathVariable("roleId") Long roleId, UriComponentsBuilder uriComponentsBuilder) {
+
+        LOG.debug("Request has been received for userId : {}", roleId);
+
+        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(roleId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
+
+    }
+
 
 
 }
