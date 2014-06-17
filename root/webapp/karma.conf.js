@@ -26,7 +26,8 @@ module.exports = function(config) {
       'test/spec/**/*.js',
       'app/bower_components/restangular/dist/restangular.js',
       'app/bower_components/lodash/dist/lodash.compat.js',
-      'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.js'
+      'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
+      'app/bower_components/angular-local-storage/angular-local-storage.js'
     ],
 
     // list of files / patterns to exclude

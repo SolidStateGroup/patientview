@@ -426,7 +426,8 @@ module.exports = function (grunt) {
               constants: {
                   ENV: {
                       name: 'production',
-                      apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                      //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                      apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
                   }
               }
           },
@@ -459,7 +460,8 @@ module.exports = function (grunt) {
               constants: {
                   ENV: {
                       name: 'production',
-                      apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                      //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                      apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
                   }
               }
           }

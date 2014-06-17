@@ -5,6 +5,7 @@ angular.module('patientviewApp').factory('HttpRequestInterceptor', ['$q','$rootS
         'request': function(config) {
             if (angular.isDefined($rootScope.authToken)) {
                // config.headers['X-Auth-Token'] = $rootScope.authToken;
+                console.log($rootScope.authToken);
             }
             return config || $q.when(config);
         }
