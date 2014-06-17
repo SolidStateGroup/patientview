@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,15 +35,26 @@ public class AuthenticationServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    /**
+     * Test: Test that the authentication service and handled the password match.
+     * Fail: The method cannot validation the user.
+     */
     @Test
     public void testAuthenticate() {
-        String username = "testUsername";
+
         String password = "doNotShow";
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+
+
         try {
-            authenticationService.authenticate(username, password);
+            when(userRepository.findByUsername(any(String.class))).thenReturn(user);
+            authenticationService.authenticate(user.getUsername(), password);
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
-        when(userRepository.findByUsername(any(String.class))).thenReturn(new User());
+
     }
 }
