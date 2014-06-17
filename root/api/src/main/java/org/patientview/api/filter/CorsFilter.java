@@ -23,10 +23,11 @@ public class CorsFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
 
     public CorsFilter() {
-        LOG.info("Security filter initialised");
+        LOG.info("Cors Filter initialised");
     }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+        LOG.debug("Adding CORS headers");
         HttpServletResponse response = (HttpServletResponse) res;
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
