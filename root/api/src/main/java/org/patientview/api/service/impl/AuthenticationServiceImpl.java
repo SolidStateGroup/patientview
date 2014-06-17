@@ -42,7 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService
         User user = userRepository.findByUsername(username);
 
         if (user == null) {
-            throw new UsernameNotFoundException("The username provided as not been found");
+            throw new UsernameNotFoundException("The username provided has not been found");
         }
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
@@ -54,7 +54,7 @@ public class AuthenticationServiceImpl implements AuthenticationService
         userToken.setToken(CommonUtils.getAuthtoken());
         userToken.setCreated(new Date());
 
-       // userToken = userTokenRepository.save(userToken);
+        userToken = userTokenRepository.save(userToken);
 
         return userToken;
 
@@ -66,5 +66,9 @@ public class AuthenticationServiceImpl implements AuthenticationService
 
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username);
+    }
+
+    public void logout(String token) {
+        userTokenRepository.deleteByToken(token);
     }
 }

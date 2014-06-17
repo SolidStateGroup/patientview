@@ -11,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -51,6 +53,13 @@ public class AuthController extends BaseController {
         return new ResponseEntity<UserToken>(authenticationService.authenticate(credentials.getUsername(),
                 credentials.getPassword()), HttpStatus.OK);
 
+    }
+
+    @RequestMapping(value = "/auth/logout/{token}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteToken(@PathVariable("token") String token) {
+        authenticationService.logout(token);
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
 }

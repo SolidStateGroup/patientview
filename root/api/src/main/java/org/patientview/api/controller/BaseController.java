@@ -18,7 +18,7 @@ import javax.persistence.EntityExistsException;
 public class BaseController {
 
 
-    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(BaseController.class);
 
     @ExceptionHandler(EntityExistsException.class)
     @ResponseBody
@@ -51,8 +51,5 @@ public class BaseController {
         LOG.error("Login failed");
         return e.getMessage();
     }
-
-
-
 
 }
