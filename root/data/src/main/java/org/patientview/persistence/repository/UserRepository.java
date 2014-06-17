@@ -4,6 +4,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,6 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
    // Iterable<User> findByGroup(Group group);
 
+    @Modifying
     @Query("SELECT u FROM User u JOIN u.groupRoles gr WHERE gr.role = :role AND gr.group = :group")
     Iterable<User> findByGroupAndRole(@Param("group") Group group, @Param("role") Role role);
 }

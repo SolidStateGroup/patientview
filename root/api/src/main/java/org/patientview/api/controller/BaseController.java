@@ -1,10 +1,8 @@
 package org.patientview.api.controller;
 
-import org.apache.http.auth.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -36,20 +34,5 @@ public class BaseController {
         return e.getMessage();
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public String handleAuthenticationException(Exception e) {
-        LOG.error("Login failed");
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public String handleUsernameException(Exception e) {
-        LOG.error("Login failed");
-        return e.getMessage();
-    }
 
 }

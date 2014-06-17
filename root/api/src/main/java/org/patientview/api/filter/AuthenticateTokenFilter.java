@@ -4,6 +4,8 @@ import org.patientview.api.service.AuthenticationService;
 import org.patientview.persistence.model.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -21,7 +23,6 @@ import java.io.IOException;
 
 /**
  * Class to get the filter from the request. Lookup the token and add the user into the security context
- * TODO Logoff action
  *
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
@@ -32,11 +33,15 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
 
     @Inject
+    @Qualifier(value = "authenticationService")
     private AuthenticationService authenticationService;
+
+    @Inject
+    ApplicationContext applicationContext;
 
     @PostConstruct
     public void init() {
-        LOG.info("Security filter initialised");
+
     }
 
     /**

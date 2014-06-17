@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.Date;
 
@@ -23,8 +24,7 @@ import java.util.Date;
  * Created on 13/06/2014
  */
 @Service
-public class AuthenticationServiceImpl implements AuthenticationService
-{
+public class AuthenticationServiceImpl implements AuthenticationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
@@ -33,6 +33,11 @@ public class AuthenticationServiceImpl implements AuthenticationService
 
     @Inject
     private UserTokenRepository userTokenRepository;
+
+    @PostConstruct
+    private void init() {
+        LOG.info("Authentication service started");
+    }
 
     public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
             AuthenticationException {
