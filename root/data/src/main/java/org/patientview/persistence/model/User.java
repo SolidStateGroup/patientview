@@ -3,6 +3,7 @@ package org.patientview.persistence.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -40,7 +41,7 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "fullname")
     private String name;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<GroupRole> groupRoles;
 
     /* http://docs.jboss.org/hibernate/orm/4.1/manual/en-US/html/ch06.html#types-registry */

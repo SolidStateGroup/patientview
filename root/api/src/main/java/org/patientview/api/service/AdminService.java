@@ -37,6 +37,8 @@ public interface AdminService {
 
     User getByUsername(String username);
 
+    void deleteUser(Long userId);
+
     GroupFeature createGroupFeature(GroupFeature groupFeature);
 
     List<Route> getUserRoutes(Long userId);

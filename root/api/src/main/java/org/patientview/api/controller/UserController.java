@@ -38,14 +38,21 @@ public class UserController extends BaseController {
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public User createUser(@PathVariable("userId") Long userId) {
+    public User getUser(@PathVariable("userId") Long userId) {
         return adminService.getUser(userId);
 
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public User createUser(@RequestParam("username") String username) {
+    public User getUserByUsername(@RequestParam("username") String username) {
+        return adminService.getByUsername(username);
+
+    }
+
+    @RequestMapping(value = "/user", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public User deleteUser(@RequestParam("username") String username) {
         return adminService.getByUsername(username);
 
     }

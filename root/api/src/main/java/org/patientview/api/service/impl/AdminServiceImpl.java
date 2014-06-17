@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Feature;
@@ -89,13 +90,13 @@ public class AdminServiceImpl implements AdminService {
 }
 
     /**
-     * TODO Sort of the cascade model for GroupRoles
      *
      * @param user
      * @return
      */
     public User createUser(User user) {
 
+        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
         User newUser;
         try {
             newUser = userRepository.save(user);
@@ -180,5 +181,8 @@ public class AdminServiceImpl implements AdminService {
 
     }
 
+    public void deleteUser(Long userId) {
+        userRepository.delete(userId);
+    }
 
 }

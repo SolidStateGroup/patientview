@@ -57,20 +57,17 @@ public class AuthControllerTest {
         credentials.setUsername("testUser");
         credentials.setPassword("doNotShow");
 
-        when(authenticationService.authenticate(eq(credentials.getUsername()),
-                eq(credentials.getPassword()))).thenReturn(new UserToken());
-
         try {
+            when(authenticationService.authenticate(eq(credentials.getUsername()),
+                    eq(credentials.getPassword()))).thenReturn(new UserToken());
             mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                     .content(mapper.writeValueAsString(credentials)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
+            verify(authenticationService, Mockito.times(1)).authenticate(eq(credentials.getUsername()),
+                    eq(credentials.getPassword()));
         } catch (Exception e) {
             Assert.fail("Exception throw");
         }
-
-        verify(authenticationService, Mockito.times(1)).authenticate(eq(credentials.getUsername()),
-                eq(credentials.getPassword()));
-
 
     }
 

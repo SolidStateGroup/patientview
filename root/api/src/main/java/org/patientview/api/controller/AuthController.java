@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.auth.AuthenticationException;
 import org.patientview.api.controller.model.Credentials;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.persistence.model.UserToken;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  * Created on 13/06/2014
  */
 @RestController
-public class AuthController {
+public class AuthController extends BaseController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
 
@@ -33,7 +35,8 @@ public class AuthController {
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserToken> authenticate(@RequestBody Credentials credentials,
                                                   UriComponentsBuilder uriComponentsBuilder,
-                                                  HttpServletRequest request) {
+                                                  HttpServletRequest request)
+            throws UsernameNotFoundException, AuthenticationException{
 
         if (StringUtils.isEmpty(credentials.getUsername())) {
             LOG.debug("A username must be supplied");

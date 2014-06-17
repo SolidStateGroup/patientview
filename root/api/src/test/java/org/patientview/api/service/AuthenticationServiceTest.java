@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -9,10 +10,6 @@ import org.patientview.api.service.impl.AuthenticationServiceImpl;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
-
-import javax.inject.Inject;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -23,9 +20,6 @@ import static org.mockito.Mockito.when;
  */
 public class AuthenticationServiceTest {
 
-    @Inject
-    private WebApplicationContext webApplicationContext;
-
     @Mock
     private UserRepository userRepository;
 
@@ -34,8 +28,6 @@ public class AuthenticationServiceTest {
 
     @InjectMocks
     private AuthenticationService authenticationService = new AuthenticationServiceImpl();
-
-    private MockMvc mockMvc;
 
     @Before
     public void setUp() throws Exception {
@@ -46,7 +38,11 @@ public class AuthenticationServiceTest {
     public void testAuthenticate() {
         String username = "testUsername";
         String password = "doNotShow";
-        authenticationService.authenticate(username, password);
+        try {
+            authenticationService.authenticate(username, password);
+        } catch (Exception e) {
+            Assert.fail("This call should not fail");
+        }
         when(userRepository.findByUsername(any(String.class))).thenReturn(new User());
     }
 }

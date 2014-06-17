@@ -2,9 +2,10 @@ package org.patientview.api.filter;
 
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -24,16 +25,18 @@ import java.io.IOException;
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
-@WebFilter
+@WebFilter(urlPatterns = {"/api*"})
 public class AuthenticateTokenFilter extends GenericFilterBean {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
+
+    public AuthenticateTokenFilter() {
+        LOG.info("Security filter initialised");
+
+    }
 
     @Inject
     private UserTokenRepository userTokenRepository;
-
-    @Inject
-    private UserDetailsService userDetailsService;
-
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
