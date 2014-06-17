@@ -86,8 +86,6 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
             data.routes = RouteService.getDefault().routes;
         }
 
-        console.log(data);
-
         if (data !== undefined) {
             for (var j=0 ; j < data.routes.length; j++ ) {
 

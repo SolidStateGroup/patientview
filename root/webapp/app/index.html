@@ -34,7 +34,7 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right" ng-hide="!authToken" ng-cloak>
-                    <li ng-repeat="menuitem in routes  | filter: { lookup.value: 'TOP' }" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}} {{menuitem}}</a></li>
+                    <li ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right" ng-hide="authToken" ng-cloak>
                     <li><a ng-href="#/login" ng-hide="authToken">Log In</a></li>
@@ -46,7 +46,7 @@
         <div class="container subnav">
             <div ng-hide="!authToken" ng-cloak>
                 <ul class="nav nav-pills pull-left">
-                    <li ng-repeat="menuitem in routes  | filter: { menu: '1' }" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
+                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
                 </ul>
             </div>
         </div>
@@ -117,6 +117,7 @@
         <script src="scripts/interceptors/httprequestinterceptor.js"></script>
         <script src="scripts/interceptors/httpresponseinterceptor.js"></script>
 
+        <script src="scripts/filters/menufilter.js"></script>
         <script src="scripts/filters/groupfilter.js"></script>
         <script src="scripts/filters/rolefilter.js"></script>
 
