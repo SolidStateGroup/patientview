@@ -63,6 +63,7 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
         $httpProvider.interceptors.push('HttpRequestInterceptor');
         $httpProvider.interceptors.push('HttpResponseInterceptor');
         RestangularProvider.setBaseUrl(ENV.apiEndpoint);
+        RestangularProvider.setDefaultHeaders({ "Content-Type": "application/json" });
         //RestangularProvider.setBaseUrl('/api');
         $routeProviderReference = $routeProvider;
     }]);

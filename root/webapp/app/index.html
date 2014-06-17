@@ -34,7 +34,7 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right" ng-hide="!authToken" ng-cloak>
-                    <li ng-repeat="menuitem in routes  | filter: { menu: '2' }" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}} {{menuitem}}</a></li>
+                    <li ng-repeat="menuitem in routes  | filter: { lookup.value: 'TOP' }" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}} {{menuitem}}</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right" ng-hide="authToken" ng-cloak>
                     <li><a ng-href="#/login" ng-hide="authToken">Log In</a></li>
