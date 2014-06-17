@@ -1,5 +1,6 @@
 package org.patientview;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.patientview.persistence.config.PersistenceConfig;
 import org.patientview.persistence.model.User;
@@ -28,6 +29,7 @@ public class UserTokenRepositoryTest {
     @Inject
     private UserRepository userRepository;
 
+    @Ignore
     @Test
     public void testCreateToken() {
 
