@@ -27,30 +27,7 @@
 
     <!-- Add your site or application content here -->
 
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">PatientView 2</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav navbar-right" ng-hide="!authToken" ng-cloak>
-                    <li ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right" ng-hide="authToken" ng-cloak>
-                    <li><a ng-href="#/login" ng-hide="authToken">Log In</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="subnav-row">
-        <div class="container subnav">
-            <div ng-hide="!authToken" ng-cloak>
-                <ul class="nav nav-pills pull-left">
-                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    <div ng-include src="'views/partials/menus.html'"></div>
 
     <div class="container" ng-view="" ng-cloak></div>
 

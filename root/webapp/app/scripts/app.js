@@ -122,7 +122,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
     };
 
     $rootScope.$on('$locationChangeStart', function() {
-        buildRoute($cookieStore, $route, RouteService);
+        buildRoute();
     });
 
     //$rootScope.$on('$routeChangeSuccess', function(event, currentRoute, previousRoute) {
