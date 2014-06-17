@@ -1,5 +1,20 @@
 'use strict';
 
+var DeleteStaffModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
+function ($scope, $modalInstance, user, UserService) {
+    $scope.user = user;
+
+    $scope.ok = function () {
+        UserService.delete($scope.user).then(function() {
+            $modalInstance.close();
+        });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
 angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
     function ($scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService) {
 
@@ -222,7 +237,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$compile', '
     $scope.deleteUser = function (userId, $event) {
 
         // workaround for cloned object not capturing ng-click properties
-        var eventUserId = $event.currentTarget.dataset["userid"];
+        var eventUserId = $event.currentTarget.dataset.userid;
 
         UserService.get(eventUserId).then(function(user) {
             var modalInstance = $modal.open({
@@ -239,9 +254,10 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$compile', '
             });
 
             modalInstance.result.then(function () {
+                // ok
                 $scope.list.splice($scope.list[_.findIndex($scope.list, {id: eventUserId})],1);
             }, function () {
-                //console.log('closed');
+                // closed
             });
         });
     };
