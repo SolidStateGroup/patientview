@@ -1,15 +1,28 @@
 'use strict';
 
+// delete staff modal instance controller
 var DeleteStaffModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
 function ($scope, $modalInstance, user, UserService) {
     $scope.user = user;
-
     $scope.ok = function () {
-        UserService.delete($scope.user).then(function() {
+        UserService.delete(user).then(function() {
             $modalInstance.close();
         });
     };
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
 
+// reset staff password modal instance controller
+var ResetStaffPasswordModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
+function ($scope, $modalInstance, user, UserService) {
+    $scope.user = user;
+    $scope.ok = function () {
+        UserService.resetPassword(user).then(function() {
+            $modalInstance.close();
+        });
+    };
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
@@ -234,6 +247,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$compile', '
         form.$setDirty(true);
     };
 
+    // delete user
     $scope.deleteUser = function (userId, $event) {
 
         // workaround for cloned object not capturing ng-click properties
@@ -256,6 +270,34 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$compile', '
             modalInstance.result.then(function () {
                 // ok
                 $scope.list.splice($scope.list[_.findIndex($scope.list, {id: eventUserId})],1);
+            }, function () {
+                // closed
+            });
+        });
+    };
+
+    // reset user password
+    $scope.resetUserPassword = function (userId, $event) {
+
+        // workaround for cloned object not capturing ng-click properties
+        var eventUserId = $event.currentTarget.dataset.userid;
+
+        UserService.get(eventUserId).then(function(user) {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/partials/resetStaffPasswordModal.html',
+                controller: ResetStaffPasswordModalInstanceCtrl,
+                resolve: {
+                    user: function(){
+                        return user;
+                    },
+                    UserService: function(){
+                        return UserService;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                // ok
             }, function () {
                 // closed
             });

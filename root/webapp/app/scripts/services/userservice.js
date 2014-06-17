@@ -19,6 +19,15 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                 });
                 return deferred.promise;
             },
+            resetPassword: function (user) {
+                var deferred = $q.defer();
+                Restangular.one('user', user.id).get().then(function(user) {
+                    user.put('reset').then(function(res) {
+                        deferred.resolve(res);
+                    });
+                });
+                return deferred.promise;
+            },
             getFeatures: function (userId) {
                 var deferred = $q.defer();
                 Restangular.one('user', userId).getList('features').then(function(res) {

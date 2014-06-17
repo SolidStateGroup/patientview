@@ -92,6 +92,8 @@
                                 <div class="col-sm-2 accordion-heading-text">{{user.email}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.fullname}}</div>
                                 <div class="col-sm-6">
+
+                                    <!-- Edit, Actions buttons -->
                                     <div class="btn-group pull-right">
                                         <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
                                             Actions&nbsp;&nbsp;<span class="caret"></span>
@@ -102,16 +104,15 @@
                                             &nbsp;&nbsp;Edit</button>
                                         <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
                                             <li><a ng-click="deleteUser(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Delete</a></li>
-                                            <li><a href="#/letters" class="dropdown-menu-accordion-item">Letters</a></li>
-                                            <li><a href="#/mydetails" class="dropdown-menu-accordion-item">My Details</a></li>
-                                            <li class="divider"></li>
-                                            <li><a href="#" class="dropdown-menu-accordion-item">Separated link</a></li>
+                                            <li><a ng-click="resetUserPassword(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Reset Password</a></li>
                                         </ul>
                                     </div>
 
                                 </div>
                             </div>
                         </div accordion-heading>
+
+                        <!-- edit pane -->
                         <form name="userForm" novalidate>
                             <div class="row">
                                 <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="edituser.username" required ng-trim="false" class="form-control"></div>
@@ -167,6 +168,8 @@
                 <h4>No users found</h4>
             </div>
         </div>
+
+        <!-- pagination -->
         <div class="col-md-12" data-ng-show="filtered.length > 0">
             <div pagination on-select-page="setPage(page)" total-items="filtered.length" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filtered.length  < entryLimit "></div>
         </div>
