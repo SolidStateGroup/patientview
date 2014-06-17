@@ -23,6 +23,12 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','localSt
                 localStorageService.set('routes', data);
                 $location.path('/dashboard');
             });
+        }, function(result) {
+            if (result.data) {
+                $scope.errorMessage = result.data;
+            } else {
+                $scope.errorMessage = ' ';
+            }
         });
     };
 
