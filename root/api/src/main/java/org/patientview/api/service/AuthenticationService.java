@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.UserToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 13/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface AuthenticationService {
+public interface AuthenticationService extends UserDetailsService {
 
     UserToken authenticate(String username, String password);
 
