@@ -28,8 +28,8 @@ function ($scope, $modalInstance, user, UserService) {
     };
 }];
 
-angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
-    function ($scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService) {
 
     // filter by group
     $scope.selectedGroup = [];
@@ -94,26 +94,33 @@ angular.module('patientviewApp').controller('StaffCtrl',['$scope', '$compile', '
         });
 
         $scope.loading = true;
-        $scope.role = ['1'];
+        //$scope.role = ['1'];
 
-        GroupService.getAll().then(function(data) {
+        // hardcoded for now to first group of user or 6
+        var groupId = 6;
+        if ($rootScope.loggedInUser.groupRoles.length > 0) {
+            groupId = $rootScope.loggedInUser.groupRoles[0]
+        }
 
-            $scope.allGroups = data;
+        GroupService.get(groupId).then(function(allGroups) {
 
-            UserService.getByRole($scope.role).then(function(data) {
-                $scope.list = data;
+            $scope.allGroups = [];
+            $scope.allGroups.push(allGroups);
+
+            UserService.getStaffByGroup(groupId).then(function(staffUsers) {
+                $scope.list = staffUsers;
                 $scope.currentPage = 1; //current page
                 $scope.entryLimit = 10; //max no of items to display in a page
                 $scope.totalItems = $scope.list.length;
                 delete $scope.loading;
             });
 
-            RoleService.getAll().then(function(data) {
-                $scope.allRoles = data;
+            RoleService.getAll().then(function(allRoles) {
+                $scope.allRoles = allRoles;
             });
 
-            FeatureService.getAll().then(function(data) {
-                $scope.allFeatures = data;
+            FeatureService.getAll().then(function(allFeatures) {
+                $scope.allFeatures = allFeatures;
             });
         });
     };
