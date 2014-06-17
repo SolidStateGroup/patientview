@@ -3,8 +3,8 @@
 angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','localStorageService','$timeout','$scope', '$rootScope','$cookieStore','$cookies','$routeParams','$location','AuthService','RouteService',
     function (Restangular, localStorageService, $timeout, $scope, $rootScope, $cookieStore, $cookies, $routeParams, $location,AuthService,RouteService) {
     $scope.login = function() {
-        var loginObject = {'username': $scope.username, 'password': $scope.password};
-        AuthService.login(loginObject).then(function (authenticationResult) {
+        $scope.errorMessage = '';
+        AuthService.login({'username': $scope.username, 'password': $scope.password}).then(function (authenticationResult) {
 
             var authToken = authenticationResult.token;
             var user = authenticationResult.user;
