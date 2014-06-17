@@ -15,4 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface UserTokenRepository  extends CrudRepository<UserToken, Long> {
 
     public UserToken findByToken(String token);
+
+    public void deleteByToken(String token);
 }

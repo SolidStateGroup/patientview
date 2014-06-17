@@ -48,7 +48,6 @@ public class AuthenticationServiceTest {
         user.setUsername("testUsername");
         user.setPassword(DigestUtils.sha256Hex(password));
 
-
         try {
             when(userRepository.findByUsername(any(String.class))).thenReturn(user);
             authenticationService.authenticate(user.getUsername(), password);

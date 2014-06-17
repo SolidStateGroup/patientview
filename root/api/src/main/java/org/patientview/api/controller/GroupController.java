@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class GroupController extends BaseController {
     @Inject
     private AdminService adminService;
 
-    @RequestMapping(value = "/group", method = RequestMethod.POST)
+    @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Group> createGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
 
         group = adminService.createGroup(group);
@@ -46,20 +47,21 @@ public class GroupController extends BaseController {
 
     }
 
-    @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId) {
         return new ResponseEntity<Group>(adminService.getGroup(groupId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group", method = RequestMethod.GET)
+    @RequestMapping(value = "/group", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Group>> getGroups() {
         return new ResponseEntity<List<Group>>(adminService.getAllGroups(), HttpStatus.OK);
     }
 
 
-    @RequestMapping(value = "/group/{groupId}/feature/{featureId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/group/{groupId}/feature/{featureId}", method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<GroupFeature> getGroup(@PathVariable("groupId") Long groupId,
                                           @PathVariable("featureId") Long featureId) {
@@ -73,7 +75,6 @@ public class GroupController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<GroupFeature>(groupFeature, HttpStatus.CREATED);
-
     }
 
 

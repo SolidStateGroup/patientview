@@ -3,6 +3,7 @@ package org.patientview.api.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -22,7 +23,8 @@ public class CorsFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
 
-    public CorsFilter() {
+    @PostConstruct
+    public void init() {
         LOG.info("Cors Filter initialised");
     }
 
@@ -33,6 +35,7 @@ public class CorsFilter implements Filter {
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Length, X-Requested-With, X-Auth-Token");
+        response.setHeader("Cache-Control","no-store, must-revalidate, no-cache, max-age=0");
         chain.doFilter(req, res);
     }
 

@@ -17,4 +17,6 @@ public interface AuthenticationService extends UserDetailsService {
     UserToken authenticate(String username, String password) throws AuthenticationException, UsernameNotFoundException;
 
     UserToken getToken(String token);
+
+    void logout(String token);
 }

@@ -1,14 +1,13 @@
-package org.patientview;
+package org.patientview.persistence.repository;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.patientview.persistence.config.PersistenceConfig;
+import org.junit.runner.RunWith;
+import org.patientview.config.TestPersistenceConfig;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
-import org.patientview.persistence.repository.UserRepository;
-import org.patientview.persistence.repository.UserTokenRepository;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -18,8 +17,8 @@ import java.util.Date;
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
-@ContextConfiguration(classes = {PersistenceConfig.class})
-@ComponentScan(basePackages = {"org.patientview.persistence.repository"})
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {TestPersistenceConfig.class})
 @Transactional
 public class UserTokenRepositoryTest {
 
@@ -29,12 +28,11 @@ public class UserTokenRepositoryTest {
     @Inject
     private UserRepository userRepository;
 
-    @Ignore
     @Test
+    @Ignore
     public void testCreateToken() {
 
         User user = userRepository.getOne(1L);
-
 
         UserToken userToken = new UserToken();
         userToken.setCreated(new Date());
