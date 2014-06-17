@@ -15,8 +15,8 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','$timeou
             $cookieStore.put('loggedInUser', user);
 
             RouteService.getRoutes(user.id).then(function (data) {
-                $rootScope.routes = data.routes;
-                $cookieStore.put('routes', data.routes);
+                $rootScope.routes = data;
+                $cookieStore.put('routes', data);
                 $location.path('/dashboard');
             });
         });
