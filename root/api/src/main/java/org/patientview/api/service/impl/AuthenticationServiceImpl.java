@@ -34,7 +34,7 @@ public class AuthenticationServiceImpl implements org.patientview.api.service.Au
 
         LOG.debug("Trying to authenticate user: {}", username);
 
-        User user = userRepository.findOne(1L);
+        User user = userRepository.findByUsername(username);
 
         if (user == null) {
             throw new UsernameNotFoundException("The username provided as not been found");
