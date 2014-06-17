@@ -6,7 +6,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','localSt
         var loginObject = {'username': $scope.username, 'password': $scope.password};
         AuthService.login(loginObject).then(function (authenticationResult) {
 
-            var authToken = authenticationResult.authToken;
+            var authToken = authenticationResult.token;
             var user = authenticationResult.user;
             $rootScope.authToken = authToken;
             //$cookieStore.put('authToken', authToken);
