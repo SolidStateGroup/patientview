@@ -373,3 +373,5 @@ div.grey-right-border {
     min-width: 175px;
 }
 
+/* validation */
+input.ng-dirty.ng-invalid { border:1px solid Red; }

@@ -25,7 +25,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['Restangular','localSt
             });
         }, function(result) {
             if (result.data) {
-                $scope.errorMessage = result.data;
+                $scope.errorMessage = ' - ' + result.data;
             } else {
                 $scope.errorMessage = ' ';
             }
