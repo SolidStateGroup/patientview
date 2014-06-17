@@ -74,6 +74,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public void logout(String token) {
-        userTokenRepository.deleteByToken(token);
+        UserToken userToken = userTokenRepository.findByToken(token);
+        userTokenRepository.delete(userToken.getId());
     }
 }
