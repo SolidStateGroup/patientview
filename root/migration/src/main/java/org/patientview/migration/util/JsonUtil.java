@@ -46,7 +46,7 @@ public final class JsonUtil {
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
 
     public static final String fhirUrl = "http://dev.solidstategroup.com:7865/api";
-    public static final String pvUrl = "http://dev.solidstategroup.com:7865/api";
+    public static final String pvUrl = "http://localhost:8089/";
 
     private JsonUtil() {}
 
@@ -68,9 +68,7 @@ public final class JsonUtil {
         }
 
         try {
-            if (requestObject != null) {
-
-            } else {
+            if (requestObject == null) {
                 requestObject = new Object();
             }
 
@@ -144,7 +142,7 @@ public final class JsonUtil {
 
         HttpClient httpClient = new DefaultHttpClient();
 
-        String postUrl="http://localhost:7865/api/resource";// put in your url
+        String postUrl="http://dev.solidstategroup.com:7865/api/resource";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
 

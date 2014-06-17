@@ -1,5 +1,8 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.auth.AuthenticationException;
+import org.patientview.api.service.AuthenticationService;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
@@ -20,7 +23,8 @@ import java.util.Date;
  * Created on 13/06/2014
  */
 @Service
-public class AuthenticationServiceImpl implements org.patientview.api.service.AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService
+{
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
@@ -30,14 +34,19 @@ public class AuthenticationServiceImpl implements org.patientview.api.service.Au
     @Inject
     private UserTokenRepository userTokenRepository;
 
-    public UserToken authenticate(String username, String password) throws UsernameNotFoundException {
+    public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
+            AuthenticationException {
 
         LOG.debug("Trying to authenticate user: {}", username);
 
-        User user = userRepository.findOne(1L);
+        User user = userRepository.findByUsername(username);
 
         if (user == null) {
             throw new UsernameNotFoundException("The username provided as not been found");
+        }
+
+        if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
+            throw new AuthenticationException("Invalid credentials");
         }
 
         UserToken userToken = new UserToken();
