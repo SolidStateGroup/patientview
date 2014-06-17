@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.patientview.api.service.AdminService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -47,13 +48,13 @@ public class GroupController extends BaseController {
 
     }
 
-    @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId) {
         return new ResponseEntity<Group>(adminService.getGroup(groupId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/group", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Group>> getGroups() {
         return new ResponseEntity<List<Group>>(adminService.getAllGroups(), HttpStatus.OK);
@@ -76,6 +77,13 @@ public class GroupController extends BaseController {
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<GroupFeature>(groupFeature, HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/group/{groupId}/staff", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<User>> getGroupStaff(@PathVariable("groupId") Long groupId) {
+        return new ResponseEntity<List<User>>(adminService.getGroupStaff(groupId), HttpStatus.OK);
+    }
+
 
 
 }

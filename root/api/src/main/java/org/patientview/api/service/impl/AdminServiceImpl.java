@@ -185,4 +185,8 @@ public class AdminServiceImpl implements AdminService {
         userRepository.delete(userId);
     }
 
+    public List<User> getGroupStaff(Long groupId) {
+        return Util.iterableToList(groupRepository.getGroupStaff(groupId));
+    }
+
 }

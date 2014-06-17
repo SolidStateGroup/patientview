@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Import;
 /**
  * Created by james@solidstategroup.com
  * Created on 04/06/2014
+ *
+ * https://spring.io/guides/tutorials/rest/5/
  */
 @Configuration
 @EnableAutoConfiguration
@@ -30,4 +32,9 @@ public class Api extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return application.sources(applicationClass);
     }
+
+    /*@Override
+    protected WebApplicationContext createRootApplicationContext(ServletContext servletContext) {
+
+    }*/
 }
