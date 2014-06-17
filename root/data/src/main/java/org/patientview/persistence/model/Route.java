@@ -25,6 +25,9 @@ public class Route extends SimpleAuditModel {
     @Column(name = "template_url")
     private String templateUrl;
 
+    @Column(name = "controller")
+    private String controller;
+
     @Column(name = "title")
     private String title;
 
@@ -66,6 +69,14 @@ public class Route extends SimpleAuditModel {
 
     public void setTemplateUrl(final String templateUrl) {
         this.templateUrl = templateUrl;
+    }
+
+    public String getController() {
+        return controller;
+    }
+
+    public void setController(String controller) {
+        this.controller = controller;
     }
 
     public String getTitle() {
