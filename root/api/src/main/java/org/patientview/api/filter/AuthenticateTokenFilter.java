@@ -25,7 +25,7 @@ import java.io.IOException;
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
-@WebFilter(urlPatterns = {"/api*"})
+@WebFilter(urlPatterns = {"/test*"})
 public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
