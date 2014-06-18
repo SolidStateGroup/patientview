@@ -13,4 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface FeatureRepository extends CrudRepository<Feature, Long> {
+
+  /*  @Query("SELECT  f " +
+           "FROM    User.userFeatures.feature " +
+           "WHERE   User.id = :userId " +
+           "UNION   " +
+           "SELECT  f " +
+           "FROM   User.groups.groupFeatures.feature " +
+           "WHERE  User.id = :userId ")*/
+  //  public Iterable<Feature> getFeaturesByUser(@Param(value = "userId") Long userId);
 }

@@ -162,6 +162,7 @@ public class AdminServiceImpl implements AdminService {
 
     // TODO put this into a JPASQL statement
     public List<Feature> getUserFeatures(Long userId) {
+
         List<Feature> features = new ArrayList<Feature>();
         User user = userRepository.findOne(userId);
         for (UserFeature userFeature : user.getUserFeatures()) {
@@ -175,6 +176,7 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return features;
+       // return Util.iterableToList(Util.iterableToList(featureRepository.getFeaturesByUser(userId)));
     }
 
     public User getByUsername(String username) {
