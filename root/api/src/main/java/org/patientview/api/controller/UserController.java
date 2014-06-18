@@ -94,22 +94,13 @@ public class UserController extends BaseController {
 
     }
 
-    //TODO Fix returning features
     @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", userId);
-
-        User user = adminService.getUser(userId);
-
-        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
-        return new ResponseEntity<List<Feature>>(headers, HttpStatus.OK);
+        return new ResponseEntity<List<Feature>>(adminService.getUserFeatures(userId), HttpStatus.OK);
 
     }
 
