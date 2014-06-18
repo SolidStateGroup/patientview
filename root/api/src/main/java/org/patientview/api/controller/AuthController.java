@@ -36,6 +36,11 @@ public class AuthController extends BaseController {
     @Inject
     private AuthenticationService authenticationService;
 
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public ResponseEntity<String> testOk() {
+        return new ResponseEntity<String>("Service Ok", HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserToken> authenticate(@RequestBody Credentials credentials,
                                                   UriComponentsBuilder uriComponentsBuilder,
