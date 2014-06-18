@@ -1,6 +1,5 @@
 package org.patientview.persistence.repository;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.config.TestPersistenceConfig;
@@ -12,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -29,10 +29,17 @@ public class UserTokenRepositoryTest {
     private UserRepository userRepository;
 
     @Test
-    @Ignore
     public void testCreateToken() {
 
-        User user = userRepository.getOne(1L);
+        User user = new User();
+        user.setId(1L);
+        user.setCreated(new Date());
+        user.setUsername("system");
+        user.setStartDate(new Date());
+        user.setFhirResourceId(UUID.randomUUID());
+        user.setCreator(user);
+
+        userRepository.save(user);
 
         UserToken userToken = new UserToken();
         userToken.setCreated(new Date());
@@ -40,6 +47,5 @@ public class UserTokenRepositoryTest {
         userToken.setToken("asdsa");
         userToken.setExpiration(new Date());
         userTokenRepository.save(userToken);
-
     }
 }
