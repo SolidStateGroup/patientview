@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -28,6 +30,7 @@ public class Group extends AuditModel {
 
     /*TODO http://docs.jboss.org/hibernate/orm/4.1/manual/en-US/html/ch06.html#types-registry */
     @Column(name = "fhir_resource_id")
+    @Type(type="pg-uuid")
     private UUID fhirResourceId;
 
     @OneToOne

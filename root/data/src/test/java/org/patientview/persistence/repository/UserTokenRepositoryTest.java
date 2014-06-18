@@ -1,5 +1,6 @@
 package org.patientview.persistence.repository;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.config.TestPersistenceConfig;
@@ -33,6 +34,7 @@ public class UserTokenRepositoryTest {
      *
      */
     @Test
+    @Ignore
     public void testCreateToken() {
 
         User user = new User();
