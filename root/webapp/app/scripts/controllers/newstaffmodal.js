@@ -46,7 +46,7 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
     $scope.ok = function () {
         UserService.new($scope.newUser).then(function(result) {
             //$scope.newUser.id = result.id;
-            //$scope.newUser = result.newUser;
+            $scope.newUser = result;
             $modalInstance.close($scope.newUser);
         }, function(result) {
             if (result.data) {
@@ -102,6 +102,7 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
             modalInstance.result.then(function (newUser) {
                 $scope.newUser = newUser;
                 $scope.list.push(newUser);
+                console.log(newUser);
                 // ok (success)
             }, function () {
                 // cancel

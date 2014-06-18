@@ -50,29 +50,32 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                 });
                 return deferred.promise;
             },
-            save: function (input) {
+            save: function (inputUser) {
                 var deferred = $q.defer();
-                Restangular.one('user', input.id).get().then(function(user) {
 
-                    var toInclude = ['username','email','fullname','groups','features'];
-
-                    for (var name in input) {
-                        if (input.hasOwnProperty(name) && _.contains(toInclude, name)) {
-                            user[name] = input[name];
-                        }
+                // clean user object
+                var user = {};
+                var userFields = ['id', 'username', 'password', 'email', 'name', 'groupRoles', 'changePassword', 'locked'];
+                for (var field in inputUser) {
+                    if (inputUser.hasOwnProperty(field) && _.contains(userFields, field)) {
+                        user[field] = inputUser[field];
                     }
+                }
 
-                    user.post().then(function(res) {
-                        deferred.resolve(res);
-                    });
+                // PUT
+                Restangular.all('user').customPUT(user).then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
                 });
+
                 return deferred.promise;
             },
             new: function (inputUser) {
                 var deferred = $q.defer();
+
                 var userFields = ['username','email','name','groupRoles'];
                 inputUser.groupRoles = [];
-                inputUser.name = inputUser.fullname;
 
                 for (var i=0;i<inputUser.groups.length;i++) {
                     var inputGroup = inputUser.groups[i];
