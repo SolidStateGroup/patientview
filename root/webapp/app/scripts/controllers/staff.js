@@ -127,6 +127,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // Opened for edit
     $scope.opened = function (user, $event) {
 
+        $scope.successMessage = '';
+
         if ($event) {
             if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
 
@@ -203,6 +205,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         UserService.save(user).then(function() {
             editUserForm.$setPristine(true);
             $scope.list[index] = _.clone(user);
+            $scope.successMessage = 'User saved';
         });
     };
 
@@ -303,6 +306,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                         $scope.list = _.without($scope.list, $scope.list[l]);
                     }
                 }
+                $scope.successMessage = 'User successfully deleted';
             }, function () {
                 // closed
             });

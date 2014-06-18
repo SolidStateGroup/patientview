@@ -138,12 +138,20 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                 }
 
                 user.groupRoles = inputUser.groupRoles;
-                user.password = 'password';
+
+                // generate password
+                var password = "";
+                var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                for( var i=0; i < 5; i++ )
+                    password += possible.charAt(Math.floor(Math.random() * possible.length));
+
+                user.password = password;
                 user.changePassword = 'false';
                 user.locked = 'false';
 
                 Restangular.all('user').post(user).then(function(successResult) {
                     deferred.resolve(successResult);
+                    successResult.password = user.password;
                 }, function(failureResult) {
                     deferred.reject(failureResult);
                 });
