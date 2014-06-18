@@ -32,7 +32,7 @@
                             <h5 class="inner-title">Add Group &amp; Role </h5>
                             <div class="row">
                                 <div class="col-sm-10"><select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in newUser.availableGroups"></select>
-                                    <div buttongroup="justified" buttongroupname="role" model="newUser.selectedRole" options="newUser.roles" ng-init="newUser.selectedRole"></div></div>
+                                    <div buttongroup="" buttongroupname="role" model="newUser.selectedRole" options="newUser.roles" ng-init="newUser.selectedRole"></div></div>
                                 <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, newUser, groupToAdd)" ng-disabled="!newUser.selectedRole">Add</button></div>
                             </div>
                             <span class="hidden">{{newUser.selectedRole}}</span>
