@@ -45,8 +45,15 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
 
     $scope.ok = function () {
         UserService.new($scope.newUser).then(function(result) {
-            $scope.newUser.id = result.id;
+            //$scope.newUser.id = result.id;
+            //$scope.newUser = result.newUser;
             $modalInstance.close($scope.newUser);
+        }, function(result) {
+            if (result.data) {
+                $scope.errorMessage = ' - ' + result.data;
+            } else {
+                $scope.errorMessage = ' ';
+            }
         });
     };
 
@@ -59,6 +66,7 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
 angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$modal','UserService',
     function ($scope, $modal, UserService) {
         $scope.open = function (size) {
+            $scope.errorMessage = '';
             // create new user with list of available roles, groups and features
             $scope.newUser = {};
             $scope.newUser.roles = $scope.allRoles;
@@ -92,11 +100,12 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
             });
 
             modalInstance.result.then(function (newUser) {
-                $scope.selected = newUser;
+                $scope.newUser = newUser;
                 $scope.list.push(newUser);
-                //console.log('ok');
+                // ok (success)
             }, function () {
-                //console.log('closed');
+                // cancel
+                $scope.newUser = '';
             });
         };
     }]);

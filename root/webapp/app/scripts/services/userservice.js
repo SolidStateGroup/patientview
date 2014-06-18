@@ -68,20 +68,54 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                 });
                 return deferred.promise;
             },
-            new: function (input) {
+            new: function (inputUser) {
                 var deferred = $q.defer();
+                var userFields = ['username','email','name','groupRoles'];
+                inputUser.groupRoles = [];
+                inputUser.name = inputUser.fullname;
 
-                var toInclude = ['username','email','fullname','groups','features'];
+                for (var i=0;i<inputUser.groups.length;i++) {
+                    var inputGroup = inputUser.groups[i];
+                    var groupRole = {};
+
+                    // clean role
+                    var role = {}, roleFields = ['id','name','description','routes'];
+                    for (var field in inputGroup.role) {
+                        if (inputGroup.role.hasOwnProperty(field) && _.contains(roleFields, field)) {
+                            role[field] = inputGroup.role[field];
+                        }
+                    }
+                    groupRole.role = role;
+
+                    // clean group
+                    var group = {}, groupFields = ['id','name','code','description','groupType','groupFeatures','routes'];
+                    for (var field in inputGroup) {
+                        if (inputGroup.hasOwnProperty(field) && _.contains(groupFields, field)) {
+                            group[field] = inputGroup[field];
+                        }
+                    }
+                    groupRole.group = group;
+
+                    inputUser.groupRoles.push(groupRole);
+                }
+
                 var user = {};
 
-                for (var name in input) {
-                    if (input.hasOwnProperty(name) && _.contains(toInclude, name)) {
-                        user[name] = input[name];
+                for (var name in inputUser) {
+                    if (inputUser.hasOwnProperty(name) && _.contains(userFields, name)) {
+                        user[name] = inputUser[name];
                     }
                 }
 
-                Restangular.all('user').post(user).then(function(res) {
-                    deferred.resolve(res);
+                user.groupRoles = inputUser.groupRoles;
+                user.password = 'password';
+                user.changePassword = 'false';
+                user.locked = 'false';
+
+                Restangular.all('user').post(user).then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
                 });
                 return deferred.promise;
             }

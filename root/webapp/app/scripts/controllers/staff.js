@@ -123,6 +123,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 $scope.allFeatures = allFeatures;
             });
         });
+
+
     };
 
     // Opened for edit
