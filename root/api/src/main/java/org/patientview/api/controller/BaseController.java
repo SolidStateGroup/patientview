@@ -22,7 +22,7 @@ public class BaseController {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public String handleEntityException(EntityExistsException e) {
-        LOG.error("Handling Entity Exception");
+        LOG.error("Handling Entity Exception {}", e);
         return e.getMessage();
     }
 
@@ -30,7 +30,7 @@ public class BaseController {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGenericException(Exception e) {
-        LOG.error("Unhandled exception type {}", e.getClass());
+        LOG.error("Unhandled exception type {}", e.getCause());
         return e.getMessage();
     }
 

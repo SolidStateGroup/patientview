@@ -84,6 +84,4 @@ public class GroupController extends BaseController {
         return new ResponseEntity<List<User>>(adminService.getGroupStaff(groupId), HttpStatus.OK);
     }
 
-
-
 }

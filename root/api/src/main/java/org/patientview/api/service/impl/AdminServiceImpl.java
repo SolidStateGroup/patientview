@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
@@ -10,6 +11,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -90,18 +92,20 @@ public class AdminServiceImpl implements AdminService {
 }
 
     /**
+     * This persists the User map with GroupRoles and UserFeatures. The static
+     * data objects are detached so have to be become managed again without updating the objects.
      *
      * @param user
      * @return
      */
     public User createUser(User user) {
 
-        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+        user.setPassword(DigestUtils.sha256Hex(CommonUtils.getAuthtoken()));
         User newUser;
         try {
             newUser = userRepository.save(user);
         } catch (DataIntegrityViolationException dve) {
-            LOG.debug("user not created, duplicate user: {}", dve.getCause());
+            LOG.debug("User not created, duplicate user: {}", dve.getCause());
             throw new EntityExistsException("Username already exists");
         }
         Long userId = newUser.getId();
@@ -116,6 +120,16 @@ public class AdminServiceImpl implements AdminService {
                 groupRole.setUser(userRepository.findOne(userId));
                 groupRole.setCreator(userRepository.findOne(1L));
                 groupRoleRepository.save(groupRole);
+            }
+
+        }
+
+        if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
+
+            for(UserFeature userFeature : user.getUserFeatures()) {
+                userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
+                userFeature.setUser(userRepository.findOne(userId));
+                userFeature.setCreator(userRepository.findOne(1L));
             }
 
         }
