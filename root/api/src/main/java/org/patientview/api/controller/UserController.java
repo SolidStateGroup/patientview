@@ -50,11 +50,11 @@ public class UserController extends BaseController {
 
     }
 
-    @RequestMapping(value = "/user", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public User deleteUser(@RequestParam("username") String username) {
-        return adminService.getByUsername(username);
-
+    public  ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) {
+        adminService.deleteUser(userId);
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 
 
