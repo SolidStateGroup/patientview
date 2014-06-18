@@ -94,9 +94,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
 
         $scope.loading = true;
-        //$scope.role = ['1'];
 
-        // hardcoded for now to first group of user or 6
+        // TODO: hardcoded for now to first group of user or 6
         var groupId = 6;
         if ($rootScope.loggedInUser.groupRoles.length > 0) {
             groupId = $rootScope.loggedInUser.groupRoles[0];
@@ -123,8 +122,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 $scope.allFeatures = allFeatures;
             });
         });
-
-
     };
 
     // Opened for edit
@@ -300,8 +297,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             });
 
             modalInstance.result.then(function () {
-                // ok
-                $scope.list.splice($scope.list[_.findIndex($scope.list, {id: eventUserId})],1);
+                // ok, delete from list
+                for(var l=0;l<$scope.list.length;l++) {
+                    if ($scope.list[l].id.toString() === eventUserId) {
+                        $scope.list = _.without($scope.list, $scope.list[l]);
+                    }
+                }
             }, function () {
                 // closed
             });

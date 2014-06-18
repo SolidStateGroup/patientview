@@ -5,7 +5,7 @@
 
     <!-- new user modal, includes NewStaffModalCtrl -->
     <br/>
-    <div class="alert alert-success" ng-show="newUser">User created successfully</div>
+    <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
     <div ng-include src="'views/partials/newStaffModal.html'"></div>
 
     <!-- Filter -->
@@ -86,80 +86,80 @@
             <!-- body -->
             <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
                 <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
-                        <div accordion-heading>
-                            <div class="row" ng-click="opened(user, $event)">
-                                <div class="col-sm-1 hidden">{{user.id}}</div>
-                                <div class="col-sm-2 accordion-heading-text">{{user.username}}</div>
-                                <div class="col-sm-2 accordion-heading-text">{{user.email}}</div>
-                                <div class="col-sm-2 accordion-heading-text">{{user.name}}</div>
-                                <div class="col-sm-6">
+                    <div accordion-heading>
+                        <div class="row" ng-click="opened(user, $event)">
+                            <div class="col-sm-1 hidden">{{user.id}}</div>
+                            <div class="col-sm-2 accordion-heading-text">{{user.username}}</div>
+                            <div class="col-sm-2 accordion-heading-text">{{user.email}}</div>
+                            <div class="col-sm-2 accordion-heading-text">{{user.name}}</div>
+                            <div class="col-sm-6">
 
-                                    <!-- Edit, Actions buttons -->
-                                    <div class="btn-group pull-right">
-                                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
-                                            Actions&nbsp;&nbsp;<span class="caret"></span>
-                                            <span class="sr-only">Toggle Dropdown</span>
-                                        </button>
-                                        <button type="button" class="btn btn-primary pull-right">
-                                            <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>
-                                            &nbsp;&nbsp;Edit</button>
-                                        <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
-                                            <li><a ng-click="deleteUser(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Delete</a></li>
-                                            <li><a ng-click="resetUserPassword(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Reset Password</a></li>
-                                        </ul>
-                                    </div>
+                                <!-- Edit, Actions buttons -->
+                                <div class="btn-group pull-right">
+                                    <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
+                                        Actions&nbsp;&nbsp;<span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary pull-right">
+                                        <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>
+                                        &nbsp;&nbsp;Edit</button>
+                                    <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
+                                        <li><a ng-click="deleteUser(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Delete</a></li>
+                                        <li><a ng-click="resetUserPassword(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Reset Password</a></li>
+                                    </ul>
+                                </div>
 
-                                </div>
                             </div>
-                        </div accordion-heading>
-
-                        <!-- edit pane -->
-                        <form name="userForm" novalidate>
-                            <div class="row">
-                                <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="edituser.username" required ng-trim="false" class="form-control"></div>
-                                <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="edituser.email" required ng-trim="false" class="form-control"></div>
-                                <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="edituser.name" required ng-trim="false" class="form-control"></div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-6 grey-right-border">
-                                    <h5 class="inner-title">Groups &amp; Roles </h5>
-                                    <div class="group-list-item" ng-repeat="groupRole in edituser.groupRoles">
-                                        <div class="group-list-name"><span class="group-list-name">{{groupRole.group.name}}</span></div>
-                                        <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, edituser, groupRole.group)" >Delete</a></span></div>
-                                        <div class="group-list-role"><span class="group-list-role">{{groupRole.role.name}}</span></div>
-                                    </div>
-                                    <div class="group-add-container" ng-show="edituser.availableGroups.length > 0 ">
-                                        <h5 class="inner-title">Add Group &amp; Role </h5>
-                                        <div class="row">
-                                            <div class="col-sm-10"><select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups"></select>
-                                                <div buttongroup="justified" buttongroupname="role" model="edituser.selectedRole" options="edituser.roles" ng-init="edituser.selectedRole"></div></div>
-                                            <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, edituser, groupToAdd)" ng-disabled="!edituser.selectedRole">Add</button></div>
-                                        </div>
-                                        <span class="hidden">{{edituser.selectedRole}}</span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <h5 class="inner-title">Features </h5>
-                                    <div class="feature-list-item" ng-repeat="feature in edituser.features">
-                                        <div class="feature-list-name"><span class="feature-list-name">{{feature.name}}</span></div>
-                                        <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-{{feature.id}}" href="" ng-click="removeFeature(userForm, edituser, feature)" >Delete</a></span></div>
-                                    </div>
-                                    <div class="feature-add-container" ng-show="edituser.availableFeatures.length > 0 ">
-                                        <h5 class="inner-title">Add Feature </h5>
-                                        <div class="row">
-                                            <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.id as feature.name for feature in edituser.availableFeatures"></select></div>
-                                            <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userForm, edituser, featureToAdd)">Add</button></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <hr>
-                        <div class="user-save-cancel pull-right">
-                            <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                            <button type="button" class="btn btn-primary" ng-click="save(userForm, edituser, $index)" ng-disabled="userForm.$pristine">Save</button>
                         </div>
+                    </div accordion-heading>
+
+                    <!-- edit pane -->
+                    <form name="userForm" novalidate>
+                        <div class="row">
+                            <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="edituser.username" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="edituser.email" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="edituser.name" required ng-trim="false" class="form-control"></div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-6 grey-right-border">
+                                <h5 class="inner-title">Groups &amp; Roles </h5>
+                                <div class="group-list-item" ng-repeat="groupRole in edituser.groupRoles">
+                                    <div class="group-list-name"><span class="group-list-name">{{groupRole.group.name}}</span></div>
+                                    <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, edituser, groupRole.group)" >Delete</a></span></div>
+                                    <div class="group-list-role"><span class="group-list-role">{{groupRole.role.name}}</span></div>
+                                </div>
+                                <div class="group-add-container" ng-show="edituser.availableGroups.length > 0 ">
+                                    <h5 class="inner-title">Add Group &amp; Role </h5>
+                                    <div class="row">
+                                        <div class="col-sm-10"><select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups"></select>
+                                            <div buttongroup="" buttongroupname="role" model="edituser.selectedRole" options="edituser.roles" ng-init="edituser.selectedRole"></div></div>
+                                        <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, edituser, groupToAdd)" ng-disabled="!edituser.selectedRole">Add</button></div>
+                                    </div>
+                                    <span class="hidden">{{edituser.selectedRole}}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <h5 class="inner-title">Features </h5>
+                                <div class="feature-list-item" ng-repeat="feature in edituser.features">
+                                    <div class="feature-list-name"><span class="feature-list-name">{{feature.name}}</span></div>
+                                    <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-{{feature.id}}" href="" ng-click="removeFeature(userForm, edituser, feature)" >Delete</a></span></div>
+                                </div>
+                                <div class="feature-add-container" ng-show="edituser.availableFeatures.length > 0 ">
+                                    <h5 class="inner-title">Add Feature </h5>
+                                    <div class="row">
+                                        <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.id as feature.name for feature in edituser.availableFeatures"></select></div>
+                                        <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userForm, edituser, featureToAdd)">Add</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="user-save-cancel pull-right">
+                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
+                        <button type="button" class="btn btn-primary" ng-click="save(userForm, edituser, $index)" ng-disabled="userForm.$pristine">Save</button>
+                    </div>
 
                 </div accordion-group>
             </div accordion>
