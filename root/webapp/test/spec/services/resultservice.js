@@ -19,6 +19,7 @@ describe('Service: ResultsService', function () {
         var url1a = 'http://patientview201.apiary-mock.com/api/patient/1/observations?type=calcium';
         var url1b = 'http://dev.solidstategroup.com:7865/api/patient/1/observations?type=calcium';
         var url1c = 'http://diabetes-pv.dev.solidstategroup.com/api/patient/1/observations?type=calcium';
+        var url1d = 'http://localhost:8080/api/patient/1/observations?type=calcium';
         var response1 = [
             {
                 'data': {
@@ -152,6 +153,7 @@ describe('Service: ResultsService', function () {
         var url2a = 'http://patientview201.apiary-mock.com/api/patient/1/resulttypes';
         var url2b = 'http://dev.solidstategroup.com:7865/api/patient/1/resulttypes';
         var url2c = 'http://diabetes-pv.dev.solidstategroup.com/api/patient/1/resulttypes';
+        var url2d = 'http://localhost:8080/api/patient/1/resulttypes';
         var response2 = [
             {
                 'data': {
@@ -177,10 +179,12 @@ describe('Service: ResultsService', function () {
         httpBackend.whenGET(url1a).respond(response1);
         httpBackend.whenGET(url1b).respond(response1);
         httpBackend.whenGET(url1c).respond(response1);
+        httpBackend.whenGET(url1d).respond(response1);
         httpBackend.whenGET(url2).respond(response2);
         httpBackend.whenGET(url2a).respond(response2);
         httpBackend.whenGET(url2b).respond(response2);
         httpBackend.whenGET(url2c).respond(response2);
+        httpBackend.whenGET(url2d).respond(response2);
 
         //http://stackoverflow.com/questions/15927919/using-ngmock-to-simulate-http-calls-in-service-unit-tests
         //http://stackoverflow.com/questions/14761045/jasmine-tests-angularjs-directives-with-templateurl

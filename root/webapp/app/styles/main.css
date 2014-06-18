@@ -217,7 +217,6 @@ div.feature-list-name, div.feature-list-role, div.feature-list-delete {
     padding: 4px 4px 0 4px;
     vertical-align: middle;
     margin:1px;
-    width: 43px;
     text-align: center;
 }
 span.group-list-name {
@@ -235,10 +234,8 @@ span.feature-list-name, span.feature-list-role, span.feature-list-delete {
 }
 
 div.group-list-name, div.feature-list-name{
-   /* font-size: 16px;*/
     color: #6B6B6B;
     text-align: left;
-    width: 150px;
 }
 
 div.group-list-delete, div.feature-list-delete{
@@ -247,11 +244,9 @@ div.group-list-delete, div.feature-list-delete{
 }
 
 div.group-list-role {
-    background: #E4E4E4;
+    background: #66CCCC;
+    color: #ffffff;
     float: right;
-    color: #6B6B6B;
-    display:none;
-    width: 75px;
 }
 span.group-list-role {
     font-size: 14px;

@@ -124,10 +124,10 @@
                             <div class="row">
                                 <div class="col-sm-6 grey-right-border">
                                     <h5 class="inner-title">Groups &amp; Roles </h5>
-                                    <div class="group-list-item" ng-repeat="group in edituser.groups">
-                                        <div class="group-list-name"><span class="group-list-name">{{group.name}}</span></div>
-                                        <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{group.id}}" href="" ng-click="removeGroup(userForm, edituser, group)" >Delete</a></span></div>
-                                        <div class="group-list-role" ng-repeat="role in allRoles" ng-class="(role.id==group.role.id) ? 'group-list-role-selected' : ''"><span class="group-list-role">{{role.name}}</span></div>
+                                    <div class="group-list-item" ng-repeat="groupRole in edituser.groupRoles">
+                                        <div class="group-list-name"><span class="group-list-name">{{groupRole.group.name}}</span></div>
+                                        <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, edituser, groupRole.group)" >Delete</a></span></div>
+                                        <div class="group-list-role"><span class="group-list-role">{{groupRole.role.name}}</span></div>
                                     </div>
                                     <div class="group-add-container" ng-show="edituser.availableGroups.length > 0 ">
                                         <h5 class="inner-title">Add Group &amp; Role </h5>

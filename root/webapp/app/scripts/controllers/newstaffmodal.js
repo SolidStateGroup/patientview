@@ -28,10 +28,18 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
     $scope.addGroup = function (form, user, groupId) {
         if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere(allRoles, {id: user.selectedRole})) {
             user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
-            var group = _.findWhere(allGroups, {id: groupId});
-            group.role = _.findWhere(allRoles, {id: user.selectedRole});
-            user.groups.push(group);
+            var newGroup = _.findWhere(allGroups, {id: groupId});
+            newGroup.role = _.findWhere(allRoles, {id: user.selectedRole});
+            user.groups.push(newGroup);
             user.selectedRole = '';
+
+            // for REST compatibility
+            user.groupRoles = [];
+            for(var i=0;i<user.groups.length;i++) {
+                var group = user.groups[i];
+                user.groupRoles.push({'group': group, 'role': group.role});
+            }
+
             form.$setDirty(true);
         }
     };
@@ -40,6 +48,14 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
     $scope.removeGroup = function (form, user, group) {
         user.groups = _.without(user.groups, _.findWhere(user.groups, {id: group.id}));
         user.availableGroups.push(group);
+
+        // for REST compatibility
+        user.groupRoles = [];
+        for(var i=0;i<user.groups.length;i++) {
+            var tempGroup = user.groups[i];
+            user.groupRoles.push({'group': tempGroup, 'role': tempGroup.role});
+        }
+
         form.$setDirty(true);
     };
 
@@ -102,7 +118,6 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
             modalInstance.result.then(function (newUser) {
                 $scope.newUser = newUser;
                 $scope.list.push(newUser);
-                console.log(newUser);
                 // ok (success)
             }, function () {
                 // cancel
