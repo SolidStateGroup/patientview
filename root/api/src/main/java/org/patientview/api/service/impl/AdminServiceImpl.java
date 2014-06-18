@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -159,10 +160,21 @@ public class AdminServiceImpl implements AdminService {
         return Util.iterableToList(roleRepository.findAll());
     }
 
-    //TODO
-    public List<Feature> getUserFeatures(User user) {
+    // TODO put this into a JPASQL statement
+    public List<Feature> getUserFeatures(Long userId) {
+        List<Feature> features = new ArrayList<Feature>();
+        User user = userRepository.findOne(userId);
+        for (UserFeature userFeature : user.getUserFeatures()) {
+            features.add(userFeature.getFeature());
+        }
 
-        return null;
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
+                features.add(groupFeature.getFeature());
+            }
+        }
+
+        return features;
     }
 
     public User getByUsername(String username) {

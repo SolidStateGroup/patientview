@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Role;
@@ -46,5 +47,7 @@ public interface AdminService {
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);
 
     List<User> getGroupStaff(Long groupId);
+
+    List<Feature> getUserFeatures(Long userId);
 
 }
