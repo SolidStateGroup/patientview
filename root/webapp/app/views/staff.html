@@ -79,7 +79,7 @@
                 <div class="col-sm-1 hidden">ID</div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('fullname');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-6"></div>
             </div>
 
@@ -91,7 +91,7 @@
                                 <div class="col-sm-1 hidden">{{user.id}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.username}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.email}}</div>
-                                <div class="col-sm-2 accordion-heading-text">{{user.fullname}}</div>
+                                <div class="col-sm-2 accordion-heading-text">{{user.name}}</div>
                                 <div class="col-sm-6">
 
                                     <!-- Edit, Actions buttons -->
@@ -118,7 +118,7 @@
                             <div class="row">
                                 <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="edituser.username" required ng-trim="false" class="form-control"></div>
                                 <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="edituser.email" required ng-trim="false" class="form-control"></div>
-                                <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="edituser.fullname" required ng-trim="false" class="form-control"></div>
+                                <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="edituser.name" required ng-trim="false" class="form-control"></div>
                             </div>
                             <hr>
                             <div class="row">
