@@ -55,11 +55,38 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
 
                 // clean user object
                 var user = {};
-                var userFields = ['id', 'username', 'password', 'email', 'name', 'groupRoles', 'changePassword', 'locked'];
-                for (var field in inputUser) {
-                    if (inputUser.hasOwnProperty(field) && _.contains(userFields, field)) {
-                        user[field] = inputUser[field];
+                var userFields = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked'];
+                for (var userField in inputUser) {
+                    if (inputUser.hasOwnProperty(userField) && _.contains(userFields, userField)) {
+                        user[userField] = inputUser[userField];
                     }
+                }
+
+                // clean group roles
+                user.groupRoles = [];
+                for (var i=0;i<inputUser.groupRoles.length;i++) {
+                    var inputGroupRole = inputUser.groupRoles[i];
+                    var groupRole = {};
+
+                    // clean role
+                    var role = {}, roleFields = ['id','name','description','routes'];
+                    for (var roleField in inputGroupRole.role) {
+                        if (inputGroupRole.role.hasOwnProperty(roleField) && _.contains(roleFields, roleField)) {
+                            role[roleField] = inputGroupRole.role[roleField];
+                        }
+                    }
+                    groupRole.role = role;
+
+                    // clean group
+                    var group = {}, groupFields = ['id','name','code','description','groupType','groupFeatures','routes'];
+                    for (var groupField in inputGroupRole.group) {
+                        if (inputGroupRole.group.hasOwnProperty(groupField) && _.contains(groupFields, groupField)) {
+                            group[groupField] = inputGroupRole.group[groupField];
+                        }
+                    }
+                    groupRole.group = group;
+
+                    user.groupRoles.push(groupRole);
                 }
 
                 // PUT
@@ -83,18 +110,18 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
 
                     // clean role
                     var role = {}, roleFields = ['id','name','description','routes'];
-                    for (var field in inputGroup.role) {
-                        if (inputGroup.role.hasOwnProperty(field) && _.contains(roleFields, field)) {
-                            role[field] = inputGroup.role[field];
+                    for (var roleField in inputGroup.role) {
+                        if (inputGroup.role.hasOwnProperty(roleField) && _.contains(roleFields, roleField)) {
+                            role[roleField] = inputGroup.role[roleField];
                         }
                     }
                     groupRole.role = role;
 
                     // clean group
                     var group = {}, groupFields = ['id','name','code','description','groupType','groupFeatures','routes'];
-                    for (var field in inputGroup) {
-                        if (inputGroup.hasOwnProperty(field) && _.contains(groupFields, field)) {
-                            group[field] = inputGroup[field];
+                    for (var groupField in inputGroup) {
+                        if (inputGroup.hasOwnProperty(groupField) && _.contains(groupFields, groupField)) {
+                            group[groupField] = inputGroup[groupField];
                         }
                     }
                     groupRole.group = group;
@@ -104,9 +131,9 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
 
                 var user = {};
 
-                for (var name in inputUser) {
-                    if (inputUser.hasOwnProperty(name) && _.contains(userFields, name)) {
-                        user[name] = inputUser[name];
+                for (var field in inputUser) {
+                    if (inputUser.hasOwnProperty(field) && _.contains(userFields, field)) {
+                        user[field] = inputUser[field];
                     }
                 }
 

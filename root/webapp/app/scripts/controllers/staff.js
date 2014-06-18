@@ -99,7 +99,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         // hardcoded for now to first group of user or 6
         var groupId = 6;
         if ($rootScope.loggedInUser.groupRoles.length > 0) {
-            groupId = $rootScope.loggedInUser.groupRoles[0]
+            groupId = $rootScope.loggedInUser.groupRoles[0];
         }
 
         GroupService.get(groupId).then(function(allGroups) {
@@ -159,6 +159,15 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.editing = true;
         user.roles = $scope.allRoles;
 
+        // for REST compatibility
+        user.groups = [];
+        for(var h=0;h<user.groupRoles.length;h++) {
+            var groupRole = user.groupRoles[h];
+            var group = groupRole.group;
+            group.role = groupRole.role;
+            user.groups.push(group);
+        }
+
         // create list of available groups (all - users)
         user.availableGroups = $scope.allGroups;
         if(user.groups) {
@@ -204,13 +213,20 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     $scope.addGroup = function (form, user, groupId) {
         if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere($scope.allRoles, {id: user.selectedRole})) {
             user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
-            var group = _.findWhere($scope.allGroups, {id: groupId});
-            group.role = _.findWhere($scope.allRoles, {id: user.selectedRole});
-            user.groups.push(group);
+            var newGroup = _.findWhere($scope.allGroups, {id: groupId});
+            newGroup.role = _.findWhere($scope.allRoles, {id: user.selectedRole});
+            user.groups.push(newGroup);
             user.selectedRole = '';
 
             if (user.availableGroups[0]) {
                 $scope.groupToAdd = user.availableGroups[0].id;
+            }
+
+            // for REST compatibility
+            user.groupRoles = [];
+            for(var i=0;i<user.groups.length;i++) {
+                var group = user.groups[i];
+                user.groupRoles.push({'group': group, 'role': group.role});
             }
 
             form.$setDirty(true);
@@ -224,6 +240,13 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         if (user.availableGroups[0]) {
             $scope.groupToAdd = user.availableGroups[0].id;
+        }
+
+        // for REST compatibility
+        user.groupRoles = [];
+        for(var i=0;i<user.groups.length;i++) {
+            var tempGroup = user.groups[i];
+            user.groupRoles.push({'group': tempGroup, 'role': tempGroup.role});
         }
 
         form.$setDirty(true);
