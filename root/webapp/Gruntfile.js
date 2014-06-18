@@ -317,6 +317,14 @@ module.exports = function (grunt) {
 
     // Copies remaining files to places other tasks can use
     copy: {
+    minimal: {
+        expand:true,
+            cwd: '<%= yeoman.app %>',
+            dest: '<%= yeoman.dist %>',
+            src: [
+                '**/*'
+            ]
+        },
       dist: {
         files: [{
           expand: true,
@@ -431,6 +439,18 @@ module.exports = function (grunt) {
                   }
               }
           },
+          apilocal: {
+              options: {
+                  dest: '<%= yeoman.app %>/scripts/config.js'
+              },
+              constants: {
+                  ENV: {
+                      name: 'production',
+                      //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                      apiEndpoint: 'http://localhost:8080/api'
+                  }
+              }
+          },
           apiie: {
               options: {
                   dest: '<%= yeoman.app %>/scripts/config.js'
@@ -506,7 +526,19 @@ module.exports = function (grunt) {
     grunt.registerTask('serveapi', function (target) {
         grunt.task.run([
             'clean:server',
-            'ngconstant:apidev',
+            'ngconstant:apilocal',
+            'bowerInstall',
+            'concurrent:server',
+            'autoprefixer',
+            'connect:livereload',
+            'watch'
+        ]);
+    });
+
+    grunt.registerTask('servelocal', function (target) {
+        grunt.task.run([
+            'clean:server',
+            'ngconstant:apilocal',
             'bowerInstall',
             'concurrent:server',
             'autoprefixer',
@@ -588,9 +620,36 @@ module.exports = function (grunt) {
         'war'
     ]);
 
+    grunt.registerTask('buildlocal', [
+        'clean:dist',
+        //'ngconstant:apiprod',
+        'ngconstant:apilocal',
+        'bowerInstall',
+        'useminPrepare',
+        'concurrent:dist',
+        'autoprefixer',
+        'concat',
+        'copy:dist',
+        'cdnify',
+        'cssmin',
+        'uglify',
+        'rev',
+        'usemin',
+        'htmlmin',
+        'war'
+    ]);
+
   grunt.registerTask('default', [
     'newer:jshint',
     'test',
     'build'
   ]);
+
+
+    grunt.registerTask('minimal', [
+        'clean:dist',
+        'ngconstant:apilocal',
+        'copy:minimal',
+        'war'
+    ]);
 };
