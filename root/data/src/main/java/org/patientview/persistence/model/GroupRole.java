@@ -12,7 +12,7 @@ import javax.persistence.Table;
  * Created on 03/06/2014
  */
 @Entity
-@Table(name = "PV_User_Group_Role")
+@Table(name = "pv_user_group_role")
 public class GroupRole extends RangeModel {
 
     @OneToOne

@@ -35,7 +35,7 @@ public class PersistenceConfig extends CommonConfig {
     public void init() {
         properties.setProperty("hibernate.hbm2ddl.auto", "validate");
         properties.setProperty("hibernate.show_sql", "true");
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
 
     }
 
@@ -78,6 +78,7 @@ public class PersistenceConfig extends CommonConfig {
 
     @Bean
     public HibernateExceptionTranslator hibernateExceptionTranslator(){
+
         return new HibernateExceptionTranslator();
     }
 

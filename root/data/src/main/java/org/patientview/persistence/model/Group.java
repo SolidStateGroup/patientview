@@ -28,7 +28,6 @@ public class Group extends AuditModel {
 
     /*TODO http://docs.jboss.org/hibernate/orm/4.1/manual/en-US/html/ch06.html#types-registry */
     @Column(name = "fhir_resource_id")
-    @org.hibernate.annotations.Type(type="pg-uuid")
     private UUID fhirResourceId;
 
     @OneToOne

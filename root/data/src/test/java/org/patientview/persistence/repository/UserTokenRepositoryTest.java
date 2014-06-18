@@ -28,6 +28,10 @@ public class UserTokenRepositoryTest {
     @Inject
     private UserRepository userRepository;
 
+    /**
+     * Test: First DAO test needs TODO refactoring into base test
+     *
+     */
     @Test
     public void testCreateToken() {
 

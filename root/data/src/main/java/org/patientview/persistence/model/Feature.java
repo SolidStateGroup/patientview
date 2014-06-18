@@ -23,6 +23,9 @@ public class Feature extends RangeModel {
     @OneToMany(mappedBy = "feature")
     private Set<Route> routes;
 
+    @OneToMany(mappedBy = "feature")
+    private Set<UserFeature> userFeatures;
+
     public String getName() {
         return name;
     }
@@ -37,5 +40,21 @@ public class Feature extends RangeModel {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public Set<Route> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(final Set<Route> routes) {
+        this.routes = routes;
+    }
+
+    public Set<UserFeature> getUserFeatures() {
+        return userFeatures;
+    }
+
+    public void setUserFeatures(final Set<UserFeature> userFeatures) {
+        this.userFeatures = userFeatures;
     }
 }

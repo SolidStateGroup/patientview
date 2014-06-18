@@ -11,7 +11,7 @@ import java.util.Set;
  * Created on 03/06/2014
  */
 @Entity
-@Table(name = "PV_Role")
+@Table(name = "pv_role")
 public class Role extends AuditModel {
 
     @Column(name = "role_name")

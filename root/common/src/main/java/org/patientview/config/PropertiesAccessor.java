@@ -23,15 +23,15 @@ public class PropertiesAccessor {
         this.beanFactory = beanFactory;
     }
 
-    public  String getProperty(String key) {
-        if(cache.containsKey(key)){
+    public String getProperty(String key) {
+        if (cache.containsKey(key)){
             return cache.get(key);
         }
 
         String foundProp = null;
         try {
             foundProp = beanFactory.resolveEmbeddedValue("${" + key.trim() + "}");
-            cache.put(key,foundProp);
+            cache.put(key, foundProp);
         } catch (IllegalArgumentException ex) {
             // ok - property was not found
         }

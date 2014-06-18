@@ -23,18 +23,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-   /* private WebApplicationContext createRootContext(ServletContext servletContext) {
+   /*private WebApplicationContext createRootContext(ServletContext servletContext) {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.register(SecurityConfig.class);
         rootContext.refresh();
 
         servletContext.addListener(new ContextLoaderListener(rootContext));
         servletContext.setInitParameter("defaultHtmlEscape", "true");
-        servletContext.addFilter("")
         return rootContext;
-    }*/
+    }
 
-  /*  private void configureSpringSecurity(ServletContext servletContext, WebApplicationContext rootContext) {
+   private void configureSpringSecurity(ServletContext servletContext, WebApplicationContext rootContext) {
         FilterRegistration.Dynamic springSecurity = servletContext.addFilter("springSecurityFilterChain",
                 new DelegatingFilterProxy("springSecurityFilterChain", rootContext));
         springSecurity.addMappingForUrlPatterns(null, true, "/*");

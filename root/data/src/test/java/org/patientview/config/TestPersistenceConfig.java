@@ -28,7 +28,6 @@ public class TestPersistenceConfig  {
 
     private Properties properties;
 
-
     @PostConstruct
     public void init() {
         Properties properties = new Properties();

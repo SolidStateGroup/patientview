@@ -10,7 +10,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -42,11 +42,12 @@ public class User extends RangeModel implements UserDetails {
     private String name;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<GroupRole> groupRoles;
+    private Set<GroupRole> groupRoles;
 
-    /* http://docs.jboss.org/hibernate/orm/4.1/manual/en-US/html/ch06.html#types-registry */
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private Set<UserFeature> userFeatures;
+
     @Column(name = "fhir_resource_id")
-    @org.hibernate.annotations.Type(type="pg-uuid")
     private UUID fhirResourceId;
 
     public String getUsername() {
@@ -105,13 +106,23 @@ public class User extends RangeModel implements UserDetails {
         this.fhirResourceId = fhirResourceId;
     }
 
-    public List<GroupRole> getGroupRoles() {
+    public void setGroupRoles(final Set<GroupRole> groupRoles) {
+        this.groupRoles = groupRoles;
+    }
+
+    public Set<GroupRole> getGroupRoles() {
         return groupRoles;
     }
 
-    public void setGroupRoles(final List<GroupRole> groupRoles) {
-        this.groupRoles = groupRoles;
+    public Set<UserFeature> getUserFeatures() {
+        return userFeatures;
     }
+
+    public void setUserFeatures(final Set<UserFeature> userFeatures) {
+        this.userFeatures = userFeatures;
+    }
+
+    //TODO User Detail fields need refactoring
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
