@@ -32,10 +32,9 @@ public class SecurityServiceImpl implements SecurityService {
 
     }
 
-    //TODO - Currently returns all routes
     public List<Route> getUserRoutes(Long userId) {
 
-        return Util.iterableToList(routeRepository.findAll());
+        return Util.iterableToList(routeRepository.getRoutesByUserId(userId));
 
     }
 

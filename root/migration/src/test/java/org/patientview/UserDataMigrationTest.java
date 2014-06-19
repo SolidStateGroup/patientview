@@ -31,6 +31,11 @@ public class UserDataMigrationTest {
     @Inject
     private UserDataMigrationService userDataMigrationService;
 
+    /**
+     * Order(2) Migrates all the user records that are patients with groups into the new schema
+     *
+     * @throws Exception
+     */
     @Test
     public void testUserMigration() {
 

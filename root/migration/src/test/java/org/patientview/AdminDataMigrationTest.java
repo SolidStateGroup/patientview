@@ -38,6 +38,11 @@ public class AdminDataMigrationTest {
 
     }
 
+    /**
+     * Order(1) Migrates all the static data like groups, specialities
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void testStaticDataMigrationFeatures()  throws Exception {
