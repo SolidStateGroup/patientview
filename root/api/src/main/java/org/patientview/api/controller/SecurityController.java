@@ -33,9 +33,10 @@ public class SecurityController extends BaseController {
     @Inject
     private SecurityService securityService;
 
-    @RequestMapping(value = "/security/user/{userId}/roles", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/security/user/{userId}/roles", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Role>> getSecurityRolesByUser(@PathVariable("userId") Long userId, @PathVariable("roleId") Long roleId) {
+    public ResponseEntity<List<Role>> getSecurityRolesByUser(@PathVariable("userId") Long userId) {
         return new ResponseEntity<List<Role>>(securityService.getUserRoles(userId), HttpStatus.OK);
     }
 
@@ -49,7 +50,8 @@ public class SecurityController extends BaseController {
     @RequestMapping(value = "/user/{userId}/routes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Route>> getUserRoutes(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<List<Route>> getUserRoutes(@PathVariable("userId") Long userId,
+                                                     @PathVariable("roleId") Long roleId, UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", userId);
 
