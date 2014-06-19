@@ -83,6 +83,7 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
     function ($scope, $modal, UserService) {
         $scope.open = function (size) {
             $scope.errorMessage = '';
+            $scope.successMessage = '';
             // create new user with list of available roles, groups and features
             $scope.newUser = {};
             $scope.newUser.roles = $scope.allRoles;
@@ -116,8 +117,10 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
             });
 
             modalInstance.result.then(function (newUser) {
-                $scope.newUser = newUser;
+                //$scope.newUser = newUser;
                 $scope.list.push(newUser);
+                $scope.newUser = newUser;
+                $scope.successMessage = 'User successfully created';
                 // ok (success)
             }, function () {
                 // cancel
