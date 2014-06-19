@@ -95,5 +95,28 @@ public class AdminServiceImplTest {
         Assert.assertNotNull("A group feature has been created", groupFeature);
     }
 
+    /**
+     * Test: The creation of the user with user features, groups and roles
+     * Fail: The creation of the user fails
+     *
+     */
+    @Test
+    public void testCreateUser() {
+        when(userRepository.findOne(Matchers.anyLong())).thenReturn(new User());
+        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(new Group());
+        when(featureRepository.findOne(Matchers.anyLong())).thenReturn(new Feature());
+
+        // Return a group feature
+        when(groupFeatureRepository.save(Matchers.any(GroupFeature.class))).thenReturn(new GroupFeature());
+
+        // Call
+        GroupFeature groupFeature = adminService.addGroupFeature(1L, 1L);
+
+        // Test
+        verify(groupFeatureRepository, Mockito.times(1)).save(Matchers.any(GroupFeature.class));
+        Assert.assertNotNull("A group feature has been created", groupFeature);
+    }
+
+
 
 }
