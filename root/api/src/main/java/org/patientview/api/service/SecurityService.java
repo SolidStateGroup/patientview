@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.Route;
 
 import java.util.List;
 
@@ -11,5 +12,7 @@ import java.util.List;
 public interface SecurityService {
 
     List<Role> getUserRoles(Long userId);
+
+    List<Route> getUserRoutes(Long userId);
 
 }

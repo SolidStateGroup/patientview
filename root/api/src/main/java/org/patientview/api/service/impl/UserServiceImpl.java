@@ -9,14 +9,13 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.RoleRepository;
-import org.patientview.persistence.repository.RouteRepository;
+import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +47,13 @@ public class UserServiceImpl implements UserService {
     private FeatureRepository featureRepository;
 
     @Inject
-    private RouteRepository routeRepository;
-
-    @Inject
     private GroupRoleRepository groupRoleRepository;
 
     @Inject
     private RoleRepository roleRepository;
 
+    @Inject
+    private UserFeatureRepository userFeatureRepository;
 
     /**
      * This persists the User map with GroupRoles and UserFeatures. The static
@@ -96,7 +94,7 @@ public class UserServiceImpl implements UserService {
                 userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
                 userFeature.setUser(userRepository.findOne(userId));
                 userFeature.setCreator(userRepository.findOne(1L));
-
+                userFeatureRepository.save(userFeature);
             }
 
         }
@@ -119,14 +117,6 @@ public class UserServiceImpl implements UserService {
         User entityUser = userRepository.findOne(user.getId());
         entityUser.setFhirResourceId(user.getFhirResourceId());
         return userRepository.save(user);
-    }
-
-
-    //TODO - Currently returns all routes
-    public List<Route> getUserRoutes(Long userId) {
-
-        return Util.iterableToList(routeRepository.findAll());
-
     }
 
 

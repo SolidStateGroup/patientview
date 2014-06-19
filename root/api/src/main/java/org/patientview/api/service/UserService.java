@@ -1,7 +1,6 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Feature;
-import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +25,6 @@ public interface UserService {
     User createUser(User user);
 
     User saveUser(User user);
-
-    List<Route> getUserRoutes(Long userId);
 
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);
 

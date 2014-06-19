@@ -4,7 +4,6 @@ import org.patientview.api.service.AdminService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,21 +106,7 @@ public class UserController extends BaseController {
 
     }
 
-    @RequestMapping(value = "/user/{userId}/routes", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<Route>> getUserRoutes(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
 
-        LOG.debug("Request has been received for userId : {}", userId);
-
-        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
-        return new ResponseEntity<List<Route>>(userService.getUserRoutes(userId), HttpStatus.OK);
-
-    }
 
     @RequestMapping(value = "/user/role/{roleId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
