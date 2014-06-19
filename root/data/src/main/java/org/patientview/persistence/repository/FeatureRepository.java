@@ -26,5 +26,5 @@ public interface FeatureRepository extends CrudRepository<Feature, Long> {
            "FROM   User u" +
            "JOIN   u.groupRoles.group.groupFeatures.feature f" +
            "WHERE  User.id = :userId ")
-    public Iterable<Feature> getFeaturesByUser(@Param(value = "userId") Long userId);
+    public Iterable<Feature> getFeaturesByUser(@Param("userId") Long userId);
 }

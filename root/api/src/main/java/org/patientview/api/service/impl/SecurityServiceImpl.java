@@ -2,8 +2,10 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.util.Util;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ public class SecurityServiceImpl implements SecurityService {
     @Inject
     private RouteRepository routeRepository;
 
+    @Inject
+    private GroupRepository groupRepository;
+
     public List<Role> getUserRoles(Long userId) {
 
         return Util.iterableToList(roleRepository.getValidRolesByUser(userId));
@@ -36,6 +41,10 @@ public class SecurityServiceImpl implements SecurityService {
 
         return Util.iterableToList(routeRepository.getRoutesByUserId(userId));
 
+    }
+
+    public List<Group> getGroupByUserAndRole(Long userId, Long roleId) {
+        return Util.iterableToList(groupRepository.getGroupByUserAndRole(userId, roleId));
     }
 
 }

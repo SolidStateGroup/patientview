@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,5 +18,7 @@ public interface SecurityService {
     List<Role> getUserRoles(Long userId);
 
     List<Route> getUserRoutes(Long userId);
+
+    List<Group> getGroupByUserAndRole(Long userId, Long roleId);
 
 }

@@ -46,9 +46,10 @@ public class SecurityController extends BaseController {
     @RequestMapping(value = "/security/user/{userId}/role/{roleId}/groups", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<Group> getSecurityGroupsByUser(@PathVariable("userId") Long userId,
+    public List<Group> getSecurityGroupsByUserAndRole(@PathVariable("userId") Long userId,
                                                @PathVariable("roleId") Long roleId) {
-        return null;
+
+        return securityService.getGroupByUserAndRole(userId, roleId);
     }
 
     @RequestMapping(value = "/security/user/{userId}/routes", method = RequestMethod.GET,

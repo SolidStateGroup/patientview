@@ -12,9 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import javax.inject.Inject;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -27,8 +24,6 @@ import static org.mockito.Mockito.when;
 
 public class UserControllerTest {
 
-    @Inject
-    private WebApplicationContext  webApplicationContext;
 
     @Mock
     private UserService userService;

@@ -6,7 +6,6 @@ import org.patientview.api.util.Util;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
@@ -25,7 +24,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -132,23 +130,8 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(userId);
     }
 
-    // TODO put this into a JPASQL statement
     public List<Feature> getUserFeatures(Long userId) {
-
-        List<Feature> features = new ArrayList<Feature>();
-        User user = userRepository.findOne(userId);
-        for (UserFeature userFeature : user.getUserFeatures()) {
-            features.add(userFeature.getFeature());
-        }
-
-        for (GroupRole groupRole : user.getGroupRoles()) {
-            for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
-                features.add(groupFeature.getFeature());
-            }
-        }
-
-        return features;
-        // return Util.iterableToList(Util.iterableToList(featureRepository.getFeaturesByUser(userId)));
+        return Util.iterableToList(Util.iterableToList(featureRepository.getFeaturesByUser(userId)));
     }
 
 }
