@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -13,6 +15,7 @@ import javax.persistence.Table;
 @Table(name = "pv_feature_user")
 public class UserFeature extends RangeModel {
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
