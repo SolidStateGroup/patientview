@@ -27,17 +27,10 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                     });
                 });
                 return deferred.promise;
-            },
+            },/*
             getFeatures: function (userId) {
                 var deferred = $q.defer();
                 Restangular.one('user', userId).getList('features').then(function(res) {
-                    deferred.resolve(res);
-                });
-                return deferred.promise;
-            },
-            getStaffByGroup: function (groupId) {
-                var deferred = $q.defer();
-                Restangular.one('group', groupId).getList('staff').then(function(res) {
                     deferred.resolve(res);
                 });
                 return deferred.promise;
@@ -48,7 +41,7 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                     deferred.resolve(res);
                 });
                 return deferred.promise;
-            },
+            },*/
             save: function (inputUser) {
                 var deferred = $q.defer();
 

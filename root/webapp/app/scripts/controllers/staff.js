@@ -28,8 +28,8 @@ function ($scope, $modalInstance, user, UserService) {
     };
 }];
 
-angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService',
-    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService) {
 
     // filter by group
     $scope.selectedGroup = [];
@@ -107,7 +107,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.allGroups = [];
             $scope.allGroups.push(allGroups);
 
-            UserService.getStaffByGroup(groupId).then(function(staffUsers) {
+            GroupService.getUsersByType(groupId,'staff').then(function(staffUsers) {
+            //UserService.getStaffByGroup(groupId).then(function(staffUsers) {
                 $scope.list = staffUsers;
                 $scope.currentPage = 1; //current page
                 $scope.entryLimit = 10; //max no of items to display in a page
@@ -115,7 +116,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 delete $scope.loading;
             });
 
-            RoleService.getByType('staff').then(function(allRoles) {
+            /*RoleService.getByType('staff').then(function(allRoles) {
+                $scope.allRoles = allRoles;
+            });*/
+
+            SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function(allRoles) {
                 $scope.allRoles = allRoles;
             });
 
