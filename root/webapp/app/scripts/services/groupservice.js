@@ -16,6 +16,13 @@ angular.module('patientviewApp').factory('GroupService', ['$q', 'Restangular',
                     deferred.resolve(res);
                 });
                 return deferred.promise;
+            },
+            getUsersByType: function (groupId, roleType) {
+                var deferred = $q.defer();
+                Restangular.one('group', groupId).all('user').getList({'roleType': roleType}).then(function(res) {
+                    deferred.resolve(res);
+                });
+                return deferred.promise;
             }
         };
     }]);
