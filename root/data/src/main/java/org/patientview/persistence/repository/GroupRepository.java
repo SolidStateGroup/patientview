@@ -17,8 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface GroupRepository extends CrudRepository <Group, Long> {
     @Query("SELECT u " +
-           "FROM User u JOIN u.groupRoles gr " +
-           "WHERE gr.group.id = :groupId AND gr.role.id >=2 ")
-    public Iterable<User> getGroupStaff(@Param(value = "groupId") Long groupId);
+           "FROM   User u JOIN u.groupRoles gr " +
+           "WHERE  gr.group.id = :groupId " +
+           "AND    gr.role.roleType.lookupType.type = :roleType")
+    public Iterable<User> getGroupStaffByRole(@Param(value = "groupId") Long groupId,
+                                              @Param(value = "roleType") String roleType);
+
 
 }

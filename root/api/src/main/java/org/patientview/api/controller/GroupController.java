@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
@@ -78,10 +79,12 @@ public class GroupController extends BaseController {
         return new ResponseEntity<GroupFeature>(groupFeature, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/group/{groupId}/staff", method = RequestMethod.GET)
+    //TODO
+    @RequestMapping(value = "/group/{groupId}/user", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<User>> getGroupStaff(@PathVariable("groupId") Long groupId) {
-        return new ResponseEntity<List<User>>(adminService.getGroupStaff(groupId), HttpStatus.OK);
+    public ResponseEntity<List<User>> getGroupStaff(@PathVariable("groupId") Long groupId,
+                                                    @RequestParam("roleType") String roleType) {
+        return new ResponseEntity<List<User>>(adminService.getGroupUserByRoleStaff(groupId), HttpStatus.OK);
     }
 
 }

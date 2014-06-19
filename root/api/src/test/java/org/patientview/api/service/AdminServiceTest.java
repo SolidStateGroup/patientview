@@ -21,23 +21,15 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.springframework.web.context.WebApplicationContext;
-
-import javax.inject.Inject;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by james@solidstategroup.com
- * Created on 03/06/2014.
+ * Created on 19/06/2014
  */
-
-
-public class AdminServiceImplTest {
-
-    @Inject
-    private WebApplicationContext webApplicationContext;
+public class AdminServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -79,7 +71,7 @@ public class AdminServiceImplTest {
      *
      */
     @Test
-    public void testAddGroupFeateaure() {
+    public void testAddGroupFeature() {
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(new User());
         when(groupRepository.findOne(Matchers.anyLong())).thenReturn(new Group());
         when(featureRepository.findOne(Matchers.anyLong())).thenReturn(new Feature());
@@ -94,29 +86,6 @@ public class AdminServiceImplTest {
         verify(groupFeatureRepository, Mockito.times(1)).save(Matchers.any(GroupFeature.class));
         Assert.assertNotNull("A group feature has been created", groupFeature);
     }
-
-    /**
-     * Test: The creation of the user with user features, groups and roles
-     * Fail: The creation of the user fails
-     *
-     */
-    @Test
-    public void testCreateUser() {
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(new User());
-        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(new Group());
-        when(featureRepository.findOne(Matchers.anyLong())).thenReturn(new Feature());
-
-        // Return a group feature
-        when(groupFeatureRepository.save(Matchers.any(GroupFeature.class))).thenReturn(new GroupFeature());
-
-        // Call
-        GroupFeature groupFeature = adminService.addGroupFeature(1L, 1L);
-
-        // Test
-        verify(groupFeatureRepository, Mockito.times(1)).save(Matchers.any(GroupFeature.class));
-        Assert.assertNotNull("A group feature has been created", groupFeature);
-    }
-
 
 
 }

@@ -2,7 +2,9 @@ package org.patientview.persistence.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Set;
 
@@ -17,11 +19,18 @@ public class Role extends AuditModel {
     @Column(name = "role_name")
     private String name;
 
+    @Column(name = "level")
+    private Integer level;
+
     @Column(name = "description")
     private String description;
 
     @OneToMany(mappedBy = "role")
     private Set<Route> routes;
+
+    @OneToOne
+    @JoinColumn(name = "type_id")
+    private Lookup roleType;
 
     public String getName() {
         return name;
@@ -45,5 +54,21 @@ public class Role extends AuditModel {
 
     public void setRoutes(final Set<Route> routes) {
         this.routes = routes;
+    }
+
+    public Lookup getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(final Lookup roleType) {
+        this.roleType = roleType;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(final Integer level) {
+        this.level = level;
     }
 }

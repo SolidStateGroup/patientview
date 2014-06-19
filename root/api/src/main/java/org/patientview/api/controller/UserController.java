@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
+import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
@@ -34,26 +35,28 @@ public class UserController extends BaseController {
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
 
     @Inject
+    private UserService userService;
+
+    @Inject
     private AdminService adminService;
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public User getUser(@PathVariable("userId") Long userId) {
-        return adminService.getUser(userId);
+    public ResponseEntity<User> getUser(@PathVariable("userId") Long userId) {
+        return new ResponseEntity<User>(userService.getUser(userId), HttpStatus.OK);
 
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public User getUserByUsername(@RequestParam("username") String username) {
-        return adminService.getByUsername(username);
-
+    public ResponseEntity<User> getUserByUsername(@RequestParam("username") String username) {
+        return new ResponseEntity<User>(userService.getByUsername(username), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public  ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) {
-        adminService.deleteUser(userId);
+        userService.deleteUser(userId);
         return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 
@@ -64,9 +67,9 @@ public class UserController extends BaseController {
     public ResponseEntity<User> createUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
-        user.setCreator(adminService.getUser(1L));
+        user.setCreator(userService.getUser(1L));
 
-        user = adminService.createUser(user);
+        user = userService.createUser(user);
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
@@ -82,9 +85,9 @@ public class UserController extends BaseController {
     public ResponseEntity<Void> updateUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
-        user.setCreator(adminService.getUser(1L));
+        user.setCreator(userService.getUser(1L));
 
-        user = adminService.saveUser(user);
+        user = userService.saveUser(user);
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
@@ -100,7 +103,7 @@ public class UserController extends BaseController {
     public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", userId);
-        return new ResponseEntity<List<Feature>>(adminService.getUserFeatures(userId), HttpStatus.OK);
+        return new ResponseEntity<List<Feature>>(userService.getUserFeatures(userId), HttpStatus.OK);
 
     }
 
@@ -116,7 +119,7 @@ public class UserController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<List<Route>>(adminService.getUserRoutes(userId), HttpStatus.OK);
+        return new ResponseEntity<List<Route>>(userService.getUserRoutes(userId), HttpStatus.OK);
 
     }
 
@@ -135,7 +138,5 @@ public class UserController extends BaseController {
         return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
 
     }
-
-
 
 }
