@@ -21,7 +21,7 @@
     <div class="col-sm-6">
         <h5 class="inner-title">Features</h5>
         <div class="feature-list-item" ng-repeat="feature in user.userFeatures">
-            <div class="feature-list-name"><span class="feature-list-name">{{feature.name}}</span></div>
+            <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.name}}{{feature.name}}</span></div>
             <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userForm, user, feature)" >Delete</a></span></div>
         </div>
         <div class="feature-add-container" ng-show="user.availableFeatures.length > 0 ">

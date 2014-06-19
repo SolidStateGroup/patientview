@@ -12,6 +12,7 @@ function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allF
         if(_.findWhere(user.availableFeatures, {id: featureId})) {
             user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: featureId}));
             var feature = _.findWhere(allFeatures, {id: featureId});
+            console.log(feature);
             user.userFeatures.push(feature);
             form.$setDirty(true);
         }
