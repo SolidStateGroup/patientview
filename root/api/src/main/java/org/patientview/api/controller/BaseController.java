@@ -6,13 +6,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.EntityExistsException;
 
 /**
+ * Base controller containing exception handling
+ *
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
+@RestController
 public class BaseController {
 
 
