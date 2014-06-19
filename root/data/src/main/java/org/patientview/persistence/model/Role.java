@@ -30,6 +30,7 @@ public class Role extends AuditModel {
     @OneToMany(mappedBy = "role")
     private Set<Route> routes;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "type_id")
     private Lookup roleType;
