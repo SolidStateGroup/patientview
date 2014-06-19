@@ -119,49 +119,17 @@
                     <!-- edit pane -->
                     <form name="userForm" novalidate>
                         <div class="row">
-                            <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="edituser.username" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="edituser.email" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="edituser.name" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="user.username" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="user.email" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="user.name" required ng-trim="false" class="form-control"></div>
                         </div>
                         <hr>
-                        <div class="row">
-                            <div class="col-sm-6 grey-right-border">
-                                <h5 class="inner-title">Groups &amp; Roles </h5>
-                                <div class="group-list-item" ng-repeat="groupRole in edituser.groupRoles">
-                                    <div class="group-list-name"><span class="group-list-name">{{groupRole.group.name}}</span></div>
-                                    <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, edituser, groupRole.group)" >Delete</a></span></div>
-                                    <div class="group-list-role"><span class="group-list-role">{{groupRole.role.name}}</span></div>
-                                </div>
-                                <div class="group-add-container" ng-show="edituser.availableGroups.length > 0 ">
-                                    <h5 class="inner-title">Add Group &amp; Role </h5>
-                                    <div class="row">
-                                        <div class="col-sm-10"><select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in edituser.availableGroups"></select>
-                                            <div buttongroup="" buttongroupname="role" model="edituser.selectedRole" options="edituser.roles" ng-init="edituser.selectedRole"></div></div>
-                                        <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, edituser, groupToAdd)" ng-disabled="!edituser.selectedRole">Add</button></div>
-                                    </div>
-                                    <span class="hidden">{{edituser.selectedRole}}</span>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <h5 class="inner-title">Features </h5>
-                                <div class="feature-list-item" ng-repeat="feature in edituser.userFeatures">
-                                    <div class="feature-list-name"><span class="feature-list-name">{{feature.name}}</span></div>
-                                    <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-{{feature.id}}" href="" ng-click="removeFeature(userForm, edituser, feature)" >Delete</a></span></div>
-                                </div>
-                                <div class="feature-add-container" ng-show="edituser.availableFeatures.length > 0 ">
-                                    <h5 class="inner-title">Add Feature </h5>
-                                    <div class="row">
-                                        <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.id as feature.name for feature in edituser.availableFeatures"></select></div>
-                                        <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userForm, edituser, featureToAdd)">Add</button></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <div ng-include src="'views/partials/groupsRolesFeatures.html'"></div>
                     </form>
                     <hr>
                     <div class="user-save-cancel pull-right">
                         <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                        <button type="button" class="btn btn-primary" ng-click="save(userForm, edituser, $index)" ng-disabled="userForm.$pristine">Save</button>
+                        <button type="button" class="btn btn-primary" ng-click="save(userForm, user, $index)" ng-disabled="userForm.$pristine">Save</button>
                     </div>
 
                 </div accordion-group>
