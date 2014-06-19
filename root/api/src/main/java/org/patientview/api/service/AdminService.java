@@ -1,10 +1,8 @@
 package org.patientview.api.service;
 
-import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +20,6 @@ public interface AdminService {
 
     Group createGroup(Group group);
 
-    User getUser(Long userId);
-
-    User createUser(User user);
-
-    User saveUser(User user);
-
     Group getGroup(Long groupId);
 
     GroupFeature addGroupFeature(Long groupId, Long featureId);
@@ -36,18 +28,9 @@ public interface AdminService {
 
     List<Role> getAllRoles();
 
-    User getByUsername(String username);
-
-    void deleteUser(Long userId);
-
     GroupFeature createGroupFeature(GroupFeature groupFeature);
 
-    List<Route> getUserRoutes(Long userId);
+    List<User> getGroupUserByRoleStaff(Long groupId);
 
-    List<User> getUserByGroupAndRole(Long groupId, Long roleId);
-
-    List<User> getGroupStaff(Long groupId);
-
-    List<Feature> getUserFeatures(Long userId);
 
 }

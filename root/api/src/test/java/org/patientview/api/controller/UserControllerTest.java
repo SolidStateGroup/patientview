@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.AdminService;
+import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.User;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -31,7 +31,7 @@ public class UserControllerTest {
     private WebApplicationContext  webApplicationContext;
 
     @Mock
-    private AdminService adminService;
+    private UserService userService;
 
     @InjectMocks
     private UserController userController;
@@ -56,7 +56,7 @@ public class UserControllerTest {
 
         Long testUserId = 10L;
 
-        when(adminService.getUser(eq(testUserId))).thenReturn(new User());
+        when(userService.getUser(eq(testUserId))).thenReturn(new User());
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + Long.toString(testUserId)))

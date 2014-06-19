@@ -21,12 +21,12 @@ INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Cr
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (3, 'Diabetes', 'Diabetes', 'The Diabetes Specialty', 2, now(), 1);
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (4, 'IBD', 'IBD', 'The Inflammatory Bowel Disease Specialty', 2, now(), 1);
 
-INSERT INTO pv_role(id, role_name, type_id, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', 'A standard patient user', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', 'A unit administrator', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, description, creation_date, created_by) VALUES (3, 'STAFF_ADMIN', '6', 'A radar administrator', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, description, creation_date, created_by) VALUES (4, 'SPECIALTY_ADMIN', '6','A specialty administrator', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, description, creation_date, created_by) VALUES (5, 'SUPER_ADMIN', '6','A superadmin', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, description, creation_date, created_by) VALUES (6, 'GP', '6','A doctor', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '1', 'A standard patient user', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '4', 'A unit administrator', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (3, 'STAFF_ADMIN', '6', '3', 'A radar administrator', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (4, 'SPECIALTY_ADMIN', '6', '5', 'A specialty administrator', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (5, 'SUPER_ADMIN', '6', '6', 'A superadmin', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (6, 'GP', '6', '2', 'A doctor', now(), '1');
 
 
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (1, 'MESSAGING', 'Messaging other users and admins', now(), now(), 1);

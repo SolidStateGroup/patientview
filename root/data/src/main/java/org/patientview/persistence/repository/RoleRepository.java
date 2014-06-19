@@ -1,10 +1,14 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Role;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -13,4 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface RoleRepository extends CrudRepository<Role, Long> {
+
+    @Query("SELECT r " +
+           "FROM Role r " +
+           "WHERE r.level < (SELECT MAX(r.level) FROM User u JOIN u.groupRoles gr JOIN gr.role r WHERE u.id = :userId)")
+    public List<Role> getValidRolesByUser(@Param("userId") Long userId);
 }
