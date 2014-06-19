@@ -7,55 +7,25 @@
             <h3 class="modal-title">Create New Staff User</h3>
         </div>
         <div class="modal-body">
-            <form name="userForm" novalidate ng-model="newUser">
+            <form name="userForm" novalidate ng-model="user">
                 <div class="form-horizontal" role="form">
                     <div class="form-group">
                         <label for="new-user-username" class="col-sm-2 control-label">Username</label>
-                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-username" placeholder="Username" ng-model="newUser.username" ></div>
+                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-username" placeholder="Username" ng-model="user.username" ></div>
                     </div>
                     <div class="form-group">
                         <label for="new-user-email" class="col-sm-2 control-label">Email</label>
-                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-email" placeholder="Email" ng-model="newUser.email" ></div>
+                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-email" placeholder="Email" ng-model="user.email" ></div>
                     </div>
                     <div class="form-group">
                         <label for="new-user-name" class="col-sm-2 control-label">Name</label>
-                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-name" placeholder="Name" ng-model="newUser.name" ></div>
+                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-name" placeholder="Name" ng-model="user.name" ></div>
                     </div>
                 </div>
                 <hr>
-                <div class="row">
-                    <div class="col-sm-6 grey-right-border">
-                        <h5 class="inner-title">Groups &amp; Roles </h5>
-                        <div class="group-list-item" ng-repeat="groupRole in newUser.groupRoles">
-                            <div class="group-list-name"><span class="group-list-name">{{groupRole.group.name}}</span></div>
-                            <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, newUser, groupRole.group)" >Delete</a></span></div>
-                            <div class="group-list-role"><span class="group-list-role">{{groupRole.role.name}}</span></div>
-                        </div>
-                        <div class="group-add-container" ng-show="newUser.availableGroups.length > 0 ">
-                            <h5 class="inner-title">Add Group &amp; Role </h5>
-                            <div class="row">
-                                <div class="col-sm-10"><select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in newUser.availableGroups"></select>
-                                    <div buttongroup="" buttongroupname="role" model="newUser.selectedRole" options="newUser.roles" ng-init="newUser.selectedRole"></div></div>
-                                <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, newUser, groupToAdd)" ng-disabled="!newUser.selectedRole">Add</button></div>
-                            </div>
-                            <span class="hidden">{{newUser.selectedRole}}</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <h5 class="inner-title">Features</h5>
-                        <div class="feature-list-item" ng-repeat="feature in newUser.userFeatures">
-                            <div class="feature-list-name"><span class="feature-list-name">{{feature.name}}</span></div>
-                            <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userForm, newUser, feature)" >Delete</a></span></div>
-                        </div>
-                        <div class="feature-add-container" ng-show="newUser.availableFeatures.length > 0 ">
-                            <h5 class="inner-title">Add Feature </h5>
-                            <div class="row">
-                                <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.id as feature.name for feature in newUser.availableFeatures"></select></div>
-                                <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userForm, newUser, featureToAdd)">Add</button></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+                <div ng-include src="'views/partials/groupsRolesFeatures.html'"></div>
+
             </form>
         </div>
         <div class="modal-footer">
@@ -64,10 +34,10 @@
             <button class="btn btn-primary" ng-click="ok()">Create New</button>
         </div>
     </script>
-    <div class="alert alert-success" ng-show="successMessage && newUser">
+    <div class="alert alert-success" ng-show="successMessage && user">
         <p>User was created successfully</p>
-        <p>Username: <strong>{{newUser.username}}</strong></p>
-        <p>Password: <strong>{{newUser.password}}</strong></p>
+        <p>Username: <strong>{{user.username}}</strong></p>
+        <p>Password: <strong>{{user.password}}</strong></p>
     </div>
     <button class="btn btn-primary" ng-click="open('lg')">Create New</button>
 </div>

@@ -2,10 +2,10 @@
 
 // Please note that $modalInstance represents a modal window (instance) dependency.
 // It is not the same as the $modal service used above.
-var NewStaffModalInstanceCtrl = ['$scope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
-function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
+var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService', 'SecurityService',
+function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService, SecurityService) {
 
-    $scope.newUser = newUser;
+    $scope.user = newUser;
 
     // add feature to current feature, remove from allowed
     $scope.addFeature = function (form, user, featureId) {
@@ -22,6 +22,16 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
         user.userFeatures = _.without(user.userFeatures, _.findWhere(user.userFeatures, {id: feature.id}));
         user.availableFeatures.push(feature);
         form.$setDirty(true);
+    };
+
+    // on select role, update available groups
+    $scope.selectRole = function(form, user, $event) {
+       /* var roleId = $event.target.dataset.id;
+        user.availableGroups = [];
+        SecurityService.getAvailableGroupsFromUserAndRole($rootScope.loggedInUser.id, roleId).then(function(availableGroups) {
+            user.availableGroups = availableGroups;
+        });
+        form.$setDirty(true);*/
     };
 
     // add group to current group, remove from allowed
@@ -61,9 +71,9 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
     };
 
     $scope.ok = function () {
-        UserService.new($scope.newUser).then(function(result) {
-            $scope.newUser = result;
-            $modalInstance.close($scope.newUser);
+        UserService.new($scope.user).then(function(result) {
+            $scope.user = result;
+            $modalInstance.close($scope.user);
         }, function(result) {
             if (result.data) {
                 $scope.errorMessage = ' - ' + result.data;
@@ -79,19 +89,19 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
 }];
 
 // angular-ui bootstrap modal, http://angular-ui.github.io/bootstrap/
-angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$modal','UserService',
-    function ($scope, $modal, UserService) {
+angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$modal','UserService','SecurityService',
+    function ($scope, $modal, UserService, SecurityService) {
         $scope.open = function (size) {
             $scope.errorMessage = '';
             $scope.successMessage = '';
             // create new user with list of available roles, groups and features
-            $scope.newUser = {};
-            $scope.newUser.roles = $scope.allRoles;
-            $scope.newUser.availableGroups = $scope.allGroups;
-            $scope.newUser.groups = [];
-            $scope.newUser.availableFeatures = $scope.allFeatures;
-            $scope.newUser.userFeatures = [];
-            $scope.newUser.selectedRole = '';
+            $scope.user = {};
+            $scope.user.roles = $scope.allRoles;
+            $scope.user.availableGroups = $scope.allGroups;
+            $scope.user.groups = [];
+            $scope.user.availableFeatures = $scope.allFeatures;
+            $scope.user.userFeatures = [];
+            $scope.user.selectedRole = '';
 
             var modalInstance = $modal.open({
                 templateUrl: 'newStaffModal.html',
@@ -99,7 +109,7 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
                 size: size,
                 resolve: {
                     newUser: function(){
-                        return $scope.newUser;
+                        return $scope.user;
                     },
                     allGroups: function(){
                         return $scope.allGroups;
@@ -112,19 +122,22 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
                     },
                     UserService: function(){
                         return UserService;
+                    },
+                    SecurityService: function(){
+                        return SecurityService;
                     }
                 }
             });
 
-            modalInstance.result.then(function (newUser) {
-                //$scope.newUser = newUser;
-                $scope.list.push(newUser);
-                $scope.newUser = newUser;
+            modalInstance.result.then(function (user) {
+                //$scope.user = user;
+                $scope.list.push(user);
+                $scope.user = user;
                 $scope.successMessage = 'User successfully created';
                 // ok (success)
             }, function () {
                 // cancel
-                $scope.newUser = '';
+                $scope.user = '';
             });
         };
     }]);

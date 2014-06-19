@@ -2,5 +2,5 @@
     <label class="btn btn-info"
            ng-repeat="option in options"
            ng-class="{active:option.id==model.buttongroup_id}"
-           ng-click="activate(option.id)"><input type="radio"></input>{{option.name}}</label>
+           ng-click="activate(option.id)" data-Id="{{option.id}}"><input type="radio"></input>{{option.name}}</label>
 </div>
