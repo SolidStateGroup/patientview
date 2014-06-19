@@ -37,7 +37,6 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
             },
             getStaffByGroup: function (groupId) {
                 var deferred = $q.defer();
-                //console.log(groupId);
                 Restangular.one('group', groupId).getList('staff').then(function(res) {
                     deferred.resolve(res);
                 });
@@ -55,7 +54,7 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
 
                 // clean user object
                 var user = {};
-                var userFields = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked'];
+                var userFields = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures'];
                 for (var userField in inputUser) {
                     if (inputUser.hasOwnProperty(userField) && _.contains(userFields, userField)) {
                         user[userField] = inputUser[userField];
@@ -89,6 +88,15 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                     user.groupRoles.push(groupRole);
                 }
 
+                // clean user features
+                var cleanUserFeatures = [];
+                for (var j=0;j<inputUser.userFeatures.length;j++) {
+                    var userFeature = inputUser.userFeatures[j];
+                    var feature = {'id':userFeature.id,'name':userFeature.name,'description':''};
+                    cleanUserFeatures.push({'feature':feature});
+                }
+                user.userFeatures = cleanUserFeatures;
+
                 // PUT
                 Restangular.all('user').customPUT(user).then(function(successResult) {
                     deferred.resolve(successResult);
@@ -100,10 +108,10 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
             },
             new: function (inputUser) {
                 var deferred = $q.defer();
+                var userFields = ['username','email','name','groupRoles','userFeatures'];
 
-                var userFields = ['username','email','name','groupRoles'];
+                // clean group roles
                 inputUser.groupRoles = [];
-
                 for (var i=0;i<inputUser.groups.length;i++) {
                     var inputGroup = inputUser.groups[i];
                     var groupRole = {};
@@ -129,21 +137,32 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                     inputUser.groupRoles.push(groupRole);
                 }
 
-                var user = {};
+                // clean user features
+                var cleanUserFeatures = [];
+                for (var j=0;j<inputUser.userFeatures.length;j++) {
+                    var userFeature = inputUser.userFeatures[j];
+                    var feature = {'id':userFeature.id,'name':userFeature.name,'description':''};
+                    cleanUserFeatures.push({'feature':feature});
+                }
 
+                // clean base user object
+                var user = {};
                 for (var field in inputUser) {
                     if (inputUser.hasOwnProperty(field) && _.contains(userFields, field)) {
                         user[field] = inputUser[field];
                     }
                 }
 
+                // add cleaned objects
+                user.userFeatures = cleanUserFeatures;
                 user.groupRoles = inputUser.groupRoles;
 
                 // generate password
                 var password = "";
                 var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                for( var i=0; i < 5; i++ )
+                for (var k=0;k<5;k++) {
                     password += possible.charAt(Math.floor(Math.random() * possible.length));
+                }
 
                 user.password = password;
                 user.changePassword = 'false';

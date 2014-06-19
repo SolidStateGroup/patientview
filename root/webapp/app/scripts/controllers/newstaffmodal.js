@@ -12,14 +12,14 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
         if(_.findWhere(user.availableFeatures, {id: featureId})) {
             user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: featureId}));
             var feature = _.findWhere(allFeatures, {id: featureId});
-            user.features.push(feature);
+            user.userFeatures.push(feature);
             form.$setDirty(true);
         }
     };
 
     // remove feature from current features, add to allowed features
     $scope.removeFeature = function (form, user, feature) {
-        user.features = _.without(user.features, _.findWhere(user.features, {id: feature.id}));
+        user.userFeatures = _.without(user.userFeatures, _.findWhere(user.userFeatures, {id: feature.id}));
         user.availableFeatures.push(feature);
         form.$setDirty(true);
     };
@@ -42,6 +42,7 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
 
             form.$setDirty(true);
         }
+
     };
 
     // remove group from current groups, add to allowed groups
@@ -61,7 +62,6 @@ function ($scope, $modalInstance, newUser, allGroups, allRoles, allFeatures, Use
 
     $scope.ok = function () {
         UserService.new($scope.newUser).then(function(result) {
-            //$scope.newUser.id = result.id;
             $scope.newUser = result;
             $modalInstance.close($scope.newUser);
         }, function(result) {
@@ -90,7 +90,7 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
             $scope.newUser.availableGroups = $scope.allGroups;
             $scope.newUser.groups = [];
             $scope.newUser.availableFeatures = $scope.allFeatures;
-            $scope.newUser.features = [];
+            $scope.newUser.userFeatures = [];
             $scope.newUser.selectedRole = '';
 
             var modalInstance = $modal.open({
