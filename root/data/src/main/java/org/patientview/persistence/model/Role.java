@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -31,6 +33,11 @@ public class Role extends AuditModel {
     @OneToOne
     @JoinColumn(name = "type_id")
     private Lookup roleType;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "role")
+    private Set<GroupRole> groupRoles;
+
 
     public String getName() {
         return name;

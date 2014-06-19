@@ -38,8 +38,10 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     public List<Route> getUserRoutes(Long userId) {
-
-        return Util.iterableToList(routeRepository.getRoutesByUserId(userId));
+        List routes = Util.iterableToList(routeRepository.getFeatureRoutesByUserId(userId));
+        routes.add(routeRepository.getGroupRoutesByUserId(userId));
+        routes.add(routeRepository.getRoleRoutesByUserId(userId));
+        return routes;
 
     }
 

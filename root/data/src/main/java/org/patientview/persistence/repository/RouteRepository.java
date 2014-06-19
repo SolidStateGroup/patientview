@@ -22,10 +22,12 @@ public interface RouteRepository extends CrudRepository<Route, Long> {
      * @param userId
      * @return
      */
-    @Query("SELECT r FROM Route r JOIN r.feature.userFeatures uf WHERE uf.user.id = :userId " +
-           "UNION " +
-           "SELECT r FROM Route r JOIN r.group.userGroups ug WHERE ug.user.id = :userId " +
-           "UNION " +
-           "SELECT r FROM Route r JOIN r.role.groupRoles rg WHERE rg.user.id = :userId")
-    public Iterable<Route> getRoutesByUserId(@Param("userId") Long userId);
+    @Query("SELECT r FROM Route r JOIN r.feature.userFeatures uf WHERE uf.user.id = :userId ")
+    public Iterable<Route> getFeatureRoutesByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT r FROM Route r JOIN r.group.groupRoles ug WHERE ug.user.id = :userId ")
+    public Iterable<Route> getGroupRoutesByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT r FROM Route r JOIN r.role.groupRoles rg WHERE rg.user.id = :userId")
+    public Iterable<Route> getRoleRoutesByUserId(@Param("userId") Long userId);
 }

@@ -17,6 +17,17 @@ public interface SecurityService {
 
     List<Role> getUserRoles(Long userId);
 
+    /**
+     * This method collates the routes for a user from three different paths. This has been split
+     * into 3 seperate queries to avoid hibernate altering the query.
+     *
+     * User -> Group -> Routes
+     * User -> Features -> Routes
+     * User -> Roles -> Routes
+     *
+     * @param userId
+     * @return
+     */
     List<Route> getUserRoutes(Long userId);
 
     List<Group> getGroupByUserAndRole(Long userId, Long roleId);
