@@ -1,0 +1,493 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>patientview-parent</artifactId>
+        <groupId>org.patientview</groupId>
+        <version>1.4-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>migration</artifactId>
+    <packaging>jar</packaging>
+
+    <name>migration</name>
+    <url>http://maven.apache.org</url>
+
+
+    <properties>
+        <jetty.version>8.1.3.v20120416</jetty.version>
+        <spring.version>3.2.4.RELEASE</spring.version>
+        <spring-security.version>3.1.4.RELEASE</spring-security.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.fhir</groupId>
+            <artifactId>fhir-dstu1</artifactId>
+            <version>0.0.81.2489</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.patientview</groupId>
+            <artifactId>patientview</artifactId>
+            <version>1.4-SNAPSHOT</version>
+            <type>jar</type>
+            <classifier>classes</classifier>
+        </dependency>
+
+        <!-- our common code -->
+        <dependency>
+            <groupId>org.patientview</groupId>
+            <artifactId>common</artifactId>
+            <version>1.4-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- POI - USED FOR EXCEL API -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.9</version>
+        </dependency>
+
+        <!-- force correct latest version for hibernate -->
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>20030911</version>
+        </dependency>
+
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+            <!-- will come with all needed Spring dependencies such as spring-core and spring-beans-->
+        </dependency>
+
+        <!-- spring security stuff -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>
+
+        <!-- there following are required for spring security to force the correct version (3.1) to be used
+        http://stackoverflow.com/questions/10216563/spring-security-error-creating-bean-org-springframework-security-filterchains -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-struts</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-core</artifactId>
+            <version>2.2.1.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <!-- logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+        <!-- apache commons stuff -->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>20030211.134440</version>
+        </dependency>
+
+        <!-- rolled back to 1.6 to get DigestUtils.sha256Hex -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+
+        <!-- The latest version of this is 1.4 but anything over 1.0 is causing Calendar-datetime mapping errors on the medicines page-->
+        <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+            <version>1.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>20030825.183949</version>
+        </dependency>
+
+        <!-- missing common-resources -->
+
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>4.2.4.Final</version>
+            <!-- will come with Hibernate core-->
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.0.1.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <version>1.2.0.Final</version>
+        </dependency>
+
+        <!-- struts -->
+        <dependency>
+            <groupId>struts</groupId>
+            <artifactId>struts</artifactId>
+            <version>1.2.9</version>
+        </dependency>
+
+        <!-- container -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+        To install to local:
+
+        mvn install:install-file -Dfile=jGpg-0.2.jar -DgroupId=com.plmatrix.gpg -DartifactId=gpg-tool-free -Dversion=0.2 -Dpackaging=jar
+
+        To deploy to ssg nexus repository
+
+        mvn deploy:deploy-file -Dfile=gpg-tool-free-0.2.jar -DgroupId=com.plmatrix.gpg -DartifactId=gpg-tool-free -Dversion=0.2 -Dpackaging=jar -DrepositoryId=ssg -Durl=http://nexus.solidstategroup.com/content/repositories/thirdparty/
+        -->
+        <dependency>
+            <groupId>com.plmatrix.gpg</groupId>
+            <artifactId>gpg-tool-free</artifactId>
+            <version>0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ostermiller</groupId>
+            <artifactId>utils</artifactId>
+            <version>1.07.00</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+
+        <!-- runtime dependencies -->
+        <dependency>
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>0.9.1.2</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <!--<version>20040902.021138</version>-->
+            <version>1.6.1</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.26</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <version>1.1</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>datetime</artifactId>
+            <version>1.0.1</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>string</artifactId>
+            <version>1.1.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <groupId>org.codehaus.jackson</groupId>
+            <version>1.9.13</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>jackson-mapper-lgpl</artifactId>
+            <groupId>org.codehaus.jackson</groupId>
+            <version>1.9.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>quartz</groupId>
+            <artifactId>quartz</artifactId>
+            <version>1.5.2</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.htmlparser</groupId>
+            <artifactId>htmlparser</artifactId>
+            <version>2.1</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>bsh</groupId>
+            <artifactId>bsh</artifactId>
+            <version>2.0b4</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>20020423</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>1.3.4</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Ehcache 1.1 but ehcache already in build-->
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.3.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>2.0.2</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.owasp.esapi</groupId>
+            <artifactId>esapi</artifactId>
+            <version>2.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jaxen</groupId>
+                    <artifactId>jaxen</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xom</groupId>
+                    <artifactId>xom</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- jsoup HTML parser library @ http://jsoup.org/ -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+
+        <!-- date time utils -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+        <!-- test stuff -->
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.3.173</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>3.2.4.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+
+    </dependencies>
+</project>
