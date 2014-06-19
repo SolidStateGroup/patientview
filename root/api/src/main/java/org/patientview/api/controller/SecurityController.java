@@ -22,6 +22,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
+ * This controller is associated with the calls
+ *
  * Created by james@solidstategroup.com
  * Created on 19/06/2014
  */
@@ -41,17 +43,19 @@ public class SecurityController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/security/user/{userId}/role/{roleId}/groups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/security/user/{userId}/role/{roleId}/groups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<Group> getSecurityGroupsByUser() {
+    public List<Group> getSecurityGroupsByUser(@PathVariable("userId") Long userId,
+                                               @PathVariable("roleId") Long roleId) {
         return null;
     }
 
-    @RequestMapping(value = "/user/{userId}/routes", method = RequestMethod.GET,
+    @RequestMapping(value = "/security/user/{userId}/routes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Route>> getUserRoutes(@PathVariable("userId") Long userId,
-                                                     @PathVariable("roleId") Long roleId, UriComponentsBuilder uriComponentsBuilder) {
+                                                     UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", userId);
 
