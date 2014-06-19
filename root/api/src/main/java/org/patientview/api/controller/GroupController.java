@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,6 +27,7 @@ import java.util.List;
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
+@RestController
 public class GroupController extends BaseController {
 
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
