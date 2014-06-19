@@ -95,10 +95,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         $scope.loading = true;
 
-        // TODO: hardcoded for now to first group of user or 6
-        var groupId = 6;
+        // TODO: hardcoded for now to first group of user or -1
+        var groupId = -1;
         if ($rootScope.loggedInUser.groupRoles.length > 0) {
-            groupId = $rootScope.loggedInUser.groupRoles[0];
+            groupId = $rootScope.loggedInUser.groupRoles[0].group.id;
+
         }
 
         GroupService.get(groupId).then(function(allGroups) {
@@ -114,7 +115,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 delete $scope.loading;
             });
 
-            RoleService.getAll().then(function(allRoles) {
+            RoleService.getByType('staff').then(function(allRoles) {
                 $scope.allRoles = allRoles;
             });
 
@@ -180,12 +181,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         // create list of available features (all - users)
         user.availableFeatures = $scope.allFeatures;
-        if (user.features) {
-            for (var j = 0; j < user.features.length; j++) {
-                user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.features[j].id}));
+        if (user.userFeatures) {
+            for (var j = 0; j < user.userFeatures.length; j++) {
+                user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.userFeatures[j].id}));
             }
         } else {
-            user.features = [];
+            user.userFeatures = [];
         }
 
         $scope.edituser = _.clone(user);
@@ -257,7 +258,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         if(_.findWhere(user.availableFeatures, {id: featureId})) {
             user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: featureId}));
             var feature = _.findWhere($scope.allFeatures, {id: featureId});
-            user.features.push(feature);
+            user.userFeatures.push(feature);
 
             if (user.availableFeatures[0]) {
                 $scope.featureToAdd = user.availableFeatures[0].id;
@@ -269,7 +270,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // remove feature from current features, add to allowed features
     $scope.removeFeature = function (form, user, feature) {
-        user.features = _.without(user.features, _.findWhere(user.features, {id: feature.id}));
+        user.userFeatures = _.without(user.userFeatures, _.findWhere(user.userFeatures, {id: feature.id}));
         user.availableFeatures.push(feature);
 
         if (user.availableFeatures[0]) {
