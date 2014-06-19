@@ -1,5 +1,6 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -37,12 +38,15 @@ public class Group extends AuditModel {
     @JoinColumn(name = "type_id")
     private Lookup groupType;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "group")
     private Set<GroupFeature> groupFeatures;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "group")
     private Set<GroupRole> groupRoles;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "group")
     private Set<Route> routes;
 

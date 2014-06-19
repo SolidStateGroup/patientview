@@ -24,4 +24,11 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
                                               @Param(value = "roleType") String roleType);
 
 
+    @Query("SELECT u " +
+            "FROM   User u JOIN u.groupRoles gr " +
+            "WHERE  gr.group.id = :groupId " +
+            "AND    gr.role.roleType.lookupType.type = :roleType")
+    public Iterable<User> getGrouByRole(@Param(value = "groupId") Long groupId,
+                                        @Param(value = "roleId") String roleType);
+
 }
