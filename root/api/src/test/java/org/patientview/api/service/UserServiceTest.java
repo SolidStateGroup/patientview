@@ -8,7 +8,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.UserServiceImpl;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -73,21 +76,25 @@ public class UserServiceTest {
      */
     @Test
     public void testCreateUser() {
-        User user = TestUtils.createUser(123324L, "testCreateUser");
+        User creator = TestUtils.createUser(1L, "testCreateUser");
+        User newUser = TestUtils.createUser(2L, "newTestUser");
+        Feature feature = TestUtils.createFeature(3L, "TEST_FEATURE", creator);
 
         // Add test feature
-        UserFeature userFeature = TestUtils.createUserFeature(23423L, "testFeature", user);
-        user.setUserFeatures(new HashSet<UserFeature>());
-        user.getUserFeatures().add(userFeature);
+        UserFeature userFeature = TestUtils.createUserFeature(4L, feature, newUser, creator);
+        newUser.setUserFeatures(new HashSet<UserFeature>());
+        newUser.getUserFeatures().add(userFeature);
 
         // Add test role group
-        GroupRole groupRole = TestUtils.createGroupRole(555L, "PATIENT", "testGroup", user);
-        user.setGroupRoles(new HashSet<GroupRole>());
-        user.getGroupRoles().add(groupRole);
+        Role role = TestUtils.createRole(5L, "TEST_ROLE", creator);
+        Group group = TestUtils.createGroup(6L, "TEST_GROUP", creator);
+        GroupRole groupRole = TestUtils.createGroupRole(7L, role, group, newUser, creator);
+        newUser.setGroupRoles(new HashSet<GroupRole>());
+        newUser.getGroupRoles().add(groupRole);
 
-        when(userRepository.save(Matchers.eq(user))).thenReturn(user);
+        when(userRepository.save(Matchers.eq(newUser))).thenReturn(newUser);
 
-        userService.createUser(user);
+        userService.createUser(newUser);
 
         verify(userFeatureRepository, Mockito.times(1)).save(Matchers.eq(userFeature));
         verify(groupRoleRepository, Mockito.times(1)).save(Matchers.eq(groupRole));
