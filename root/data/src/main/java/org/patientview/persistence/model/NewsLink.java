@@ -15,7 +15,7 @@ import javax.persistence.Table;
  * Created on 20/06/2014
  */
 @Entity
-@Table(name = "PV_News_Link")
+@Table(name = "pv_news_link")
 public class NewsLink extends SimpleAuditModel {
 
     @OneToOne

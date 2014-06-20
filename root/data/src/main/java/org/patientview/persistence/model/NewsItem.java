@@ -12,7 +12,7 @@ import java.util.Set;
  * Created on 20/06/2014
  */
 @Entity
-@Table(name = "pv_news")
+@Table(name = "pv_news_item")
 public class NewsItem extends AuditModel {
 
     @Column(name = "heading")
