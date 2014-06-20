@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -20,11 +21,11 @@ public interface FeatureRepository extends CrudRepository<Feature, Long> {
            "FROM    User u " +
            "JOIN    u.userFeatures uf " +
            "JOIN    uf.feature f " +
-           "WHERE   u.id = :userId " +
+           "WHERE   u = :user " +
            "UNION   " +
            "SELECT  f " +
            "FROM   User u" +
            "JOIN   u.groupRoles.group.groupFeatures.feature f" +
-           "WHERE  User.id = :userId ")
-    public Iterable<Feature> getFeaturesByUser(@Param("userId") Long userId);
+           "WHERE  u = :user ")
+    public Iterable<Feature> getFeaturesByUser(@Param("user") User user);
 }

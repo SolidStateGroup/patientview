@@ -22,12 +22,25 @@ public interface UserService {
 
     User getUser(Long userId);
 
+    /**
+     * This persists the User map with GroupRoles and UserFeatures. The static
+     * data objects are detached so have to be become managed again without updating the objects.
+     *
+     * @param user
+     * @return
+     */
     User createUser(User user);
 
     User saveUser(User user);
 
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);
 
+    /**
+     * This persists the User in the above method with a new password.
+     *
+     * @param user
+     * @return
+     */
     User createUserResetPassword(User user);
 
 }

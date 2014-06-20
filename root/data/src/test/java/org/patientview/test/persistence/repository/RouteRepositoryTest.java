@@ -12,13 +12,9 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
-import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
-import org.patientview.persistence.repository.LookupRepository;
-import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
-import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
 import org.patientview.test.util.TestUtils;
@@ -40,19 +36,7 @@ import java.util.Iterator;
 public class RouteRepositoryTest {
 
     @Inject
-    UserRepository userRepository;
-
-    @Inject
-    LookupRepository lookupRepository;
-
-    @Inject
-    LookupTypeRepository lookupTypeRepository;
-
-    @Inject
     RouteRepository routeRepository;
-
-    @Inject
-    FeatureRepository featureRepository;
 
     @Inject
     UserFeatureRepository userFeatureRepository;
@@ -101,7 +85,7 @@ public class RouteRepositoryTest {
         UserFeature userFeature = TestUtils.createUserFeature(null, feature, routeUser, creator);
         userFeatureRepository.save(userFeature);
 
-        Iterable<Route> routes = routeRepository.getFeatureRoutesByUserId(routeUser.getId());
+        Iterable<Route> routes = routeRepository.getFeatureRoutesByUser(routeUser);
         Iterator<Route> iterator = routes.iterator();
 
         // Which should get 1 route back and it should be the one that was created
@@ -144,7 +128,7 @@ public class RouteRepositoryTest {
         groupRoleRepository.save(groupRole);
 
 
-        Iterable<Route> routes = routeRepository.getRoleRoutesByUserId(routeUser.getId());
+        Iterable<Route> routes = routeRepository.getRoleRoutesByUser(routeUser);
         Iterator<Route> iterator = routes.iterator();
 
         // Which should get 1 route back and it should be the one that was created
@@ -188,7 +172,7 @@ public class RouteRepositoryTest {
         groupRoleRepository.save(groupRole);
 
 
-        Iterable<Route> routes = routeRepository.getGroupRoutesByUserId(routeUser.getId());
+        Iterable<Route> routes = routeRepository.getGroupRoutesByUser(routeUser);
         Iterator<Route> iterator = routes.iterator();
 
         // Which should get 1 route back and it should be the one that was created

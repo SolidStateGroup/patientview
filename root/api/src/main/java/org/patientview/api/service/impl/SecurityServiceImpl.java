@@ -3,18 +3,22 @@ package org.patientview.api.service.impl;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
 
 /**
- * Service to supplied the create roles and permission based on a user
+ * Service to supply data based on a user's role and group
  *
  * Created by james@solidstategroup.com
  * Created on 19/06/2014
@@ -31,6 +35,12 @@ public class SecurityServiceImpl implements SecurityService {
     @Inject
     private GroupRepository groupRepository;
 
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private NewsItemRepository newsItemRepository;
+
     public List<Role> getUserRoles(Long userId) {
 
         return Util.iterableToList(roleRepository.getValidRolesByUser(userId));
@@ -38,15 +48,25 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     public List<Route> getUserRoutes(Long userId) {
-        List routes = Util.iterableToList(routeRepository.getFeatureRoutesByUserId(userId));
-        routes.addAll(Util.iterableToList(routeRepository.getGroupRoutesByUserId(userId)));
-        routes.addAll(Util.iterableToList(routeRepository.getRoleRoutesByUserId(userId)));
+        User user = userRepository.findOne(userId);
+        List<Route> routes = Util.iterableToList(routeRepository.getFeatureRoutesByUser(user));
+        routes.addAll(Util.iterableToList(routeRepository.getGroupRoutesByUser(user)));
+        routes.addAll(Util.iterableToList(routeRepository.getRoleRoutesByUser(user)));
         return routes;
 
     }
 
     public List<Group> getGroupByUserAndRole(Long userId, Long roleId) {
-        return Util.iterableToList(groupRepository.getGroupByUserAndRole(userId, roleId));
+        User user = userRepository.findOne(userId);
+        Role role = roleRepository.findOne(roleId);
+        return Util.iterableToList(groupRepository.getGroupByUserAndRole(user, role));
+    }
+
+    public List<NewsItem> getNewsByUser(Long userId) {
+        User user = userRepository.findOne(userId);
+        List<NewsItem> newsItems = Util.iterableToList(newsItemRepository.getGroupNewsByUser(user));
+        newsItems.addAll(Util.iterableToList(newsItemRepository.getRoleNewsByUser(user)));
+        return newsItems;
     }
 
 }

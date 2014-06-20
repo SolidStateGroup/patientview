@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.SecurityService;
+import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.springframework.test.web.servlet.MockMvc;
@@ -94,6 +95,31 @@ public class SecurityControllerTest extends BaseControllerTest<SecurityControlle
         }
 
         verify(securityService, Mockito.times(1)).getUserRoutes(Matchers.eq(testUserId));
+
+
+    }
+
+    /**
+     * Test: Send a GET request with a long parameter to the security service to return news
+     * Fail: The service does not get called with the parameter
+     *
+     * TODO test needs expanding into testing returned data
+     */
+    @Test
+    public void testNewsByUser() {
+
+        Long testUserId = 10L;
+
+        when(securityService.getNewsByUser(eq(testUserId))).thenReturn(new ArrayList<NewsItem>());
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(testUserId) + "/news"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());;
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(securityService, Mockito.times(1)).getNewsByUser(Matchers.eq(testUserId));
 
 
     }

@@ -143,10 +143,10 @@ CREATE TABLE PV_User_Token
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_News (
+CREATE TABLE PV_News_Item (
   Id               BIGINT    NOT NULL,
-  News_Heading     VARCHAR(100),
-  News             TEXT      NOT NULL,
+  Heading          VARCHAR(100),
+  Story            TEXT      NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
@@ -154,9 +154,9 @@ CREATE TABLE PV_News (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_News_Group_Role (
+CREATE TABLE PV_News_Link (
   Id            BIGINT    NOT NULL,
-  News_Id       BIGINT    NOT NULL REFERENCES PV_News (Id),
+  News_Id       BIGINT    NOT NULL REFERENCES PV_News_Item (Id),
   Group_Id      BIGINT REFERENCES PV_Group (Id),
   Role_Id       BIGINT REFERENCES PV_Role (Id),
   Creation_Date TIMESTAMP NOT NULL,

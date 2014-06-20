@@ -53,13 +53,7 @@ public class UserServiceImpl implements UserService {
     @Inject
     private UserFeatureRepository userFeatureRepository;
 
-    /**
-     * This persists the User map with GroupRoles and UserFeatures. The static
-     * data objects are detached so have to be become managed again without updating the objects.
-     *
-     * @param user
-     * @return
-     */
+
     public User createUser(User user) {
 
         User newUser;
@@ -88,7 +82,7 @@ public class UserServiceImpl implements UserService {
 
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
 
-            for(UserFeature userFeature : user.getUserFeatures()) {
+            for (UserFeature userFeature : user.getUserFeatures()) {
                 userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
                 userFeature.setUser(userRepository.findOne(userId));
                 userFeature.setCreator(userRepository.findOne(1L));
@@ -102,12 +96,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-    /**
-     * This persists the User in the above method with a new password.
-     *
-     * @param user
-     * @return
-     */
+
     public User createUserResetPassword(User user) {
         user.setPassword(DigestUtils.sha256Hex(CommonUtils.getAuthtoken()));
         return createUser(user);
@@ -142,7 +131,8 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<Feature> getUserFeatures(Long userId) {
-        return Util.iterableToList(Util.iterableToList(featureRepository.getFeaturesByUser(userId)));
+        User user = userRepository.getOne(userId);
+        return Util.iterableToList(Util.iterableToList(featureRepository.getFeaturesByUser(user)));
     }
 
 }

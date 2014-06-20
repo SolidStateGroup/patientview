@@ -8,8 +8,13 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
+ * Object to link an user to Group and Roles.
+ *
+ * Object should only have one noun this has 2. Maybe for another day.
+ * UserLink?
+ *
  * Created by james@solidstategroup.com
- * Created on 03/06/2014
+ * Created on 20/06/2014
  */
 @Entity
 @Table(name = "pv_user_group_role")
