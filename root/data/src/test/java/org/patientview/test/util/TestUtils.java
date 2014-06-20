@@ -1,0 +1,122 @@
+package org.patientview.test.util;
+
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.Route;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
+
+import java.util.Date;
+
+/**
+ * Id can be passed when not using any persistence to test against.
+ *
+ *
+ * Created by james@solidstategroup.com
+ * Created on 19/06/2014
+ */
+public final class TestUtils {
+
+    private TestUtils() {
+
+    }
+
+    public static User createUser(Long id, String name) {
+        User user = new User();
+        user.setId(id);
+        user.setUsername(name);
+        user.setChangePassword(Boolean.FALSE);
+        user.setLocked(Boolean.FALSE);
+        user.setStartDate(new Date());
+        user.setName(name);
+        user.setEmail("test@patientview.org");
+        return user;
+    }
+
+
+    public static Role createRole(Long id, String name, User creator) {
+        Role role = new Role();
+        role.setId(id);
+        role.setName(name);
+        role.setCreated(new Date());
+        role.setCreator(creator);
+        return role;
+    }
+
+
+    public static Feature createFeature(Long id, String name, User creator) {
+        Feature feature = new Feature();
+        feature.setId(id);
+        feature.setName(name);
+        feature.setCreated(new Date());
+        feature.setCreator(creator);
+        return feature;
+    }
+
+    public static Group createGroup(Long id, String name, User creator) {
+        Group group = new Group();
+        group.setId(id);
+        group.setName(name);
+        group.setCreated(new Date());
+        group.setCreator(creator);
+        return group;
+    }
+
+    public static GroupRole createGroupRole(Long id, Role role, Group group, User user, User creator) {
+        GroupRole groupRole = new GroupRole();
+        groupRole.setId(id);
+        groupRole.setCreated(new Date());
+        groupRole.setGroup(group);
+        groupRole.setUser(user);
+        groupRole.setRole(role);
+        groupRole.setCreator(creator);
+        return groupRole;
+    }
+
+    public static UserFeature createUserFeature(Long id, Feature feature, User user, User creator) {
+        UserFeature userFeature = new UserFeature();
+        userFeature.setId(id);
+        userFeature.setCreated(new Date());
+        userFeature.setFeature(feature);
+        userFeature.setUser(user);
+        userFeature.setCreator(creator);
+        return userFeature;
+
+    }
+
+    public static Route createRoute(Long id, String title, String controller, Lookup lookup) {
+        Route route = new Route();
+        route.setTitle(title);
+        route.setController(controller);
+        route.setId(id);
+        route.setDisplayOrder(1);
+        route.setLookup(lookup);
+        route.setCreated(new Date());
+        return route;
+    }
+
+    public static Lookup createLookup(Long id, LookupType lookupType, String lookupName, User creator) {
+
+        Lookup lookup = new Lookup();
+        lookup.setId(id);
+        lookup.setLookupType(lookupType);
+        lookup.setValue(lookupName);
+        lookup.setCreated(new Date());
+        lookup.setCreator(creator);
+        return lookup;
+    }
+
+    public static LookupType createLookupType(Long id, String type, User creator) {
+
+        LookupType lookupType = new LookupType();
+        lookupType.setId(id);
+        lookupType.setType(type);
+        lookupType.setCreated(new Date());
+        lookupType.setCreator(creator);
+        return lookupType;
+    }
+}

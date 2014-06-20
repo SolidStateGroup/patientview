@@ -1,6 +1,5 @@
 package org.patientview.persistence.model;
 
-import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -48,7 +47,7 @@ public class User extends RangeModel implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private Set<UserFeature> userFeatures;
 
-    @Type(type="pg-uuid")
+   // @Type(type="pg-uuid")
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
 

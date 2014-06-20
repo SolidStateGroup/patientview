@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.UserServiceImpl;
-import org.patientview.api.service.util.TestUtils;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
@@ -19,6 +18,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.test.util.TestUtils;
 
 import java.util.HashSet;
 
@@ -73,15 +73,15 @@ public class UserServiceTest {
      */
     @Test
     public void testCreateUser() {
-        User user = TestUtils.createUser("testCreateUser");
+        User user = TestUtils.createUser(123324L, "testCreateUser");
 
         // Add test feature
-        UserFeature userFeature = TestUtils.createUserFeature("testFeature", user);
+        UserFeature userFeature = TestUtils.createUserFeature(23423L, "testFeature", user);
         user.setUserFeatures(new HashSet<UserFeature>());
         user.getUserFeatures().add(userFeature);
 
         // Add test role group
-        GroupRole groupRole = TestUtils.createGroupRole("PATIENT", "testGroup", user);
+        GroupRole groupRole = TestUtils.createGroupRole(555L, "PATIENT", "testGroup", user);
         user.setGroupRoles(new HashSet<GroupRole>());
         user.getGroupRoles().add(groupRole);
 

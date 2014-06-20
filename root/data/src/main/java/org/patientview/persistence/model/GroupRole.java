@@ -15,7 +15,6 @@ import javax.persistence.Table;
 @Table(name = "pv_user_group_role")
 public class GroupRole extends RangeModel {
 
-    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

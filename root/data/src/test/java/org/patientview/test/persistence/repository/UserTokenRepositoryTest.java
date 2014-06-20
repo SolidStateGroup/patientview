@@ -1,9 +1,10 @@
-package org.patientview.persistence.repository;
+package org.patientview.test.persistence.repository;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.patientview.config.TestPersistenceConfig;
+import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,11 +35,9 @@ public class UserTokenRepositoryTest {
      *
      */
     @Test
-    @Ignore
     public void testCreateToken() {
 
         User user = new User();
-        user.setId(1L);
         user.setCreated(new Date());
         user.setUsername("system");
         user.setStartDate(new Date());

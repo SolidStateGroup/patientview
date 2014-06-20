@@ -3,7 +3,6 @@ package org.patientview.api.service.impl;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Feature;
-import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;

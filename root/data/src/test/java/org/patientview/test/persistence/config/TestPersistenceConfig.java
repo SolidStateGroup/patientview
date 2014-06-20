@@ -1,6 +1,8 @@
-package org.patientview.config;
+package org.patientview.test.persistence.config;
 
+import org.patientview.test.util.DataTestUtils;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -22,6 +24,7 @@ import java.util.Properties;
  */
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.patientview.persistence.repository"})
+@ComponentScan(basePackageClasses = DataTestUtils.class)
 @EnableTransactionManagement
 public class TestPersistenceConfig  {
 
@@ -33,7 +36,7 @@ public class TestPersistenceConfig  {
         Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "create");
         properties.setProperty("hibernate.show_sql", "true");
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+        properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
     }
 
     @Bean
@@ -59,6 +62,11 @@ public class TestPersistenceConfig  {
         dataSource.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
+
+        /**dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/postgres");
+        dataSource.setUsername("patientview");
+        dataSource.setPassword("patientview");*/
         return dataSource;
     }
 

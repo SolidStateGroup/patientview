@@ -1,7 +1,6 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,22 +30,19 @@ public class Group extends AuditModel {
 
     /*TODO http://docs.jboss.org/hibernate/orm/4.1/manual/en-US/html/ch06.html#types-registry */
     @Column(name = "fhir_resource_id")
-    @Type(type="pg-uuid")
+    //@Type(type="pg-uuid")
     private UUID fhirResourceId;
 
     @OneToOne
     @JoinColumn(name = "type_id")
     private Lookup groupType;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "group")
     private Set<GroupFeature> groupFeatures;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "group")
     private Set<GroupRole> groupRoles;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "group")
     private Set<Route> routes;
 
@@ -90,6 +86,7 @@ public class Group extends AuditModel {
         this.groupType = groupType;
     }
 
+    @JsonIgnore
     public Set<GroupFeature> getGroupFeatures() {
         return groupFeatures;
     }
@@ -98,6 +95,7 @@ public class Group extends AuditModel {
         this.groupFeatures = groupFeatures;
     }
 
+    @JsonIgnore
     public Set<Route> getRoutes() {
         return routes;
     }
@@ -106,6 +104,7 @@ public class Group extends AuditModel {
         this.routes = routes;
     }
 
+    @JsonIgnore
     public Set<GroupRole> getGroupRoles() {
         return groupRoles;
     }

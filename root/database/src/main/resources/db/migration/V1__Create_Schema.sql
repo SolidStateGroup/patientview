@@ -219,12 +219,11 @@ CREATE TABLE PV_User_Information (
 
 CREATE TABLE PV_Code (
   Id               BIGINT    NOT NULL,
-  Code             VARCHAR(20),
+  Code             VARCHAR(100),
   Type_Id          BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
   Display_Order    INTEGER   NOT NULL,
-  Fhir_Resource_Id BIGINT,
   Description      VARCHAR(100),
-  External_Mapping VARCHAR(100),
+  Standard_Type_Id BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
@@ -327,6 +326,7 @@ CREATE TABLE PV_Link (
   Group_Id         BIGINT REFERENCES PV_Group (Id),
   Link             VARCHAR(2048),
   Name             VARCHAR(200),
+  Display_Order    INTEGER       NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
