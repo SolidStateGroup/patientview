@@ -648,7 +648,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('minimal', [
         'clean:dist',
-        'ngconstant:apilocal',
+        'ngconstant:apiprod',
         'copy:minimal',
         'war'
     ]);
