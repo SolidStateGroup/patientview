@@ -28,4 +28,6 @@ public interface UserService {
 
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);
 
+    User createUserResetPassword(User user);
+
 }

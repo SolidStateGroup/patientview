@@ -63,12 +63,19 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/user", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> createUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<User> createUser(@RequestBody User user,
+                                           @RequestParam(value = "resetPassword", required = false) Boolean resetPasword,
+                                                   UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.getUser(1L));
 
-        user = userService.createUser(user);
+        if (resetPasword) {
+            user = userService.createUserResetPassword(user);
+        }
+        else {
+           user = userService.createUser(user);
+        }
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 

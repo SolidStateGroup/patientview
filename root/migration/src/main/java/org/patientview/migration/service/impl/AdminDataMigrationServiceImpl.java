@@ -81,6 +81,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     public void createGroups() {
 
+        // Export a dummy group to test hibernate
+        sendDummyUnit();
+
         for (Unit unit : unitDao.getAll(false)) {
 
             Set<Feature> unitFeatures = getUnitFeatures(unit);
@@ -89,6 +92,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             Group group = PvUtil.createGroup(unit);
             group.setGroupType(getLookupByName("UNIT"));
 
+            //TODO refactor continues into exceptions
             try {
                 group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
             } catch (JsonMigrationException jme) {
@@ -122,6 +126,27 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
         }
 
+    }
+
+    public void sendDummyUnit() {
+
+        // Export a dummy group to test hibernate until one works
+        // FIXME need hibernate to read the table indexes on startup
+        Group group = new Group();
+        group.setName("TEST_GROUP");
+        group.setCode("TEST");
+        group.setGroupType(getLookupByName("UNIT"));
+
+        while (true) {
+            try {
+                group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
+                break;
+            } catch (JsonMigrationException jme) {
+                LOG.error("Unable to create group: ", jme.getMessage());
+            } catch (JsonMigrationExistsException jee) {
+                LOG.info("Group {} already exists", group.getName());
+            }
+        }
     }
 
     public Set<Feature> getUnitFeatures(Unit unit) {

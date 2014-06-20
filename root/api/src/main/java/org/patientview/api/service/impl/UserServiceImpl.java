@@ -62,8 +62,8 @@ public class UserServiceImpl implements UserService {
      */
     public User createUser(User user) {
 
-        user.setPassword(DigestUtils.sha256Hex(CommonUtils.getAuthtoken()));
         User newUser;
+
         try {
             newUser = userRepository.save(user);
         } catch (DataIntegrityViolationException dve) {
@@ -100,6 +100,17 @@ public class UserServiceImpl implements UserService {
         user.setId(newUser.getId());
 
         return userRepository.save(user);
+    }
+
+    /**
+     * This persists the User in the above method with a new password.
+     *
+     * @param user
+     * @return
+     */
+    public User createUserResetPassword(User user) {
+        user.setPassword(DigestUtils.sha256Hex(CommonUtils.getAuthtoken()));
+        return createUser(user);
     }
 
     public User getUser(Long userId) {

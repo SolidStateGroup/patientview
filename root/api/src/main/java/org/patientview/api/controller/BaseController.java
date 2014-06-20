@@ -33,6 +33,7 @@ public class BaseController {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGenericException(Exception e) {
         LOG.error("Unhandled exception type {}", e.getCause());
+        LOG.debug("Unhandled exception", e);
         return e.getMessage();
     }
 

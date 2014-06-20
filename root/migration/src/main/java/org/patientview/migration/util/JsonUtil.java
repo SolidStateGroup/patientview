@@ -46,13 +46,14 @@ public final class JsonUtil {
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
 
     public static final String fhirUrl = "http://dev.solidstategroup.com:7865/api";
-    public static final String pvUrl = "http://diabetes-pv.dev.solidstategroup.com/api";
+    public static final String pvUrl = "http://localhost:8089/api";
 
     private JsonUtil() {}
 
 
-    public static <T, V extends HttpRequestBase> T jsonRequest(String url, Class<T> responseObject
-            , Object requestObject, Class<V> httpMethod) throws JsonMigrationException, JsonMigrationExistsException {
+    public static <T, V extends HttpRequestBase> T jsonRequest(String url, Class<T> responseObject,
+                                                               Object requestObject, Class<V> httpMethod)
+            throws JsonMigrationException, JsonMigrationExistsException {
 
         Gson gson = new Gson();
 

@@ -1,9 +1,11 @@
 package org.patientview.migration.service.impl;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.patientview.Group;
 import org.patientview.GroupRole;
+import org.patientview.Role;
 import org.patientview.User;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
@@ -62,6 +64,37 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     userGroup.setGroup(adminDataMigrationService.getGroupByCode(userMapping.getUnitcode()));
                     userGroup.setRole(adminDataMigrationService.getRoleByName("PATIENT"));
                     newUser.getGroupRoles().add(userGroup);
+                } else {
+
+                    Role role = null;
+                    List<SpecialtyUserRole> specialtyUserRoles = specialtyUserRoleDao.get(oldUser);
+                    /// TODO try and fix this - get the first role and apply it to all group (no group role mapping)
+                    if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
+
+                        if (newUser.getGroupRoles() == null) {
+                            newUser.setGroupRoles(new ArrayList<GroupRole>());
+                        }
+
+                        String roleName = specialtyUserRoles.get(0).getRole(); //FIXME
+                        if (roleName.equals("unitadmin")) {
+                            role = adminDataMigrationService.getRoleByName("UNIT_ADMIN");
+                        }
+                        if (roleName.equals("unitstaff")) {
+                            role = adminDataMigrationService.getRoleByName("UNIT_STAFF");
+                        }
+
+                        GroupRole userGroup = new GroupRole();
+                        Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
+                        if (group == null) {
+                            LOG.error("Could not find group for unit code {}", userMapping.getUnitcode());
+                            continue;
+                        }
+                        userGroup.setGroup(group);
+                        userGroup.setRole(role);
+                        newUser.getGroupRoles().add(userGroup);
+
+                    }
+
                 }
 
             }
@@ -77,7 +110,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 continue;
             }
 
-             LOG.info("Create user: {}", oldUser.getUsername());
+             LOG.info("Created user: {}", oldUser.getUsername());
 
         }
 
