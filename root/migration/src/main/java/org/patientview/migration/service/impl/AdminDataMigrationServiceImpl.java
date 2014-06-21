@@ -100,7 +100,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
                 continue;
             } catch (JsonMigrationExistsException jee) {
                 LOG.info("Group {} already exists", unit.getName());
-                continue;
             }
 
             LOG.info("Success: created group");
@@ -115,7 +114,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
                     } catch (JsonMigrationException jme) {
                         LOG.error("Unable to create group: ", jme.getMessage());
                         continue;
-                    }catch (JsonMigrationExistsException jee) {
+                    } catch (JsonMigrationExistsException jee) {
                         LOG.info("Could not update group {} already exists", unit.getName());
                     }
 
@@ -137,7 +136,8 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         group.setCode("TEST");
         group.setGroupType(getLookupByName("UNIT"));
 
-        while (true) {
+        int i = 0;
+        while (i<10) {
             try {
                 group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
                 break;
@@ -146,6 +146,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             } catch (JsonMigrationExistsException jee) {
                 LOG.info("Group {} already exists", group.getName());
             }
+            i++;
         }
     }
 
