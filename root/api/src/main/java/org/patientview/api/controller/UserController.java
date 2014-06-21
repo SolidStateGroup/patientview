@@ -70,13 +70,12 @@ public class UserController extends BaseController {
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.getUser(1L));
 
-        if (resetPasword) {
+        if (resetPasword != null && resetPasword.equals(Boolean.TRUE)) {
             user = userService.createUserResetPassword(user);
         }
         else {
            user = userService.createUser(user);
         }
-
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
         HttpHeaders headers = new HttpHeaders();
