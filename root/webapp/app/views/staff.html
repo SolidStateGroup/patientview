@@ -119,9 +119,9 @@
                     <!-- edit pane -->
                     <form name="userForm" novalidate>
                         <div class="row">
-                            <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="user.username" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="user.email" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="user.name" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="editUser.username" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="editUser.email" required ng-trim="false" class="form-control"></div>
+                            <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="editUser.name" required ng-trim="false" class="form-control"></div>
                         </div>
                         <hr>
                         <div ng-include src="'views/partials/groupsRolesFeatures.html'"></div>
@@ -129,7 +129,7 @@
                     <hr>
                     <div class="user-save-cancel pull-right">
                         <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                        <button type="button" class="btn btn-primary" ng-click="save(userForm, user, $index)" ng-disabled="userForm.$pristine">Save</button>
+                        <button type="button" class="btn btn-primary" ng-click="save(userForm, editUser, $index)" ng-disabled="userForm.$pristine">Save</button>
                     </div>
 
                 </div accordion-group>

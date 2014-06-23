@@ -5,15 +5,14 @@
 var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService', 'SecurityService',
 function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService, SecurityService) {
 
-    $scope.user = newUser;
+    $scope.editUser = newUser;
 
     // add feature to current feature, remove from allowed
     $scope.addFeature = function (form, user, featureId) {
         if(_.findWhere(user.availableFeatures, {id: featureId})) {
             user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: featureId}));
             var feature = _.findWhere(allFeatures, {id: featureId});
-            console.log(feature);
-            user.userFeatures.push(feature);
+            user.userFeatures.push({"feature":feature});
             form.$setDirty(true);
         }
     };
@@ -72,9 +71,9 @@ function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allF
     };
 
     $scope.ok = function () {
-        UserService.new($scope.user).then(function(result) {
-            $scope.user = result;
-            $modalInstance.close($scope.user);
+        UserService.new($scope.editUser).then(function(result) {
+            $scope.editUser = result;
+            $modalInstance.close($scope.editUser);
         }, function(result) {
             if (result.data) {
                 $scope.errorMessage = ' - ' + result.data;
@@ -95,14 +94,16 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
         $scope.open = function (size) {
             $scope.errorMessage = '';
             $scope.successMessage = '';
+            $scope.userCreated = '';
             // create new user with list of available roles, groups and features
-            $scope.user = {};
-            $scope.user.roles = $scope.allRoles;
-            $scope.user.availableGroups = $scope.allGroups;
-            $scope.user.groups = [];
-            $scope.user.availableFeatures = $scope.allFeatures;
-            $scope.user.userFeatures = [];
-            $scope.user.selectedRole = '';
+            //console.log($scope.allGroups);
+            $scope.editUser = {};
+            $scope.editUser.roles = $scope.allRoles;
+            $scope.editUser.availableGroups = $scope.allGroups;
+            $scope.editUser.groups = [];
+            $scope.editUser.availableFeatures = $scope.allFeatures;
+            $scope.editUser.userFeatures = [];
+            $scope.editUser.selectedRole = '';
 
             var modalInstance = $modal.open({
                 templateUrl: 'newStaffModal.html',
@@ -110,7 +111,7 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
                 size: size,
                 resolve: {
                     newUser: function(){
-                        return $scope.user;
+                        return $scope.editUser;
                     },
                     allGroups: function(){
                         return $scope.allGroups;
@@ -133,12 +134,13 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
             modalInstance.result.then(function (user) {
                 //$scope.user = user;
                 $scope.list.push(user);
-                $scope.user = user;
+                $scope.editUser = user;
                 $scope.successMessage = 'User successfully created';
+                $scope.userCreated = true;
                 // ok (success)
             }, function () {
                 // cancel
-                $scope.user = '';
+                $scope.editUser = '';
             });
         };
     }]);

@@ -7,19 +7,19 @@
             <h3 class="modal-title">Create New Staff User</h3>
         </div>
         <div class="modal-body">
-            <form name="userForm" novalidate ng-model="user">
+            <form name="userForm" novalidate ng-model="editUser">
                 <div class="form-horizontal" role="form">
                     <div class="form-group">
                         <label for="new-user-username" class="col-sm-2 control-label">Username</label>
-                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-username" placeholder="Username" ng-model="user.username" ></div>
+                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-username" placeholder="Username" ng-model="editUser.username" ></div>
                     </div>
                     <div class="form-group">
                         <label for="new-user-email" class="col-sm-2 control-label">Email</label>
-                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-email" placeholder="Email" ng-model="user.email" ></div>
+                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-email" placeholder="Email" ng-model="editUser.email" ></div>
                     </div>
                     <div class="form-group">
                         <label for="new-user-name" class="col-sm-2 control-label">Name</label>
-                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-name" placeholder="Name" ng-model="user.name" ></div>
+                        <div class="col-sm-10"><input type="text" class="form-control" id="new-user-name" placeholder="Name" ng-model="editUser.name" ></div>
                     </div>
                 </div>
                 <hr>
@@ -34,10 +34,10 @@
             <button class="btn btn-primary" ng-click="ok()">Create New</button>
         </div>
     </script>
-    <div class="alert alert-success" ng-show="successMessage && user">
+    <div class="alert alert-success" ng-show="userCreated && successMessage && editUser">
         <p>User was created successfully</p>
-        <p>Username: <strong>{{user.username}}</strong></p>
-        <p>Password: <strong>{{user.password}}</strong></p>
+        <p>Username: <strong>{{editUser.username}}</strong></p>
+        <p>Password: <strong>{{editUser.password}}</strong></p>
     </div>
     <button class="btn btn-primary" ng-click="open('lg')">Create New</button>
 </div>

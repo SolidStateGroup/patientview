@@ -85,7 +85,7 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                 var cleanUserFeatures = [];
                 for (var j=0;j<inputUser.userFeatures.length;j++) {
                     var userFeature = inputUser.userFeatures[j];
-                    var feature = {'id':userFeature.id,'name':userFeature.name,'description':''};
+                    var feature = {'id':userFeature.feature.id,'name':userFeature.feature.name,'description':''};
                     cleanUserFeatures.push({'feature':feature});
                 }
                 user.userFeatures = cleanUserFeatures;
@@ -134,7 +134,7 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                 var cleanUserFeatures = [];
                 for (var j=0;j<inputUser.userFeatures.length;j++) {
                     var userFeature = inputUser.userFeatures[j];
-                    var feature = {'id':userFeature.id,'name':userFeature.name,'description':''};
+                    var feature = {'id':userFeature.feature.id,'name':userFeature.feature.name,'description':''};
                     cleanUserFeatures.push({'feature':feature});
                 }
 

@@ -194,7 +194,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             user.userFeatures = [];
         }
 
-        $scope.user = _.clone(user);
+        $scope.editUser = _.clone(user);
 
         if (user.availableGroups[0]) {
             $scope.groupToAdd = user.availableGroups[0].id;
@@ -203,7 +203,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.FeatureToAdd = user.availableFeatures[0].id;
         }
 
-        $scope.user.selectedRole = '';
+        $scope.editUser.selectedRole = '';
     };
 
     // Save from edit
@@ -263,7 +263,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         if(_.findWhere(user.availableFeatures, {id: featureId})) {
             user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: featureId}));
             var feature = _.findWhere($scope.allFeatures, {id: featureId});
-            user.userFeatures.push(feature);
+            user.userFeatures.push({"feature":feature});
 
             if (user.availableFeatures[0]) {
                 $scope.featureToAdd = user.availableFeatures[0].id;
