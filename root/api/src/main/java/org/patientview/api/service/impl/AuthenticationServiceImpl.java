@@ -73,8 +73,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return userRepository.findByUsername(username);
     }
 
-    public void logout(String token) {
+    public void logout(String token) throws AuthenticationException {
         UserToken userToken = userTokenRepository.findByToken(token);
+
+        if (userToken == null) {
+            throw new AuthenticationException("User is not currently logged in");
+        }
+
         userTokenRepository.delete(userToken.getId());
     }
 }

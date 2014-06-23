@@ -12,7 +12,7 @@ function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allF
         if(_.findWhere(user.availableFeatures, {id: featureId})) {
             user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: featureId}));
             var feature = _.findWhere(allFeatures, {id: featureId});
-            user.userFeatures.push({"feature":feature});
+            user.userFeatures.push({'feature':feature});
             form.$setDirty(true);
         }
     };
@@ -26,9 +26,9 @@ function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allF
 
     // on select role, update available groups
     $scope.selectRole = function(form, user, $event) {
-       /* var roleId = $event.target.dataset.id;
+        /*var roleId = $event.target.dataset.id;
         user.availableGroups = [];
-        SecurityService.getAvailableGroupsFromUserAndRole($rootScope.loggedInUser.id, roleId).then(function(availableGroups) {
+        SecurityService.getSecurityGroupsByUserAndRole($rootScope.loggedInUser.id, roleId).then(function(availableGroups) {
             user.availableGroups = availableGroups;
         });
         form.$setDirty(true);*/

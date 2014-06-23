@@ -151,8 +151,8 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
                 user.groupRoles = inputUser.groupRoles;
 
                 // generate password
-                var password = "";
-                var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                var password = '';
+                var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
                 for (var k=0;k<5;k++) {
                     password += possible.charAt(Math.floor(Math.random() * possible.length));
                 }

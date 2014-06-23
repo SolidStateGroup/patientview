@@ -65,7 +65,7 @@ public class AuthController extends BaseController {
 
     @RequestMapping(value = "/auth/logout/{token}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteToken(@PathVariable("token") String token) {
+    public ResponseEntity<Void> deleteToken(@PathVariable("token") String token) throws AuthenticationException{
         authenticationService.logout(token);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
