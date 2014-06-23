@@ -28,6 +28,20 @@ function ($scope, $modalInstance, user, UserService) {
     };
 }];
 
+// send verification email modal instance controller
+var SendVerificationEmailModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
+function ($scope, $modalInstance, user, UserService) {
+    $scope.user = user;
+    $scope.ok = function () {
+        UserService.sendVerificationEmail(user).then(function() {
+            $modalInstance.close();
+        });
+    };
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
 angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService',
     function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService) {
 
@@ -188,7 +202,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         user.availableFeatures = $scope.allFeatures;
         if (user.userFeatures) {
             for (var j = 0; j < user.userFeatures.length; j++) {
-                user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.userFeatures[j].id}));
+                user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.userFeatures[j].feature.id}));
             }
         } else {
             user.userFeatures = [];
@@ -288,6 +302,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // delete user
     $scope.deleteUser = function (userId, $event) {
 
+        $scope.successMessage = '';
+
         // workaround for cloned object not capturing ng-click properties
         var eventUserId = $event.currentTarget.dataset.userid;
 
@@ -322,6 +338,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // reset user password
     $scope.resetUserPassword = function (userId, $event) {
 
+        $scope.successMessage = '';
+
         // workaround for cloned object not capturing ng-click properties
         var eventUserId = $event.currentTarget.dataset.userid;
 
@@ -341,6 +359,38 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
             modalInstance.result.then(function () {
                 // ok
+                $scope.successMessage = 'Password reset';
+            }, function () {
+                // closed
+            });
+        });
+    };
+
+    // send verification email
+    $scope.sendVerificationEmail = function (userId, $event) {
+
+        $scope.successMessage = '';
+
+        // workaround for cloned object not capturing ng-click properties
+        var eventUserId = $event.currentTarget.dataset.userid;
+
+        UserService.get(eventUserId).then(function(user) {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/partials/sendVerificationEmailModal.html',
+                controller: SendVerificationEmailModalInstanceCtrl,
+                resolve: {
+                    user: function(){
+                        return user;
+                    },
+                    UserService: function(){
+                        return UserService;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                // ok
+                $scope.successMessage = 'Verification email has been sent';
             }, function () {
                 // closed
             });

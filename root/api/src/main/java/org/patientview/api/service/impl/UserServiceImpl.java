@@ -24,7 +24,9 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -112,11 +114,35 @@ public class UserServiceImpl implements UserService {
     }
 
     public User saveUser(User user) {
+
+        // clear existing user groups roles, features
         User entityUser = userRepository.findOne(user.getId());
-        entityUser.setFhirResourceId(user.getFhirResourceId());
+        groupRoleRepository.delete(entityUser.getGroupRoles());
+        userFeatureRepository.delete(entityUser.getUserFeatures());
+
+        // add updated groups and roles
+        if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                groupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
+                groupRole.setRole(roleRepository.findOne(groupRole.getRole().getId()));
+                groupRole.setUser(userRepository.findOne(user.getId()));
+                groupRole.setCreator(userRepository.findOne(1L));
+                groupRoleRepository.save(groupRole);
+            }
+        }
+
+        // add updated features
+        if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
+            for (UserFeature userFeature : user.getUserFeatures()) {
+                userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
+                userFeature.setUser(userRepository.findOne(user.getId()));
+                userFeature.setCreator(userRepository.findOne(1L));
+                userFeatureRepository.save(userFeature);
+            }
+        }
+
         return userRepository.save(user);
     }
-
 
     public List<User> getUserByGroupAndRole(Long groupId, Long roleId) {
         Group group = groupRepository.findOne(groupId);

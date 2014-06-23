@@ -21,27 +21,22 @@ angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular',
             },
             resetPassword: function (user) {
                 var deferred = $q.defer();
-                Restangular.one('user', user.id).get().then(function(user) {
-                    user.put('reset').then(function(res) {
-                        deferred.resolve(res);
-                    });
-                });
-                return deferred.promise;
-            },/*
-            getFeatures: function (userId) {
-                var deferred = $q.defer();
-                Restangular.one('user', userId).getList('features').then(function(res) {
-                    deferred.resolve(res);
+                Restangular.all('user').customPUT(user).then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
                 });
                 return deferred.promise;
             },
-            getByRole: function (roleId) {
+            sendVerificationEmail: function (user) {
                 var deferred = $q.defer();
-                Restangular.all('user').getList({role: roleId[0]}).then(function(res) {
-                    deferred.resolve(res);
+                Restangular.one('user', user.id).post('reset').then(function(successResult) {
+                    deferred.resolve(successResult);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
                 });
                 return deferred.promise;
-            },*/
+            },
             save: function (inputUser) {
                 var deferred = $q.defer();
 
