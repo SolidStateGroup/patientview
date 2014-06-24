@@ -81,9 +81,9 @@
             <div class="row accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-4 accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-6"></div>
+                <div class="col-sm-4"></div>
             </div>
 
             <!-- body -->
@@ -93,9 +93,9 @@
                         <div class="row" ng-click="opened(user, $event)">
                             <div class="col-sm-1 hidden">{{user.id}}</div>
                             <div class="col-sm-2 accordion-heading-text">{{user.username}}</div>
-                            <div class="col-sm-2 accordion-heading-text">{{user.email}}</div>
+                            <div class="col-sm-4 accordion-heading-text">{{user.email}}</div>
                             <div class="col-sm-2 accordion-heading-text">{{user.name}}</div>
-                            <div class="col-sm-6">
+                            <div class="col-sm-4">
 
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="btn-group pull-right">
@@ -118,7 +118,7 @@
                     </div accordion-heading>
 
                     <!-- edit pane -->
-                    <form name="userForm" novalidate>
+                    <form name="userForm">
                         <div ng-include src="'views/partials/userDetails.html'"></div>
                         <hr>
                         <div ng-include src="'views/partials/groupsRolesFeatures.html'"></div>
