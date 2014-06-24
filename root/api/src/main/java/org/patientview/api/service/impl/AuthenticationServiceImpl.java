@@ -54,6 +54,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AuthenticationException("Invalid credentials");
         }
 
+        if (!user.getVerified()) {
+            throw new AuthenticationException("User has not been verified");
+        }
+
         UserToken userToken = new UserToken();
         userToken.setUser(user);
         userToken.setToken(CommonUtils.getAuthtoken());

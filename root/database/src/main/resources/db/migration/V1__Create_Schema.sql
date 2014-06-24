@@ -8,6 +8,8 @@ CREATE TABLE PV_User
   Fhir_Resource_Id UUID UNIQUE,
   Email            VARCHAR(200) NOT NULL,
   Fullname             VARCHAR(200) NOT NULL,
+  Verification_Code    VARCHAR(200),
+  Verified         BOOL         NOT NULL DEFAULT FALSE,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,

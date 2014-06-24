@@ -32,7 +32,16 @@ function ($q, Restangular, UtilService) {
         },
         sendVerificationEmail: function (user) {
             var deferred = $q.defer();
-            Restangular.one('user', user.id).post('reset').then(function(successResult) {
+            Restangular.one('user', user.id).post('sendVerificationEmail').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        verify: function (userId, verificationCode) {
+            var deferred = $q.defer();
+            Restangular.one('user', userId).all('verify').all(verificationCode).post().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -150,7 +159,11 @@ function ($q, Restangular, UtilService) {
             // generate password
             user.password = UtilService.generatePassword();
             user.changePassword = 'false';
+
+            // lock and generate verification code
             user.locked = 'false';
+            user.verified = 'false';
+            user.verificationCode = UtilService.generateVerificationCode();
 
             Restangular.all('user').post(user).then(function(successResult) {
                 deferred.resolve(successResult);

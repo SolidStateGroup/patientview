@@ -117,7 +117,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/user/{userId}/resetPassword", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> getUserFeatures(@PathVariable("userId") Long userId, @RequestBody Credentials credentials) {
+    public ResponseEntity<User> resetPassword(@PathVariable("userId") Long userId, @RequestBody Credentials credentials) {
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
             LOG.debug("A password must be supplied");
@@ -126,6 +126,22 @@ public class UserController extends BaseController {
 
         LOG.debug("Password reset requested for userId : {}", userId);
         return new ResponseEntity<User>(userService.updatePassword(userId, credentials.getPassword()), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/sendVerificationEmail", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Boolean> sendVerificationEmail(@PathVariable("userId") Long userId) {
+        LOG.debug("Email verification email requested for userId : {}", userId);
+        return new ResponseEntity<Boolean>(userService.sendVerificationEmail(userId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/verify/{verificationCode}", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Boolean> verify(@PathVariable("userId") Long userId, @PathVariable("verificationCode") String verificationCode) {
+        LOG.debug("User with userId : {} is verifying with code {}", userId, verificationCode);
+        return new ResponseEntity<Boolean>(userService.verify(userId, verificationCode), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/role/{roleId}", method = RequestMethod.GET,

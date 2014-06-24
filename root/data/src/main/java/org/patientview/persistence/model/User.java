@@ -36,6 +36,12 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "locked")
     private Boolean locked;
 
+    @Column(name = "verified")
+    private Boolean verified;
+
+    @Column(name = "verification_code")
+    private String verificationCode;
+
     @Column(name = "email")
     private String email;
 
@@ -82,6 +88,22 @@ public class User extends RangeModel implements UserDetails {
 
     public void setLocked(final Boolean locked) {
         this.locked = locked;
+    }
+
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 
     public String getEmail() {

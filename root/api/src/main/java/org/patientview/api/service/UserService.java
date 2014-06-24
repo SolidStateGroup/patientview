@@ -45,4 +45,7 @@ public interface UserService {
 
     User updatePassword(Long userId, String password);
 
+    public Boolean sendVerificationEmail(Long userId);
+
+    public Boolean verify(Long userId, String verificationCode);
 }

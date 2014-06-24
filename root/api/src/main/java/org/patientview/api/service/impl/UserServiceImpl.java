@@ -1,6 +1,8 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.patientview.api.controller.model.Email;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.utils.CommonUtils;
@@ -18,6 +20,7 @@ import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -55,12 +58,18 @@ public class UserServiceImpl implements UserService {
     @Inject
     private UserFeatureRepository userFeatureRepository;
 
+    @Inject
+    private EmailService emailService;
+
+    @Value("${smtp.sender}")
+    private String sender;
 
     public User createUser(User user) {
 
         User newUser;
 
         try {
+            user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
             newUser = userRepository.save(user);
         } catch (DataIntegrityViolationException dve) {
             LOG.debug("User not created, duplicate user: {}", dve.getCause());
@@ -165,6 +174,30 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getOne(userId);
         user.setPassword(DigestUtils.sha256Hex(password));
         return userRepository.save(user);
+    }
+
+    public Boolean sendVerificationEmail(Long userId) {
+        User user = userRepository.getOne(userId);
+        Email email = new Email();
+        email.setSender(sender);
+        email.setSubject("PatientView - Please verify your account");
+        email.setRecipients(new String[]{user.getEmail()});
+        email.setBody("Please visit http://www.patientview.org/#/verify?userId="
+                + user.getId()
+                + "&verificationCode="
+                + user.getVerificationCode()
+                + " to validate your account.");
+        return emailService.sendEmail(email);
+    }
+
+    public Boolean verify(Long userId, String verificationCode) {
+        User user = userRepository.getOne(userId);
+        if (user.getVerificationCode().equals(verificationCode)) {
+            user.setVerified(true);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
 
 }
