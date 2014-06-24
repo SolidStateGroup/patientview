@@ -1,5 +1,7 @@
 package org.patientview.api.controller;
 
+import org.apache.commons.lang.StringUtils;
+import org.patientview.api.controller.model.Credentials;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
@@ -112,7 +114,19 @@ public class UserController extends BaseController {
 
     }
 
+    @RequestMapping(value = "/user/{userId}/resetPassword", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<User> getUserFeatures(@PathVariable("userId") Long userId, @RequestBody Credentials credentials) {
 
+        if (StringUtils.isEmpty(credentials.getPassword())) {
+            LOG.debug("A password must be supplied");
+            return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+        }
+
+        LOG.debug("Password reset requested for userId : {}", userId);
+        return new ResponseEntity<User>(userService.updatePassword(userId, credentials.getPassword()), HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/user/role/{roleId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)

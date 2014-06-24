@@ -363,9 +363,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 }
             });
 
-            modalInstance.result.then(function () {
+            modalInstance.result.then(function (successResult) {
                 // ok
-                $scope.successMessage = 'Password reset';
+                $scope.successMessage = 'Password reset, new password is: ' + successResult.password;
             }, function () {
                 // closed
             });

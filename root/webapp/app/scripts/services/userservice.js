@@ -22,9 +22,9 @@ function ($q, Restangular, UtilService) {
         resetPassword: function (user) {
             var deferred = $q.defer();
             var generatedPassword = UtilService.generatePassword();
-            Restangular.one('user', user.id).post('reset', generatedPassword).then(function(successResult) {
+            Restangular.one('user', user.id).post('resetPassword', {'password':generatedPassword}).then(function(successResult) {
                 deferred.resolve(successResult);
-                successResult.password = user.password;
+                successResult.password = generatedPassword;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });

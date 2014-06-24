@@ -161,4 +161,10 @@ public class UserServiceImpl implements UserService {
         return Util.iterableToList(Util.iterableToList(featureRepository.getFeaturesByUser(user)));
     }
 
+    public User updatePassword(Long userId, String password) {
+        User user = userRepository.getOne(userId);
+        user.setPassword(DigestUtils.sha256Hex(password));
+        return userRepository.save(user);
+    }
+
 }

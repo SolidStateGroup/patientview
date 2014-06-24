@@ -43,4 +43,6 @@ public interface UserService {
      */
     User createUserResetPassword(User user);
 
+    User updatePassword(Long userId, String password);
+
 }
