@@ -9,18 +9,23 @@ function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allF
 
     // add feature to current feature, remove from allowed
     $scope.addFeature = function (form, user, featureId) {
-        if(_.findWhere(user.availableFeatures, {id: featureId})) {
-            user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: featureId}));
-            var feature = _.findWhere(allFeatures, {id: featureId});
-            user.userFeatures.push({'feature':feature});
-            form.$setDirty(true);
+        for (var j = 0; j < user.availableFeatures.length; j++) {
+            if (user.availableFeatures[j].feature.id === featureId) {
+                user.userFeatures.push(user.availableFeatures[j]);
+                user.availableFeatures.splice(j, 1);
+            }
         }
+        form.$setDirty(true);
     };
 
     // remove feature from current features, add to allowed features
     $scope.removeFeature = function (form, user, feature) {
-        user.userFeatures = _.without(user.userFeatures, _.findWhere(user.userFeatures, {id: feature.id}));
-        user.availableFeatures.push(feature);
+        for (var j = 0; j < user.userFeatures.length; j++) {
+            if (user.userFeatures[j].feature.id === feature.feature.id) {
+                user.availableFeatures.push(user.userFeatures[j]);
+                user.userFeatures.splice(j, 1);
+            }
+        }
         form.$setDirty(true);
     };
 
@@ -101,7 +106,7 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
             $scope.editUser.roles = $scope.allRoles;
             $scope.editUser.availableGroups = $scope.allGroups;
             $scope.editUser.groups = [];
-            $scope.editUser.availableFeatures = $scope.allFeatures;
+            $scope.editUser.availableFeatures = _.clone($scope.allFeatures);;
             $scope.editUser.userFeatures = [];
             $scope.editUser.selectedRole = '';
 

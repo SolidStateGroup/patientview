@@ -119,11 +119,7 @@
 
                     <!-- edit pane -->
                     <form name="userForm" novalidate>
-                        <div class="row">
-                            <div class="col-sm-2">Username<br/><input type="text" name="input-type" ng-model="editUser.username" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-2">Email<br/><input type="text" name="input-standard" ng-model="editUser.email" required ng-trim="false" class="form-control"></div>
-                            <div class="col-sm-2">Name<br/><input type="text" name="input-standard" ng-model="editUser.name" required ng-trim="false" class="form-control"></div>
-                        </div>
+                        <div ng-include src="'views/partials/userDetails.html'"></div>
                         <hr>
                         <div ng-include src="'views/partials/groupsRolesFeatures.html'"></div>
                     </form>

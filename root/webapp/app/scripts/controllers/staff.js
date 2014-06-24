@@ -19,8 +19,10 @@ var ResetStaffPasswordModalInstanceCtrl = ['$scope', '$modalInstance','user','Us
 function ($scope, $modalInstance, user, UserService) {
     $scope.user = user;
     $scope.ok = function () {
-        UserService.resetPassword(user).then(function() {
-            $modalInstance.close();
+        UserService.resetPassword(user).then(function(successResult) {
+            $modalInstance.close(successResult);
+        }, function() {
+            // error
         });
     };
     $scope.cancel = function () {
@@ -139,7 +141,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             });
 
             FeatureService.getAll().then(function(allFeatures) {
-                $scope.allFeatures = allFeatures;
+                //$scope.allFeatures = allFeatures;
+                $scope.allFeatures = [];
+                for (var i=0;i<allFeatures.length;i++){
+                    $scope.allFeatures.push({'feature':allFeatures[i]});
+                }
             });
         });
     };
@@ -199,10 +205,15 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         }
 
         // create list of available features (all - users)
-        user.availableFeatures = $scope.allFeatures;
+        user.availableFeatures = _.clone($scope.allFeatures);
         if (user.userFeatures) {
             for (var j = 0; j < user.userFeatures.length; j++) {
-                user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: user.userFeatures[j].feature.id}));
+                //user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {feature.id: user.userFeatures[j].feature.id}));
+                for (var k = 0; k < user.availableFeatures.length; k++) {
+                    if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
+                        user.availableFeatures.splice(k, 1);
+                    }
+                }
             }
         } else {
             user.userFeatures = [];
@@ -274,28 +285,23 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // add feature to current feature, remove from allowed
     $scope.addFeature = function (form, user, featureId) {
-        if(_.findWhere(user.availableFeatures, {id: featureId})) {
-            user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {id: featureId}));
-            var feature = _.findWhere($scope.allFeatures, {id: featureId});
-            user.userFeatures.push({'feature':feature});
-
-            if (user.availableFeatures[0]) {
-                $scope.featureToAdd = user.availableFeatures[0].id;
+        for (var j = 0; j < user.availableFeatures.length; j++) {
+            if (user.availableFeatures[j].feature.id === featureId) {
+                user.userFeatures.push(user.availableFeatures[j]);
+                user.availableFeatures.splice(j, 1);
             }
-
-            form.$setDirty(true);
         }
+        form.$setDirty(true);
     };
 
     // remove feature from current features, add to allowed features
     $scope.removeFeature = function (form, user, feature) {
-        user.userFeatures = _.without(user.userFeatures, _.findWhere(user.userFeatures, {id: feature.id}));
-        user.availableFeatures.push(feature);
-
-        if (user.availableFeatures[0]) {
-            $scope.featureToAdd = user.availableFeatures[0].id;
+        for (var j = 0; j < user.userFeatures.length; j++) {
+            if (user.userFeatures[j].feature.id === feature.feature.id) {
+                user.availableFeatures.push(user.userFeatures[j]);
+                user.userFeatures.splice(j, 1);
+            }
         }
-
         form.$setDirty(true);
     };
 

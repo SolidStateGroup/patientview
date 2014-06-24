@@ -1,0 +1,22 @@
+
+<div class="form-horizontal" role="form">
+    <div class="form-group">
+        <label for="new-user-username" class="col-sm-2 control-label">Username</label>
+        <div class="col-sm-7"><input type="text" class="form-control" id="new-user-username" placeholder="Username" ng-model="editUser.username" required></div>
+        <div class="col-sm-7"><span class="error" ng-show="userName.$error.required">Username is required</span></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-email" class="col-sm-2 control-label">Email</label>
+        <div class="col-sm-7"><input type="text" class="form-control" id="new-user-email" placeholder="Email" ng-model="editUser.email" ></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-name" class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-7"><input type="text" class="form-control" id="new-user-name" placeholder="Name" ng-model="editUser.name" ></div>
+    </div>
+</div>
+<!--
+<div class="row">
+    <div class="col-sm-7">Username<br/><input type="text" name="input-type" ng-model="editUser.username" required ng-trim="false" class="form-control"></div>
+    <div class="col-sm-7">Email<br/><input type="text" name="input-standard" ng-model="editUser.email" required ng-trim="false" class="form-control"></div>
+    <div class="col-sm-7">Name<br/><input type="text" name="input-standard" ng-model="editUser.name" required ng-trim="false" class="form-control"></div>
+</div>-->
