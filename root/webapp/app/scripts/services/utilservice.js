@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').factory('UtilService', [
-function () {
+angular.module('patientviewApp').factory('UtilService', [function () {
     return {
         generatePassword: function () {
             var password = '';

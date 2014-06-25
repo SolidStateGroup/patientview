@@ -6,8 +6,8 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
         $scope.errorMessage = '';
 
         // workaround for https://github.com/angular/angular.js/issues/1460
-        $scope.username = $("#username").val();
-        $scope.password = $("#password").val();
+        $scope.username = $('#username').val();
+        $scope.password = $('#password').val();
 
         AuthService.login({'username': $scope.username, 'password': $scope.password}).then(function (authenticationResult) {
 

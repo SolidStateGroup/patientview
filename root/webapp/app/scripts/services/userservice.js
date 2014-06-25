@@ -5,13 +5,13 @@ function ($q, Restangular, UtilService) {
     return {
         // Used when cleaning objects before they are passed to REST service, object fields to keep
         getFields: function (objectType) {
-            if (objectType == "user") {
+            if (objectType === 'user') {
                 return ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures', 'verified', 'verificationCode'];
             }
-            if (objectType == "role") {
+            if (objectType === 'role') {
                 return ['id','name','description','routes'];
             }
-            if (objectType == "group") {
+            if (objectType === 'group') {
                 return ['id','name','code','description','groupType','groupFeatures','routes'];
             }
             return null;
