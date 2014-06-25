@@ -34,6 +34,8 @@ public final class TestUtils {
         user.setStartDate(new Date());
         user.setName(name);
         user.setEmail("test@patientview.org");
+        user.setVerified(true);
+        user.setPassword("doNotShow");
         return user;
     }
 
