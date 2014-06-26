@@ -25,8 +25,8 @@ function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode
 }];
 
 // angular-ui bootstrap modal, http://angular-ui.github.io/bootstrap/
-angular.module('patientviewApp').controller('NewCodeModalCtrl',['$scope','$modal','CodeService','SecurityService',
-function ($scope, $modal, CodeService, SecurityService) {
+angular.module('patientviewApp').controller('NewCodeModalCtrl',['$scope','$modal','CodeService',
+function ($scope, $modal, CodeService) {
     $scope.open = function (size) {
         $scope.errorMessage = '';
         $scope.successMessage = '';

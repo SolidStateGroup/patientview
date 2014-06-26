@@ -1,11 +1,11 @@
 'use strict';
 
 // delete code modal instance controller
-var DeleteCodeModalInstanceCtrl = ['$scope', '$modalInstance','code','CodeService',
+var DeleteCodeModalInstanceCtrl = ['$scope', '$modalInstance','code', 'CodeService',
 function ($scope, $modalInstance, code, CodeService) {
     $scope.code = code;
     $scope.ok = function () {
-        CodeService.delete(code).then(function() {
+        CodeService.delete(code, codeTypes, standardTypes).then(function() {
             $modalInstance.close();
         });
     };
@@ -14,8 +14,8 @@ function ($scope, $modalInstance, code, CodeService) {
     };
 }];
 
-angular.module('patientviewApp').controller('CodesCtrl', ['$scope','$modal','CodeService','StaticDataService',
-function ($scope, $modal, CodeService, StaticDataService) {
+angular.module('patientviewApp').controller('CodesCtrl', ['$scope','$timeout', '$modal','CodeService','StaticDataService',
+function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
     // Init
     $scope.init = function () {
@@ -31,14 +31,14 @@ function ($scope, $modal, CodeService, StaticDataService) {
         });
 
         $scope.codeTypes = [];
-        StaticDataService.getLookupsByType("CODE_TYPE").then(function(codeTypes) {
+        StaticDataService.getLookupsByType('CODE_TYPE').then(function(codeTypes) {
             if (codeTypes.length > 0) {
                 $scope.codeTypes = codeTypes;
             }
         });
 
         $scope.standardTypes = [];
-        StaticDataService.getLookupsByType("CODE_STANDARD").then(function(standardTypes) {
+        StaticDataService.getLookupsByType('CODE_STANDARD').then(function(standardTypes) {
             if (standardTypes.length > 0) {
                 $scope.standardTypes = standardTypes;
             }
@@ -62,33 +62,11 @@ function ($scope, $modal, CodeService, StaticDataService) {
     };
 
     // Opened for edit
-    $scope.opened = function (code, $event) {
+    $scope.opened = function (code) {
         $scope.successMessage = '';
-
-        if ($event) {
-            // workaround for angular accordion and bootstrap dropdowns (clone and activate ng-click)
-            if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
-                if ($('#' + $event.target.id).parent().children('.child-menu').length > 0) {
-                    $('#' + $event.target.id).parent().children('.child-menu').remove();
-                    $event.stopPropagation();
-                } else {
-                    $('.child-menu').remove();
-                    $event.stopPropagation();
-                    var childMenu = $('<div class="child-menu"></div>');
-                    var dropDownMenuToAdd = $('#' + $event.target.id + '-menu').clone().attr('id', '').show();
-
-                    // http://stackoverflow.com/questions/16949299/getting-ngclick-to-work-on-dynamic-fields
-                    var compiledElement = $compile(dropDownMenuToAdd)($scope);
-                    $(childMenu).append(compiledElement);
-                    $('#' + $event.target.id).parent().append(childMenu);
-                }
-            }
-            if ($event.target.className.indexOf('dropdown-menu-accordion-item') !== -1) {
-                $event.stopPropagation();
-            }
-        }
-
         $scope.editing = true;
+        code.codeTypeId = code.codeType.id;
+        code.standardTypeId = code.standardType.id;
         $scope.editCode = _.clone(code);
     };
 
@@ -126,7 +104,7 @@ function ($scope, $modal, CodeService, StaticDataService) {
 
     // Save from edit
     $scope.save = function (editCodeForm, code, index) {
-        CodeService.save(code).then(function() {
+        CodeService.save(code, $scope.codeTypes, $scope.standardTypes).then(function() {
             editCodeForm.$setPristine(true);
             $scope.list[index] = _.clone(code);
             $scope.successMessage = 'Code saved';

@@ -106,7 +106,7 @@ angular.module('patientviewApp').controller('NewStaffModalCtrl',['$scope','$moda
             $scope.editUser.roles = $scope.allRoles;
             $scope.editUser.availableGroups = $scope.allGroups;
             $scope.editUser.groups = [];
-            $scope.editUser.availableFeatures = _.clone($scope.allFeatures);;
+            $scope.editUser.availableFeatures = _.clone($scope.allFeatures);
             $scope.editUser.userFeatures = [];
             $scope.editUser.selectedRole = '';
 

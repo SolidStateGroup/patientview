@@ -21,11 +21,11 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         // Used when cleaning objects before they are passed to REST service, object fields to keep
         getFields: function (objectType) {
             var fields = [];
-            fields['user'] = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures', 'verified', 'verificationCode'];
-            fields['role'] = ['id','name','description','routes'];
-            fields['group'] = ['id','name','code','description','groupType','groupFeatures','routes'];
-            fields['codeType'] = ['id','value','lookupType'];
-            fields['standardType'] = ['id','value','lookupType'];
+            fields.user = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures', 'verified', 'verificationCode'];
+            fields.role = ['id','name','description','routes'];
+            fields.group = ['id','name','code','description','groupType','groupFeatures','routes'];
+            fields.codeType = ['id','value','lookupType'];
+            fields.standardType = ['id','value','lookupType'];
             return fields[objectType];
         },
         // used when converting from angular objects to those suitable for REST
