@@ -5,7 +5,7 @@ var DeleteCodeModalInstanceCtrl = ['$scope', '$modalInstance','code', 'CodeServi
 function ($scope, $modalInstance, code, CodeService) {
     $scope.code = code;
     $scope.ok = function () {
-        CodeService.delete(code, codeTypes, standardTypes).then(function() {
+        CodeService.delete(code).then(function() {
             $modalInstance.close();
         });
     };
@@ -27,6 +27,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             $scope.currentPage = 1; //current page
             $scope.entryLimit = 10; //max no of items to display in a page
             $scope.totalItems = $scope.list.length;
+            $scope.predicate = 'id';
             delete $scope.loading;
         });
 
@@ -61,10 +62,25 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         $scope.reverse = !$scope.reverse;
     };
 
+    $scope.addLink = function (form, code, link) {
+        link.id = Math.floor(Math.random() * (9999)) -10000;
+        code.links.push(_.clone(link));
+        link.link = link.name = '';
+        form.$setDirty(true);
+    };
+
+    $scope.removeLink = function (form, code, link) {
+        for (var j = 0; j < code.links.length; j++) {
+            if (code.links[j].id === link.id) {
+                code.links.splice(j, 1);
+            }
+        }
+        form.$setDirty(true);
+    };
+
     // Opened for edit
     $scope.opened = function (code) {
         $scope.successMessage = '';
-        $scope.editing = true;
         code.codeTypeId = code.codeType.id;
         code.standardTypeId = code.standardType.id;
         $scope.editCode = _.clone(code);

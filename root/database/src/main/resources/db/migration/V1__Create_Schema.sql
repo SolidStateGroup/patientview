@@ -323,7 +323,7 @@ CREATE TABLE PV_Module_Role (
 
 CREATE TABLE PV_Link (
   Id               BIGINT    NOT NULL,
-  Type_Id          BIGINT    NOT NULL  REFERENCES PV_Lookup_Value (Id),
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id),
   Code_Id          BIGINT REFERENCES PV_Code (Id),
   Group_Id         BIGINT REFERENCES PV_Group (Id),
   Link             VARCHAR(2048),

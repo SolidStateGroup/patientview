@@ -33,12 +33,12 @@ public class CodeServiceImpl implements CodeService {
     public List<Code> getAllCodes() { return Util.iterableToList(codeRepository.findAll()); }
 
     public Code createCode(final Code code) {
-
         Code persistedCode = codeRepository.save(code);
         Set<Link> links = code.getLinks();
 
         if (!CollectionUtils.isEmpty(links)) {
             for (Link link : links) {
+                if (link.getId() < 0) { link.setId(null); }
                 link.setCode(persistedCode);
                 link.setCreator(userRepository.findOne(1L));
                 linkRepository.save(link);
@@ -53,6 +53,22 @@ public class CodeServiceImpl implements CodeService {
     }
 
     public Code saveCode(final Code code) {
+
+        // remove deleted code links
+        Code entityCode = codeRepository.findOne(code.getId());
+        entityCode.getLinks().removeAll(code.getLinks());
+        linkRepository.delete(entityCode.getLinks());
+
+        // set new code links and persist
+        if (!CollectionUtils.isEmpty(code.getLinks())) {
+            for (Link link : code.getLinks()) {
+                if (link.getId() < 0) { link.setId(null); }
+                link.setCode(entityCode);
+                link.setCreator(userRepository.findOne(1L));
+                linkRepository.save(link);
+            }
+        }
+
         return codeRepository.save(code);
     }
 

@@ -22,14 +22,32 @@
                 <div class="col-sm-7"><input type="text" class="form-control" id="code-description" placeholder="Description" name="description" ng-model="editCode.description" required></div>
                 <span class="alert alert-warning" ng-show="codeForm.description.$error.required">required</span>
             </div>
-            <!--<div class="form-group">
-                <label for="code-displayOrder" class="col-sm-2 control-label">Display Order</label>
-                <div class="col-sm-7"><input type="text" class="form-control" id="code-displayOrder" placeholder="Display Order" name="displayOrder" ng-model="editCode.displayOrder" required></div>
-                <span class="alert alert-warning" ng-show="codeForm.description.$error.required">required</span>
-            </div>-->
         </div>
     </div>
     <div class="col-sm-6">
         <h2>Links</h2>
+        <div class="link-list-item row" ng-repeat="link in editCode.links | orderBy:'displayOrder'">
+            <div class="col-sm-4"><input type="text" class="form-control" id="code-link-link-{{link.id}}" placeholder="link" name="link" ng-model="link.link" required></div>
+            <div class="col-sm-4"><input type="text" class="form-control" id="code-link-name-{{link.id}}" placeholder="name" name="name" ng-model="link.name" required></div>
+            <div class="col-sm-2">
+                <select id="code-link-displayOrder-{{link.id}}" class="form-control" ng-model="link.displayOrder">
+                    <option ng-repeat="link in editCode.links">{{$index + 1}}</option>
+                </select>
+            </div>
+            <div class="col-sm-2"><button type="button" class="btn btn-danger link-delete-button" ng-click="removeLink(codeForm, editCode, link)">Delete</button></span></div>
+        </div>
+        <br/>
+        <h5 class="inner-title">Add Link</h5>
+        <div class="row" ng-model="newLink">
+            <div class="col-sm-4"><input type="text" class="form-control" id="code-newLink-link" placeholder="link" name="newLink" ng-model="newLink.link"></div>
+            <div class="col-sm-4"><input type="text" class="form-control" id="code-newLink-name" placeholder="name" name="newLink" ng-model="newLink.name"></div>
+            <div class="col-sm-2">
+                <select id="code-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
+                    <option ng-show="newLink.displayOrder" ng-repeat="link in editCode.links">{{$index + 1}}</option>
+                    <option >{{editCode.links.length + 1}}</option>
+                </select>
+            </div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary link-add-button" ng-click="addLink(codeForm, editCode, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
+        </div>
     </div>
 </div>
