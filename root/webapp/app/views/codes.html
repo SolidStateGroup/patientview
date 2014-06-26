@@ -103,6 +103,9 @@
                                 <button type="button" class="btn btn-danger pull-right" ng-click="delete(code.id, $event)">
                                     <span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Delete
                                 </button>
+                                <button type="button" class="btn btn-primary pull-right" ng-click="clone(code.id, $event)">
+                                    <span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Clone
+                                </button>
                                 <button type="button" class="btn btn-primary pull-right">
                                     <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit
                                 </button>

@@ -22,4 +22,6 @@ public interface CodeService {
     Code saveCode(Code code);
 
     void deleteCode(Long codeId);
+
+    Code cloneCode(Long codeId);
 }

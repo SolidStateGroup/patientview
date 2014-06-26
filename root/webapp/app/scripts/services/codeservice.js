@@ -55,6 +55,16 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
+        // clone code
+        clone: function (codeId, codeTypes, standardTypes) {
+            var deferred = $q.defer();
+            Restangular.one('code',codeId).post('clone').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Remove a single code based on userId
         delete: function (code) {
             var deferred = $q.defer();

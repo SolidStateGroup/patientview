@@ -34,7 +34,7 @@ public class Code extends AuditModel {
     @JoinColumn(name = "standard_type_id")
     private Lookup standardType;
 
-    @OneToMany(mappedBy = "code", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    @OneToMany(mappedBy = "code", cascade = CascadeType.REMOVE)
     private Set<Link> links;
 
     public String getCode() {

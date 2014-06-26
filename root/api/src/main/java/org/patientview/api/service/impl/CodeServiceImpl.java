@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Code;
@@ -70,6 +71,16 @@ public class CodeServiceImpl implements CodeService {
         }
 
         return codeRepository.save(code);
+    }
+
+    public Code cloneCode(Long codeId) {
+
+        // remove deleted code links
+        Code entityCode = codeRepository.findOne(codeId);
+        Code newCode = (Code)SerializationUtils.clone(entityCode);
+        newCode.setId(null);
+
+        return codeRepository.save(newCode);
     }
 
     public void deleteCode(final Long codeId) {

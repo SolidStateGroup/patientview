@@ -122,6 +122,16 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         $scope.editCode = _.clone(code);
     };
 
+    $scope.clone = function (codeId, $event) {
+        $event.stopPropagation();
+        $scope.successMessage = '';
+
+        CodeService.clone(codeId).then(function(code) {
+            $scope.successMessage = 'Successfully copied code';
+            $scope.list.push(code);
+        });
+    };
+
     $scope.delete = function (codeId, $event) {
         $event.stopPropagation();
         $scope.successMessage = '';
