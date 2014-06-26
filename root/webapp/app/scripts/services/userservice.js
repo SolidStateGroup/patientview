@@ -3,19 +3,6 @@
 angular.module('patientviewApp').factory('UserService', ['$q', 'Restangular', 'UtilService',
 function ($q, Restangular, UtilService) {
     return {
-        // Used when cleaning objects before they are passed to REST service, object fields to keep
-        getFields: function (objectType) {
-            if (objectType === 'user') {
-                return ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures', 'verified', 'verificationCode'];
-            }
-            if (objectType === 'role') {
-                return ['id','name','description','routes'];
-            }
-            if (objectType === 'group') {
-                return ['id','name','code','description','groupType','groupFeatures','routes'];
-            }
-            return null;
-        },
         // Get a single user based on userId
         get: function (userId) {
             var deferred = $q.defer();
@@ -79,7 +66,7 @@ function ($q, Restangular, UtilService) {
 
             // clean user object
             var user = {};
-            var userFields = this.getFields('user');
+            var userFields = UtilService.getFields('user');
             for (var userField in inputUser) {
                 if (inputUser.hasOwnProperty(userField) && _.contains(userFields, userField)) {
                     user[userField] = inputUser[userField];
@@ -92,7 +79,7 @@ function ($q, Restangular, UtilService) {
                 var inputGroupRole = inputUser.groupRoles[i];
 
                 // clean role
-                var role = {}, roleFields = this.getFields('role');
+                var role = {}, roleFields = UtilService.getFields('role');
                 for (var roleField in inputGroupRole.role) {
                     if (inputGroupRole.role.hasOwnProperty(roleField) && _.contains(roleFields, roleField)) {
                         role[roleField] = inputGroupRole.role[roleField];
@@ -100,7 +87,7 @@ function ($q, Restangular, UtilService) {
                 }
 
                 // clean group
-                var group = {}, groupFields = this.getFields('group');
+                var group = {}, groupFields = UtilService.getFields('group');
                 for (var groupField in inputGroupRole.group) {
                     if (inputGroupRole.group.hasOwnProperty(groupField) && _.contains(groupFields, groupField)) {
                         group[groupField] = inputGroupRole.group[groupField];
@@ -138,7 +125,7 @@ function ($q, Restangular, UtilService) {
                 var inputGroup = inputUser.groups[i];
 
                 // clean role
-                var role = {}, roleFields = this.getFields('role');
+                var role = {}, roleFields = UtilService.getFields('role');
                 for (var roleField in inputGroup.role) {
                     if (inputGroup.role.hasOwnProperty(roleField) && _.contains(roleFields, roleField)) {
                         role[roleField] = inputGroup.role[roleField];
@@ -146,7 +133,7 @@ function ($q, Restangular, UtilService) {
                 }
 
                 // clean group
-                var group = {}, groupFields = this.getFields('group');
+                var group = {}, groupFields = UtilService.getFields('group');
                 for (var groupField in inputGroup) {
                     if (inputGroup.hasOwnProperty(groupField) && _.contains(groupFields, groupField)) {
                         group[groupField] = inputGroup[groupField];
@@ -165,7 +152,7 @@ function ($q, Restangular, UtilService) {
             }
 
             // clean base user object
-            var user = {}, userFields =this.getFields('user');
+            var user = {}, userFields = UtilService.getFields('user');
             for (var field in inputUser) {
                 if (inputUser.hasOwnProperty(field) && _.contains(userFields, field)) {
                     user[field] = inputUser[field];

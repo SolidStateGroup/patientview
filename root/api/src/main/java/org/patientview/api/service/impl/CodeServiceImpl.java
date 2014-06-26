@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.service.CodeService;
+import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.repository.CodeRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,6 +29,8 @@ public class CodeServiceImpl implements CodeService {
     private LinkRepository linkRepository;
     @Inject
     private UserRepository userRepository;
+
+    public List<Code> getAllCodes() { return Util.iterableToList(codeRepository.findAll()); }
 
     public Code createCode(final Code code) {
 

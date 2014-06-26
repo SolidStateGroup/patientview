@@ -1,14 +1,106 @@
-<script type="text/javascript">
+<!--<script type="text/javascript">
     document.createElement('accordion');
     document.createElement('accordion-group');
     document.createElement('accordion-heading');
-</script>
+</script>-->
 
-<h1>Codes <small>for '{{group.name}}'</small></h1>
+<h1>Codes</h1>
+
+<!-- new code modal, includes NewCodeModalCtrl -->
 <br/>
-<input type="text" data-ng-model="filterText"/>
-<pagination total-items="codeCount" items-per-page="pageSize" ng-model="currentPage" class="pagination-sm"></pagination>
+<div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
+<div ng-include src="'views/partials/newCodeModal.html'"></div>
 
+<!-- Filter -->
+<br/>
+<h2>Filter</h2>
+<div class="row">
+    <div class="col-md-2 hidden">PageSize:
+        <select data-ng-model="entryLimit" class="form-control">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>5</option>
+        </select>
+    </div>
+    <div class="col-md-4 hidden">
+        <h5>Showing {{ filtered.length }} of {{ totalItems}} total staff codes</h5>
+        <h5>{{ allGroups.length }} groups available</h5>
+    </div>
+    <div class="col-md-12">
+        <div class="left-inner-addon ">
+            <i class="glyphicon glyphicon-search"></i>
+            <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
+        </div>
+    </div>
+</div>
+
+<!-- data grid -->
+<br/>
+<div class="row">
+    <div class="col-md-12" data-ng-show="filtered.length  > 0">
+        <!-- header -->
+        <span class="hidden" ng-repeat="data in filtered = (list | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
+        <div class="row accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
+            <div class="col-sm-1 hidden">ID</div>
+            <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('code');" class="sort-title">Code&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+            <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('type');" class="sort-title">Type&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+            <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('standard');" class="sort-title">Standard&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+            <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('description');" class="sort-title">Description&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+            <div class="col-sm-4"></div>
+        </div>
+
+        <!-- body -->
+        <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
+            <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="code in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                <div accordion-heading>
+                    <div class="row" ng-click="opened(code, $event)">
+                        <div class="col-sm-1 hidden">{{code.id}}</div>
+                        <div class="col-sm-2 accordion-heading-text">{{code.code}}</div>
+                        <div class="col-sm-2 accordion-heading-text">{{code.codeType.value}}</div>
+                        <div class="col-sm-2 accordion-heading-text">{{code.standardType.value}}</div>
+                        <div class="col-sm-2 accordion-heading-text">{{code.description}}</div>
+                        <div class="col-sm-4">
+
+                            <!-- Edit, Actions dropdown buttons -->
+                            <div class="btn-group pull-right">
+                                <button type="button" class="btn btn-danger pull-right" ng-click="delete(code.id, $event)">
+                                    <span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Delete
+                                </button>
+                                <button type="button" class="btn btn-primary pull-right">
+                                    <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div accordion-heading>
+
+                <!-- edit pane -->
+                <form name="codeForm">
+                    <div ng-include src="'views/partials/codeDetails.html'"></div>
+                </form>
+                <hr>
+                <div class="code-save-cancel pull-right">
+                    <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="save(codeForm, editCode, $index)" ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
+                </div>
+
+            </div accordion-group>
+        </div accordion>
+    </div>
+    <div class="col-md-12" data-ng-show="filtered.length == 0">
+        <div class="col-md-12">
+            <h4>No codes found</h4>
+        </div>
+    </div>
+
+    <!-- pagination -->
+    <div class="col-md-12" data-ng-show="filtered.length > 0">
+        <div pagination on-select-page="setPage(page)" total-items="filtered.length" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filtered.length  < entryLimit "></div>
+    </div>
+</div>
+<!--
 <div accordion close-others="true" ng-show="!resultsLoading" ng-cloak>
 <div accordion-group is-open="status.open" ng-repeat="code in codes | filter : paginate | filter:{description:filterText}">
     <div accordion-heading>
@@ -75,3 +167,4 @@
     </div>
 </div>
 
+-->

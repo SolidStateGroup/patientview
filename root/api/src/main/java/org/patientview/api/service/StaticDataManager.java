@@ -2,7 +2,6 @@ package org.patientview.api.service;
 
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
-
 import java.util.List;
 
 /**
@@ -11,7 +10,9 @@ import java.util.List;
  */
 public interface StaticDataManager {
 
-    List<Lookup> getAllLookups() ;
+    List<Lookup> getAllLookups();
+
+    List<Lookup> getLookupsByType(String lookupType);
 
     List<Feature> getAllFeatures();
 

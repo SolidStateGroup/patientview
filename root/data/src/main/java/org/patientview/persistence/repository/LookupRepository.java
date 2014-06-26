@@ -1,7 +1,10 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,4 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface LookupRepository extends CrudRepository<Lookup, Long>  {
+
+    @Query("SELECT loo FROM Lookup loo WHERE loo.lookupType = :lookupType")
+    public Iterable<Lookup> getBylookupType(@Param("lookupType") LookupType lookupType);
 }

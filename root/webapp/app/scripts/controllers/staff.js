@@ -115,7 +115,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         var groupId = -1;
         if ($rootScope.loggedInUser.groupRoles.length > 0) {
             groupId = $rootScope.loggedInUser.groupRoles[0].group.id;
-
         }
 
         GroupService.get(groupId).then(function(allGroups) {
@@ -124,7 +123,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.allGroups.push(allGroups);
 
             GroupService.getUsersByType(groupId,'staff').then(function(staffUsers) {
-            //UserService.getStaffByGroup(groupId).then(function(staffUsers) {
                 $scope.list = staffUsers;
                 $scope.currentPage = 1; //current page
                 $scope.entryLimit = 10; //max no of items to display in a page
@@ -132,16 +130,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 delete $scope.loading;
             });
 
-            /*RoleService.getByType('staff').then(function(allRoles) {
-                $scope.allRoles = allRoles;
-            });*/
-
             SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function(allRoles) {
                 $scope.allRoles = allRoles;
             });
 
             FeatureService.getAll().then(function(allFeatures) {
-                //$scope.allFeatures = allFeatures;
                 $scope.allFeatures = [];
                 for (var i=0;i<allFeatures.length;i++){
                     $scope.allFeatures.push({'feature':allFeatures[i]});
@@ -156,8 +149,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.successMessage = '';
 
         if ($event) {
+            // workaround for angular accordion and bootstrap dropdowns (clone and activate ng-click)
             if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
-
                 if ($('#' + $event.target.id).parent().children('.child-menu').length > 0) {
                     $('#' + $event.target.id).parent().children('.child-menu').remove();
                     $event.stopPropagation();
@@ -170,12 +163,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     // http://stackoverflow.com/questions/16949299/getting-ngclick-to-work-on-dynamic-fields
                     var compiledElement = $compile(dropDownMenuToAdd)($scope);
                     $(childMenu).append(compiledElement);
-
-                    //childMenu.append(dropDownMenuToAdd);
                     $('#' + $event.target.id).parent().append(childMenu);
                 }
             }
-
             if ($event.target.className.indexOf('dropdown-menu-accordion-item') !== -1) {
                 $event.stopPropagation();
             }
@@ -200,9 +190,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: user.groups[i].id}));
             }
         }
-        else {
-            user.groups = [];
-        }
+        else { user.groups = []; }
 
         // create list of available features (all - users)
         user.availableFeatures = _.clone($scope.allFeatures);
@@ -215,9 +203,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     }
                 }
             }
-        } else {
-            user.userFeatures = [];
-        }
+        } else { user.userFeatures = []; }
 
         $scope.editUser = _.clone(user);
 

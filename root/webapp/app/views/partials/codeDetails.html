@@ -1,0 +1,35 @@
+<div class="row">
+    <div class="col-sm-6">
+        <h2>Details</h2>
+        <div class="form-horizontal" role="form">
+            <div class="form-group">
+                <label for="code-code" class="col-sm-2 control-label">Code</label>
+                <div class="col-sm-7"><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" ng-model="editCode.code" required></div>
+                <span class="alert alert-warning" ng-show="codeForm.code.$error.required">required</span>
+            </div>
+            <div class="form-group">
+                <label for="code-codeType" class="col-sm-2 control-label">Code Type</label>
+                <div class="col-sm-7"><select id="code-codeType" class="form-control codeType-select" ng-model="editCode.codeTypeId" ng-options="codeType.id as codeType.value for codeType in codeTypes"></select></div>
+                <span class="alert alert-warning" ng-show="!editCode.codeTypeId">required</span>
+            </div>
+            <div class="form-group">
+                <label for="code-standardType" class="col-sm-2 control-label">Standard Type</label>
+                <div class="col-sm-7"><select id="code-standardType" class="form-control codeType-select" ng-model="editCode.standardTypeId" ng-options="standardType.id as standardType.value for standardType in standardTypes"></select></div>
+                <span class="alert alert-warning" ng-show="!editCode.standardTypeId">required</span>
+            </div>
+            <div class="form-group">
+                <label for="code-description" class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-7"><input type="text" class="form-control" id="code-description" placeholder="Description" name="description" ng-model="editCode.description" required></div>
+                <span class="alert alert-warning" ng-show="codeForm.description.$error.required">required</span>
+            </div>
+            <!--<div class="form-group">
+                <label for="code-displayOrder" class="col-sm-2 control-label">Display Order</label>
+                <div class="col-sm-7"><input type="text" class="form-control" id="code-displayOrder" placeholder="Display Order" name="displayOrder" ng-model="editCode.displayOrder" required></div>
+                <span class="alert alert-warning" ng-show="codeForm.description.$error.required">required</span>
+            </div>-->
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <h2>Links</h2>
+    </div>
+</div>

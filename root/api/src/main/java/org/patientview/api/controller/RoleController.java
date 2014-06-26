@@ -20,8 +20,6 @@ import java.util.List;
  */
 @RestController
 public class RoleController extends BaseController {
-
-
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
 
     @Inject
@@ -29,7 +27,7 @@ public class RoleController extends BaseController {
 
     @RequestMapping(value = "/role", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Role>> getGroups() {
+    public ResponseEntity<List<Role>> getRoles() {
         return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
     }
 

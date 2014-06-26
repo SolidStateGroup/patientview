@@ -223,7 +223,7 @@ CREATE TABLE PV_Code (
   Id               BIGINT    NOT NULL,
   Code             VARCHAR(100),
   Type_Id          BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
-  Display_Order    INTEGER   NOT NULL,
+  Display_Order    INTEGER   ,
   Description      VARCHAR(100),
   Standard_Type_Id BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
   Creation_Date    TIMESTAMP NOT NULL,

@@ -1,37 +1,50 @@
 'use strict';
 
-angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular',
-    function ($q, Restangular) {
-        return {
-            getGroupCodes: function (groupId) {
-                var deferred = $q.defer();
-                Restangular.one('group',groupId).getList('codes').then(function(res) {
-                    deferred.resolve(res);
-                });
-                return deferred.promise;
-            },
-            post: function (group, code) {
-                var deferred = $q.defer();
+angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
+    return {
+        getAll: function () {
+            var deferred = $q.defer();
+            Restangular.all('code').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        get: function (codeId) {
+            var deferred = $q.defer();
+            Restangular.one('code',codeId).get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        new: function (code, codeTypes, standardTypes) {
+            var deferred = $q.defer();
 
-                Restangular.one('group', group.id).post('codes',code).then(function(res) {
-                    deferred.resolve(res);
-                });
-                return deferred.promise;
-            },
-            save: function (inputCode) {
-                var deferred = $q.defer();
-                Restangular.one('code', inputCode.id).get().then(function(code) {
-                    code.type = inputCode.type;
-                    code.standard = inputCode.standard;
-                    code.number = inputCode.number;
-                    code.description = inputCode.description;
-                    code.links = inputCode.links;
+            // convert code and standard type ids to actual objects and clean
+            code.codeType = UtilService.cleanObject(_.findWhere(codeTypes, {id: code.codeTypeId}),'codeType');
+            code.standardType = UtilService.cleanObject(_.findWhere(standardTypes, {id: code.standardTypeId}),'standardType');
+            var codeToPost = _.clone(code);
+            delete codeToPost.codeTypeId;
+            delete codeToPost.standardTypeId;
 
-                    code.post().then(function(res) {
-                        deferred.resolve(res);
-                    });
-                });
-                return deferred.promise;
-            }
-        };
-    }]);
+            Restangular.all('code').post(codeToPost).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        save: function (inputCode) {
+            var deferred = $q.defer();
+            Restangular.all('code').put(inputCode).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        }
+    };
+}]);
