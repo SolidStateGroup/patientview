@@ -1,7 +1,21 @@
 'use strict';
 
-angular.module('patientviewApp').controller('CodesCtrl', ['$scope','CodeService','StaticDataService',
-function ($scope, CodeService, StaticDataService) {
+// delete code modal instance controller
+var DeleteCodeModalInstanceCtrl = ['$scope', '$modalInstance','code','CodeService',
+function ($scope, $modalInstance, code, CodeService) {
+    $scope.code = code;
+    $scope.ok = function () {
+        CodeService.delete(code).then(function() {
+            $modalInstance.close();
+        });
+    };
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
+angular.module('patientviewApp').controller('CodesCtrl', ['$scope','$modal','CodeService','StaticDataService',
+function ($scope, $modal, CodeService, StaticDataService) {
 
     // Init
     $scope.init = function () {
@@ -76,6 +90,38 @@ function ($scope, CodeService, StaticDataService) {
 
         $scope.editing = true;
         $scope.editCode = _.clone(code);
+    };
+
+    $scope.delete = function (codeId, $event) {
+        $event.stopPropagation();
+        $scope.successMessage = '';
+
+        CodeService.get(codeId).then(function(code) {
+            var modalInstance = $modal.open({
+                templateUrl: 'views/partials/deleteCodeModal.html',
+                controller: DeleteCodeModalInstanceCtrl,
+                resolve: {
+                    code: function(){
+                        return code;
+                    },
+                    CodeService: function(){
+                        return CodeService;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                // ok, delete from list
+                for(var l=0;l<$scope.list.length;l++) {
+                    if ($scope.list[l].id === codeId) {
+                        $scope.list = _.without($scope.list, $scope.list[l]);
+                    }
+                }
+                $scope.successMessage = 'Code successfully deleted';
+            }, function () {
+                // closed
+            });
+        });
     };
 
     // Save from edit

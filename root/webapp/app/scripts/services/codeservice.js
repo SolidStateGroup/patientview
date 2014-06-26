@@ -20,6 +20,7 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
+        // create new code
         new: function (code, codeTypes, standardTypes) {
             var deferred = $q.defer();
 
@@ -37,9 +38,21 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
+        // save code
         save: function (inputCode) {
             var deferred = $q.defer();
             Restangular.all('code').put(inputCode).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Remove a single code based on userId
+        delete: function (code) {
+            var deferred = $q.defer();
+            // GET then DELETE /user/{userId}
+            Restangular.one('code', code.id).remove().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
