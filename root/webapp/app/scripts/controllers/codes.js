@@ -46,6 +46,42 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         });
     };
 
+    // filter by code type
+    $scope.selectedCodeType = [];
+    $scope.setSelectedCodeType = function () {
+        var id = this.type.id;
+        if (_.contains($scope.selectedCodeType, id)) {
+            $scope.selectedCodeType = _.without($scope.selectedCodeType, id);
+        } else {
+            $scope.selectedCodeType.push(id);
+        }
+        return false;
+    };
+    $scope.isCodeTypeChecked = function (id) {
+        if (_.contains($scope.selectedCodeType, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+
+    // filter by standard type
+    $scope.selectedStandardType = [];
+    $scope.setSelectedStandardType = function () {
+        var id = this.type.id;
+        if (_.contains($scope.selectedStandardType, id)) {
+            $scope.selectedStandardType = _.without($scope.selectedStandardType, id);
+        } else {
+            $scope.selectedStandardType.push(id);
+        }
+        return false;
+    };
+    $scope.isStandardTypeChecked = function (id) {
+        if (_.contains($scope.selectedStandardType, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+
     // pagination, sorting, basic filter
     $scope.setPage = function(pageNo) {
         $scope.currentPage = pageNo;

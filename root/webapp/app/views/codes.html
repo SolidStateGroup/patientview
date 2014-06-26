@@ -23,15 +23,51 @@
             <option>5</option>
         </select>
     </div>
-    <div class="col-md-4 hidden">
-        <h5>Showing {{ filtered.length }} of {{ totalItems}} total staff codes</h5>
-        <h5>{{ allGroups.length }} groups available</h5>
-    </div>
     <div class="col-md-12">
         <div class="left-inner-addon ">
             <i class="glyphicon glyphicon-search"></i>
             <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
         </div>
+    </div>
+</div>
+<br/>
+<div class="row">
+    <!-- filter by code type -->
+    <div class="col-md-2">
+        <div class="form-horizontal" role="form">
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <div class="btn-group" id="filter-code-type" data-ng-class="{open: open1}">
+                        <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Code Type <span class="caret"></span></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                            <li><a data-ng-click="selectedCodeType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                            <li class="divider"></li>
+                            <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- filter by standard type -->
+    <div class="col-md-2">
+        <div class="form-horizontal" role="form">
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <div class="btn-group" id="filter-standard-type" data-ng-class="{open: open2}">
+                        <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Standard Type <span class="caret"></span></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                            <li><a data-ng-click="selectedStandardType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                            <li class="divider"></li>
+                            <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <h5>Showing {{ filtered.length }} of {{ list.length }} total</h5>
     </div>
 </div>
 
@@ -40,7 +76,7 @@
 <div class="row">
     <div class="col-md-12" data-ng-show="filtered.length  > 0">
         <!-- header -->
-        <span class="hidden" ng-repeat="data in filtered = (list | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
+        <span class="hidden" ng-repeat="data in filtered = (list | codeTypeFilter:selectedCodeType | standardTypeFilter:selectedStandardType | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
         <div class="row accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
             <div class="col-sm-1 hidden">ID</div>
             <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('code');" class="sort-title">Code&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
@@ -52,7 +88,7 @@
 
         <!-- body -->
         <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
-            <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="code in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+            <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="code in filtered = (list | codeTypeFilter:selectedCodeType | standardTypeFilter:selectedStandardType | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                 <div accordion-heading>
                     <div class="row" ng-click="opened(code, $event)">
                         <div class="col-sm-1 hidden">{{code.id}}</div>

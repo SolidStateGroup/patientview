@@ -333,7 +333,7 @@ div.grey-right-border {
 }
 
 .accordion-expand-button {
-    margin-right: 0px;
+    margin-right: 0;
 }
 
 .accordion-expand-button {
@@ -362,7 +362,7 @@ div.grey-right-border {
     width: 95%;
 }
 
-.a-filter-group, .a-filter-role {
+.a-filter-group, .a-filter-role, .a-filter-code-type {
     cursor:pointer;
     height: 25px;
     min-width: 175px;
