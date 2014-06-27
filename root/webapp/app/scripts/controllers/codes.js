@@ -100,6 +100,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
     $scope.addLink = function (form, code, link) {
         link.id = Math.floor(Math.random() * (9999)) -10000;
+        link.displayOrder = code.links.length +1;
         code.links.push(_.clone(link));
         link.link = link.name = '';
         form.$setDirty(true);
