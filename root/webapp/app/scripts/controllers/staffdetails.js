@@ -10,10 +10,6 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', funct
             user.groups.push(newGroup);
             user.selectedRole = '';
 
-            if (user.availableGroups[0]) {
-                $scope.groupToAdd = user.availableGroups[0].id;
-            }
-
             // for REST compatibility
             user.groupRoles = [];
             for(var i=0;i<user.groups.length;i++) {
@@ -29,10 +25,6 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', funct
     $scope.removeGroup = function (form, user, group) {
         user.groups = _.without(user.groups, _.findWhere(user.groups, {id: group.id}));
         user.availableGroups.push(group);
-
-        if (user.availableGroups[0]) {
-            $scope.groupToAdd = user.availableGroups[0].id;
-        }
 
         // for REST compatibility
         user.groupRoles = [];

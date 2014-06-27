@@ -7,6 +7,14 @@ function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allF
     $scope.allGroups = allGroups;
     $scope.allRoles = allRoles;
 
+    // set initial group and feature (avoid blank option)
+    if ($scope.editUser.availableGroups) {
+        $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
+    }
+    if ($scope.editUser.availableFeatures) {
+        $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+    }
+
     $scope.ok = function () {
         UserService.new($scope.editUser).then(function(result) {
             $scope.editUser = result;
@@ -223,6 +231,14 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         } else { user.userFeatures = []; }
 
         $scope.editUser = _.clone(user);
+
+        // set initial group and feature (avoid blank option)
+        if ($scope.editUser.availableGroups[0]) {
+            $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
+        }
+        if ($scope.editUser.availableFeatures[0]) {
+            $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+        }
     };
 
     // Save from edit
