@@ -4,7 +4,6 @@
     <h1>Staff</h1>
 
     <!-- new user modal, includes NewStaffModalCtrl -->
-    <br/>
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
     <!-- new staff modal -->
@@ -14,7 +13,7 @@
         </div>
         <div class="modal-body">
             <form name="userForm">
-                <div ng-include src="'views/partials/staffDetails.html'"></div>
+                <div ng-include src="'views/partials/staffDetails.html'" ng-controller="StaffDetailsCtrl"></div>
             </form>
         </div>
         <div class="modal-footer">
@@ -23,10 +22,6 @@
             <button class="btn btn-primary" ng-click="ok()" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
         </div>
     </script>
-    <div class="alert alert-success" ng-show="userCreated && successMessage && editUser">
-        <p>Username: <strong>{{editUser.username}}</strong></p>
-        <p>Password: <strong>{{editUser.password}}</strong></p>
-    </div>
     <button class="btn btn-primary" ng-click="openModalNewStaff('lg')">Create New</button>
 
     <!-- delete staff modal -->
@@ -120,10 +115,9 @@
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-4"></div>
             </div>
-
             <!-- body -->
             <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
-                <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                <div accordion-group id="accordion-group-{{user.id}}" class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                     <div accordion-heading>
                         <div class="row" ng-click="opened(user, $event)">
                             <div class="col-sm-1 hidden">{{user.id}}</div>
@@ -131,7 +125,6 @@
                             <div class="col-sm-4 accordion-heading-text">{{user.email}}</div>
                             <div class="col-sm-2 accordion-heading-text">{{user.name}}</div>
                             <div class="col-sm-4">
-
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="btn-group pull-right">
                                     <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
@@ -147,21 +140,18 @@
                                         <li><a ng-click="sendVerificationEmail(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Send Verification Email</a></li>
                                     </ul>
                                 </div>
-
                             </div>
                         </div>
                     </div accordion-heading>
-
                     <!-- edit pane -->
                     <form name="userForm">
-                        <div ng-include src="'views/partials/staffDetails.html'"></div>
+                        <div ng-include src="'views/partials/staffDetails.html'" ng-controller="StaffDetailsCtrl"></div>
                     </form>
                     <hr>
                     <div class="user-save-cancel pull-right">
                         <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                        <button type="button" class="btn btn-primary" ng-click="save(userForm, editUser, $index)" ng-disabled="userForm.$pristine ||  !userForm.$valid">Save</button>
+                        <button type="button" class="btn btn-primary" ng-click="save(userForm, editUser, $index)" ng-disabled="userForm.$pristine || !userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Save</button>
                     </div>
-
                 </div accordion-group>
             </div accordion>
         </div>

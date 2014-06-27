@@ -3,7 +3,6 @@
 // new staff modal instance controller
 var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
 function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
-
     $scope.editUser = newUser;
     $scope.allGroups = allGroups;
     $scope.allRoles = allRoles;
@@ -165,7 +164,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // Opened for edit
     $scope.opened = function (user, $event) {
-
         $scope.successMessage = '';
 
         if ($event) {
@@ -216,7 +214,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         user.availableFeatures = _.clone($scope.allFeatures);
         if (user.userFeatures) {
             for (var j = 0; j < user.userFeatures.length; j++) {
-                //user.availableFeatures = _.without(user.availableFeatures, _.findWhere(user.availableFeatures, {feature.id: user.userFeatures[j].feature.id}));
                 for (var k = 0; k < user.availableFeatures.length; k++) {
                     if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
                         user.availableFeatures.splice(k, 1);
@@ -226,15 +223,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         } else { user.userFeatures = []; }
 
         $scope.editUser = _.clone(user);
-
-        if (user.availableGroups[0]) {
-            $scope.groupToAdd = user.availableGroups[0].id;
-        }
-        if (user.availableFeatures[0]) {
-            $scope.FeatureToAdd = user.availableFeatures[0].id;
-        }
-
-        $scope.editUser.selectedRole = '';
     };
 
     // Save from edit
@@ -245,7 +233,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.successMessage = 'User saved';
         });
     };
-
 
     $scope.openModalNewStaff = function (size) {
         $scope.errorMessage = '';
@@ -291,7 +278,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             //$scope.user = user;
             $scope.list.push(user);
             $scope.editUser = user;
-            $scope.successMessage = 'User successfully created';
+            $scope.successMessage = 'User successfully created '
+                + 'with username: "' + user.username + '" '
+                + 'and password: "' + user.password + '"';
             $scope.userCreated = true;
             // ok (success)
         }, function () {
@@ -302,7 +291,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // delete user
     $scope.deleteUser = function (userId, $event) {
-
         $scope.successMessage = '';
 
         // workaround for cloned object not capturing ng-click properties
@@ -338,7 +326,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // reset user password
     $scope.resetUserPassword = function (userId, $event) {
-
         $scope.successMessage = '';
 
         // workaround for cloned object not capturing ng-click properties

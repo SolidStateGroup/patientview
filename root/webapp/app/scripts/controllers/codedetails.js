@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope',
-function ($scope) {
+angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', function ($scope) {
     $scope.addLink = function (form, code, link) {
         link.id = Math.floor(Math.random() * (9999)) -10000;
         link.displayOrder = code.links.length +1;
