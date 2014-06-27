@@ -6,7 +6,42 @@
     <!-- new user modal, includes NewStaffModalCtrl -->
     <br/>
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
-    <div ng-include src="'views/partials/newStaffModal.html'"></div>
+
+    <!-- new staff modal -->
+    <script type="text/ng-template" id="newStaffModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Staff User</h3>
+        </div>
+        <div class="modal-body">
+            <form name="userForm">
+                <div ng-include src="'views/partials/staffDetails.html'"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+        </div>
+    </script>
+    <div class="alert alert-success" ng-show="userCreated && successMessage && editUser">
+        <p>Username: <strong>{{editUser.username}}</strong></p>
+        <p>Password: <strong>{{editUser.password}}</strong></p>
+    </div>
+    <button class="btn btn-primary" ng-click="openModalNewStaff('lg')">Create New</button>
+
+    <!-- delete staff modal -->
+    <script type="text/ng-template" id="deleteStaffModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Staff User</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure? This will delete user with username <strong>{{user.username}}</strong>.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()">Delete</button>
+        </div>
+    </script>
 
     <!-- Filter -->
     <br/>
@@ -119,9 +154,7 @@
 
                     <!-- edit pane -->
                     <form name="userForm">
-                        <div ng-include src="'views/partials/userDetails.html'"></div>
-                        <hr>
-                        <div ng-include src="'views/partials/groupsRolesFeatures.html'"></div>
+                        <div ng-include src="'views/partials/staffDetails.html'"></div>
                     </form>
                     <hr>
                     <div class="user-save-cancel pull-right">

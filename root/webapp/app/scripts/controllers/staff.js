@@ -1,5 +1,31 @@
 'use strict';
 
+// new staff modal instance controller
+var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
+function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
+
+    $scope.editUser = newUser;
+    $scope.allGroups = allGroups;
+    $scope.allRoles = allRoles;
+
+    $scope.ok = function () {
+        UserService.new($scope.editUser).then(function(result) {
+            $scope.editUser = result;
+            $modalInstance.close($scope.editUser);
+        }, function(result) {
+            if (result.data) {
+                $scope.errorMessage = ' - ' + result.data;
+            } else {
+                $scope.errorMessage = ' ';
+            }
+        });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
 // delete staff modal instance controller
 var DeleteStaffModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
 function ($scope, $modalInstance, user, UserService) {
@@ -14,8 +40,8 @@ function ($scope, $modalInstance, user, UserService) {
     };
 }];
 
-// reset staff password modal instance controller
-var ResetStaffPasswordModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
+// reset password modal instance controller
+var ResetPasswordModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
 function ($scope, $modalInstance, user, UserService) {
     $scope.user = user;
     $scope.ok = function () {
@@ -49,7 +75,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // filter by group
     $scope.selectedGroup = [];
-        
     $scope.setSelectedGroup = function () {
         var id = this.group.id;
         if (_.contains($scope.selectedGroup, id)) {
@@ -59,7 +84,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         }
         return false;
     };
-
     $scope.isGroupChecked = function (id) {
         if (_.contains($scope.selectedGroup, id)) {
             return 'glyphicon glyphicon-ok pull-right';
@@ -69,7 +93,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         
     // filter by role
     $scope.selectedRole = [];
-        
     $scope.setSelectedRole = function () {
         var id = this.role.id;
         if (_.contains($scope.selectedRole, id)) {
@@ -79,7 +102,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         }
         return false;
     };
-
     $scope.isRoleChecked = function (id) {
         if (_.contains($scope.selectedRole, id)) {
             return 'glyphicon glyphicon-ok pull-right';
@@ -91,13 +113,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     $scope.setPage = function(pageNo) {
         $scope.currentPage = pageNo;
     };
-
     $scope.filter = function() {
         $timeout(function() {
             $scope.filteredItems = $scope.filtered.length;
         }, 10);
     };
-
     $scope.sortBy = function(predicate) {
         $scope.predicate = predicate;
         $scope.reverse = !$scope.reverse;
@@ -226,69 +246,58 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
     };
 
-    // add group to current group, remove from allowed
-    $scope.addGroup = function (form, user, groupId) {
-        if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere($scope.allRoles, {id: user.selectedRole})) {
-            user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
-            var newGroup = _.findWhere($scope.allGroups, {id: groupId});
-            newGroup.role = _.findWhere($scope.allRoles, {id: user.selectedRole});
-            user.groups.push(newGroup);
-            user.selectedRole = '';
 
-            if (user.availableGroups[0]) {
-                $scope.groupToAdd = user.availableGroups[0].id;
+    $scope.openModalNewStaff = function (size) {
+        $scope.errorMessage = '';
+        $scope.successMessage = '';
+        $scope.userCreated = '';
+        // create new user with list of available roles, groups and features
+        //console.log($scope.allGroups);
+        $scope.editUser = {};
+        $scope.editUser.roles = $scope.allRoles;
+        $scope.editUser.availableGroups = $scope.allGroups;
+        $scope.editUser.groups = [];
+        $scope.editUser.availableFeatures = _.clone($scope.allFeatures);
+        $scope.editUser.userFeatures = [];
+        $scope.editUser.selectedRole = '';
+
+        var modalInstance = $modal.open({
+            templateUrl: 'newStaffModal.html',
+            controller: NewStaffModalInstanceCtrl,
+            size: size,
+            resolve: {
+                newUser: function(){
+                    return $scope.editUser;
+                },
+                allGroups: function(){
+                    return $scope.allGroups;
+                },
+                allRoles: function(){
+                    return $scope.allRoles;
+                },
+                allFeatures: function(){
+                    return $scope.allFeatures;
+                },
+                UserService: function(){
+                    return UserService;
+                },
+                SecurityService: function(){
+                    return SecurityService;
+                }
             }
+        });
 
-            // for REST compatibility
-            user.groupRoles = [];
-            for(var i=0;i<user.groups.length;i++) {
-                var group = user.groups[i];
-                user.groupRoles.push({'group': group, 'role': group.role});
-            }
-
-            form.$setDirty(true);
-        }
-    };
-
-    // remove group from current groups, add to allowed groups
-    $scope.removeGroup = function (form, user, group) {
-        user.groups = _.without(user.groups, _.findWhere(user.groups, {id: group.id}));
-        user.availableGroups.push(group);
-
-        if (user.availableGroups[0]) {
-            $scope.groupToAdd = user.availableGroups[0].id;
-        }
-
-        // for REST compatibility
-        user.groupRoles = [];
-        for(var i=0;i<user.groups.length;i++) {
-            var tempGroup = user.groups[i];
-            user.groupRoles.push({'group': tempGroup, 'role': tempGroup.role});
-        }
-
-        form.$setDirty(true);
-    };
-
-    // add feature to current feature, remove from allowed
-    $scope.addFeature = function (form, user, featureId) {
-        for (var j = 0; j < user.availableFeatures.length; j++) {
-            if (user.availableFeatures[j].feature.id === featureId) {
-                user.userFeatures.push(user.availableFeatures[j]);
-                user.availableFeatures.splice(j, 1);
-            }
-        }
-        form.$setDirty(true);
-    };
-
-    // remove feature from current features, add to allowed features
-    $scope.removeFeature = function (form, user, feature) {
-        for (var j = 0; j < user.userFeatures.length; j++) {
-            if (user.userFeatures[j].feature.id === feature.feature.id) {
-                user.availableFeatures.push(user.userFeatures[j]);
-                user.userFeatures.splice(j, 1);
-            }
-        }
-        form.$setDirty(true);
+        modalInstance.result.then(function (user) {
+            //$scope.user = user;
+            $scope.list.push(user);
+            $scope.editUser = user;
+            $scope.successMessage = 'User successfully created';
+            $scope.userCreated = true;
+            // ok (success)
+        }, function () {
+            // cancel
+            $scope.editUser = '';
+        });
     };
 
     // delete user
@@ -301,7 +310,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         UserService.get(eventUserId).then(function(user) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/deleteStaffModal.html',
+                templateUrl: 'deleteStaffModal.html',
                 controller: DeleteStaffModalInstanceCtrl,
                 resolve: {
                     user: function(){
@@ -337,8 +346,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         UserService.get(eventUserId).then(function(user) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/resetStaffPasswordModal.html',
-                controller: ResetStaffPasswordModalInstanceCtrl,
+                templateUrl: 'views/partials/resetPasswordModal.html',
+                controller: ResetPasswordModalInstanceCtrl,
                 resolve: {
                     user: function(){
                         return user;
