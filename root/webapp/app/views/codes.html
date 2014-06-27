@@ -6,10 +6,40 @@
 <div class="container" ng-show="!loading" ng-cloak>
     <h1>Codes</h1>
 
-    <!-- new code modal, includes NewCodeModalCtrl -->
     <br/>
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
-    <div ng-include src="'views/partials/newCodeModal.html'"></div>
+
+    <!-- delete code modal template -->
+    <script type="text/ng-template" id="deleteCodeModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Code</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure? This will delete code <strong>{{code.code}}</strong>.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()">Delete</button>
+        </div>
+    </script>
+
+    <!-- new code modal template -->
+    <script type="text/ng-template" id="newCodeModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Code</h3>
+        </div>
+        <div class="modal-body">
+            <form name="codeForm" ng-model="editCode">
+                <div ng-include src="'views/partials/codeDetails.html'" ng-controller="CodeDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!codeForm.$valid">Create New</button>
+        </div>
+    </script>
+    <button class="btn btn-primary" ng-click="openModalNewCode('lg')">Create New</button>
 
     <!-- Filter -->
     <br/>
@@ -50,7 +80,7 @@
             </div>
         </div>
         <!-- filter by standard type -->
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-horizontal" role="form">
                 <div class="form-group">
                     <div class="col-sm-12">
@@ -66,7 +96,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-7">
             <h5>Showing {{ filtered.length }} of {{ list.length }} total</h5>
         </div>
     </div>
@@ -117,7 +147,7 @@
 
                     <!-- edit pane -->
                     <form name="codeForm">
-                        <div ng-include src="'views/partials/codeDetails.html'"></div>
+                        <div ng-include src="'views/partials/codeDetails.html'" ng-controller="CodeDetailsCtrl"></div>
                     </form>
                     <hr>
                     <div class="code-save-cancel pull-right">

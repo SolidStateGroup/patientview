@@ -14,6 +14,31 @@ function ($scope, $modalInstance, code, CodeService) {
     };
 }];
 
+// new code modal instance controller
+var NewCodeModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'codeTypes', 'standardTypes', 'editCode', 'CodeService',
+function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode, CodeService) {
+    $scope.editCode = editCode;
+    $scope.codeTypes = codeTypes;
+    $scope.standardTypes = standardTypes;
+
+    $scope.ok = function () {
+        CodeService.new($scope.editCode, codeTypes, standardTypes).then(function(result) {
+            $scope.editCode = result;
+            $modalInstance.close($scope.editCode);
+        }, function(result) {
+            if (result.data) {
+                $scope.errorMessage = ' - ' + result.data;
+            } else {
+                $scope.errorMessage = ' ';
+            }
+        });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
 angular.module('patientviewApp').controller('CodesCtrl', ['$scope','$timeout', '$modal','CodeService','StaticDataService',
 function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
@@ -98,23 +123,6 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         $scope.reverse = !$scope.reverse;
     };
 
-    $scope.addLink = function (form, code, link) {
-        link.id = Math.floor(Math.random() * (9999)) -10000;
-        link.displayOrder = code.links.length +1;
-        code.links.push(_.clone(link));
-        link.link = link.name = '';
-        form.$setDirty(true);
-    };
-
-    $scope.removeLink = function (form, code, link) {
-        for (var j = 0; j < code.links.length; j++) {
-            if (code.links[j].id === link.id) {
-                code.links.splice(j, 1);
-            }
-        }
-        form.$setDirty(true);
-    };
-
     // Opened for edit
     $scope.opened = function (code) {
         $scope.successMessage = '';
@@ -133,13 +141,53 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         });
     };
 
+    // open modal for new code
+    $scope.openModalNewCode = function (size) {
+        $scope.errorMessage = '';
+        $scope.successMessage = '';
+        $scope.codeCreated = '';
+        $scope.editCode = {};
+        $scope.editCode.links = [];
+
+        var modalInstance = $modal.open({
+            templateUrl: 'newCodeModal.html',
+            controller: NewCodeModalInstanceCtrl,
+            size: size,
+            resolve: {
+                codeTypes: function(){
+                    return $scope.codeTypes;
+                },
+                standardTypes: function(){
+                    return $scope.standardTypes;
+                },
+                editCode: function(){
+                    return $scope.editCode;
+                },
+                CodeService: function(){
+                    return CodeService;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (code) {
+            $scope.list.push(code);
+            $scope.editCode = code;
+            $scope.successMessage = 'Code successfully created';
+            $scope.codeCreated = true;
+        }, function () {
+            // cancel
+            $scope.editCode = '';
+        });
+    };
+
+    // delete code, opens modal
     $scope.delete = function (codeId, $event) {
         $event.stopPropagation();
         $scope.successMessage = '';
 
         CodeService.get(codeId).then(function(code) {
             var modalInstance = $modal.open({
-                templateUrl: 'views/partials/deleteCodeModal.html',
+                templateUrl: 'deleteCodeModal.html',
                 controller: DeleteCodeModalInstanceCtrl,
                 resolve: {
                     code: function(){

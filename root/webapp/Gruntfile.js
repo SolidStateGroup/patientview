@@ -12,49 +12,48 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-connect-proxy');
     grunt.loadNpmTasks('grunt-war');
 
-  // Load grunt tasks automatically
-  require('load-grunt-tasks')(grunt);
+    // Load grunt tasks automatically
+    require('load-grunt-tasks')(grunt);
 
-  // Time how long tasks take. Can help when optimizing build times
-  require('time-grunt')(grunt);
+    // Time how long tasks take. Can help when optimizing build times
+    require('time-grunt')(grunt);
 
-  // Define the configuration for all the tasks
-  grunt.initConfig({
+    // Define the configuration for all the tasks
+    grunt.initConfig({
 
-      war: {
-          target: {
-              options: {
-                  // to
-                  war_dist_folder: '<%= yeoman.dist %>',
-                  war_verbose: true,
-                  war_name: 'webapp',
-                  webxml_welcome: 'index.html',
-                  webxml_display_name: 'PatientView webapp',
-                  webxml_mime_mapping: [
-                      {
-                          extension: 'woff',
-                          mime_type: 'application/font-woff'
-                      } ]
-              },
-              files: [
-                  {
-                      expand: true,
-                      // from
-                      cwd: '<%= yeoman.dist %>',
-                      src: ['**'],
-                      dest: ''
-                  }
-              ]
-          }
-      },
+    war: {
+        target: {
+            options: {
+                // to
+                war_dist_folder: '<%= yeoman.dist %>',
+                war_verbose: true,
+                war_name: 'webapp',
+                webxml_welcome: 'index.html',
+                webxml_display_name: 'PatientView webapp',
+                webxml_mime_mapping: [{
+                    extension: 'woff',
+                    mime_type: 'application/font-woff'
+                }]
+            },
+            files: [
+                {
+                    expand: true,
+                    // from
+                    cwd: '<%= yeoman.dist %>',
+                    src: ['**'],
+                    dest: ''
+                }
+            ]
+        }
+    },
 
       secure: grunt.file.readJSON('secure.json'),
 
     // Project settings
     yeoman: {
-      // configurable paths
-      app: require('./bower.json').appPath || 'app',
-      dist: 'dist'
+        // configurable paths
+        app: require('./bower.json').appPath || 'app',
+        dist: 'dist'
     },
 
     // Watches files for changes and runs tasks based on the changed files
@@ -408,85 +407,85 @@ module.exports = function (grunt) {
     // grunt-ng-constant
     // XXXprod and XXXdev are writing file to the same place, but may change
     //http://mindthecode.com/how-to-use-environment-variables-in-your-angular-application/
-      ngconstant: {
-          // Options for all targets
-          options: {
-              space: '  ',
-              wrap: '"use strict";\n\n {%= __ngModule %}',
-              name: 'config'
-          },
-          // Environment targets
-          apiarydev: {
-              options: {
+        ngconstant: {
+            // Options for all targets
+            options: {
+                space: '  ',
+                wrap: '"use strict";\n\n {%= __ngModule %}',
+                name: 'config'
+            },
+            // Environment targets
+            apiarydev: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'development',
+                        apiEndpoint: 'http://patientview201.apiary-mock.com/api'
+                    }
+                }
+            },
+            apidev: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'production',
+                        //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
+                    }
+                }
+            },
+            apilocal: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'production',
+                        //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                        apiEndpoint: 'http://localhost:8080/api'
+                    }
+                }
+            },
+            apiie: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'production',
+                        apiEndpoint: '/api'
+                    }
+                }
+            },
+            apiaryprod: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'development',
+                        apiEndpoint: 'http://patientview201.apiary-mock.com/api'
+                    }
+                }
+            },
+            apiprod: {
+                options: {
                   dest: '<%= yeoman.app %>/scripts/config.js'
-              },
-              constants: {
-                  ENV: {
-                      name: 'development',
-                      apiEndpoint: 'http://patientview201.apiary-mock.com/api'
-                  }
-              }
-          },
-          apidev: {
-              options: {
-                  dest: '<%= yeoman.app %>/scripts/config.js'
-              },
-              constants: {
-                  ENV: {
-                      name: 'production',
-                      //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                      apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
-                  }
-              }
-          },
-          apilocal: {
-              options: {
-                  dest: '<%= yeoman.app %>/scripts/config.js'
-              },
-              constants: {
-                  ENV: {
-                      name: 'production',
-                      //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                      apiEndpoint: 'http://localhost:8080/api'
-                  }
-              }
-          },
-          apiie: {
-              options: {
-                  dest: '<%= yeoman.app %>/scripts/config.js'
-              },
-              constants: {
-                  ENV: {
-                      name: 'production',
-                      apiEndpoint: '/api'
-                  }
-              }
-          },
-          apiaryprod: {
-              options: {
-                  dest: '<%= yeoman.app %>/scripts/config.js'
-              },
-              constants: {
-                  ENV: {
-                      name: 'development',
-                      apiEndpoint: 'http://patientview201.apiary-mock.com/api'
-                  }
-              }
-          },
-          apiprod: {
-              options: {
-                  dest: '<%= yeoman.app %>/scripts/config.js'
-              },
-              constants: {
-                  ENV: {
-                      name: 'production',
-                      //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                      apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
-                  }
-              }
-          }
-      }
-  });
+                },
+                constants: {
+                    ENV: {
+                        name: 'production',
+                        //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
+                    }
+                }
+            }
+        }
+    });
 
     // grunt serve - uses apiary, no proxy
     // grunt serveproxy - uses /api, with proxy to apiary (needed to test ie8)
@@ -547,19 +546,19 @@ module.exports = function (grunt) {
         ]);
     });
 
-  grunt.registerTask('server', function (target) {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run(['serve:' + target]);
-  });
+    grunt.registerTask('server', function (target) {
+        grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
+        grunt.task.run(['serve:' + target]);
+    });
 
-  grunt.registerTask('test', [
-    'newer:jshint',
-    'clean:server',
-    'concurrent:test',
-    'autoprefixer',
-    'connect:test',
-    'karma'
-  ]);
+    grunt.registerTask('test', [
+        'newer:jshint',
+        'clean:server',
+        'concurrent:test',
+        'autoprefixer',
+        'connect:test',
+        'karma'
+    ]);
 
     grunt.registerTask('build', [
         'test',
@@ -639,12 +638,11 @@ module.exports = function (grunt) {
         'war'
     ]);
 
-  grunt.registerTask('default', [
-    'newer:jshint',
-    'test',
-    'build'
-  ]);
-
+    grunt.registerTask('default', [
+        'newer:jshint',
+        'test',
+        'build'
+    ]);
 
     grunt.registerTask('minimal', [
         'clean:dist',
