@@ -36,6 +36,14 @@ public interface UserService {
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);
 
     /**
+     * Get users based on a list of groups and role types
+     * @param groupIds
+     * @param roleIds
+     * @return
+     */
+    List<User> getUsersByGroupsAndRoles(List<Long> groupIds,List<Long> roleIds);
+
+    /**
      * This persists the User in the above method with a new password.
      *
      * @param user

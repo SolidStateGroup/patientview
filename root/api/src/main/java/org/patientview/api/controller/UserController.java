@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.controller.model.Credentials;
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
@@ -24,6 +25,8 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,10 +51,35 @@ public class UserController extends BaseController {
 
     }
 
-    @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> getUserByUsername(@RequestParam("username") String username) {
         return new ResponseEntity<User>(userService.getByUsername(username), HttpStatus.OK);
+    }
+
+    // handle getting users from multiple groups and a single role type using query parameters
+    @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<User>> getUsers(
+            @RequestParam(value = "groupId", required = true) Long[] groupIdsArr,
+            @RequestParam(value = "roleId", required = true) Long[] roleIdsArr,
+            HttpServletRequest request) throws ResourceNotFoundException {
+
+        List<Long> groupIds = Arrays.asList(groupIdsArr);
+        List<Long> roleIds = Arrays.asList(roleIdsArr);
+
+        // if no role selected, assume staff
+        if (!request.getParameterMap().containsKey("roleId")) {
+            LOG.debug("No role Ids passed in, assuming staff request");
+        }
+        if (!request.getParameterMap().containsKey("groupId")) {
+            LOG.debug("A group ID must be supplied");
+            return new ResponseEntity<List<User>>(HttpStatus.BAD_REQUEST);
+        }
+
+        List<User> users = userService.getUsersByGroupsAndRoles(groupIds, roleIds);
+
+        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)

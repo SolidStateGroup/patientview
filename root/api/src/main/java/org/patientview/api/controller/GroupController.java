@@ -79,7 +79,7 @@ public class GroupController extends BaseController {
         return new ResponseEntity<GroupFeature>(groupFeature, HttpStatus.CREATED);
     }
 
-    //TODO
+    //TODO, similar to /user?roleType=staff&groupId=111&groupId=222&groupId=333 in UserController.java but only for a single group
     @RequestMapping(value = "/group/{groupId}/user", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<User>> getGroupStaff(@PathVariable("groupId") Long groupId,

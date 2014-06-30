@@ -161,6 +161,10 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    public List<User> getUsersByGroupsAndRoles(List<Long> groupIds, List<Long> roleIds) {
+        return Util.iterableToList(userRepository.findByGroupsAndRoles(groupIds, roleIds));
+    }
+
     public void deleteUser(Long userId) {
         userRepository.delete(userId);
     }
