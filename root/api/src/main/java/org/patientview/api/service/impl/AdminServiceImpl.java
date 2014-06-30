@@ -4,6 +4,7 @@ import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -20,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -95,6 +97,13 @@ public class AdminServiceImpl implements AdminService {
 
     public List<Role> getAllRoles() {
         return Util.iterableToList(roleRepository.findAll());
+    }
+
+    public List<Role> getStaffRoles() {
+        List<Lookup> staffRoleLookup = Util.iterableToList(lookupRepository.getBylookupValue("STAFF"));
+        if (!staffRoleLookup.isEmpty()) {
+            return Util.iterableToList(roleRepository.getByType(staffRoleLookup.get(0)));
+        } else return Collections.<Role>emptyList();
     }
 
     public User getByUsername(String username) {

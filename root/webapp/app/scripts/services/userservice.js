@@ -14,6 +14,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // gets staff by groups, api assumes staff if no role IDs passed in
+        getStaffByGroups: function (groupIds) {
+            var deferred = $q.defer();
+            // GET /user?groupId=1&groupId=2 etc
+            Restangular.all('user').getList({'groupId':groupIds}).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Remove a single user based on userId
         delete: function (user) {
             var deferred = $q.defer();

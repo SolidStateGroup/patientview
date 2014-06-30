@@ -28,6 +28,8 @@ public interface AdminService {
 
     List<Role> getAllRoles();
 
+    List<Role> getStaffRoles();
+
     GroupFeature createGroupFeature(GroupFeature groupFeature);
 
     List<User> getGroupUserByRoleStaff(Long groupId);

@@ -26,6 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,7 +41,6 @@ public class UserController extends BaseController {
 
     @Inject
     private UserService userService;
-
     @Inject
     private AdminService adminService;
 
@@ -57,29 +57,35 @@ public class UserController extends BaseController {
         return new ResponseEntity<User>(userService.getByUsername(username), HttpStatus.OK);
     }
 
-    // handle getting users from multiple groups and a single role type using query parameters
+    // handle getting users from multiple groups and roles using query parameters
     @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<User>> getUsers(
-            @RequestParam(value = "groupId", required = true) Long[] groupIdsArr,
-            @RequestParam(value = "roleId", required = true) Long[] roleIdsArr,
+            @RequestParam(value = "groupId", required = false) Long[] groupIdsArr,
+            @RequestParam(value = "roleId", required = false) Long[] roleIdsArr,
             HttpServletRequest request) throws ResourceNotFoundException {
 
-        List<Long> groupIds = Arrays.asList(groupIdsArr);
-        List<Long> roleIds = Arrays.asList(roleIdsArr);
+        List<Long> roleIds = new ArrayList<Long>();
 
-        // if no role selected, assume staff
+        // if no roles, assume staff, get list of staff type role IDs
         if (!request.getParameterMap().containsKey("roleId")) {
-            LOG.debug("No role Ids passed in, assuming staff request");
+            LOG.debug("No role IDs passed in, assuming staff request");
+            List<Role> staffRoles = adminService.getStaffRoles();
+            for (Role role : staffRoles) {
+                roleIds.add(role.getId());
+            }
+        } else {
+            roleIds = Arrays.asList(roleIdsArr);
         }
+
+        // if no groups, bad request
         if (!request.getParameterMap().containsKey("groupId")) {
-            LOG.debug("A group ID must be supplied");
+            LOG.debug("No group IDs passed in, required");
             return new ResponseEntity<List<User>>(HttpStatus.BAD_REQUEST);
+        } else {
+            List<Long> groupIds = Arrays.asList(groupIdsArr);
+            return new ResponseEntity<List<User>>(userService.getUsersByGroupsAndRoles(groupIds, roleIds), HttpStatus.OK);
         }
-
-        List<User> users = userService.getUsersByGroupsAndRoles(groupIds, roleIds);
-
-        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)

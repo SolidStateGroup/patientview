@@ -137,36 +137,32 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
 
         $scope.loading = true;
+        var groupIds = Array();
+        $scope.allGroups = [];
 
-        // TODO: hardcoded for now to first group of user or -1
-        var groupId = -1;
-        if ($rootScope.loggedInUser.groupRoles.length > 0) {
-            groupId = $rootScope.loggedInUser.groupRoles[0].group.id;
+        // get list of user's groups to retrieve patients for
+        for (var i=0; i<$rootScope.loggedInUser.groupRoles.length; i++) {
+            groupIds.push($rootScope.loggedInUser.groupRoles[i].group.id);
+            $scope.allGroups.push($rootScope.loggedInUser.groupRoles[i].group);
         }
 
-        GroupService.get(groupId).then(function(allGroups) {
+        UserService.getStaffByGroups(groupIds).then(function(staffUsers) {
+            $scope.list = staffUsers;
+            $scope.currentPage = 1; //current page
+            $scope.entryLimit = 10; //max no of items to display in a page
+            $scope.totalItems = $scope.list.length;
+            delete $scope.loading;
+        });
 
-            $scope.allGroups = [];
-            $scope.allGroups.push(allGroups);
+        SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function(allRoles) {
+            $scope.allRoles = allRoles;
+        });
 
-            GroupService.getUsersByType(groupId,'staff').then(function(staffUsers) {
-                $scope.list = staffUsers;
-                $scope.currentPage = 1; //current page
-                $scope.entryLimit = 10; //max no of items to display in a page
-                $scope.totalItems = $scope.list.length;
-                delete $scope.loading;
-            });
-
-            SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function(allRoles) {
-                $scope.allRoles = allRoles;
-            });
-
-            FeatureService.getAll().then(function(allFeatures) {
-                $scope.allFeatures = [];
-                for (var i=0;i<allFeatures.length;i++){
-                    $scope.allFeatures.push({'feature':allFeatures[i]});
-                }
-            });
+        FeatureService.getAll().then(function(allFeatures) {
+            $scope.allFeatures = [];
+            for (var i=0;i<allFeatures.length;i++){
+                $scope.allFeatures.push({'feature':allFeatures[i]});
+            }
         });
     };
 
