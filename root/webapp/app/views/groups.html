@@ -1,0 +1,153 @@
+<!--<script type="text/javascript">
+    document.createElement('accordion');
+    document.createElement('accordion-group');
+    document.createElement('accordion-heading');
+</script>-->
+<div class="container" ng-show="!loading" ng-cloak>
+    <h1>Groups</h1>
+    <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
+
+    <!-- delete group modal template -->
+    <script type="text/ng-template" id="deleteGroupModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Group</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure? This will delete group <strong>{{group.group}}</strong>.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()">Delete</button>
+        </div>
+    </script>
+
+    <!-- new group modal template -->
+    <script type="text/ng-template" id="newGroupModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Group</h3>
+        </div>
+        <div class="modal-body">
+            <form name="groupForm" ng-model="editGroup">
+                <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!groupForm.$valid">Create New</button>
+        </div>
+    </script>
+    <button class="btn btn-primary" ng-click="openModalNewGroup('lg')">Create New</button>
+
+    <!-- Filter -->
+    <br/>
+    <h2>Filter</h2>
+    <div class="row">
+        <div class="col-md-2 hidden">PageSize:
+            <select data-ng-model="entryLimit" class="form-control">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>5</option>
+            </select>
+        </div>
+        <div class="col-md-12">
+            <div class="left-inner-addon ">
+                <i class="glyphicon glyphicon-search"></i>
+                <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <!-- filter by group type -->
+        <div class="col-md-2">
+            <div class="form-horizontal" role="form">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="btn-group" id="filter-group-type" data-ng-class="{open: open1}">
+                            <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Group Type <span class="caret"></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li><a data-ng-click="selectedGroupType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="type in groupTypes"> <a data-ng-click="setSelectedGroupType()" class="a-filter-group-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isGroupTypeChecked(type.id)"></span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <h5>Showing {{ filtered.length }} of {{ list.length }} total</h5>
+        </div>
+    </div>
+
+    <!-- data grid -->
+    <br/>
+    <div class="row">
+        <div class="col-md-12" data-ng-show="filtered.length  > 0">
+            <!-- header -->
+            <span class="hidden" ng-repeat="data in filtered = (list | groupTypeFilter:selectedGroupType | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
+            <div class="row accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
+                <div class="col-sm-1 hidden">ID</div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('code');" class="sort-title">Code&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('type');" class="sort-title">Type&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-3 accordion-title-text "><a ng-click="sortBy('description');" class="sort-title">Description&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-3"></div>
+            </div>
+
+            <!-- body -->
+            <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
+                <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="group in filtered = (list | groupTypeFilter:selectedGroupType | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                    <div accordion-heading>
+                        <div class="row" ng-click="opened(group, $event)">
+                            <div class="col-sm-1 hidden">{{group.id}}</div>
+                            <div class="col-sm-2 accordion-heading-text">{{group.code}}</div>
+                            <div class="col-sm-2 accordion-heading-text">{{group.name}}</div>
+                            <div class="col-sm-2 accordion-heading-text">{{group.groupType.value}}</div>
+                            <div class="col-sm-3 accordion-heading-text">{{group.description}}</div>
+                            <div class="col-sm-3">
+
+                                <!-- Edit, Actions dropdown buttons -->
+                                <div class="btn-group pull-right">
+                                    <button type="button" class="btn btn-danger pull-right" ng-click="delete(group.id, $event)">
+                                        <span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Delete
+                                    </button>
+                                    <button type="button" class="btn btn-primary pull-right">
+                                        <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div accordion-heading>
+
+                    <!-- edit pane -->
+                    <form name="groupForm">
+                        <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
+                    </form>
+                    <hr>{{index}}
+                    <div class="group-save-cancel pull-right">
+                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
+                        <button type="button" class="btn btn-primary" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
+                    </div>
+
+                </div accordion-group>
+            </div accordion>
+        </div>
+        <div class="col-md-12" data-ng-show="filtered.length == 0">
+            <div class="col-md-12">
+                <h4>No groups found</h4>
+            </div>
+        </div>
+
+        <!-- pagination -->
+        <div class="col-md-12" data-ng-show="filtered.length > 0">
+            <div pagination on-select-page="setPage(page)" total-items="filtered.length" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filtered.length  < entryLimit "></div>
+        </div>
+    </div>
+</div>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>

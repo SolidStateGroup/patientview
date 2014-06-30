@@ -214,10 +214,16 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
 
     // Save from edit
-    $scope.save = function (editCodeForm, code, index) {
+    $scope.save = function (editCodeForm, code) {
         CodeService.save(code, $scope.codeTypes, $scope.standardTypes).then(function() {
             editCodeForm.$setPristine(true);
-            $scope.list[index] = _.clone(code);
+
+            for(var i=0;i<$scope.list.length;i++) {
+                if($scope.list[i].id == code.id) {
+                    $scope.list[i] = _.clone(code);
+                }
+            }
+
             $scope.successMessage = 'Code saved';
         });
     };

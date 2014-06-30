@@ -146,6 +146,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.allGroups.push($rootScope.loggedInUser.groupRoles[i].group);
         }
 
+        // get staff users based on logged in user's groups
         UserService.getStaffByGroups(groupIds).then(function(staffUsers) {
             $scope.list = staffUsers;
             $scope.currentPage = 1; //current page

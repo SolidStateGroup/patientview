@@ -42,7 +42,6 @@ CREATE TABLE PV_Lookup_Value (
   PRIMARY KEY (Id)
 );
 
-
 CREATE TABLE PV_Group
 (
   Id               BIGINT    NOT NULL,
@@ -59,6 +58,13 @@ CREATE TABLE PV_Group
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Group_Relationship
+(
+  Id               BIGINT    NOT NULL,
+  Child_Id         BIGINT    REFERENCES PV_Group (Id) NOT NULL,
+  Parent_Id        BIGINT    REFERENCES PV_Group (Id) NOT NULL,
+  PRIMARY KEY (Id)
+);
 
 CREATE TABLE PV_Role
 (

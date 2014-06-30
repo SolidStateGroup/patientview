@@ -61,6 +61,16 @@ public class GroupController extends BaseController {
         return new ResponseEntity<List<Group>>(adminService.getAllGroups(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/group", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Group> saveGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
+        LOG.info("Updated group with id " + group.getId());
+        UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(group.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+        return new ResponseEntity<Group>(adminService.saveGroup(group), headers, HttpStatus.OK);
+    }
+
 
     @RequestMapping(value = "/group/{groupId}/feature/{featureId}", method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE)

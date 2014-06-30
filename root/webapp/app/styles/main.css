@@ -362,7 +362,7 @@ div.grey-right-border {
     width: 95%;
 }
 
-.a-filter-group, .a-filter-role, .a-filter-code-type, .a-filter-standard-type {
+.a-filter-group, .a-filter-role, .a-filter-code-type, .a-filter-standard-type, .a-filter-group-type {
     cursor:pointer;
     height: 25px;
     min-width: 175px;

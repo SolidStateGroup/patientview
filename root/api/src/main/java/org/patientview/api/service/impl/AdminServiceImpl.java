@@ -54,7 +54,6 @@ public class AdminServiceImpl implements AdminService {
     @Inject
     private RoleRepository roleRepository;
 
-
     public Group createGroup(Group group) throws EntityExistsException {
         if (group.getGroupType() != null) {
             group.setGroupType(lookupRepository.findOne(group.getGroupType().getId()));
@@ -74,13 +73,30 @@ public class AdminServiceImpl implements AdminService {
         }
 
         return group;
-
-}
-
-
+    }
 
     public Group getGroup(Long groupId) { return groupRepository.findOne(groupId);}
 
+    public Group saveGroup(final Group group) {
+
+        // remove deleted group links
+        /*Group entityGroup = groupRepository.findOne(group.getId());
+        entityGroup.getLinks().removeAll(group.getLinks());
+        linkRepository.delete(entityGroup.getLinks());
+
+        // set new group links and persist
+        if (!CollectionUtils.isEmpty(group.getLinks())) {
+            for (Link link : group.getLinks()) {
+                if (link.getId() < 0) { link.setId(null); }
+                link.setGroup(entityGroup);
+                link.setCreator(userRepository.findOne(1L));
+                linkRepository.save(link);
+            }
+        }*/
+
+        return groupRepository.save(group);
+    }
+    
     public GroupFeature addGroupFeature(Long groupId, Long featureId) {
 
         GroupFeature groupFeature = new GroupFeature();
@@ -127,5 +143,4 @@ public class AdminServiceImpl implements AdminService {
     public List<User> getGroupUserByRolePatient(Long groupId) {
         return Util.iterableToList(groupRepository.getGroupStaffByRole(groupId, "PATIENT"));
     }
-
 }

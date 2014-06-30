@@ -5,9 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,6 +48,15 @@ public class Group extends AuditModel {
 
     @OneToMany(mappedBy = "group")
     private Set<Route> routes;
+
+    @ManyToMany
+    @JoinTable(name="PV_Group_Relationship",
+            joinColumns = @JoinColumn(name="Child_Id", referencedColumnName="Id"),
+            inverseJoinColumns = @JoinColumn(name="Parent_Id", referencedColumnName="Id"))
+    private Set<Group> parentGroups = new HashSet<Group>();
+
+    @ManyToMany(mappedBy="parentGroups")
+    private Set<Group> childGroups = new HashSet<Group>();
 
     public String getName() {
         return name;
@@ -111,5 +123,23 @@ public class Group extends AuditModel {
 
     public void setGroupRoles(final Set<GroupRole> groupRoles) {
         this.groupRoles = groupRoles;
+    }
+
+    @JsonIgnore
+    public Set<Group> getParentGroups() {
+        return parentGroups;
+    }
+
+    public void setParentGroups(Set<Group> parentGroups) {
+        this.parentGroups = parentGroups;
+    }
+
+    @JsonIgnore
+    public Set<Group> getChildGroups() {
+        return childGroups;
+    }
+
+    public void setChildGroups(Set<Group> childGroups) {
+        this.childGroups = childGroups;
     }
 }

@@ -39,16 +39,16 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // save code
-        save: function (code, codeTypes, standardTypes) {
+        save: function (inputCode, codeTypes, standardTypes) {
             var deferred = $q.defer();
 
-            code.codeType = UtilService.cleanObject(_.findWhere(codeTypes, {id: code.codeTypeId}),'codeType');
-            code.standardType = UtilService.cleanObject(_.findWhere(standardTypes, {id: code.standardTypeId}),'standardType');
-            var codeToPost = _.clone(code);
-            delete codeToPost.codeTypeId;
-            delete codeToPost.standardTypeId;
+            var codeType = UtilService.cleanObject(_.findWhere(codeTypes, {id: inputCode.codeTypeId}),'codeType');
+            var standardType = UtilService.cleanObject(_.findWhere(standardTypes, {id: inputCode.standardTypeId}),'standardType');
+            var code = UtilService.cleanObject(inputCode, 'code');
+            code.codeType = codeType;
+            code.standardType = standardType;
 
-            Restangular.all('code').customPUT(codeToPost).then(function(successResult) {
+            Restangular.all('code').customPUT(code).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

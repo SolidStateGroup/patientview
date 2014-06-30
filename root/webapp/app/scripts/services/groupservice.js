@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').factory('GroupService', ['$q', 'Restangular',function ($q, Restangular) {
+angular.module('patientviewApp').factory('GroupService', ['$q', 'Restangular', 'UtilService',
+function ($q, Restangular, UtilService) {
     return {
         get: function (groupId) {
             var deferred = $q.defer();
@@ -20,6 +21,22 @@ angular.module('patientviewApp').factory('GroupService', ['$q', 'Restangular',fu
             var deferred = $q.defer();
             Restangular.one('group', groupId).all('user').getList({'roleType': roleType}).then(function(res) {
                 deferred.resolve(res);
+            });
+            return deferred.promise;
+        },
+        // save group
+        save: function (inputGroup, groupTypes) {
+            var deferred = $q.defer();
+
+            var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
+            var group = UtilService.cleanObject(inputGroup, 'group');
+            group.groupType = groupType;
+
+            // PUT /group
+            Restangular.all('group').customPUT(group).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
             });
             return deferred.promise;
         }

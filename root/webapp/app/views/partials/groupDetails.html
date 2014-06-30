@@ -1,0 +1,27 @@
+<div class="row">
+    <div class="col-sm-12">
+        <h2>Details</h2>
+        <div class="form-horizontal" role="form">
+            <div class="form-group">
+                <label for="group-code" class="col-sm-2 control-label">Code</label>
+                <div class="col-sm-7"><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" ng-model="editGroup.code" required></div>
+                <span class="alert alert-warning" ng-show="groupForm.code.$error.required">required</span>
+            </div>
+            <div class="form-group">
+                <label for="group-name" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-7"><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" ng-model="editGroup.name" required></div>
+                <span class="alert alert-warning" ng-show="groupForm.name.$error.required">required</span>
+            </div>
+            <div class="form-group">
+                <label for="group-groupType" class="col-sm-2 control-label">Group Type</label>
+                <div class="col-sm-7"><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
+                <span class="alert alert-warning" ng-show="!editGroup.groupTypeId">required</span>
+            </div>
+            <div class="form-group">
+                <label for="group-description" class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-7"><input type="text" class="form-control" id="group-description" placeholder="Description" name="description" ng-model="editGroup.description" required></div>
+                <span class="alert alert-warning" ng-show="groupForm.description.$error.required">required</span>
+            </div>
+        </div>
+    </div>
+</div>

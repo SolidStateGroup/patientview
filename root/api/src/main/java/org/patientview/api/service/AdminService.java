@@ -22,6 +22,8 @@ public interface AdminService {
 
     Group getGroup(Long groupId);
 
+    Group saveGroup(Group group);
+
     GroupFeature addGroupFeature(Long groupId, Long featureId);
 
     List<Group> getAllGroups();
