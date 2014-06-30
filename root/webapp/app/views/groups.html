@@ -91,10 +91,10 @@
             <div class="row accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('code');" class="sort-title">Code&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-3 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('type');" class="sort-title">Type&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-3 accordion-title-text "><a ng-click="sortBy('description');" class="sort-title">Description&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-3"></div>
+                <div class="col-sm-2"></div>
             </div>
 
             <!-- body -->
@@ -104,16 +104,13 @@
                         <div class="row" ng-click="opened(group, $event)">
                             <div class="col-sm-1 hidden">{{group.id}}</div>
                             <div class="col-sm-2 accordion-heading-text">{{group.code}}</div>
-                            <div class="col-sm-2 accordion-heading-text">{{group.name}}</div>
+                            <div class="col-sm-3 accordion-heading-text">{{group.name}}</div>
                             <div class="col-sm-2 accordion-heading-text">{{group.groupType.value}}</div>
                             <div class="col-sm-3 accordion-heading-text">{{group.description}}</div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-2">
 
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="btn-group pull-right">
-                                    <button type="button" class="btn btn-danger pull-right" ng-click="delete(group.id, $event)">
-                                        <span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Delete
-                                    </button>
                                     <button type="button" class="btn btn-primary pull-right">
                                         <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit
                                     </button>

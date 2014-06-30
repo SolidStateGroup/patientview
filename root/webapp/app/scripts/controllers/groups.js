@@ -126,12 +126,12 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService) {
 
     // Save from edit
     $scope.save = function (editGroupForm, group) {
-        GroupService.save(group, $scope.groupTypes).then(function() {
+        GroupService.save(group, $scope.groupTypes).then(function(successResult) {
             editGroupForm.$setPristine(true);
 
             for(var i=0;i<$scope.list.length;i++) {
                 if($scope.list[i].id == group.id) {
-                    $scope.list[i] = _.clone(group);
+                    $scope.list[i] = _.clone(successResult);
                 }
             }
 

@@ -39,6 +39,22 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // create new group
+        new: function (inputGroup, groupTypes) {
+            var deferred = $q.defer();
+
+            // convert group and standard type ids to actual objects and clean
+            var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
+            var group = UtilService.cleanObject(inputGroup, 'group');
+            group.groupType = groupType;
+
+            Restangular.all('group').post(group).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);
