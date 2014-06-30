@@ -35,7 +35,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService) {
         GroupService.getAll().then(function(groups) {
             $scope.list = groups;
             $scope.currentPage = 1; //current page
-            $scope.entryLimit = 100; //max no of items to display in a page
+            $scope.entryLimit = 20; //max no of items to display in a page
             $scope.totalItems = $scope.list.length;
             $scope.predicate = 'id';
             delete $scope.loading;

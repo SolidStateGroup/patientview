@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -48,6 +49,9 @@ public class Group extends AuditModel {
 
     @OneToMany(mappedBy = "group")
     private Set<Route> routes;
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
+    private Set<Link> links;
 
     @ManyToMany
     @JoinTable(name="PV_Group_Relationship",
@@ -114,6 +118,14 @@ public class Group extends AuditModel {
 
     public void setRoutes(final Set<Route> routes) {
         this.routes = routes;
+    }
+
+    public Set<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(Set<Link> links) {
+        this.links = links;
     }
 
     @JsonIgnore

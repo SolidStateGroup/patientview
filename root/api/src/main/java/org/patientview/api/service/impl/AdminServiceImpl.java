@@ -4,12 +4,14 @@ import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -54,6 +56,9 @@ public class AdminServiceImpl implements AdminService {
     @Inject
     private RoleRepository roleRepository;
 
+    @Inject
+    private LinkRepository linkRepository;
+
     public Group createGroup(Group group) throws EntityExistsException {
         if (group.getGroupType() != null) {
             group.setGroupType(lookupRepository.findOne(group.getGroupType().getId()));
@@ -80,7 +85,7 @@ public class AdminServiceImpl implements AdminService {
     public Group saveGroup(final Group group) {
 
         // remove deleted group links
-        /*Group entityGroup = groupRepository.findOne(group.getId());
+        Group entityGroup = groupRepository.findOne(group.getId());
         entityGroup.getLinks().removeAll(group.getLinks());
         linkRepository.delete(entityGroup.getLinks());
 
@@ -92,7 +97,7 @@ public class AdminServiceImpl implements AdminService {
                 link.setCreator(userRepository.findOne(1L));
                 linkRepository.save(link);
             }
-        }*/
+        }
 
         return groupRepository.save(group);
     }

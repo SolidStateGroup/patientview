@@ -150,7 +150,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         UserService.getStaffByGroups(groupIds).then(function(staffUsers) {
             $scope.list = staffUsers;
             $scope.currentPage = 1; //current page
-            $scope.entryLimit = 10; //max no of items to display in a page
+            $scope.entryLimit = 20; //max no of items to display in a page
             $scope.totalItems = $scope.list.length;
             delete $scope.loading;
         });

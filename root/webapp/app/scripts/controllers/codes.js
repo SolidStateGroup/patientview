@@ -50,7 +50,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         CodeService.getAll().then(function(codes) {
             $scope.list = codes;
             $scope.currentPage = 1; //current page
-            $scope.entryLimit = 10; //max no of items to display in a page
+            $scope.entryLimit = 20; //max no of items to display in a page
             $scope.totalItems = $scope.list.length;
             $scope.predicate = 'id';
             delete $scope.loading;

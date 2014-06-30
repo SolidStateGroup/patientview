@@ -1,0 +1,23 @@
+#!/bin/sh
+
+#-------------------------------------------------------
+#Author: jamesr@solidstategroup.com
+#Date:   10/06/2014
+#---------------------------------------------------------
+#npm install
+grunt minimallive
+if [ $? -eq 0 ]; then
+    curl -T "dist/webapp.war" "http://tomcat:tomcat@diabetes-pv.dev.solidstategroup.com/manager/text/deploy?path=/&update=true"
+    if [ $? -eq 0 ]; then
+        echo 'SUCCESS'
+    #    exit 0
+    else
+        echo 'FAILED TOMCAT'
+   #     exit 1
+    fi
+else
+    echo 'FAILED GRUNT'
+  #  exit 1
+fi
+
+

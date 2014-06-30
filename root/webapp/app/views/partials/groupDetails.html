@@ -25,3 +25,31 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-sm-12">
+        <h2>Links</h2>
+        <div class="link-list-item row" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
+            <div class="col-sm-4"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="link" name="link" ng-model="link.link" required></div>
+            <div class="col-sm-4"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="name" name="name" ng-model="link.name" required></div>
+            <div class="col-sm-2">
+                <select id="group-link-displayOrder-{{link.id}}" class="form-control" ng-model="link.displayOrder">
+                    <option ng-repeat="link in editGroup.links">{{$index + 1}}</option>
+                </select>
+            </div>
+            <div class="col-sm-2"><button type="button" class="btn btn-danger link-delete-button" ng-click="removeLink(groupForm, editGroup, link)">Delete</button></span></div>
+        </div>
+        <br/>
+        <h5 class="inner-title">Add Link</h5>
+        <div class="row" ng-model="newLink">
+            <div class="col-sm-5"><input type="text" class="form-control" id="group-newLink-link" placeholder="link" name="newLink" ng-model="newLink.link"></div>
+            <div class="col-sm-5"><input type="text" class="form-control" id="group-newLink-name" placeholder="name" name="newLink" ng-model="newLink.name"></div>
+            <div class="col-sm-2 hidden">
+                <select id="group-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
+                    <option ng-show="newLink.displayOrder" ng-repeat="link in editGroup.links">{{$index + 1}}</option>
+                    <option >{{editGroup.links.length + 1}}</option>
+                </select>
+            </div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary link-add-button" ng-click="addLink(groupForm, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
+        </div>
+    </div>
+</div>
