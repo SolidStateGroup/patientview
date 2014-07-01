@@ -11,9 +11,9 @@ angular.module('patientviewApp').factory('FeatureService', ['$q', 'Restangular',
             });
             return deferred.promise;
         },
-        getAllUserFeatures: function () {
+        getAllStaffFeatures: function () {
             var deferred = $q.defer();
-            Restangular.all('feature').getList({'type':'USER'}).then(function(res) {
+            Restangular.all('feature').getList({'type':'STAFF'}).then(function(res) {
                 deferred.resolve(res);
             });
             return deferred.promise;

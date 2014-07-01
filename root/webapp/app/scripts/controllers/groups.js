@@ -24,8 +24,8 @@ function ($scope, $rootScope, $modalInstance, groupTypes, editGroup, GroupServic
     };
 }];
 
-angular.module('patientviewApp').controller('GroupsCtrl', ['$scope','$timeout', '$modal','GroupService','StaticDataService',
-function ($scope, $timeout, $modal, GroupService, StaticDataService) {
+angular.module('patientviewApp').controller('GroupsCtrl', ['$scope','$timeout', '$modal','GroupService','StaticDataService','FeatureService',
+function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureService) {
 
     // Init
     $scope.init = function () {
@@ -45,6 +45,13 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService) {
         StaticDataService.getLookupsByType('GROUP').then(function(groupTypes) {
             if (groupTypes.length > 0) {
                 $scope.groupTypes = groupTypes;
+            }
+        });
+
+        FeatureService.getAllGroupFeatures().then(function(allFeatures) {
+            $scope.allFeatures = [];
+            for (var i=0;i<allFeatures.length;i++){
+                $scope.allFeatures.push({'feature':allFeatures[i]});
             }
         });
     };

@@ -6,7 +6,6 @@ import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.repository.FeatureRepository;
-import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.springframework.stereotype.Service;
@@ -34,9 +33,6 @@ public class StaticDataManagerImpl implements StaticDataManager {
     @Inject
     private FeatureRepository featureRepository;
 
-    @Inject
-    private GroupFeatureRepository groupFeatureRepository;
-
     public List<Lookup> getAllLookups() {
         return Util.iterableToList(lookupRepository.findAll());
     }
@@ -48,14 +44,14 @@ public class StaticDataManagerImpl implements StaticDataManager {
     public List<Lookup> getLookupsByType(String type) {
         LookupType lookupType = lookupTypeRepository.getByType(type);
         if (lookupType != null) {
-            return Util.iterableToList(lookupRepository.getBylookupType(lookupType));
+            return Util.iterableToList(lookupRepository.getByLookupType(lookupType));
         }
         return Collections.<Lookup>emptyList();
     }
 
     public List<Feature> getFeaturesByType(String featureType) {
-        List<Lookup> lookups = Util.iterableToList(lookupRepository.getBylookupValue(featureType));
-        if (lookups.get(0) != null) {
+        List<Lookup> lookups = Util.iterableToList(lookupRepository.getByLookupTypeAndValue("FEATURE_TYPE", featureType));
+        if (!lookups.isEmpty()) {
             return Util.iterableToList(featureRepository.findByType(lookups.get(0)));
         }
         return Collections.<Feature>emptyList();

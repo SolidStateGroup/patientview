@@ -121,7 +121,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public List<Role> getStaffRoles() {
-        List<Lookup> staffRoleLookup = Util.iterableToList(lookupRepository.getBylookupValue("STAFF"));
+        List<Lookup> staffRoleLookup = Util.iterableToList(lookupRepository.getByLookupTypeAndValue("ROLE", "STAFF"));
         if (!staffRoleLookup.isEmpty()) {
             return Util.iterableToList(roleRepository.getByType(staffRoleLookup.get(0)));
         } else return Collections.<Role>emptyList();

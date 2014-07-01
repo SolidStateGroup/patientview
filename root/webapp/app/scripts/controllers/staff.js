@@ -8,10 +8,10 @@ function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allF
     $scope.allRoles = allRoles;
 
     // set initial group and feature (avoid blank option)
-    if ($scope.editUser.availableGroups) {
+    if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
         $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
     }
-    if ($scope.editUser.availableFeatures) {
+    if ($scope.editUser.availableFeatures && $scope.editUser.availableFeatures.length > 0) {
         $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
     }
 
@@ -159,7 +159,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.allRoles = allRoles;
         });
 
-        FeatureService.getAllUserFeatures().then(function(allFeatures) {
+        FeatureService.getAllStaffFeatures().then(function(allFeatures) {
             $scope.allFeatures = [];
             for (var i=0;i<allFeatures.length;i++){
                 $scope.allFeatures.push({'feature':allFeatures[i]});
