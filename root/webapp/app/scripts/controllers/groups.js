@@ -98,6 +98,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     $scope.opened = function (group) {
         $scope.successMessage = '';
         group.groupTypeId = group.groupType.id;
+        console.log(group);
 
         // create list of available features (all - groups)
         group.availableFeatures = _.clone($scope.allFeatures);

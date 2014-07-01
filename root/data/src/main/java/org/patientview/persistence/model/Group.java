@@ -1,6 +1,10 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -57,9 +61,11 @@ public class Group extends AuditModel {
     @JoinTable(name="PV_Group_Relationship",
             joinColumns = @JoinColumn(name="Child_Id", referencedColumnName="Id"),
             inverseJoinColumns = @JoinColumn(name="Parent_Id", referencedColumnName="Id"))
+    @JsonManagedReference
     private Set<Group> parentGroups = new HashSet<Group>();
 
     @ManyToMany(mappedBy="parentGroups")
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@Parent_Id")
     private Set<Group> childGroups = new HashSet<Group>();
 
     public String getName() {
@@ -144,7 +150,6 @@ public class Group extends AuditModel {
         this.parentGroups = parentGroups;
     }
 
-    @JsonIgnore
     public Set<Group> getChildGroups() {
         return childGroups;
     }
