@@ -25,7 +25,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (12, now(), 'DIAGNOSIS','1','5');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (13, now(), 'TREATMENT','1','5');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (14, now(), 'GROUP','1','6');
-INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (15, now(), 'USER','1','6');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (15, now(), 'STAFF','1','6');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (16, now(), 'PATIENT','1','6');
 
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', 'The PatientView Specialty', 2, now(),1 );
