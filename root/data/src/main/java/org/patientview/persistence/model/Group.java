@@ -102,7 +102,6 @@ public class Group extends AuditModel {
         this.groupType = groupType;
     }
 
-    @JsonIgnore
     public Set<GroupFeature> getGroupFeatures() {
         return groupFeatures;
     }

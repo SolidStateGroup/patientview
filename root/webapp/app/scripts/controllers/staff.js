@@ -252,7 +252,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.successMessage = '';
         $scope.userCreated = '';
         // create new user with list of available roles, groups and features
-        //console.log($scope.allGroups);
         $scope.editUser = {};
         $scope.editUser.roles = $scope.allRoles;
         $scope.editUser.availableGroups = $scope.allGroups;
@@ -288,7 +287,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
 
         modalInstance.result.then(function (user) {
-            //$scope.user = user;
             $scope.list.push(user);
             $scope.editUser = user;
             $scope.successMessage = 'User successfully created '

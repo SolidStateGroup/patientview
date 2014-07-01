@@ -1,10 +1,16 @@
 'use strict';
 
 // new group modal instance controller
-var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'groupTypes', 'editGroup', 'GroupService',
-function ($scope, $rootScope, $modalInstance, groupTypes, editGroup, GroupService) {
+var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'groupTypes', 'editGroup', 'allFeatures', 'GroupService',
+function ($scope, $rootScope, $modalInstance, groupTypes, editGroup, allFeatures, GroupService) {
     $scope.editGroup = editGroup;
     $scope.groupTypes = groupTypes;
+    $scope.allFeatures = allFeatures;
+
+    // set feature (avoid blank option)
+    if ($scope.editGroup.availableFeatures && $scope.editGroup.availableFeatures.length > 0) {
+        $scope.featureToAdd = $scope.editGroup.availableFeatures[0].feature.id;
+    }
 
     $scope.ok = function () {
         GroupService.new($scope.editGroup, groupTypes).then(function(result) {
@@ -35,7 +41,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         GroupService.getAll().then(function(groups) {
             $scope.list = groups;
             $scope.currentPage = 1; //current page
-            $scope.entryLimit = 20; //max no of items to display in a page
+            $scope.entryLimit = 10; //max no of items to display in a page
             $scope.totalItems = $scope.list.length;
             $scope.predicate = 'id';
             delete $scope.loading;
@@ -92,7 +98,24 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     $scope.opened = function (group) {
         $scope.successMessage = '';
         group.groupTypeId = group.groupType.id;
+
+        // create list of available features (all - groups)
+        group.availableFeatures = _.clone($scope.allFeatures);
+        if (group.groupFeatures) {
+            for (var j = 0; j < group.groupFeatures.length; j++) {
+                for (var k = 0; k < group.availableFeatures.length; k++) {
+                    if (group.groupFeatures[j].feature.id === group.availableFeatures[k].feature.id) {
+                        group.availableFeatures.splice(k, 1);
+                    }
+                }
+            }
+        } else { group.groupFeatures = []; }
+
         $scope.editGroup = _.clone(group);
+
+        if ($scope.editGroup.availableFeatures[0]) {
+            $scope.featureToAdd = $scope.editGroup.availableFeatures[0].feature.id;
+        }
     };
 
     // open modal for new group
@@ -102,6 +125,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.groupCreated = '';
         $scope.editGroup = {};
         $scope.editGroup.links = [];
+        $scope.editGroup.groupFeatures = [];
+        $scope.editGroup.availableFeatures = _.clone($scope.allFeatures);
 
         var modalInstance = $modal.open({
             templateUrl: 'newGroupModal.html',
@@ -110,6 +135,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             resolve: {
                 groupTypes: function(){
                     return $scope.groupTypes;
+                },
+                allFeatures: function(){
+                    return $scope.allFeatures;
                 },
                 editGroup: function(){
                     return $scope.editGroup;

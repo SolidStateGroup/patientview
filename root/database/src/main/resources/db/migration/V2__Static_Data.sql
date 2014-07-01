@@ -47,14 +47,10 @@ INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
-INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (3, 1, 16);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (4, 2, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (5, 2, 15);
-INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (6, 2, 16);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (7, 3, 14);
-INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (8, 3, 16);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (9, 4, 14);
-INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (10, 4, 16);
 
 INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 5, 1, null, null, 1,  '/', 'views/main.html','MainCtrl', 'PatientView2', now(), 1 );

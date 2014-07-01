@@ -28,8 +28,19 @@ function ($q, Restangular, UtilService) {
         save: function (inputGroup, groupTypes) {
             var deferred = $q.defer();
 
+            // clean group features
+            var cleanGroupFeatures = [];
+            for (var j=0;j<inputGroup.groupFeatures.length;j++) {
+                var groupFeature = inputGroup.groupFeatures[j];
+                var feature = {'id':groupFeature.feature.id,'name':groupFeature.feature.name,'description':''};
+                cleanGroupFeatures.push({'feature':feature});
+            }
+
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
             var group = UtilService.cleanObject(inputGroup, 'group');
+
+            // add cleaned objects
+            group.groupFeatures = cleanGroupFeatures;
             group.groupType = groupType;
 
             // PUT /group
@@ -44,9 +55,20 @@ function ($q, Restangular, UtilService) {
         new: function (inputGroup, groupTypes) {
             var deferred = $q.defer();
 
+            // clean group features
+            var cleanGroupFeatures = [];
+            for (var j=0;j<inputGroup.groupFeatures.length;j++) {
+                var groupFeature = inputGroup.groupFeatures[j];
+                var feature = {'id':groupFeature.feature.id,'name':groupFeature.feature.name,'description':''};
+                cleanGroupFeatures.push({'feature':feature});
+            }
+
             // convert group and standard type ids to actual objects and clean
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
             var group = UtilService.cleanObject(inputGroup, 'group');
+
+            // add cleaned objects
+            group.groupFeatures = cleanGroupFeatures;
             group.groupType = groupType;
 
             Restangular.all('group').post(group).then(function(successResult) {

@@ -53,3 +53,20 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h2>Features</h2>
+        <div class="feature-list-item" ng-repeat="feature in editGroup.groupFeatures">
+            <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.name}}</span></div>
+            <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(groupForm, editGroup, feature)" >Delete</a></span></div>
+        </div>
+        <div class="feature-add-container" ng-show="editGroup.availableFeatures.length > 0 ">
+            <h5 class="inner-title">Add Feature </h5>
+            <div class="row">
+                <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editGroup.availableFeatures"></select></div>
+                <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button pull-left" ng-click="addFeature(groupForm, editGroup, featureToAdd)">Add</button></div>
+            </div>
+        </div>
+    </div>
+</div>

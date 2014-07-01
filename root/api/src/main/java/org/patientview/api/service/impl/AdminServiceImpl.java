@@ -60,22 +60,36 @@ public class AdminServiceImpl implements AdminService {
     private LinkRepository linkRepository;
 
     public Group createGroup(Group group) throws EntityExistsException {
-        if (group.getGroupType() != null) {
-            group.setGroupType(lookupRepository.findOne(group.getGroupType().getId()));
-        }
-
-        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
-            for (GroupFeature groupFeature : group.getGroupFeatures()) {
-                groupFeature = groupFeatureRepository.findOne(groupFeature.getId());
-            }
-        }
+        Group newGroup;
 
         try {
-            group = groupRepository.save(group);
+            newGroup = groupRepository.save(group);
         } catch (DataIntegrityViolationException dve) {
             LOG.debug("Group not created, duplicate: {}", dve.getCause());
             throw new EntityExistsException("Group already exists");
         }
+
+        // save group features
+        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
+            for (GroupFeature groupFeature : group.getGroupFeatures()) {
+                groupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
+                groupFeature.setGroup(groupRepository.findOne(newGroup.getId()));
+                groupFeature.setCreator(userRepository.findOne(1L));
+                groupFeatureRepository.save(groupFeature);
+            }
+        }
+
+        // save group links
+        if (!CollectionUtils.isEmpty(group.getLinks())) {
+            for (Link link : group.getLinks()) {
+                if (link.getId() < 0) { link.setId(null); }
+                link.setGroup(newGroup);
+                link.setCreator(userRepository.findOne(1L));
+                linkRepository.save(link);
+            }
+        }
+
+        group.setId(newGroup.getId());
 
         return group;
     }
@@ -84,8 +98,10 @@ public class AdminServiceImpl implements AdminService {
 
     public Group saveGroup(final Group group) {
 
-        // remove deleted group links
+        // get existing group
         Group entityGroup = groupRepository.findOne(group.getId());
+
+        // remove deleted group links
         entityGroup.getLinks().removeAll(group.getLinks());
         linkRepository.delete(entityGroup.getLinks());
 
@@ -96,6 +112,20 @@ public class AdminServiceImpl implements AdminService {
                 link.setGroup(entityGroup);
                 link.setCreator(userRepository.findOne(1L));
                 linkRepository.save(link);
+            }
+        }
+
+        // remove deleted group features
+        entityGroup.getGroupFeatures().removeAll(group.getGroupFeatures());
+        groupFeatureRepository.delete(entityGroup.getGroupFeatures());
+
+        // save group features
+        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
+            for (GroupFeature groupFeature : group.getGroupFeatures()) {
+                groupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
+                groupFeature.setGroup(groupRepository.findOne(entityGroup.getId()));
+                groupFeature.setCreator(userRepository.findOne(1L));
+                groupFeatureRepository.save(groupFeature);
             }
         }
 
