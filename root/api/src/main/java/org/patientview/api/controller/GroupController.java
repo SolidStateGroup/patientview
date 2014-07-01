@@ -81,7 +81,7 @@ public class GroupController extends BaseController {
     }
 
     @RequestMapping(value = "/groupfeature", method = RequestMethod.POST)
-    public ResponseEntity<GroupFeature> createGroup(@RequestBody GroupFeature groupFeature, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<GroupFeature> createGroupFeature(@RequestBody GroupFeature groupFeature, UriComponentsBuilder uriComponentsBuilder) {
         groupFeature = adminService.createGroupFeature(groupFeature);
         UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(groupFeature.getId());
         HttpHeaders headers = new HttpHeaders();

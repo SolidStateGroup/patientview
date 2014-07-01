@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -28,4 +29,7 @@ public interface FeatureRepository extends CrudRepository<Feature, Long> {
            "JOIN   u.groupRoles.group.groupFeatures.feature f" +
            "WHERE  u = :user ")
     public Iterable<Feature> getFeaturesByUser(@Param("user") User user);
+
+    @Query("SELECT fea FROM Feature fea WHERE :featureType MEMBER OF fea.featureTypes")
+    public Iterable<Feature> findByType(@Param("featureType") Lookup featureType);
 }

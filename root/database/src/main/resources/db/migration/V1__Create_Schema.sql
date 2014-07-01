@@ -111,6 +111,14 @@ CREATE TABLE PV_Feature
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Feature_Feature_Type
+(
+  Id                BIGINT NOT NULL,
+  Feature_Id        BIGINT REFERENCES PV_Feature (Id) NOT NULL,
+  Type_Id           BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE TABLE PV_Feature_User
 (
   Id               BIGINT    NOT NULL,

@@ -10,6 +10,20 @@ angular.module('patientviewApp').factory('FeatureService', ['$q', 'Restangular',
                 deferred.resolve(res);
             });
             return deferred.promise;
+        },
+        getAllUserFeatures: function () {
+            var deferred = $q.defer();
+            Restangular.all('feature').getList({'type':'USER'}).then(function(res) {
+                deferred.resolve(res);
+            });
+            return deferred.promise;
+        },
+        getAllGroupFeatures: function () {
+            var deferred = $q.defer();
+            Restangular.all('feature').getList({'type':'GROUP'}).then(function(res) {
+                deferred.resolve(res);
+            });
+            return deferred.promise;
         }
     };
 }]);

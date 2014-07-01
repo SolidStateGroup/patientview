@@ -340,12 +340,13 @@ div.grey-right-border {
 }
 
 .accordion-heading-text {
-    padding-top: 9px;
-    height:34px;
-    border-right: 1px solid #dddddd;
+    padding: 9px 0px 9px 9px;
+    /*height:34px;
+    border-right: 1px solid #dddddd;*/
 }
 .accordion-title-text {
     padding-top:9px;
+    padding-left:9px;
     height:34px;
     margin-right: 3px;
 }

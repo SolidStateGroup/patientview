@@ -9,6 +9,7 @@ INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (3, now(), 'Type of role','ROLE', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (4, now(), 'Type of external coding standard','CODE_STANDARD', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (5, now(), 'Type of code','CODE_TYPE', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (6, now(), 'Type of feature','FEATURE_TYPE', '1');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (1, now(), 'UNIT','1', '1');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (2, now(), 'SPECIALTY','1','1');
@@ -23,6 +24,9 @@ INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (11, now(), 'SNOMED','1','4');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (12, now(), 'DIAGNOSIS','1','5');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (13, now(), 'TREATMENT','1','5');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (14, now(), 'GROUP','1','6');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (15, now(), 'USER','1','6');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (16, now(), 'PATIENT','1','6');
 
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', 'The PatientView Specialty', 2, now(),1 );
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (2, 'Renal', 'Renal', 'The Renal Specialty', 2, now(),1 );
@@ -36,11 +40,21 @@ INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, c
 INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (5, 'SUPER_ADMIN', '6', '6', 'A superadmin', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (6, 'GP', '6', '2', 'A doctor', now(), '1');
 
-
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (1, 'MESSAGING', 'Messaging other users and admins', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (2, 'SHARING_THOUGHTS', 'Sharing thoughts of a patient on care', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (3, 'FEEDBACK', 'Ability to feedback problems on patient pages', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (4, 'ECS', 'Emergency Care Summary', now(), now(), 1);
+
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (3, 1, 16);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (4, 2, 14);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (5, 2, 15);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (6, 2, 16);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (7, 3, 14);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (8, 3, 16);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (9, 4, 14);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (10, 4, 16);
 
 INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 5, 1, null, null, 1,  '/', 'views/main.html','MainCtrl', 'PatientView2', now(), 1 );

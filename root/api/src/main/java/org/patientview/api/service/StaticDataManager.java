@@ -16,4 +16,6 @@ public interface StaticDataManager {
 
     List<Feature> getAllFeatures();
 
+    List<Feature> getFeaturesByType(String featureType);
+
 }

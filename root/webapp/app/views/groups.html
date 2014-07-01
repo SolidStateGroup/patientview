@@ -7,20 +7,6 @@
     <h1>Groups</h1>
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
-    <!-- delete group modal template -->
-    <script type="text/ng-template" id="deleteGroupModal.html">
-        <div class="modal-header">
-            <h3 class="modal-title">Delete Group</h3>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure? This will delete group <strong>{{group.group}}</strong>.</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()">Delete</button>
-        </div>
-    </script>
-
     <!-- new group modal template -->
     <script type="text/ng-template" id="newGroupModal.html">
         <div class="modal-header">
@@ -91,10 +77,10 @@
             <div class="row accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
                 <div class="col-sm-1 hidden">ID</div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('code');" class="sort-title">Code&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-3 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('groupType.value');" class="sort-title">Type&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="col-sm-3 accordion-title-text "><a ng-click="sortBy('description');" class="sort-title">Description&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-2"></div>
+                <div class="col-sm-3"></div>
             </div>
 
             <!-- body -->
@@ -104,15 +90,18 @@
                         <div class="row" ng-click="opened(group, $event)">
                             <div class="col-sm-1 hidden">{{group.id}}</div>
                             <div class="col-sm-2 accordion-heading-text">{{group.code}}</div>
-                            <div class="col-sm-3 accordion-heading-text">{{group.name}}</div>
+                            <div class="col-sm-2 accordion-heading-text">{{group.name}}</div>
                             <div class="col-sm-2 accordion-heading-text">{{group.groupType.value}}</div>
                             <div class="col-sm-3 accordion-heading-text">{{group.description}}</div>
-                            <div class="col-sm-2">
+                            <div class="col-sm-3">
 
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="btn-group pull-right">
                                     <button type="button" class="btn btn-primary pull-right">
                                         <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit
+                                    </button>
+                                    <button type="button" class="btn btn-primary pull-right">
+                                        <span class="glyphicon glyphicon-calendar" ng-click="stats(group)"></span>&nbsp;&nbsp;Stats
                                     </button>
                                 </div>
 
@@ -124,7 +113,7 @@
                     <form name="groupForm">
                         <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
                     </form>
-                    <hr>{{index}}
+                    <hr>
                     <div class="group-save-cancel pull-right">
                         <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
                         <button type="button" class="btn btn-primary" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
@@ -144,6 +133,11 @@
             <div pagination on-select-page="setPage(page)" total-items="filtered.length" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filtered.length  < entryLimit "></div>
         </div>
     </div>
+</div>
+
+<!-- stats container for single group -->
+<div class="container" ng-show="!loading" ng-cloak>
+    <h1>Statistics</h1>
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>

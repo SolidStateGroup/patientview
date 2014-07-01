@@ -159,7 +159,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.allRoles = allRoles;
         });
 
-        FeatureService.getAll().then(function(allFeatures) {
+        FeatureService.getAllUserFeatures().then(function(allFeatures) {
             $scope.allFeatures = [];
             for (var i=0;i<allFeatures.length;i++){
                 $scope.allFeatures.push({'feature':allFeatures[i]});

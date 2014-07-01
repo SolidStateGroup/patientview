@@ -11,9 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -46,9 +48,13 @@ public class StaticDataController extends  BaseController {
 
     @RequestMapping(value = "/feature", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Feature>> getAllFeatures() {
-        return new ResponseEntity<List<Feature>>(staticDataManager.getAllFeatures(), HttpStatus.OK);
+    public ResponseEntity<List<Feature>> getAllFeatures(
+            @RequestParam(value = "type", required = false) String featureType, HttpServletRequest request) {
+
+        if (!request.getParameterMap().containsKey("type")) {
+            return new ResponseEntity<List<Feature>>(staticDataManager.getAllFeatures(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<List<Feature>>(staticDataManager.getFeaturesByType(featureType), HttpStatus.OK);
+        }
     }
-
-
 }
