@@ -136,7 +136,6 @@ public class Group extends AuditModel {
         this.groupRoles = groupRoles;
     }
 
-    @JsonIgnore
     public Set<Group> getParentGroups() {
         return parentGroups;
     }

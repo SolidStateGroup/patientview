@@ -26,6 +26,7 @@ import javax.persistence.EntityExistsException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -94,7 +95,9 @@ public class AdminServiceImpl implements AdminService {
         return group;
     }
 
-    public Group getGroup(Long groupId) { return groupRepository.findOne(groupId);}
+    public Group getGroup(Long groupId) {
+        return groupRepository.findOne(groupId);
+    }
 
     public Group saveGroup(final Group group) {
 

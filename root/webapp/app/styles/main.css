@@ -267,7 +267,7 @@ div.group-list-role-selected {
 
 div.group-add-container, div.feature-add-container {
     clear: both;
-    padding-top: 25px;
+    /*padding-top: 25px;*/
 }
 
 button.group-add-button, button.feature-add-button {
