@@ -69,6 +69,7 @@ function ($q, Restangular, UtilService) {
         // create new group
         new: function (inputGroup, groupTypes) {
             var deferred = $q.defer();
+            var i = 0;
 
             // clean group features
             var cleanGroupFeatures = [];
