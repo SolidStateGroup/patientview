@@ -126,7 +126,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         group.availableChildGroups = _.clone($scope.allChildGroups);
 
         // remove existing parent groups and self from available
-        if (group.parentGroups.length > 0) {
+        if (group.parentGroups && group.parentGroups.length > 0) {
             for (i = 0; i < group.parentGroups.length; i++) {
                 for (j = 0; j < group.availableParentGroups.length; j++) {
                     if (group.parentGroups[i].id === group.availableParentGroups[j].id) {
@@ -142,7 +142,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         }
 
         // remove existing child groups and self from available
-        if (group.childGroups.length > 0) {
+        if (group.childGroups && group.childGroups.length > 0) {
             for (i = 0; i < group.childGroups.length; i++) {
                 for (j = 0; j < group.availableChildGroups.length; j++) {
                     if (group.childGroups[i].id === group.availableChildGroups[j].id) {

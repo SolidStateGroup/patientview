@@ -58,8 +58,6 @@ function ($q, Restangular, UtilService) {
             group.parentGroups = cleanParentGroups;
             group.groupType = groupType;
 
-            console.log(group);
-
             // PUT /group
             Restangular.all('group').customPUT(group).then(function(successResult) {
                 deferred.resolve(successResult);
@@ -80,12 +78,26 @@ function ($q, Restangular, UtilService) {
                 cleanGroupFeatures.push({'feature':feature});
             }
 
+            // clean childGroups
+            var cleanChildGroups = [];
+            for (i=0;i<inputGroup.childGroups.length;i++) {
+                cleanChildGroups.push(UtilService.cleanObject(inputGroup.childGroups[i], 'group'));
+            }
+
+            // clean parentGroups
+            var cleanParentGroups = [];
+            for (i=0;i<inputGroup.parentGroups.length;i++) {
+                cleanParentGroups.push(UtilService.cleanObject(inputGroup.parentGroups[i], 'group'));
+            }
+
             // convert group and standard type ids to actual objects and clean
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
             var group = UtilService.cleanObject(inputGroup, 'group');
 
             // add cleaned objects
             group.groupFeatures = cleanGroupFeatures;
+            group.childGroups = cleanChildGroups;
+            group.parentGroups = cleanParentGroups;
             group.groupType = groupType;
 
             Restangular.all('group').post(group).then(function(successResult) {
