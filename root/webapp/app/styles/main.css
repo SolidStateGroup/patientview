@@ -270,6 +270,11 @@ div.group-add-container, div.feature-add-container {
     /*padding-top: 25px;*/
 }
 
+div.item-add-container {
+    padding-top: 20px;
+    clear: both;
+}
+
 button.group-add-button, button.feature-add-button {
     clear:both;
     float: right;

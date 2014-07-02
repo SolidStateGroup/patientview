@@ -18,7 +18,7 @@ angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', funct
         form.$setDirty(true);
     };
 
-    // add feature to current feature, remove from allowed
+    // add feature to current features, remove from allowed
     $scope.addFeature = function (form, group, featureId) {
         for (var j = 0; j < group.availableFeatures.length; j++) {
             if (group.availableFeatures[j].feature.id === featureId) {
@@ -39,4 +39,67 @@ angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', funct
         }
         form.$setDirty(true);
     };
+
+    // add parent group to group, remove from available
+    $scope.addParentGroup = function (form, group, parentGroupId) {
+
+        //var currentGroup = {};
+
+        // set parent group for current group
+        for (var j = 0; j < group.availableParentGroups.length; j++) {
+            if (group.availableParentGroups[j].id === parentGroupId) {
+                //currentGroup = group.availableParentGroups[j];
+                group.parentGroups.push(group.availableParentGroups[j]);
+                group.availableParentGroups.splice(j, 1);
+            }
+        }
+
+        // add corresponding child group (this group) for the new parent
+        /*for (var k = 0; k < $scope.allGroups; k++) {
+            var group = $scope.allGroups[k];
+            if (group.id === parentGroupId) {
+                group.childGroups.push(currentGroup);
+            }
+        }*/
+
+        form.$setDirty(true);
+    };
+
+    // remove parentGroup from current parentGroups, add to allowed parentGroups
+    $scope.removeParentGroup = function (form, group, parentGroup) {
+        for (var j = 0; j < group.parentGroups.length; j++) {
+            if (group.parentGroups[j].id === parentGroup.id) {
+                group.availableParentGroups.push(group.parentGroups[j]);
+                group.parentGroups.splice(j, 1);
+            }
+        }
+        form.$setDirty(true);
+    };
+
+    // add child group to group, remove from available
+    $scope.addChildGroup = function (form, group, childGroupId) {
+
+        // set child group for current group
+        for (var j = 0; j < group.availableChildGroups.length; j++) {
+            if (group.availableChildGroups[j].id === childGroupId) {
+                //currentGroup = group.availableChildGroups[j];
+                group.childGroups.push(group.availableChildGroups[j]);
+                group.availableChildGroups.splice(j, 1);
+            }
+        }
+
+        form.$setDirty(true);
+    };
+
+    // remove childGroup from current childGroups, add to allowed childGroups
+    $scope.removeChildGroup = function (form, group, childGroup) {
+        for (var j = 0; j < group.childGroups.length; j++) {
+            if (group.childGroups[j].id === childGroup.id) {
+                group.availableChildGroups.push(group.childGroups[j]);
+                group.childGroups.splice(j, 1);
+            }
+        }
+        form.$setDirty(true);
+    };
+    
 }]);

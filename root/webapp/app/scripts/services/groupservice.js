@@ -27,13 +27,26 @@ function ($q, Restangular, UtilService) {
         // save group
         save: function (inputGroup, groupTypes) {
             var deferred = $q.defer();
+            var i = 0;
 
             // clean group features
             var cleanGroupFeatures = [];
-            for (var j=0;j<inputGroup.groupFeatures.length;j++) {
-                var groupFeature = inputGroup.groupFeatures[j];
+            for (i=0;i<inputGroup.groupFeatures.length;i++) {
+                var groupFeature = inputGroup.groupFeatures[i];
                 var feature = {'id':groupFeature.feature.id,'name':groupFeature.feature.name,'description':''};
                 cleanGroupFeatures.push({'feature':feature});
+            }
+
+            // clean childGroups
+            var cleanChildGroups = [];
+            for (i=0;i<inputGroup.childGroups.length;i++) {
+                cleanChildGroups.push(UtilService.cleanObject(inputGroup.childGroups[i], 'group'));
+            }
+
+            // clean parentGroups
+            var cleanParentGroups = [];
+            for (i=0;i<inputGroup.parentGroups.length;i++) {
+                cleanParentGroups.push(UtilService.cleanObject(inputGroup.parentGroups[i], 'group'));
             }
 
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
@@ -41,7 +54,11 @@ function ($q, Restangular, UtilService) {
 
             // add cleaned objects
             group.groupFeatures = cleanGroupFeatures;
+            group.childGroups = cleanChildGroups;
+            group.parentGroups = cleanParentGroups;
             group.groupType = groupType;
+
+            console.log(group);
 
             // PUT /group
             Restangular.all('group').customPUT(group).then(function(successResult) {

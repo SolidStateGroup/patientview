@@ -27,7 +27,7 @@
 <div class="row">
     <div class="col-sm-12">
         <h3>Links</h3>
-        <div ng-hide="editGroup.links" class="alert alert-info">No links</div>
+        <div ng-hide="editGroup.links.length > 0" class="alert alert-info">No links</div>
         <div class="link-list-item row" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
             <div class="col-sm-4"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="link" name="link" ng-model="link.link" required></div>
             <div class="col-sm-4"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="name" name="name" ng-model="link.name" required></div>
@@ -38,7 +38,6 @@
             </div>
             <div class="col-sm-2"><button type="button" class="btn btn-danger link-delete-button" ng-click="removeLink(groupForm, editGroup, link)">Delete</button></span></div>
         </div>
-        <h5 class="inner-title">Add Link</h5>
         <div class="row" ng-model="newLink">
             <div class="col-sm-5"><input type="text" class="form-control" id="group-newLink-link" placeholder="link" name="newLink" ng-model="newLink.link"></div>
             <div class="col-sm-5"><input type="text" class="form-control" id="group-newLink-name" placeholder="name" name="newLink" ng-model="newLink.name"></div>
@@ -56,14 +55,12 @@
 <div class="row">
     <div class="col-sm-12">
         <h3>Features</h3>
-        <div ng-hide="editGroup.groupFeatures" class="alert alert-info">No features</div>
+        <div ng-hide="editGroup.groupFeatures.length > 0" class="alert alert-info">No features</div>
         <div class="feature-list-item" ng-repeat="feature in editGroup.groupFeatures">
             <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.name}}</span></div>
             <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(groupForm, editGroup, feature)" >Delete</a></span></div>
         </div>
-        <br/>
-        <div class="feature-add-container" ng-show="editGroup.availableFeatures.length > 0 ">
-            <h5 class="inner-title">Add Feature </h5>
+        <div class="feature-add-container item-add-container" ng-show="editGroup.availableFeatures.length > 0 ">
             <div class="row">
                 <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editGroup.availableFeatures"></select></div>
                 <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button pull-left" ng-click="addFeature(groupForm, editGroup, featureToAdd)">Add</button></div>
@@ -75,28 +72,26 @@
 <div class="row">
     <div class="col-sm-6">
         <h3>Parent Groups</h3>
-        <div ng-hide="editGroup.parentGroups" class="alert alert-info">No parent groups</div>
+        <div ng-hide="editGroup.parentGroups.length > 0" class="alert alert-info">No parent groups</div>
         <div class="feature-list-item" ng-repeat="parentGroup in editGroup.parentGroups">
             <div class="feature-list-name"><span class="feature-list-name">{{parentGroup.name}}</span></div>
             <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-parent-group-modal-{{parentGroup.id}}" href="" ng-click="removeParentGroup(groupForm, editGroup, parentGroup)" >Delete</a></span></div>
         </div>
-        <div class="parent-group-add-container" ng-show="editGroup.availableParentGroups.length > 0 ">
-            <h5 class="inner-title">Add Parent Group</h5>
+        <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableParentGroups.length > 0 ">
             <div class="row">
                 <div class="col-sm-10"><select class="form-control parent-group-select" ng-model="parentGroupToAdd" ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select></div>
                 <div class="col-sm-2"><button type="button" class="btn btn-primary parent-group-add-button pull-left" ng-click="addParentGroup(groupForm, editGroup, parentGroupToAdd)">Add</button></div>
             </div>
         </div>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-6" ng-show="editGroup.groupType.value === 'SPECIALTY'">
         <h3>Child Groups</h3>
-        <div ng-hide="editGroup.childGroups" class="alert alert-info">No child groups</div>
+        <div ng-hide="editGroup.childGroups.length > 0" class="alert alert-info">No child groups</div>
         <div class="feature-list-item" ng-repeat="childGroup in editGroup.childGroups">
             <div class="feature-list-name"><span class="feature-list-name">{{childGroup.name}}</span></div>
             <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-child-group-modal-{{childGroup.id}}" href="" ng-click="removeChildGroup(groupForm, editGroup, childGroup)" >Delete</a></span></div>
         </div>
-        <div class="parent-group-add-container" ng-show="editGroup.availableChildGroups.length > 0 ">
-            <h5 class="inner-title">Add Child Group</h5>
+        <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableChildGroups.length > 0 ">
             <div class="row">
                 <div class="col-sm-10"><select class="form-control child-group-select" ng-model="childGroupToAdd" ng-options="childGroup.id as childGroup.name for childGroup in editGroup.availableChildGroups"></select></div>
                 <div class="col-sm-2"><button type="button" class="btn btn-primary child-group-add-button pull-left" ng-click="addChildGroup(groupForm, editGroup, childGroupToAdd)">Add</button></div>
