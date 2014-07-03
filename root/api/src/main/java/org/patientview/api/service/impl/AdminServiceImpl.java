@@ -79,8 +79,12 @@ public class AdminServiceImpl implements AdminService {
         }
 
         // save relationships to other groups
-        newGroup.getParentGroups().addAll(parentGroups);
-        newGroup.getChildGroups().addAll(childGroups);
+        for (Group tempGroup : parentGroups) {
+            newGroup.getParentGroups().add(groupRepository.findOne(tempGroup.getId()));
+        }
+        for (Group tempGroup : childGroups) {
+            newGroup.getChildGroups().add(groupRepository.findOne(tempGroup.getId()));
+        }
         newGroup = groupRepository.save(newGroup);
 
         // save group features
