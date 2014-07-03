@@ -71,6 +71,13 @@ public class AdminServiceImpl implements AdminService {
         group.getParentGroups().clear();
         group.getChildGroups().clear();
 
+        // get links and features
+        Set<Link> links = new HashSet<Link>(group.getLinks());
+        group.getLinks().clear();
+        Set<GroupFeature> groupFeatures = new HashSet<GroupFeature>(group.getGroupFeatures());
+        group.getGroupFeatures().clear();
+
+        // save basic details
         try {
             newGroup = groupRepository.save(group);
         } catch (DataIntegrityViolationException dve) {
@@ -78,7 +85,7 @@ public class AdminServiceImpl implements AdminService {
             throw new EntityExistsException("Group already exists");
         }
 
-        // save relationships to other groups
+        // save correct relationships to other groups
         for (Group tempGroup : parentGroups) {
             newGroup.getParentGroups().add(groupRepository.findOne(tempGroup.getId()));
         }
@@ -87,29 +94,25 @@ public class AdminServiceImpl implements AdminService {
         }
         newGroup = groupRepository.save(newGroup);
 
-        // save group features
-        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
-            for (GroupFeature groupFeature : group.getGroupFeatures()) {
-                groupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
-                groupFeature.setGroup(groupRepository.findOne(newGroup.getId()));
-                groupFeature.setCreator(userRepository.findOne(1L));
-                groupFeatureRepository.save(groupFeature);
-            }
+        // save links
+        for (Link link : links) {
+            link.setGroup(newGroup);
+            link = linkRepository.save(link);
+            newGroup.getLinks().add(link);
         }
 
-        // save group links
-        if (!CollectionUtils.isEmpty(group.getLinks())) {
-            for (Link link : group.getLinks()) {
-                if (link.getId() < 0) { link.setId(null); }
-                link.setGroup(newGroup);
-                link.setCreator(userRepository.findOne(1L));
-                linkRepository.save(link);
-            }
+        // save features
+        for (GroupFeature groupFeature : groupFeatures) {
+            GroupFeature tempGroupFeature = new GroupFeature();
+            tempGroupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
+            tempGroupFeature.setGroup(newGroup);
+            tempGroupFeature.setCreator(userRepository.findOne(1L));
+            tempGroupFeature = groupFeatureRepository.save(tempGroupFeature);
+            newGroup.getGroupFeatures().add(tempGroupFeature);
         }
 
-        group.setId(newGroup.getId());
-
-        return addSingleLevelParentsAndChildren(group);
+        // return new group with parents/children for front end to avoid recursion
+        return addSingleLevelParentsAndChildren(newGroup);
     }
 
     public Group getGroup(Long groupId) {
