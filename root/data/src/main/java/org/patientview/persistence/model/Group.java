@@ -1,19 +1,20 @@
 package org.patientview.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -56,16 +57,24 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
     private Set<Link> links;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name="PV_Group_Relationship",
             joinColumns = @JoinColumn(name="Child_Id", referencedColumnName="Id"),
             inverseJoinColumns = @JoinColumn(name="Parent_Id", referencedColumnName="Id"))
+    @JsonIgnore
     @JsonManagedReference
     private Set<Group> parentGroups = new HashSet<Group>();
 
-    @ManyToMany(mappedBy="parentGroups")
-    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@Parent_Id")
+    @ManyToMany(mappedBy="parentGroups", cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnore
+    @JsonBackReference
     private Set<Group> childGroups = new HashSet<Group>();
+
+    @Transient
+    private Set<Group> parents = new HashSet<Group>();
+
+    @Transient
+    private Set<Group> children = new HashSet<Group>();
 
     public String getName() {
         return name;
@@ -155,5 +164,21 @@ public class Group extends AuditModel {
 
     public void setChildGroups(Set<Group> childGroups) {
         this.childGroups = childGroups;
+    }
+
+    public Set<Group> getParents() {
+        return parents;
+    }
+
+    public void setParents(Set<Group> parents) {
+        this.parents = parents;
+    }
+
+    public Set<Group> getChildren() {
+        return children;
+    }
+
+    public void setChildren(Set<Group> children) {
+        this.children = children;
     }
 }

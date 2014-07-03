@@ -27,7 +27,7 @@ function ($q, Restangular, UtilService) {
         // save group
         save: function (inputGroup, groupTypes) {
             var deferred = $q.defer();
-            var i = 0;
+            var i;
 
             // clean group features
             var cleanGroupFeatures = [];
@@ -40,13 +40,25 @@ function ($q, Restangular, UtilService) {
             // clean childGroups
             var cleanChildGroups = [];
             for (i=0;i<inputGroup.childGroups.length;i++) {
-                cleanChildGroups.push(UtilService.cleanObject(inputGroup.childGroups[i], 'group'));
+                var childGroup = UtilService.cleanObject(inputGroup.childGroups[i], 'group');
+                delete childGroup.children;
+                delete childGroup.childGroups;
+                delete childGroup.parents;
+                delete childGroup.parentGroups;
+                delete childGroup.groupFeatures;
+                cleanChildGroups.push(childGroup);
             }
 
             // clean parentGroups
             var cleanParentGroups = [];
             for (i=0;i<inputGroup.parentGroups.length;i++) {
-                cleanParentGroups.push(UtilService.cleanObject(inputGroup.parentGroups[i], 'group'));
+                var parentGroup = UtilService.cleanObject(inputGroup.parentGroups[i], 'group');
+                delete parentGroup.children;
+                delete parentGroup.childGroups;
+                delete parentGroup.parents;
+                delete parentGroup.parentGroups;
+                delete parentGroup.groupFeatures;
+                cleanParentGroups.push(parentGroup);
             }
 
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
@@ -56,11 +68,15 @@ function ($q, Restangular, UtilService) {
             group.groupFeatures = cleanGroupFeatures;
             group.childGroups = cleanChildGroups;
             group.parentGroups = cleanParentGroups;
+            delete group.children;
+            delete group.parents;
             group.groupType = groupType;
 
             // PUT /group
             Restangular.all('group').customPUT(group).then(function(successResult) {
                 deferred.resolve(successResult);
+                successResult.parentGroups = successResult.parents;
+                successResult.childGroups = successResult.children;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
@@ -69,7 +85,7 @@ function ($q, Restangular, UtilService) {
         // create new group
         new: function (inputGroup, groupTypes) {
             var deferred = $q.defer();
-            var i = 0;
+            var i;
 
             // clean group features
             var cleanGroupFeatures = [];
@@ -82,13 +98,25 @@ function ($q, Restangular, UtilService) {
             // clean childGroups
             var cleanChildGroups = [];
             for (i=0;i<inputGroup.childGroups.length;i++) {
-                cleanChildGroups.push(UtilService.cleanObject(inputGroup.childGroups[i], 'group'));
+                var childGroup = UtilService.cleanObject(inputGroup.childGroups[i], 'group');
+                delete childGroup.children;
+                delete childGroup.childGroups;
+                delete childGroup.parents;
+                delete childGroup.parentGroups;
+                delete childGroup.groupFeatures;
+                cleanChildGroups.push(childGroup);
             }
 
             // clean parentGroups
             var cleanParentGroups = [];
             for (i=0;i<inputGroup.parentGroups.length;i++) {
-                cleanParentGroups.push(UtilService.cleanObject(inputGroup.parentGroups[i], 'group'));
+                var parentGroup = UtilService.cleanObject(inputGroup.parentGroups[i], 'group');
+                delete parentGroup.children;
+                delete parentGroup.childGroups;
+                delete parentGroup.parents;
+                delete parentGroup.parentGroups;
+                delete parentGroup.groupFeatures;
+                cleanParentGroups.push(parentGroup);
             }
 
             // convert group and standard type ids to actual objects and clean
@@ -99,10 +127,14 @@ function ($q, Restangular, UtilService) {
             group.groupFeatures = cleanGroupFeatures;
             group.childGroups = cleanChildGroups;
             group.parentGroups = cleanParentGroups;
+            delete group.children;
+            delete group.parents;
             group.groupType = groupType;
 
             Restangular.all('group').post(group).then(function(successResult) {
                 deferred.resolve(successResult);
+                successResult.parentGroups = successResult.parents;
+                successResult.childGroups = successResult.children;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });

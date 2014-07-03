@@ -36,43 +36,61 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     // Init
     $scope.init = function () {
 
+        var i, j, group;
         $scope.loading = true;
 
         GroupService.getAll().then(function(groups) {
+
+            // handle parent/child (avoiding infinite recursion using @Transient in Group.java)
+            for (i=0;i<groups.length;i++) {
+                group = groups[i];
+                if (group.parents) {
+                    group.parentGroups = group.parents;
+                } else {
+                    group.parentGroups = [];
+                }
+
+                if (group.children) {
+                    group.childGroups = group.children;
+                } else {
+                    group.childGroups = [];
+                }
+            }
+
             $scope.list = groups;
             $scope.currentPage = 1; //current page
             $scope.entryLimit = 10; //max no of items to display in a page
             $scope.totalItems = $scope.list.length;
             $scope.predicate = 'id';
 
-            // get group types
-            $scope.groupTypes = [];
-            StaticDataService.getLookupsByType('GROUP').then(function(groupTypes) {
-                if (groupTypes.length > 0) {
-                    $scope.groupTypes = groupTypes;
-                }
-
-                delete $scope.loading;
-            });
-
             // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups
-            // define groups that can be parents by type, currently hardcoded to SPECIALTY and DISEASE_GROUP type groups
+            // define groups that can be parents by type, currently hardcoded to SPECIALTY (and later DISEASE_GROUP) type groups
             $scope.allParentGroups = [];
-            for (var i=0;i<$scope.list.length;i++) {
-                var group = $scope.list[i];
-                if (group.groupType.value === 'SPECIALTY') {
+            for (i=0;i<$scope.list.length;i++) {
+                group = $scope.list[i];
+                if (group && group.groupType && group.groupType.value === 'SPECIALTY') {
                     $scope.allParentGroups.push(group);
                 }
             }
 
             // similarly, child groups are all those of type NOT SPECIALTY
             $scope.allChildGroups = [];
-            for (var j=0;j<$scope.list.length;j++) {
-                var group = $scope.list[j];
-                if (group.groupType.value !== 'SPECIALTY') {
+            for (j=0;j<$scope.list.length;j++) {
+                group = $scope.list[j];
+                if (group && group.groupType && group.groupType.value !== 'SPECIALTY') {
                     $scope.allChildGroups.push(group);
                 }
             }
+        });
+
+        // get group types
+        $scope.groupTypes = [];
+        StaticDataService.getLookupsByType('GROUP').then(function(groupTypes) {
+            if (groupTypes.length > 0) {
+                $scope.groupTypes = groupTypes;
+            }
+
+            delete $scope.loading;
         });
 
         FeatureService.getAllGroupFeatures().then(function(allFeatures) {

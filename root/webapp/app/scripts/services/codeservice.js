@@ -56,7 +56,7 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // clone code
-        clone: function (codeId, codeTypes, standardTypes) {
+        clone: function (codeId) {
             var deferred = $q.defer();
             Restangular.one('code',codeId).post('clone').then(function(successResult) {
                 deferred.resolve(successResult);

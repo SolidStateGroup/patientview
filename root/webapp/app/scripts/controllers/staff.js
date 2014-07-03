@@ -137,7 +137,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
 
         $scope.loading = true;
-        var groupIds = Array();
+        var groupIds = [];
         $scope.allGroups = [];
 
         // get list of user's groups to retrieve patients for
@@ -289,9 +289,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         modalInstance.result.then(function (user) {
             $scope.list.push(user);
             $scope.editUser = user;
-            $scope.successMessage = 'User successfully created '
-                + 'with username: "' + user.username + '" '
-                + 'and password: "' + user.password + '"';
+            $scope.successMessage = 'User successfully created ' +
+                'with username: "' + user.username + '" ' +
+                'and password: "' + user.password + '"';
             $scope.userCreated = true;
             // ok (success)
         }, function () {

@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -63,12 +64,24 @@ public class AdminServiceImpl implements AdminService {
     public Group createGroup(Group group) throws EntityExistsException {
         Group newGroup;
 
+        // avoid persisting parent/child groups before input group with error: org.hibernate.PersistentObjectException:
+        // detached entity passed to persist: org.patientview.persistence.model.Group
+        Set<Group> parentGroups = new HashSet<Group>(group.getParentGroups());
+        Set<Group> childGroups = new HashSet<Group>(group.getChildGroups());
+        group.getParentGroups().clear();
+        group.getChildGroups().clear();
+
         try {
             newGroup = groupRepository.save(group);
         } catch (DataIntegrityViolationException dve) {
             LOG.debug("Group not created, duplicate: {}", dve.getCause());
             throw new EntityExistsException("Group already exists");
         }
+
+        // save relationships to other groups
+        newGroup.getParentGroups().addAll(parentGroups);
+        newGroup.getChildGroups().addAll(childGroups);
+        newGroup = groupRepository.save(newGroup);
 
         // save group features
         if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
@@ -92,7 +105,7 @@ public class AdminServiceImpl implements AdminService {
 
         group.setId(newGroup.getId());
 
-        return group;
+        return addSingleLevelParentsAndChildren(group);
     }
 
     public Group getGroup(Long groupId) {
@@ -132,7 +145,7 @@ public class AdminServiceImpl implements AdminService {
             }
         }
 
-        return groupRepository.save(group);
+        return addSingleLevelParentsAndChildren(groupRepository.save(group));
     }
     
     public GroupFeature addGroupFeature(Long groupId, Long featureId) {
@@ -146,7 +159,44 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public List<Group> getAllGroups() {
+        List<Group> groups = Util.iterableToList(groupRepository.findAll());
+
+        // manually add list of parents/children (avoid recursion by only going one level deep)
+        for (Group group : groups) {
+            group = addSingleLevelParentsAndChildren(group);
+        }
+
         return Util.iterableToList(groupRepository.findAll());
+    }
+
+    /**
+     * Create simple set of parents and children avoiding infinite recursion due to self-ref ManyToMany
+     * @param inputGroup
+     * @return
+     */
+    private Group addSingleLevelParentsAndChildren(Group inputGroup) {
+        for (Group familyGroup : inputGroup.getParentGroups()) {
+            Group newGroup = new Group();
+            newGroup.setId(familyGroup.getId());
+            newGroup.setName(familyGroup.getName());
+            newGroup.setCode(familyGroup.getCode());
+            newGroup.setFhirResourceId(familyGroup.getFhirResourceId());
+            newGroup.setDescription(familyGroup.getDescription());
+            newGroup.setGroupType(familyGroup.getGroupType());
+            inputGroup.getParents().add(newGroup);
+        }
+        for (Group familyGroup : inputGroup.getChildGroups()) {
+            Group newGroup = new Group();
+            newGroup.setId(familyGroup.getId());
+            newGroup.setName(familyGroup.getName());
+            newGroup.setCode(familyGroup.getCode());
+            newGroup.setFhirResourceId(familyGroup.getFhirResourceId());
+            newGroup.setDescription(familyGroup.getDescription());
+            newGroup.setGroupType(familyGroup.getGroupType());
+            inputGroup.getChildren().add(newGroup);
+        }
+
+        return inputGroup;
     }
 
     public List<Role> getAllRoles() {
