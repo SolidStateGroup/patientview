@@ -525,7 +525,7 @@ module.exports = function (grunt) {
     grunt.registerTask('serveapi', function (target) {
         grunt.task.run([
             'clean:server',
-            'ngconstant:apilocal',
+            'ngconstant:apidev',
             'bowerInstall',
             'concurrent:server',
             'autoprefixer',
