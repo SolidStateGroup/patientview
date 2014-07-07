@@ -261,7 +261,7 @@ CREATE TABLE PV_Location (
   Id            BIGINT    NOT NULL,
   Group_Id      BIGINT    NOT NULL  REFERENCES PV_Group (Id),
   Label         TEXT      NOT NULL,
-  Name          TEXT,
+  Name          TEXT      NOT NULL,
   Phone         TEXT,
   Address_1     TEXT,
   Address_2     TEXT,

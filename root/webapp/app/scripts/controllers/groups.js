@@ -201,6 +201,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.groupCreated = '';
         $scope.editGroup = {};
         $scope.editGroup.links = [];
+        $scope.editGroup.locations = [];
         $scope.editGroup.groupFeatures = [];
         $scope.editGroup.availableFeatures = _.clone($scope.allFeatures);
 

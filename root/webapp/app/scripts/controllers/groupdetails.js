@@ -18,6 +18,23 @@ angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', funct
         form.$setDirty(true);
     };
 
+    $scope.addLocation = function (form, group, location) {
+        location.id = Math.floor(Math.random() * (9999)) -10000;
+        location.displayOrder = group.locations.length +1;
+        group.locations.push(_.clone(location));
+        location.label = location.name = '';
+        form.$setDirty(true);
+    };
+
+    $scope.removeLocation = function (form, group, location) {
+        for (var j = 0; j < group.locations.length; j++) {
+            if (group.locations[j].id === location.id) {
+                group.locations.splice(j, 1);
+            }
+        }
+        form.$setDirty(true);
+    };
+
     // add feature to current features, remove from allowed
     $scope.addFeature = function (form, group, featureId) {
         for (var j = 0; j < group.availableFeatures.length; j++) {
