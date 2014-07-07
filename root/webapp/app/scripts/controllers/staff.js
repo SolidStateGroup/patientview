@@ -396,6 +396,10 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
     };
 
+    $scope.closeStatistics = function () {
+
+    };
+
     $scope.init();
 }]);
 
