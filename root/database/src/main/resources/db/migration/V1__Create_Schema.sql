@@ -60,10 +60,9 @@ CREATE TABLE PV_Group
 
 CREATE TABLE PV_Group_Relationship
 (
-  Id               BIGINT    NOT NULL,
   Child_Id         BIGINT    REFERENCES PV_Group (Id) NOT NULL,
   Parent_Id        BIGINT    REFERENCES PV_Group (Id) NOT NULL,
-  PRIMARY KEY (Id)
+  PRIMARY KEY (Child_Id, Parent_Id)
 );
 
 CREATE TABLE PV_Role
