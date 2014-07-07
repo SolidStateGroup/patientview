@@ -99,6 +99,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 $scope.allFeatures.push({'feature':allFeatures[k]});
             }
         });
+
+        // TODO: set permissionCreateGroup from user's permissions
+        $scope.permissionCreateGroup = true;
     };
 
     // filter by group type
