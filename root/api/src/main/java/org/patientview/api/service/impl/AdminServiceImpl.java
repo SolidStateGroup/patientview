@@ -5,6 +5,7 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
@@ -12,6 +13,7 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LinkRepository;
+import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -61,6 +63,9 @@ public class AdminServiceImpl implements AdminService {
     @Inject
     private LinkRepository linkRepository;
 
+    @Inject
+    private LocationRepository locationRepository;
+
     public Group createGroup(Group group) throws EntityExistsException {
         Group newGroup;
 
@@ -71,9 +76,11 @@ public class AdminServiceImpl implements AdminService {
         group.getParentGroups().clear();
         group.getChildGroups().clear();
 
-        // get links and features
+        // get links and features, avoid persisting until group created successfully
         Set<Link> links = new HashSet<Link>(group.getLinks());
         group.getLinks().clear();
+        Set<Location> locations = new HashSet<Location>(group.getLocations());
+        group.getLocations().clear();
         Set<GroupFeature> groupFeatures = new HashSet<GroupFeature>(group.getGroupFeatures());
         group.getGroupFeatures().clear();
 
@@ -99,6 +106,13 @@ public class AdminServiceImpl implements AdminService {
             link.setGroup(newGroup);
             link = linkRepository.save(link);
             newGroup.getLinks().add(link);
+        }
+
+        // save locations
+        for (Location location : locations) {
+            location.setGroup(newGroup);
+            location = locationRepository.save(location);
+            newGroup.getLocations().add(location);
         }
 
         // save features
@@ -135,6 +149,20 @@ public class AdminServiceImpl implements AdminService {
                 link.setGroup(entityGroup);
                 link.setCreator(userRepository.findOne(1L));
                 linkRepository.save(link);
+            }
+        }
+        
+        // remove deleted group locations
+        entityGroup.getLocations().removeAll(group.getLocations());
+        locationRepository.delete(entityGroup.getLocations());
+
+        // set new group locations and persist
+        if (!CollectionUtils.isEmpty(group.getLocations())) {
+            for (Location location : group.getLocations()) {
+                if (location.getId() < 0) { location.setId(null); }
+                location.setGroup(entityGroup);
+                location.setCreator(userRepository.findOne(1L));
+                locationRepository.save(location);
             }
         }
 

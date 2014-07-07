@@ -20,7 +20,6 @@ angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', funct
 
     $scope.addLocation = function (form, group, location) {
         location.id = Math.floor(Math.random() * (9999)) -10000;
-        location.displayOrder = group.locations.length +1;
         group.locations.push(_.clone(location));
         location.label = location.name = '';
         form.$setDirty(true);

@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -14,6 +16,7 @@ import javax.persistence.Table;
 @Table(name = "pv_location")
 public class Location extends AuditModel {
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
