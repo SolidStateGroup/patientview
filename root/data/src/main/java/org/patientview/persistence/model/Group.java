@@ -56,6 +56,9 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
     private Set<Link> links;
 
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
+    private Set<Location> locations;
+
     @ManyToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name="PV_Group_Relationship",
             joinColumns = @JoinColumn(name="Child_Id", referencedColumnName="Id"),
@@ -138,6 +141,14 @@ public class Group extends AuditModel {
 
     public void setLinks(Set<Link> links) {
         this.links = links;
+    }
+
+    public Set<Location> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(Set<Location> locations) {
+        this.locations = locations;
     }
 
     @JsonIgnore

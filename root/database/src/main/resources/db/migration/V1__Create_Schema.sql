@@ -246,7 +246,6 @@ CREATE TABLE PV_Code (
   PRIMARY KEY (Id)
 );
 
-
 CREATE TABLE PV_Join_Request (
   Id            BIGINT       NOT NULL,
   Forename      VARCHAR(200) NOT NULL,
@@ -255,6 +254,25 @@ CREATE TABLE PV_Join_Request (
   Nhs_Number    VARCHAR(10),
   Join_Group_Id BIGINT       NOT NULL  REFERENCES PV_Group (Id),
   Creation_Date TIMESTAMP    NOT NULL,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Location (
+  Id            BIGINT    NOT NULL,
+  Group_Id      BIGINT    NOT NULL  REFERENCES PV_Group (Id),
+  Label         TEXT      NOT NULL,
+  Name          TEXT,
+  Phone         TEXT,
+  Address_1     TEXT,
+  Address_2     TEXT,
+  Address_3     TEXT,
+  Address_4     TEXT,
+  Web           TEXT,
+  Email         TEXT,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
