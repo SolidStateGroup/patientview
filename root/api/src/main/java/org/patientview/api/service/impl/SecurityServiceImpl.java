@@ -71,4 +71,25 @@ public class SecurityServiceImpl implements SecurityService {
         return newsItems;
     }
 
+    public List<Group> getUserGroups(Long userId) {
+        User user = userRepository.findOne(userId);
+        //TODO - Refactor to Enum Sprint 2
+        if (doesListContainRole(roleRepository.getValidRolesByUser(userId), "SUPER_ADMIN")) {
+            return Util.iterableToList(groupRepository.findAll());
+        } else {
+            return Util.iterableToList(groupRepository.findGroupByUser(user));
+        }
+
+    }
+
+    //TODO - Refactor to Enum Sprint 2
+    private boolean doesListContainRole(List<Role> roles, String roleName) {
+        for (Role role : roles) {
+            if (role.getName().equalsIgnoreCase(roleName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

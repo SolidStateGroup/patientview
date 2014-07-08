@@ -44,4 +44,14 @@ public interface SecurityService {
      * @return
      */
     List<NewsItem> getNewsByUser(Long userId);
+
+
+    /**
+     * Get the groups that are assigned to the user.
+     * N.B. SuperAdmin gets them all/
+     *
+     * @param userId
+     * @return
+     */
+    List<Group> getUserGroups(Long userId);
 }

@@ -122,7 +122,27 @@ public class SecurityControllerTest extends BaseControllerTest<SecurityControlle
 
         verify(securityService, Mockito.times(1)).getNewsByUser(Matchers.eq(testUserId));
 
-
     }
 
+    /**
+     * Test: Get the groups that should be accessible to a user
+     * Fail: The groups method which finds group for a user is not called
+     *
+     */
+    @Test
+    public void testGetUserGroups() {
+
+        Long testUserId = 10L;
+
+        when(securityService.getUserGroups(eq(testUserId))).thenReturn(null);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(testUserId) + "/groups"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());;
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+        verify(securityService, Mockito.times(1)).getUserGroups(Matchers.eq(testUserId));
+
+    }
 }

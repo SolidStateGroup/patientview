@@ -33,4 +33,10 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
     public Iterable<Group> getGroupByUserAndRole(@Param("user") User user,
                                                 @Param("role") Role role);
 
+    @Query("SELECT gr.group " +
+           "FROM   User u " +
+           "JOIN   u.groupRoles gr " +
+           "WHERE  u = :user")
+    public Iterable<Group> findGroupByUser(@Param("user")User user);
+
 }

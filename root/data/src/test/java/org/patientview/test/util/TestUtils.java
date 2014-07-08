@@ -10,7 +10,11 @@ import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Id can be passed when not using any persistence to test against.
@@ -120,5 +124,21 @@ public final class TestUtils {
         lookupType.setCreated(new Date());
         lookupType.setCreator(creator);
         return lookupType;
+    }
+
+    public static <T> List<T> iterableToList(Iterable<T> iterable) {
+
+        if (iterable == null) {
+            return Collections.emptyList();
+        }
+
+        List<T> list = new ArrayList<T>();
+        Iterator<T> lookupIterator = iterable.iterator();
+
+        while (lookupIterator.hasNext()) {
+            list.add(lookupIterator.next());
+        }
+        return list;
+
     }
 }

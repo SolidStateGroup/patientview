@@ -36,6 +36,4 @@ public interface AdminService {
 
     List<User> getGroupUserByRoleStaff(Long groupId);
 
-
-
 }

@@ -6,6 +6,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
@@ -25,8 +27,10 @@ import javax.inject.Inject;
 @ContextConfiguration(classes = {TestPersistenceConfig.class})
 @Transactional
 public class GroupRepositoryTest {
+
     @Inject
     GroupRepository groupRepository;
+
     @Inject
     DataTestUtils dataTestUtils;
 
@@ -56,4 +60,23 @@ public class GroupRepositoryTest {
         Assert.assertTrue("Should have parent group", childGroup.getParentGroups().size() == 1);
         Assert.assertTrue("Should have child group", parentGroup.getChildGroups().size() == 1);
     }
+
+
+    /**
+     * Test: Assign a group with a role to a user and see if it's returned from the Query
+     * Fail: No group is returned
+     */
+    @Test
+    public void testFindGroupByUser() {
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup", creator);
+        Role role = dataTestUtils.createRole("testRole", creator);
+        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role, creator);
+
+        Iterable<Group> groups = groupRepository.findGroupByUser(user);
+
+        Assert.assertTrue("There are groups linked to the user", groups.iterator().hasNext());
+
+    }
+
 }

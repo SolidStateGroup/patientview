@@ -60,7 +60,7 @@ public class SecurityController extends BaseController {
     public ResponseEntity<Set<Route>> getUserRoutes(@PathVariable("userId") Long userId,
                                                      UriComponentsBuilder uriComponentsBuilder) {
 
-        LOG.debug("Request has been received for userId : {}", userId);
+        LOG.trace("Request has been received for userId : {}", userId);
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
 
@@ -77,7 +77,7 @@ public class SecurityController extends BaseController {
     public ResponseEntity<List<NewsItem>> getUserNews(@PathVariable("userId") Long userId,
                                                      UriComponentsBuilder uriComponentsBuilder) {
 
-        LOG.debug("Request has been received for userId : {}", userId);
+        LOG.trace("Request has been received for userId : {}", userId);
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
 
@@ -85,6 +85,23 @@ public class SecurityController extends BaseController {
         headers.setLocation(uriComponents.toUri());
 
         return new ResponseEntity<List<NewsItem>>(securityService.getNewsByUser(userId), HttpStatus.OK);
+
+    }
+
+    @RequestMapping(value = "/security/user/{userId}/groups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Group>> getUserGroups(@PathVariable("userId") Long userId,
+                                                      UriComponentsBuilder uriComponentsBuilder) {
+
+        LOG.trace("Request has been received for userId : {}", userId);
+
+        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<List<Group>>(securityService.getUserGroups(userId), HttpStatus.OK);
 
     }
 

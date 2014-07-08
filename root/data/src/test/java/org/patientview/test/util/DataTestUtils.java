@@ -2,12 +2,14 @@ package org.patientview.test.util;
 
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -43,6 +45,9 @@ public class DataTestUtils {
     @Inject
     GroupRepository groupRepository;
 
+    @Inject
+    GroupRoleRepository groupRoleRepository;
+
     public Lookup createLookup(String lookupName, String lookupTypeName, User creator) {
 
         LookupType lookupType = TestUtils.createLookupType(null, lookupTypeName, creator);
@@ -74,6 +79,12 @@ public class DataTestUtils {
     public Group createGroup(String name, User creator) {
         Group group = TestUtils.createGroup(null, "TEST_GROUP", creator);
         return groupRepository.save(group);
+    }
+
+
+    public GroupRole createGroupRole(User user, Group group, Role role, User creator) {
+        GroupRole groupRole = TestUtils.createGroupRole(null, role, group, user, creator);
+        return groupRoleRepository.save(groupRole);
     }
 
 
