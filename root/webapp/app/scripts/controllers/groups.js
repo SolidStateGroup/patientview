@@ -30,8 +30,8 @@ function ($scope, $rootScope, $modalInstance, groupTypes, editGroup, allFeatures
     };
 }];
 
-angular.module('patientviewApp').controller('GroupsCtrl', ['$scope','$timeout', '$modal','GroupService','StaticDataService','FeatureService',
-function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureService) {
+angular.module('patientviewApp').controller('GroupsCtrl', ['$scope','$timeout', '$modal','GroupService','StaticDataService','FeatureService','UserService',
+function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureService, UserService) {
 
     // Init
     $scope.init = function () {
@@ -87,7 +87,21 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.groupTypes = [];
         StaticDataService.getLookupsByType('GROUP').then(function(groupTypes) {
             if (groupTypes.length > 0) {
-                $scope.groupTypes = groupTypes;
+
+                // TODO: hard coded to check if user has SUPER_ADMIN role anywhere, if so then can add SPECIALTY groups
+                var allowedGroups = [];
+                var isSuperAdmin = UserService.checkRoleExists("SUPER_ADMIN", $scope.loggedInUser);
+
+                for (i=0;i<groupTypes.length;i++) {
+                    if (groupTypes[i].value === "SPECIALTY") {
+                        if (isSuperAdmin) {
+                            allowedGroups.push(groupTypes[i]);
+                        }
+                    } else {
+                        allowedGroups.push(groupTypes[i]);
+                    }
+                }
+                $scope.groupTypes = allowedGroups;
             }
 
             delete $scope.loading;
