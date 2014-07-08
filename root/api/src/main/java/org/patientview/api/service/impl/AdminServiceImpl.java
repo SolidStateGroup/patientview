@@ -203,6 +203,7 @@ public class AdminServiceImpl implements AdminService {
         return groups;
     }
 
+    // TODO: refactor to avoid M:M issues with infinite recursion
     /**
      * Create simple set of parents and children avoiding infinite recursion due to self-ref ManyToMany
      * @param inputGroup
@@ -237,15 +238,8 @@ public class AdminServiceImpl implements AdminService {
         return Util.iterableToList(roleRepository.findAll());
     }
 
-    public List<Role> getStaffRoles() {
-        List<Lookup> roleLookup = Util.iterableToList(lookupRepository.getByLookupTypeAndValue("ROLE", "STAFF"));
-        if (!roleLookup.isEmpty()) {
-            return Util.iterableToList(roleRepository.getByType(roleLookup.get(0)));
-        } else return Collections.<Role>emptyList();
-    }
-
-    public List<Role> getPatientRoles() {
-        List<Lookup> roleLookup = Util.iterableToList(lookupRepository.getByLookupTypeAndValue("ROLE", "PATIENT"));
+    public List<Role> getRolesByType(String type) {
+        List<Lookup> roleLookup = Util.iterableToList(lookupRepository.getByLookupTypeAndValue("ROLE", type));
         if (!roleLookup.isEmpty()) {
             return Util.iterableToList(roleRepository.getByType(roleLookup.get(0)));
         } else return Collections.<Role>emptyList();

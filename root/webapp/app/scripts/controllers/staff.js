@@ -141,8 +141,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.allGroups = [];
 
         // get staff roles
-        RoleService.getByType("STAFF").then(function(roles)
-        {
+        RoleService.getByType("STAFF").then(function(roles) {
             for (i = 0; i < roles.length; i++) {
                 roleIds.push(roles[i].id);
             }

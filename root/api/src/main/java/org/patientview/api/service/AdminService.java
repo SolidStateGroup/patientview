@@ -30,9 +30,7 @@ public interface AdminService {
 
     List<Role> getAllRoles();
 
-    List<Role> getStaffRoles();
-
-    List<Role> getPatientRoles();
+    List<Role> getRolesByType(String type);
 
     GroupFeature createGroupFeature(GroupFeature groupFeature);
 

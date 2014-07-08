@@ -75,9 +75,18 @@ public class SecurityServiceImpl implements SecurityService {
         User user = userRepository.findOne(userId);
         //TODO - Refactor to Enum Sprint 2
         if (doesListContainRole(roleRepository.getValidRolesByUser(userId), "SUPER_ADMIN")) {
-            return Util.iterableToList(groupRepository.findAll());
+            // manually add list of parents/children (avoid recursion by only going one level deep)
+            List<Group> groups = Util.iterableToList(groupRepository.findAll());
+            for (Group group : groups) {
+                group = addSingleLevelParentsAndChildren(group);
+            }
+            return groups;
         } else {
-            return Util.iterableToList(groupRepository.findGroupByUser(user));
+            List<Group> groups = Util.iterableToList(groupRepository.findGroupByUser(user));
+            for (Group group : groups) {
+                group = addSingleLevelParentsAndChildren(group);
+            }
+            return groups;
         }
 
     }
@@ -91,5 +100,37 @@ public class SecurityServiceImpl implements SecurityService {
         }
         return false;
     }
+
+    // TODO: refactor to avoid M:M issues with infinite recursion
+    /**
+     * Create simple set of parents and children avoiding infinite recursion due to self-ref ManyToMany
+     * @param inputGroup
+     * @return
+     */
+    private Group addSingleLevelParentsAndChildren(Group inputGroup) {
+        for (Group familyGroup : inputGroup.getParentGroups()) {
+            Group newGroup = new Group();
+            newGroup.setId(familyGroup.getId());
+            newGroup.setName(familyGroup.getName());
+            newGroup.setCode(familyGroup.getCode());
+            newGroup.setFhirResourceId(familyGroup.getFhirResourceId());
+            newGroup.setDescription(familyGroup.getDescription());
+            newGroup.setGroupType(familyGroup.getGroupType());
+            inputGroup.getParents().add(newGroup);
+        }
+        for (Group familyGroup : inputGroup.getChildGroups()) {
+            Group newGroup = new Group();
+            newGroup.setId(familyGroup.getId());
+            newGroup.setName(familyGroup.getName());
+            newGroup.setCode(familyGroup.getCode());
+            newGroup.setFhirResourceId(familyGroup.getFhirResourceId());
+            newGroup.setDescription(familyGroup.getDescription());
+            newGroup.setGroupType(familyGroup.getGroupType());
+            inputGroup.getChildren().add(newGroup);
+        }
+
+        return inputGroup;
+    }
+
 
 }

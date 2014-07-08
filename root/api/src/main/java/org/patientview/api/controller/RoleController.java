@@ -36,14 +36,6 @@ public class RoleController extends BaseController {
             return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
         }
 
-        if (type.equals("STAFF")) {
-            return new ResponseEntity<List<Role>>(adminService.getStaffRoles(), HttpStatus.OK);
-        }
-
-        if (type.equals("PATIENT")) {
-            return new ResponseEntity<List<Role>>(adminService.getPatientRoles(), HttpStatus.OK);
-        }
-
-        return new ResponseEntity<List<Role>>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<List<Role>>(adminService.getRolesByType(type), HttpStatus.OK);
     }
 }
