@@ -36,6 +36,8 @@ public class CorsFilter implements Filter {
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Length, X-Requested-With, X-Auth-Token");
         response.setHeader("Cache-Control","no-store, must-revalidate, no-cache, max-age=0");
+        response.setHeader("Pragma","no-cache");
+        response.setHeader("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
         chain.doFilter(req, res);
     }
 
