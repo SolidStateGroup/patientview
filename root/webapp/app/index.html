@@ -16,7 +16,7 @@
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css({.tmp,app}) styles/main.css -->
-        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="styles/patientview/stylesheets/screen.css">
         <!-- endbuild -->
         <script src="https://www.google.com/jsapi" type="text/javascript"></script>
     </head>
@@ -27,6 +27,17 @@
 
         <!-- Application content here -->
         <div ng-include src="'views/partials/menus.html'"></div>
+        <div class="hero-panel">
+            <div class="hero-pane col-md-4 aquamarine">
+                <i class="icon-hero-manage"></i>
+            </div>
+            <div class="hero-pane col-md-4 aqua">
+                <i class="icon-hero-manage"></i>
+            </div>
+            <div class="hero-pane col-md-4 blue">
+                <i class="icon-hero-manage"></i>
+            </div>
+        </div>
         <div class="container" ng-view="" ng-cloak></div>
         <div class="container">
             <div class="footer">
