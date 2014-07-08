@@ -116,9 +116,9 @@
         <div ng-hide="editGroup.childGroups.length > 0" class="alert alert-info">No child groups</div>
         <div class="feature-list-item" ng-repeat="childGroup in editGroup.childGroups">
             <div class="feature-list-name"><span class="feature-list-name">{{childGroup.name}}</span></div>
-            <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-child-group-modal-{{childGroup.id}}" href="" ng-click="removeChildGroup(groupForm, editGroup, childGroup)" >Delete</a></span></div>
+            <div class="feature-list-delete" ng-show="permissions.canEditChildGroups"><span class="feature-list-delete"><a id="remove-child-group-modal-{{childGroup.id}}" href="" ng-click="removeChildGroup(groupForm, editGroup, childGroup)" >Delete</a></span></div>
         </div>
-        <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableChildGroups.length > 0 ">
+        <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableChildGroups.length > 0 && permissions.canEditChildGroups">
             <div class="row">
                 <div class="col-sm-10"><select class="form-control child-group-select" ng-model="childGroupToAdd" ng-options="childGroup.id as childGroup.name for childGroup in editGroup.availableChildGroups"></select></div>
                 <div class="col-sm-2"><button type="button" class="btn btn-primary child-group-add-button pull-left" ng-click="addChildGroup(groupForm, editGroup, childGroupToAdd)">Add</button></div>

@@ -86,12 +86,14 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         // add SPECIALTY groups
         // edit group code
         // edit parents groups
+        // edit child groups
         // edit features
         // create group
         $scope.permissions = {};
         $scope.isSuperAdmin = UserService.checkRoleExists('SUPER_ADMIN', $scope.loggedInUser);
         $scope.permissions.canEditGroupCode = $scope.isSuperAdmin;
         $scope.permissions.canEditParentGroups = $scope.isSuperAdmin;
+        $scope.permissions.canEditChildGroups = $scope.isSuperAdmin;
         $scope.permissions.canEditFeatures = $scope.isSuperAdmin;
         $scope.permissions.canCreateGroup = $scope.isSuperAdmin;
 
