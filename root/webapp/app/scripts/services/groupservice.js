@@ -19,6 +19,7 @@ function ($q, Restangular, UtilService) {
         },
         getGroupsForUser: function (userId) {
             var deferred = $q.defer();
+            // GET /security/user/{userId}/groups
             Restangular.all('security').one('user',userId).getList('groups').then(function(res) {
                 deferred.resolve(res);
             });
