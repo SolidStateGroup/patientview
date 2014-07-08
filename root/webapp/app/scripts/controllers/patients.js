@@ -136,6 +136,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $('.child-menu').remove();
         });
 
+        // TODO: set permissions for ui
+        // need to account for users who are both unit admin in one group and unit staff in another
+        $scope.permissions = {};
+
         var i, groupIds = [], patientRoleIds = [];
         $scope.loading = true;
         $scope.allGroups = [];

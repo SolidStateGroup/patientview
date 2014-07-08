@@ -1,12 +1,12 @@
 'use strict';
 
 // new staff modal instance controller
-var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
-function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allRoles, allFeatures, UserService) {
+var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'UserService',
+function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, UserService) {
     $scope.permissions = permissions;
     $scope.editUser = newUser;
     $scope.allGroups = allGroups;
-    $scope.allRoles = allRoles;
+    $scope.allowedRoles = allowedRoles;
 
     // set initial group and feature (avoid blank option)
     if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
@@ -140,6 +140,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         var i, groupIds = [], staffRoleIds = [];
         $scope.loading = true;
         $scope.allGroups = [];
+        $scope.allRoles = [];
 
         // TODO: set permissions for ui
         $scope.permissions = {};
@@ -149,6 +150,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         // get staff roles
         RoleService.getByType("STAFF").then(function(roles) {
+            $scope.allRoles = roles;
             for (i = 0; i < roles.length; i++) {
                 staffRoleIds.push(roles[i].id);
             }
@@ -173,13 +175,13 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 // get list of roles available when user is adding new Group & Role to staff member
                 SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (roles) {
                     // filter by roleId found previously as STAFF
-                    var allRoles = [];
+                    var allowedRoles = [];
                     for (i = 0; i < roles.length; i++) {
                         if (staffRoleIds.indexOf(roles[i].id) != -1) {
-                            allRoles.push(roles[i]);
+                            allowedRoles.push(roles[i]);
                         }
                     }
-                    $scope.allRoles = allRoles;
+                    $scope.allowedRoles = allowedRoles;
                 });
 
                 // get list of features available when user adding new Feature to staff member
@@ -221,7 +223,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         }
 
         $scope.editing = true;
-        user.roles = $scope.allRoles;
+        user.roles = $scope.allowedRoles;
 
         // for REST compatibility
         user.groups = [];
@@ -279,7 +281,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.userCreated = '';
         // create new user with list of available roles, groups and features
         $scope.editUser = {};
-        $scope.editUser.roles = $scope.allRoles;
+        $scope.editUser.roles = $scope.allowedRoles;
         $scope.editUser.availableGroups = $scope.allGroups;
         $scope.editUser.groups = [];
         $scope.editUser.availableFeatures = _.clone($scope.allFeatures);
@@ -300,8 +302,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 allGroups: function(){
                     return $scope.allGroups;
                 },
-                allRoles: function(){
-                    return $scope.allRoles;
+                allowedRoles: function(){
+                    return $scope.allowedRoles;
                 },
                 allFeatures: function(){
                     return $scope.allFeatures;
