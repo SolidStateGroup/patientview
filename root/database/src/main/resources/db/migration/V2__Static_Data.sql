@@ -28,10 +28,10 @@ INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (15, now(), 'STAFF','1','6');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (16, now(), 'PATIENT','1','6');
 
-INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', 'The PatientView Specialty', 2, now(),1 );
-INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (2, 'Renal', 'Renal', 'The Renal Specialty', 2, now(),1 );
-INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (3, 'Diabetes', 'Diabetes', 'The Diabetes Specialty', 2, now(), 1);
-INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Creation_Date,Created_By) VALUES (4, 'IBD', 'IBD', 'The Inflammatory Bowel Disease Specialty', 2, now(), 1);
+INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', 'The PatientView Specialty', 2, false, now(),1 );
+INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (2, 'Renal', 'Renal', 'The Renal Specialty', 2, false, now(),1 );
+INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (3, 'Diabetes', 'Diabetes', 'The Diabetes Specialty', 2, false, now(), 1);
+INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (4, 'IBD', 'IBD', 'The Inflammatory Bowel Disease Specialty', 2, false, now(), 1);
 
 INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '1', 'A standard patient user', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '4', 'A unit administrator', now(), '1');
@@ -87,10 +87,10 @@ INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order,
 INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (18, 4, null, 2, null, 1,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (18, 4, null, 2, null, 1,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
+  (19, 4, null, 2, null, 1,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (17, 4, null, 5, null, 1,  '/codes', 'views/codes.html','CodesCtrl', 'Codes', now(), 1 );
+  (20, 4, null, 5, null, 1,  '/codes', 'views/codes.html','CodesCtrl', 'Codes', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (18, 4, null, 5, null, 1,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
+  (21, 4, null, 5, null, 1,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (18, 4, null, 5, null, 1,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
+  (22, 4, null, 5, null, 1,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
