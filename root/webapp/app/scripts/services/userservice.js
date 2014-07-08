@@ -150,6 +150,19 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // check user has a certain role type in any GroupRole
+        checkRoleExists: function(role, user) {
+            var i;
+            if (user.groupRoles) {
+                for (i = 0; i < user.groupRoles.length; i++) {
+                    if (user.groupRoles[i].role.name === role) {
+                        return true;
+                    }
+                }
+            } else {
+                return false;
+            }
         }
     };
 }]);
