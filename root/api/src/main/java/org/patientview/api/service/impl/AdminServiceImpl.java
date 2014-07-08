@@ -194,13 +194,13 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public List<Group> getAllGroups() {
-        /*// manually add list of parents/children (avoid recursion by only going one level deep)
+        // manually add list of parents/children (avoid recursion by only going one level deep)
         List<Group> groups = Util.iterableToList(groupRepository.findAll());
         for (Group group : groups) {
             group = addSingleLevelParentsAndChildren(group);
-        }*/
+        }
 
-        return Util.iterableToList(groupRepository.findAll());
+        return groups;
     }
 
     /**
