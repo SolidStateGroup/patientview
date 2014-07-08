@@ -21,7 +21,7 @@
         <h5 class="inner-title">Groups &amp; Roles </h5>
         <div class="group-list-item" ng-repeat="groupRole in editUser.groupRoles">
             <div class="group-list-name"><span class="group-list-name">{{groupRole.group.name}}</span></div>
-            <div class="group-list-delete"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</a></span></div>
+            <div class="group-list-delete" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</a></span></div>
             <div class="group-list-role"><span class="group-list-role">{{groupRole.role.name}}</span></div>
         </div>
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">

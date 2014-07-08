@@ -1,8 +1,9 @@
 'use strict';
 
 // new staff modal instance controller
-var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
-function ($scope, $rootScope, $modalInstance, newUser, allGroups, allRoles, allFeatures, UserService) {
+var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allRoles', 'allFeatures', 'UserService',
+function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allRoles, allFeatures, UserService) {
+    $scope.permissions = permissions;
     $scope.editUser = newUser;
     $scope.allGroups = allGroups;
     $scope.allRoles = allRoles;
@@ -140,6 +141,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.loading = true;
         $scope.allGroups = [];
 
+        // TODO: set permissions for ui
+        $scope.permissions = {};
+        // used in html when checking for user group membership by id only (e.g. to show/hide delete on staff GroupRole)
+        // A unit admin cannot remove staff from groups to which the unit admin is not assigned.
+        $scope.permissions.allGroupsIds = [];
+
         // get staff roles
         RoleService.getByType("STAFF").then(function(roles) {
             for (i = 0; i < roles.length; i++) {
@@ -151,6 +158,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 $scope.allGroups = groups;
                 for (i = 0; i < groups.length; i++) {
                     groupIds.push(groups[i].id);
+                    $scope.permissions.allGroupsIds[groups[i].id] = groups[i].id;
                 }
 
                 // get users by staff roles and logged in user's groups
@@ -283,6 +291,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             controller: NewStaffModalInstanceCtrl,
             size: size,
             resolve: {
+                permissions: function(){
+                    return $scope.permissions;
+                },
                 newUser: function(){
                     return $scope.editUser;
                 },
