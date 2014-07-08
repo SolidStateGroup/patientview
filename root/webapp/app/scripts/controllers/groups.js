@@ -1,8 +1,9 @@
 'use strict';
 
 // new group modal instance controller
-var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'groupTypes', 'editGroup', 'allFeatures', 'allParentGroups', 'allChildGroups', 'GroupService',
-function ($scope, $rootScope, $modalInstance, groupTypes, editGroup, allFeatures, allParentGroups, allChildGroups, GroupService) {
+var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'groupTypes', 'editGroup', 'allFeatures', 'allParentGroups', 'allChildGroups', 'GroupService',
+function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup, allFeatures, allParentGroups, allChildGroups, GroupService) {
+    $scope.permissions = permissions;
     $scope.editGroup = editGroup;
     $scope.groupTypes = groupTypes;
     $scope.allFeatures = allFeatures;
@@ -83,18 +84,28 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             }
         });
 
+        // TODO: set permissions for ui, hard coded to check if user has SUPER_ADMIN role anywhere, if so can do:
+        // add SPECIALTY groups
+        // edit group code
+        // edit parents groups
+        // edit features
+        // create group
+        $scope.permissions = {};
+        $scope.isSuperAdmin = UserService.checkRoleExists('SUPER_ADMIN', $scope.loggedInUser);
+        $scope.permissions.canEditGroupCode = $scope.isSuperAdmin;
+        $scope.permissions.canEditParentGroups = $scope.isSuperAdmin;
+        $scope.permissions.canEditFeatures = $scope.isSuperAdmin;
+        $scope.permissions.canCreateGroup = $scope.isSuperAdmin;
+
         // get group types
         $scope.groupTypes = [];
         StaticDataService.getLookupsByType('GROUP').then(function(groupTypes) {
             if (groupTypes.length > 0) {
-
-                // TODO: hard coded to check if user has SUPER_ADMIN role anywhere, if so then can add SPECIALTY groups
                 var allowedGroups = [];
-                var isSuperAdmin = UserService.checkRoleExists("SUPER_ADMIN", $scope.loggedInUser);
 
                 for (i=0;i<groupTypes.length;i++) {
-                    if (groupTypes[i].value === "SPECIALTY") {
-                        if (isSuperAdmin) {
+                    if (groupTypes[i].value === 'SPECIALTY') {
+                        if ($scope.isSuperAdmin) {
                             allowedGroups.push(groupTypes[i]);
                         }
                     } else {
@@ -103,7 +114,6 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 }
                 $scope.groupTypes = allowedGroups;
             }
-
             delete $scope.loading;
         });
 
@@ -113,9 +123,6 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 $scope.allFeatures.push({'feature':allFeatures[k]});
             }
         });
-
-        // TODO: set permissionCreateGroup from user's permissions
-        $scope.permissionCreateGroup = true;
     };
 
     // filter by group type
@@ -243,6 +250,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             controller: NewGroupModalInstanceCtrl,
             size: size,
             resolve: {
+                permissions: function(){
+                    return $scope.permissions;
+                },
                 groupTypes: function(){
                     return $scope.groupTypes;
                 },

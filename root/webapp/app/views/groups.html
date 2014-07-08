@@ -23,7 +23,7 @@
             <button class="btn btn-primary" ng-click="ok()" ng-disabled="!groupForm.$valid">Create New</button>
         </div>
     </script>
-    <button class="btn btn-primary" ng-click="openModalNewGroup('lg')" ng-show="permissionCreateGroup">Create New</button>
+    <button class="btn btn-primary" ng-click="openModalNewGroup('lg')" ng-show="permissions.canCreateGroup">Create New</button>
 
     <!-- Filter -->
     <br/>
