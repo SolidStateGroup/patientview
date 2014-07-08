@@ -25,6 +25,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // gets patients by groups, patient role IDs passed in
+        getPatientsByGroups: function (groupIds, roleIds) {
+            var deferred = $q.defer();
+            // GET /user?groupId=1&groupId=2&roleId=1 etc
+            Restangular.all('user').getList({'groupId':groupIds, 'roleId':roleIds}).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Remove a single user based on userId
         delete: function (user) {
             var deferred = $q.defer();

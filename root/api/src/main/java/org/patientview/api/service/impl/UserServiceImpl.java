@@ -20,16 +20,14 @@ import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Properties;
 
 /**
  * Created by james@solidstategroup.com
@@ -61,8 +59,8 @@ public class UserServiceImpl implements UserService {
     @Inject
     private EmailService emailService;
 
-    @Value("${smtp.sender}")
-    private String sender;
+    @Inject
+    private Properties properties;
 
     public User createUser(User user) {
 
@@ -183,7 +181,7 @@ public class UserServiceImpl implements UserService {
     public Boolean sendVerificationEmail(Long userId) {
         User user = userRepository.getOne(userId);
         Email email = new Email();
-        email.setSender(sender);
+        email.setSender(properties.getProperty("smtp.sender"));
         email.setSubject("PatientView - Please verify your account");
         email.setRecipients(new String[]{user.getEmail()});
         email.setBody("Please visit http://www.patientview.org/#/verify?userId="

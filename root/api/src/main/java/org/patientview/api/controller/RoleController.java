@@ -8,10 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -27,8 +29,21 @@ public class RoleController extends BaseController {
 
     @RequestMapping(value = "/role", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Role>> getRoles() {
-        return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
-    }
+    public ResponseEntity<List<Role>> getRoles(
+            @RequestParam(value = "type", required = false) String type, HttpServletRequest request) {
 
+        if (!request.getParameterMap().containsKey("type")) {
+            return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
+        }
+
+        if (type.equals("STAFF")) {
+            return new ResponseEntity<List<Role>>(adminService.getStaffRoles(), HttpStatus.OK);
+        }
+
+        if (type.equals("PATIENT")) {
+            return new ResponseEntity<List<Role>>(adminService.getPatientRoles(), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<List<Role>>(HttpStatus.BAD_REQUEST);
+    }
 }

@@ -41,7 +41,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.loading = true;
 
         GroupService.getAll().then(function(groups) {
-
+        //GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
             // handle parent/child (avoiding infinite recursion using @Transient in Group.java)
             for (i=0;i<groups.length;i++) {
                 group = groups[i];
