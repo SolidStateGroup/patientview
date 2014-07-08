@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -85,7 +86,7 @@ public class SecurityControllerTest extends BaseControllerTest<SecurityControlle
 
         Long testUserId = 10L;
 
-        when(securityService.getUserRoutes(eq(testUserId))).thenReturn(new ArrayList<Route>());
+        when(securityService.getUserRoutes(eq(testUserId))).thenReturn(new HashSet<Route>());
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(testUserId) + "/routes"))

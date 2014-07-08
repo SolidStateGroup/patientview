@@ -21,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This controller is associated with the calls
@@ -56,7 +57,7 @@ public class SecurityController extends BaseController {
     @RequestMapping(value = "/security/user/{userId}/routes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Route>> getUserRoutes(@PathVariable("userId") Long userId,
+    public ResponseEntity<Set<Route>> getUserRoutes(@PathVariable("userId") Long userId,
                                                      UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", userId);
@@ -66,7 +67,7 @@ public class SecurityController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<List<Route>>(securityService.getUserRoutes(userId), HttpStatus.OK);
+        return new ResponseEntity<Set<Route>>(securityService.getUserRoutes(userId), HttpStatus.OK);
 
     }
 

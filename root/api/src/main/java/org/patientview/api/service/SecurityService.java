@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -29,7 +30,7 @@ public interface SecurityService {
      * @param userId
      * @return
      */
-    List<Route> getUserRoutes(Long userId);
+    Set<Route> getUserRoutes(Long userId);
 
     List<Group> getGroupByUserAndRole(Long userId, Long roleId);
 

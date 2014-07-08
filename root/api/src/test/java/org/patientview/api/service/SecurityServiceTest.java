@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -8,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.SecurityServiceImpl;
+import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
@@ -15,6 +17,9 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,5 +73,30 @@ public class SecurityServiceTest {
         verify(newsItemRepository, Mockito.times(1)).getRoleNewsByUser(Matchers.eq(testUser));
     }
 
+    /**
+     * Test: To return routes that do not contain a list of duplicates
+     * Fail: Duplicate routes are returning by the function
+     */
+    @Test
+    public void testGetNoneDuplicateRoutes() {
+        when(routeRepository.getFeatureRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
+        when(routeRepository.getGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
+        when(routeRepository.getRoleRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
+        Set<Route> routes = securityService.getUserRoutes(1L);
+        Assert.assertNotNull(routes);
+        Assert.assertEquals("There should be only 6 routes", routes.size(), 6);
+    }
+
+    private Iterable<Route> getRoutes() {
+        Set<Route> routes = new HashSet<Route>();
+        for (long i = 1; i< 7; i ++) {
+            Route route = new Route();
+            route.setId(i);
+            route.setTitle("Route" + i);
+            route.setDisplayOrder((int) i);
+            routes.add(route);
+        }
+        return routes;
+    }
 
 }

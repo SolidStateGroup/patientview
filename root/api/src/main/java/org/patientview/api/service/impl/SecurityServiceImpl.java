@@ -15,7 +15,9 @@ import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service to supply data based on a user's role and group
@@ -47,9 +49,9 @@ public class SecurityServiceImpl implements SecurityService {
 
     }
 
-    public List<Route> getUserRoutes(Long userId) {
+    public Set<Route> getUserRoutes(Long userId) {
         User user = userRepository.findOne(userId);
-        List<Route> routes = Util.iterableToList(routeRepository.getFeatureRoutesByUser(user));
+        Set<Route> routes = new HashSet<Route>(Util.iterableToList(routeRepository.getFeatureRoutesByUser(user)));
         routes.addAll(Util.iterableToList(routeRepository.getGroupRoutesByUser(user)));
         routes.addAll(Util.iterableToList(routeRepository.getRoleRoutesByUser(user)));
         return routes;
