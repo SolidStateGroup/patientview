@@ -136,36 +136,45 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $('.child-menu').remove();
         });
 
-        var i;
+        var i, groupIds = [], roleIds = [];
         $scope.loading = true;
-        var groupIds = [];
         $scope.allGroups = [];
 
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
-            $scope.allGroups = groups;
-
-            // get staff users based on logged in user's groups
-            for (i=0; i<groups.length; i++) {
-                groupIds.push(groups[i].id);
+        // get staff roles
+        RoleService.getByType("STAFF").then(function(roles)
+        {
+            for (i = 0; i < roles.length; i++) {
+                roleIds.push(roles[i].id);
             }
 
-            UserService.getStaffByGroups(groupIds).then(function (staffUsers) {
-                $scope.list = staffUsers;
-                $scope.currentPage = 1; //current page
-                $scope.entryLimit = 20; //max no of items to display in a page
-                $scope.totalItems = $scope.list.length;
-                delete $scope.loading;
-            });
-
-            SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (allRoles) {
-                $scope.allRoles = allRoles;
-            });
-
-            FeatureService.getAllStaffFeatures().then(function (allFeatures) {
-                $scope.allFeatures = [];
-                for (var i = 0; i < allFeatures.length; i++) {
-                    $scope.allFeatures.push({'feature': allFeatures[i]});
+            // get logged in user's groups
+            GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+                $scope.allGroups = groups;
+                for (i = 0; i < groups.length; i++) {
+                    groupIds.push(groups[i].id);
                 }
+
+                // get users by staff roles and logged in user's groups
+                UserService.getByGroupsAndRoles(groupIds, roleIds).then(function (users) {
+                    $scope.list = users;
+                    $scope.currentPage = 1; //current page
+                    $scope.entryLimit = 20; //max no of items to display in a page
+                    $scope.totalItems = $scope.list.length;
+                    delete $scope.loading;
+                });
+
+                // get list of roles available when user is adding new Group & Role to staff member
+                SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (allRoles) {
+                    $scope.allRoles = allRoles;
+                });
+
+                // get list of features available when user adding new Feature to staff member
+                FeatureService.getAllStaffFeatures().then(function (allFeatures) {
+                    $scope.allFeatures = [];
+                    for (var i = 0; i < allFeatures.length; i++) {
+                        $scope.allFeatures.push({'feature': allFeatures[i]});
+                    }
+                });
             });
         });
     };

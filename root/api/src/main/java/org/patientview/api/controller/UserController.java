@@ -65,25 +65,13 @@ public class UserController extends BaseController {
             @RequestParam(value = "roleId", required = false) Long[] roleIdsArr,
             HttpServletRequest request) throws ResourceNotFoundException {
 
-        List<Long> roleIds = new ArrayList<Long>();
-
-        // if no roles, assume staff, get list of staff type role IDs
-        if (!request.getParameterMap().containsKey("roleId")) {
-            LOG.debug("No role IDs passed in, assuming staff request");
-            List<Role> staffRoles = adminService.getStaffRoles();
-            for (Role role : staffRoles) {
-                roleIds.add(role.getId());
-            }
-        } else {
-            roleIds = Arrays.asList(roleIdsArr);
-        }
-
-        // if no groups, bad request
-        if (!request.getParameterMap().containsKey("groupId")) {
-            LOG.debug("No group IDs passed in, required");
+        // if no groups or roles, bad request
+        if (!request.getParameterMap().containsKey("groupId") || !request.getParameterMap().containsKey("roleId")) {
+            LOG.debug("No group/role IDs passed in, required");
             return new ResponseEntity<List<User>>(HttpStatus.BAD_REQUEST);
         } else {
             List<Long> groupIds = Arrays.asList(groupIdsArr);
+            List<Long> roleIds = Arrays.asList(roleIdsArr);
             return new ResponseEntity<List<User>>(userService.getUsersByGroupsAndRoles(groupIds, roleIds), HttpStatus.OK);
         }
     }
