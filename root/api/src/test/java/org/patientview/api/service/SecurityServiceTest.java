@@ -79,10 +79,17 @@ public class SecurityServiceTest {
      */
     @Test
     public void testGetNoneDuplicateRoutes() {
+        User testUser = TestUtils.createUser(23L, "testUser");
+        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         when(routeRepository.getFeatureRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.getGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.getRoleRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
+
         Set<Route> routes = securityService.getUserRoutes(1L);
+
+        verify(routeRepository, Mockito.times(1)).getGroupRoutesByUser(Matchers.eq(testUser));
+        verify(routeRepository, Mockito.times(1)).getFeatureRoutesByUser(Matchers.eq(testUser));
+        verify(routeRepository, Mockito.times(1)).getRoleRoutesByUser(Matchers.eq(testUser));
         Assert.assertNotNull(routes);
         Assert.assertEquals("There should be only 6 routes", routes.size(), 6);
     }
