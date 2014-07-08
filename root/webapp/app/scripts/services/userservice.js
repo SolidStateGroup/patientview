@@ -14,19 +14,8 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        // gets staff by groups, api assumes staff if no role IDs passed in
-        getStaffByGroups: function (groupIds) {
-            var deferred = $q.defer();
-            // GET /user?groupId=1&groupId=2 etc
-            Restangular.all('user').getList({'groupId':groupIds}).then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        // gets patients by groups, patient role IDs passed in
-        getPatientsByGroups: function (groupIds, roleIds) {
+        // gets users by group, role IDs passed in
+        getByGroupsAndRoles: function (groupIds, roleIds) {
             var deferred = $q.defer();
             // GET /user?groupId=1&groupId=2&roleId=1 etc
             Restangular.all('user').getList({'groupId':groupIds, 'roleId':roleIds}).then(function(successResult) {
