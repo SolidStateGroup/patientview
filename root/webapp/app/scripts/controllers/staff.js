@@ -136,14 +136,14 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $('.child-menu').remove();
         });
 
-        var i, groupIds = [], roleIds = [];
+        var i, groupIds = [], staffRoleIds = [];
         $scope.loading = true;
         $scope.allGroups = [];
 
         // get staff roles
         RoleService.getByType("STAFF").then(function(roles) {
             for (i = 0; i < roles.length; i++) {
-                roleIds.push(roles[i].id);
+                staffRoleIds.push(roles[i].id);
             }
 
             // get logged in user's groups
@@ -154,7 +154,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 }
 
                 // get users by staff roles and logged in user's groups
-                UserService.getByGroupsAndRoles(groupIds, roleIds).then(function (users) {
+                UserService.getByGroupsAndRoles(groupIds, staffRoleIds).then(function (users) {
                     $scope.list = users;
                     $scope.currentPage = 1; //current page
                     $scope.entryLimit = 20; //max no of items to display in a page
@@ -163,7 +163,14 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 });
 
                 // get list of roles available when user is adding new Group & Role to staff member
-                SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (allRoles) {
+                SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (roles) {
+                    // filter by roleId found previously as STAFF
+                    var allRoles = [];
+                    for (i = 0; i < roles.length; i++) {
+                        if (staffRoleIds.indexOf(roles[i].id) != -1) {
+                            allRoles.push(roles[i]);
+                        }
+                    }
                     $scope.allRoles = allRoles;
                 });
 
