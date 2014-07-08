@@ -94,3 +94,7 @@ INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order,
   (21, 4, null, 5, null, 1,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (22, 4, null, 5, null, 1,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (23, 4, null, 2, null, 1,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (24, 4, null, 5, null, 1,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );

@@ -18,6 +18,13 @@ angular.module('patientviewApp').factory('FeatureService', ['$q', 'Restangular',
             });
             return deferred.promise;
         },
+        getAllPatientFeatures: function () {
+            var deferred = $q.defer();
+            Restangular.all('feature').getList({'type':'PATIENT'}).then(function(res) {
+                deferred.resolve(res);
+            });
+            return deferred.promise;
+        },
         getAllGroupFeatures: function () {
             var deferred = $q.defer();
             Restangular.all('feature').getList({'type':'GROUP'}).then(function(res) {
