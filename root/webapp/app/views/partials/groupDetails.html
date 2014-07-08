@@ -3,7 +3,7 @@
         <div class="form-horizontal" role="form">
             <div class="form-group">
                 <label for="group-code" class="col-sm-2 control-label">Code</label>
-                <div class="col-sm-7"><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" ng-model="editGroup.code" required></div>
+                <div class="col-sm-7"><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" ng-model="editGroup.code" ng-disabled="!permissions.canEditGroupCode" required ></div>
                 <span class="alert alert-warning" ng-show="groupForm.code.$error.required">required</span>
             </div>
             <div class="form-group">
@@ -85,9 +85,9 @@
         <div ng-hide="editGroup.groupFeatures.length > 0" class="alert alert-info">No features</div>
         <div class="feature-list-item" ng-repeat="feature in editGroup.groupFeatures">
             <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.name}}</span></div>
-            <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(groupForm, editGroup, feature)" >Delete</a></span></div>
+            <div class="feature-list-delete" ng-show="permissions.canEditFeatures"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(groupForm, editGroup, feature)" >Delete</a></span></div>
         </div>
-        <div class="feature-add-container item-add-container" ng-show="editGroup.availableFeatures.length > 0 ">
+        <div class="feature-add-container item-add-container" ng-show="editGroup.availableFeatures.length > 0 && permissions.canEditFeatures">
             <div class="row">
                 <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editGroup.availableFeatures"></select></div>
                 <div class="col-sm-2"><button type="button" class="btn btn-primary feature-add-button pull-left" ng-click="addFeature(groupForm, editGroup, featureToAdd)">Add</button></div>
@@ -102,9 +102,9 @@
         <div ng-hide="editGroup.parentGroups.length > 0" class="alert alert-info">No parent groups</div>
         <div class="feature-list-item" ng-repeat="parentGroup in editGroup.parentGroups">
             <div class="feature-list-name"><span class="feature-list-name">{{parentGroup.name}}</span></div>
-            <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-parent-group-modal-{{parentGroup.id}}" href="" ng-click="removeParentGroup(groupForm, editGroup, parentGroup)" >Delete</a></span></div>
+            <div class="feature-list-delete" ng-show="permissions.canEditParentGroups"><span class="feature-list-delete"><a id="remove-parent-group-modal-{{parentGroup.id}}" href="" ng-click="removeParentGroup(groupForm, editGroup, parentGroup)" >Delete</a></span></div>
         </div>
-        <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableParentGroups.length > 0 ">
+        <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableParentGroups.length > 0 && permissions.canEditParentGroups">
             <div class="row">
                 <div class="col-sm-10"><select class="form-control parent-group-select" ng-model="parentGroupToAdd" ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select></div>
                 <div class="col-sm-2"><button type="button" class="btn btn-primary parent-group-add-button pull-left" ng-click="addParentGroup(groupForm, editGroup, parentGroupToAdd)">Add</button></div>
