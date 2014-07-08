@@ -1,0 +1,81 @@
+// UTILITY CLASSES
+// ---------------
+
+// Quick floats
+.pull-right {
+  float: right;
+}
+.pull-left {
+  float: left;
+}
+
+// Toggling content
+.hide,
+.hidden {
+  display: none;
+}
+.show {
+  display: block;
+}
+
+// Visibility
+.invisible {
+  visibility: hidden;
+}
+
+
+// Alignment
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center,
+.centered {
+  text-align: center;
+}
+
+.no-pad {
+  padding: 0;
+}
+
+// Adds a ... when text overflowing container
+.truncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+// good old clearfix trick still going strong
+.clearfix {
+  @include bootstrap-clearfix();
+}
+
+
+ul.unstyled,
+ol.unstyled {
+  margin-left: 0;
+  padding:0;
+  list-style: none;
+}
+
+.inline {
+  @extend .unstyled;
+
+  > li {
+    display: inline-block;
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    > a {
+      display: inline-block;
+    }
+  }
+}

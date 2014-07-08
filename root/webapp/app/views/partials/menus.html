@@ -16,7 +16,7 @@
 <div class="subnav-row">
     <div class="content-panel clearfix">
         <div ng-hide="!authToken" ng-cloak>
-            <ul class="nav nav-pills pull-left">
+            <ul class="secondary-nav nav nav-pills pull-left">
                 <li ng-repeat="menuitem in routes | menuFilter:'TOP'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
             </ul>
         </div>
