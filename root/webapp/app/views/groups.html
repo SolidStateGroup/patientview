@@ -23,7 +23,7 @@
             <button class="btn btn-primary" ng-click="ok()" ng-disabled="!groupForm.$valid">Create New</button>
         </div>
     </script>
-    <button class="btn btn-primary" ng-click="openModalNewGroup('lg')">Create New</button>
+    <button class="btn btn-primary" ng-click="openModalNewGroup('lg')" ng-show="permissionCreateGroup">Create New</button>
 
     <!-- Filter -->
     <br/>
@@ -96,13 +96,13 @@
                             <div class="col-sm-3 accordion-heading-text">{{group.description}}</div>
                             <div class="col-sm-3">
 
-                                <!-- Edit, Actions dropdown buttons -->
+                                <!-- Stats, Edit buttons -->
                                 <div class="btn-group pull-right">
-                                    <button type="button" class="btn btn-primary pull-right">
+                                    <button type="button" class="edit-button btn btn-primary pull-right">
                                         <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit
                                     </button>
-                                    <button type="button" class="btn btn-primary pull-right">
-                                        <span class="glyphicon glyphicon-calendar" ng-click="stats(group)"></span>&nbsp;&nbsp;Stats
+                                    <button type="button" class="statistics-button btn btn-primary pull-right">
+                                        <span class="glyphicon glyphicon-calendar"></span>&nbsp;&nbsp;Stats
                                     </button>
                                 </div>
 
@@ -111,13 +111,22 @@
                     </div accordion-heading>
 
                     <!-- edit pane -->
-                    <form name="groupForm">
-                        <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
-                    </form>
-                    <hr>
-                    <div class="group-save-cancel pull-right">
-                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                        <button type="button" class="btn btn-primary" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
+                    <div ng-show="!statistics">
+                        <form name="groupForm">
+                            <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
+                        </form>
+                        <hr>
+                        <div class="group-save-cancel pull-right">
+                            <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
+                            <button type="button" class="btn btn-primary" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
+                        </div>
+                    </div>
+
+                    <!-- stats pane -->
+                    <div ng-show="statistics">
+                        <h2>Statistics</h2>
+                        <p>Group statistics are shown here.</p>
+                        <a class="btn pull-right btn-primary" ng-click="status.open = false">Back</a>
                     </div>
 
                 </div accordion-group>
@@ -134,11 +143,6 @@
             <div pagination on-select-page="setPage(page)" total-items="filtered.length" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filtered.length  < entryLimit "></div>
         </div>
     </div>
-</div>
-
-<!-- stats container for single group -->
-<div class="container" ng-show="!loading" ng-cloak>
-    <h1>Statistics</h1>
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>

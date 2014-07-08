@@ -24,6 +24,7 @@
         </div>
     </div>
 </div>
+        
 <div class="row">
     <div class="col-sm-12">
         <h3>Links</h3>
@@ -48,6 +49,32 @@
                 </select>
             </div>
             <div class="col-sm-2"><button type="button" class="btn btn-primary link-add-button" ng-click="addLink(groupForm, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3>Additional Locations</h3>
+        <div ng-hide="editGroup.locations.length > 0" class="alert alert-info">No additional locations</div>
+        <div class="location-list-item row" ng-repeat="location in editGroup.locations | orderBy:'id'">
+            <div class="col-sm-1 hidden">{{location.id}}</div>
+            <div class="col-sm-1"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="label" name="label" ng-model="location.label" required></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="name" name="name" ng-model="location.name" required></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="group-location-phone-{{location.id}}" placeholder="phone" name="phone" ng-model="location.phone" ></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" ng-model="location.address" ></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" ng-model="location.web" ></div>
+            <div class="col-sm-1"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" ng-model="location.email" ></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-danger location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)">Delete</button></span></div>
+        </div>
+        <div class="row" ng-model="newLocation">
+            <div class="col-sm-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="label" name="newLocation" ng-model="newLocation.label"></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="name" name="newLocation" ng-model="newLocation.name"></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="phone" name="newLocation" ng-model="newLocation.phone"></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="address" name="newLocation" ng-model="newLocation.address"></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="web" name="newLocation" ng-model="newLocation.web"></div>
+            <div class="col-sm-1"><input type="text" class="form-control" id="group-newLocation-email" placeholder="email" name="newLocation" ng-model="newLocation.email"></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary location-add-button" ng-click="addLocation(groupForm, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name)">Add</button></div>
         </div>
     </div>
 </div>
