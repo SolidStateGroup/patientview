@@ -18,6 +18,7 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.util.CollectionUtils;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,9 @@ public class GroupServiceTest {
 
     @Mock
     private LookupRepository lookupRepository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private GroupService groupService = new GroupServiceImpl();

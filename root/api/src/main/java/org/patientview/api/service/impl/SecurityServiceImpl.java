@@ -49,9 +49,7 @@ public class SecurityServiceImpl implements SecurityService {
     private NewsItemRepository newsItemRepository;
 
     public List<Role> getUserRoles(Long userId) {
-
         return Util.iterableToList(roleRepository.getValidRolesByUser(userId));
-
     }
 
     public Set<Route> getUserRoutes(Long userId) {

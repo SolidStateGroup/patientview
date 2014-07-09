@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Inject
     private LookupRepository lookupRepository;
+
+    @Inject
+    private EntityManager entityManager;
 
     @PostConstruct
     public void init() {
@@ -67,12 +71,17 @@ public class GroupServiceImpl implements GroupService {
             Set<Group> childGroups = new HashSet<Group>();
 
             for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
+
                 if (groupRelationship.getLookup().equals(parentRelationshipType)) {
-                    parentGroups.add(group);
+                    Group detachedParentGroup = groupRelationship.getObjectGroup();
+                    entityManager.detach(detachedParentGroup);
+                    parentGroups.add(detachedParentGroup);
                 }
 
                 if (groupRelationship.getLookup().equals(childRelationshipType)) {
-                    childGroups.add(group);
+                    Group detachedChildGroup = groupRelationship.getObjectGroup();
+                    entityManager.detach(detachedChildGroup);
+                    childGroups.add(detachedChildGroup);
                 }
             }
 
