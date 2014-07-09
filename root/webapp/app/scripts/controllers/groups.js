@@ -7,6 +7,13 @@ function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup
     $scope.editGroup = editGroup;
     $scope.groupTypes = groupTypes;
     $scope.allFeatures = allFeatures;
+    var i;
+
+    // set up groupTypesArray for use when showing/hiding parent/child group blocks for UNIT or SPECIALTY
+    $scope.groupTypesArray = [];
+    for (i = 0; i < $scope.groupTypes.length; i++) {
+        $scope.groupTypesArray[$scope.groupTypes[i].value] = $scope.groupTypes[i].id;
+    }
 
     // set feature (avoid blank option)
     if ($scope.editGroup.availableFeatures && $scope.editGroup.availableFeatures.length > 0) {
@@ -204,6 +211,13 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.statistics = '';
             $scope.successMessage = '';
             group.groupTypeId = group.groupType.id;
+
+            // set up groupTypesArray for use when showing/hiding parent/child group blocks for UNIT or SPECIALTY
+            $scope.groupTypesArray = [];
+            for (i = 0; i < $scope.groupTypes.length; i++) {
+                $scope.groupTypesArray[$scope.groupTypes[i].value] = $scope.groupTypes[i].id;
+            }
+
             var i = 0, j = 0;
 
             // set up parent/child groups, remove current group from list of available parent/child groups

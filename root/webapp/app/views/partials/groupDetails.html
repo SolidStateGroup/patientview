@@ -97,7 +97,7 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-6">
+    <div class="col-sm-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT']">
         <h3>Parent Groups</h3>
         <div ng-hide="editGroup.parentGroups.length > 0" class="alert alert-info">No parent groups</div>
         <div class="feature-list-item" ng-repeat="parentGroup in editGroup.parentGroups">
@@ -111,7 +111,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6" ng-show="editGroup.groupType.value === 'SPECIALTY'">
+    <div class="col-sm-6" ng-show="editGroup.groupTypeId==groupTypesArray['SPECIALTY']">
         <h3>Child Groups</h3>
         <div ng-hide="editGroup.childGroups.length > 0" class="alert alert-info">No child groups</div>
         <div class="feature-list-item" ng-repeat="childGroup in editGroup.childGroups">
