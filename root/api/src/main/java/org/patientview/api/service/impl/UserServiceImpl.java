@@ -68,7 +68,6 @@ public class UserServiceImpl implements UserService {
         User newUser;
 
         /*try {
-            user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
             newUser = userRepository.save(user);
         } catch (DataIntegrityViolationException dve) {
             LOG.debug("User not created, duplicate user: {}", dve.getCause());
@@ -82,6 +81,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityExistsException("User already exists");
         }
 
+        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
         newUser = userRepository.save(user);
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
