@@ -151,7 +151,7 @@ public class GroupServiceTest {
 
         // Verify
         verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
-        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
+        verify(groupRelationshipRepository, Mockito.times(4)).save(Matchers.any(GroupRelationship.class));
         Assert.assertNotNull("A group feature has been created", group);
     }
 
@@ -188,7 +188,7 @@ public class GroupServiceTest {
 
         // Verify
         verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
-        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
+        verify(groupRelationshipRepository, Mockito.times(4)).save(Matchers.any(GroupRelationship.class));
         Assert.assertNotNull("A group feature has been created", group);
     }
 

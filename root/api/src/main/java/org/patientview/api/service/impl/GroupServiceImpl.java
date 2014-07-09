@@ -252,24 +252,33 @@ public class GroupServiceImpl implements GroupService {
         // delete existing groups
         groupRelationshipRepository.deleteBySourceGroup(group);
 
+        Group sourceGroup = groupRepository.findOne(group.getId());
+
+        // Create a two way relationship; if a parent is a child, the inverse is also true
         if (!CollectionUtils.isEmpty(group.getParentGroups())) {
             for (Group parentGroup : group.getParentGroups()) {
-                GroupRelationship groupRelationship = new GroupRelationship();
-                groupRelationship.setSourceGroup(groupRepository.findOne(group.getId()));
-                groupRelationship.setObjectGroup(groupRepository.findOne(parentGroup.getId()));
-                groupRelationship.setLookup(parentRelationshipType);
-                groupRelationshipRepository.save(groupRelationship);
+
+                Group objectGroup = groupRepository.findOne(parentGroup.getId());
+                createRelationship(sourceGroup, objectGroup, parentRelationshipType);
+                createRelationship(objectGroup, sourceGroup, childRelationshipType);
             }
         }
         if (!CollectionUtils.isEmpty(group.getChildGroups())) {
             for (Group childGroup : group.getChildGroups()) {
-                GroupRelationship groupRelationship = new GroupRelationship();
-                groupRelationship.setSourceGroup(groupRepository.findOne(group.getId()));
-                groupRelationship.setObjectGroup(groupRepository.findOne(childGroup.getId()));
-                groupRelationship.setLookup(childRelationshipType);
-                groupRelationshipRepository.save(groupRelationship);
+
+                Group objectGroup = groupRepository.findOne(childGroup.getId());
+                createRelationship(sourceGroup, objectGroup, childRelationshipType);
+                createRelationship(objectGroup, sourceGroup, parentRelationshipType);
             }
         }
+    }
+
+    private void createRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
+        GroupRelationship groupRelationship = new GroupRelationship();
+        groupRelationship.setSourceGroup(sourceGroup);
+        groupRelationship.setObjectGroup(objectGroup);
+        groupRelationship.setLookup(relationshipType);
+        groupRelationshipRepository.save(groupRelationship);
     }
 
 
