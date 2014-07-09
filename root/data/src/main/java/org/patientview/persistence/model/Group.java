@@ -164,11 +164,11 @@ public class Group extends AuditModel {
         this.childGroups = childGroups;
     }
 
+    @JsonIgnore
     public Set<GroupRelationship> getGroupRelationships() {
         return groupRelationships;
     }
 
-    @JsonIgnore
     public void setGroupRelationships(final Set<GroupRelationship> groupRelationships) {
         this.groupRelationships = groupRelationships;
     }
