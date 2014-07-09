@@ -12,6 +12,16 @@ function ($q, Restangular) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // get a set of lookups by type string
+        getLookupByTypeAndValue: function (lookupType, lookupValue) {
+            var deferred = $q.defer();
+            Restangular.all('lookupType').one(lookupType).all('lookups').one(lookupValue).get().then(function(successResult) {
+                deferred.resolve(successResult);
+            },function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);
