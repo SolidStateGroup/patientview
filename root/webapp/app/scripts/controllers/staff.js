@@ -208,41 +208,50 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
             // get logged in user's groups
             GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-                $scope.allGroups = groups;
-                for (i = 0; i < groups.length; i++) {
-                    groupIds.push(groups[i].id);
-                    $scope.permissions.allGroupsIds[groups[i].id] = groups[i].id;
-                }
 
-                // get staff users by list of staff roles and list of logged in user's groups
-                UserService.getByGroupsAndRoles(groupIds, staffRoleIds).then(function (users) {
-                    $scope.list = users;
-                    $scope.currentPage = 1; //current page
-                    $scope.entryLimit = 20; //max no of items to display in a page
-                    $scope.totalItems = $scope.list.length;
-                    delete $scope.loading;
-                });
+                // show error if user is not a member of any groups
+                if (groups.length !== 0) {
+                    $scope.allGroups = groups;
+                    for (i = 0; i < groups.length; i++) {
+                        groupIds.push(groups[i].id);
+                        $scope.permissions.allGroupsIds[groups[i].id] = groups[i].id;
+                    }
 
-                // get list of roles available when user is adding a new Group & Role to staff member
-                // e.g. unit admins cannot add specialty admin roles to staff members
-                SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (roles) {
-                    // filter by roleId found previously as STAFF
-                    var allowedRoles = [];
-                    for (i = 0; i < roles.length; i++) {
-                        if (staffRoleIds.indexOf(roles[i].id) != -1) {
-                            allowedRoles.push(roles[i]);
+                    // get staff users by list of staff roles and list of logged in user's groups
+                    UserService.getByGroupsAndRoles(groupIds, staffRoleIds).then(function (users) {
+                        $scope.list = users;
+                        $scope.currentPage = 1; //current page
+                        $scope.entryLimit = 20; //max no of items to display in a page
+                        $scope.totalItems = $scope.list.length;
+                        delete $scope.loading;
+                    });
+
+                    // get list of roles available when user is adding a new Group & Role to staff member
+                    // e.g. unit admins cannot add specialty admin roles to staff members
+                    SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (roles) {
+                        // filter by roleId found previously as STAFF
+                        var allowedRoles = [];
+                        for (i = 0; i < roles.length; i++) {
+                            if (staffRoleIds.indexOf(roles[i].id) != -1) {
+                                allowedRoles.push(roles[i]);
+                            }
                         }
-                    }
-                    $scope.allowedRoles = allowedRoles;
-                });
+                        $scope.allowedRoles = allowedRoles;
+                    });
 
-                // get list of features available when user is adding a new Feature to staff members
-                FeatureService.getAllStaffFeatures().then(function (allFeatures) {
-                    $scope.allFeatures = [];
-                    for (var i = 0; i < allFeatures.length; i++) {
-                        $scope.allFeatures.push({'feature': allFeatures[i]});
-                    }
-                });
+                    // get list of features available when user is adding a new Feature to staff members
+                    FeatureService.getAllStaffFeatures().then(function (allFeatures) {
+                        $scope.allFeatures = [];
+                        for (var i = 0; i < allFeatures.length; i++) {
+                            $scope.allFeatures.push({'feature': allFeatures[i]});
+                        }
+                    });
+                } else {
+                    // no groups found
+                    delete $scope.loading;
+                    $scope.errorMessage = 'No user groups found, cannot retrieve staff';
+                    $scope.fatalError = true;
+                }
             });
         });
     };
