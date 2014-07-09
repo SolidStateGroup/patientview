@@ -31,6 +31,7 @@ body{
     background:$lowlight;
     border-top:1px solid $border-default;
     width:100%;
+    padding:0 0 15px 0;
   }
 }
 
@@ -41,10 +42,6 @@ body{
 .footer{
   background:$white;
   height:40px;
-
-  .brand{
-
-  }
 }
 
 
@@ -55,8 +52,6 @@ ul{
     margin-bottom:5px;
   }
 }
-
-
 
 /** hero pane **/
 
@@ -96,6 +91,12 @@ ul{
   }
 }
 
+/** form styles **/
+
+.filter-panel{
+  overflow:visible;
+}
+
 /** generic color styles **/
 
 .blue{
@@ -103,7 +104,44 @@ ul{
 }
 
 
+/** Tables **/
 
+.faux-table{
+  margin-top:20px;
+
+  .table-head{
+    background:#f3f6f9;
+    height:40px;
+    display:table;
+    width:100%;
+    border-bottom:1px solid $border-default;
+
+    .head-item{
+      height:100%;
+      border-right:1px solid $border-default;
+      display:table-cell;
+      vertical-align: middle;
+      text-align:center;
+
+      a{
+        color:$textdefault;
+        text-decoration:none;
+      }
+    }
+  }
+
+  .accordion-group{
+    &.panel{
+      background:$white;
+      @include bootstrap-border-radius(0);
+      margin-top:0;
+      border-top:0;
+      .panel-heading{
+        background:none;
+      }
+    }
+  }
+}
 
 
 /** temporary icons stuff **/
