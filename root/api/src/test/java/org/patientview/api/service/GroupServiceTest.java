@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.Group;
@@ -13,8 +14,12 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.GroupFeatureRepository;
+import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -24,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -33,10 +39,22 @@ import static org.mockito.Mockito.when;
 public class GroupServiceTest {
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private GroupRepository groupRepository;
 
     @Mock
     private LookupRepository lookupRepository;
+
+    @Mock
+    private GroupRelationshipRepository groupRelationshipRepository;
+
+    @Mock
+    private GroupFeatureRepository groupFeatureRepository;
+
+    @Mock
+    private FeatureRepository featureRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -95,6 +113,85 @@ public class GroupServiceTest {
         //Assert.assertTrue("There should be the correct child objects", groups.get(0).getParentGroups().getId().equals(childGroup.getId()));
         //Assert.assertTrue("There should be the correct parent objects", groups.get(0).getId().equals(parentGroup.getId()));
     }
+
+
+    /**
+     * Test: The creation of the parent and child groups
+     * Fail: The the parent and child groups are not returned
+     *
+     */
+    @Test
+    public void testAddGroupChildAndParent() {
+        User testUser = TestUtils.createUser(2L, "testUser");
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
+        Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
+        Set<Group> childGroups = new HashSet<Group>();
+        Set<Group> parentGroups = new HashSet<Group>();
+        childGroups.add(childGroup);
+        parentGroups.add(parentGroup);
+        testGroup.setChildGroups(childGroups);
+        testGroup.setParentGroups(parentGroups);
+
+        // Create relationships loopkups
+        LookupType relationshipType = TestUtils.createLookupType(4L, "RELATIONSHIP_TYPE", creator);
+        Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
+        Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
+
+        when(lookupRepository.getByLookupTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
+        when(lookupRepository.getByLookupTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
+
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
+        when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
+
+        // Test
+        Group group = groupService.create(testGroup);
+
+        // Verify
+        verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
+        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
+        Assert.assertNotNull("A group feature has been created", group);
+    }
+
+    /**
+     * Test: The creation of the parent and child groups
+     * Fail: The the parent and child groups are not returned
+     *
+     */
+    @Test
+    public void testAddGroupChildAndParentOnSave() {
+        User testUser = TestUtils.createUser(2L, "testUser");
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
+        Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
+        Set<Group> childGroups = new HashSet<Group>();
+        Set<Group> parentGroups = new HashSet<Group>();
+        childGroups.add(childGroup);
+        parentGroups.add(parentGroup);
+        testGroup.setChildGroups(childGroups);
+        testGroup.setParentGroups(parentGroups);
+
+        // Create relationships loopkups
+        LookupType relationshipType = TestUtils.createLookupType(4L, "RELATIONSHIP_TYPE", creator);
+        Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
+        Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
+
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
+        when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
+
+        // Test
+        Group group = groupService.save(testGroup);
+
+        // Verify
+        verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
+        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
+        Assert.assertNotNull("A group feature has been created", group);
+    }
+
 
 
 }

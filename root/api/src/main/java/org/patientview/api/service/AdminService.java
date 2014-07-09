@@ -18,11 +18,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface AdminService {
 
-    Group createGroup(Group group);
-
     Group getGroup(Long groupId);
-
-    Group saveGroup(Group group);
 
     GroupFeature addGroupFeature(Long groupId, Long featureId);
 

@@ -12,7 +12,6 @@ import org.patientview.api.service.impl.AdminServiceImpl;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
-import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
@@ -24,9 +23,6 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,75 +93,5 @@ public class AdminServiceTest {
         Assert.assertNotNull("A group feature has been created", groupFeature);
     }
 
-
-    /**
-     * Test: The creation of the parent and child groups
-     * Fail: The the parent and child groups are not returned
-     *
-     */
-    @Test
-    public void testAddGroupChildAndParent() {
-        User testUser = TestUtils.createUser(2L, "testUser");
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
-        Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
-        Set<Group> childGroups = new HashSet<Group>();
-        Set<Group> parentGroups = new HashSet<Group>();
-        childGroups.add(childGroup);
-        parentGroups.add(parentGroup);
-        testGroup.setChildGroups(childGroups);
-        testGroup.setParentGroups(parentGroups);
-
-        //LookupType relationshipType = TestUtils.createLookupType,(3L, "RELATIONSHIP_TYPE", creator);
-        //Lookup relationship = TestUtils.createLookup(4L, relationshipType, "PARENT", creator);
-
-        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
-        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
-        when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
-        when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
-
-        // Test
-        Group group = adminService.createGroup(testGroup);
-
-        // Verify
-        verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
-        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
-        Assert.assertNotNull("A group feature has been created", group);
-    }
-
-    /**
-     * Test: The creation of the parent and child groups
-     * Fail: The the parent and child groups are not returned
-     *
-     */
-    @Test
-    public void testAddGroupChildAndParentOnSave() {
-        User testUser = TestUtils.createUser(2L, "testUser");
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
-        Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
-        Set<Group> childGroups = new HashSet<Group>();
-        Set<Group> parentGroups = new HashSet<Group>();
-        childGroups.add(childGroup);
-        parentGroups.add(parentGroup);
-        testGroup.setChildGroups(childGroups);
-        testGroup.setParentGroups(parentGroups);
-
-        //LookupType relationshipType = TestUtils.createLookupType,(3L, "RELATIONSHIP_TYPE", creator);
-        //Lookup relationship = TestUtils.createLookup(4L, relationshipType, "PARENT", creator);
-
-        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
-        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
-        when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
-        when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
-
-        // Test
-        Group group = adminService.saveGroup(testGroup);
-
-        // Verify
-        verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
-        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
-        Assert.assertNotNull("A group feature has been created", group);
-    }
 
 }
