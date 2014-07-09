@@ -74,15 +74,20 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
 
     $rootScope.ieTestMode = false;
 
+
     // rebuild routes from cookie, allow refresh of page
     var buildRoute = function() {
         var data = { 'default': '/' };
-
-        //var menu = $cookieStore.get('routes');
         var menu = localStorageService.get('routes');
-        //if (menu !== undefined) {
+
         if (menu !== null) {
-            data.routes = menu;
+            // handle caching issue where routes are []
+            if (menu.length === 0) {
+                $rootScope.logout();
+                data.routes = RouteService.getDefault().routes;
+            } else {
+                data.routes = menu;
+            }
         } else {
             data.routes = RouteService.getDefault().routes;
         }
