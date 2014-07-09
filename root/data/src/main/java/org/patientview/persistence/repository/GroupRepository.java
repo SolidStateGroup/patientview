@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.springframework.data.jpa.repository.Query;
@@ -38,6 +39,11 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "JOIN   u.groupRoles gr " +
            "WHERE  u = :user " +
            "AND    gr.group.visible = true")
-    public Iterable<Group> findGroupByUser(@Param("user")User user);
+    public Iterable<Group> findGroupByUser(@Param("user") User user);
+
+    @Query("SELECT g " +
+           "FROM   Group g " +
+           "WHERE  g.groupType = :groupType")
+    public Iterable<Group> findGroupByType(@Param("groupType") Lookup groupType);
 
 }

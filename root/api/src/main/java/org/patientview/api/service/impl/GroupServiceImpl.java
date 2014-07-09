@@ -10,7 +10,6 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.HashSet;
@@ -33,11 +32,6 @@ public class GroupServiceImpl implements GroupService {
     @Inject
     private EntityManager entityManager;
 
-    @PostConstruct
-    public void init() {
-        // TODO Lookup refactor for Enum sprint 2
-    }
-
 
     /**
      * Get all the groups and put the children and parents into the transient objects
@@ -59,6 +53,17 @@ public class GroupServiceImpl implements GroupService {
         return addParentAndChildGroups(groups);
 
     }
+
+    public List<Group> findGroupByType(Long lookupId) {
+
+        Lookup groupType = lookupRepository.findOne(lookupId);
+
+        List<Group> groups = Util.iterableToList(groupRepository.findGroupByType(groupType));
+
+        return addParentAndChildGroups(groups);
+
+    }
+
 
     private List<Group> addParentAndChildGroups(List<Group> groups) {
         Lookup parentRelationshipType = lookupRepository.getByLookupTypeAndValue("RELATIONSHIP_TYPE", "PARENT");

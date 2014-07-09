@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
+import org.patientview.api.service.GroupService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.User;
@@ -34,6 +35,9 @@ public class GroupController extends BaseController {
 
     @Inject
     private AdminService adminService;
+
+    @Inject
+    private GroupService groupService;
 
     @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Group> createGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
@@ -95,6 +99,12 @@ public class GroupController extends BaseController {
     public ResponseEntity<List<User>> getGroupStaff(@PathVariable("groupId") Long groupId,
                                                     @RequestParam("roleType") String roleType) {
         return new ResponseEntity<List<User>>(adminService.getGroupUserByRoleStaff(groupId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/group/type/{typeId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<Group>> getGroupsByType(@PathVariable("typeId") Long lookupId) {
+        return new ResponseEntity<List<Group>>(groupService.findGroupByType(lookupId), HttpStatus.OK);
     }
 
 }

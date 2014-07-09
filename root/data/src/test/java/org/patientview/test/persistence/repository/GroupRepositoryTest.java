@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.GroupRepository;
@@ -67,7 +68,6 @@ public class GroupRepositoryTest {
      * Fail: No group is returned
      */
     @Test
-    //@Ignore
     public void testFindGroupByUser() {
         User user = dataTestUtils.createUser("testUser");
         Group group = dataTestUtils.createGroup("testGroup", creator);
@@ -75,6 +75,24 @@ public class GroupRepositoryTest {
         GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role, creator);
 
         Iterable<Group> groups = groupRepository.findGroupByUser(user);
+
+        Assert.assertTrue("There are no groups linked to the user", groups.iterator().hasNext());
+
+    }
+
+    /**
+     * Test: Assign a group with a type and see if it returned by the query
+     * Fail: No group is returned
+     */
+    @Test
+    public void testFindGroupByType() {
+
+        Group group = dataTestUtils.createGroup("testGroup", creator);
+        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", "GROUP_TYPE", creator);
+        group.setGroupType(lookup);
+        groupRepository.save(group);
+
+        Iterable<Group> groups = groupRepository.findGroupByType(lookup);
 
         Assert.assertTrue("There are no groups linked to the user", groups.iterator().hasNext());
 
