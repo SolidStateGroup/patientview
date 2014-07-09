@@ -212,6 +212,14 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.successMessage = '';
             group.groupTypeId = group.groupType.id;
 
+            // if child/parent groups are empty arrays, set to []
+            if (!group.childGroups) {
+                group.childGroups = [];
+            }
+            if (!group.parentGroups) {
+                group.parentGroups = [];
+            }
+
             // set up groupTypesArray for use when showing/hiding parent/child group blocks for UNIT or SPECIALTY
             $scope.groupTypesArray = [];
             for (i = 0; i < $scope.groupTypes.length; i++) {
