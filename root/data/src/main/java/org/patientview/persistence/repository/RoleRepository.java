@@ -2,6 +2,7 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +27,7 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
 
     @Query("SELECT rol FROM Role rol WHERE rol.roleType = :roleType")
     public List<Role> getByType(@Param("roleType") Lookup roleType);
+
+    @Query("SELECT gr.role FROM User u JOIN u.groupRoles gr WHERE u = :user")
+    public List<Role> getByUser(@Param("user") User user);
 }

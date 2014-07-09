@@ -79,7 +79,7 @@ public class SecurityServiceImpl implements SecurityService {
     public List<Group> getUserGroups(Long userId) {
         User user = userRepository.findOne(userId);
         //TODO - Refactor to Enum Sprint 2
-        if (doesListContainRole(roleRepository.getValidRolesByUser(userId), "SUPER_ADMIN")) {
+        if (doesListContainRole(roleRepository.getByUser(user), "SUPER_ADMIN")) {
             return Util.iterableToList(groupService.findAll());
         } else {
             return Util.iterableToList(groupService.findGroupByUser(user));

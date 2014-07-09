@@ -1,13 +1,19 @@
 package org.patientview;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -30,19 +36,32 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "locked")
     private Boolean locked;
 
+    @Column(name = "verified")
+    private Boolean verified;
+
+    @Column(name = "verification_code")
+    private String verificationCode;
+
     @Column(name = "email")
     private String email;
 
-    @Column(name = "name")
+    @Column(name = "fullname")
     private String name;
 
-    @OneToMany(mappedBy = "user")
-    private List<GroupRole> groupRoles;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    private Set<GroupRole> groupRoles;
 
-    /* http://docs.jboss.org/hibernate/orm/4.1/manual/en-US/html/ch06.html#types-registry */
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    private Set<UserFeature> userFeatures;
+
+   // @Type(type="pg-uuid")
     @Column(name = "fhir_resource_id")
-    @org.hibernate.annotations.Type(type="pg-uuid")
     private UUID fhirResourceId;
+
+    @Column(name = "last_login")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
+    private Date lastLogin;
 
     public String getUsername() {
         return username;
@@ -76,6 +95,22 @@ public class User extends RangeModel implements UserDetails {
         this.locked = locked;
     }
 
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -100,46 +135,62 @@ public class User extends RangeModel implements UserDetails {
         this.fhirResourceId = fhirResourceId;
     }
 
-    public List<GroupRole> getGroupRoles() {
-        return groupRoles;
-    }
-
-    public void setGroupRoles(final List<GroupRole> groupRoles) {
+    public void setGroupRoles(final Set<GroupRole> groupRoles) {
         this.groupRoles = groupRoles;
     }
 
+    public Set<GroupRole> getGroupRoles() {
+        return groupRoles;
+    }
 
+    public Set<UserFeature> getUserFeatures() {
+        return userFeatures;
+    }
+
+    public void setUserFeatures(final Set<UserFeature> userFeatures) {
+        this.userFeatures = userFeatures;
+    }
+
+    //TODO User Detail fields need refactoring
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.<GrantedAuthority>emptyList();
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired()
     {
         return true;
     }
 
-
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked()
     {
         return true;
     }
 
-
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired()
     {
         return true;
     }
 
-
+    @JsonIgnore
     @Override
     public boolean isEnabled()
     {
         return true;
     }
 
+    public Date getLastLogin() {
+        return lastLogin;
+    }
 
+    public void setLastLogin(Date lastLogin) {
+        this.lastLogin = lastLogin;
+    }
 }

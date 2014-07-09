@@ -116,7 +116,7 @@ public class SecurityServiceTest {
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
         roles.add(TestUtils.createRole(1L, "SUPER_ADMIN", creator));
-        when(roleRepository.getValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
+        when(roleRepository.getByUser(Matchers.eq(testUser))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
 

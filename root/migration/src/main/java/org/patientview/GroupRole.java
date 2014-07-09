@@ -3,17 +3,20 @@ package org.patientview;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 /**
+ * Object to link an user to Group and Roles.
+ *
+ * Object should only have one noun this has 2. Maybe for another day.
+ * UserLink?
+ *
  * Created by james@solidstategroup.com
- * Created on 03/06/2014
+ * Created on 20/06/2014
  */
-
 public class GroupRole extends RangeModel {
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -24,6 +27,7 @@ public class GroupRole extends RangeModel {
     @OneToOne
     @JoinColumn(name = "group_id")
     private Group group;
+
 
     public Role getRole() {
         return role;

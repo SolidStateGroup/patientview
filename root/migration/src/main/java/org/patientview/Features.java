@@ -1,6 +1,5 @@
-package org.patientview.model;
+package org.patientview;
 
-import org.patientview.Feature;
 
 import java.util.List;
 

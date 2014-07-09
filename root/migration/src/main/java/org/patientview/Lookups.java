@@ -1,6 +1,4 @@
-package org.patientview.model;
-
-import org.patientview.Lookup;
+package org.patientview;
 
 import java.util.List;
 

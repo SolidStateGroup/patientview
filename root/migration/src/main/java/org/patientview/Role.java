@@ -1,6 +1,12 @@
 package org.patientview;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -8,11 +14,26 @@ import javax.persistence.Column;
  */
 public class Role extends AuditModel {
 
-    @Column(name = "name")
+    @Column(name = "role_name")
     private String name;
+
+    @Column(name = "level")
+    private Integer level;
 
     @Column(name = "description")
     private String description;
+
+    @OneToMany(mappedBy = "role")
+    private Set<Route> routes;
+
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "type_id")
+    private Lookup roleType;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "role")
+    private Set<GroupRole> groupRoles;
 
 
     public String getName() {
@@ -31,4 +52,27 @@ public class Role extends AuditModel {
         this.description = description;
     }
 
+    public Set<Route> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(final Set<Route> routes) {
+        this.routes = routes;
+    }
+
+    public Lookup getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(final Lookup roleType) {
+        this.roleType = roleType;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(final Integer level) {
+        this.level = level;
+    }
 }

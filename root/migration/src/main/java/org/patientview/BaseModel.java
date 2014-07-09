@@ -1,17 +1,16 @@
 package org.patientview;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
 /**
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
-
+@MappedSuperclass
 public class BaseModel implements Serializable, Comparable {
 
     protected BaseModel() {
@@ -60,11 +59,6 @@ public class BaseModel implements Serializable, Comparable {
         BaseModel baseModel = (BaseModel) o;
 
         return this.id.compareTo(baseModel.getId());
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this);
     }
 
 }

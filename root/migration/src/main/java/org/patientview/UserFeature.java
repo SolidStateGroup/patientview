@@ -7,14 +7,14 @@ import javax.persistence.OneToOne;
 
 /**
  * Created by james@solidstategroup.com
- * Created on 05/06/2014
+ * Created on 18/06/2014
  */
-public class GroupFeature extends RangeModel {
+public class UserFeature extends RangeModel {
 
-    @OneToOne
-    @JoinColumn(name = "group_id")
     @JsonIgnore
-    private Group group;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @OneToOne
     @JoinColumn(name = "feature_id")
@@ -28,11 +28,11 @@ public class GroupFeature extends RangeModel {
         this.feature = feature;
     }
 
-    public Group getGroup() {
-        return group;
+    public User getUser() {
+        return user;
     }
 
-    public void setGroup(final Group group) {
-        this.group = group;
+    public void setUser(final User user) {
+        this.user = user;
     }
 }

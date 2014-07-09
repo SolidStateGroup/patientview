@@ -3,15 +3,15 @@ package org.patientview.migration.service.impl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpPost;
-import org.patientview.Group;
-import org.patientview.GroupRole;
-import org.patientview.Role;
-import org.patientview.User;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
+import org.patientview.Group;
+import org.patientview.GroupRole;
+import org.patientview.Role;
+import org.patientview.User;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.SpecialtyUserRoleDao;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -57,7 +58,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
 
                     if (newUser.getGroupRoles() == null) {
-                        newUser.setGroupRoles(new ArrayList<GroupRole>());
+                        newUser.setGroupRoles(new HashSet<GroupRole>());
                     }
 
                     GroupRole userGroup = new GroupRole();
@@ -72,7 +73,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
 
                         if (newUser.getGroupRoles() == null) {
-                            newUser.setGroupRoles(new ArrayList<GroupRole>());
+                            newUser.setGroupRoles(new HashSet<GroupRole>());
                         }
 
                         String roleName = specialtyUserRoles.get(0).getRole(); //FIXME
@@ -92,6 +93,18 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         userGroup.setGroup(group);
                         userGroup.setRole(role);
                         newUser.getGroupRoles().add(userGroup);
+
+                        //TODO make private methods
+                        userGroup = new GroupRole();
+                        group = adminDataMigrationService.getGroupByCode("GENERIC");
+                        if (group == null) {
+                            LOG.error("Could not find group for unit code {}", userMapping.getUnitcode());
+                            continue;
+                        }
+                        userGroup.setGroup(group);
+                        userGroup.setRole(role);
+                        newUser.getGroupRoles().add(userGroup);
+
 
                     }
 
@@ -127,7 +140,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
 
                     if (newUser.getGroupRoles() == null) {
-                        newUser.setGroupRoles(new ArrayList<GroupRole>());
+                        newUser.setGroupRoles(new HashSet<GroupRole>());
                     }
 
                     GroupRole userGroup = new GroupRole();
@@ -170,6 +183,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             newUser.setEmail(user.getEmail());
         }
         newUser.setUsername(user.getUsername());
+        newUser.setVerified(user.isEmailverified());
         return newUser;
     }
 
