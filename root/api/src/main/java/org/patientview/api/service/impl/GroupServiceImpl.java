@@ -36,8 +36,6 @@ public class GroupServiceImpl implements GroupService {
     @PostConstruct
     public void init() {
         // TODO Lookup refactor for Enum sprint 2
-
-
     }
 
 

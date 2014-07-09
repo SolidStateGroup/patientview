@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -49,10 +50,10 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group")
     private Set<Route> routes;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Link> links;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Location> locations;
 
     @Transient
@@ -104,6 +105,7 @@ public class Group extends AuditModel {
         this.groupType = groupType;
     }
 
+    @JsonIgnore
     public Set<GroupFeature> getGroupFeatures() {
         return groupFeatures;
     }

@@ -1,6 +1,8 @@
 package org.patientview.api.config;
 
+import org.patientview.test.util.DataTestUtils;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -21,7 +23,8 @@ import java.util.Properties;
  * Created on 17/06/2014
  */
 @Configuration
-@EnableJpaRepositories(basePackages = {"org.patientview.persistence.repository"})
+@EnableJpaRepositories(basePackages = {"org.patientview.persistence.repository","org.patientview.api.service"})
+@ComponentScan(basePackageClasses = DataTestUtils.class)
 @EnableTransactionManagement
 public class TestPersistenceConfig {
 
