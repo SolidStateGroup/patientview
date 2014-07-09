@@ -261,7 +261,7 @@ public class GroupServiceImpl implements GroupService {
                 groupRelationshipRepository.save(groupRelationship);
             }
         }
-        if (!CollectionUtils.isEmpty(group.getParentGroups())) {
+        if (!CollectionUtils.isEmpty(group.getChildGroups())) {
             for (Group childGroup : group.getChildGroups()) {
                 GroupRelationship groupRelationship = new GroupRelationship();
                 groupRelationship.setSourceGroup(groupRepository.findOne(group.getId()));
