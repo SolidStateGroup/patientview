@@ -41,22 +41,6 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         // get list of groups associated with a user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
 
-            // handle parent/child (avoiding infinite recursion using @Transient in Group.java)
-            for (i=0;i<groups.length;i++) {
-                group = groups[i];
-                if (group.parents) {
-                    group.parentGroups = group.parents;
-                } else {
-                    group.parentGroups = [];
-                }
-
-                if (group.children) {
-                    group.childGroups = group.children;
-                } else {
-                    group.childGroups = [];
-                }
-            }
-
             // set the list of groups to show in the data grid
             $scope.list = groups;
 

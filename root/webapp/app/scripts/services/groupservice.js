@@ -58,9 +58,7 @@ function ($q, Restangular, UtilService) {
             var cleanChildGroups = [];
             for (i=0;i<inputGroup.childGroups.length;i++) {
                 var childGroup = UtilService.cleanObject(inputGroup.childGroups[i], 'group');
-                delete childGroup.children;
                 delete childGroup.childGroups;
-                delete childGroup.parents;
                 delete childGroup.parentGroups;
                 delete childGroup.groupFeatures;
                 cleanChildGroups.push(childGroup);
@@ -70,9 +68,7 @@ function ($q, Restangular, UtilService) {
             var cleanParentGroups = [];
             for (i=0;i<inputGroup.parentGroups.length;i++) {
                 var parentGroup = UtilService.cleanObject(inputGroup.parentGroups[i], 'group');
-                delete parentGroup.children;
                 delete parentGroup.childGroups;
-                delete parentGroup.parents;
                 delete parentGroup.parentGroups;
                 delete parentGroup.groupFeatures;
                 cleanParentGroups.push(parentGroup);
@@ -85,8 +81,6 @@ function ($q, Restangular, UtilService) {
             group.groupFeatures = cleanGroupFeatures;
             group.childGroups = cleanChildGroups;
             group.parentGroups = cleanParentGroups;
-            delete group.children;
-            delete group.parents;
             group.groupType = groupType;
 
             // PUT /group
@@ -116,9 +110,7 @@ function ($q, Restangular, UtilService) {
             var cleanChildGroups = [];
             for (i=0;i<inputGroup.childGroups.length;i++) {
                 var childGroup = UtilService.cleanObject(inputGroup.childGroups[i], 'group');
-                delete childGroup.children;
                 delete childGroup.childGroups;
-                delete childGroup.parents;
                 delete childGroup.parentGroups;
                 delete childGroup.groupFeatures;
                 cleanChildGroups.push(childGroup);
@@ -128,9 +120,7 @@ function ($q, Restangular, UtilService) {
             var cleanParentGroups = [];
             for (i=0;i<inputGroup.parentGroups.length;i++) {
                 var parentGroup = UtilService.cleanObject(inputGroup.parentGroups[i], 'group');
-                delete parentGroup.children;
                 delete parentGroup.childGroups;
-                delete parentGroup.parents;
                 delete parentGroup.parentGroups;
                 delete parentGroup.groupFeatures;
                 cleanParentGroups.push(parentGroup);
@@ -144,8 +134,6 @@ function ($q, Restangular, UtilService) {
             group.groupFeatures = cleanGroupFeatures;
             group.childGroups = cleanChildGroups;
             group.parentGroups = cleanParentGroups;
-            delete group.children;
-            delete group.parents;
             group.groupType = groupType;
 
             Restangular.all('group').post(group).then(function(successResult) {
