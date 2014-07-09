@@ -1,0 +1,317 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+/** Brand colours **/
+/** shadows **/
+/* line 5, ../sass/utils.scss */
+.pull-right {
+  float: right;
+}
+
+/* line 8, ../sass/utils.scss */
+.pull-left {
+  float: left;
+}
+
+/* line 14, ../sass/utils.scss */
+.hide,
+.hidden {
+  display: none;
+}
+
+/* line 17, ../sass/utils.scss */
+.show {
+  display: block;
+}
+
+/* line 22, ../sass/utils.scss */
+.invisible {
+  visibility: hidden;
+}
+
+/* line 28, ../sass/utils.scss */
+.text-left {
+  text-align: left;
+}
+
+/* line 32, ../sass/utils.scss */
+.text-right {
+  text-align: right;
+}
+
+/* line 37, ../sass/utils.scss */
+.text-center,
+.centered {
+  text-align: center;
+}
+
+/* line 41, ../sass/utils.scss */
+.no-pad {
+  padding: 0;
+}
+
+/* line 46, ../sass/utils.scss */
+.truncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* line 55, ../sass/utils.scss */
+.clearfix {
+  *zoom: 1;
+}
+/* line 15, ../sass/mixins.scss */
+.clearfix:before, .clearfix:after {
+  display: table;
+  content: "";
+}
+/* line 19, ../sass/mixins.scss */
+.clearfix:after {
+  clear: both;
+}
+
+/* line 61, ../sass/utils.scss */
+ul.unstyled, ul.inline,
+ol.unstyled,
+ol.inline {
+  margin-left: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* line 70, ../sass/utils.scss */
+.inline > li {
+  display: inline-block;
+}
+/* line 73, ../sass/utils.scss */
+.inline > li:first-child {
+  padding-left: 0;
+}
+/* line 77, ../sass/utils.scss */
+.inline > li > a {
+  display: inline-block;
+}
+
+/* line 1, ../sass/base.scss */
+body {
+  background: #e7ecf2;
+  color: #585858;
+  margin-top: 20px;
+}
+
+/* line 7, ../sass/base.scss */
+.page-content {
+  padding-bottom: 60px;
+}
+
+/* line 11, ../sass/base.scss */
+.panel-header {
+  padding: 10px;
+}
+
+/* line 15, ../sass/base.scss */
+.content-panel {
+  background: white;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0px 1px 1px #bfcdde;
+  -moz-box-shadow: 0px 1px 1px #bfcdde;
+  box-shadow: 0px 1px 1px #bfcdde;
+  overflow: hidden;
+}
+/* line 22, ../sass/base.scss */
+.content-panel.lowlight {
+  background: #f3f6f9;
+}
+/* line 26, ../sass/base.scss */
+.content-panel .content-inner {
+  padding: 10px;
+}
+/* line 30, ../sass/base.scss */
+.content-panel .panel-footer {
+  background: #f3f6f9;
+  border-top: 1px solid #e4e9f0;
+  width: 100%;
+  padding: 0 0 15px 0;
+}
+
+/* line 38, ../sass/base.scss */
+.panel-header {
+  margin-bottom: 20px;
+}
+
+/* line 42, ../sass/base.scss */
+.footer {
+  background: white;
+  height: 40px;
+}
+
+/** lists **/
+/* line 51, ../sass/base.scss */
+ul .news-item {
+  margin-bottom: 5px;
+}
+
+/** hero pane **/
+/* line 58, ../sass/base.scss */
+.hero-panel {
+  background: url("../../../images/hero-bg.png") 0 0 no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: 430px;
+  margin-top: 20px;
+}
+/* line 65, ../sass/base.scss */
+.hero-panel .hero-pane {
+  height: 100%;
+  color: white;
+}
+/* line 69, ../sass/base.scss */
+.hero-panel .hero-pane.aquamarine {
+  background: #00aa9e;
+  opacity: 0.7;
+  filter: alpha(opacity=70);
+}
+/* line 73, ../sass/base.scss */
+.hero-panel .hero-pane.aqua {
+  background: #00adc6;
+  opacity: 0.7;
+  filter: alpha(opacity=70);
+}
+/* line 77, ../sass/base.scss */
+.hero-panel .hero-pane.blue {
+  background: #368de8;
+  opacity: 0.7;
+  filter: alpha(opacity=70);
+}
+
+/** buttons **/
+/* line 85, ../sass/base.scss */
+.btn {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  color: white;
+}
+/* line 89, ../sass/base.scss */
+.btn:hover {
+  color: white;
+}
+
+/** form styles **/
+/* line 96, ../sass/base.scss */
+.filter-panel {
+  overflow: visible;
+}
+
+/** generic color styles **/
+/* line 102, ../sass/base.scss */
+.blue {
+  background-color: #368de8;
+}
+
+/** Tables **/
+/* line 109, ../sass/base.scss */
+.faux-table {
+  margin-top: 20px;
+}
+/* line 112, ../sass/base.scss */
+.faux-table .table-head {
+  background: #f3f6f9;
+  height: 40px;
+  display: table;
+  width: 100%;
+  border-bottom: 1px solid #e4e9f0;
+}
+/* line 119, ../sass/base.scss */
+.faux-table .table-head .head-item {
+  height: 100%;
+  border-right: 1px solid #e4e9f0;
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+/* line 126, ../sass/base.scss */
+.faux-table .table-head .head-item a {
+  color: #585858;
+  text-decoration: none;
+}
+/* line 134, ../sass/base.scss */
+.faux-table .accordion-group.panel {
+  background: white;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  margin-top: 0;
+  border-top: 0;
+}
+/* line 139, ../sass/base.scss */
+.faux-table .accordion-group.panel .panel-heading {
+  background: none;
+}
+
+/** temporary icons stuff **/
+/* line 149, ../sass/base.scss */
+.hero-icon {
+  display: block;
+  margin: 0 auto;
+}
+
+/* line 154, ../sass/base.scss */
+i.icon-hero-manage {
+  background: url("../../../images/icons/hero-manage.png") 0 0 no-repeat;
+  height: 145px;
+  width: 145px;
+}
+
+/* line 159, ../sass/base.scss */
+i.icon-hero-monitor {
+  background: url("../../../images/icons/hero-monitor.png") 0 0 no-repeat;
+  height: 145px;
+  width: 145px;
+}
+
+/* line 164, ../sass/base.scss */
+i.icon-hero-make {
+  background: url("../../../images/icons/hero-make.png") 0 0 no-repeat;
+  height: 145px;
+  width: 145px;
+}
+
+/* line 1, ../sass/nav.scss */
+.navbar-default {
+  border: none;
+}
+
+/* line 6, ../sass/nav.scss */
+.secondary-nav li {
+  margin-left: 0;
+}
+/* line 10, ../sass/nav.scss */
+.secondary-nav li:first-child a {
+  border-left: none;
+}
+/* line 15, ../sass/nav.scss */
+.secondary-nav li a {
+  border-left: 1px solid #e4e9f0;
+  color: #959595;
+  font-size: 1.5rem;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+}
+/* line 21, ../sass/nav.scss */
+.secondary-nav li a:hover {
+  background: #f8f8f8;
+  color: #368de8;
+}
+
+/* line 29, ../sass/nav.scss */
+.nav-pills.secondary-nav li {
+  margin-left: 0;
+}
