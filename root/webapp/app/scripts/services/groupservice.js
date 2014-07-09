@@ -17,9 +17,9 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        getAllUnitGroups: function () {
+        getAllByType: function (typeId) {
             var deferred = $q.defer();
-            Restangular.all('group').getList().then(function(res) {
+            Restangular.all('group').one('type', typeId).getList().then(function(res) {
                 deferred.resolve(res);
             });
             return deferred.promise;

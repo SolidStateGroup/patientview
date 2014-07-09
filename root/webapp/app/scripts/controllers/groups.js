@@ -116,7 +116,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
         // get all units if SPECIALTY_ADMIN, used when setting allowed groups for parent/child relationships
         if ($scope.isSpecialtyAdmin) {
-            GroupService.getAllUnitGroups().then(function(units) {
+            // todo: hardcoded to unit group type with id 1
+            GroupService.getAllByType('1').then(function(units) {
                 $scope.allUnits = units;
                 // get list of groups
                 $scope.getGroups();
