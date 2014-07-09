@@ -99,8 +99,8 @@ public class AdminServiceTest {
 
 
     /**
-     * Test: The creation of the feature linked to a group.
-     * Fail: The feature is not linked to the group.
+     * Test: The creation of the parent and child groups
+     * Fail: The the parent and child groups are not returned
      *
      */
     @Test
@@ -133,6 +133,39 @@ public class AdminServiceTest {
         Assert.assertNotNull("A group feature has been created", group);
     }
 
+    /**
+     * Test: The creation of the parent and child groups
+     * Fail: The the parent and child groups are not returned
+     *
+     */
+    @Test
+    public void testAddGroupChildAndParentOnSave() {
+        User testUser = TestUtils.createUser(2L, "testUser");
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
+        Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
+        Set<Group> childGroups = new HashSet<Group>();
+        Set<Group> parentGroups = new HashSet<Group>();
+        childGroups.add(childGroup);
+        parentGroups.add(parentGroup);
+        testGroup.setChildGroups(childGroups);
+        testGroup.setParentGroups(parentGroups);
 
+        //LookupType relationshipType = TestUtils.createLookupType,(3L, "RELATIONSHIP_TYPE", creator);
+        //Lookup relationship = TestUtils.createLookup(4L, relationshipType, "PARENT", creator);
+
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
+        when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
+
+        // Test
+        Group group = adminService.saveGroup(testGroup);
+
+        // Verify
+        verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
+        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
+        Assert.assertNotNull("A group feature has been created", group);
+    }
 
 }

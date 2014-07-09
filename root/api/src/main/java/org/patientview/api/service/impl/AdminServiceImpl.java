@@ -171,39 +171,49 @@ public class AdminServiceImpl implements AdminService {
         saveGroupRelationships(group);
 
         // remove deleted group links
-        entityGroup.getLinks().removeAll(group.getLinks());
-        linkRepository.delete(entityGroup.getLinks());
+        if (!CollectionUtils.isEmpty(entityGroup.getLinks())) {
 
-        // set new group links and persist
-        if (!CollectionUtils.isEmpty(group.getLinks())) {
-            for (Link link : group.getLinks()) {
-                if (link.getId() < 0) { link.setId(null); }
-                link.setGroup(entityGroup);
-                link.setCreator(userRepository.findOne(1L));
-                linkRepository.save(link);
+            entityGroup.getLinks().removeAll(group.getLinks());
+            linkRepository.delete(entityGroup.getLinks());
+
+            // set new group links and persist
+            if (!CollectionUtils.isEmpty(group.getLinks())) {
+                for (Link link : group.getLinks()) {
+                    if (link.getId() < 0) {
+                        link.setId(null);
+                    }
+                    link.setGroup(entityGroup);
+                    link.setCreator(userRepository.findOne(1L));
+                    linkRepository.save(link);
+                }
             }
         }
         
         // remove deleted group locations
-        entityGroup.getLocations().removeAll(group.getLocations());
-        locationRepository.delete(entityGroup.getLocations());
+        if (!CollectionUtils.isEmpty(entityGroup.getLocations())) {
+            entityGroup.getLocations().removeAll(group.getLocations());
+            locationRepository.delete(entityGroup.getLocations());
 
-        // set new group locations and persist
-        if (!CollectionUtils.isEmpty(group.getLocations())) {
-            for (Location location : group.getLocations()) {
-                if (location.getId() < 0) { location.setId(null); }
-                location.setGroup(entityGroup);
-                location.setCreator(userRepository.findOne(1L));
-                locationRepository.save(location);
+            // set new group locations and persist
+            if (!CollectionUtils.isEmpty(group.getLocations())) {
+                for (Location location : group.getLocations()) {
+                    if (location.getId() < 0) {
+                        location.setId(null);
+                    }
+                    location.setGroup(entityGroup);
+                    location.setCreator(userRepository.findOne(1L));
+                    locationRepository.save(location);
+                }
             }
         }
 
-        // remove deleted group features
-        entityGroup.getGroupFeatures().removeAll(group.getGroupFeatures());
-        groupFeatureRepository.delete(entityGroup.getGroupFeatures());
-
-        // save group features
         if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
+
+            // remove deleted group features
+            entityGroup.getGroupFeatures().removeAll(group.getGroupFeatures());
+            groupFeatureRepository.delete(entityGroup.getGroupFeatures());
+
+            // save group features
             for (GroupFeature groupFeature : group.getGroupFeatures()) {
                 groupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
                 groupFeature.setGroup(groupRepository.findOne(entityGroup.getId()));
