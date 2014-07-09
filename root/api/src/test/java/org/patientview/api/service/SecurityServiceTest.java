@@ -45,6 +45,9 @@ public class SecurityServiceTest {
     private GroupRepository groupRepository;
 
     @Mock
+    private GroupService groupService;
+
+    @Mock
     private UserRepository userRepository;
 
     @Mock
@@ -117,7 +120,7 @@ public class SecurityServiceTest {
 
         securityService.getUserGroups(testUser.getId());
 
-        verify(groupRepository, Mockito.times(1)).findAll();
+        verify(groupService, Mockito.times(1)).findAll();
 
     }
 
@@ -133,12 +136,12 @@ public class SecurityServiceTest {
         User testUser = TestUtils.createUser(23L, "testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, "SUPER_ADMIN", creator));
+        roles.add(TestUtils.createRole(1L, "UNIT_ADMIN", creator));
         when(roleRepository.getValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
 
-        verify(groupRepository, Mockito.times(1)).findGroupByUser(testUser);
+        verify(groupService, Mockito.times(1)).findGroupByUser(testUser);
 
     }
 

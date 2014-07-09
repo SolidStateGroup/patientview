@@ -67,6 +67,7 @@ public class GroupRepositoryTest {
      * Fail: No group is returned
      */
     @Test
+    //@Ignore
     public void testFindGroupByUser() {
         User user = dataTestUtils.createUser("testUser");
         Group group = dataTestUtils.createGroup("testGroup", creator);
@@ -75,7 +76,7 @@ public class GroupRepositoryTest {
 
         Iterable<Group> groups = groupRepository.findGroupByUser(user);
 
-        Assert.assertTrue("There are groups linked to the user", groups.iterator().hasNext());
+        Assert.assertTrue("There are no groups linked to the user", groups.iterator().hasNext());
 
     }
 

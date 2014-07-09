@@ -1,20 +1,15 @@
 package org.patientview.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,6 +33,9 @@ public class Group extends AuditModel {
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
 
+    @Column(name = "visible")
+    private Boolean visible;
+
     @OneToOne
     @JoinColumn(name = "type_id")
     private Lookup groupType;
@@ -57,24 +55,14 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
     private Set<Location> locations;
 
-    @ManyToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name="PV_Group_Relationship",
-            joinColumns = @JoinColumn(name="Child_Id", referencedColumnName="Id"),
-            inverseJoinColumns = @JoinColumn(name="Parent_Id", referencedColumnName="Id"))
-    @JsonIgnore
-    @JsonManagedReference
-    private Set<Group> parentGroups = new HashSet<Group>();
-
-    @ManyToMany(mappedBy="parentGroups", cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnore
-    @JsonBackReference
-    private Set<Group> childGroups = new HashSet<Group>();
+    @Transient
+    private Set<Group> parentGroups;
 
     @Transient
-    private Set<Group> parents = new HashSet<Group>();
+    private Set<Group> childGroups;
 
-    @Transient
-    private Set<Group> children = new HashSet<Group>();
+    @OneToMany(mappedBy = "sourceGroup")
+    private Set<GroupRelationship> groupRelationships;
 
     public String getName() {
         return name;
@@ -174,19 +162,20 @@ public class Group extends AuditModel {
         this.childGroups = childGroups;
     }
 
-    public Set<Group> getParents() {
-        return parents;
+    public Set<GroupRelationship> getGroupRelationships() {
+        return groupRelationships;
     }
 
-    public void setParents(Set<Group> parents) {
-        this.parents = parents;
+    @JsonIgnore
+    public void setGroupRelationships(final Set<GroupRelationship> groupRelationships) {
+        this.groupRelationships = groupRelationships;
     }
 
-    public Set<Group> getChildren() {
-        return children;
+    public Boolean getVisible() {
+        return visible;
     }
 
-    public void setChildren(Set<Group> children) {
-        this.children = children;
+    public void setVisible(final Boolean visible) {
+        this.visible = visible;
     }
 }

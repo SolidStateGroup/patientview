@@ -4,6 +4,7 @@ import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
@@ -11,6 +12,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
+import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LocationRepository;
@@ -23,6 +25,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import java.util.Collections;
@@ -66,23 +69,49 @@ public class AdminServiceImpl implements AdminService {
     @Inject
     private LocationRepository locationRepository;
 
+    @Inject
+    private GroupRelationshipRepository groupRelationshipRepository;
+
+    @PostConstruct
+    public void init() {
+        // TODO Lookup refactor for Enum sprint 2
+    }
+
+    /**
+     * TODO remove links, relationships, locations, and features SPRINT 2
+     *
+     * @param group
+     * @return
+     * @throws EntityExistsException
+     */
     public Group createGroup(Group group) throws EntityExistsException {
         Group newGroup;
 
-        // avoid persisting parent/child groups before input group with error: org.hibernate.PersistentObjectException:
-        // detached entity passed to persist: org.patientview.persistence.model.Group
-        Set<Group> parentGroups = new HashSet<Group>(group.getParentGroups());
-        Set<Group> childGroups = new HashSet<Group>(group.getChildGroups());
-        group.getParentGroups().clear();
-        group.getChildGroups().clear();
-
+        Set<Link> links;
         // get links and features, avoid persisting until group created successfully
-        Set<Link> links = new HashSet<Link>(group.getLinks());
-        group.getLinks().clear();
-        Set<Location> locations = new HashSet<Location>(group.getLocations());
-        group.getLocations().clear();
-        Set<GroupFeature> groupFeatures = new HashSet<GroupFeature>(group.getGroupFeatures());
-        group.getGroupFeatures().clear();
+        if (!CollectionUtils.isEmpty(group.getLinks())) {
+            links = new HashSet<Link>(group.getLinks());
+            group.getLinks().clear();
+        } else {
+            links = new HashSet<Link>();
+        }
+
+        Set<Location> locations;
+        if (!CollectionUtils.isEmpty(group.getLocations())) {
+            locations = new HashSet<Location>(group.getLocations());
+            group.getLocations().clear();
+        } else {
+            locations = new HashSet<Location>();
+        }
+
+        Set<GroupFeature> groupFeatures;
+        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
+            groupFeatures = new HashSet<GroupFeature>(group.getGroupFeatures());
+            group.getGroupFeatures().clear();
+        } else {
+            groupFeatures = new HashSet<GroupFeature>();
+        }
+
 
         // save basic details
         try {
@@ -92,14 +121,8 @@ public class AdminServiceImpl implements AdminService {
             throw new EntityExistsException("Group already exists");
         }
 
-        // save correct relationships to other groups
-        for (Group tempGroup : parentGroups) {
-            newGroup.getParentGroups().add(groupRepository.findOne(tempGroup.getId()));
-        }
-        for (Group tempGroup : childGroups) {
-            newGroup.getChildGroups().add(groupRepository.findOne(tempGroup.getId()));
-        }
-        newGroup = groupRepository.save(newGroup);
+        // Group Relationships
+        saveGroupRelationships(newGroup);
 
         // save links
         for (Link link : links) {
@@ -126,17 +149,26 @@ public class AdminServiceImpl implements AdminService {
         }
 
         // return new group with parents/children for front end to avoid recursion
-        return addSingleLevelParentsAndChildren(newGroup);
+        return newGroup;
     }
 
     public Group getGroup(Long groupId) {
         return groupRepository.findOne(groupId);
     }
 
+    /**
+     * TODO remove links, relationships, locations, and features SPRINT 2
+     *
+     * @param group
+     * @return
+     */
     public Group saveGroup(final Group group) {
 
         // get existing group
         Group entityGroup = groupRepository.findOne(group.getId());
+
+        // save group relationships
+        saveGroupRelationships(group);
 
         // remove deleted group links
         entityGroup.getLinks().removeAll(group.getLinks());
@@ -180,9 +212,38 @@ public class AdminServiceImpl implements AdminService {
             }
         }
 
-        return addSingleLevelParentsAndChildren(groupRepository.save(group));
+        return groupRepository.save(group);
     }
-    
+
+    private void saveGroupRelationships(Group group) {
+
+        Lookup parentRelationshipType = lookupRepository.getByLookupTypeAndValue("RELATIONSHIP_TYPE", "PARENT");
+        Lookup childRelationshipType = lookupRepository.getByLookupTypeAndValue("RELATIONSHIP_TYPE", "CHILD");
+
+        // delete existing groups
+        groupRelationshipRepository.deleteBySourceGroup(group);
+
+        if (!CollectionUtils.isEmpty(group.getParentGroups())) {
+            for (Group parentGroup : group.getParentGroups()) {
+                GroupRelationship groupRelationship = new GroupRelationship();
+                groupRelationship.setSourceGroup(group);
+                groupRelationship.setObjectGroup(groupRepository.findOne(parentGroup.getId()));
+                groupRelationship.setLookup(parentRelationshipType);
+                groupRelationshipRepository.save(groupRelationship);
+            }
+        }
+        if (!CollectionUtils.isEmpty(group.getParentGroups())) {
+            for (Group childGroup : group.getChildGroups()) {
+                GroupRelationship groupRelationship = new GroupRelationship();
+                groupRelationship.setSourceGroup(group);
+                groupRelationship.setObjectGroup(groupRepository.findOne(childGroup.getId()));
+                groupRelationship.setLookup(childRelationshipType);
+                groupRelationshipRepository.save(groupRelationship);
+            }
+        }
+    }
+
+
     public GroupFeature addGroupFeature(Long groupId, Long featureId) {
 
         GroupFeature groupFeature = new GroupFeature();
@@ -194,54 +255,19 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public List<Group> getAllGroups() {
-        // manually add list of parents/children (avoid recursion by only going one level deep)
-        List<Group> groups = Util.iterableToList(groupRepository.findAll());
-        for (Group group : groups) {
-            group = addSingleLevelParentsAndChildren(group);
-        }
-
-        return groups;
+        return Util.iterableToList(groupRepository.findAll());
     }
 
-    // TODO: refactor to avoid M:M issues with infinite recursion
-    /**
-     * Create simple set of parents and children avoiding infinite recursion due to self-ref ManyToMany
-     * @param inputGroup
-     * @return
-     */
-    private Group addSingleLevelParentsAndChildren(Group inputGroup) {
-        for (Group familyGroup : inputGroup.getParentGroups()) {
-            Group newGroup = new Group();
-            newGroup.setId(familyGroup.getId());
-            newGroup.setName(familyGroup.getName());
-            newGroup.setCode(familyGroup.getCode());
-            newGroup.setFhirResourceId(familyGroup.getFhirResourceId());
-            newGroup.setDescription(familyGroup.getDescription());
-            newGroup.setGroupType(familyGroup.getGroupType());
-            inputGroup.getParents().add(newGroup);
-        }
-        for (Group familyGroup : inputGroup.getChildGroups()) {
-            Group newGroup = new Group();
-            newGroup.setId(familyGroup.getId());
-            newGroup.setName(familyGroup.getName());
-            newGroup.setCode(familyGroup.getCode());
-            newGroup.setFhirResourceId(familyGroup.getFhirResourceId());
-            newGroup.setDescription(familyGroup.getDescription());
-            newGroup.setGroupType(familyGroup.getGroupType());
-            inputGroup.getChildren().add(newGroup);
-        }
 
-        return inputGroup;
-    }
 
     public List<Role> getAllRoles() {
         return Util.iterableToList(roleRepository.findAll());
     }
 
     public List<Role> getRolesByType(String type) {
-        List<Lookup> roleLookup = Util.iterableToList(lookupRepository.getByLookupTypeAndValue("ROLE", type));
-        if (!roleLookup.isEmpty()) {
-            return Util.iterableToList(roleRepository.getByType(roleLookup.get(0)));
+        Lookup roleLookup = lookupRepository.getByLookupTypeAndValue("ROLE", type);
+        if (roleLookup != null) {
+            return Util.iterableToList(roleRepository.getByType(roleLookup));
         } else return Collections.<Role>emptyList();
     }
 

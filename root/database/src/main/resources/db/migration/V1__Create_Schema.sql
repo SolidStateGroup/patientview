@@ -62,10 +62,19 @@ CREATE TABLE PV_Group
 
 CREATE TABLE PV_Group_Relationship
 (
-  Child_Id         BIGINT    REFERENCES PV_Group (Id) NOT NULL,
-  Parent_Id        BIGINT    REFERENCES PV_Group (Id) NOT NULL,
-  PRIMARY KEY (Child_Id, Parent_Id)
+  Id               BIGINT    NOT NULL,
+  Source_Group_Id         BIGINT    NOT NULL,
+  Object_Group_Id  BIGINT    REFERENCES PV_Group (Id) NOT NULL,
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Start_Date       DATE         NOT NULL,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
 );
+
 
 CREATE TABLE PV_Role
 (

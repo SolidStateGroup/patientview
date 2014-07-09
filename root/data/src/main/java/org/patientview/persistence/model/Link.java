@@ -21,12 +21,10 @@ public class Link extends AuditModel {
     @JoinColumn(name = "type_id")
     private Lookup linkType;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "code_id")
     private Code code;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
@@ -56,6 +54,7 @@ public class Link extends AuditModel {
         this.code = code;
     }
 
+    @JsonIgnore
     public Group getGroup() {
         return group;
     }
@@ -64,6 +63,7 @@ public class Link extends AuditModel {
         this.group = group;
     }
 
+    @JsonIgnore
     public String getLink() {
         return link;
     }

@@ -52,6 +52,6 @@ public class LookupRepositoryTest {
         LookupType getLookupType = lookupTypeRepository.getByType("FEATURE_TYPE");
 
         Assert.assertTrue("LookupType should be created", getLookupType.getType().equals("FEATURE_TYPE"));
-        Assert.assertTrue("Lookup should be created", lookupRepository.getByLookupTypeAndValue("FEATURE_TYPE", "STAFF").iterator().hasNext());
+        Assert.assertNotNull("Lookup should be created", lookupRepository.getByLookupTypeAndValue("FEATURE_TYPE", "STAFF"));
     }
 }

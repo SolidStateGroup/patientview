@@ -2,6 +2,7 @@ package org.patientview.test.util;
 
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
@@ -69,6 +70,7 @@ public final class TestUtils {
         group.setName(name);
         group.setCreated(new Date());
         group.setCreator(creator);
+        group.setVisible(true);
         return group;
     }
 
@@ -124,6 +126,20 @@ public final class TestUtils {
         lookupType.setCreated(new Date());
         lookupType.setCreator(creator);
         return lookupType;
+    }
+
+    public static GroupRelationship createGroupRelationship(Long id, Group source, Group object
+            , Lookup relationshipType, User creator) {
+        GroupRelationship groupRelationship = new GroupRelationship();
+        groupRelationship.setId(id);
+        groupRelationship.setStartDate(new Date());
+        groupRelationship.setCreator(creator);
+        groupRelationship.setLookup(relationshipType);
+        groupRelationship.setObjectGroup(object);
+        groupRelationship.setSourceGroup(source);
+
+        return groupRelationship;
+
     }
 
     public static <T> List<T> iterableToList(Iterable<T> iterable) {
