@@ -298,12 +298,16 @@ public class GroupServiceImpl implements GroupService {
                 if (groupRelationship.getLookup().equals(parentRelationshipType)) {
                     Group detachedParentGroup = groupRelationship.getObjectGroup();
                     entityManager.detach(detachedParentGroup);
+                    detachedParentGroup.setParentGroups(null);
+                    detachedParentGroup.setChildGroups(null);
                     parentGroups.add(detachedParentGroup);
                 }
 
                 if (groupRelationship.getLookup().equals(childRelationshipType)) {
                     Group detachedChildGroup = groupRelationship.getObjectGroup();
                     entityManager.detach(detachedChildGroup);
+                    detachedChildGroup.setParentGroups(null);
+                    detachedChildGroup.setChildGroups(null);
                     childGroups.add(detachedChildGroup);
                 }
             }
@@ -318,7 +322,6 @@ public class GroupServiceImpl implements GroupService {
     private List<Group> addParentAndChildGroups(List<Group> groups) {
 
         for (Group group : groups) {
-
             addSingleParentAndChildGroup(group);
         }
 

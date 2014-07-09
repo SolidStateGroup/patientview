@@ -133,7 +133,7 @@ public class GroupServiceTest {
         testGroup.setChildGroups(childGroups);
         testGroup.setParentGroups(parentGroups);
 
-        // Create relationships loopkups
+        // Create relationships lookups
         LookupType relationshipType = TestUtils.createLookupType(4L, "RELATIONSHIP_TYPE", creator);
         Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
         Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
