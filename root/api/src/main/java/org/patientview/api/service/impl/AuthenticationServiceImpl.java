@@ -62,8 +62,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userToken.setUser(user);
         userToken.setToken(CommonUtils.getAuthtoken());
         userToken.setCreated(new Date());
-
         userToken = userTokenRepository.save(userToken);
+
+        user.setLastLogin(new Date());
+        userRepository.save(user);
 
         return userToken;
 

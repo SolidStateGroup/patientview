@@ -10,6 +10,7 @@ CREATE TABLE PV_User
   Fullname             VARCHAR(200) NOT NULL,
   Verification_Code    VARCHAR(200),
   Verified         BOOL         NOT NULL DEFAULT FALSE,
+  Last_Login       TIMESTAMP,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,

@@ -148,6 +148,7 @@
                         <div ng-include src="'views/partials/staffDetails.html'" ng-controller="StaffDetailsCtrl"></div>
                     </form>
                     <hr>
+                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin}}</div>
                     <div class="user-save-cancel pull-right">
                         <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
                         <button type="button" class="btn btn-primary" ng-click="save(userForm, editUser, $index)" ng-disabled="userForm.$pristine || !userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Save</button>

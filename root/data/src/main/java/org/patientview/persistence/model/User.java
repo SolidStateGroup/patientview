@@ -1,5 +1,6 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,8 +10,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
@@ -57,6 +61,11 @@ public class User extends RangeModel implements UserDetails {
    // @Type(type="pg-uuid")
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
+
+    @Column(name = "last_login")
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
+    private Date lastLogin;
 
     public String getUsername() {
         return username;
@@ -181,4 +190,11 @@ public class User extends RangeModel implements UserDetails {
         return true;
     }
 
+    public Date getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Date lastLogin) {
+        this.lastLogin = lastLogin;
+    }
 }
