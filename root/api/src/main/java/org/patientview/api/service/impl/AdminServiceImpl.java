@@ -226,7 +226,7 @@ public class AdminServiceImpl implements AdminService {
         if (!CollectionUtils.isEmpty(group.getParentGroups())) {
             for (Group parentGroup : group.getParentGroups()) {
                 GroupRelationship groupRelationship = new GroupRelationship();
-                groupRelationship.setSourceGroup(group);
+                groupRelationship.setSourceGroup(groupRepository.findOne(group.getId()));
                 groupRelationship.setObjectGroup(groupRepository.findOne(parentGroup.getId()));
                 groupRelationship.setLookup(parentRelationshipType);
                 groupRelationshipRepository.save(groupRelationship);
@@ -235,7 +235,7 @@ public class AdminServiceImpl implements AdminService {
         if (!CollectionUtils.isEmpty(group.getParentGroups())) {
             for (Group childGroup : group.getChildGroups()) {
                 GroupRelationship groupRelationship = new GroupRelationship();
-                groupRelationship.setSourceGroup(group);
+                groupRelationship.setSourceGroup(groupRepository.findOne(group.getId()));
                 groupRelationship.setObjectGroup(groupRepository.findOne(childGroup.getId()));
                 groupRelationship.setLookup(childRelationshipType);
                 groupRelationshipRepository.save(groupRelationship);
