@@ -51,6 +51,8 @@ public class AdminDataMigrationTest {
         Assert.assertNotNull("This group should not be null", adminDataMigrationService.getLookupByName("UNIT"));
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getFeatureByName("SHARING_THOUGHTS"));
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("PATIENT"));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("UNIT_ADMIN"));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("UNIT_STAFF"));
     }
 
 
