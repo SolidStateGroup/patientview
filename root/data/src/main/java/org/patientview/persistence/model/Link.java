@@ -46,6 +46,7 @@ public class Link extends AuditModel {
         this.linkType = linkType;
     }
 
+    @JsonIgnore
     public Code getCode() {
         return code;
     }
@@ -63,7 +64,6 @@ public class Link extends AuditModel {
         this.group = group;
     }
 
-    @JsonIgnore
     public String getLink() {
         return link;
     }
