@@ -49,6 +49,10 @@ public class StaticDataManagerImpl implements StaticDataManager {
         return Collections.<Lookup>emptyList();
     }
 
+    public Lookup getLookupByTypeAndValue(String type, String value) {
+        return lookupRepository.getByLookupTypeAndValue(type, value);
+    }
+
     public List<Feature> getFeaturesByType(String featureType) {
         Lookup lookup = lookupRepository.getByLookupTypeAndValue("FEATURE_TYPE", featureType);
         if (lookup != null) {

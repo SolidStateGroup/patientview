@@ -14,6 +14,8 @@ public interface StaticDataManager {
 
     List<Lookup> getLookupsByType(String lookupType);
 
+    Lookup getLookupByTypeAndValue(String lookupType, String lookupValue);
+
     List<Feature> getAllFeatures();
 
     List<Feature> getFeaturesByType(String featureType);

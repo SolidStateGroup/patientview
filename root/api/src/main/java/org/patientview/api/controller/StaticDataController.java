@@ -46,6 +46,16 @@ public class StaticDataController extends  BaseController {
         return new ResponseEntity<List<Lookup>>(staticDataManager.getLookupsByType(lookupType), HttpStatus.OK);
     }
 
+    // get lookup by lookupType type and value string
+    @RequestMapping(value = "/lookupType/{lookupType}/lookups/{lookupValue}", method = RequestMethod.GET
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Lookup> getLookupByTypeAndValue(@PathVariable("lookupType") String lookupType,
+                                                          @PathVariable("lookupValue") String lookupValue) {
+        LOG.debug("Request has been received to get lookups by type: {}", lookupType);
+        return new ResponseEntity<Lookup>(staticDataManager.getLookupByTypeAndValue(lookupType, lookupValue), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/feature", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Feature>> getAllFeatures(

@@ -41,22 +41,6 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         // get list of groups associated with a user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
 
-            // handle parent/child (avoiding infinite recursion using @Transient in Group.java)
-            for (i=0;i<groups.length;i++) {
-                group = groups[i];
-                if (group.parents) {
-                    group.parentGroups = group.parents;
-                } else {
-                    group.parentGroups = [];
-                }
-
-                if (group.children) {
-                    group.childGroups = group.children;
-                } else {
-                    group.childGroups = [];
-                }
-            }
-
             // set the list of groups to show in the data grid
             $scope.list = groups;
 
@@ -73,7 +57,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             // all other users cannot add parents/children so allowedRelationshipGroups is an empty array
             if ($scope.isSuperAdmin) {
                 $scope.allowedRelationshipGroups = groups;
-            } else if ($scope.isSpecialtyAdmin){
+            } else if ($scope.isSpecialtyAdmin) {
                 // add all units
                 $scope.allowedRelationshipGroups = $scope.allUnits;
                 // add specialty groups associated with user
@@ -119,12 +103,12 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
         // get all units if SPECIALTY_ADMIN, used when setting allowed groups for parent/child relationships
         if ($scope.isSpecialtyAdmin) {
-            // todo: hardcoded to unit group type with id 1
-            GroupService.getAllByType('1').then(function(units) {
-            //GroupService.getAll().then(function(units) {
-                $scope.allUnits = units;
-                // get list of groups
-                $scope.getGroups();
+            StaticDataService.getLookupByTypeAndValue('GROUP','UNIT').then(function(lookup){
+                GroupService.getAllByType(lookup.id).then(function(units) {
+                    $scope.allUnits = units;
+                    // get list of groups
+                    $scope.getGroups();
+                });
             });
         } else {
             // get list of groups
