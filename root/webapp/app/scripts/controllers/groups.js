@@ -80,6 +80,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                     $scope.allChildGroups.push(group);
                 }
             }
+        }, function () {
+            // error retrieving groups
+            delete $scope.loading;
+            $scope.fatalErrorMessage = 'Error retrieving groups';
         });
 
         // TODO: set permissions for ui, hard coded to check if user has SUPER_ADMIN role anywhere, if so can do:
