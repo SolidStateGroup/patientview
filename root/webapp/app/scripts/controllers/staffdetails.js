@@ -3,10 +3,10 @@
 angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', function ($scope) {
     // add group to current group, remove from allowed
     $scope.addGroup = function (form, user, groupId) {
-        if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere($scope.allRoles, {id: user.selectedRole})) {
+        if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere($scope.allowedRoles, {id: user.selectedRole})) {
             user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
             var newGroup = _.findWhere($scope.allGroups, {id: groupId});
-            newGroup.role = _.findWhere($scope.allRoles, {id: user.selectedRole});
+            newGroup.role = _.findWhere($scope.allowedRoles, {id: user.selectedRole});
             user.groups.push(newGroup);
             user.selectedRole = '';
 

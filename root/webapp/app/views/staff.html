@@ -3,23 +3,28 @@
 <div class="container" ng-show="!loading" ng-cloak>
     <h1>Staff</h1>
 
-    <!-- new user modal, includes NewStaffModalCtrl -->
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
     <!-- new staff modal -->
     <script type="text/ng-template" id="newStaffModal.html">
         <div class="modal-header">
-            <h3 class="modal-title">Create New Staff User</h3>
+            <h3 class="modal-title" ng-show="!existingUser">Create New Staff User</h3>
+            <h3 class="modal-title" ng-show="existingUser">Existing Staff User</h3>
         </div>
         <div class="modal-body">
-            <form name="userForm">
+            <form name="userForm" ng-show="!existingUser">
                 <div ng-include src="'views/partials/staffDetails.html'" ng-controller="StaffDetailsCtrl"></div>
+            </form>
+            <form name="userForm" ng-show="existingUser">
+                <div ng-include src="'views/partials/staffDetailsExisting.html'" ng-controller="StaffDetailsCtrl"></div>
             </form>
         </div>
         <div class="modal-footer">
-            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
+            <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+            <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+            <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
         </div>
     </script>
     <button class="btn btn-primary" ng-click="openModalNewStaff('lg')">Create New</button>
@@ -33,6 +38,7 @@
             <p>Are you sure? This will delete user with username <strong>{{user.username}}</strong>.</p>
         </div>
         <div class="modal-footer">
+            <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
             <button class="btn btn-primary" ng-click="ok()">Delete</button>
         </div>

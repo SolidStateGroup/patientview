@@ -5,6 +5,7 @@
     <p>Are you sure? The user with username <strong>{{user.username}}</strong> will be sent a verification email.</p>
 </div>
 <div class="modal-footer">
+    <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
     <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
     <button class="btn btn-primary" ng-click="ok()">Send Verification Email</button>
 </div>

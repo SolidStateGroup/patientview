@@ -25,8 +25,8 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -95,10 +95,20 @@ public class UserController extends BaseController {
         user.setCreator(userService.getUser(1L));
 
         if (resetPasword != null && resetPasword.equals(Boolean.TRUE)) {
-            user = userService.createUserResetPassword(user);
+            try {
+                user = userService.createUserResetPassword(user);
+            }
+            catch (EntityExistsException eee) {
+                return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
+            }
         }
         else {
-           user = userService.createUser(user);
+            try {
+                user = userService.createUser(user);
+            }
+            catch (EntityExistsException eee) {
+                return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
+            }
         }
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 

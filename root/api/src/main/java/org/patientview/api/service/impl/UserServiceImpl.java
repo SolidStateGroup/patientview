@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.hibernate.exception.ConstraintViolationException;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.UserService;
@@ -66,13 +67,22 @@ public class UserServiceImpl implements UserService {
 
         User newUser;
 
-        try {
+        /*try {
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
             newUser = userRepository.save(user);
         } catch (DataIntegrityViolationException dve) {
             LOG.debug("User not created, duplicate user: {}", dve.getCause());
             throw new EntityExistsException("Username already exists");
+        } catch (ConstraintViolationException cve) {
+            LOG.debug("User not created, duplicate user: {}", cve.getCause());
+            throw new EntityExistsException("Username already exists");
+        }*/
+
+        if (getByUsername(user.getUsername()) != null) {
+            throw new EntityExistsException("User already exists");
         }
+
+        newUser = userRepository.save(user);
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
 
