@@ -166,7 +166,8 @@ public class GroupServiceImpl implements GroupService {
             }
         }
 
-        return addSingleParentAndChildGroup(groupRepository.save(group));
+        entityGroup = groupRepository.save(group);
+        return addSingleParentAndChildGroup(groupRepository.findOne(entityGroup.getId()));
     }
 
     /**
