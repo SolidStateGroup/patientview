@@ -87,8 +87,6 @@ public class GroupServiceTest {
         when(lookupRepository.getByLookupTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
         when(lookupRepository.getByLookupTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
 
-        ((GroupServiceImpl) groupService).init();
-
         groups = groupService.findAll();
 
         Assert.assertFalse("There should be parent objects", CollectionUtils.isEmpty(groups.get(0).getParentGroups()));

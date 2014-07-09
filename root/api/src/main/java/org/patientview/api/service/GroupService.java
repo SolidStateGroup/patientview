@@ -17,4 +17,6 @@ public interface GroupService {
     List<Group> findAll();
 
     List<Group> findGroupByUser(User user);
+
+    List<Group> findGroupByType(Long lookupId);
 }
