@@ -34,12 +34,13 @@ function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup
 angular.module('patientviewApp').controller('GroupsCtrl', ['$scope','$timeout', '$modal','GroupService','StaticDataService','FeatureService','UserService',
 function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureService, UserService) {
 
-    // Init
-    $scope.init = function () {
+    // Get groups, used during initialisation
+    $scope.getGroups = function () {
         var i, j, group;
-        $scope.loading = true;
 
+        // get list of groups associated with a user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
+
             // handle parent/child (avoiding infinite recursion using @Transient in Group.java)
             for (i=0;i<groups.length;i++) {
                 group = groups[i];
@@ -56,17 +57,36 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 }
             }
 
+            // set the list of groups to show in the data grid
             $scope.list = groups;
+
+            // set initial pagination
             $scope.currentPage = 1; //current page
             $scope.entryLimit = 10; //max no of items to display in a page
             $scope.totalItems = $scope.list.length;
             $scope.predicate = 'id';
 
+            // allowed relationship groups are those that can be added as parents or children to existing groups
+            // SUPER_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
+            // SPECIALTY_ADMIN can only edit their specialty and add relationships so allowedRelationshipGroups is just a
+            // list of all available units found from getUnitGroups which is $scope.AllUnits
+            // all other users cannot add parents/children so allowedRelationshipGroups is an empty array
+            if ($scope.isSuperAdmin) {
+                $scope.allowedRelationshipGroups = groups;
+            } else if ($scope.isSpecialtyAdmin){
+                // add all units
+                $scope.allowedRelationshipGroups = $scope.allUnits;
+                // add specialty groups associated with user
+                $scope.allowedRelationshipGroups = $scope.allowedRelationshipGroups.concat(groups);
+            } else {
+                $scope.allowedRelationshipGroups = [];
+            }
+
             // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups
             // define groups that can be parents by type, currently hardcoded to SPECIALTY (and later DISEASE_GROUP) type groups
             $scope.allParentGroups = [];
-            for (i=0;i<$scope.list.length;i++) {
-                group = $scope.list[i];
+            for (i=0;i<$scope.allowedRelationshipGroups.length;i++) {
+                group = $scope.allowedRelationshipGroups[i];
                 if (group && group.groupType && group.groupType.value === 'SPECIALTY') {
                     $scope.allParentGroups.push(group);
                 }
@@ -74,8 +94,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
             // similarly, child groups are all those of type NOT SPECIALTY
             $scope.allChildGroups = [];
-            for (j=0;j<$scope.list.length;j++) {
-                group = $scope.list[j];
+            for (j=0;j<$scope.allowedRelationshipGroups.length;j++) {
+                group = $scope.allowedRelationshipGroups[j];
                 if (group && group.groupType && group.groupType.value !== 'SPECIALTY') {
                     $scope.allChildGroups.push(group);
                 }
@@ -85,46 +105,74 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             delete $scope.loading;
             $scope.fatalErrorMessage = 'Error retrieving groups';
         });
+    };
 
-        // TODO: set permissions for ui, hard coded to check if user has SUPER_ADMIN role anywhere, if so can do:
+    // Init, started at page load
+    $scope.init = function () {
+        var i;
+        $scope.loading = true;
+        $scope.allUnits = [];
+
+        // check if user is SUPER_ADMIN or SPECIALTY_ADMIN
+        $scope.isSuperAdmin = UserService.checkRoleExists('SUPER_ADMIN', $scope.loggedInUser);
+        $scope.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+
+        // get all units if SPECIALTY_ADMIN, used when setting allowed groups for parent/child relationships
+        if ($scope.isSpecialtyAdmin) {
+            // todo: hardcoded to unit group type with id 1
+            GroupService.getAllByType('1').then(function(units) {
+            //GroupService.getAll().then(function(units) {
+                $scope.allUnits = units;
+                // get list of groups
+                $scope.getGroups();
+            });
+        } else {
+            // get list of groups
+            $scope.getGroups();
+        }
+
+        // TODO: set permissions for ui, hard coded to check if user has SUPER_ADMIN, SPECIALTY_ADMIN role anywhere, if so can do:
         // add SPECIALTY groups
         // edit group code
-        // edit parents groups
+        // edit parents groups (SUPER_ADMIN only)
         // edit child groups
         // edit features
         // create group
         $scope.permissions = {};
-        $scope.isSuperAdmin = UserService.checkRoleExists('SUPER_ADMIN', $scope.loggedInUser);
-        $scope.permissions.canEditGroupCode = $scope.isSuperAdmin;
-        $scope.permissions.canEditParentGroups = $scope.isSuperAdmin;
-        $scope.permissions.canEditChildGroups = $scope.isSuperAdmin;
-        $scope.permissions.canEditFeatures = $scope.isSuperAdmin;
-        $scope.permissions.canCreateGroup = $scope.isSuperAdmin;
 
-        // get group types
+        if ($scope.isSuperAdmin || $scope.isSpecialtyAdmin) {
+            $scope.permissions.canEditGroupCode = true;
+            $scope.permissions.canEditChildGroups = true;
+            $scope.permissions.canEditFeatures = true;
+            $scope.permissions.canCreateGroup = true;
+            $scope.permissions.canEditParentGroups = true;
+        }
+
+        // set allowed group types, used when filtering and adding groups
         $scope.groupTypes = [];
         StaticDataService.getLookupsByType('GROUP').then(function(groupTypes) {
             if (groupTypes.length > 0) {
-                var allowedGroups = [];
+                var allowedGroupTypes = [];
 
                 for (i=0;i<groupTypes.length;i++) {
                     if (groupTypes[i].value === 'SPECIALTY') {
-                        if ($scope.isSuperAdmin) {
-                            allowedGroups.push(groupTypes[i]);
+                        if ($scope.isSuperAdmin || $scope.isSpecialtyAdmin) {
+                            allowedGroupTypes.push(groupTypes[i]);
                         }
                     } else {
-                        allowedGroups.push(groupTypes[i]);
+                        allowedGroupTypes.push(groupTypes[i]);
                     }
                 }
-                $scope.groupTypes = allowedGroups;
+                $scope.groupTypes = allowedGroupTypes;
             }
             delete $scope.loading;
         });
 
+        // get list of features associated with groups
         FeatureService.getAllGroupFeatures().then(function(allFeatures) {
             $scope.allFeatures = [];
-            for (var k=0;k<allFeatures.length;k++){
-                $scope.allFeatures.push({'feature':allFeatures[k]});
+            for (i=0;i<allFeatures.length;i++){
+                $scope.allFeatures.push({'feature':allFeatures[i]});
             }
         });
     };
@@ -161,7 +209,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.reverse = !$scope.reverse;
     };
 
-    // Opened for edit or stats
+    // Group opened for edit or stats
     $scope.opened = function (group, $event) {
 
         // handle statistics click

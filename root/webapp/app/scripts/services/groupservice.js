@@ -17,6 +17,13 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getAllByType: function (typeId) {
+            var deferred = $q.defer();
+            Restangular.all('group').one('type', typeId).getList().then(function(res) {
+                deferred.resolve(res);
+            });
+            return deferred.promise;
+        },
         getGroupsForUser: function (userId) {
             var deferred = $q.defer();
             // GET /security/user/{userId}/groups
