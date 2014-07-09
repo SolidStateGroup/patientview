@@ -74,7 +74,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             if ($scope.isSuperAdmin) {
                 $scope.allowedRelationshipGroups = groups;
             } else if ($scope.isSpecialtyAdmin){
+                // add all units
                 $scope.allowedRelationshipGroups = $scope.allUnits;
+                // add specialty groups associated with user
+                $scope.allowedRelationshipGroups = $scope.allowedRelationshipGroups.concat(groups);
             } else {
                 $scope.allowedRelationshipGroups = [];
             }
@@ -118,6 +121,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         if ($scope.isSpecialtyAdmin) {
             // todo: hardcoded to unit group type with id 1
             GroupService.getAllByType('1').then(function(units) {
+            //GroupService.getAll().then(function(units) {
                 $scope.allUnits = units;
                 // get list of groups
                 $scope.getGroups();
