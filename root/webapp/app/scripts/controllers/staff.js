@@ -249,9 +249,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 } else {
                     // no groups found
                     delete $scope.loading;
-                    $scope.errorMessage = 'No user groups found, cannot retrieve staff';
-                    $scope.fatalError = true;
+                    $scope.fatalErrorMessage = 'No user groups found, cannot retrieve staff';
                 }
+            }, function () {
+                // error retrieving groups
+                delete $scope.loading;
+                $scope.fatalErrorMessage = 'Error retrieving user groups, cannot retrieve staff';
             });
         });
     };
