@@ -152,39 +152,49 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             // get logged in user's groups
             GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-                $scope.allGroups = groups;
-                for (i = 0; i < groups.length; i++) {
-                    groupIds.push(groups[i].id);
-                }
+                if (groups.length !== 0) {
+                    $scope.allGroups = groups;
+                    for (i = 0; i < groups.length; i++) {
+                        groupIds.push(groups[i].id);
+                    }
 
-                // get users by patient roles and logged in user's groups
-                UserService.getByGroupsAndRoles(groupIds, patientRoleIds).then(function (users) {
-                    $scope.list = users;
-                    $scope.currentPage = 1; //current page
-                    $scope.entryLimit = 20; //max no of items to display in a page
-                    $scope.totalItems = $scope.list.length;
-                    delete $scope.loading;
-                });
+                    // get users by patient roles and logged in user's groups
+                    UserService.getByGroupsAndRoles(groupIds, patientRoleIds).then(function (users) {
+                        $scope.list = users;
+                        $scope.currentPage = 1; //current page
+                        $scope.entryLimit = 20; //max no of items to display in a page
+                        $scope.totalItems = $scope.list.length;
+                        delete $scope.loading;
+                    });
 
-                // get list of roles available when user is adding new Group & Role to patient member
-                SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (roles) {
-                    // filter by roleId found previously as STAFF
-                    var allRoles = [];
-                    for (i = 0; i < roles.length; i++) {
-                        if (patientRoleIds.indexOf(roles[i].id) != -1) {
-                            allRoles.push(roles[i]);
+                    // get list of roles available when user is adding new Group & Role to patient member
+                    SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (roles) {
+                        // filter by roleId found previously as STAFF
+                        var allRoles = [];
+                        for (i = 0; i < roles.length; i++) {
+                            if (patientRoleIds.indexOf(roles[i].id) != -1) {
+                                allRoles.push(roles[i]);
+                            }
                         }
-                    }
-                    $scope.allRoles = allRoles;
-                });
+                        $scope.allRoles = allRoles;
+                    });
 
-                // get list of features available when user adding new Feature to patient member
-                FeatureService.getAllPatientFeatures().then(function (allFeatures) {
-                    $scope.allFeatures = [];
-                    for (var i = 0; i < allFeatures.length; i++) {
-                        $scope.allFeatures.push({'feature': allFeatures[i]});
-                    }
-                });
+                    // get list of features available when user adding new Feature to patient member
+                    FeatureService.getAllPatientFeatures().then(function (allFeatures) {
+                        $scope.allFeatures = [];
+                        for (var i = 0; i < allFeatures.length; i++) {
+                            $scope.allFeatures.push({'feature': allFeatures[i]});
+                        }
+                    });
+                } else {
+                    // no groups found
+                    delete $scope.loading;
+                    $scope.fatalErrorMessage = 'No user groups found, cannot retrieve patients';
+                }
+            }, function () {
+                // error retrieving groups
+                delete $scope.loading;
+                $scope.fatalErrorMessage = 'Error retrieving user groups, cannot retrieve staff';
             });
         });
     };
