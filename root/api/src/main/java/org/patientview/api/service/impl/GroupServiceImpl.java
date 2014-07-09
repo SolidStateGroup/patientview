@@ -26,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -298,16 +299,16 @@ public class GroupServiceImpl implements GroupService {
                 if (groupRelationship.getLookup().equals(parentRelationshipType)) {
                     Group detachedParentGroup = groupRelationship.getObjectGroup();
                     entityManager.detach(detachedParentGroup);
-                    detachedParentGroup.setParentGroups(null);
-                    detachedParentGroup.setChildGroups(null);
+                    detachedParentGroup.setParentGroups(Collections.EMPTY_SET);
+                    detachedParentGroup.setChildGroups(Collections.EMPTY_SET);
                     parentGroups.add(detachedParentGroup);
                 }
 
                 if (groupRelationship.getLookup().equals(childRelationshipType)) {
                     Group detachedChildGroup = groupRelationship.getObjectGroup();
                     entityManager.detach(detachedChildGroup);
-                    detachedChildGroup.setParentGroups(null);
-                    detachedChildGroup.setChildGroups(null);
+                    detachedChildGroup.setParentGroups(Collections.EMPTY_SET);
+                    detachedChildGroup.setChildGroups(Collections.EMPTY_SET);
                     childGroups.add(detachedChildGroup);
                 }
             }
