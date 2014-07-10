@@ -107,7 +107,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             }
 
-            String url = JsonUtil.pvUrl + "/user";
+            String url = JsonUtil.pvUrl + "/user?encryptPassword=false";
             try {
                 newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
             } catch (JsonMigrationException jme) {
