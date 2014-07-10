@@ -16,6 +16,7 @@ import javax.persistence.Table;
 @Table(name = "pv_identifier")
 public class Identifier extends RangeModel {
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
