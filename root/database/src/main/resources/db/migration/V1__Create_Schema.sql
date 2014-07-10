@@ -437,6 +437,21 @@ CREATE TABLE PV_Route (
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Identifier
+(
+  Id               BIGINT      NOT NULL,
+  User_Id          BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Identifier       VARCHAR(200)   NOT NULL,
+  Start_Date       DATE,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP   NOT NULL,
+  Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

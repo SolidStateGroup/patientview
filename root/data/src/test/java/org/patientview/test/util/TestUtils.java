@@ -4,6 +4,7 @@ import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
@@ -126,6 +127,16 @@ public final class TestUtils {
         lookupType.setCreated(new Date());
         lookupType.setCreator(creator);
         return lookupType;
+    }
+
+    public static Identifier createIdentifier(Long id, Lookup identifierType, User user, User creator) {
+        Identifier identifier = new Identifier();
+        identifier.setId(id);
+        identifier.setIdentifierType(identifierType);
+        identifier.setUser(user);
+        identifier.setCreated(new Date());
+        identifier.setCreator(creator);
+        return identifier;
     }
 
     public static GroupRelationship createGroupRelationship(Long id, Group source, Group object

@@ -52,3 +52,21 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h2>Identifiers</h2>
+        <div class="identifier-list-item row" ng-repeat="identifier in editUser.identifiers">
+            <div class="col-sm-5"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}" placeholder="identifier" name="identifier" ng-model="identifier.identifier" required></div>
+            <div class="col-sm-5"><span class="identifier-identifier">{{identifier.identifierType.value}}</span></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-danger identifier-delete-button" ng-click="removeIdentifier(userForm, editUser, identifier)">Delete</button></span></div>
+        </div>
+        <br/>
+        <h5 class="inner-title">Add Identifier</h5>
+        <div class="row" ng-model="newIdentifier">
+            <div class="col-sm-5"><input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="identifier" name="newIdentifier" ng-model="newIdentifier.identifier"></div>
+            <div class="col-sm-5"><select class="form-control indentifierType-select" ng-model="newIdentifier.identifierType" ng-options="identifierType.id as identifierType.value for identifierType in identifierTypes"></select></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary identifier-add-button" ng-click="addIdentifier(userForm, editUser, newIdentifier)" ng-disabled="!(newIdentifier.identifier)">Add</button></div>
+        </div>
+    </div>
+</div>

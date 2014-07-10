@@ -11,12 +11,16 @@ import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
@@ -43,7 +47,6 @@ public class UserServiceTest {
     @Mock
     private GroupRepository groupRepository;
 
-
     @Mock
     private FeatureRepository featureRepository;
 
@@ -58,6 +61,9 @@ public class UserServiceTest {
 
     @Mock
     private UserFeatureRepository userFeatureRepository;
+
+    @Mock
+    private IdentifierRepository identifierRepository;
 
     @InjectMocks
     private UserService userService = new UserServiceImpl();
@@ -92,12 +98,20 @@ public class UserServiceTest {
         newUser.setGroupRoles(new HashSet<GroupRole>());
         newUser.getGroupRoles().add(groupRole);
 
+        // Add test identifier, with lookup type IDENTIFIER, value NHS_NUMBER
+        LookupType lookupType = TestUtils.createLookupType(8L, "IDENTIFIER", creator);
+        Lookup lookup = TestUtils.createLookup(9L, lookupType, "NHS_NUMBER", creator);
+        Identifier identifier = TestUtils.createIdentifier(10L, lookup, newUser, creator);
+        newUser.setIdentifiers(new HashSet<Identifier>());
+        newUser.getIdentifiers().add(identifier);
+
         when(userRepository.save(Matchers.eq(newUser))).thenReturn(newUser);
 
         userService.createUser(newUser);
 
         verify(userFeatureRepository, Mockito.times(1)).save(Matchers.eq(userFeature));
         verify(groupRoleRepository, Mockito.times(1)).save(Matchers.eq(groupRole));
+        verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
 
     }
 

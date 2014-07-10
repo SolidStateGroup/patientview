@@ -9,12 +9,14 @@ import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -54,6 +56,9 @@ public class UserServiceImpl implements UserService {
 
     @Inject
     private UserFeatureRepository userFeatureRepository;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
 
     @Inject
     private EmailService emailService;
@@ -98,7 +103,6 @@ public class UserServiceImpl implements UserService {
                 groupRole.setCreator(userRepository.findOne(1L));
                 groupRoleRepository.save(groupRole);
             }
-
         }
 
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
@@ -109,7 +113,16 @@ public class UserServiceImpl implements UserService {
                 userFeature.setCreator(userRepository.findOne(1L));
                 userFeatureRepository.save(userFeature);
             }
+        }
 
+        if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
+
+            for (Identifier identifier : user.getIdentifiers()) {
+                identifier.setId(null);
+                identifier.setUser(userRepository.findOne(userId));
+                identifier.setCreator(userRepository.findOne(1L));
+                identifierRepository.save(identifier);
+            }
         }
 
         user.setId(newUser.getId());
@@ -142,6 +155,7 @@ public class UserServiceImpl implements UserService {
         User entityUser = userRepository.findOne(user.getId());
         groupRoleRepository.delete(entityUser.getGroupRoles());
         userFeatureRepository.delete(entityUser.getUserFeatures());
+        identifierRepository.delete(entityUser.getIdentifiers());
 
         // add updated groups and roles
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
@@ -161,6 +175,16 @@ public class UserServiceImpl implements UserService {
                 userFeature.setUser(userRepository.findOne(user.getId()));
                 userFeature.setCreator(userRepository.findOne(1L));
                 userFeatureRepository.save(userFeature);
+            }
+        }
+
+        // add identifiers
+        if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
+            for (Identifier identifier : user.getIdentifiers()) {
+                identifier.setId(null);
+                identifier.setUser(userRepository.findOne(user.getId()));
+                identifier.setCreator(userRepository.findOne(1L));
+                identifierRepository.save(identifier);
             }
         }
 

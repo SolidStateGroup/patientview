@@ -1,12 +1,15 @@
 'use strict';
 
+// todo: consider controllers in separate files
+
 // new staff modal instance controller
-var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'UserService',
-function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, UserService) {
+var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService',
+function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService) {
     $scope.permissions = permissions;
     $scope.editUser = newUser;
     $scope.allGroups = allGroups;
     $scope.allowedRoles = allowedRoles;
+    $scope.identifierTypes = identifierTypes;
 
     // set initial group and feature (avoid blank option)
     if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
@@ -128,8 +131,8 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Staff controller
-angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService',
-    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService', 'StaticDataService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService, StaticDataService) {
 
     // filter users by group
     $scope.selectedGroup = [];
@@ -254,6 +257,15 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                             $scope.allFeatures.push({'feature': allFeatures[i]});
                         }
                     });
+
+                    // get list of identifier types when user adding identifiers to staff members
+                    $scope.identifierTypes = [];
+                    StaticDataService.getLookupsByType('IDENTIFIER').then(function(identifierTypes) {
+                        if (identifierTypes.length > 0) {
+                            $scope.identifierTypes = identifierTypes;
+                        }
+                    });
+
                 } else {
                     // no groups found
                     delete $scope.loading;
@@ -379,6 +391,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.editUser.availableFeatures = _.clone($scope.allFeatures);
         $scope.editUser.userFeatures = [];
         $scope.editUser.selectedRole = '';
+        $scope.editUser.identifiers = [];
 
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
@@ -400,6 +413,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 },
                 allFeatures: function(){
                     return $scope.allFeatures;
+                },
+                identifierTypes: function(){
+                    return $scope.identifierTypes;
                 },
                 UserService: function(){
                     return UserService;
