@@ -118,16 +118,14 @@ public class GroupServiceImpl implements GroupService {
         // save group relationships
         saveGroupRelationships(group);
 
-
-        linkRepository.deleteByGroup(entityGroup);
-
         // set new group links and persist
         if (!CollectionUtils.isEmpty(group.getLinks())) {
             for (Link link : group.getLinks()) {
-                link.setId(null);
+                if (link.getId() < 0) {
+                    link.setId(null);
+                }
                 link.setGroup(entityGroup);
                 link.setCreator(userRepository.findOne(1L));
-                linkRepository.save(link);
             }
         }
 
@@ -165,7 +163,7 @@ public class GroupServiceImpl implements GroupService {
             }
         }
 
-        entityGroup = groupRepository.save(group);
+        entityGroup = groupRepository.save(entityGroup);
         return addSingleParentAndChildGroup(groupRepository.findOne(entityGroup.getId()));
     }
 

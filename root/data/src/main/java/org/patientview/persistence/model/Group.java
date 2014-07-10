@@ -50,7 +50,7 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group")
     private Set<Route> routes;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Link> links;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
