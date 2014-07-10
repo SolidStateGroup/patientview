@@ -178,6 +178,7 @@ public class GroupServiceImpl implements GroupService {
         entityGroup.setDescription(group.getDescription());
         entityGroup.setName(group.getName());
         entityGroup.setCode(group.getCode());
+        entityGroup.setGroupType(group.getGroupType());
         entityGroup = groupRepository.save(entityGroup);
         return addSingleParentAndChildGroup(entityGroup);
     }
