@@ -1,0 +1,37 @@
+<div class="form-horizontal" role="form">
+    <div class="form-group">
+        <label for="new-user-username" class="col-sm-2 control-label">Username</label>
+        <div class="col-sm-7"><span type="text" class="form-control" id="new-user-username">{{editUser.username}}</span></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-email" class="col-sm-2 control-label">Email</label>
+        <div class="col-sm-7"><span type="text" class="form-control" id="new-user-email">{{editUser.email}}</span></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-name" class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-7"><span type="text" class="form-control" id="new-user-name">{{editUser.name}}</span></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-offset-2 col-sm-6">
+        <h5 class="inner-title">Groups &amp; Roles </h5>
+        <div class="group-list-item" ng-repeat="groupRole in editUser.groupRoles" ng-show="groupRole.group.visible === true">
+            <div class="group-list-name"><span class="group-list-name">{{groupRole.group.name}}</span></div>
+            <div class="group-list-delete" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</a></span></div>
+            <div class="group-list-role"><span class="group-list-role">{{groupRole.role.name}}</span></div>
+        </div>
+        <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
+            <h5 class="inner-title">Add Group &amp; Role </h5>
+            <div class="row">
+                <div class="col-sm-10">
+                    Role: <br/><div buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userForm, editUser, $event)"></div>
+                    <br/>Group:
+                    <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
+                </div>
+                <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, editUser, groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button></div>
+            </div>
+            <span class="hidden">{{editUser.selectedRole}}</span>
+        </div>
+    </div>
+</div>

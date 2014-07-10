@@ -1,28 +1,32 @@
 <div class="hider" ng-show="status.open"></div>
 
 <div class="container" ng-show="!loading" ng-cloak>
-    <h1>Patients</h1>
+    <h1>Patient</h1>
 
-    <!-- new user modal, includes NewPatientModalCtrl -->
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage" ng-cloak>
-
         <!-- new patient modal -->
         <script type="text/ng-template" id="newPatientModal.html">
             <div class="modal-header">
-                <h3 class="modal-title">Create New Patient User</h3>
+                <h3 class="modal-title" ng-show="!existingUser">Create New Patient User</h3>
+                <h3 class="modal-title" ng-show="existingUser">Existing Patient User</h3>
             </div>
             <div class="modal-body">
-                <form name="userForm">
+                <form name="userForm" ng-show="!existingUser">
                     <div ng-include src="'views/partials/patientDetails.html'" ng-controller="PatientDetailsCtrl"></div>
+                </form>
+                <form name="userForm" ng-show="existingUser">
+                    <div ng-include src="'views/partials/patientDetailsExisting.html'" ng-controller="PatientDetailsCtrl"></div>
                 </form>
             </div>
             <div class="modal-footer">
-                <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+                <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
+                <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" ng-click="ok()" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
         <button class="btn btn-primary" ng-click="openModalNewPatient('lg')">Create New</button>
@@ -36,6 +40,7 @@
                 <p>Are you sure? This will delete user with username <strong>{{user.username}}</strong>.</p>
             </div>
             <div class="modal-footer">
+                <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
                 <button class="btn btn-primary" ng-click="ok()">Delete</button>
             </div>
@@ -114,20 +119,22 @@
                 <div class="row accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
                     <div class="col-sm-1 hidden">ID</div>
                     <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                    <div class="col-sm-4 accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                    <div class="col-sm-3 accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                     <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title">Last Login&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                    <div class="col-sm-3"></div>
                 </div>
                 <!-- body -->
                 <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
                     <div accordion-group id="accordion-group-{{user.id}}" class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                         <div accordion-heading>
-                            <div class="row" ng-click="opened(user, $event)">
+                            <div class="row" ng-click="opened(user, $event, status)">
                                 <div class="col-sm-1 hidden">{{user.id}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.username}}</div>
-                                <div class="col-sm-4 accordion-heading-text">{{user.email}}</div>
+                                <div class="col-sm-3 accordion-heading-text">{{user.email}}</div>
                                 <div class="col-sm-2 accordion-heading-text">{{user.name}}</div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-2 accordion-heading-text">{{user.lastLogin}}</div>
+                                <div class="col-sm-3">
                                     <!-- Edit, Actions dropdown buttons -->
                                     <div class="btn-group pull-right">
                                         <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
@@ -174,4 +181,4 @@
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>
-<div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
