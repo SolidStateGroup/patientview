@@ -66,7 +66,11 @@ public class UserServiceImpl implements UserService {
         User newUser;
 
         if (getByUsername(user.getUsername()) != null) {
-            throw new EntityExistsException("User already exists");
+            throw new EntityExistsException("User already exists (username)");
+        }
+
+        if (getByEmail(user.getEmail()) != null) {
+            throw new EntityExistsException("User already exists (email)");
         }
 
 
@@ -126,6 +130,10 @@ public class UserServiceImpl implements UserService {
 
     public User getByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public User saveUser(User user) {

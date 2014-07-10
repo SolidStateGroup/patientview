@@ -96,12 +96,20 @@ public class UserController extends BaseController {
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.getUser(1L));
 
+        // todo: refactor      
         if (resetPassword != null && resetPassword.equals(Boolean.TRUE)) {
             try {
                 user = userService.createUserResetPassword(user);
             }
             catch (EntityExistsException eee) {
-                return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
+                User foundUser = userService.getByUsername(user.getUsername());
+                if (foundUser != null) {
+                    // found by username
+                    return new ResponseEntity<User>(foundUser, HttpStatus.CONFLICT);
+                } else {
+                    // found by email
+                    return new ResponseEntity<User>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
+                }
             }
         }
 
@@ -110,10 +118,16 @@ public class UserController extends BaseController {
                 user = userService.createUserNoEncryption(user);
             }
             catch (EntityExistsException eee) {
-                return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
+                User foundUser = userService.getByUsername(user.getUsername());
+                if (foundUser != null) {
+                    // found by username
+                    return new ResponseEntity<User>(foundUser, HttpStatus.CONFLICT);
+                } else {
+                    // found by email
+                    return new ResponseEntity<User>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
+                }
             }
         }
-
         if (user.getId() != null) {
             try {
 
@@ -122,7 +136,7 @@ public class UserController extends BaseController {
                 return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
             }
         }
-
+        
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
         HttpHeaders headers = new HttpHeaders();
