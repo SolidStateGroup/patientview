@@ -61,7 +61,6 @@ public class User extends RangeModel implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
     private Set<Identifier> identifiers;
 
-   // @Type(type="pg-uuid")
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
 
