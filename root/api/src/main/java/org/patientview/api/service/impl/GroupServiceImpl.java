@@ -136,6 +136,8 @@ public class GroupServiceImpl implements GroupService {
             }
         }
 
+        entityGroup.setLinks(Collections.EMPTY_SET);
+
 
         locationRepository.delete(entityGroup.getLocations());
         entityManager.flush();
@@ -153,6 +155,8 @@ public class GroupServiceImpl implements GroupService {
                 }
             }
         }
+
+        entityGroup.setLocations(Collections.EMPTY_SET);
 
         groupFeatureRepository.delete(entityGroup.getGroupFeatures());
         entityManager.flush();
