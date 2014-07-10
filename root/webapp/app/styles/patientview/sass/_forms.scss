@@ -1,0 +1,120 @@
+/** form styles **/
+
+input[type="text"]{
+    background:$inputbg;
+    border:1px solid $border-default;
+    @include bootstrap-box-shadow(none);
+    @include bootstrap-border-radius(0);
+
+    &:focus{
+        @include bootstrap-box-shadow(none);
+        @include bootstrap-border-radius(0);
+    }
+}
+
+label{
+    color:$textlight;
+}
+
+
+.edit-code{
+    background:$white;
+    padding:10px;
+
+    .links-container{
+        margin-top:20px;
+    }
+}
+
+
+.btn:active{
+    @include bootstrap-box-shadow(none);
+}
+
+.filter-panel {
+    overflow: visible;
+}
+
+.search-container {
+    position:relative;
+    height:60px;
+    @include bootstrap-border-radius(4px 4px 0 0);
+
+    i {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+    }
+    input[type="text"] {
+        border: none;
+        background:$white;
+        @include bootstrap-border-radius(4px 4px 0 0);
+        height: 100%;
+        width: 100%;
+        text-indent:40px;
+        @include bootstrap-box-shadow(none);
+    }
+}
+
+.select-container{
+    margin-right:15px;
+
+    .btn-group{
+        background:$inputbg;
+        border:1px solid $border-default;
+
+        &.open{
+            .dropdown-toggle{
+                @include bootstrap-box-shadow(none);
+            }
+        }
+
+        button{
+            background:transparent;
+            color:$light-grey;
+            position:relative;
+            height:40px;
+            padding:0 50px 0 10px;
+            border:none;
+            @include bootstrap-border-radius(0);
+            width:220px;
+
+            .caret-container{
+                display:block;
+                height:100%;
+                line-height:100%;
+                width:40px;
+                background:$inputaddon;
+                position:absolute;
+                right:0;
+                top:0;
+
+                .caret{
+                    border-top:8px solid $white;
+                    border-left:6px solid transparent;
+                    border-right:6px solid transparent;
+                    margin-top:16px;
+                }
+            }
+        }
+    }
+
+    .dropdown-menu{
+        width:221px;
+        @include bootstrap-box-shadow(0 2px 3px -3px rgba(0, 0, 0, 0.176));
+        @include bootstrap-border-radius(0 0 4px 4px);
+        margin-top:0;
+    }
+}
+
+.button-dropdown-group{
+    > button{
+        @include bootstrap-border-radius(4px 0 0 4px);
+    }
+
+    .dropdown{
+        > button{
+            @include bootstrap-border-radius(0 4px 4px 0);
+        }
+    }
+}

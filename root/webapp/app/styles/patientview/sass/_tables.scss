@@ -1,0 +1,72 @@
+/** Tables **/
+
+.faux-table {
+    margin-top: 20px;
+    font-size:1.5rem;
+
+    .table-head {
+        background: #f3f6f9;
+        height: 40px;
+        display: table;
+        width: 100%;
+        border-bottom: 1px solid $border-default;
+
+        .head-item {
+            height: 100%;
+            border-right: 1px solid $border-default;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+
+            a {
+                color: $textdefault;
+                text-decoration: none;
+            }
+        }
+    }
+
+    .accordion-group {
+        &.panel {
+            background: $white;
+            @include bootstrap-border-radius(0);
+            margin-top: 0;
+            border-top: 0;
+            .panel-heading {
+                background: none;
+            }
+        }
+
+        .panel-heading{
+            padding:0;
+        }
+    }
+
+    .accordion-toggle{
+        text-decoration:none;
+    }
+
+    .faux-row{
+        display:table;
+        width:100%;
+        padding:5px 0;
+        font-size:1.5rem;
+
+        .row-item{
+            display:table-cell;
+            text-align:center;
+            color:$textlight;
+            text-decoration:none;
+            vertical-align: middle;
+
+            &.actions{
+                text-align:center;
+            }
+        }
+    }
+
+    &.five-col{
+        .row-item,.head-item{
+            width:20%;
+        }
+    }
+}
