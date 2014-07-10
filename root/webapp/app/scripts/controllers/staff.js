@@ -188,7 +188,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $('.child-menu').remove();
         });
 
-        var i, groupIds = [], staffRoleIds = [];
+        var i, group, groupIds = [], staffRoleIds = [];
         $scope.loading = true;
         $scope.allGroups = [];
         $scope.allRoles = [];
@@ -209,12 +209,20 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             // get logged in user's groups
             GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
 
+                // sort groups by name
+                groups = _.sortBy(groups, 'name' );
+
                 // show error if user is not a member of any groups
                 if (groups.length !== 0) {
-                    $scope.allGroups = groups;
+
+                    // set groups that can be chosen in UI
                     for (i = 0; i < groups.length; i++) {
-                        groupIds.push(groups[i].id);
-                        $scope.permissions.allGroupsIds[groups[i].id] = groups[i].id;
+                        group = groups[i];
+                        if (group.visible === true) {
+                            $scope.allGroups.push(group);
+                            groupIds.push(group.id);
+                            $scope.permissions.allGroupsIds[group.id] = group.id;
+                        }
                     }
 
                     // get staff users by list of staff roles and list of logged in user's groups
