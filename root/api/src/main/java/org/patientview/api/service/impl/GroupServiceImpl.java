@@ -124,9 +124,7 @@ public class GroupServiceImpl implements GroupService {
         // set new group links and persist
         if (!CollectionUtils.isEmpty(group.getLinks())) {
             for (Link link : group.getLinks()) {
-                if (link.getId() < 0) {
-                    link.setId(null);
-                }
+                link.setId(null);
                 link.setGroup(entityGroup);
                 link.setCreator(userRepository.findOne(1L));
                 linkRepository.save(link);
