@@ -2,7 +2,6 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
-import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
@@ -52,13 +51,6 @@ public class AdminServiceImpl implements AdminService {
     private RoleRepository roleRepository;
 
 
-
-    public Group getGroup(Long groupId) {
-        return groupRepository.findOne(groupId);
-    }
-
-
-
     public GroupFeature addGroupFeature(Long groupId, Long featureId) {
 
         GroupFeature groupFeature = new GroupFeature();
@@ -68,11 +60,6 @@ public class AdminServiceImpl implements AdminService {
         groupFeature.setGroup(groupRepository.findOne(groupId));
         return groupFeatureRepository.save(groupFeature);
     }
-
-    public List<Group> getAllGroups() {
-        return Util.iterableToList(groupRepository.findAll());
-    }
-
 
 
     public List<Role> getAllRoles() {
