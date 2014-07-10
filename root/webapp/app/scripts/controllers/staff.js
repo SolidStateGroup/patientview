@@ -218,7 +218,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 // show error if user is not a member of any groups
                 if (groups.length !== 0) {
 
-                    // set groups that can be chosen in UI
+                    // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
                     for (i = 0; i < groups.length; i++) {
                         group = groups[i];
                         if (group.visible === true) {
