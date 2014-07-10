@@ -97,7 +97,8 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT']">
+    <!-- TODO: hardcoded, only show parents if UNIT or DISEASE_GROUP -->
+    <div class="col-sm-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT'] || editGroup.groupTypeId==groupTypesArray['DISEASE_GROUP']">
         <h3>Parent Groups</h3>
         <div ng-hide="editGroup.parentGroups.length > 0" class="alert alert-info">No parent groups</div>
         <div class="feature-list-item" ng-repeat="parentGroup in editGroup.parentGroups">
