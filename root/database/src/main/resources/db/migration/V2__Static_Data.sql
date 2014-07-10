@@ -31,6 +31,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (16, now(), 'PATIENT','1','6');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (17, now(), 'PARENT','1','7');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (18, now(), 'CHILD','1','7');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (19, now(), 'DISEASE_GROUP','1','1');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (20, now(), 'NHS_NUMBER','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (21, now(), 'CHI_NUMBER','1','8');
 
