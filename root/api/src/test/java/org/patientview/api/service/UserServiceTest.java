@@ -94,7 +94,7 @@ public class UserServiceTest {
 
         when(userRepository.save(Matchers.eq(newUser))).thenReturn(newUser);
 
-        userService.createUser(newUser);
+        userService.createUserWithPasswordEncryption(newUser);
 
         verify(userFeatureRepository, Mockito.times(1)).save(Matchers.eq(userFeature));
         verify(groupRoleRepository, Mockito.times(1)).save(Matchers.eq(groupRole));

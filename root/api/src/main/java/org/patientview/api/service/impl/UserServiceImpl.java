@@ -61,25 +61,15 @@ public class UserServiceImpl implements UserService {
     @Inject
     private Properties properties;
 
-    public User createUser(User user) {
+    private User createUser(User user) {
 
         User newUser;
-
-        /*try {
-            newUser = userRepository.save(user);
-        } catch (DataIntegrityViolationException dve) {
-            LOG.debug("User not created, duplicate user: {}", dve.getCause());
-            throw new EntityExistsException("Username already exists");
-        } catch (ConstraintViolationException cve) {
-            LOG.debug("User not created, duplicate user: {}", cve.getCause());
-            throw new EntityExistsException("Username already exists");
-        }*/
 
         if (getByUsername(user.getUsername()) != null) {
             throw new EntityExistsException("User already exists");
         }
 
-        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+
         newUser = userRepository.save(user);
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
@@ -107,15 +97,25 @@ public class UserServiceImpl implements UserService {
             }
 
         }
-
         user.setId(newUser.getId());
 
         return userRepository.save(user);
+
+    }
+
+    public User createUserWithPasswordEncryption(User user) {
+        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+        return createUser(user);
     }
 
 
     public User createUserResetPassword(User user) {
         user.setPassword(DigestUtils.sha256Hex(CommonUtils.getAuthtoken()));
+        return createUser(user);
+    }
+
+    //Migration Only
+    public User createUserNoEncryption(User user) {
         return createUser(user);
     }
 

@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -77,7 +76,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             newUser.setGroupRoles(new HashSet<GroupRole>());
                         }
 
-                        String roleName = specialtyUserRoles.get(0).getRole(); //FIXME
+                        String roleName = specialtyUserRoles.get(0).getRole(); //FIXME hack from original PV
                         if (roleName.equals("unitadmin")) {
                             role = adminDataMigrationService.getRoleByName("UNIT_ADMIN");
                         }
@@ -96,6 +95,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                     // Add the generic group
                     Group group = adminDataMigrationService.getGroupByCode("GENERIC");
+                    role = adminDataMigrationService.getRoleByName("MEMBER");
                     if (group == null) {
                         LOG.error("Could not find group for code {}", "GENERIC");
                         continue;

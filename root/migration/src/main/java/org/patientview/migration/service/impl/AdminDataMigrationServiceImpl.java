@@ -14,6 +14,7 @@ import org.patientview.GroupFeature;
 import org.patientview.Lookup;
 import org.patientview.Role;
 import org.patientview.model.Unit;
+import org.patientview.model.enums.SourceType;
 import org.patientview.repository.FeatureDao;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
@@ -90,7 +91,11 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
             LOG.info("Got unit: {}", unit.getUnitcode());
             Group group = PvUtil.createGroup(unit);
-            group.setGroupType(getLookupByName("UNIT"));
+            if (unit.getSourceType().equalsIgnoreCase(SourceType.PATIENT_VIEW.getName())) {
+                group.setGroupType(getLookupByName("UNIT"));
+            } else {
+                group.setGroupType(getLookupByName("DISEASE_GROUP"));
+            }
 
             //TODO refactor continues into exceptions
             try {

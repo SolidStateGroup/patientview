@@ -41,6 +41,7 @@ public class UserController extends BaseController {
 
     @Inject
     private UserService userService;
+
     @Inject
     private AdminService adminService;
 
@@ -88,13 +89,14 @@ public class UserController extends BaseController {
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user,
-                                           @RequestParam(value = "resetPassword", required = false) Boolean resetPasword,
+                                           @RequestParam(value = "resetPassword", required = false) Boolean resetPassword,
+                                           @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword,
                                                    UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.getUser(1L));
 
-        if (resetPasword != null && resetPasword.equals(Boolean.TRUE)) {
+        if (resetPassword != null && resetPassword.equals(Boolean.TRUE)) {
             try {
                 user = userService.createUserResetPassword(user);
             }
@@ -102,14 +104,25 @@ public class UserController extends BaseController {
                 return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
             }
         }
-        else {
+
+        if (encryptPassword != null && encryptPassword.equals(Boolean.FALSE)) {
             try {
-                user = userService.createUser(user);
+                user = userService.createUserNoEncryption(user);
             }
             catch (EntityExistsException eee) {
                 return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
             }
         }
+
+        if (user.getId() != null) {
+            try {
+
+                user = userService.createUserWithPasswordEncryption(user);
+            } catch (EntityExistsException eee) {
+                return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
+            }
+        }
+
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
         HttpHeaders headers = new HttpHeaders();

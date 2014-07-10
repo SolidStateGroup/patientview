@@ -83,7 +83,7 @@ public class UserControllerTest {
         User postUser = TestUtils.createUser(null, "testPost");
 
         when(userService.getUser(anyLong())).thenReturn(TestUtils.createUser(1L, "creator"));
-        when(userService.createUser(any(User.class))).thenReturn(postUser);
+        when(userService.createUserWithPasswordEncryption(any(User.class))).thenReturn(postUser);
         try {
             mockMvc.perform(MockMvcRequestBuilders.post("/user")
                     .content(mapper.writeValueAsString(postUser)).contentType(MediaType.APPLICATION_JSON))
@@ -94,7 +94,7 @@ public class UserControllerTest {
             Assert.fail("The post request all should not fail " + e.getCause());
         }
 
-        verify(userService, Mockito.times(1)).createUser(any(User.class));
+        verify(userService, Mockito.times(1)).createUserWithPasswordEncryption(any(User.class));
     }
 
     /**

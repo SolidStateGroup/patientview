@@ -30,18 +30,20 @@ INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (16, now(), 'PATIENT','1','6');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (17, now(), 'PARENT','1','7');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (18, now(), 'CHILD','1','7');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (19, now(), 'DISEASE_GROUP','1','1');
 
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', 'The PatientView Specialty', 2, false, now(),1 );
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (2, 'Renal', 'Renal', 'The Renal Specialty', 2, true, now(),1 );
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (3, 'Diabetes', 'Diabetes', 'The Diabetes Specialty', 2, true, now(), 1);
 INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (4, 'IBD', 'IBD', 'The Inflammatory Bowel Disease Specialty', 2, true, now(), 1);
 
-INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '1', 'A standard patient user', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '4', 'A unit administrator', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (3, 'STAFF_ADMIN', '6', '3', 'A radar administrator', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (4, 'SPECIALTY_ADMIN', '6', '5', 'A specialty administrator', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (5, 'SUPER_ADMIN', '6', '6', 'A superadmin', now(), '1');
-INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (6, 'GP', '6', '2', 'A doctor', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (1, 'MEMBER', '7', '1', 'A standard membership', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (2, 'PATIENT', '7', '2', 'A standard patient user', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (3, 'UNIT_ADMIN', '6', '5', 'A unit administrator', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (4, 'STAFF_ADMIN', '6', '4', 'A radar administrator', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (5, 'SPECIALTY_ADMIN', '6', '6', 'A specialty administrator', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (6, 'SUPER_ADMIN', '6', '7', 'A superadmin', now(), '1');
+INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (7, 'GP', '6', '3', 'A doctor', now(), '1');
 
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (1, 'MESSAGING', 'Messaging other users and admins', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (2, 'SHARING_THOUGHTS', 'Sharing thoughts of a patient on care', now(), now(), 1);

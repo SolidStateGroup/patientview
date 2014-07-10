@@ -29,7 +29,9 @@ public interface UserService {
      * @param user
      * @return
      */
-    User createUser(User user);
+    User createUserWithPasswordEncryption(User user);
+
+    public User createUserNoEncryption(User user);
 
     User saveUser(User user);
 
