@@ -28,7 +28,7 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
         }, function(result) {
             if (result.status === 409) {
                 // 409 = CONFLICT, means staff already exists, provide UI to edit existing staff group roles
-                $scope.warningMessage = 'A staff member with this username already exists, you can add them to your group if required.';
+                $scope.warningMessage = 'A staff member with this username or email already exists, you can add them to your group if required.';
                 $scope.editUser = result.data;
                 $scope.existingUser = true;
 
