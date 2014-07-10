@@ -18,6 +18,7 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -55,6 +56,9 @@ public class GroupServiceTest {
 
     @Mock
     private FeatureRepository featureRepository;
+
+    @Mock
+    private LinkRepository linkRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -192,6 +196,16 @@ public class GroupServiceTest {
         Assert.assertNotNull("A group feature has been created", group);
     }
 
+    /**
+     * Test: To save group links
+     *
+     */
+    @Test
+    public void testGroupSaveWithLink() {
+        User testUser = TestUtils.createUser(2L, "testUser");
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+
+    }
 
 
 }

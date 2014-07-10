@@ -13,4 +13,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface LocationRepository extends CrudRepository<Location, Long> {
+
 }

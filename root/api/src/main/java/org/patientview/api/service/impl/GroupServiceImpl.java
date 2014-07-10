@@ -106,6 +106,7 @@ public class GroupServiceImpl implements GroupService {
 
     /**
      * TODO remove links, relationships, locations, and features SPRINT 2
+     * FIXME Hacked to get saves
      *
      * @param group
      * @return
@@ -118,29 +119,34 @@ public class GroupServiceImpl implements GroupService {
         // save group relationships
         saveGroupRelationships(group);
 
+        linkRepository.deleteByGroup(group);
+        entityManager.flush();
+
         // set new group links and persist
         if (!CollectionUtils.isEmpty(group.getLinks())) {
+
             for (Link link : group.getLinks()) {
-                if (link.getId() < 0) {
-                    link.setId(null);
-                }
+                //if (link.getId() < 0) {
+                link.setId(null);
+                //}
                 link.setGroup(entityGroup);
                 link.setCreator(userRepository.findOne(1L));
+                Link persistedLink = linkRepository.save(link);
+                LOG.debug("Save link " + persistedLink.getId());
             }
         }
 
 
+        locationRepository.delete(entityGroup.getLocations());
+        entityManager.flush();
+
         // remove deleted group locations
-        if (!CollectionUtils.isEmpty(entityGroup.getLocations())) {
-            entityGroup.getLocations().removeAll(group.getLocations());
-            locationRepository.delete(entityGroup.getLocations());
+        if (!CollectionUtils.isEmpty(group.getLocations())) {
 
             // set new group locations and persist
             if (!CollectionUtils.isEmpty(group.getLocations())) {
                 for (Location location : group.getLocations()) {
-                    if (location.getId() < 0) {
-                        location.setId(null);
-                    }
+                    location.setId(null);
                     location.setGroup(entityGroup);
                     location.setCreator(userRepository.findOne(1L));
                     locationRepository.save(location);
@@ -148,11 +154,10 @@ public class GroupServiceImpl implements GroupService {
             }
         }
 
-        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
+        groupFeatureRepository.delete(entityGroup.getGroupFeatures());
+        entityManager.flush();
 
-            // remove deleted group features
-            entityGroup.getGroupFeatures().removeAll(group.getGroupFeatures());
-            groupFeatureRepository.delete(entityGroup.getGroupFeatures());
+        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
 
             // save group features
             for (GroupFeature groupFeature : group.getGroupFeatures()) {
@@ -163,8 +168,11 @@ public class GroupServiceImpl implements GroupService {
             }
         }
 
+        entityGroup.setGroupFeatures(Collections.EMPTY_SET);
+
         entityGroup = groupRepository.save(entityGroup);
-        return addSingleParentAndChildGroup(groupRepository.findOne(entityGroup.getId()));
+        entityManager.flush();
+        return addSingleParentAndChildGroup(entityGroup);
     }
 
     /**
