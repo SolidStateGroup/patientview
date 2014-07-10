@@ -5,22 +5,28 @@ function ($q, Restangular, UtilService) {
     return {
         get: function (groupId) {
             var deferred = $q.defer();
-            Restangular.one('group', groupId).get().then(function(res) {
-                deferred.resolve(res);
+            Restangular.one('group', groupId).get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
             });
             return deferred.promise;
         },
         getAll: function () {
             var deferred = $q.defer();
-            Restangular.all('group').getList().then(function(res) {
-                deferred.resolve(res);
+            Restangular.all('group').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
             });
             return deferred.promise;
         },
         getAllByType: function (typeId) {
             var deferred = $q.defer();
-            Restangular.all('group').one('type', typeId).getList().then(function(res) {
-                deferred.resolve(res);
+            Restangular.all('group').one('type', typeId).getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
             });
             return deferred.promise;
         },
@@ -36,8 +42,10 @@ function ($q, Restangular, UtilService) {
         },
         getUsersByType: function (groupId, roleType) {
             var deferred = $q.defer();
-            Restangular.one('group', groupId).all('user').getList({'roleType': roleType}).then(function(res) {
-                deferred.resolve(res);
+            Restangular.one('group', groupId).all('user').getList({'roleType': roleType}).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
             });
             return deferred.promise;
         },
