@@ -67,9 +67,9 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public List<Role> getRolesByType(String type) {
-        Lookup roleLookup = lookupRepository.getByLookupTypeAndValue("ROLE", type);
+        Lookup roleLookup = lookupRepository.findByTypeAndValue("ROLE", type);
         if (roleLookup != null) {
-            return Util.iterableToList(roleRepository.getByType(roleLookup));
+            return Util.iterableToList(roleRepository.findByRoleType(roleLookup));
         } else return Collections.<Role>emptyList();
     }
 
@@ -88,10 +88,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public List<User> getGroupUserByRoleStaff(Long groupId) {
-        return Util.iterableToList(groupRepository.getGroupStaffByRole(groupId, "STAFF"));
+        return Util.iterableToList(groupRepository.findGroupStaffByRole(groupId, "STAFF"));
     }
 
     public List<User> getGroupUserByRolePatient(Long groupId) {
-        return Util.iterableToList(groupRepository.getGroupStaffByRole(groupId, "PATIENT"));
+        return Util.iterableToList(groupRepository.findGroupStaffByRole(groupId, "PATIENT"));
     }
 }

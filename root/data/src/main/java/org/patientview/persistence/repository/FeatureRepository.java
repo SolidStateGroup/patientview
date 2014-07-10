@@ -28,7 +28,7 @@ public interface FeatureRepository extends CrudRepository<Feature, Long> {
            "FROM   User u" +
            "JOIN   u.groupRoles.group.groupFeatures.feature f" +
            "WHERE  u = :user ")
-    public Iterable<Feature> getFeaturesByUser(@Param("user") User user);
+    public Iterable<Feature> findByUser(@Param("user") User user);
 
     @Query("SELECT fea FROM Feature fea WHERE :featureType MEMBER OF fea.featureTypes")
     public Iterable<Feature> findByType(@Param("featureType") Lookup featureType);

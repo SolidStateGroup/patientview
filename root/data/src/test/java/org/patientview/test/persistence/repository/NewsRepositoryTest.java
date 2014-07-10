@@ -91,7 +91,7 @@ public class NewsRepositoryTest {
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
 
-        Iterable<NewsItem> newsItems = newsItemRepository.getGroupNewsByUser(newsUser);
+        Iterable<NewsItem> newsItems = newsItemRepository.findGroupNewsByUser(newsUser);
         Iterator<NewsItem> iterator = newsItems.iterator();
         // Which should get 1 route back and it should be the one that was created
         Assert.assertTrue("There should be 1 new item available", iterator.hasNext());
@@ -132,7 +132,7 @@ public class NewsRepositoryTest {
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
 
-        Iterable<NewsItem> newsItems = newsItemRepository.getRoleNewsByUser(newsUser);
+        Iterable<NewsItem> newsItems = newsItemRepository.findRoleNewsByUser(newsUser);
         Iterator<NewsItem> iterator = newsItems.iterator();
         // Which should get 1 route back and it should be the one that was created
         Assert.assertTrue("There should be 1 new item available", iterator.hasNext());
