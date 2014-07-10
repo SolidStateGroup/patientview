@@ -268,8 +268,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     };
 
     // Opened for edit
-    $scope.opened = function (user, $event) {
+    $scope.opened = function (openedUser, $event, status) {
         $scope.successMessage = '';
+        $scope.editUser = '';
 
         // TODO: handle accordion and bootstrap dropdowns correctly without workaround
         if ($event) {
@@ -295,48 +296,60 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             }
         }
 
-        $scope.editing = true;
-        user.roles = $scope.allowedRoles;
+        // do not load if already opened (status.open == true)
+        if (!status || status.open === false) {
 
-        // for REST compatibility, convert staff member groupRoles to objects suitable for UI
-        user.groups = [];
-        for(var h=0;h<user.groupRoles.length;h++) {
-            var groupRole = user.groupRoles[h];
-            var group = groupRole.group;
-            group.role = groupRole.role;
-            user.groups.push(group);
-        }
+            // now using lightweight group list, do GET on id to get full group and populate editGroup
+            UserService.get(openedUser.id).then(function (user) {
 
-        // create list of available groups (all - staff members existing groups)
-        user.availableGroups = $scope.allGroups;
-        if (user.groups) {
-            for (var i = 0; i < user.groups.length; i++) {
-                user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: user.groups[i].id}));
-            }
-        }
-        else { user.groups = []; }
+                $scope.editing = true;
+                user.roles = $scope.allowedRoles;
 
-        // create list of available features (all - staff members existing features)
-        user.availableFeatures = _.clone($scope.allFeatures);
-        if (user.userFeatures) {
-            for (var j = 0; j < user.userFeatures.length; j++) {
-                for (var k = 0; k < user.availableFeatures.length; k++) {
-                    if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
-                        user.availableFeatures.splice(k, 1);
+                // for REST compatibility, convert staff member groupRoles to objects suitable for UI
+                user.groups = [];
+                for (var h = 0; h < user.groupRoles.length; h++) {
+                    var groupRole = user.groupRoles[h];
+                    var group = groupRole.group;
+                    group.role = groupRole.role;
+                    user.groups.push(group);
+                }
+
+                // create list of available groups (all - staff members existing groups)
+                user.availableGroups = $scope.allGroups;
+                if (user.groups) {
+                    for (var i = 0; i < user.groups.length; i++) {
+                        user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: user.groups[i].id}));
                     }
                 }
-            }
-        } else { user.userFeatures = []; }
+                else {
+                    user.groups = [];
+                }
 
-        // set the staff member being edited to a clone of the existing staff member (so only updated in UI on save)
-        $scope.editUser = _.clone(user);
+                // create list of available features (all - staff members existing features)
+                user.availableFeatures = _.clone($scope.allFeatures);
+                if (user.userFeatures) {
+                    for (var j = 0; j < user.userFeatures.length; j++) {
+                        for (var k = 0; k < user.availableFeatures.length; k++) {
+                            if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
+                                user.availableFeatures.splice(k, 1);
+                            }
+                        }
+                    }
+                } else {
+                    user.userFeatures = [];
+                }
 
-        // set initial group and feature (avoid blank <select> option)
-        if ($scope.editUser.availableGroups[0]) {
-            $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
-        }
-        if ($scope.editUser.availableFeatures[0]) {
-            $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+                // set the staff member being edited to a clone of the existing staff member (so only updated in UI on save)
+                $scope.editUser = _.clone(user);
+
+                // set initial group and feature (avoid blank <select> option)
+                if ($scope.editUser.availableGroups[0]) {
+                    $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
+                }
+                if ($scope.editUser.availableFeatures[0]) {
+                    $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+                }
+            });
         }
     };
 
