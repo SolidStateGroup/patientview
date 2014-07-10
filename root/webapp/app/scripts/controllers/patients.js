@@ -203,7 +203,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.permissions.allGroupsIds = [];
 
             // get patient type roles
-            RoleService.getByType("PATIENT").then(function(roles) {
+            RoleService.getByType('PATIENT').then(function(roles) {
                 $scope.allRoles = roles;
                 for (i = 0; i < roles.length; i++) {
                     patientRoleIds.push(roles[i].id);

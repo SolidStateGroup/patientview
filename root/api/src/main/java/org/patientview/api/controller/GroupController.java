@@ -59,6 +59,13 @@ public class GroupController extends BaseController {
         return new ResponseEntity<Group>(groupService.findOne(groupId), HttpStatus.OK);
     }
 
+    // TODO: return statistics for group, not just group
+    @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Group> getGroupStatistics(@PathVariable("groupId") Long groupId) {
+        return new ResponseEntity<Group>(groupService.findOne(groupId), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/group", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Group>> getGroups() {
