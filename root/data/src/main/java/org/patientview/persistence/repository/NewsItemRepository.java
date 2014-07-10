@@ -21,9 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
 
     @Query("SELECT  n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles gr WHERE gr.user = :user")
-    public Iterable<NewsItem> getGroupNewsByUser(@Param("user") User user);
+    public Iterable<NewsItem> findGroupNewsByUser(@Param("user") User user);
 
     @Query("SELECT  n FROM NewsItem n JOIN n.newsLinks l JOIN l.role.groupRoles gr WHERE gr.user = :user")
-    public Iterable<NewsItem> getRoleNewsByUser(@Param("user") User user);
+    public Iterable<NewsItem> findRoleNewsByUser(@Param("user") User user);
 
 }

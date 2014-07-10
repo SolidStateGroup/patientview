@@ -85,7 +85,7 @@ public class RouteRepositoryTest {
         UserFeature userFeature = TestUtils.createUserFeature(null, feature, routeUser, creator);
         userFeatureRepository.save(userFeature);
 
-        Iterable<Route> routes = routeRepository.getFeatureRoutesByUser(routeUser);
+        Iterable<Route> routes = routeRepository.findFeatureRoutesByUser(routeUser);
         Iterator<Route> iterator = routes.iterator();
 
         // Which should get 1 route back and it should be the one that was created
@@ -128,7 +128,7 @@ public class RouteRepositoryTest {
         groupRoleRepository.save(groupRole);
 
 
-        Iterable<Route> routes = routeRepository.getRoleRoutesByUser(routeUser);
+        Iterable<Route> routes = routeRepository.findRoleRoutesByUser(routeUser);
         Iterator<Route> iterator = routes.iterator();
 
         // Which should get 1 route back and it should be the one that was created
@@ -172,7 +172,7 @@ public class RouteRepositoryTest {
         groupRoleRepository.save(groupRole);
 
 
-        Iterable<Route> routes = routeRepository.getGroupRoutesByUser(routeUser);
+        Iterable<Route> routes = routeRepository.findGroupRoutesByUser(routeUser);
         Iterator<Route> iterator = routes.iterator();
 
         // Which should get 1 route back and it should be the one that was created

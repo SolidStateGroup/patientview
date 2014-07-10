@@ -49,14 +49,14 @@ public class SecurityServiceImpl implements SecurityService {
     private NewsItemRepository newsItemRepository;
 
     public List<Role> getUserRoles(Long userId) {
-        return Util.iterableToList(roleRepository.getValidRolesByUser(userId));
+        return Util.iterableToList(roleRepository.findValidRolesByUser(userId));
     }
 
     public Set<Route> getUserRoutes(Long userId) {
         User user = userRepository.findOne(userId);
-        Set<Route> routes = new HashSet<Route>(Util.iterableToList(routeRepository.getFeatureRoutesByUser(user)));
-        routes.addAll(Util.iterableToList(routeRepository.getGroupRoutesByUser(user)));
-        routes.addAll(Util.iterableToList(routeRepository.getRoleRoutesByUser(user)));
+        Set<Route> routes = new HashSet<Route>(Util.iterableToList(routeRepository.findFeatureRoutesByUser(user)));
+        routes.addAll(Util.iterableToList(routeRepository.findGroupRoutesByUser(user)));
+        routes.addAll(Util.iterableToList(routeRepository.findRoleRoutesByUser(user)));
         return routes;
 
     }
@@ -64,20 +64,20 @@ public class SecurityServiceImpl implements SecurityService {
     public List<Group> getGroupByUserAndRole(Long userId, Long roleId) {
         User user = userRepository.findOne(userId);
         Role role = roleRepository.findOne(roleId);
-        return Util.iterableToList(groupRepository.getGroupByUserAndRole(user, role));
+        return Util.iterableToList(groupRepository.findGroupByUserAndRole(user, role));
     }
 
     public List<NewsItem> getNewsByUser(Long userId) {
         User user = userRepository.findOne(userId);
-        List<NewsItem> newsItems = Util.iterableToList(newsItemRepository.getGroupNewsByUser(user));
-        newsItems.addAll(Util.iterableToList(newsItemRepository.getRoleNewsByUser(user)));
+        List<NewsItem> newsItems = Util.iterableToList(newsItemRepository.findGroupNewsByUser(user));
+        newsItems.addAll(Util.iterableToList(newsItemRepository.findRoleNewsByUser(user)));
         return newsItems;
     }
 
     public List<Group> getUserGroups(Long userId) {
         User user = userRepository.findOne(userId);
         //TODO - Refactor to Enum Sprint 2
-        if (doesListContainRole(roleRepository.getByUser(user), "SUPER_ADMIN")) {
+        if (doesListContainRole(roleRepository.findByUser(user), "SUPER_ADMIN")) {
             return Util.iterableToList(groupService.findAll());
         } else {
             return Util.iterableToList(groupService.findGroupByUser(user));

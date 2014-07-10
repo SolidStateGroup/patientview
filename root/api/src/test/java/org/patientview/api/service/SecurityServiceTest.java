@@ -79,8 +79,8 @@ public class SecurityServiceTest {
 
         securityService.getNewsByUser(testUser.getId());
 
-        verify(newsItemRepository, Mockito.times(1)).getGroupNewsByUser(Matchers.eq(testUser));
-        verify(newsItemRepository, Mockito.times(1)).getRoleNewsByUser(Matchers.eq(testUser));
+        verify(newsItemRepository, Mockito.times(1)).findGroupNewsByUser(Matchers.eq(testUser));
+        verify(newsItemRepository, Mockito.times(1)).findRoleNewsByUser(Matchers.eq(testUser));
     }
 
     /**
@@ -91,15 +91,15 @@ public class SecurityServiceTest {
     public void testGetNoneDuplicateRoutes() {
         User testUser = TestUtils.createUser(23L, "testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-        when(routeRepository.getFeatureRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
-        when(routeRepository.getGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
-        when(routeRepository.getRoleRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
+        when(routeRepository.findFeatureRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
+        when(routeRepository.findGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
+        when(routeRepository.findRoleRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
 
         Set<Route> routes = securityService.getUserRoutes(1L);
 
-        verify(routeRepository, Mockito.times(1)).getGroupRoutesByUser(Matchers.eq(testUser));
-        verify(routeRepository, Mockito.times(1)).getFeatureRoutesByUser(Matchers.eq(testUser));
-        verify(routeRepository, Mockito.times(1)).getRoleRoutesByUser(Matchers.eq(testUser));
+        verify(routeRepository, Mockito.times(1)).findGroupRoutesByUser(Matchers.eq(testUser));
+        verify(routeRepository, Mockito.times(1)).findFeatureRoutesByUser(Matchers.eq(testUser));
+        verify(routeRepository, Mockito.times(1)).findRoleRoutesByUser(Matchers.eq(testUser));
         Assert.assertNotNull(routes);
         Assert.assertEquals("There should be only 6 routes", routes.size(), 6);
     }
@@ -116,7 +116,7 @@ public class SecurityServiceTest {
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
         roles.add(TestUtils.createRole(1L, "SUPER_ADMIN", creator));
-        when(roleRepository.getByUser(Matchers.eq(testUser))).thenReturn(roles);
+        when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
 
@@ -137,7 +137,7 @@ public class SecurityServiceTest {
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
         roles.add(TestUtils.createRole(1L, "UNIT_ADMIN", creator));
-        when(roleRepository.getValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
+        when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
 

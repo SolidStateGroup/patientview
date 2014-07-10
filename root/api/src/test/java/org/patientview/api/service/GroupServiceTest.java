@@ -102,8 +102,8 @@ public class GroupServiceTest {
         groups.add(testGroup);
 
         when(groupRepository.findAll()).thenReturn(groups);
-        when(lookupRepository.getByLookupTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
-        when(lookupRepository.getByLookupTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
 
         groups = groupService.findAll();
 
@@ -138,8 +138,8 @@ public class GroupServiceTest {
         Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
         Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
 
-        when(lookupRepository.getByLookupTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
-        when(lookupRepository.getByLookupTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);

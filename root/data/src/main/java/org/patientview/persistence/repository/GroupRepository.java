@@ -22,8 +22,8 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "FROM   User u JOIN u.groupRoles gr " +
            "WHERE  gr.group.id = :groupId " +
            "AND    gr.role.roleType.value = :roleType")
-    public Iterable<User> getGroupStaffByRole(@Param("groupId") Long groupId,
-                                              @Param("roleType") String roleType);
+    public Iterable<User> findGroupStaffByRole(@Param("groupId") Long groupId,
+                                               @Param("roleType") String roleType);
 
 
     @Query("SELECT gr.group " +
@@ -31,8 +31,8 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "JOIN   u.groupRoles gr " +
            "WHERE  gr.role = :role " +
            "AND    u = :user")
-    public Iterable<Group> getGroupByUserAndRole(@Param("user") User user,
-                                                @Param("role") Role role);
+    public Iterable<Group> findGroupByUserAndRole(@Param("user") User user,
+                                                  @Param("role") Role role);
 
     @Query("SELECT gr.group " +
            "FROM   User u " +

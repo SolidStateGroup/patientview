@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 public interface LookupRepository extends CrudRepository<Lookup, Long>  {
 
     @Query("SELECT loo FROM Lookup loo WHERE loo.lookupType = :lookupType")
-    public Iterable<Lookup> getByLookupType(@Param("lookupType") LookupType lookupType);
+    public Iterable<Lookup> findByType(@Param("lookupType") LookupType lookupType);
 
     @Query("SELECT loo FROM Lookup loo WHERE loo.lookupType.type = :lookupType AND loo.value = :lookupValue")
-    public Lookup getByLookupTypeAndValue(
+    public Lookup findByTypeAndValue(
             @Param("lookupType") String lookupType, @Param("lookupValue") String lookupValue);
 }

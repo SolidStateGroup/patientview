@@ -53,7 +53,7 @@ public class LookupTypeRepositoryTest {
         lookupType.setCreated(new Date());
         lookupTypeRepository.save(lookupType);
 
-        LookupType getLookupType = lookupTypeRepository.getByType("NEWTYPE");
+        LookupType getLookupType = lookupTypeRepository.findByType("NEWTYPE");
         Assert.assertTrue("LookupType should be created and retrieved", getLookupType.getType().equals("NEWTYPE"));
     }
 }

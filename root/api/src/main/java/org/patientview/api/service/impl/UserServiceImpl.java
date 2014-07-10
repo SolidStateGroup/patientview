@@ -1,7 +1,6 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.hibernate.exception.ConstraintViolationException;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.UserService;
@@ -21,7 +20,6 @@ import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -179,7 +177,7 @@ public class UserServiceImpl implements UserService {
 
     public List<Feature> getUserFeatures(Long userId) {
         User user = userRepository.getOne(userId);
-        return Util.iterableToList(Util.iterableToList(featureRepository.getFeaturesByUser(user)));
+        return Util.iterableToList(Util.iterableToList(featureRepository.findByUser(user)));
     }
 
     public User updatePassword(Long userId, String password) {
