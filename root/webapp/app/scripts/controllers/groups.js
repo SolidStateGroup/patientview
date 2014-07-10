@@ -202,92 +202,95 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     };
 
     // Group opened for edit or stats
-    $scope.opened = function (openedGroup, $event) {
+    $scope.opened = function (openedGroup, $event, status) {
 
-        $scope.editGroup = '';
+        // do not load if already opened (status.open == true)
+        if (!status || status.open === false) {
+            $scope.editGroup = '';
 
-        // handle statistics click
-        if ($event.target.className.indexOf('statistics-button') !== -1) {
-            $scope.statistics = "stats";
-        } else {
-            // now using lightweight group list, do GET on id to get full group and populate editGroup
-            GroupService.get(openedGroup.id).then(function(group){
+            // handle statistics click
+            if ($event.target.className.indexOf('statistics-button') !== -1) {
+                $scope.statistics = "stats";
+            } else {
+                // now using lightweight group list, do GET on id to get full group and populate editGroup
+                GroupService.get(openedGroup.id).then(function (group) {
 
-                var i = 0, j = 0;
-                $scope.statistics = '';
-                $scope.successMessage = '';
-                group.groupTypeId = group.groupType.id;
+                    var i = 0, j = 0;
+                    $scope.statistics = '';
+                    $scope.successMessage = '';
+                    group.groupTypeId = group.groupType.id;
 
-                // if child/parent groups are empty arrays, set to []
-                if (!group.childGroups) {
-                    group.childGroups = [];
-                }
-                if (!group.parentGroups) {
-                    group.parentGroups = [];
-                }
+                    // if child/parent groups are empty arrays, set to []
+                    if (!group.childGroups) {
+                        group.childGroups = [];
+                    }
+                    if (!group.parentGroups) {
+                        group.parentGroups = [];
+                    }
 
-                // set up groupTypesArray for use when showing/hiding parent/child group blocks for UNIT or SPECIALTY
-                $scope.groupTypesArray = [];
-                for (i = 0; i < $scope.groupTypes.length; i++) {
-                    $scope.groupTypesArray[$scope.groupTypes[i].value] = $scope.groupTypes[i].id;
-                }
+                    // set up groupTypesArray for use when showing/hiding parent/child group blocks for UNIT or SPECIALTY
+                    $scope.groupTypesArray = [];
+                    for (i = 0; i < $scope.groupTypes.length; i++) {
+                        $scope.groupTypesArray[$scope.groupTypes[i].value] = $scope.groupTypes[i].id;
+                    }
 
-                // set up parent/child groups, remove current group from list of available parent/child groups
-                group.availableParentGroups = _.clone($scope.allParentGroups);
-                group.availableChildGroups = _.clone($scope.allChildGroups);
+                    // set up parent/child groups, remove current group from list of available parent/child groups
+                    group.availableParentGroups = _.clone($scope.allParentGroups);
+                    group.availableChildGroups = _.clone($scope.allChildGroups);
 
-                // remove existing parent groups and self from available
-                if (group.parentGroups && group.parentGroups.length > 0) {
-                    for (i = 0; i < group.parentGroups.length; i++) {
-                        for (j = 0; j < group.availableParentGroups.length; j++) {
-                            if (group.parentGroups[i].id === group.availableParentGroups[j].id) {
-                                group.availableParentGroups.splice(j, 1);
+                    // remove existing parent groups and self from available
+                    if (group.parentGroups && group.parentGroups.length > 0) {
+                        for (i = 0; i < group.parentGroups.length; i++) {
+                            for (j = 0; j < group.availableParentGroups.length; j++) {
+                                if (group.parentGroups[i].id === group.availableParentGroups[j].id) {
+                                    group.availableParentGroups.splice(j, 1);
+                                }
                             }
                         }
                     }
-                }
-                for (i = 0; i < group.availableParentGroups.length; i++) {
-                    if (group.availableParentGroups[i].id === group.id) {
-                        group.availableParentGroups.splice(i, 1);
+                    for (i = 0; i < group.availableParentGroups.length; i++) {
+                        if (group.availableParentGroups[i].id === group.id) {
+                            group.availableParentGroups.splice(i, 1);
+                        }
                     }
-                }
 
-                // remove existing child groups and self from available
-                if (group.childGroups && group.childGroups.length > 0) {
-                    for (i = 0; i < group.childGroups.length; i++) {
-                        for (j = 0; j < group.availableChildGroups.length; j++) {
-                            if (group.childGroups[i].id === group.availableChildGroups[j].id) {
-                                group.availableChildGroups.splice(j, 1);
+                    // remove existing child groups and self from available
+                    if (group.childGroups && group.childGroups.length > 0) {
+                        for (i = 0; i < group.childGroups.length; i++) {
+                            for (j = 0; j < group.availableChildGroups.length; j++) {
+                                if (group.childGroups[i].id === group.availableChildGroups[j].id) {
+                                    group.availableChildGroups.splice(j, 1);
+                                }
                             }
                         }
                     }
-                }
-                for (i = 0; i < group.availableChildGroups.length; i++) {
-                    if (group.availableChildGroups[i].id === group.id) {
-                        group.availableChildGroups.splice(i, 1);
-                    }
-                }
-
-                // create list of available features (all - groups)
-                group.availableFeatures = _.clone($scope.allFeatures);
-                if (group.groupFeatures) {
-                    for (i = 0; i < group.groupFeatures.length; i++) {
-                        for (j = 0; j < group.availableFeatures.length; j++) {
-                            if (group.groupFeatures[i].feature.id === group.availableFeatures[j].feature.id) {
-                                group.availableFeatures.splice(j, 1);
-                            }
+                    for (i = 0; i < group.availableChildGroups.length; i++) {
+                        if (group.availableChildGroups[i].id === group.id) {
+                            group.availableChildGroups.splice(i, 1);
                         }
                     }
-                } else {
-                    group.groupFeatures = [];
-                }
 
-                $scope.editGroup = _.clone(group);
+                    // create list of available features (all - groups)
+                    group.availableFeatures = _.clone($scope.allFeatures);
+                    if (group.groupFeatures) {
+                        for (i = 0; i < group.groupFeatures.length; i++) {
+                            for (j = 0; j < group.availableFeatures.length; j++) {
+                                if (group.groupFeatures[i].feature.id === group.availableFeatures[j].feature.id) {
+                                    group.availableFeatures.splice(j, 1);
+                                }
+                            }
+                        }
+                    } else {
+                        group.groupFeatures = [];
+                    }
 
-                if ($scope.editGroup.availableFeatures[0]) {
-                    $scope.featureToAdd = $scope.editGroup.availableFeatures[0].feature.id;
-                }
-            });
+                    $scope.editGroup = _.clone(group);
+
+                    if ($scope.editGroup.availableFeatures[0]) {
+                        $scope.featureToAdd = $scope.editGroup.availableFeatures[0].feature.id;
+                    }
+                });
+            }
         }
     };
 
