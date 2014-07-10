@@ -89,29 +89,12 @@ public class UserController extends BaseController {
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user,
-                                           @RequestParam(value = "resetPassword", required = false) Boolean resetPassword,
                                            @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword,
                                                    UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.getUser(1L));
-
-        // todo: refactor      
-        if (resetPassword != null && resetPassword.equals(Boolean.TRUE)) {
-            try {
-                user = userService.createUserResetPassword(user);
-            }
-            catch (EntityExistsException eee) {
-                User foundUser = userService.getByUsername(user.getUsername());
-                if (foundUser != null) {
-                    // found by username
-                    return new ResponseEntity<User>(foundUser, HttpStatus.CONFLICT);
-                } else {
-                    // found by email
-                    return new ResponseEntity<User>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
-                }
-            }
-        }
+        // Migration Only
 
         if (encryptPassword != null && encryptPassword.equals(Boolean.FALSE)) {
             try {
@@ -128,7 +111,7 @@ public class UserController extends BaseController {
                 }
             }
         }
-        if (user.getId() != null) {
+        if (user.getId() == null) {
             try {
 
                 user = userService.createUserWithPasswordEncryption(user);
