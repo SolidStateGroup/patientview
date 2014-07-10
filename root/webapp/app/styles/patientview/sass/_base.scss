@@ -1,0 +1,135 @@
+body {
+    background: $background;
+    color: $textdefault;
+    margin-top: 20px;
+}
+
+.page-content {
+    padding-bottom: 60px;
+}
+
+.panel-header {
+    padding: 10px;
+}
+
+.content-panel {
+    background: $white;
+    @include bootstrap-border-radius(4px);
+    @include bootstrap-box-shadow($content-panel);
+    overflow: hidden;
+
+    &.lowlight {
+        background: $lowlight;
+    }
+
+    .content-inner {
+        padding: 10px;
+    }
+
+    .panel-footer {
+        background: $lowlight;
+        border-top: 1px solid $border-default;
+        width: 100%;
+        padding: 0 0 15px 0;
+    }
+}
+
+.panel-header {
+    margin-bottom: 20px;
+}
+
+/** lists **/
+
+ul {
+    .news-item {
+        margin-bottom: 5px;
+    }
+}
+
+/** hero pane **/
+
+.hero-panel {
+    background: url('../../../images/hero-bg.png') 0 0 no-repeat;
+    background-size: cover;
+    width: 100%;
+    height: 430px;
+    margin-top: 20px;
+
+    .hero-pane {
+        height: 100%;
+        color: $white;
+
+        &.aquamarine {
+            @include bootstrap-color-opacity($aquamarine, 70);
+        }
+
+        &.aqua {
+            @include bootstrap-color-opacity($aqua, 70);
+        }
+
+        &.blue {
+            @include bootstrap-color-opacity($primary, 70);
+        }
+    }
+}
+
+/** buttons **/
+
+.btn {
+    @include bootstrap-border-radius(4px);
+    color: $white;
+    font-size: 1.5rem;
+
+    &:hover {
+        color: $white;
+    }
+}
+
+/** generic color styles **/
+
+.blue {
+    background-color: $primary;
+}
+.aquamarine {
+    background-color: $aquamarine;
+}
+.negative {
+    background-color: $error;
+}
+
+/** temporary icons stuff **/
+
+.hero-icon {
+    display: block;
+    margin: 0 auto;
+}
+
+i.icon-hero-manage {
+    background: url('../../../images/icons/hero-manage.png') 0 0 no-repeat;
+    height: 145px;
+    width: 145px;
+}
+
+i.icon-hero-monitor {
+    background: url('../../../images/icons/hero-monitor.png') 0 0 no-repeat;
+    height: 145px;
+    width: 145px;
+}
+
+i.icon-hero-make {
+    background: url('../../../images/icons/hero-make.png') 0 0 no-repeat;
+    height: 145px;
+    width: 145px;
+}
+
+i.icon-search-black{
+    background: url('../../../images/icons/search-black.png') 0 0 no-repeat;
+    height: 36px;
+    width: 36px;
+}
+
+i.icon-account{
+    background: url('../../../images/icons/account.png') 0 0 no-repeat;
+    height: 32px;
+    width: 32px;
+}

@@ -1,0 +1,112 @@
+.navbar-default {
+    border: none;
+    height:70px;
+
+    .nav-account{
+        height:70px;
+        background:$aqua;
+        margin-right:-15px;
+        padding:16px 10px 10px;
+
+        i{
+            margin-right:20px;
+        }
+
+        h4{
+            color:$white;
+            font-weight:normal;
+            margin:0;
+            width:220px;
+        }
+
+        .navbar-nav {
+            li {
+                a {
+                    text-decoration: underline;
+                    color:$textsecondary;
+                    font-size: 1.5rem;
+                    font-weight: normal;
+                    padding:0 5px;
+
+                    &:hover, &:active {
+                        color: $white;
+                    }
+
+                    &:first-child{
+                        padding-left:0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.secondary-nav {
+    li {
+        margin-left: 0;
+
+        &:first-child {
+            a {
+                border-left: none;
+            }
+        }
+
+        a {
+            border-left: 1px solid $border-default;
+            color: $light-grey;
+            font-size: 1.5rem;
+            @include bootstrap-border-radius(0);
+
+            &:hover {
+                background: $highlight-nav;
+                color: $primary;
+            }
+        }
+    }
+}
+
+.nav-pills.secondary-nav li {
+    margin-left: 0;
+}
+
+
+.footer{
+    background: $white;
+    height: 50px;
+
+    .brand{
+        @include bootstrap-opacity(50);
+        float:left;
+        width:300px;
+        line-height:40px;
+
+        img{
+            height:50%;
+            width:50%;
+        }
+    }
+
+    .legal-links{
+        li{
+            line-height:40px;
+            padding:0 10px;
+            font-size:1.75rem;
+            color:$light-grey;
+
+            a{
+                font-size:1.75rem;
+                color:$light-grey;
+
+                &:hover{
+                    color:$primary;
+                }
+            }
+
+        }
+    }
+
+    p{
+        font-size:1.75rem;
+        color:$light-grey;
+    }
+}

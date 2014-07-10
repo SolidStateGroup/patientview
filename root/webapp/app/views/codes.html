@@ -4,7 +4,7 @@
     document.createElement('accordion-heading');
 </script>-->
 <div class="page-content" ng-show="!loading" ng-cloak>
-    <h1>Codes</h1>
+    <h1>Codes <button class="btn blue" ng-click="openModalNewCode('lg')">Create New</button></h1>
 
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
@@ -38,11 +38,10 @@
             <button class="btn btn-primary" ng-click="ok()" ng-disabled="!codeForm.$valid">Create New</button>
         </div>
     </script>
-    <button class="btn btn-primary" ng-click="openModalNewCode('lg')">Create New</button>
 
     <!-- Filter -->
     <div class="content-panel filter-panel">
-        <div class="content-inner">
+        <div class="">
             <div class=" hidden">PageSize:
                 <select data-ng-model="entryLimit" class="form-control">
                     <option>1</option>
@@ -52,10 +51,8 @@
                 </select>
             </div>
             <div class="search-container">
-                <div class="left-inner-addon ">
-                    <i class="glyphicon glyphicon-search"></i>
-                    <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
-                </div>
+                <i class="icon-search-black"></i>
+                <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
             </div>
         </div>
         <div class="panel-footer clearfix">
@@ -66,27 +63,23 @@
                 </div>
                 <div class="form-horizontal" role="form">
                     <div class="select-container pull-left">
-                        <div class="">
-                            <div class="btn-group" id="filter-code-type" data-ng-class="{open: open1}">
-                                <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Code Type <span class="caret"></span></button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                                    <li><a data-ng-click="selectedCodeType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
-                                    <li class="divider"></li>
-                                    <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
-                                </ul>
-                            </div>
+                        <div class="btn-group" id="filter-code-type" data-ng-class="{open: open1}">
+                            <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Code Type <span class="caret-container"><span class="caret"></span></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li><a data-ng-click="selectedCodeType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
+                            </ul>
                         </div>
                     </div>
                     <div class="select-container pull-left">
-                        <div class="col-sm-12">
-                            <div class="btn-group" id="filter-standard-type" data-ng-class="{open: open2}">
-                                <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Standard Type <span class="caret"></span></button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                                    <li><a data-ng-click="selectedStandardType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
-                                    <li class="divider"></li>
-                                    <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
-                                </ul>
-                            </div>
+                        <div class="btn-group" id="filter-standard-type" data-ng-class="{open: open2}">
+                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Standard Type <span class="caret-container"><span class="caret"></span></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li><a data-ng-click="selectedStandardType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -96,7 +89,7 @@
 
 
     <!-- data grid -->
-    <div class="faux-table" data-ng-show="filtered.length  > 0">
+    <div class="faux-table five-col" data-ng-show="filtered.length  > 0">
         <!-- header -->
         <span class="hidden" ng-repeat="data in filtered = (list | codeTypeFilter:selectedCodeType | standardTypeFilter:selectedStandardType | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
         <div class="accordion-title-row table-head" ng-show="filtered.length > 0" ng-cloak>
@@ -105,31 +98,47 @@
             <div class="head-item accordion-title-text "><a ng-click="sortBy('type');" class="sort-title">Type&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
             <div class="head-item accordion-title-text "><a ng-click="sortBy('standard');" class="sort-title">Standard&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
             <div class="head-item accordion-title-text "><a ng-click="sortBy('description');" class="sort-title">Description&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+            <div class="head-item accordion-title-text "><a class="sort-title">Actions</a></div>
         </div>
 
         <!-- body -->
         <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
             <div accordion-group class="accordion-group" is-open="status.open" ng-repeat="code in filtered = (list | codeTypeFilter:selectedCodeType | standardTypeFilter:selectedStandardType | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                 <div accordion-heading class="accordion-heading">
-                    <div class="row" ng-click="opened(code, $event)">
-                        <div class="col-sm-1 hidden">{{code.id}}</div>
-                        <div class="col-sm-2 accordion-heading-text">{{code.code}}</div>
-                        <div class="col-sm-2 accordion-heading-text">{{code.codeType.value}}</div>
-                        <div class="col-sm-2 accordion-heading-text">{{code.standardType.value}}</div>
-                        <div class="col-sm-2 accordion-heading-text">{{code.description}}</div>
-                        <div class="col-sm-4">
+                    <div class="faux-row" ng-click="opened(code, $event)">
+                        <div class="row-item hidden">{{code.id}}</div>
+                        <div class="row-item accordion-heading-text">{{code.code}}</div>
+                        <div class="row-item accordion-heading-text">{{code.codeType.value}}</div>
+                        <div class="row-item accordion-heading-text">{{code.standardType.value}}</div>
+                        <div class="row-item accordion-heading-text">{{code.description}}</div>
+                        <div class="row-item">
 
                             <!-- Edit, Actions dropdown buttons -->
-                            <div class="btn-group pull-right">
-                                <button type="button" class="btn btn-danger pull-right" ng-click="delete(code.id, $event)">
-                                    <span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Delete
-                                </button>
-                                <button type="button" class="btn btn-primary pull-right" ng-click="clone(code.id, $event)">
-                                    <span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Copy
-                                </button>
-                                <button type="button" class="btn btn-primary pull-right">
-                                    <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit
-                                </button>
+                            <div class="btn-group">
+                                <button type="button" class="btn blue">Edit</button>
+                                <button type="button" class="btn aquamarine" ng-click="clone(code.id, $event)">Copy</button>
+                                <button type="button" class="btn negative" ng-click="delete(code.id, $event)">Delete</button>
+
+                            </div>
+                            <!--<div class="button-dropdown-group">-->
+                                <!--<button type="button" class="btn blue pull-left">-->
+                                    <!--<span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit-->
+                                <!--</button>-->
+                                <!--<div class="dropdown pull-left">-->
+                                    <!--<button class="btn blue dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">-->
+                                        <!--<span class="caret"></span>-->
+                                    <!--</button>-->
+                                    <!--<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">-->
+                                        <!--<li role="presentation">                                <button type="button" class="btn btn-danger" ng-click="delete(code.id, $event)">-->
+                                            <!--<span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Delete-->
+                                        <!--</button></li>-->
+                                        <!--<li role="presentation">-->
+                                            <!--<button type="button" class="btn btn-primary" ng-click="clone(code.id, $event)">-->
+                                            <!--<span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Copy-->
+                                        <!--</button>-->
+                                        <!--</li>-->
+                                    <!--</ul>-->
+                                <!--</div>-->
                             </div>
 
                         </div>
@@ -137,13 +146,13 @@
                 </div accordion-heading>
 
                 <!-- edit pane -->
-                <form name="codeForm">
+                <form name="codeForm" class="edit-code">
                     <div ng-include src="'views/partials/codeDetails.html'" ng-controller="CodeDetailsCtrl"></div>
                 </form>
                 <hr>
                 <div class="code-save-cancel pull-right">
                     <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                    <button type="button" class="btn btn-primary" ng-click="save(codeForm, editCode)" ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
+                    <button type="button" class="btn blue" ng-click="save(codeForm, editCode)" ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
                 </div>
 
             </div accordion-group>
