@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -28,15 +29,12 @@ public class Feature extends RangeModel {
     @OneToMany(mappedBy = "feature")
     private Set<Route> routes;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "feature")
     private Set<UserFeature> userFeatures;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "feature")
     private Set<GroupFeature> groupFeatures;
 
-    @JsonIgnore
     @ManyToMany
     @JoinTable(name="PV_Feature_Feature_Type",
             joinColumns = @JoinColumn(name="Feature_Id", referencedColumnName="Id"),
@@ -59,6 +57,7 @@ public class Feature extends RangeModel {
         this.description = description;
     }
 
+    @JsonIgnore
     public Set<Route> getRoutes() {
         return routes;
     }
@@ -67,6 +66,7 @@ public class Feature extends RangeModel {
         this.routes = routes;
     }
 
+    @JsonIgnore
     public Set<UserFeature> getUserFeatures() {
         return userFeatures;
     }
@@ -75,6 +75,7 @@ public class Feature extends RangeModel {
         this.userFeatures = userFeatures;
     }
 
+    @JsonIgnore
     public Set<GroupFeature> getGroupFeatures() {
         return groupFeatures;
     }
@@ -83,6 +84,7 @@ public class Feature extends RangeModel {
         this.groupFeatures = groupFeatures;
     }
 
+    @JsonIgnore
     public Set<Lookup> getFeatureTypes() {
         return featureTypes;
     }

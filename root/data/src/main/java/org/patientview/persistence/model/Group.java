@@ -2,7 +2,6 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -41,7 +40,7 @@ public class Group extends AuditModel {
     @JoinColumn(name = "type_id")
     private Lookup groupType;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<GroupFeature> groupFeatures;
 
     @OneToMany(mappedBy = "group")
@@ -50,10 +49,10 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group")
     private Set<Route> routes;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<Link> links;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<Location> locations;
 
     @Transient
@@ -105,7 +104,6 @@ public class Group extends AuditModel {
         this.groupType = groupType;
     }
 
-    @JsonIgnore
     public Set<GroupFeature> getGroupFeatures() {
         return groupFeatures;
     }

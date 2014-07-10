@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -84,29 +85,23 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             role = adminDataMigrationService.getRoleByName("UNIT_STAFF");
                         }
 
-                        GroupRole userGroup = new GroupRole();
+ ;
                         Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
                         if (group == null) {
                             LOG.error("Could not find group for unit code {}", userMapping.getUnitcode());
                             continue;
                         }
-                        userGroup.setGroup(group);
-                        userGroup.setRole(role);
-                        newUser.getGroupRoles().add(userGroup);
-
-                        //TODO make private methods
-                        userGroup = new GroupRole();
-                        group = adminDataMigrationService.getGroupByCode("GENERIC");
-                        if (group == null) {
-                            LOG.error("Could not find group for unit code {}", userMapping.getUnitcode());
-                            continue;
-                        }
-                        userGroup.setGroup(group);
-                        userGroup.setRole(role);
-                        newUser.getGroupRoles().add(userGroup);
-
-
+                        addGroupRole(newUser, group, role);
                     }
+
+                    // Add the generic group
+                    Group group = adminDataMigrationService.getGroupByCode("GENERIC");
+                    if (group == null) {
+                        LOG.error("Could not find group for code {}", "GENERIC");
+                        continue;
+                    }
+
+                    addGroupRole(newUser, group, role);
 
                 }
 
@@ -139,14 +134,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
 
-                    if (newUser.getGroupRoles() == null) {
-                        newUser.setGroupRoles(new HashSet<GroupRole>());
-                    }
+                    Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
+                    Role role = adminDataMigrationService.getRoleByName("PATIENT");
 
-                    GroupRole userGroup = new GroupRole();
-                    userGroup.setGroup(adminDataMigrationService.getGroupByCode(userMapping.getUnitcode()));
-                    userGroup.setRole(adminDataMigrationService.getRoleByName("PATIENT"));
-                    newUser.getGroupRoles().add(userGroup);
+
+                    addGroupRole(newUser, group, role);
                 }
 
             }
@@ -167,8 +159,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         }
 
+    }
 
-
+    private User addGroupRole(User user,Group group, Role role) {
+        if (CollectionUtils.isEmpty(user.getGroupRoles())) {
+            user.setGroupRoles(new HashSet<GroupRole>());
+        }
+        GroupRole userGroup = new GroupRole();
+        userGroup.setGroup(group);
+        userGroup.setRole(role);
+        user.getGroupRoles().add(userGroup);
+        return user;
     }
 
     public User createUser(org.patientview.patientview.model.User user) {

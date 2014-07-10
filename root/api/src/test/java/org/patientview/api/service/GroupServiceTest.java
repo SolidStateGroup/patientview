@@ -19,6 +19,7 @@ import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LinkRepository;
+import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -59,6 +60,9 @@ public class GroupServiceTest {
 
     @Mock
     private LinkRepository linkRepository;
+
+    @Mock
+    private LocationRepository locationRepository;
 
     @Mock
     private EntityManager entityManager;
