@@ -1,6 +1,5 @@
 package org.patientview.api.service;
 
-import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
@@ -18,11 +17,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface AdminService {
 
-    Group getGroup(Long groupId);
-
     GroupFeature addGroupFeature(Long groupId, Long featureId);
-
-    List<Group> getAllGroups();
 
     List<Role> getAllRoles();
 

@@ -14,6 +14,8 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupService {
 
+    Group findOne(Long id);
+
     List<Group> findAll();
 
     List<Group> findGroupByUser(User user);
@@ -23,4 +25,5 @@ public interface GroupService {
     Group save(Group group);
 
     Group create(Group group);
+
 }

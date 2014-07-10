@@ -81,6 +81,10 @@ public class GroupServiceImpl implements GroupService {
 
     }
 
+    public Group findOne(Long id) {
+        return addSingleParentAndChildGroup(groupRepository.findOne(id));
+    }
+
     public List<Group> findGroupByUser(User user) {
 
         List<Group> groups = Util.iterableToList(groupRepository.findGroupByUser(user));
