@@ -20,6 +20,8 @@ public interface GroupService {
 
     List<Group> findGroupByUser(User user);
 
+    List<Group> findGroupAndChildGroupsByUser(User user);
+
     List<Group> findGroupByType(Long lookupId);
 
     Group save(Group group);

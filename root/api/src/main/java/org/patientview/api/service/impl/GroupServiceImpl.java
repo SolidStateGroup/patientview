@@ -26,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -91,6 +92,24 @@ public class GroupServiceImpl implements GroupService {
 
         return addParentAndChildGroups(groups);
 
+    }
+
+    public List<Group> findGroupAndChildGroupsByUser(User user) {
+
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue("RELATIONSHIP_TYPE", "CHILD");
+        Set<Group> groups = new HashSet<Group>();
+        // get list of groups associated with user directly (user is member of group)
+        groups.addAll(Util.iterableToList(groupRepository.findGroupByUser(user)));
+        // for each group get list of children if present
+        for (Group group : groups) {
+            for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
+                if (groupRelationship.getLookup().equals(childRelationshipType)) {
+                    groups.add(groupRelationship.getObjectGroup());
+                }
+            }
+        }
+
+        return addParentAndChildGroups(new ArrayList<Group>(groups));
     }
 
     public List<Group> findGroupByType(Long lookupId) {
