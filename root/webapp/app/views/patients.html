@@ -13,10 +13,10 @@
                 <h3 class="modal-title" ng-show="existingUser">Existing Patient User</h3>
             </div>
             <div class="modal-body">
-                <form name="userForm" ng-show="!existingUser">
-                    <div ng-include src="'views/partials/patientDetails.html'" ng-controller="PatientDetailsCtrl"></div>
+                <form name="userFormNew" ng-show="!existingUser">
+                    <div ng-include src="'views/partials/patientDetailsNew.html'" ng-controller="PatientDetailsCtrl"></div>
                 </form>
-                <form name="userForm" ng-show="existingUser">
+                <form name="userFormExisting" ng-show="existingUser">
                     <div ng-include src="'views/partials/patientDetailsExisting.html'" ng-controller="PatientDetailsCtrl"></div>
                 </form>
             </div>
@@ -24,8 +24,8 @@
                 <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
-                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
+                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userFormExisting.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
         <button class="btn btn-primary" ng-click="openModalNewPatient('lg')">Create New</button>
@@ -182,4 +182,4 @@
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
+<div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
