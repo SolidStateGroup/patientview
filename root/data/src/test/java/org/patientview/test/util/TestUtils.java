@@ -72,6 +72,7 @@ public final class TestUtils {
         group.setCreated(new Date());
         group.setCreator(creator);
         group.setVisible(true);
+        group.setVisibleToJoin(true);
         return group;
     }
 

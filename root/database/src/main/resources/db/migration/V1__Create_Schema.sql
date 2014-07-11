@@ -53,6 +53,7 @@ CREATE TABLE PV_Group
   Parent_Group_Id  BIGINT,
   Fhir_Resource_Id UUID,
   Visible          BOOLEAN,
+  Visible_To_Join  BOOLEAN,
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,

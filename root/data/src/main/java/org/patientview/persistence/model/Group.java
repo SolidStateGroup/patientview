@@ -36,6 +36,9 @@ public class Group extends AuditModel {
     @Column(name = "visible")
     private Boolean visible;
 
+    @Column(name = "visible_to_join")
+    private Boolean visibleToJoin;
+
     @OneToOne
     @JoinColumn(name = "type_id")
     private Lookup groupType;
@@ -177,5 +180,13 @@ public class Group extends AuditModel {
 
     public void setVisible(final Boolean visible) {
         this.visible = visible;
+    }
+
+    public Boolean getVisibleToJoin() {
+        return visibleToJoin;
+    }
+
+    public void setVisibleToJoin(Boolean visibleToJoin) {
+        this.visibleToJoin = visibleToJoin;
     }
 }
