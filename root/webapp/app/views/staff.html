@@ -3,7 +3,6 @@
 <div class="container" ng-show="!loading" ng-cloak>
     <h1>Staff</h1>
 
-    <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage" ng-cloak>
@@ -109,6 +108,8 @@
                 <h5>Showing {{ filtered.length }} of {{ list.length }} total</h5>
             </div>
         </div>
+
+        <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
         <br/>

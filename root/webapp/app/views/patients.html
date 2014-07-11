@@ -3,7 +3,6 @@
 <div class="container" ng-show="!loading" ng-cloak>
     <h1>Patient</h1>
 
-    <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage" ng-cloak>
@@ -72,7 +71,7 @@
         <br/>
         <div class="row">
             <!-- filter by role -->
-            <div class="col-md-2">
+            <div class="col-md-2 hidden">
                 <div class="form-horizontal" role="form">
                     <div class="form-group">
                         <div class="col-sm-12">
@@ -109,6 +108,8 @@
                 <h5>Showing {{ filtered.length }} of {{ list.length }} total</h5>
             </div>
         </div>
+
+        <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
         <br/>
