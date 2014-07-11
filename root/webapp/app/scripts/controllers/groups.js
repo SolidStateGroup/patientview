@@ -18,6 +18,13 @@ function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup
     $scope.allFeatures = allFeatures;
     var i;
 
+    // restrict all but SUPER_ADMIN from adding new SPECIALTY type groups by reducing groupTypes
+    for (i = 0; i < $scope.groupTypes.length; i++) {
+        if (!$scope.permissions.isSuperAdmin && $scope.groupTypes[i].value === 'SPECIALTY') {
+            $scope.groupTypes.splice(i, 1);
+        }
+    }
+
     // set up groupTypesArray for use when showing/hiding parent/child group blocks for UNIT or SPECIALTY
     $scope.groupTypesArray = [];
     for (i = 0; i < $scope.groupTypes.length; i++) {
@@ -72,9 +79,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             // SPECIALTY_ADMIN can only edit their specialty and add relationships so allowedRelationshipGroups is just a
             // list of all available units found from getUnitGroups which is $scope.AllUnits
             // all other users cannot add parents/children so allowedRelationshipGroups is an empty array
-            if ($scope.isSuperAdmin) {
+            if ($scope.permissions.isSuperAdmin) {
                 $scope.allowedRelationshipGroups = groups;
-            } else if ($scope.isSpecialtyAdmin) {
+            } else if ($scope.permissions.isSpecialtyAdmin) {
                 // add all units
                 $scope.allowedRelationshipGroups = $scope.allUnits;
                 // add specialty groups associated with user
@@ -114,12 +121,30 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.loading = true;
         $scope.allUnits = [];
 
+        // TODO: set permissions for ui, hard coded to check if user has SUPER_ADMIN, SPECIALTY_ADMIN role anywhere, if so can do:
+        // add SPECIALTY groups
+        // edit group code
+        // edit parents groups (SUPER_ADMIN only)
+        // edit child groups
+        // edit features
+        // create group
+        $scope.permissions = {};
+
         // check if user is SUPER_ADMIN or SPECIALTY_ADMIN
-        $scope.isSuperAdmin = UserService.checkRoleExists('SUPER_ADMIN', $scope.loggedInUser);
-        $scope.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('SUPER_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+
+        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
+            $scope.permissions.canEditGroupCode = true;
+            $scope.permissions.canEditChildGroups = true;
+            $scope.permissions.canEditFeatures = true;
+            $scope.permissions.canCreateGroup = true;
+            $scope.permissions.canEditParentGroups = true;
+        }
+        console.log($scope.permissions);
 
         // get all units if SPECIALTY_ADMIN, used when setting allowed groups for parent/child relationships
-        if ($scope.isSpecialtyAdmin) {
+        if ($scope.permissions.isSpecialtyAdmin) {
             StaticDataService.getLookupByTypeAndValue('GROUP','UNIT').then(function(lookup){
                 GroupService.getAllByType(lookup.id).then(function(units) {
                     $scope.allUnits = units;
@@ -132,39 +157,31 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.getGroups();
         }
 
-        // TODO: set permissions for ui, hard coded to check if user has SUPER_ADMIN, SPECIALTY_ADMIN role anywhere, if so can do:
-        // add SPECIALTY groups
-        // edit group code
-        // edit parents groups (SUPER_ADMIN only)
-        // edit child groups
-        // edit features
-        // create group
-        $scope.permissions = {};
-
-        if ($scope.isSuperAdmin || $scope.isSpecialtyAdmin) {
-            $scope.permissions.canEditGroupCode = true;
-            $scope.permissions.canEditChildGroups = true;
-            $scope.permissions.canEditFeatures = true;
-            $scope.permissions.canCreateGroup = true;
-            $scope.permissions.canEditParentGroups = true;
-        }
-
-        // set allowed group types, used when filtering and adding groups
+        // set allowed group types (when adding/editing groups)
         $scope.groupTypes = [];
+        // set allowed filter group types (when filtering by group type)
+        $scope.filterGroupTypes = [];
+
         StaticDataService.getLookupsByType('GROUP').then(function(groupTypes) {
             if (groupTypes.length > 0) {
                 var allowedGroupTypes = [];
+                var allowedFilterGroupTypes = [];
 
                 for (i=0;i<groupTypes.length;i++) {
                     if (groupTypes[i].value === 'SPECIALTY') {
-                        if ($scope.isSuperAdmin || $scope.isSpecialtyAdmin) {
+                        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
                             allowedGroupTypes.push(groupTypes[i]);
+                        }
+                        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
+                            allowedFilterGroupTypes.push(groupTypes[i]);
                         }
                     } else {
                         allowedGroupTypes.push(groupTypes[i]);
+                        allowedFilterGroupTypes.push(groupTypes[i]);
                     }
                 }
                 $scope.groupTypes = allowedGroupTypes;
+                $scope.filterGroupTypes = allowedFilterGroupTypes;
             }
             delete $scope.loading;
         });
@@ -216,7 +233,6 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         // do not load if already opened (status.open == true)
         if (!status || status.open === false) {
             $scope.editGroup = '';
-
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             GroupService.get(openedGroup.id).then(function (group) {
