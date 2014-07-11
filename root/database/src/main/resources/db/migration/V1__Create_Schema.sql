@@ -82,6 +82,7 @@ CREATE TABLE PV_Role
   Role_Name        VARCHAR(50) NOT NULL UNIQUE,
   Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
   Level            INTEGER   NOT NULL,
+  Visible          BOOLEAN,
   Description      VARCHAR(255),
   Creation_Date    TIMESTAMP   NOT NULL,
   Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
