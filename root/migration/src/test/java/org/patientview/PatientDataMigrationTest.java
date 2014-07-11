@@ -1,6 +1,7 @@
 package org.patientview;
 
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.migration.service.PatientDataMigrationService;
@@ -27,6 +28,7 @@ public class PatientDataMigrationTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testPatientMigration() throws Exception {
         patientDataMigrationService.migrate();
 
