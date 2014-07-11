@@ -92,7 +92,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
 
                             Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
-                            addGroupRole(newUser, group, role);
                             if (newUser.getId() != null && group != null && role != null) {
                                 callApiAddGroupRole(newUser.getId(), group.getId(), role.getId());
                             }
