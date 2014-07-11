@@ -92,10 +92,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
 
                             Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
-                            if (group == null) {
-                                LOG.error("Could not find group for unit code {}", userMapping.getUnitcode());
-                                continue;
-                            }
                             addGroupRole(newUser, group, role);
                             if (newUser.getId() != null && group != null && role != null) {
                                 callApiAddGroupRole(newUser.getId(), group.getId(), role.getId());
@@ -120,7 +116,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         List<Group> groups = getUserSpecialty(user);
         for (Group group : groups) {
             Role role = adminDataMigrationService.getRoleByName("PATIENT");
-            callApiAddGroupRole(newUser.getId(), group.getId(), role.getId());
+            if (newUser != null && group != null && role != null) {
+                callApiAddGroupRole(newUser.getId(), group.getId(), role.getId());
+            }
         }
 
     }
@@ -128,14 +126,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private void callApiAddGroupRole(Long userId, Long groupId, Long roleId) {
         String url = JsonUtil.pvUrl + "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
         try {
-            JsonUtil.jsonRequest(url, null, null, HttpPut.class);
-            LOG.info("Unable ");
+            GroupRole groupRole = JsonUtil.jsonRequest(url, GroupRole.class, null, HttpPut.class);
+            LOG.info("Created group and role for user");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to add user to group");
         } catch (JsonMigrationExistsException jee) {
             LOG.error("Unable to add user to group");
         } catch (Exception e) {
             LOG.error("Unable to add group role");
+            e.printStackTrace();
         }
 
     }

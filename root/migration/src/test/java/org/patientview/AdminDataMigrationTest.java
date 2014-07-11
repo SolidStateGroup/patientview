@@ -28,7 +28,6 @@ public class AdminDataMigrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdminDataMigrationTest.class);
 
-
     @Inject
     private UnitDao unitDao;
 
