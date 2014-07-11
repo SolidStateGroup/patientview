@@ -8,6 +8,7 @@ import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,7 @@ public class AdminDataMigrationTest {
      */
     @Test
     @Transactional
+    @Rollback(false)
     public void testStaticDataMigrationFeatures()  throws Exception {
         LOG.info("Starting migration");
         adminDataMigrationService.migrate();

@@ -5,9 +5,11 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.User;
 import org.patientview.test.util.TestUtils;
@@ -39,6 +41,10 @@ public class UserControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private GroupService groupService;
+
 
     @InjectMocks
     private UserController userController;
@@ -95,6 +101,32 @@ public class UserControllerTest {
         }
 
         verify(userService, Mockito.times(1)).createUserWithPasswordEncryption(any(User.class));
+    }
+
+
+    /**
+     * Test: Adding a GroupRole to a user
+     * Fail: The GroupService method does not get called
+     *
+     * Improve test to verify the correct user is being saved
+     */
+    @Test
+    public void testAddGroupRole()  {
+        Long userId = 1L;
+        Long groupId = 2L;
+        Long roleId = 3L;
+
+        String url = "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.put(url))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            Assert.fail("The put request all should not fail " + e.getCause());
+        }
+
+        verify(groupService, Mockito.times(1)).addGroupRole(Matchers.eq(userId), Matchers.eq(groupId), Matchers.eq(roleId));
     }
 
 
