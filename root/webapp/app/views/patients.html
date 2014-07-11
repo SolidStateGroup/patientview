@@ -13,10 +13,10 @@
                 <h3 class="modal-title" ng-show="existingUser">Existing Patient User</h3>
             </div>
             <div class="modal-body">
-                <form name="userForm" ng-show="!existingUser">
-                    <div ng-include src="'views/partials/patientDetails.html'" ng-controller="PatientDetailsCtrl"></div>
+                <form name="userFormNew" ng-show="!existingUser">
+                    <div ng-include src="'views/partials/patientDetailsNew.html'" ng-controller="PatientDetailsCtrl"></div>
                 </form>
-                <form name="userForm" ng-show="existingUser">
+                <form name="userFormExisting" ng-show="existingUser">
                     <div ng-include src="'views/partials/patientDetailsExisting.html'" ng-controller="PatientDetailsCtrl"></div>
                 </form>
             </div>
@@ -182,4 +182,4 @@
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
+<div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
