@@ -61,7 +61,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
 
                 // We do want the patient group.
-                if (userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
+                if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
 
                     Role patientRole = adminDataMigrationService.getRoleByName("PATIENT");
 
@@ -92,7 +92,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
 
                             Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
-                            if (newUser.getId() != null && group != null && role != null) {
+                            if (newUser != null && newUser.getId() != null && group != null && role != null) {
                                 callApiAddGroupRole(newUser.getId(), group.getId(), role.getId());
                             }
                         }
@@ -152,17 +152,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
 
         return newUser;
-    }
-
-    private User addGroupRole(User user,Group group, Role role) {
-        if (CollectionUtils.isEmpty(user.getGroupRoles())) {
-            user.setGroupRoles(new HashSet<GroupRole>());
-        }
-        GroupRole userGroup = new GroupRole();
-        userGroup.setGroup(group);
-        userGroup.setRole(role);
-        user.getGroupRoles().add(userGroup);
-        return user;
     }
 
     public User createUser(org.patientview.patientview.model.User user) {
