@@ -16,6 +16,7 @@ function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup
     $scope.editGroup = editGroup;
     $scope.groupTypes = groupTypes;
     $scope.allFeatures = allFeatures;
+    $scope.editMode = false;
     var i;
 
     // restrict all but SUPER_ADMIN from adding new SPECIALTY type groups by reducing groupTypes
@@ -141,7 +142,6 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.permissions.canCreateGroup = true;
             $scope.permissions.canEditParentGroups = true;
         }
-        console.log($scope.permissions);
 
         // get all units if SPECIALTY_ADMIN, used when setting allowed groups for parent/child relationships
         if ($scope.permissions.isSpecialtyAdmin) {
@@ -229,6 +229,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
     // Group opened for edit
     $scope.opened = function (openedGroup, $event, status) {
+
+        $scope.editMode = true;
 
         // do not load if already opened (status.open == true)
         if (!status || status.open === false) {
