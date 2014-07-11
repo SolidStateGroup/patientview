@@ -1,6 +1,7 @@
 package org.patientview.migration.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -193,14 +194,16 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         group.setGroupType(getLookupByName("UNIT"));
 
         int i = 0;
-        while (i<10) {
+        while (i < 10) {
             try {
                 group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
+                // Delete the test group once we have successfully created one
+                group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group/" + group.getId(), null, null, HttpDelete.class);
                 break;
             } catch (JsonMigrationException jme) {
-                LOG.error("Unable to create group: ", jme.getMessage());
+                LOG.trace("Unable to create group: ", jme.getMessage());
             } catch (JsonMigrationExistsException jee) {
-                LOG.info("Group {} already exists", group.getName());
+                LOG.trace("Group {} already exists", group.getName());
             }
             i++;
         }

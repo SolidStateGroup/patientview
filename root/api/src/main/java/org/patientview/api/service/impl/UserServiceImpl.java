@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
     // We do this so early one gets the generic group
     private void addUserToGenericGroup(User user) {
         // TODO Sprint 2 make these value configurable
-        Role role = roleRepository.findOne(1L);
+        Role role = roleRepository.findOne(7L);
         Group group = groupRepository.findOne(1L);
 
         GroupRole groupRole = new GroupRole();

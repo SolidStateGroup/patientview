@@ -28,9 +28,6 @@ public class UserDataMigrationTest {
     private UnitDao unitDao;
 
     @Inject
-    private AdminDataMigrationService adminDataMigrationService;
-
-    @Inject
     private UserDataMigrationService userDataMigrationService;
 
     /**
