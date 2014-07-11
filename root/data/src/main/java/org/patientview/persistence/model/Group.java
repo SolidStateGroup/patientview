@@ -27,8 +27,8 @@ public class Group extends AuditModel {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "sftp_user")
+    private String sftpUser;
 
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
@@ -80,12 +80,12 @@ public class Group extends AuditModel {
         this.code = code;
     }
 
-    public String getDescription() {
-        return description;
+    public String getSftpUser() {
+        return sftpUser;
     }
 
-    public void setDescription(final String description) {
-        this.description = description;
+    public void setSftpUser(final String sftpUser) {
+        this.sftpUser = sftpUser;
     }
 
     public UUID getFhirResourceId() {

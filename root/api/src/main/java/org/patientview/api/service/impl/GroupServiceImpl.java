@@ -202,8 +202,7 @@ public class GroupServiceImpl implements GroupService {
 
         entityGroup.setGroupFeatures(Collections.EMPTY_SET);
 
-
-        entityGroup.setDescription(group.getDescription());
+        entityGroup.setSftpUser(group.getSftpUser());
         entityGroup.setName(group.getName());
         entityGroup.setCode(group.getCode());
         entityGroup.setGroupType(group.getGroupType());

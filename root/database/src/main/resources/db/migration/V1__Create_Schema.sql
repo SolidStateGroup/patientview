@@ -48,7 +48,7 @@ CREATE TABLE PV_Group
   Id               BIGINT    NOT NULL,
   Group_Name       VARCHAR(200) UNIQUE,
   Code             VARCHAR(50),
-  Description      VARCHAR(255),
+  Sftp_User        VARCHAR(255),
   Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
   Parent_Group_Id  BIGINT,
   Fhir_Resource_Id UUID,

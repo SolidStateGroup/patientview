@@ -38,10 +38,10 @@ INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (20, now(), 'NHS_NUMBER','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (21, now(), 'CHI_NUMBER','1','8');
 
-INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', 'The PatientView Specialty', 2, false, now(),1 );
-INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (2, 'Renal', 'Renal', 'The Renal Specialty', 2, true, now(),1 );
-INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (3, 'Diabetes', 'Diabetes', 'The Diabetes Specialty', 2, true, now(), 1);
-INSERT INTO pv_group(id, Group_Name, Code, Description,Type_Id, Visible, Creation_Date,Created_By) VALUES (4, 'IBD', 'IBD', 'The Inflammatory Bowel Disease Specialty', 2, true, now(), 1);
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User,Type_Id, Visible, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', 'sftpuser1', 2, false, now(),1 );
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User,Type_Id, Visible, Creation_Date,Created_By) VALUES (2, 'Renal', 'Renal', 'sftpuser2', 2, true, now(),1 );
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User,Type_Id, Visible, Creation_Date,Created_By) VALUES (3, 'Diabetes', 'Diabetes', 'sftpuser3', 2, true, now(), 1);
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User,Type_Id, Visible, Creation_Date,Created_By) VALUES (4, 'IBD', 'IBD', 'sftpuser4', 2, true, now(), 1);
 
 INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '2', 'A standard patient user', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '4', 'A unit administrator', now(), '1');

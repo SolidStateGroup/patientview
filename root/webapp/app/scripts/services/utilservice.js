@@ -23,7 +23,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             var fields = [];
             fields.user = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures', 'verified', 'verificationCode', 'identifiers'];
             fields.role = ['id','name','description','routes'];
-            fields.group = ['id','name','code','description','groupType','groupFeatures','routes','links','locations','childGroups','parentGroups','children','parents','visible'];
+            fields.group = ['id','name','code','sftpUser','groupType','groupFeatures','routes','links','locations','childGroups','parentGroups','children','parents','visible'];
             fields.code = ['id','code','codeType','standardType','description','links'];
             fields.codeType = ['id','value','lookupType'];
             fields.standardType = ['id','value','lookupType'];
