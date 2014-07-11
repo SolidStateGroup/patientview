@@ -446,7 +446,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         }
                     }
 
-                    if (index) {
+                    if (index !== null) {
                         // user already in list of users shown, update object
                         $scope.list[index] = _.clone(user);
                     } else {

@@ -24,8 +24,8 @@
                 <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
-                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
+                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userFormExisting.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
         <button class="btn btn-primary" ng-click="openModalNewPatient('lg')">Create New</button>
