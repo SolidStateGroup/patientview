@@ -3,15 +3,16 @@ package org.patientview.migration.service.impl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.patientview.Group;
+import org.patientview.GroupRole;
+import org.patientview.Role;
+import org.patientview.User;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
-import org.patientview.Group;
-import org.patientview.GroupRole;
-import org.patientview.Role;
-import org.patientview.User;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.SpecialtyUserRoleDao;
@@ -47,118 +48,112 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
 
+
     public void migrate() {
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
 
             User newUser = createUser(oldUser);
 
+            // create the User on the new system
+            newUser = callApiCreateUser(newUser);
+
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
 
-                if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
+                // We do want the patient group.
+                if (userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
 
-                    if (newUser.getGroupRoles() == null) {
-                        newUser.setGroupRoles(new HashSet<GroupRole>());
+                    Role patientRole = adminDataMigrationService.getRoleByName("PATIENT");
+
+                    if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
+
+                        Group patientGroup = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
+
+                        if (newUser != null && newUser.getId() != null && patientGroup != null && patientRole != null) {
+                            callApiAddGroupRole(newUser.getId(), patientGroup.getId(), patientRole.getId());
+                        }
+
+
+                    } else {
+
+                        Role role = null;
+                        List<SpecialtyUserRole> specialtyUserRoles = specialtyUserRoleDao.get(oldUser);
+                        /// TODO try and fix this - get the first role and apply it to all group (no group role mapping)
+                        if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
+
+
+                            String roleName = specialtyUserRoles.get(0).getRole(); //FIXME hack from original PV
+                            if (roleName.equals("unitadmin")) {
+                                role = adminDataMigrationService.getRoleByName("UNIT_ADMIN");
+                            }
+                            if (roleName.equals("unitstaff")) {
+                                role = adminDataMigrationService.getRoleByName("STAFF_ADMIN");
+                            }
+
+
+                            Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
+                            if (group == null) {
+                                LOG.error("Could not find group for unit code {}", userMapping.getUnitcode());
+                                continue;
+                            }
+                            addGroupRole(newUser, group, role);
+                            if (newUser.getId() != null && group != null && role != null) {
+                                callApiAddGroupRole(newUser.getId(), group.getId(), role.getId());
+                            }
+                        }
+
                     }
-
-                    GroupRole userGroup = new GroupRole();
-                    userGroup.setGroup(adminDataMigrationService.getGroupByCode(userMapping.getUnitcode()));
-                    userGroup.setRole(adminDataMigrationService.getRoleByName("PATIENT"));
-                    newUser.getGroupRoles().add(userGroup);
-                } else {
-
-                    Role role = null;
-                    List<SpecialtyUserRole> specialtyUserRoles = specialtyUserRoleDao.get(oldUser);
-                    /// TODO try and fix this - get the first role and apply it to all group (no group role mapping)
-                    if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
-
-                        if (newUser.getGroupRoles() == null) {
-                            newUser.setGroupRoles(new HashSet<GroupRole>());
-                        }
-
-                        String roleName = specialtyUserRoles.get(0).getRole(); //FIXME hack from original PV
-                        if (roleName.equals("unitadmin")) {
-                            role = adminDataMigrationService.getRoleByName("UNIT_ADMIN");
-                        }
-                        if (roleName.equals("unitstaff")) {
-                            role = adminDataMigrationService.getRoleByName("UNIT_STAFF");
-                        }
-
- ;
-                        Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
-                        if (group == null) {
-                            LOG.error("Could not find group for unit code {}", userMapping.getUnitcode());
-                            continue;
-                        }
-                        addGroupRole(newUser, group, role);
-                    }
-
-                    // Add the generic group
-                    Group group = adminDataMigrationService.getGroupByCode("GENERIC");
-                    role = adminDataMigrationService.getRoleByName("MEMBER");
-                    if (group == null) {
-                        LOG.error("Could not find group for code {}", "GENERIC");
-                        continue;
-                    }
-
-                    addGroupRole(newUser, group, role);
-
                 }
 
             }
 
-            String url = JsonUtil.pvUrl + "/user?encryptPassword=false";
-            try {
-                newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
-            } catch (JsonMigrationException jme) {
-                LOG.error("Unable to create user: {}", oldUser.getUsername());
-                continue;
-            } catch (JsonMigrationExistsException jee) {
-                LOG.info("User {} already exists", oldUser.getUsername());
-                continue;
+            if (newUser != null && newUser.getId() != null && !newUser.getUsername().equalsIgnoreCase("superadmin")
+                    && !newUser.getUsername().equalsIgnoreCase("ibd-sa") && !newUser.getUsername().equalsIgnoreCase("diabetes-sa")) {
+                addSpecialty(oldUser, newUser);
             }
-
-             LOG.info("Created user: {}", oldUser.getUsername());
-
         }
 
     }
 
+    private void addSpecialty(org.patientview.patientview.model.User user, User newUser) {
 
-    public void migratePatientUser() {
-        for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
-
-            User newUser = createUser(oldUser);
-
-            for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
-
-                if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
-
-                    Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
-                    Role role = adminDataMigrationService.getRoleByName("PATIENT");
-
-
-                    addGroupRole(newUser, group, role);
-                }
-
-            }
-
-            String url = JsonUtil.pvUrl + "/user";
-            try {
-                newUser = JsonUtil.jsonRequest(url, User.class, newUser, HttpPost.class);
-            } catch (JsonMigrationException jme) {
-                LOG.error("Unable to create user: {}", oldUser.getUsername());
-                continue;
-            } catch (JsonMigrationExistsException jee) {
-                LOG.info("User already exists {}", oldUser.getUsername());
-                continue;
-            }
-
-            LOG.info("Success: user {} create", newUser.getUsername());
-
-
+        List<Group> groups = getUserSpecialty(user);
+        for (Group group : groups) {
+            Role role = adminDataMigrationService.getRoleByName("PATIENT");
+            callApiAddGroupRole(newUser.getId(), group.getId(), role.getId());
         }
 
+    }
+
+    private void callApiAddGroupRole(Long userId, Long groupId, Long roleId) {
+        String url = JsonUtil.pvUrl + "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
+        try {
+            JsonUtil.jsonRequest(url, null, null, HttpPut.class);
+            LOG.info("Unable ");
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to add user to group");
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to add user to group");
+        } catch (Exception e) {
+            LOG.error("Unable to add group role");
+        }
+
+    }
+
+    private User callApiCreateUser(User user) {
+        String url = JsonUtil.pvUrl + "/user?encryptPassword=false";
+        User newUser = null;
+        try {
+            newUser = JsonUtil.jsonRequest(url, User.class, user, HttpPost.class);
+            LOG.info("Created user: {}", user.getUsername());
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create user: {}", user.getUsername());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.info("User {} already exists", user.getUsername());
+        }
+
+
+        return newUser;
     }
 
     private User addGroupRole(User user,Group group, Role role) {
@@ -195,15 +190,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         for (SpecialtyUserRole specialtyUserRole : specialtyUserRoleDao.get(oldUser)) {
 
             if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("ibd")) {
-                groups.add(adminDataMigrationService.getIbd());
+                groups.add(adminDataMigrationService.getGroupByName("idb"));
             }
 
             if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("renal")) {
-                groups.add(adminDataMigrationService.getRenal());
+                groups.add(adminDataMigrationService.getGroupByName("renal"));
             }
 
             if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("diabetes")) {
-                groups.add(adminDataMigrationService.getDiabetes());
+                groups.add(adminDataMigrationService.getGroupByName("diabetes"));
             }
         }
 

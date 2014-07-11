@@ -31,4 +31,6 @@ public interface GroupService {
 
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId);
 
+    void addParentGroup(Long groupId, Long parentGroupId);
+
 }

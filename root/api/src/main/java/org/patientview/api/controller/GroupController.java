@@ -114,4 +114,13 @@ public class GroupController extends BaseController {
         return new ResponseEntity<List<Group>>(groupService.findGroupByType(lookupId), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addParentGroup(@PathVariable("groupId") Long groupId,
+                                                      @PathVariable("parentId") Long parentGroupId) {
+        groupService.addParentGroup(groupId,parentGroupId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+
 }

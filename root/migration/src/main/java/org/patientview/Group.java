@@ -2,8 +2,8 @@ package org.patientview;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -16,15 +16,14 @@ import java.util.UUID;
  * Created on 03/06/2014
  */
 public class Group extends AuditModel {
-
     @Column(name = "group_name")
     private String name;
 
     @Column(name = "code")
     private String code;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "sftp_user")
+    private String sftpUser;
 
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
@@ -36,7 +35,7 @@ public class Group extends AuditModel {
     @JoinColumn(name = "type_id")
     private Lookup groupType;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<GroupFeature> groupFeatures;
 
     @OneToMany(mappedBy = "group")
@@ -45,10 +44,10 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group")
     private Set<Route> routes;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<Link> links;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<Location> locations;
 
     @Transient
@@ -57,7 +56,7 @@ public class Group extends AuditModel {
     @Transient
     private Set<Group> childGroups;
 
-    @OneToMany(mappedBy = "sourceGroup")
+    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER)
     private Set<GroupRelationship> groupRelationships;
 
     public String getName() {
@@ -76,12 +75,12 @@ public class Group extends AuditModel {
         this.code = code;
     }
 
-    public String getDescription() {
-        return description;
+    public String getSftpUser() {
+        return sftpUser;
     }
 
-    public void setDescription(final String description) {
-        this.description = description;
+    public void setSftpUser(final String sftpUser) {
+        this.sftpUser = sftpUser;
     }
 
     public UUID getFhirResourceId() {
@@ -158,11 +157,11 @@ public class Group extends AuditModel {
         this.childGroups = childGroups;
     }
 
+    @JsonIgnore
     public Set<GroupRelationship> getGroupRelationships() {
         return groupRelationships;
     }
 
-    @JsonIgnore
     public void setGroupRelationships(final Set<GroupRelationship> groupRelationships) {
         this.groupRelationships = groupRelationships;
     }

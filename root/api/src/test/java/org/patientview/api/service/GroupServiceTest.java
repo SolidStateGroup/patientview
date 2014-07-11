@@ -242,6 +242,30 @@ public class GroupServiceTest {
 
     }
 
+    /**
+     * Test: Create a parent relationship between to group objects
+     * Fail: The parent and child relationship are not persisted
+     *
+     */
+    @Test
+    public void testAddParentGroup() {
+        User testUser = TestUtils.createUser(2L, "testUser");
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group testParentGroup = TestUtils.createGroup(1L, "testGroup", creator);
+
+        when(userRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findOne(Matchers.eq(testParentGroup.getId()))).thenReturn(testParentGroup);
+
+        groupService.addParentGroup(testGroup.getId(), testParentGroup.getId());
+
+        // Parent and child relationship should be persist
+        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
+
+        Assert.assertNotNull("They should the correct GroupObject returned");
+
+    }
+
 
     /**
      * Test: create parent and 2 children, get parent group and its children based on a user's membership of the parent group

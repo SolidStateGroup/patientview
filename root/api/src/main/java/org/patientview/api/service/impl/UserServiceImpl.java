@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityExistsException("User already exists (email)");
         }
 
-
+        user.setCreator(userRepository.findOne(1L));
         newUser = userRepository.save(user);
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());

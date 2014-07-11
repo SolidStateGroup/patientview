@@ -27,5 +27,7 @@ public interface AdminDataMigrationService {
 
     Role getRoleByName(String name);
 
-    public void migrate();
+    Group getGroupByName(String name);
+
+    void migrate();
 }

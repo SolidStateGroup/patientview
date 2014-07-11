@@ -1,20 +1,20 @@
 package org.patientview.migration.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.patientview.migration.service.AdminDataMigrationService;
-import org.patientview.migration.util.JsonUtil;
-import org.patientview.migration.util.PvUtil;
-import org.patientview.migration.util.exception.JsonMigrationException;
-import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.Feature;
 import org.patientview.Group;
 import org.patientview.GroupFeature;
+import org.patientview.GroupRole;
 import org.patientview.Lookup;
 import org.patientview.Role;
+import org.patientview.migration.service.AdminDataMigrationService;
+import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.exception.JsonMigrationException;
+import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Unit;
-import org.patientview.model.enums.SourceType;
 import org.patientview.repository.FeatureDao;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
@@ -90,49 +90,100 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             Set<Feature> unitFeatures = getUnitFeatures(unit);
 
             LOG.info("Got unit: {}", unit.getUnitcode());
-            Group group = PvUtil.createGroup(unit);
-            if (unit.getSourceType().equalsIgnoreCase(SourceType.PATIENT_VIEW.getName())) {
-                group.setGroupType(getLookupByName("UNIT"));
-            } else {
-                group.setGroupType(getLookupByName("DISEASE_GROUP"));
-            }
 
-            //TODO refactor continues into exceptions
-            try {
-                group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
-            } catch (JsonMigrationException jme) {
-                LOG.error("Unable to create group: ", jme.getMessage());
-                continue;
-            } catch (JsonMigrationExistsException jee) {
-                LOG.info("Group {} already exists", unit.getName());
-            }
+            // Create the unit
+            Group group = createGroup(unit);
+            group = callApiCreateGroup(group);
 
             LOG.info("Success: created group");
 
+            // Create the features
             if (CollectionUtils.isNotEmpty(unitFeatures)) {
-
                 for (Feature feature : unitFeatures) {
-                    String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/feature/" + feature.getId();
-
-                    try {
-                        GroupFeature groupFeature = JsonUtil.jsonRequest(featureUrl, GroupFeature.class, null, HttpPut.class);
-                    } catch (JsonMigrationException jme) {
-                        LOG.error("Unable to create group: ", jme.getMessage());
-                        continue;
-                    } catch (JsonMigrationExistsException jee) {
-                        LOG.info("Could not update group {} already exists", unit.getName());
-                    }
-
-                    LOG.info("Success: feature created for group");
-
+                    callApiCreateGroupFeature(group, feature);
                 }
+            }
+
+            // Assign a specialty
+            Group parentGroup = getGroupParent(unit);
+            if (parentGroup != null && group != null) {
+                callApiCreateParentGroup(group, parentGroup);
+            } else {
+                LOG.error("Unable to find parent group");
             }
 
         }
 
     }
 
-    public void sendDummyUnit() {
+    private void callApiCreateParentGroup(Group group, Group parentGroup) {
+        String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/parent/" + parentGroup.getId();
+
+
+        try {
+            GroupRole groupRole = JsonUtil.jsonRequest(featureUrl, GroupRole.class, null, HttpPut.class);
+            LOG.info("Success: feature created for group");
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to parent group: ", jme.getMessage());
+
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to parent group: ", jee.getMessage());
+        } catch (Exception e) {
+            LOG.error("Unable to parent group: ", e.getMessage());
+        }
+
+
+
+    }
+
+    private GroupFeature callApiCreateGroupFeature(Group group, Feature feature) {
+
+        String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/feature/" + feature.getId();
+
+        try {
+            return JsonUtil.jsonRequest(featureUrl, GroupFeature.class, null, HttpPut.class);
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create group: ", jme.getMessage());
+
+        } catch (JsonMigrationExistsException jee) {
+            LOG.info("Could not update group {} already exists", group.getName());
+        }
+
+        LOG.info("Success: feature created for group");
+
+
+        return null;
+
+    }
+
+
+    private Group callApiCreateGroup(Group group) {
+        Group newGroup = null;
+        try {
+            newGroup = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create group: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.info("Group {} already exists", group.getName());
+        }
+
+        return newGroup;
+    }
+
+    private Group callApiGetGroup(Long groupId) {
+        Group newGroup = null;
+        try {
+            newGroup = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group/" + groupId, Group.class, null, HttpGet.class);
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to get group: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to get group: ", jee.getMessage());
+        }
+
+        return newGroup;
+    }
+
+    private void sendDummyUnit() {
 
         // Export a dummy group to test hibernate until one works
         // FIXME need hibernate to read the table indexes on startup
@@ -194,6 +245,15 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return null;
     }
 
+    public Group getGroupByName(String name) {
+        for (Group group : groups) {
+            if (group.getName().equalsIgnoreCase(name)) {
+                return group;
+            }
+        }
+        return null;
+    }
+
     public Role getRoleByName(String name) {
         for (Role role : roles) {
             if (role.getName().equalsIgnoreCase(name)) {
@@ -211,6 +271,36 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             }
         }
         return null;
+    }
+
+    private Group createGroup(Unit unit) {
+        Group group = new Group();
+        group.setName(unit.getShortname());
+        group.setCode(unit.getUnitcode());
+        group.setVisible(unit.isVisible());
+        //group.setSftpUser(unit.ge);
+
+        if (unit.getSourceType().equalsIgnoreCase("renalunit")) {
+            group.setGroupType(getLookupByName("UNIT"));
+        } else {
+            group.setGroupType(getLookupByName("DISEASE_GROUP"));
+        }
+
+
+        return group;
+
+    }
+
+    private Group getGroupParent(Unit unit) {
+        if (unit.getSpecialty().getContext().equalsIgnoreCase("renal")) {
+            return getGroupByName("RENAL");
+        }
+        if (unit.getSpecialty().getContext().equalsIgnoreCase("diabetes")) {
+            return getGroupByName("DIABETES");
+        }
+
+        return null;
+
     }
 
     public void setUnitDao(final UnitDao unitDao) {

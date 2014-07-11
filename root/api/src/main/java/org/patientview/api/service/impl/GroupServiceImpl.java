@@ -324,12 +324,12 @@ public class GroupServiceImpl implements GroupService {
         }
     }
 
-    private void createRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
+    private GroupRelationship createRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
         GroupRelationship groupRelationship = new GroupRelationship();
         groupRelationship.setSourceGroup(sourceGroup);
         groupRelationship.setObjectGroup(objectGroup);
         groupRelationship.setLookup(relationshipType);
-        groupRelationshipRepository.save(groupRelationship);
+        return groupRelationshipRepository.save(groupRelationship);
     }
 
 
@@ -380,6 +380,18 @@ public class GroupServiceImpl implements GroupService {
 
     }
 
+    public void addParentGroup(Long groupId, Long parentGroupId) {
+
+        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue("RELATIONSHIP_TYPE", "PARENT");
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue("RELATIONSHIP_TYPE", "CHILD");
+
+        Group sourceGroup = groupRepository.findOne(groupId);
+        Group objectGroup = groupRepository.findOne(parentGroupId);
+
+        createRelationship(sourceGroup, objectGroup, parentRelationshipType);
+        createRelationship(objectGroup, sourceGroup, childRelationshipType);
+
+    }
 
 
 }

@@ -58,5 +58,23 @@ public class GroupControllerTest {
 
     }
 
+    @Test
+    public void testAddParentGroup() {
+
+        Long groupId = 1L;
+        Long parentGroupId = 2L;
+
+        String url = "/group/" + groupId + "/parent/" + parentGroupId;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.put(url))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(groupService, Mockito.times(1)).addParentGroup(eq(groupId), eq(parentGroupId));
+    }
+
 
 }
