@@ -191,7 +191,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $('.child-menu').remove();
         });
 
-        var i, group, groupIds = [], staffRoleIds = [];
+        var i, group, groupIds = [], staffRoleIds = [], role;
         $scope.loading = true;
         $scope.allGroups = [];
         $scope.allRoles = [];
@@ -204,9 +204,14 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         // get staff type roles
         RoleService.getByType('STAFF').then(function(roles) {
-            $scope.allRoles = roles;
+
+            // set roles that can be chosen in UI, only show visible roles
             for (i = 0; i < roles.length; i++) {
-                staffRoleIds.push(roles[i].id);
+                role = roles[i];
+                if (role.visible === true) {
+                    $scope.allRoles.push(role);
+                    staffRoleIds.push(role.id);
+                }
             }
 
             // get logged in user's groups
