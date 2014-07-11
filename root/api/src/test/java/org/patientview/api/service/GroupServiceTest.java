@@ -11,16 +11,20 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.util.CollectionUtils;
@@ -62,7 +66,13 @@ public class GroupServiceTest {
     private LinkRepository linkRepository;
 
     @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
     private LocationRepository locationRepository;
+
+    @Mock
+    private GroupRoleRepository groupRoleRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -201,13 +211,30 @@ public class GroupServiceTest {
     }
 
     /**
-     * Test: To save group links
+     * Test: To save a Group with Role to a user
+     * Fail: The repository does not get called
      *
+     * Matching is required on the save call
      */
     @Test
-    public void testGroupSaveWithLink() {
+    public void testAddGroupRole() {
         User testUser = TestUtils.createUser(2L, "testUser");
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Role testRole = TestUtils.createRole(3L, "testRole", creator);
+
+        GroupRole groupRole = TestUtils.createGroupRole(4L,testRole, testGroup, testUser, creator);
+
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(roleRepository.findOne(Matchers.eq(testRole.getId()))).thenReturn(testRole);
+        when(groupRoleRepository.save(Matchers.any(GroupRole.class))).thenReturn(groupRole);
+
+        groupRole = groupService.addGroupRole(testUser.getId(), testGroup.getId(), testRole.getId());
+
+        Assert.assertNotNull("The returned object should not be null", groupRole);
+
+        verify(groupRoleRepository, Mockito.times(1)).save(Matchers.any(GroupRole.class));
+
 
     }
 

@@ -5,6 +5,7 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
@@ -13,9 +14,11 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +67,12 @@ public class GroupServiceImpl implements GroupService {
 
     @Inject
     private GroupRelationshipRepository groupRelationshipRepository;
+
+    @Inject
+    private RoleRepository roleRepository;
+
+    @Inject
+    private GroupRoleRepository groupRoleRepository;
 
     @Inject
     private EntityManager entityManager;
@@ -275,6 +284,15 @@ public class GroupServiceImpl implements GroupService {
 
         // return new group with parents/children for front end to avoid recursion
         return addSingleParentAndChildGroup(newGroup);
+    }
+
+    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId) {
+        GroupRole groupRole = new GroupRole();
+        groupRole.setUser(userRepository.findOne(userId));
+        groupRole.setGroup(groupRepository.findOne(groupId));
+        groupRole.setRole(roleRepository.findOne(roleId));
+        groupRole.setCreator(userRepository.findOne(1L));
+        return groupRoleRepository.save(groupRole);
     }
 
 

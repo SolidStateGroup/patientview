@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -114,11 +115,31 @@ public class UserServiceImpl implements UserService {
                 identifierRepository.save(identifier);
             }
         }
+
         user.setId(newUser.getId());
+
+        // Everyone should be in the generic group.
+        addUserToGenericGroup(newUser);
 
         return userRepository.save(user);
 
     }
+
+    // We do this so early one gets the generic group
+    private void addUserToGenericGroup(User user) {
+        // TODO Sprint 2 make these value configurable
+        Role role = roleRepository.findOne(1L);
+        Group group = groupRepository.findOne(1L);
+
+        GroupRole groupRole = new GroupRole();
+        groupRole.setUser(user);
+        groupRole.setGroup(group);
+        groupRole.setCreator(userRepository.findOne(1L));
+        groupRole.setRole(role);
+        groupRole.setStartDate(new Date());
+        groupRoleRepository.save(groupRole);
+    }
+
 
     public User createUserWithPasswordEncryption(User user) {
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
@@ -224,11 +245,14 @@ public class UserServiceImpl implements UserService {
         email.setSender(properties.getProperty("smtp.sender"));
         email.setSubject("PatientView - Please verify your account");
         email.setRecipients(new String[]{user.getEmail()});
-        email.setBody("Please visit http://www.patientview.org/#/verify?userId="
-                + user.getId()
-                + "&verificationCode="
-                + user.getVerificationCode()
-                + " to validate your account.");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Please visit http://www.patientview.org/#/verify?userId=");
+        sb.append(user.getId());
+        sb.append("&verificationCode=");
+        sb.append(user.getVerificationCode());
+        sb.append(" to validate your account.");
+        email.setBody(sb.toString());
         return emailService.sendEmail(email);
     }
 

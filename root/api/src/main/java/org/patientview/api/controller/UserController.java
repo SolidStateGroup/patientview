@@ -4,8 +4,10 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.controller.model.Credentials;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
@@ -43,12 +45,24 @@ public class UserController extends BaseController {
     private UserService userService;
 
     @Inject
+    private GroupService groupService;
+
+    @Inject
     private AdminService adminService;
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> getUser(@PathVariable("userId") Long userId) {
         return new ResponseEntity<User>(userService.getUser(userId), HttpStatus.OK);
+
+    }
+
+    @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}",
+            method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<GroupRole> addUserGroupRole(@PathVariable("userId") Long userId
+            , @PathVariable("groupId") Long groupId, @PathVariable("roleId") Long roleId) {
+        return new ResponseEntity<GroupRole>(groupService.addGroupRole(userId, groupId, roleId), HttpStatus.OK);
 
     }
 
