@@ -92,6 +92,11 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
             data.routes = RouteService.getDefault().routes;
         }
 
+        // add main/login/logout routes (for all users)
+        data.routes.push(RouteService.getMainRoute());
+        data.routes.push(RouteService.getLogoutRoute());
+        data.routes.push(RouteService.getLoginRoute());
+
         if (data !== undefined) {
             for (var j=0 ; j < data.routes.length; j++ ) {
 
