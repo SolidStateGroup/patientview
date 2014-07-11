@@ -42,7 +42,6 @@ public class UserDataMigrationTest {
     @Transactional
     @Rollback(false)
     public void testUserMigration() {
-        adminDataMigrationService.migrate();
         userDataMigrationService.migrate();
 
     }

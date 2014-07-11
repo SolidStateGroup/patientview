@@ -48,7 +48,6 @@ public class AdminDataMigrationTest {
     @Test
     @Transactional
     @Rollback(false)
-    @Ignore
     public void testStaticDataMigrationFeatures()  throws Exception {
         LOG.info("Starting migration");
         adminDataMigrationService.migrate();
@@ -56,7 +55,7 @@ public class AdminDataMigrationTest {
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getFeatureByName("SHARING_THOUGHTS"));
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("PATIENT"));
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("UNIT_ADMIN"));
-//        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("UNIT_STAFF"));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("STAFF_ADMIN"));
     }
 
 
