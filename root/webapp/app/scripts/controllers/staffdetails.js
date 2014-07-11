@@ -60,12 +60,48 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', funct
         form.$setDirty(true);
     };
 
+    $scope.validateNHSNumber = function(txtNhsNumber) {
+        var isValid = false;
+
+        if (txtNhsNumber.length == 10) {
+            var total = 0, i;
+            for (i = 0; i <= 8; i++) {
+                var digit = txtNhsNumber.substr(i, 1);
+                var factor = 10 - i;
+                total += (digit * factor);
+            }
+
+            var checkDigit = (11 - (total % 11));
+            if (checkDigit == 11) { checkDigit = 0; }
+            if (checkDigit == txtNhsNumber.substr(9, 1)) { isValid = true; }
+        }
+
+        return isValid;
+    };
+
     $scope.addIdentifier = function (form, user, identifier) {
-        identifier.identifierType = _.findWhere($scope.identifierTypes, {id: identifier.identifierType});
-        identifier.id = Math.floor(Math.random() * (9999)) -10000;
-        user.identifiers.push(_.clone(identifier));
-        identifier.identifier = '';
-        form.$setDirty(true);
+
+        if (identifier.identifierType !== undefined) {
+            identifier.identifierType = _.findWhere($scope.identifierTypes, {id: identifier.identifierType});
+
+            // validate NHS_NUMBER
+            var valid = true, errorMessage = '';
+
+            if (identifier.identifierType.value === 'NHS_NUMBER') {
+                valid = $scope.validateNHSNumber(identifier.identifier);
+                errorMessage = 'Invalid NHS Number, please check format';
+            }
+
+            if (valid) {
+                identifier.id = Math.floor(Math.random() * (9999)) - 10000;
+                user.identifiers.push(_.clone(identifier));
+                identifier.identifier = '';
+                form.$setDirty(true);
+            } else {
+                identifier.identifierType = identifier.identifierType.id;
+                alert(errorMessage);
+            }
+        }
     };
 
     $scope.removeIdentifier = function (form, user, identifier) {
