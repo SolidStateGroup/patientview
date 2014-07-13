@@ -118,3 +118,18 @@ label{
         }
     }
 }
+
+.capsule-list{
+    padding-left:10px;
+    li{
+        background:$aquamarine;
+        @include bootstrap-border-radius(5px);
+        margin-right:5px;
+        padding:5px;
+        color:$white;
+    }
+
+    & > li:first-child{
+        padding-left:5px;
+    }
+}

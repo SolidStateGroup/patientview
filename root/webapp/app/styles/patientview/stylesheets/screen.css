@@ -103,6 +103,12 @@ ol.inline {
   font-weight: normal;
 }
 
+/* line 88, ../sass/_utils.scss */
+.no-items {
+  font-style: italic;
+  font-weight: 100;
+}
+
 /* line 1, ../sass/_base.scss */
 body {
   background: #e7ecf2;
@@ -152,14 +158,19 @@ body {
   margin-bottom: 20px;
 }
 
+/* line 41, ../sass/_base.scss */
+.add-form {
+  margin-top: 30px;
+}
+
 /** lists **/
-/* line 44, ../sass/_base.scss */
+/* line 48, ../sass/_base.scss */
 ul .news-item {
   margin-bottom: 5px;
 }
 
 /** hero pane **/
-/* line 51, ../sass/_base.scss */
+/* line 55, ../sass/_base.scss */
 .hero-panel {
   background: url("../../../images/hero-bg.png") 0 0 no-repeat;
   background-size: cover;
@@ -167,24 +178,24 @@ ul .news-item {
   height: 430px;
   margin-top: 20px;
 }
-/* line 58, ../sass/_base.scss */
+/* line 62, ../sass/_base.scss */
 .hero-panel .hero-pane {
   height: 100%;
   color: white;
 }
-/* line 62, ../sass/_base.scss */
+/* line 66, ../sass/_base.scss */
 .hero-panel .hero-pane.aquamarine {
   background: #00aa9e;
   opacity: 0.7;
   filter: alpha(opacity=70);
 }
-/* line 66, ../sass/_base.scss */
+/* line 70, ../sass/_base.scss */
 .hero-panel .hero-pane.aqua {
   background: #00adc6;
   opacity: 0.7;
   filter: alpha(opacity=70);
 }
-/* line 70, ../sass/_base.scss */
+/* line 74, ../sass/_base.scss */
 .hero-panel .hero-pane.blue {
   background: #368de8;
   opacity: 0.7;
@@ -192,71 +203,73 @@ ul .news-item {
 }
 
 /** buttons **/
-/* line 78, ../sass/_base.scss */
+/* line 82, ../sass/_base.scss */
 .btn {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
   color: white;
   font-size: 1.5rem;
+  min-height: 34px;
+  min-width: 34px;
 }
-/* line 83, ../sass/_base.scss */
+/* line 89, ../sass/_base.scss */
 .btn:hover {
   color: white;
 }
 
 /** generic color styles **/
-/* line 90, ../sass/_base.scss */
+/* line 96, ../sass/_base.scss */
 .blue {
   background-color: #368de8;
 }
 
-/* line 93, ../sass/_base.scss */
+/* line 99, ../sass/_base.scss */
 .aquamarine {
   background-color: #00aa9e;
 }
 
-/* line 96, ../sass/_base.scss */
+/* line 102, ../sass/_base.scss */
 .negative {
   background-color: #ef2643;
 }
 
 /** temporary icons stuff **/
-/* line 102, ../sass/_base.scss */
+/* line 108, ../sass/_base.scss */
 .hero-icon {
   display: block;
   margin: 0 auto;
 }
 
-/* line 107, ../sass/_base.scss */
+/* line 113, ../sass/_base.scss */
 i.icon-hero-manage {
   background: url("../../../images/icons/hero-manage.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 113, ../sass/_base.scss */
+/* line 119, ../sass/_base.scss */
 i.icon-hero-monitor {
   background: url("../../../images/icons/hero-monitor.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 119, ../sass/_base.scss */
+/* line 125, ../sass/_base.scss */
 i.icon-hero-make {
   background: url("../../../images/icons/hero-make.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 125, ../sass/_base.scss */
+/* line 131, ../sass/_base.scss */
 i.icon-search-black {
   background: url("../../../images/icons/search-black.png") 0 0 no-repeat;
   height: 36px;
   width: 36px;
 }
 
-/* line 131, ../sass/_base.scss */
+/* line 137, ../sass/_base.scss */
 i.icon-account {
   background: url("../../../images/icons/account.png") 0 0 no-repeat;
   height: 32px;
@@ -590,4 +603,23 @@ label {
   -webkit-border-radius: 0 4px 4px 0;
   -moz-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
+}
+
+/* line 122, ../sass/_forms.scss */
+.capsule-list {
+  padding-left: 10px;
+}
+/* line 124, ../sass/_forms.scss */
+.capsule-list li {
+  background: #00aa9e;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin-right: 5px;
+  padding: 5px;
+  color: white;
+}
+/* line 132, ../sass/_forms.scss */
+.capsule-list > li:first-child {
+  padding-left: 5px;
 }

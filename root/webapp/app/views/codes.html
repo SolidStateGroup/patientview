@@ -56,8 +56,7 @@
             </div>
         </div>
         <div class="panel-footer clearfix">
-            <!-- filter by code type -->
-            <div class="content-inner">
+            <!-- filter by code type -->            <div class="content-inner">
                 <div class="pull-right">
                     <h5>Showing {{ filtered.length }} of {{ list.length }} total</h5>
                 </div>
@@ -114,7 +113,7 @@
                         <div class="row-item">
 
                             <!-- Edit, Actions dropdown buttons -->
-                            <div class="btn-group">
+                            <div class="btn-group pull-right">
                                 <button type="button" class="btn blue">Edit</button>
                                 <button type="button" class="btn aquamarine" ng-click="clone(code.id, $event)">Copy</button>
                                 <button type="button" class="btn negative" ng-click="delete(code.id, $event)">Delete</button>
