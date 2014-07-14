@@ -117,6 +117,18 @@ label{
             @include bootstrap-border-radius(0 4px 4px 0);
         }
     }
+
+    .dropdown-menu{
+        position:absolute;
+        min-width:100px;
+        left:-65px;
+
+        > li a{
+            text-align: left;
+            padding:5px;
+            font-size:1.5rem;
+        }
+    }
 }
 
 .capsule-list{
@@ -131,5 +143,51 @@ label{
 
     & > li:first-child{
         padding-left:5px;
+    }
+}
+
+.form-edit-row{
+    margin-top:30px;
+}
+
+.group-list-item{
+    li{
+        width:40px;
+        height:40px;
+        border:none;
+        color:$white;
+        font-size:1.25rem;
+        overflow: hidden;
+        padding: 5px 0;
+        text-align: center;
+        line-height:30px;
+
+        &.group-list-name{
+            width:50%;
+            font-size:1.5rem;
+            color:$textdark;
+            background:$inputbg;
+            border:1px solid $border-default;
+        }
+
+        &.group-list-role{
+            background:$aqua;
+        }
+
+        &.group-list-delete{
+            a{
+                color:$white;
+                display:block;
+                height:100%;
+                width:100%;
+            }
+        }
+    }
+}
+
+.select-add-group{
+    .group-select{
+        width:50%;
+        float:left;
     }
 }

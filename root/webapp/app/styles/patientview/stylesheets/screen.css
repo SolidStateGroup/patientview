@@ -348,8 +348,9 @@ i.icon-account {
 .footer {
   background: white;
   height: 50px;
+  position: relative;
 }
-/* line 77, ../sass/_nav.scss */
+/* line 78, ../sass/_nav.scss */
 .footer .brand {
   opacity: 0.5;
   filter: alpha(opacity=50);
@@ -357,31 +358,34 @@ i.icon-account {
   width: 300px;
   line-height: 40px;
 }
-/* line 83, ../sass/_nav.scss */
+/* line 84, ../sass/_nav.scss */
 .footer .brand img {
   height: 50%;
   width: 50%;
 }
-/* line 90, ../sass/_nav.scss */
+/* line 91, ../sass/_nav.scss */
 .footer .legal-links li {
   line-height: 40px;
   padding: 0 10px;
   font-size: 1.75rem;
   color: #959595;
 }
-/* line 96, ../sass/_nav.scss */
+/* line 97, ../sass/_nav.scss */
 .footer .legal-links li a {
   font-size: 1.75rem;
   color: #959595;
 }
-/* line 100, ../sass/_nav.scss */
+/* line 101, ../sass/_nav.scss */
 .footer .legal-links li a:hover {
   color: #368de8;
 }
-/* line 108, ../sass/_nav.scss */
+/* line 109, ../sass/_nav.scss */
 .footer p {
   font-size: 1.75rem;
   color: #959595;
+  position: absolute;
+  left: 25%;
+  top: 25%;
 }
 
 /** Tables **/
@@ -419,27 +423,28 @@ i.icon-account {
   border-radius: 0;
   margin-top: 0;
   border-top: 0;
+  overflow: visible;
 }
-/* line 34, ../sass/_tables.scss */
+/* line 35, ../sass/_tables.scss */
 .faux-table .accordion-group.panel .panel-heading {
   background: none;
 }
-/* line 39, ../sass/_tables.scss */
+/* line 40, ../sass/_tables.scss */
 .faux-table .accordion-group .panel-heading {
   padding: 0;
 }
-/* line 44, ../sass/_tables.scss */
+/* line 45, ../sass/_tables.scss */
 .faux-table .accordion-toggle {
   text-decoration: none;
 }
-/* line 48, ../sass/_tables.scss */
+/* line 49, ../sass/_tables.scss */
 .faux-table .faux-row {
   display: table;
   width: 100%;
   padding: 5px 0;
   font-size: 1.5rem;
 }
-/* line 54, ../sass/_tables.scss */
+/* line 55, ../sass/_tables.scss */
 .faux-table .faux-row .row-item {
   display: table-cell;
   text-align: center;
@@ -447,11 +452,20 @@ i.icon-account {
   text-decoration: none;
   vertical-align: middle;
 }
-/* line 61, ../sass/_tables.scss */
+/* line 62, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions {
   text-align: center;
 }
-/* line 68, ../sass/_tables.scss */
+/* line 65, ../sass/_tables.scss */
+.faux-table .faux-row .row-item.actions .button-dropdown-group {
+  width: 100px;
+  margin: 0 auto;
+}
+/* line 74, ../sass/_tables.scss */
+.faux-table.four-col .row-item, .faux-table.four-col .head-item {
+  width: 25%;
+}
+/* line 80, ../sass/_tables.scss */
 .faux-table.five-col .row-item, .faux-table.five-col .head-item {
   width: 20%;
 }
@@ -604,12 +618,24 @@ label {
   -moz-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
 }
+/* line 121, ../sass/_forms.scss */
+.button-dropdown-group .dropdown-menu {
+  position: absolute;
+  min-width: 100px;
+  left: -65px;
+}
+/* line 126, ../sass/_forms.scss */
+.button-dropdown-group .dropdown-menu > li a {
+  text-align: left;
+  padding: 5px;
+  font-size: 1.5rem;
+}
 
-/* line 122, ../sass/_forms.scss */
+/* line 134, ../sass/_forms.scss */
 .capsule-list {
   padding-left: 10px;
 }
-/* line 124, ../sass/_forms.scss */
+/* line 136, ../sass/_forms.scss */
 .capsule-list li {
   background: #00aa9e;
   -webkit-border-radius: 5px;
@@ -619,7 +645,50 @@ label {
   padding: 5px;
   color: white;
 }
-/* line 132, ../sass/_forms.scss */
+/* line 144, ../sass/_forms.scss */
 .capsule-list > li:first-child {
   padding-left: 5px;
+}
+
+/* line 149, ../sass/_forms.scss */
+.form-edit-row {
+  margin-top: 30px;
+}
+
+/* line 154, ../sass/_forms.scss */
+.group-list-item li {
+  width: 40px;
+  height: 40px;
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  overflow: hidden;
+  padding: 5px 0;
+  text-align: center;
+  line-height: 30px;
+}
+/* line 165, ../sass/_forms.scss */
+.group-list-item li.group-list-name {
+  width: 50%;
+  font-size: 1.5rem;
+  color: #4a4a4a;
+  background: #f8f8f8;
+  border: 1px solid #e4e9f0;
+}
+/* line 173, ../sass/_forms.scss */
+.group-list-item li.group-list-role {
+  background: #00adc6;
+}
+/* line 178, ../sass/_forms.scss */
+.group-list-item li.group-list-delete a {
+  color: white;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+/* line 189, ../sass/_forms.scss */
+.select-add-group .group-select {
+  width: 50%;
+  float: left;
 }

@@ -73,6 +73,7 @@
 .footer{
     background: $white;
     height: 50px;
+    position:relative;
 
     .brand{
         @include bootstrap-opacity(50);
@@ -108,5 +109,8 @@
     p{
         font-size:1.75rem;
         color:$light-grey;
+        position:absolute;
+        left:25%;
+        top:25%;
     }
 }

@@ -31,6 +31,7 @@
             @include bootstrap-border-radius(0);
             margin-top: 0;
             border-top: 0;
+            overflow:visible;
             .panel-heading {
                 background: none;
             }
@@ -60,7 +61,18 @@
 
             &.actions{
                 text-align:center;
+
+                .button-dropdown-group{
+                    width: 100px;
+                    margin: 0 auto;
+                }
             }
+        }
+    }
+
+    &.four-col{
+        .row-item,.head-item{
+            width:25%;
         }
     }
 
