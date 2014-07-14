@@ -14,13 +14,13 @@
             <div class="col-sm-7" ng-show="(!permissions.isSuperAdmin && editMode)">{{editGroup.groupType.value}}</div>
             <div class="c"><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
         </div>
-        <div class="form-group">
-            <label for="group-sftp-user" class="col-sm-2 control-label">SFTP User</label>
-            <div class="col-sm-7"><input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" ng-model="editGroup.sftpUser"></div>
+        <div class="col-md-2">
+            <label for="group-sftp-user" class="control-label">SFTP User</label>
+            <div class="c"><input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" ng-model="editGroup.sftpUser"></div>
         </div>
-        <div class="form-group">
-            <label for="group-visible-to-join" class="col-sm-2 control-label">Visible For Patients to Join</label>
-            <div class="col-sm-7"><input type="checkbox" class="form-control" id="group-visible-to-join" name="visible-to-join" ng-model="editGroup.visibleToJoin"></div>
+        <div class="col-md-1">
+            <label for="group-visible-to-join" class="control-label">Visible For Patients to Join</label>
+            <div class=""><input type="checkbox" class="form-control" id="group-visible-to-join" name="visible-to-join" ng-model="editGroup.visibleToJoin"></div>
         </div>
     </div>
 </div>

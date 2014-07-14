@@ -97,7 +97,7 @@
         <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
-        <div class="faux-table four-col" data-ng-show="filtered.length  > 0">
+        <div class="faux-table five-col" data-ng-show="filtered.length  > 0">
             <!-- header -->
             <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="accordion-title-row table-head" ng-show="filtered.length > 0" ng-cloak>
@@ -105,7 +105,7 @@
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title">Last Login&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title">Last Login&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item"><a class="sort-title">Actions</a></div>
             </div>
             <!-- body -->
@@ -117,7 +117,7 @@
                             <div class="row-item accordion-heading-text">{{user.username}}</div>
                             <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div class="row-item accordion-heading-text">{{user.name}}</div>
-                            <div class="col-sm-2 accordion-heading-text">{{user.lastLogin}}</div>
+                            <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="button-dropdown-group">
