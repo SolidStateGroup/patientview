@@ -12,18 +12,6 @@ tomcatUrl=$1
 username=$2
 password=$3
 
-cd root/webapp;
-
-/usr/bin/npm install
-
-if test $? -ne 0
-then
-	echo "Could not install packages"
-	exit 2
-else
-	echo "Install javascript dependencies"
-fi
-
 if test $# -ne 3
 then
 	echo "Please supply all paramaters"
@@ -33,6 +21,28 @@ else
     echo "Deploying to $tomcatUrl";
 fi
 
+
+cd root/webapp;
+
+/usr/bin/npm install
+
+if test $? -ne 0
+then
+	echo "Could not install packages"
+	exit 2
+else
+	echo "Installed npm dependencies"
+fi
+
+/usr/bin/bower install
+
+if test $? -ne 0
+then
+	echo "Could not execute bower install"
+	exit 2
+else
+	echo "Installed bower dependencies"
+fi
 
 /usr/local/bin/grunt minimallive
 
