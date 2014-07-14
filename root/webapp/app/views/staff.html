@@ -105,6 +105,8 @@
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text " class="sort-title">Groups&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text " class="sort-title">Features&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title">Last Login&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item"><a class="sort-title">Actions</a></div>
             </div>
@@ -117,7 +119,11 @@
                             <div class="row-item accordion-heading-text">{{user.username}}</div>
                             <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div class="row-item accordion-heading-text">{{user.name}}</div>
+                            <div> <ul class="unstyled"><li ng-repeat="groupRole in user.groupRoles">{{groupRole.group.name}} ({{groupRole.role.name}})</li></ul></div>
+                            <div> <ul class="unstyled"><li ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.name}}</li></ul></div>
                             <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
+
+                            <!--<div> <li ng-repeat="(group.name, role.name) in user.userRoles">{{group.name}} ({{role.name}})</li></div>-->
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="button-dropdown-group">
