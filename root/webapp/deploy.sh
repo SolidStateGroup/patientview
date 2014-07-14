@@ -12,7 +12,9 @@ tomcatUrl=$1
 username=$2
 password=$3
 
-npm install
+cd webapp
+
+/usr/bin/npm install
 
 if test $? -ne 0
 then
@@ -32,7 +34,7 @@ else
 fi
 
 
-grunt minimal
+/usr/local/bin/grunt minimal
 
 if test $? -ne 0
 then
