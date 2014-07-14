@@ -3,7 +3,6 @@
 <div class="" ng-show="!loading" ng-cloak>
     <h1>Staff <button class="btn blue" ng-click="openModalNewStaff('lg')">Create New</button></h1>
 
-    <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage" ng-cloak>
@@ -14,10 +13,10 @@
                 <h3 class="modal-title" ng-show="existingUser">Existing Staff User</h3>
             </div>
             <div class="modal-body">
-                <form name="userForm" ng-show="!existingUser">
-                    <div ng-include src="'views/partials/staffDetails.html'" ng-controller="StaffDetailsCtrl"></div>
+                <form name="userFormNew" ng-show="!existingUser">
+                    <div ng-include src="'views/partials/staffDetailsNew.html'" ng-controller="StaffDetailsCtrl"></div>
                 </form>
-                <form name="userForm" ng-show="existingUser">
+                <form name="userFormExisting" ng-show="existingUser">
                     <div ng-include src="'views/partials/staffDetailsExisting.html'" ng-controller="StaffDetailsCtrl"></div>
                 </form>
             </div>
@@ -25,8 +24,8 @@
                 <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
-                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
+                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userFormExisting.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
 
@@ -95,6 +94,8 @@
             </div>
         </div>
 
+        <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
+
         <!-- data grid -->
         <div class="faux-table four-col" data-ng-show="filtered.length  > 0">
             <!-- header -->
@@ -104,6 +105,7 @@
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-2 accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title">Last Login&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item"><a class="sort-title">Actions</a></div>
             </div>
             <!-- body -->
@@ -115,6 +117,7 @@
                             <div class="row-item accordion-heading-text">{{user.username}}</div>
                             <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div class="row-item accordion-heading-text">{{user.name}}</div>
+                            <div class="col-sm-2 accordion-heading-text">{{user.lastLogin}}</div>
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="button-dropdown-group">

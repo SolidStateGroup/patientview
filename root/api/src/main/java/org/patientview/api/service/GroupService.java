@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +21,16 @@ public interface GroupService {
 
     List<Group> findGroupByUser(User user);
 
+    List<Group> findGroupAndChildGroupsByUser(User user);
+
     List<Group> findGroupByType(Long lookupId);
 
     Group save(Group group);
 
     Group create(Group group);
+
+    GroupRole addGroupRole(Long userId, Long groupId, Long roleId);
+
+    void addParentGroup(Long groupId, Long parentGroupId);
 
 }

@@ -2,12 +2,14 @@ package org.patientview;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +27,6 @@ import javax.inject.Inject;
 public class AdminDataMigrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdminDataMigrationTest.class);
-
 
     @Inject
     private UnitDao unitDao;
@@ -45,6 +46,7 @@ public class AdminDataMigrationTest {
      */
     @Test
     @Transactional
+    @Rollback(false)
     public void testStaticDataMigrationFeatures()  throws Exception {
         LOG.info("Starting migration");
         adminDataMigrationService.migrate();
@@ -52,7 +54,7 @@ public class AdminDataMigrationTest {
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getFeatureByName("SHARING_THOUGHTS"));
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("PATIENT"));
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("UNIT_ADMIN"));
-        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("UNIT_STAFF"));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("STAFF_ADMIN"));
     }
 
 

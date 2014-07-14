@@ -45,8 +45,15 @@ public final class JsonUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
 
-    public static final String fhirUrl = "http://dev.solidstategroup.com:7865/api";
-    public static final String pvUrl = "http://diabetes-pv.dev.solidstategroup.com/api";
+    public static String pvUrl;
+
+    static {
+
+        if ((pvUrl = System.getProperty("url")) == null) {
+            throw new RuntimeException("Please specify an environment by using -Durl=apiUrl");
+        }
+
+    }
 
     private JsonUtil() {}
 

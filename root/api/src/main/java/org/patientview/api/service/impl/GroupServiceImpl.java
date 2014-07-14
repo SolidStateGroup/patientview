@@ -5,6 +5,7 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
@@ -13,9 +14,11 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +69,12 @@ public class GroupServiceImpl implements GroupService {
     private GroupRelationshipRepository groupRelationshipRepository;
 
     @Inject
+    private RoleRepository roleRepository;
+
+    @Inject
+    private GroupRoleRepository groupRoleRepository;
+
+    @Inject
     private EntityManager entityManager;
 
 
@@ -93,6 +103,24 @@ public class GroupServiceImpl implements GroupService {
 
     }
 
+    public List<Group> findGroupAndChildGroupsByUser(User user) {
+
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue("RELATIONSHIP_TYPE", "CHILD");
+        Set<Group> groups = new HashSet<Group>();
+        // get list of groups associated with user directly (user is member of group)
+        groups.addAll(Util.iterableToList(groupRepository.findGroupByUser(user)));
+        // for each group get list of children if present
+        for (Group group : groups) {
+            for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
+                if (groupRelationship.getLookup().equals(childRelationshipType)) {
+                    groups.add(groupRelationship.getObjectGroup());
+                }
+            }
+        }
+
+        return addParentAndChildGroups(new ArrayList<Group>(groups));
+    }
+
     public List<Group> findGroupByType(Long lookupId) {
 
         Lookup groupType = lookupRepository.findOne(lookupId);
@@ -106,6 +134,7 @@ public class GroupServiceImpl implements GroupService {
 
     /**
      * TODO remove links, relationships, locations, and features SPRINT 2
+     * FIXME Hacked to get saves
      *
      * @param group
      * @return
@@ -118,29 +147,36 @@ public class GroupServiceImpl implements GroupService {
         // save group relationships
         saveGroupRelationships(group);
 
+        linkRepository.deleteByGroup(group);
+        entityManager.flush();
+
         // set new group links and persist
         if (!CollectionUtils.isEmpty(group.getLinks())) {
+
             for (Link link : group.getLinks()) {
-                if (link.getId() < 0) {
-                    link.setId(null);
-                }
+                //if (link.getId() < 0) {
+                link.setId(null);
+                //}
                 link.setGroup(entityGroup);
                 link.setCreator(userRepository.findOne(1L));
+                Link persistedLink = linkRepository.save(link);
+                LOG.debug("Save link " + persistedLink.getId());
             }
         }
 
+        entityGroup.setLinks(Collections.EMPTY_SET);
+
+
+        locationRepository.delete(entityGroup.getLocations());
+        entityManager.flush();
 
         // remove deleted group locations
-        if (!CollectionUtils.isEmpty(entityGroup.getLocations())) {
-            entityGroup.getLocations().removeAll(group.getLocations());
-            locationRepository.delete(entityGroup.getLocations());
+        if (!CollectionUtils.isEmpty(group.getLocations())) {
 
             // set new group locations and persist
             if (!CollectionUtils.isEmpty(group.getLocations())) {
                 for (Location location : group.getLocations()) {
-                    if (location.getId() < 0) {
-                        location.setId(null);
-                    }
+                    location.setId(null);
                     location.setGroup(entityGroup);
                     location.setCreator(userRepository.findOne(1L));
                     locationRepository.save(location);
@@ -148,11 +184,12 @@ public class GroupServiceImpl implements GroupService {
             }
         }
 
-        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
+        entityGroup.setLocations(Collections.EMPTY_SET);
 
-            // remove deleted group features
-            entityGroup.getGroupFeatures().removeAll(group.getGroupFeatures());
-            groupFeatureRepository.delete(entityGroup.getGroupFeatures());
+        groupFeatureRepository.delete(entityGroup.getGroupFeatures());
+        entityManager.flush();
+
+        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
 
             // save group features
             for (GroupFeature groupFeature : group.getGroupFeatures()) {
@@ -163,8 +200,15 @@ public class GroupServiceImpl implements GroupService {
             }
         }
 
+        entityGroup.setGroupFeatures(Collections.EMPTY_SET);
+
+        entityGroup.setSftpUser(group.getSftpUser());
+        entityGroup.setName(group.getName());
+        entityGroup.setCode(group.getCode());
+        entityGroup.setGroupType(group.getGroupType());
+        entityGroup.setVisibleToJoin(group.getVisibleToJoin());
         entityGroup = groupRepository.save(entityGroup);
-        return addSingleParentAndChildGroup(groupRepository.findOne(entityGroup.getId()));
+        return addSingleParentAndChildGroup(entityGroup);
     }
 
     /**
@@ -242,6 +286,15 @@ public class GroupServiceImpl implements GroupService {
         return addSingleParentAndChildGroup(newGroup);
     }
 
+    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId) {
+        GroupRole groupRole = new GroupRole();
+        groupRole.setUser(userRepository.findOne(userId));
+        groupRole.setGroup(groupRepository.findOne(groupId));
+        groupRole.setRole(roleRepository.findOne(roleId));
+        groupRole.setCreator(userRepository.findOne(1L));
+        return groupRoleRepository.save(groupRole);
+    }
+
 
     private void saveGroupRelationships(Group group) {
 
@@ -272,12 +325,12 @@ public class GroupServiceImpl implements GroupService {
         }
     }
 
-    private void createRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
+    private GroupRelationship createRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
         GroupRelationship groupRelationship = new GroupRelationship();
         groupRelationship.setSourceGroup(sourceGroup);
         groupRelationship.setObjectGroup(objectGroup);
         groupRelationship.setLookup(relationshipType);
-        groupRelationshipRepository.save(groupRelationship);
+        return groupRelationshipRepository.save(groupRelationship);
     }
 
 
@@ -328,6 +381,18 @@ public class GroupServiceImpl implements GroupService {
 
     }
 
+    public void addParentGroup(Long groupId, Long parentGroupId) {
+
+        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue("RELATIONSHIP_TYPE", "PARENT");
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue("RELATIONSHIP_TYPE", "CHILD");
+
+        Group sourceGroup = groupRepository.findOne(groupId);
+        Group objectGroup = groupRepository.findOne(parentGroupId);
+
+        createRelationship(sourceGroup, objectGroup, parentRelationshipType);
+        createRelationship(objectGroup, sourceGroup, childRelationshipType);
+
+    }
 
 
 }

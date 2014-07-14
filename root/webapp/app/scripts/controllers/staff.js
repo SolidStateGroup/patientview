@@ -1,12 +1,15 @@
 'use strict';
 
+// todo: consider controllers in separate files
+
 // new staff modal instance controller
-var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'UserService',
-function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, UserService) {
+var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService',
+function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService) {
     $scope.permissions = permissions;
     $scope.editUser = newUser;
     $scope.allGroups = allGroups;
     $scope.allowedRoles = allowedRoles;
+    $scope.identifierTypes = identifierTypes;
 
     // set initial group and feature (avoid blank option)
     if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
@@ -28,7 +31,7 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
         }, function(result) {
             if (result.status === 409) {
                 // 409 = CONFLICT, means staff already exists, provide UI to edit existing staff group roles
-                $scope.warningMessage = 'A staff member with this username already exists, you can add them to your group if required.';
+                $scope.warningMessage = 'A staff member with this username or email already exists, you can add them to your group if required.';
                 $scope.editUser = result.data;
                 $scope.existingUser = true;
 
@@ -128,8 +131,8 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Staff controller
-angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService',
-    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService', 'StaticDataService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService, StaticDataService) {
 
     // filter users by group
     $scope.selectedGroup = [];
@@ -188,7 +191,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $('.child-menu').remove();
         });
 
-        var i, group, groupIds = [], staffRoleIds = [];
+        var i, group, groupIds = [], staffRoleIds = [], role;
         $scope.loading = true;
         $scope.allGroups = [];
         $scope.allRoles = [];
@@ -200,10 +203,15 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.permissions.allGroupsIds = [];
 
         // get staff type roles
-        RoleService.getByType("STAFF").then(function(roles) {
-            $scope.allRoles = roles;
+        RoleService.getByType('STAFF').then(function(roles) {
+
+            // set roles that can be chosen in UI, only show visible roles
             for (i = 0; i < roles.length; i++) {
-                staffRoleIds.push(roles[i].id);
+                role = roles[i];
+                if (role.visible === true) {
+                    $scope.allRoles.push(role);
+                    staffRoleIds.push(role.id);
+                }
             }
 
             // get logged in user's groups
@@ -215,7 +223,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 // show error if user is not a member of any groups
                 if (groups.length !== 0) {
 
-                    // set groups that can be chosen in UI
+                    // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
                     for (i = 0; i < groups.length; i++) {
                         group = groups[i];
                         if (group.visible === true) {
@@ -254,6 +262,16 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                             $scope.allFeatures.push({'feature': allFeatures[i]});
                         }
                     });
+
+                    // todo: note only applies to patients, consider unifying controllers (as patients is a copy of staff)
+                    // get list of identifier types when user adding identifiers to staff members
+                    $scope.identifierTypes = [];
+                    /*StaticDataService.getLookupsByType('IDENTIFIER').then(function(identifierTypes) {
+                        if (identifierTypes.length > 0) {
+                            $scope.identifierTypes = identifierTypes;
+                        }
+                    });*/
+
                 } else {
                     // no groups found
                     delete $scope.loading;
@@ -268,8 +286,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     };
 
     // Opened for edit
-    $scope.opened = function (user, $event) {
+    $scope.opened = function (openedUser, $event, status) {
         $scope.successMessage = '';
+        $scope.editUser = '';
 
         // TODO: handle accordion and bootstrap dropdowns correctly without workaround
         if ($event) {
@@ -295,48 +314,60 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             }
         }
 
-        $scope.editing = true;
-        user.roles = $scope.allowedRoles;
+        // do not load if already opened (status.open == true)
+        if (!status || status.open === false) {
 
-        // for REST compatibility, convert staff member groupRoles to objects suitable for UI
-        user.groups = [];
-        for(var h=0;h<user.groupRoles.length;h++) {
-            var groupRole = user.groupRoles[h];
-            var group = groupRole.group;
-            group.role = groupRole.role;
-            user.groups.push(group);
-        }
+            // now using lightweight group list, do GET on id to get full group and populate editGroup
+            UserService.get(openedUser.id).then(function (user) {
 
-        // create list of available groups (all - staff members existing groups)
-        user.availableGroups = $scope.allGroups;
-        if (user.groups) {
-            for (var i = 0; i < user.groups.length; i++) {
-                user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: user.groups[i].id}));
-            }
-        }
-        else { user.groups = []; }
+                $scope.editing = true;
+                user.roles = $scope.allowedRoles;
 
-        // create list of available features (all - staff members existing features)
-        user.availableFeatures = _.clone($scope.allFeatures);
-        if (user.userFeatures) {
-            for (var j = 0; j < user.userFeatures.length; j++) {
-                for (var k = 0; k < user.availableFeatures.length; k++) {
-                    if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
-                        user.availableFeatures.splice(k, 1);
+                // for REST compatibility, convert staff member groupRoles to objects suitable for UI
+                user.groups = [];
+                for (var h = 0; h < user.groupRoles.length; h++) {
+                    var groupRole = user.groupRoles[h];
+                    var group = groupRole.group;
+                    group.role = groupRole.role;
+                    user.groups.push(group);
+                }
+
+                // create list of available groups (all - staff members existing groups)
+                user.availableGroups = $scope.allGroups;
+                if (user.groups) {
+                    for (var i = 0; i < user.groups.length; i++) {
+                        user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: user.groups[i].id}));
                     }
                 }
-            }
-        } else { user.userFeatures = []; }
+                else {
+                    user.groups = [];
+                }
 
-        // set the staff member being edited to a clone of the existing staff member (so only updated in UI on save)
-        $scope.editUser = _.clone(user);
+                // create list of available features (all - staff members existing features)
+                user.availableFeatures = _.clone($scope.allFeatures);
+                if (user.userFeatures) {
+                    for (var j = 0; j < user.userFeatures.length; j++) {
+                        for (var k = 0; k < user.availableFeatures.length; k++) {
+                            if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
+                                user.availableFeatures.splice(k, 1);
+                            }
+                        }
+                    }
+                } else {
+                    user.userFeatures = [];
+                }
 
-        // set initial group and feature (avoid blank <select> option)
-        if ($scope.editUser.availableGroups[0]) {
-            $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
-        }
-        if ($scope.editUser.availableFeatures[0]) {
-            $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+                // set the staff member being edited to a clone of the existing staff member (so only updated in UI on save)
+                $scope.editUser = _.clone(user);
+
+                // set initial group and feature (avoid blank <select> option)
+                if ($scope.editUser.availableGroups[0]) {
+                    $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
+                }
+                if ($scope.editUser.availableFeatures[0]) {
+                    $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+                }
+            });
         }
     };
 
@@ -366,6 +397,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.editUser.availableFeatures = _.clone($scope.allFeatures);
         $scope.editUser.userFeatures = [];
         $scope.editUser.selectedRole = '';
+        $scope.editUser.identifiers = [];
 
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
@@ -387,6 +419,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 },
                 allFeatures: function(){
                     return $scope.allFeatures;
+                },
+                identifierTypes: function(){
+                    return $scope.identifierTypes;
                 },
                 UserService: function(){
                     return UserService;
@@ -417,7 +452,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     }
                 }
 
-                if (index) {
+                if (index !== null) {
                     // user already in list of users shown, update object
                     $scope.list[index] = _.clone(user);
                 } else {

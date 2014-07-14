@@ -73,6 +73,7 @@ function ($q, Restangular, UtilService) {
         },
         // Save existing user
         save: function (inputUser) {
+            var i;
             var deferred = $q.defer();
 
             // clean user object
@@ -80,7 +81,7 @@ function ($q, Restangular, UtilService) {
 
             // clean group roles (clean role and group then add to groupRoles)
             user.groupRoles = [];
-            for (var i=0;i<inputUser.groupRoles.length;i++) {
+            for (i=0;i<inputUser.groupRoles.length;i++) {
                 var inputGroupRole = inputUser.groupRoles[i];
                 var role = UtilService.cleanObject(inputGroupRole.role, 'role');
                 var group = UtilService.cleanObject(inputGroupRole.group, 'group');
@@ -89,12 +90,21 @@ function ($q, Restangular, UtilService) {
 
             // clean user features
             var cleanUserFeatures = [];
-            for (var j=0;j<inputUser.userFeatures.length;j++) {
-                var userFeature = inputUser.userFeatures[j];
+            for (i=0;i<inputUser.userFeatures.length;i++) {
+                var userFeature = inputUser.userFeatures[i];
                 var feature = {'id':userFeature.feature.id,'name':userFeature.feature.name,'description':''};
                 cleanUserFeatures.push({'feature':feature});
             }
             user.userFeatures = cleanUserFeatures;
+
+            // clean identifiers
+            var cleanIdentifiers = [];
+            for (i=0;i<inputUser.identifiers.length;i++) {
+                var identifier = inputUser.identifiers[i];
+                identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+                cleanIdentifiers.push(identifier);
+            }
+            user.identifiers = cleanIdentifiers;
 
             // PUT /user
             Restangular.all('user').customPUT(user).then(function(successResult) {
@@ -126,11 +136,20 @@ function ($q, Restangular, UtilService) {
                 cleanUserFeatures.push({'feature':feature});
             }
 
+            // clean identifiers
+            var cleanIdentifiers = [];
+            for (i=0;i<inputUser.identifiers.length;i++) {
+                var identifier = inputUser.identifiers[i];
+                identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+                cleanIdentifiers.push(identifier);
+            }
+
             // clean base user object
             var user = UtilService.cleanObject(inputUser, 'user');
 
             // add cleaned objects
             user.userFeatures = cleanUserFeatures;
+            user.identifiers = cleanIdentifiers;
             user.groupRoles = inputUser.groupRoles;
 
             // generate password

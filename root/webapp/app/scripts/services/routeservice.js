@@ -5,48 +5,6 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
         getDefault: function() {
             var defaultRoutes = {
                 'routes': [{
-                    'url': '/',
-                    'templateUrl': 'views/main.html',
-                    'controller': 'MainCtrl',
-                    'title': 'Home',
-                    'lookup': {
-                        'id': 4,
-                        'value': 'TOP',
-                        'lookupType': {
-                            'id': 2,
-                            'type': 'MENU',
-                            'description': 'Type of menu'
-                        }
-                    }
-                },{
-                    'url': '/login',
-                    'templateUrl': 'views/login.html',
-                    'controller': 'LoginCtrl',
-                    'title': 'Login',
-                    'lookup': {
-                        'id': 5,
-                        'value': 'NOT_DISPLAYED',
-                        'lookupType': {
-                            'id': 2,
-                            'type': 'MENU',
-                            'description': 'Type of menu'
-                        }
-                    }
-                },{
-                    'url': '/logout',
-                    'templateUrl': 'views/logout.html',
-                    'controller': 'LogoutCtrl',
-                    'title': 'Log Out',
-                    'lookup': {
-                        'id': 5,
-                        'value': 'NOT_DISPLAYED',
-                        'lookupType': {
-                            'id': 2,
-                            'type': 'MENU',
-                            'description': 'Type of menu'
-                        }
-                    }
-                },{
                     'url': '/verify',
                     'templateUrl': 'views/verify.html',
                     'controller': 'VerifyCtrl',
@@ -64,6 +22,57 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
             };
 
             return defaultRoutes;
+        },
+        getMainRoute: function() {
+            return {
+                'url': '/',
+                'templateUrl': 'views/main.html',
+                'controller': 'MainCtrl',
+                'title': 'Home',
+                'lookup': {
+                    'id': 4,
+                    'value': 'TOP',
+                    'lookupType': {
+                        'id': 2,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
+        getLoginRoute: function() {
+            return {
+                'url': '/login',
+                'templateUrl': 'views/login.html',
+                'controller': 'LoginCtrl',
+                'title': 'Login',
+                'lookup': {
+                    'id': 100,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 2,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
+        getLogoutRoute: function() {
+            return {
+                'url': '/logout',
+                'templateUrl': 'views/logout.html',
+                'controller': 'LogoutCtrl',
+                'title': 'Log Out',
+                'lookup': {
+                    'id': 99,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 2,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
         },
         getRoutes: function (uuid) {
             var deferred = $q.defer();

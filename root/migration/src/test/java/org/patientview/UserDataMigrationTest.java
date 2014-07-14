@@ -7,8 +7,10 @@ import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 
@@ -26,9 +28,6 @@ public class UserDataMigrationTest {
     private UnitDao unitDao;
 
     @Inject
-    private AdminDataMigrationService adminDataMigrationService;
-
-    @Inject
     private UserDataMigrationService userDataMigrationService;
 
     /**
@@ -37,8 +36,9 @@ public class UserDataMigrationTest {
      * @throws Exception
      */
     @Test
+    @Transactional
+    @Rollback(false)
     public void testUserMigration() {
-
         userDataMigrationService.migrate();
 
     }

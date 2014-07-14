@@ -9,12 +9,14 @@ import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -25,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -56,30 +59,27 @@ public class UserServiceImpl implements UserService {
     private UserFeatureRepository userFeatureRepository;
 
     @Inject
+    private IdentifierRepository identifierRepository;
+
+    @Inject
     private EmailService emailService;
 
     @Inject
     private Properties properties;
 
-    public User createUser(User user) {
+    private User createUser(User user) {
 
         User newUser;
 
-        /*try {
-            newUser = userRepository.save(user);
-        } catch (DataIntegrityViolationException dve) {
-            LOG.debug("User not created, duplicate user: {}", dve.getCause());
-            throw new EntityExistsException("Username already exists");
-        } catch (ConstraintViolationException cve) {
-            LOG.debug("User not created, duplicate user: {}", cve.getCause());
-            throw new EntityExistsException("Username already exists");
-        }*/
-
         if (getByUsername(user.getUsername()) != null) {
-            throw new EntityExistsException("User already exists");
+            throw new EntityExistsException("User already exists (username)");
         }
 
-        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+        if (getByEmail(user.getEmail()) != null) {
+            throw new EntityExistsException("User already exists (email)");
+        }
+
+        user.setCreator(userRepository.findOne(1L));
         newUser = userRepository.save(user);
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
@@ -94,7 +94,6 @@ public class UserServiceImpl implements UserService {
                 groupRole.setCreator(userRepository.findOne(1L));
                 groupRoleRepository.save(groupRole);
             }
-
         }
 
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
@@ -105,17 +104,56 @@ public class UserServiceImpl implements UserService {
                 userFeature.setCreator(userRepository.findOne(1L));
                 userFeatureRepository.save(userFeature);
             }
+        }
 
+        if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
+
+            for (Identifier identifier : user.getIdentifiers()) {
+                identifier.setId(null);
+                identifier.setUser(userRepository.findOne(userId));
+                identifier.setCreator(userRepository.findOne(1L));
+                identifierRepository.save(identifier);
+            }
         }
 
         user.setId(newUser.getId());
 
+        // Everyone should be in the generic group.
+        addUserToGenericGroup(newUser);
+
         return userRepository.save(user);
+
+    }
+
+    // We do this so early one gets the generic group
+    private void addUserToGenericGroup(User user) {
+        // TODO Sprint 2 make these value configurable
+        Role role = roleRepository.findOne(7L);
+        Group group = groupRepository.findOne(1L);
+
+        GroupRole groupRole = new GroupRole();
+        groupRole.setUser(user);
+        groupRole.setGroup(group);
+        groupRole.setCreator(userRepository.findOne(1L));
+        groupRole.setRole(role);
+        groupRole.setStartDate(new Date());
+        groupRoleRepository.save(groupRole);
+    }
+
+
+    public User createUserWithPasswordEncryption(User user) {
+        user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+        return createUser(user);
     }
 
 
     public User createUserResetPassword(User user) {
         user.setPassword(DigestUtils.sha256Hex(CommonUtils.getAuthtoken()));
+        return createUser(user);
+    }
+
+    //Migration Only
+    public User createUserNoEncryption(User user) {
         return createUser(user);
     }
 
@@ -128,12 +166,17 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username);
     }
 
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public User saveUser(User user) {
 
         // clear existing user groups roles, features
         User entityUser = userRepository.findOne(user.getId());
         groupRoleRepository.delete(entityUser.getGroupRoles());
         userFeatureRepository.delete(entityUser.getUserFeatures());
+        identifierRepository.delete(entityUser.getIdentifiers());
 
         // add updated groups and roles
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
@@ -153,6 +196,16 @@ public class UserServiceImpl implements UserService {
                 userFeature.setUser(userRepository.findOne(user.getId()));
                 userFeature.setCreator(userRepository.findOne(1L));
                 userFeatureRepository.save(userFeature);
+            }
+        }
+
+        // add identifiers
+        if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
+            for (Identifier identifier : user.getIdentifiers()) {
+                identifier.setId(null);
+                identifier.setUser(userRepository.findOne(user.getId()));
+                identifier.setCreator(userRepository.findOne(1L));
+                identifierRepository.save(identifier);
             }
         }
 
@@ -192,11 +245,14 @@ public class UserServiceImpl implements UserService {
         email.setSender(properties.getProperty("smtp.sender"));
         email.setSubject("PatientView - Please verify your account");
         email.setRecipients(new String[]{user.getEmail()});
-        email.setBody("Please visit http://www.patientview.org/#/verify?userId="
-                + user.getId()
-                + "&verificationCode="
-                + user.getVerificationCode()
-                + " to validate your account.");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Please visit http://www.patientview.org/#/verify?userId=");
+        sb.append(user.getId());
+        sb.append("&verificationCode=");
+        sb.append(user.getVerificationCode());
+        sb.append(" to validate your account.");
+        email.setBody(sb.toString());
         return emailService.sendEmail(email);
     }
 

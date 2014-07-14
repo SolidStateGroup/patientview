@@ -39,6 +39,7 @@ public class Role extends AuditModel {
     @OneToMany(mappedBy = "role")
     private Set<GroupRole> groupRoles;
 
+    private Boolean visible;
 
     public String getName() {
         return name;
@@ -78,5 +79,13 @@ public class Role extends AuditModel {
 
     public void setLevel(final Integer level) {
         this.level = level;
+    }
+
+    public Boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(final Boolean visible) {
+        this.visible = visible;
     }
 }

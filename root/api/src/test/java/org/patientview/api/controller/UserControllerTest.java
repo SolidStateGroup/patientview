@@ -5,9 +5,11 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.User;
 import org.patientview.test.util.TestUtils;
@@ -39,6 +41,10 @@ public class UserControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private GroupService groupService;
+
 
     @InjectMocks
     private UserController userController;
@@ -83,7 +89,7 @@ public class UserControllerTest {
         User postUser = TestUtils.createUser(null, "testPost");
 
         when(userService.getUser(anyLong())).thenReturn(TestUtils.createUser(1L, "creator"));
-        when(userService.createUser(any(User.class))).thenReturn(postUser);
+        when(userService.createUserWithPasswordEncryption(any(User.class))).thenReturn(postUser);
         try {
             mockMvc.perform(MockMvcRequestBuilders.post("/user")
                     .content(mapper.writeValueAsString(postUser)).contentType(MediaType.APPLICATION_JSON))
@@ -94,32 +100,34 @@ public class UserControllerTest {
             Assert.fail("The post request all should not fail " + e.getCause());
         }
 
-        verify(userService, Mockito.times(1)).createUser(any(User.class));
+        verify(userService, Mockito.times(1)).createUserWithPasswordEncryption(any(User.class));
     }
 
+
     /**
-     * Test: User creation with password reset
-     * Fail: The UserService does not get called
+     * Test: Adding a GroupRole to a user
+     * Fail: The GroupService method does not get called
      *
      * Improve test to verify the correct user is being saved
      */
     @Test
-    public void testCreateUserWithPasswordReset()  {
-        User postUser = TestUtils.createUser(null, "testPost");
+    public void testAddGroupRole()  {
+        Long userId = 1L;
+        Long groupId = 2L;
+        Long roleId = 3L;
 
-        when(userService.getUser(anyLong())).thenReturn(TestUtils.createUser(1L, "creator"));
-        when(userService.createUserResetPassword(any(User.class))).thenReturn(postUser);
+        String url = "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
+
         try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/user?resetPassword=true")
-                    .content(mapper.writeValueAsString(postUser)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated());
+            mockMvc.perform(MockMvcRequestBuilders.put(url))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
         }
-
         catch (Exception e) {
-            Assert.fail("The post request all should not fail " + e.getCause());
+            Assert.fail("The put request all should not fail " + e.getCause());
         }
 
-        verify(userService, Mockito.times(1)).createUserResetPassword(any(User.class));
+        verify(groupService, Mockito.times(1)).addGroupRole(Matchers.eq(userId), Matchers.eq(groupId), Matchers.eq(roleId));
     }
+
 
 }

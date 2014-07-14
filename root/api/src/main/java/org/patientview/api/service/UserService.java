@@ -18,6 +18,8 @@ public interface UserService {
 
     User getByUsername(String username);
 
+    User getByEmail(String username);
+
     void deleteUser(Long userId);
 
     User getUser(Long userId);
@@ -29,7 +31,9 @@ public interface UserService {
      * @param user
      * @return
      */
-    User createUser(User user);
+    User createUserWithPasswordEncryption(User user);
+
+    public User createUserNoEncryption(User user);
 
     User saveUser(User user);
 

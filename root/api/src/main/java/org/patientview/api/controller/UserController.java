@@ -4,8 +4,10 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.controller.model.Credentials;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
@@ -41,6 +43,10 @@ public class UserController extends BaseController {
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private GroupService groupService;
+
     @Inject
     private AdminService adminService;
 
@@ -48,6 +54,15 @@ public class UserController extends BaseController {
     @ResponseBody
     public ResponseEntity<User> getUser(@PathVariable("userId") Long userId) {
         return new ResponseEntity<User>(userService.getUser(userId), HttpStatus.OK);
+
+    }
+
+    @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}",
+            method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<GroupRole> addUserGroupRole(@PathVariable("userId") Long userId
+            , @PathVariable("groupId") Long groupId, @PathVariable("roleId") Long roleId) {
+        return new ResponseEntity<GroupRole>(groupService.addGroupRole(userId, groupId, roleId), HttpStatus.OK);
 
     }
 
@@ -88,28 +103,37 @@ public class UserController extends BaseController {
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user,
-                                           @RequestParam(value = "resetPassword", required = false) Boolean resetPasword,
+                                           @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword,
                                                    UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.getUser(1L));
+        // Migration Only
 
-        if (resetPasword != null && resetPasword.equals(Boolean.TRUE)) {
+        if (encryptPassword != null && encryptPassword.equals(Boolean.FALSE)) {
             try {
-                user = userService.createUserResetPassword(user);
+                user = userService.createUserNoEncryption(user);
             }
             catch (EntityExistsException eee) {
+                User foundUser = userService.getByUsername(user.getUsername());
+                if (foundUser != null) {
+                    // found by username
+                    return new ResponseEntity<User>(foundUser, HttpStatus.CONFLICT);
+                } else {
+                    // found by email
+                    return new ResponseEntity<User>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
+                }
+            }
+        }
+        if (user.getId() == null) {
+            try {
+
+                user = userService.createUserWithPasswordEncryption(user);
+            } catch (EntityExistsException eee) {
                 return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
             }
         }
-        else {
-            try {
-                user = userService.createUser(user);
-            }
-            catch (EntityExistsException eee) {
-                return new ResponseEntity<User>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
-            }
-        }
+        
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
         HttpHeaders headers = new HttpHeaders();

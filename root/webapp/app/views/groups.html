@@ -5,7 +5,6 @@
 </script>-->
 <div class="" ng-show="!loading" ng-cloak>
     <h1>Groups</h1>
-    <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage" ng-cloak>
@@ -54,7 +53,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                     <li><a data-ng-click="selectedGroupType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                     <li class="divider"></li>
-                                    <li data-ng-repeat="type in groupTypes"> <a data-ng-click="setSelectedGroupType()" class="a-filter-group-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isGroupTypeChecked(type.id)"></span></a></li>
+                                    <li data-ng-repeat="type in filterGroupTypes"> <a data-ng-click="setSelectedGroupType()" class="a-filter-group-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isGroupTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
                         </div>
@@ -64,6 +63,7 @@
 
         </div>
 
+        <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
         <div class="faux-table five-col" data-ng-show="filtered.length  > 0">
@@ -74,7 +74,7 @@
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('code');" class="sort-title">Code&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('groupType.value');" class="sort-title">Type&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text"><a ng-click="sortBy('description');" class="sort-title">Description&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="col-sm-3 accordion-title-text "><a ng-click="sortBy('sftpUser');" class="sort-title">SFTP User&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text"><a class="sort-title">Actions</a></div>
             </div>
 
@@ -87,7 +87,7 @@
                             <div class="row-item accordion-heading-text">{{group.code}}</div>
                             <div class="row-item accordion-heading-text">{{group.name}}</div>
                             <div class="row-item accordion-heading-text">{{group.groupType.value}}</div>
-                            <div class="row-item accordion-heading-text">{{group.description}}</div>
+                            <div class="col-sm-3 accordion-heading-text">{{group.sftpUser}}</div>
                             <div class="row-item">
 
                                 <!-- Stats, Edit buttons -->

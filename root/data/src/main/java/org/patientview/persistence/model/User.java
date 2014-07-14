@@ -58,7 +58,9 @@ public class User extends RangeModel implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
     private Set<UserFeature> userFeatures;
 
-   // @Type(type="pg-uuid")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    private Set<Identifier> identifiers;
+
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
 
@@ -153,6 +155,14 @@ public class User extends RangeModel implements UserDetails {
 
     public void setUserFeatures(final Set<UserFeature> userFeatures) {
         this.userFeatures = userFeatures;
+    }
+
+    public Set<Identifier> getIdentifiers() {
+        return identifiers;
+    }
+
+    public void setIdentifiers(Set<Identifier> identifiers) {
+        this.identifiers = identifiers;
     }
 
     //TODO User Detail fields need refactoring

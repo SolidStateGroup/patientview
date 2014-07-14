@@ -48,11 +48,12 @@ CREATE TABLE PV_Group
   Id               BIGINT    NOT NULL,
   Group_Name       VARCHAR(200) UNIQUE,
   Code             VARCHAR(50),
-  Description      VARCHAR(255),
+  Sftp_User        VARCHAR(255),
   Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
   Parent_Group_Id  BIGINT,
   Fhir_Resource_Id UUID,
   Visible          BOOLEAN,
+  Visible_To_Join  BOOLEAN,
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
@@ -82,6 +83,7 @@ CREATE TABLE PV_Role
   Role_Name        VARCHAR(50) NOT NULL UNIQUE,
   Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
   Level            INTEGER   NOT NULL,
+  Visible          BOOLEAN,
   Description      VARCHAR(255),
   Creation_Date    TIMESTAMP   NOT NULL,
   Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
@@ -434,6 +436,21 @@ CREATE TABLE PV_Route (
   Title                VARCHAR(255)  NOT NULL,
   Creation_Date        TIMESTAMP     NOT NULL,
   Created_By           BIGINT        REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Identifier
+(
+  Id               BIGINT      NOT NULL,
+  User_Id          BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Identifier       VARCHAR(200)   NOT NULL,
+  Start_Date       DATE,
+  End_Date         DATE,
+  Creation_Date    TIMESTAMP   NOT NULL,
+  Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 

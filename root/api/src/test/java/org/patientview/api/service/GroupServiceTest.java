@@ -2,6 +2,7 @@ package org.patientview.api.service;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
@@ -11,14 +12,20 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
+import org.patientview.persistence.repository.LinkRepository;
+import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.util.CollectionUtils;
@@ -57,7 +64,22 @@ public class GroupServiceTest {
     private FeatureRepository featureRepository;
 
     @Mock
+    private LinkRepository linkRepository;
+
+    @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
+    private LocationRepository locationRepository;
+
+    @Mock
+    private GroupRoleRepository groupRoleRepository;
+
+    @Mock
     private EntityManager entityManager;
+
+    @Mock
+    private SecurityService securityService;
 
     @InjectMocks
     private GroupService groupService = new GroupServiceImpl();
@@ -192,6 +214,114 @@ public class GroupServiceTest {
         Assert.assertNotNull("A group feature has been created", group);
     }
 
+    /**
+     * Test: To save a Group with Role to a user
+     * Fail: The repository does not get called
+     *
+     * Matching is required on the save call
+     */
+    @Test
+    public void testAddGroupRole() {
+        User testUser = TestUtils.createUser(2L, "testUser");
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Role testRole = TestUtils.createRole(3L, "testRole", creator);
+
+        GroupRole groupRole = TestUtils.createGroupRole(4L,testRole, testGroup, testUser, creator);
+
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(roleRepository.findOne(Matchers.eq(testRole.getId()))).thenReturn(testRole);
+        when(groupRoleRepository.save(Matchers.any(GroupRole.class))).thenReturn(groupRole);
+
+        groupRole = groupService.addGroupRole(testUser.getId(), testGroup.getId(), testRole.getId());
+
+        Assert.assertNotNull("The returned object should not be null", groupRole);
+
+        verify(groupRoleRepository, Mockito.times(1)).save(Matchers.any(GroupRole.class));
 
 
+    }
+
+    /**
+     * Test: Create a parent relationship between to group objects
+     * Fail: The parent and child relationship are not persisted
+     *
+     */
+    @Test
+    public void testAddParentGroup() {
+        User testUser = TestUtils.createUser(2L, "testUser");
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group testParentGroup = TestUtils.createGroup(1L, "testGroup", creator);
+
+        when(userRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findOne(Matchers.eq(testParentGroup.getId()))).thenReturn(testParentGroup);
+
+        groupService.addParentGroup(testGroup.getId(), testParentGroup.getId());
+
+        // Parent and child relationship should be persist
+        verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
+
+        Assert.assertNotNull("They should the correct GroupObject returned");
+
+    }
+
+
+    /**
+     * Test: create parent and 2 children, get parent group and its children based on a user's membership of the parent group
+     */
+    @Test
+    @Ignore
+    // todo: finish checking list of groups against specialty admin
+    public void testFindGroupAndChildGroupsByUser() {
+
+        // create user
+        User testUser = TestUtils.createUser(1L, "testUser");
+
+        // create groups
+        Group parentGroup = TestUtils.createGroup(2L, "parentGroup", creator);
+        Group childGroup1  = TestUtils.createGroup(3L, "childGroup1", creator);
+        Group childGroup2  = TestUtils.createGroup(4L, "childGroup2", creator);
+        Set<Group> childGroups = new HashSet<Group>();
+        childGroups.add(childGroup1);
+        childGroups.add(childGroup2);
+        parentGroup.setChildGroups(childGroups);
+        List<Group> allGroups = new ArrayList<Group>();
+        allGroups.add(parentGroup);
+
+        // add user as specialty admin to group
+        Role role = TestUtils.createRole(5L, "SPECIALTY_ADMIN", creator);
+        GroupRole groupRole = TestUtils.createGroupRole(6L, role, parentGroup, testUser, creator);
+        testUser.setGroupRoles(new HashSet<GroupRole>());
+        testUser.getGroupRoles().add(groupRole);
+        List<Role> roles = new ArrayList<Role>();
+        roles.add(role);
+
+        // Create relationships lookups
+        LookupType relationshipType = TestUtils.createLookupType(5L, "RELATIONSHIP_TYPE", creator);
+        Lookup parentRelationship = TestUtils.createLookup(6L, relationshipType, "PARENT", creator);
+        Lookup childRelationship = TestUtils.createLookup(7L, relationshipType, "CHILD", creator);
+
+        // create group relationships
+        Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
+        GroupRelationship child1 =  TestUtils.createGroupRelationship(8L, parentGroup, childGroup1, childRelationship, creator);
+        GroupRelationship child2 =  TestUtils.createGroupRelationship(9L, parentGroup, childGroup2, childRelationship, creator);
+        groupRelationships.add(child1);
+        groupRelationships.add(child2);
+        parentGroup.setGroupRelationships(groupRelationships);
+
+        // setup stubbing
+        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
+        when(groupRepository.findOne(Matchers.eq(parentGroup.getId()))).thenReturn(parentGroup);
+        when(groupRepository.findGroupByUser(Matchers.eq(testUser))).thenReturn(allGroups);
+        when(groupRepository.save(Matchers.eq(parentGroup))).thenReturn(parentGroup);
+        when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
+
+        Group group = groupService.save(parentGroup);
+
+        Assert.assertEquals("Should retrieve 3 groups", 3, securityService.getUserGroups(testUser.getId()).size());
+    }
 }

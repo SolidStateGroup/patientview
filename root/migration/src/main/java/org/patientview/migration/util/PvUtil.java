@@ -2,6 +2,7 @@ package org.patientview.migration.util;
 
 import org.patientview.Group;
 import org.patientview.model.Unit;
+import org.patientview.model.enums.SourceType;
 
 /**
  * Created by james@solidstategroup.com
@@ -15,12 +16,6 @@ public final class PvUtil {
     }
 
 
-    public static Group createGroup(Unit unit) {
-        Group group = new Group();
-        group.setName(unit.getName());
-        group.setCode(unit.getUnitcode());
-        return group;
 
-    }
 
 }
