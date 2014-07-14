@@ -280,7 +280,8 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         Group group = new Group();
         group.setName(unit.getShortname());
         group.setCode(unit.getUnitcode());
-        group.setVisible(unit.isVisible());
+        group.setVisibleToJoin(unit.isVisible());
+        group.setVisible(true);
         //group.setSftpUser(unit.ge);
 
         if (unit.getSourceType().equalsIgnoreCase("renalunit")) {
