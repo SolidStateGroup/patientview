@@ -6,7 +6,7 @@
 #
 #Build script to CI the front end
 #---------------------------------------------------------
-#npm install
+/usr/bin/npm install
 
 tomcatUrl=$1
 username=$2
