@@ -34,7 +34,7 @@ else
 fi
 
 
-/usr/local/bin/grunt minimal
+/usr/local/bin/grunt minimallive
 
 if test $? -ne 0
 then
