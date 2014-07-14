@@ -14,6 +14,8 @@ password=$3
 
 export PATH=/usr/bin/node;$PATH
 
+node -version
+
 if test $# -ne 3
 then
 	echo "Please supply all paramaters"
