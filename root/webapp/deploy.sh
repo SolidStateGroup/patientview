@@ -36,14 +36,6 @@ fi
 
 /usr/local/bin/grunt minimallive
 
-if test $? -ne 0
-then
-	echo "Grunt failed"
-	exit 2
-else
-	echo "Created .war"
-fi
-
 if [ $? -eq 0 ]; then
     curl -T "dist/webapp.war" "http://$username:$password@$tomcatUrl/manager/text/deploy?path=/&update=true"
     if [ $? -eq 0 ]; then
