@@ -38,10 +38,10 @@ fi
 
 if test $? -ne 0
 then
-	echo "Database creation failed"
+	echo "Grunt failed"
 	exit 2
 else
-	echo "Created the database"
+	echo "Created .war"
 fi
 
 if [ $? -eq 0 ]; then
