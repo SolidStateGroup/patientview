@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -52,13 +53,13 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "fullname")
     private String name;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private Set<UserFeature> userFeatures;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<Identifier> identifiers;
 
     @Column(name = "fhir_resource_id")

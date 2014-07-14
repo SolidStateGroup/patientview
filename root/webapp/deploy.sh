@@ -6,15 +6,21 @@
 #
 #Build script to CI the front end
 #---------------------------------------------------------
-/usr/bin/npm install
+
 
 tomcatUrl=$1
 username=$2
 password=$3
 
-export PATH="/usr/bin/node;$PATH"
+/usr/bin/npm install
 
-
+if test $? -ne 0
+then
+	echo "Could not install packages"
+	exit 2
+else
+	echo "Install javascript dependencies"
+fi
 
 if test $# -ne 3
 then
@@ -27,6 +33,15 @@ fi
 
 
 /usr/local/bin/grunt minimal
+
+if test $? -ne 0
+then
+	echo "Database creation failed"
+	exit 2
+else
+	echo "Created the database"
+fi
+
 if [ $? -eq 0 ]; then
     curl -T "dist/webapp.war" "http://$username:$password@$tomcatUrl/manager/text/deploy?path=/&update=true"
     if [ $? -eq 0 ]; then
