@@ -17,7 +17,7 @@
 </div>
 
 <div class="row form-edit-row">
-    <div class="col-sm-6 grey-right-border">
+    <div class="col-md-6 grey-right-border">
         <label class="inner-title">Groups &amp; Roles </label>
         <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-show="groupRole.group.visible === true">
             <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
@@ -36,7 +36,7 @@
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
     </div>
-    <div class="col-sm-6">
+    <div class="col-md-6">
         <label class="inner-title">Features</label>
         <div class="feature-list-item" ng-repeat="feature in editUser.userFeatures">
             <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.name}}</span></div>
