@@ -32,7 +32,7 @@ else
 fi
 
 
-/usr/local/bin/grunt minimal
+grunt minimal
 
 if test $? -ne 0
 then
