@@ -12,9 +12,9 @@ tomcatUrl=$1
 username=$2
 password=$3
 
-export PATH=/usr/bin/node;$PATH
+export PATH="/usr/bin/node;$PATH"
 
-node -version
+
 
 if test $# -ne 3
 then
