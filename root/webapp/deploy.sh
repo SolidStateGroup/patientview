@@ -12,7 +12,7 @@ tomcatUrl=$1
 username=$2
 password=$3
 
-/usr/bin/npm install
+npm install
 
 if test $? -ne 0
 then
