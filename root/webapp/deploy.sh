@@ -12,6 +12,8 @@ tomcatUrl=$1
 username=$2
 password=$3
 
+export PATH=/usr/bin/node;$PATH
+
 if test $# -ne 3
 then
 	echo "Please supply all paramaters"
