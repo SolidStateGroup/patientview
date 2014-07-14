@@ -34,7 +34,7 @@ else
 	echo "Installed npm dependencies"
 fi
 
-/usr/bin/bower install
+/usr/bin/bower install --allow-root
 
 if test $? -ne 0
 then
