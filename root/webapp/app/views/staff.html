@@ -118,15 +118,14 @@
                             <div class="row-item accordion-heading-text">{{user.name}}</div>
                             <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div> <ul class="unstyled">
-                                <div ng-repeat="groupRole in user.groupRoles">
+                                <div ng-repeat="groupRole in user.groupRoles" class="row-item accordion-heading-text>
                                     <div ng-if="groupRole.role.name !== 'MEMBER'">
                                     <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
                                     </div>
                                 </div></ul></div>
-                            <div> <ul class="unstyled"><li ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
+                            <div class="row-item accordion-heading-text> <ul class="unstyled"><li ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
                             <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
 
-                            <!--<div> <li ng-repeat="(group.name, role.name) in user.userRoles">{{group.name}} ({{role.name}})</li></div>-->
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="button-dropdown-group">
