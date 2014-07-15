@@ -53,15 +53,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
 
+
+            boolean isPatient = false;
+
             User newUser = createUser(oldUser);
 
             // create the User on the new system
             newUser = callApiCreateUser(newUser);
 
-            // Requery the user
-//            newUser = callApiGetUser(oldUser.getUsername());
-
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
+
 
                 // We do want the patient group.
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
@@ -75,6 +76,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         if (newUser != null && newUser.getId() != null && patientGroup != null && patientRole != null) {
                             callApiAddGroupRole(newUser.getId(), patientGroup.getId(), patientRole.getId());
                         }
+
+                        isPatient = true;
+
 
 
                     } else {
@@ -105,8 +109,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             }
 
-            if (newUser != null && newUser.getId() != null && !newUser.getUsername().equalsIgnoreCase("superadmin")
-                    && !newUser.getUsername().equalsIgnoreCase("ibd-sa") && !newUser.getUsername().equalsIgnoreCase("diabetes-sa")) {
+            if (isPatient) {
                 addSpecialty(oldUser, newUser);
             }
         }
