@@ -73,7 +73,9 @@
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('code');" class="sort-title">Code&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('groupType.value');" class="sort-title">Type&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('sftpUser');" class="sort-title">SFTP User&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text">Parent Groups&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text">Features&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text">Last Import&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text"><a class="sort-title">Actions</a></div>
             </div>
 
@@ -86,13 +88,17 @@
                             <div class="row-item accordion-heading-text">{{group.code}}</div>
                             <div class="row-item accordion-heading-text">{{group.name}}</div>
                             <div class="row-item accordion-heading-text">{{group.groupType.value}}</div>
-                            <div class="row-item accordion-heading-text">{{group.sftpUser}}</div>
-                            <div class="row-item actions">
+                            <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="group in group.parentGroups">{{group.name}}</li></ul></div>
+                            <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="groupFeature in group.groupFeatures">{{groupFeature.feature.description}}</li></ul></div>
+                            <div> <ul class="unstyled"></li></ul></div>
+                            <div class="row-item">
+
                                 <!-- Stats, Edit buttons -->
                                 <div class="btn-group">
                                     <button type="button" class="edit-button btn blue"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                                     <button type="button" class="statistics-button btn aquamarine"><span class="glyphicon glyphicon-stats"></span> Stats</button>
                                 </div>
+
                             </div>
                         </div>
                     </div accordion-heading>

@@ -5,19 +5,25 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.patientview.Code;
 import org.patientview.Feature;
 import org.patientview.Group;
 import org.patientview.GroupFeature;
 import org.patientview.GroupRole;
+import org.patientview.Link;
 import org.patientview.Lookup;
 import org.patientview.Role;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.PvUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Unit;
+import org.patientview.patientview.model.EdtaCode;
+import org.patientview.repository.EdtaCodeDao;
 import org.patientview.repository.FeatureDao;
 import org.patientview.repository.UnitDao;
+import org.patientview.service.EdtaCodeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -39,6 +45,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     @Inject
     private UnitDao unitDao;
+
+    @Inject
+    private EdtaCodeDao edtaCodeDao;
 
     @Inject
     private FeatureDao featureDao;
@@ -79,6 +88,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     public void migrate() {
         createGroups();
+        createCodes();
     }
 
     public void createGroups() {
@@ -101,7 +111,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             // Create the features
             if (CollectionUtils.isNotEmpty(unitFeatures)) {
                 for (Feature feature : unitFeatures) {
-                    callApiCreateGroupFeature(group, feature);
+                    if (group != null) {
+                        callApiCreateGroupFeature(group, feature);
+                    }
                 }
             }
 
@@ -144,10 +156,11 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         try {
             return JsonUtil.jsonRequest(featureUrl, GroupFeature.class, null, HttpPut.class);
         } catch (JsonMigrationException jme) {
-            LOG.error("Unable to create group: ", jme.getMessage());
-
+            LOG.error("Unable to create group feature: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {
-            LOG.info("Could not update group {} already exists", group.getName());
+            LOG.info("Could not create group feature for {}", group.getName());
+        } catch (Exception jee) {
+            LOG.info("Could not create group feature for {}", group.getName());
         }
 
         LOG.info("Success: feature created for group");
@@ -182,6 +195,34 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         }
 
         return newGroup;
+    }
+
+    private Code callApiCreateCode(Code code) {
+        Code newCode = null;
+        try {
+            newCode = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/code", Code.class, code, HttpPost.class);
+            LOG.info("Created code");
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create code: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to create code: ", jee.getMessage());
+        }
+
+        return newCode;
+    }
+
+    private Link callApiCreateLink(Link link) {
+        Link newLink = null;
+        try {
+            newLink = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/link", Link.class, link, HttpPost.class);
+            LOG.info("Created link");
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create link: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to create link: ", jee.getMessage());
+        }
+
+        return newLink;
     }
 
     private void sendDummyUnit() {
@@ -226,6 +267,24 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
         return  unitFeatures;
 
+    }
+
+
+
+    public void createCodes() {
+
+        int i = 1;
+        for (EdtaCode edtaCode : edtaCodeDao.get("edtaCode", null)) {
+            Code code = new Code();
+            code.setDisplayOrder(i++);
+            code.setStandardType(getLookupByName("EDTA"));
+            code.setCodeType(getLookupByName("DIAGNOSIS"));
+            code.setDescription(edtaCode.getDescription());
+            code.setCode(edtaCode.getEdtaCode());
+            code.setLinks(PvUtil.getLinks(edtaCode));
+            callApiCreateCode(code);
+
+        }
     }
 
 
@@ -280,7 +339,8 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         Group group = new Group();
         group.setName(unit.getShortname());
         group.setCode(unit.getUnitcode());
-        group.setVisible(unit.isVisible());
+        group.setVisibleToJoin(unit.isVisible());
+        group.setVisible(true);
         //group.setSftpUser(unit.ge);
 
         if (unit.getSourceType().equalsIgnoreCase("renalunit")) {

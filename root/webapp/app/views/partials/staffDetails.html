@@ -21,7 +21,7 @@
         <label class="inner-title">Groups &amp; Roles </label>
         <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-show="groupRole.group.visible === true">
             <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
-            <li class="group-list-role pull-left"><span class="group-list-role">{{groupRole.role.name}}</span></li>
+            <li class="group-list-role pull-left"><span class="group-list-role">{{groupRole.role.description}}</span></li>
             <li class="group-list-delete negative pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</a></span></li>
         </ul>
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
@@ -42,13 +42,13 @@
     <div class="col-md-6">
         <label class="inner-title">Features</label>
         <div class="feature-list-item" ng-repeat="feature in editUser.userFeatures">
-            <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.name}}</span></div>
+            <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
             <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userForm, editUser, feature)" >Delete</a></span></div>
         </div>
         <div class="feature-add-container" ng-show="editUser.availableFeatures.length > 0 ">
             <h5 class="inner-title">Add Feature </h5>
             <div class="row">
-                <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editUser.availableFeatures"></select></div>
+                <div class="col-sm-10"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select></div>
                 <div class="col-sm-2"><button type="button" class="btn blue feature-add-button" ng-click="addFeature(userForm, editUser, featureToAdd)">Add</button></div>
             </div>
         </div>
@@ -69,7 +69,7 @@
         <div class="row" ng-model="newIdentifier">
             <div class="col-sm-5"><input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="identifier" name="newIdentifier" ng-model="newIdentifier.identifier"></div>
             <div class="col-sm-5"><select class="form-control indentifierType-select" ng-model="newIdentifier.identifierType" ng-options="identifierType.id as identifierType.value for identifierType in identifierTypes"></select></div>
-            <div class="col-sm-2"><button type="button" class="btn blue identifier-add-button" ng-click="addIdentifier(userForm, editUser, newIdentifier)" ng-disabled="!(newIdentifier.identifier)">Add</button></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary identifier-add-button" ng-click="addIdentifier(userForm, editUser, newIdentifier)" ng-disabled="!(newIdentifier.identifier)">Add</button></div>
         </div>
     </div>
 </div>

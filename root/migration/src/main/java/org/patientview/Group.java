@@ -16,6 +16,7 @@ import java.util.UUID;
  * Created on 03/06/2014
  */
 public class Group extends AuditModel {
+
     @Column(name = "group_name")
     private String name;
 
@@ -30,6 +31,9 @@ public class Group extends AuditModel {
 
     @Column(name = "visible")
     private Boolean visible;
+
+    @Column(name = "visible_to_join")
+    private Boolean visibleToJoin;
 
     @OneToOne
     @JoinColumn(name = "type_id")
@@ -172,5 +176,13 @@ public class Group extends AuditModel {
 
     public void setVisible(final Boolean visible) {
         this.visible = visible;
+    }
+
+    public Boolean getVisibleToJoin() {
+        return visibleToJoin;
+    }
+
+    public void setVisibleToJoin(Boolean visibleToJoin) {
+        this.visibleToJoin = visibleToJoin;
     }
 }

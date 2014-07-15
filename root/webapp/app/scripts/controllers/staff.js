@@ -326,10 +326,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 // for REST compatibility, convert staff member groupRoles to objects suitable for UI
                 user.groups = [];
                 for (var h = 0; h < user.groupRoles.length; h++) {
-                    var groupRole = user.groupRoles[h];
-                    var group = groupRole.group;
-                    group.role = groupRole.role;
-                    user.groups.push(group);
+                    if (user.groupRoles[h].role.name !== 'MEMBER') {
+                        var groupRole = user.groupRoles[h];
+                        var group = groupRole.group;
+                        group.role = groupRole.role;
+                        user.groups.push(group);
+                    }
                 }
 
                 // create list of available groups (all - staff members existing groups)

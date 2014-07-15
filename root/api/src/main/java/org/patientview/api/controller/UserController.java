@@ -60,12 +60,14 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}",
             method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<GroupRole> addUserGroupRole(@PathVariable("userId") Long userId
-            , @PathVariable("groupId") Long groupId, @PathVariable("roleId") Long roleId) {
+    public ResponseEntity<GroupRole> addUserGroupRole(@PathVariable("userId") Long userId,
+                                                      @PathVariable("groupId") Long groupId,
+                                                      @PathVariable("roleId") Long roleId) {
         return new ResponseEntity<GroupRole>(groupService.addGroupRole(userId, groupId, roleId), HttpStatus.OK);
 
     }
 
+    //TODO Sprint 2
     @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> getUserByUsername(@RequestParam("username") String username) {

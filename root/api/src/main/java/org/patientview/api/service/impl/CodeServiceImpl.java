@@ -39,7 +39,7 @@ public class CodeServiceImpl implements CodeService {
 
         if (!CollectionUtils.isEmpty(links)) {
             for (Link link : links) {
-                if (link.getId() < 0) { link.setId(null); }
+                if (link.getId() != null && link.getId() < 0) { link.setId(null); }
                 link.setCode(persistedCode);
                 link.setCreator(userRepository.findOne(1L));
                 linkRepository.save(link);

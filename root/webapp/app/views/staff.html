@@ -1,7 +1,7 @@
 <div class="hider" ng-show="status.open"></div>
 
 <div class="" ng-show="!loading" ng-cloak>
-    <h1>Staff <button class="btn blue" ng-click="openModalNewStaff('lg')">Create New</button></h1>
+    <h1>Staff<button class="btn blue" ng-click="openModalNewStaff('lg')">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
@@ -74,7 +74,7 @@
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li><a data-ng-click="selectedRole=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                 <li class="divider"></li>
-                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role"><span class="pull-left">{{role.name}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
+                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
                             </ul>
                         </div>
                         <!-- filter by group -->
@@ -102,9 +102,10 @@
             <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="accordion-title-row table-head" ng-show="filtered.length > 0" ng-cloak>
                 <div class="hidden">ID</div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text " class="sort-title">Groups(Role)&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text " class="sort-title">Features&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title">Last Login&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item"><a class="sort-title">Actions</a></div>
             </div>
@@ -114,10 +115,17 @@
                     <div accordion-heading class="accordion-heading">
                         <div class="faux-row" ng-click="opened(user, $event)">
                             <div class="row-item hidden">{{user.id}}</div>
-                            <div class="row-item accordion-heading-text">{{user.username}}</div>
-                            <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div class="row-item accordion-heading-text">{{user.name}}</div>
+                            <div class="row-item accordion-heading-text">{{user.email}}</div>
+                            <div> <ul class="unstyled">
+                                <div ng-repeat="groupRole in user.groupRoles" class="row-item accordion-heading-text>
+                                    <div ng-if="groupRole.role.name !== 'MEMBER'">
+                                    <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
+                                    </div>
+                                </div></ul></div>
+                            <div class="row-item accordion-heading-text> <ul class="unstyled"><li ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
                             <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
+
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="button-dropdown-group">

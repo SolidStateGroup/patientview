@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * Created on 16/06/2014
  */
 @EnableWebSecurity
-@ComponentScan(basePackages = {"org.patientview.api.filter"})
+@ComponentScan(basePackages = {"org.patientview.api.controller", "org.patientview.api.filter"})
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 

@@ -53,12 +53,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
 
+
+            boolean isPatient = false;
+
             User newUser = createUser(oldUser);
 
             // create the User on the new system
             newUser = callApiCreateUser(newUser);
 
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
+
 
                 // We do want the patient group.
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
@@ -72,6 +76,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         if (newUser != null && newUser.getId() != null && patientGroup != null && patientRole != null) {
                             callApiAddGroupRole(newUser.getId(), patientGroup.getId(), patientRole.getId());
                         }
+
+                        isPatient = true;
+
 
 
                     } else {
@@ -102,8 +109,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             }
 
-            if (newUser != null && newUser.getId() != null && !newUser.getUsername().equalsIgnoreCase("superadmin")
-                    && !newUser.getUsername().equalsIgnoreCase("ibd-sa") && !newUser.getUsername().equalsIgnoreCase("diabetes-sa")) {
+            if (isPatient) {
                 addSpecialty(oldUser, newUser);
             }
         }
@@ -120,6 +126,25 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         }
 
+    }
+
+    private User callApiGetUser(String username) {
+
+        String url = JsonUtil.pvUrl + "/user?username=" + username;
+        try {
+            User user = JsonUtil.jsonRequest(url, User.class, null, HttpPut.class);
+            LOG.info("Found user");
+            return user;
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to find user");
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to find user");
+        } catch (Exception e) {
+            LOG.error("Unable to find user");
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     private void callApiAddGroupRole(Long userId, Long groupId, Long roleId) {
@@ -156,7 +181,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public User createUser(org.patientview.patientview.model.User user) {
         User newUser = new User();
-        newUser.setName(user.getFirstName() + user.getLastName());
+        newUser.setName(user.getFirstName() + " " + user.getLastName());
         newUser.setChangePassword(user.isFirstlogon());
         newUser.setPassword(user.getPassword());
         newUser.setLocked(user.isAccountlocked());

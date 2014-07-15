@@ -15,7 +15,7 @@ import java.util.Properties;
  * Created on 03/06/2014.
  */
 @Configuration
-@ComponentScan(basePackages = {"org.patientview.api.controller","org.patientview.api.service"})
+@ComponentScan(basePackages = {"org.patientview.api.service"})
 @EnableWebMvc
 public class ApiConfig {
 

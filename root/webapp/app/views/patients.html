@@ -1,7 +1,7 @@
 <div class="hider" ng-show="status.open"></div>
 
 <div class="container" ng-show="!loading" ng-cloak>
-    <h1>Patient <button class="btn blue" ng-click="openModalNewPatient('lg')">Create New</button></h1>
+    <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
@@ -77,7 +77,7 @@
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li><a data-ng-click="selectedRole=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                 <li class="divider"></li>
-                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role"><span class="pull-left">{{role.name}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
+                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
                             </ul>
                         </div>
                     </div>

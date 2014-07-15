@@ -1,10 +1,12 @@
 package org.patientview.test.util;
 
+import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
@@ -44,7 +46,6 @@ public final class TestUtils {
         user.setPassword("doNotShow");
         return user;
     }
-
 
     public static Role createRole(Long id, String name, User creator) {
         Role role = new Role();
@@ -152,6 +153,26 @@ public final class TestUtils {
 
         return groupRelationship;
 
+    }
+
+    public static Code createCode(Long id, String description, User creator) {
+        Code code = new Code();
+        code.setId(id);
+        code.setDisplayOrder(1);
+        code.setDescription(description);
+        code.setCreator(creator);
+        return code;
+    }
+
+    public static Link createLink(Long id, Code code, String name, Lookup linkType, User creator) {
+        Link link = new Link();
+        link.setId(id);
+        link.setLinkType(linkType);
+        link.setCode(code);
+        link.setLink(name);
+        link.setCreator(creator);
+        link.setDisplayOrder(1);
+        return link;
     }
 
     public static <T> List<T> iterableToList(Iterable<T> iterable) {
