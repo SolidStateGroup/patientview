@@ -10,6 +10,7 @@ import org.patientview.Feature;
 import org.patientview.Group;
 import org.patientview.GroupFeature;
 import org.patientview.GroupRole;
+import org.patientview.Link;
 import org.patientview.Lookup;
 import org.patientview.Role;
 import org.patientview.migration.service.AdminDataMigrationService;
@@ -210,6 +211,20 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return newCode;
     }
 
+    private Link callApiCreateLink(Link link) {
+        Link newLink = null;
+        try {
+            newLink = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/link", Link.class, link, HttpPost.class);
+            LOG.info("Created link");
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create link: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to create link: ", jee.getMessage());
+        }
+
+        return newLink;
+    }
+
     private void sendDummyUnit() {
 
         // Export a dummy group to test hibernate until one works
@@ -264,10 +279,11 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             code.setDisplayOrder(i++);
             code.setStandardType(getLookupByName("EDTA"));
             code.setCodeType(getLookupByName("DIAGNOSIS"));
-            code.setLinks(PvUtil.getLinks(edtaCode));
             code.setDescription(edtaCode.getDescription());
             code.setCode(edtaCode.getEdtaCode());
+            code.setLinks(PvUtil.getLinks(edtaCode));
             callApiCreateCode(code);
+
         }
     }
 

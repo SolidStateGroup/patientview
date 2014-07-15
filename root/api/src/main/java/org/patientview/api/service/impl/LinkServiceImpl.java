@@ -29,11 +29,17 @@ public class LinkServiceImpl implements LinkService {
     @Inject
     private CodeRepository codeRepository;
 
+    // TODO: Remove link creation
     public Link create(final Link link) {
-        link.setCode(codeRepository.findOne(link.getCode().getId()));
+
+        if (link.getCode() != null) {
+            link.setCode(codeRepository.findOne(link.getCode().getId()));
+        }
+
         if (link.getLinkType().getId() != null) {
             link.setLinkType(lookupRepository.findOne(link.getLinkType().getId()));
         }
+
         return linkRepository.save(link);
     }
 
