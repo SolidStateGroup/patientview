@@ -104,10 +104,11 @@
             <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="table-head accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
                 <div class="hidden">ID</div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('username');" class="sort-title">Username&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text ">Identifiers&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Date Of Birth&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title">Last Login&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text ">Treatment&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text"><a class="sort-title">Actions</a></div>
             </div>
             <!-- body -->
@@ -116,9 +117,16 @@
                     <div accordion-heading class="accordion-heading">
                         <div class="faux-row" ng-click="opened(user, $event, status)">
                             <div class="row-item hidden">{{user.id}}</div>
-                            <div class="row-item accordion-heading-text">{{user.username}}</div>
-                            <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div class="row-item accordion-heading-text">{{user.name}}</div>
+                            <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
+                            <div class="row-item accordion-heading-text">"01-Jan-2014"</div>
+                            <ul class="unstyled">
+                                <div ng-repeat="groupRole in user.groupRoles" class="row-item accordion-heading-text">
+                                    <div ng-if="groupRole.role.name !== 'MEMBER'">
+                                        <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
+                                    </div>
+                                </div></ul>
+                            <div class="row-item accordion-heading-text"></div>
                             <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
