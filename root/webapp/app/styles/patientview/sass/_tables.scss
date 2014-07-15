@@ -70,6 +70,20 @@
         }
     }
 
+    .visible-for-col{
+        padding-top:20px;
+        h5{
+            text-align:left;
+            float:left;
+        }
+        input[type="checkbox"]{
+            height:auto;
+            float:left;
+            margin:7px 0 0 10px;
+            width:auto;
+        }
+    }
+
     &.four-col{
         .row-item,.head-item{
             width:25%;

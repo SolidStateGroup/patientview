@@ -551,11 +551,27 @@ i.icon-join {
   width: 110px;
   margin: 0 auto;
 }
-/* line 74, ../sass/_tables.scss */
+/* line 73, ../sass/_tables.scss */
+.faux-table .visible-for-col {
+  padding-top: 20px;
+}
+/* line 75, ../sass/_tables.scss */
+.faux-table .visible-for-col h5 {
+  text-align: left;
+  float: left;
+}
+/* line 79, ../sass/_tables.scss */
+.faux-table .visible-for-col input[type="checkbox"] {
+  height: auto;
+  float: left;
+  margin: 7px 0 0 10px;
+  width: auto;
+}
+/* line 88, ../sass/_tables.scss */
 .faux-table.four-col .row-item, .faux-table.four-col .head-item {
   width: 25%;
 }
-/* line 80, ../sass/_tables.scss */
+/* line 94, ../sass/_tables.scss */
 .faux-table.five-col .row-item, .faux-table.five-col .head-item {
   width: 20%;
 }

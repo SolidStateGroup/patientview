@@ -11,16 +11,16 @@
         </div>
         <div class="col-md-3">
             <label for="group-groupType" class="ccontrol-label">Group Type <span class="error" ng-show="!editGroup.groupTypeId"> *required</span></label>
-            <div class="col-sm-7" ng-show="(!permissions.isSuperAdmin && editMode)">{{editGroup.groupType.value}}</div>
-            <div class="c"><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
+            <!--<div class="col-sm-7" ng-show="(!permissions.isSuperAdmin && editMode)">{{editGroup.groupType.value}}</div>-->
+            <div class=""><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
         </div>
         <div class="col-md-2">
             <label for="group-sftp-user" class="control-label">SFTP User</label>
             <div class="c"><input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" ng-model="editGroup.sftpUser"></div>
         </div>
-        <div class="col-md-1">
-            <label for="group-visible-to-join" class="control-label">Visible For Patients to Join</label>
-            <div class=""><input type="checkbox" class="form-control" id="group-visible-to-join" name="visible-to-join" ng-model="editGroup.visibleToJoin"></div>
+        <div class="col-md-3 visible-for-col">
+            <h5 for="group-visible-to-join pull-left" class="control-label">Visible For Patients to Join</h5>
+            <input type="checkbox" class="form-control" id="group-visible-to-join" name="visible-to-join" ng-model="editGroup.visibleToJoin"/>
         </div>
     </div>
 </div>
@@ -98,7 +98,7 @@
         </ul>
         <div class="feature-add-container item-add-container" ng-show="editGroup.availableFeatures.length > 0 && permissions.canEditFeatures">
             <div class="col-md-3"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editGroup.availableFeatures"></select></div>
-            <div class=""><button type="button" class="btn btn-primary feature-add-button pull-left" ng-click="addFeature(groupForm, editGroup, featureToAdd)">Add</button></div>
+            <div class=""><button type="button" class="btn blue feature-add-button pull-left" ng-click="addFeature(groupForm, editGroup, featureToAdd)">Add</button></div>
         </div>
     </div>
 </div>
@@ -118,7 +118,7 @@
         </ul>
         <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableParentGroups.length > 0 && permissions.canEditParentGroups">
             <div class="col-md-3"><select class="form-control parent-group-select" ng-model="parentGroupToAdd" ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select></div>
-            <div class=""><button type="button" class="btn btn-primary parent-group-add-button pull-left" ng-click="addParentGroup(groupForm, editGroup, parentGroupToAdd)">Add</button></div>
+            <div class=""><button type="button" class="btn blue parent-group-add-button pull-left" ng-click="addParentGroup(groupForm, editGroup, parentGroupToAdd)">Add</button></div>
         </div>
     </div>
     <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['SPECIALTY']">
@@ -131,7 +131,7 @@
         </div>
         <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableChildGroups.length > 0 && permissions.canEditChildGroups">
             <div class="col-md-3"><select class="form-control child-group-select" ng-model="childGroupToAdd" ng-options="childGroup.id as childGroup.name for childGroup in editGroup.availableChildGroups"></select></div>
-            <div class=""><button type="button" class="btn btn-primary child-group-add-button pull-left" ng-click="addChildGroup(groupForm, editGroup, childGroupToAdd)">Add</button></div>
+            <div class=""><button type="button" class="btn blue child-group-add-button pull-left" ng-click="addChildGroup(groupForm, editGroup, childGroupToAdd)">Add</button></div>
         </div>
     </div>
 </div>
