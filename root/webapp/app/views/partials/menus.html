@@ -6,7 +6,7 @@
         <div class="navbar-collapse collapse">
             <div class="nav-account pull-right">
                 <i class="icon-account pull-left"></i>
-                <h4>{{authToken}}</h4>
+                <h4></h4>
                 <ul class="nav navbar-nav navbar-right inline account pull-left" ng-hide="!authToken" ng-cloak>
                     <li ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
                     <li><a ng-href="#/logout" ng-hide="!authToken">Log Out</a></li>
