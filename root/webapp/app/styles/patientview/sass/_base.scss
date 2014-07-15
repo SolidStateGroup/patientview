@@ -76,15 +76,16 @@ ul {
         margin-right:5px;
 
         & > div{
-            color:$white;
+            color:$inputaddoninner;
             height:100%;
             padding:4px;
             text-align:left;
         }
-        .feature-list-name{
-            background:$aqua;
+        div.feature-list-name{
+            background:$inputaddon;
             min-width:100px;
             line-height:25px;
+            border-right:1px solid #cfcfcf;
         }
         .feature-list-delete{
             background:$inputaddon;
@@ -101,7 +102,7 @@ ul {
             }
 
             a{
-                color:$textdefault;
+                color:$inputaddoninner;
                 margin-top:5px;
                 width:100%;
                 height:100%;

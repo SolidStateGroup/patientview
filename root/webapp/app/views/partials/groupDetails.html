@@ -14,9 +14,9 @@
             <!--<div class="col-sm-7" ng-show="(!permissions.isSuperAdmin && editMode)">{{editGroup.groupType.value}}</div>-->
             <div class=""><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <label for="group-sftp-user" class="control-label">SFTP User</label>
-            <div class="c"><input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" ng-model="editGroup.sftpUser"></div>
+            <input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" ng-model="editGroup.sftpUser">
         </div>
         <div class="col-md-3 visible-for-col">
             <h5 for="group-visible-to-join pull-left" class="control-label">Visible For Patients to Join</h5>
@@ -40,18 +40,18 @@
                     <option ng-repeat="link in editGroup.links">{{$index + 1}}</option>
                 </select>
             </div>
-            <div class=""><button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+            <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>
         </div>
         <div class="add-form" ng-model="newLink">
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="link" name="newLink" ng-model="newLink.link"></div>
-            <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-name" placeholder="name" name="newLink" ng-model="newLink.name"></div>
-            <div class="col-md-3 hidden">
+            <div class="col-md-2"><input type="text" class="form-control" id="group-newLink-name" placeholder="name" name="newLink" ng-model="newLink.name"></div>
+            <div class="col-md-2 hidden">
                 <select id="group-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
                     <option ng-show="newLink.displayOrder" ng-repeat="link in editGroup.links">{{$index + 1}}</option>
                     <option >{{editGroup.links.length + 1}}</option>
                 </select>
             </div>
-            <div class=""><button type="button" class="btn blue link-add-button" ng-click="addLink(groupForm, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+            <button type="button" class="btn blue link-add-button" ng-click="addLink(groupForm, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
         </div>
     </div>
 </div>
@@ -70,7 +70,7 @@
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" ng-model="location.address" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" ng-model="location.web" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" ng-model="location.email" ></div>
-        <div class=""><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+        <div><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
     </div>
     <div class="add-form" ng-model="newLocation">
         <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="label" name="newLocation" ng-model="newLocation.label"></div>
@@ -79,7 +79,7 @@
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="address" name="newLocation" ng-model="newLocation.address"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="web" name="newLocation" ng-model="newLocation.web"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-email" placeholder="email" name="newLocation" ng-model="newLocation.email"></div>
-        <div class=""><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupForm, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupForm, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
     </div>
 </div>
 
