@@ -29,7 +29,7 @@
                     <br/>Group:
                     <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
                 </div>
-                <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userForm, editUser, groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button></div>
+                <div class="col-sm-2"><button type="button" class="btn blue group-add-button" ng-click="addGroup(userForm, editUser, groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button></div>
             </div>
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
@@ -50,7 +50,7 @@
         <div class="row" ng-model="newIdentifier">
             <div class="col-sm-5"><input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="identifier" name="newIdentifier" ng-model="newIdentifier.identifier"></div>
             <div class="col-sm-5"><select class="form-control indentifierType-select" ng-model="newIdentifier.identifierType" ng-options="identifierType.id as identifierType.value for identifierType in identifierTypes"></select></div>
-            <div class="col-sm-2"><button type="button" class="btn btn-primary identifier-add-button" ng-click="addIdentifier(userForm, editUser, newIdentifier)" ng-disabled="!(newIdentifier.identifier)">Add</button></div>
+            <div class="col-sm-2"><button type="button" class="btn blue identifier-add-button" ng-click="addIdentifier(userForm, editUser, newIdentifier)" ng-disabled="!(newIdentifier.identifier)">Add</button></div>
         </div>
     </div>
 </div>

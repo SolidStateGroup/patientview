@@ -4,7 +4,7 @@
     document.createElement('accordion-heading');
 </script>-->
 <div class="" ng-show="!loading" ng-cloak>
-    <h1>Groups</h1>
+    <h1>Groups <button class="btn blue" ng-click="openModalNewGroup('lg')" ng-show="permissions.canCreateGroup">Create New</button></h1>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage" ng-cloak>
@@ -21,10 +21,9 @@
             <div class="modal-footer">
                 <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" ng-click="ok()" ng-disabled="!groupForm.$valid">Create New</button>
+                <button class="btn blue" ng-click="ok()" ng-disabled="!groupForm.$valid">Create New</button>
             </div>
         </script>
-        <button class="btn btn-primary" ng-click="openModalNewGroup('lg')" ng-show="permissions.canCreateGroup">Create New</button>
 
         <!-- Filter -->
         <div class="content-panel filter-panel">
@@ -97,7 +96,7 @@
                                 <!-- Stats, Edit buttons -->
                                 <div class="btn-group">
                                     <button type="button" class="edit-button btn blue"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
-                                    <button type="button" class="statistics-button btn aquamarine">Stats</button>
+                                    <button type="button" class="statistics-button btn aquamarine"><span class="glyphicon glyphicon-stats"></span> Stats</button>
                                 </div>
 
                             </div>
@@ -112,7 +111,7 @@
                         <hr>
                         <div class="group-save-cancel pull-right">
                             <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                            <button type="button" class="btn btn-primary" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
+                            <button type="button" class="btn blue" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
                         </div>
                     </div>
 
