@@ -172,6 +172,7 @@ label{
 
         &.group-list-role{
             background:$aqua;
+            line-height:15px;
         }
 
         &.group-list-delete{
@@ -199,6 +200,27 @@ label{
 
         .caret{
             margin-left:12px;
+        }
+    }
+}
+
+.radio-button-list{
+    li{
+        background:$inputaddon;
+        color:$textdefault;
+        @include bootstrap-border-radius(0);
+        border-left:1px solid $inputaddonborder;
+        line-height:15px;
+        white-space: normal;
+
+        &:first-child{
+            border-left:0;
+        }
+
+        .active, &:hover{
+            background:$aqua;
+            border-left:1px solid $aquadark;
+            @include bootstrap-box-shadow(0);
         }
     }
 }
