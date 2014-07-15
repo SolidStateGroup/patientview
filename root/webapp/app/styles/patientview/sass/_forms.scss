@@ -1,6 +1,6 @@
 /** form styles **/
 
-input[type="text"]{
+input[type="text"], .group-select{
     background:$inputbg;
     border:1px solid $border-default;
     @include bootstrap-box-shadow(none);
@@ -73,29 +73,11 @@ label{
             background:transparent;
             color:$light-grey;
             position:relative;
-            height:40px;
+            height:34px;
             padding:0 50px 0 10px;
             border:none;
             @include bootstrap-border-radius(0);
             width:220px;
-
-            .caret-container{
-                display:block;
-                height:100%;
-                line-height:100%;
-                width:40px;
-                background:$inputaddon;
-                position:absolute;
-                right:0;
-                top:0;
-
-                .caret{
-                    border-top:8px solid $white;
-                    border-left:6px solid transparent;
-                    border-right:6px solid transparent;
-                    margin-top:16px;
-                }
-            }
         }
     }
 
@@ -104,6 +86,24 @@ label{
         @include bootstrap-box-shadow(0 2px 3px -3px rgba(0, 0, 0, 0.176));
         @include bootstrap-border-radius(0 0 4px 4px);
         margin-top:0;
+    }
+}
+
+.caret-container{
+    display:block;
+    height:100%;
+    line-height:100%;
+    width:34px;
+    background:$inputaddon;
+    position:absolute;
+    right:0;
+    top:0;
+
+    .caret{
+        border-top:8px solid $white;
+        border-left:6px solid transparent;
+        border-right:6px solid transparent;
+        margin-top:16px;
     }
 }
 
@@ -185,9 +185,19 @@ label{
     }
 }
 
-.select-add-group{
-    .group-select{
-        width:50%;
-        float:left;
+.custom-select{
+    position:relative;
+    height:34px;
+    float: left;
+    width: 50%;
+
+    .caret-container{
+        position:absolute;
+        right:0;
+        top:0;
+
+        .caret{
+            margin-left:12px;
+        }
     }
 }
