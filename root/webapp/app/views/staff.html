@@ -120,7 +120,7 @@
                             <div> <ul class="unstyled">
                                 <div ng-repeat="groupRole in user.groupRoles">
                                     <div ng-if="groupRole.role.name !== 'MEMBER'">
-                                    <li>{{groupRole.group.name}} ({{groupRole.role.name}})</li>
+                                    <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
                                     </div>
                                 </div></ul></div>
                             <div> <ul class="unstyled"><li ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.name}}</li></ul></div>
@@ -130,7 +130,7 @@
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="button-dropdown-group">
-                                    <button type="button" class="btn blue pull-left">
+                                    <button type="button" class="btn blue pull-left">V2
                                         <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>
                                         &nbsp;&nbsp;Edit</button>
                                     <div class="dropdown pull-left">
