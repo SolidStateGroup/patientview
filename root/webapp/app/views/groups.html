@@ -4,7 +4,7 @@
     document.createElement('accordion-heading');
 </script>-->
 <div class="" ng-show="!loading" ng-cloak>
-    <h1>Groups</h1>
+    <h1>Groups <button class="btn blue" ng-click="openModalNewGroup('lg')" ng-show="permissions.canCreateGroup">Create New</button></h1>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage" ng-cloak>
@@ -24,7 +24,6 @@
                 <button class="btn blue" ng-click="ok()" ng-disabled="!groupForm.$valid">Create New</button>
             </div>
         </script>
-        <button class="btn blue" ng-click="openModalNewGroup('lg')" ng-show="permissions.canCreateGroup">Create New</button>
 
         <!-- Filter -->
         <div class="content-panel filter-panel">
