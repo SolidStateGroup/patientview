@@ -602,17 +602,21 @@ i.icon-join {
 .faux-table.five-col .row-item, .faux-table.five-col .head-item {
   width: 20%;
 }
-
 /* line 86, ../sass/_tables.scss */
+.faux-table.six-col .row-item, .faux-table.six-col .head-item {
+  width: 15%;
+}
+
+/* line 92, ../sass/_tables.scss */
 .visible-for-col {
   padding-top: 20px;
 }
-/* line 88, ../sass/_tables.scss */
+/* line 94, ../sass/_tables.scss */
 .visible-for-col h5 {
   text-align: left;
   float: left;
 }
-/* line 92, ../sass/_tables.scss */
+/* line 98, ../sass/_tables.scss */
 .visible-for-col input[type="checkbox"] {
   height: auto;
   float: left;
@@ -621,25 +625,25 @@ i.icon-join {
 }
 
 /** mong central **/
-/* line 104, ../sass/_tables.scss */
+/* line 110, ../sass/_tables.scss */
 .modal .col-md-6 {
   width: 100%;
 }
-/* line 107, ../sass/_tables.scss */
+/* line 113, ../sass/_tables.scss */
 .modal .col-md-3 {
   width: 50%;
 }
-/* line 111, ../sass/_tables.scss */
+/* line 117, ../sass/_tables.scss */
 .modal .col-md-2 {
   padding-bottom: 10px;
   width: 33.33%;
 }
-/* line 116, ../sass/_tables.scss */
+/* line 122, ../sass/_tables.scss */
 .modal .col-md-1 {
   padding-bottom: 10px;
   width: 33.33%;
 }
-/* line 121, ../sass/_tables.scss */
+/* line 127, ../sass/_tables.scss */
 .modal .modal-hack {
   padding-right: 15px;
   float: right;
@@ -854,8 +858,9 @@ label {
 /* line 173, ../sass/_forms.scss */
 .group-list-item li.group-list-role {
   background: #00adc6;
+  line-height: 15px;
 }
-/* line 178, ../sass/_forms.scss */
+/* line 179, ../sass/_forms.scss */
 .group-list-item li.group-list-delete a {
   color: white;
   display: block;
@@ -863,7 +868,7 @@ label {
   width: 100%;
 }
 
-/* line 188, ../sass/_forms.scss */
+/* line 189, ../sass/_forms.scss */
 .custom-select {
   position: relative;
   height: 34px;
@@ -871,13 +876,37 @@ label {
   width: 50%;
   margin-right: 10px;
 }
-/* line 195, ../sass/_forms.scss */
+/* line 196, ../sass/_forms.scss */
 .custom-select .caret-container {
   position: absolute;
   right: 0;
   top: 0;
 }
-/* line 200, ../sass/_forms.scss */
+/* line 201, ../sass/_forms.scss */
 .custom-select .caret-container .caret {
   margin-left: 12px;
+}
+
+/* line 208, ../sass/_forms.scss */
+.radio-button-list li {
+  background: #e0e0e0;
+  color: #585858;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  border-left: 1px solid #c3c3c3;
+  line-height: 15px;
+  white-space: normal;
+}
+/* line 216, ../sass/_forms.scss */
+.radio-button-list li:first-child {
+  border-left: 0;
+}
+/* line 220, ../sass/_forms.scss */
+.radio-button-list li .active, .radio-button-list li:hover {
+  background: #00adc6;
+  border-left: 1px solid #039288;
+  -webkit-box-shadow: 0;
+  -moz-box-shadow: 0;
+  box-shadow: 0;
 }
