@@ -18,7 +18,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn negative" ng-click="ok()">Delete</button>
+            <button class="btn btn-primary" ng-click="ok()">Delete</button>
         </div>
     </script>
 
@@ -35,7 +35,7 @@
         <div class="modal-footer">
             <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn blue" ng-click="ok()" ng-disabled="!codeForm.$valid">Create New</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!codeForm.$valid">Create New</button>
         </div>
     </script>
 
@@ -111,34 +111,22 @@
                         <div class="row-item accordion-heading-text">{{code.codeType.value}}</div>
                         <div class="row-item accordion-heading-text">{{code.standardType.value}}</div>
                         <div class="row-item accordion-heading-text">{{code.description}}</div>
-                        <div class="row-item">
+                        <div class="row-item actions">
 
                             <!-- Edit, Actions dropdown buttons -->
                             <div class="btn-group pull-right">
                                 <button type="button" class="btn blue">Edit</button>
                                 <button type="button" class="btn aquamarine" ng-click="clone(code.id, $event)">Copy</button>
                                 <button type="button" class="btn negative" ng-click="delete(code.id, $event)">Delete</button>
-
                             </div>
-                            <!--<div class="button-dropdown-group">-->
-                                <!--<button type="button" class="btn blue pull-left">-->
-                                    <!--<span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>&nbsp;&nbsp;Edit-->
+                            <!--<div class="dropdown pull-left open">-->
+                                <!--<button data-toggle="dropdown" id="dropdownMenu1" type="button" class="btn blue dropdown-toggle" aria-haspopup="true" aria-expanded="true">-->
+                                    <!--<span class="caret"></span>-->
                                 <!--</button>-->
-                                <!--<div class="dropdown pull-left">-->
-                                    <!--<button class="btn blue dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">-->
-                                        <!--<span class="caret"></span>-->
-                                    <!--</button>-->
-                                    <!--<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">-->
-                                        <!--<li role="presentation">                                <button type="button" class="btn btn-danger" ng-click="delete(code.id, $event)">-->
-                                            <!--<span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Delete-->
-                                        <!--</button></li>-->
-                                        <!--<li role="presentation">-->
-                                            <!--<button type="button" class="btn btn-primary" ng-click="clone(code.id, $event)">-->
-                                            <!--<span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Copy-->
-                                        <!--</button>-->
-                                        <!--</li>-->
-                                    <!--</ul>-->
-                                <!--</div>-->
+                                <!--<ul id="dropdown-toggle-381-menu" class="dropdown-menu dropdown-menu-accordion">-->
+                                    <!--<li><a class="dropdown-menu-accordion-item" ng-click="clone(code.id, $event)">Copy</a></li>-->
+                                    <!--<li><a class="dropdown-menu-accordion-item" ng-click="delete(code.id, $event)">Delete</a></li>-->
+                                <!--</ul>-->
                             <!--</div>-->
 
                         </div>
