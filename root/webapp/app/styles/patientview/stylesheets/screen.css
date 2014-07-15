@@ -887,7 +887,11 @@ label {
   margin-left: 12px;
 }
 
-/* line 208, ../sass/_forms.scss */
+/* line 207, ../sass/_forms.scss */
+.radio-button-list {
+  padding-left: 0;
+}
+/* line 209, ../sass/_forms.scss */
 .radio-button-list li {
   background: #e0e0e0;
   color: #585858;
@@ -898,11 +902,11 @@ label {
   line-height: 15px;
   white-space: normal;
 }
-/* line 216, ../sass/_forms.scss */
+/* line 217, ../sass/_forms.scss */
 .radio-button-list li:first-child {
   border-left: 0;
 }
-/* line 220, ../sass/_forms.scss */
+/* line 221, ../sass/_forms.scss */
 .radio-button-list li .active, .radio-button-list li:hover {
   background: #00adc6;
   border-left: 1px solid #039288;
