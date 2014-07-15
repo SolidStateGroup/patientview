@@ -10,6 +10,21 @@ body {
 
 .panel-header {
     padding: 10px;
+    margin-bottom: 20px;
+
+    h3{
+        margin:0;
+        line-height:45px;
+
+        .badge{
+            margin-right:10px;
+        }
+    }
+
+    .badge{
+        height:45px;
+        width:45px;
+    }
 }
 
 .content-panel {
@@ -34,9 +49,14 @@ body {
     }
 }
 
-.panel-header {
-    margin-bottom: 20px;
+.user-info{
+    .panel-footer{
+        text-align: center;
+        padding:10px;
+    }
 }
+
+
 
 .add-form{
     margin-top:30px;
@@ -47,6 +67,33 @@ body {
 ul {
     .news-item {
         margin-bottom: 5px;
+    }
+}
+
+.badge{
+    @include bootstrap-border-radius(50%);
+    height:30px;
+    width:30px;
+    font-size:1.25rem;
+    text-transform: uppercase;
+    color:$white;
+    font-weight:normal;
+    text-align:center;
+    line-height:25px;
+
+    &.primary{
+        background:$primary;
+    }
+    &.aqua{
+        background:$aqua;
+    }
+    &.aquamarine{
+        background:$aquamarine;
+    }
+
+    i{
+        display:block;
+        margin:5px auto;
     }
 }
 
@@ -74,6 +121,17 @@ ul {
         &.blue {
             @include bootstrap-color-opacity($primary, 70);
         }
+
+        .pane-content{
+            text-align: center;
+            margin:25% 0;
+            font-weight:100;
+            font-size:2.5rem;
+
+            h2{
+                font-size:7rem;
+            }
+        }
     }
 }
 
@@ -85,9 +143,14 @@ ul {
     font-size: 1.5rem;
     min-height:34px;
     min-width: 34px;
+    line-height:24px;
 
     &:hover {
         color: $white;
+    }
+
+    i{
+        margin-right:10px;
     }
 }
 
@@ -138,4 +201,23 @@ i.icon-account{
     background: url('../../../images/icons/account.png') 0 0 no-repeat;
     height: 32px;
     width: 32px;
+}
+
+i.icon-organisations{
+    background: url('../../../images/icons/organisations.png') 0 0 no-repeat;
+    height: 22px;
+    width: 24px;
+    margin-top:7px;
+}
+
+i.icon-patients{
+    background: url('../../../images/icons/patients.png') 0 0 no-repeat;
+    height: 27px;
+    width: 17px;
+}
+
+i.icon-join{
+    background: url('../../../images/icons/join.png') 0 0 no-repeat;
+    height: 24px;
+    width: 22px;
 }
