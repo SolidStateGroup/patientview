@@ -99,7 +99,7 @@
         <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
-        <div class="faux-table five-col" data-ng-show="filtered.length  > 0">
+        <div class="faux-table seven-col data-ng-show="filtered.length  >
             <!-- header -->
             <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="table-head accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
@@ -119,14 +119,17 @@
                         <div class="faux-row" ng-click="opened(user, $event, status)">
                             <div class="row-item hidden">{{user.id}}</div>
                             <div class="row-item accordion-heading-text">{{user.name}}</div>
+                            <div class="row-item accordion-heading-text">DOB</div>
                             <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
-                            <div class="row-item accordion-heading-text"></div>
-                            <ul class="unstyled">
-                                <div ng-repeat="groupRole in user.groupRoles" class="row-item accordion-heading-text">
-                                    <div ng-if="groupRole.role.name !== 'MEMBER'">
-                                        <li>{{groupRole.group.name}}</li>
-                                    </div>
-                                </div></ul>
+                            <div class="row-item accordion-heading-text">
+                                <ul class="unstyled">
+                                    <li ng-repeat="groupRole in user.groupRoles">
+                                        <span ng-if="groupRole.role.name !== 'MEMBER'">
+                                            {{groupRole.group.name}}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
                             <div class="row-item accordion-heading-text"></div>
                             <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
                             <div class="row-item actions">

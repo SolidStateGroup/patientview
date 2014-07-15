@@ -65,7 +65,7 @@
         <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
-        <div class="faux-table five-col" data-ng-show="filtered.length  > 0">
+        <div class="faux-table seven-col" data-ng-show="filtered.length  > 0">
             <!-- header -->
             <span class="hidden" ng-repeat="data in filtered = (list | groupTypeFilter:selectedGroupType | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="accordion-title-row table-head" ng-show="filtered.length > 0" ng-cloak>

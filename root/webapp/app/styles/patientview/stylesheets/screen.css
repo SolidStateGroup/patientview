@@ -604,19 +604,23 @@ i.icon-join {
 }
 /* line 86, ../sass/_tables.scss */
 .faux-table.six-col .row-item, .faux-table.six-col .head-item {
-  width: 15%;
+  width: 16.66%;
+}
+/* line 91, ../sass/_tables.scss */
+.faux-table.seven-col .row-item, .faux-table.seven-col .head-item {
+  width: 14.44%;
 }
 
-/* line 92, ../sass/_tables.scss */
+/* line 97, ../sass/_tables.scss */
 .visible-for-col {
   padding-top: 20px;
 }
-/* line 94, ../sass/_tables.scss */
+/* line 99, ../sass/_tables.scss */
 .visible-for-col h5 {
   text-align: left;
   float: left;
 }
-/* line 98, ../sass/_tables.scss */
+/* line 103, ../sass/_tables.scss */
 .visible-for-col input[type="checkbox"] {
   height: auto;
   float: left;
@@ -625,25 +629,25 @@ i.icon-join {
 }
 
 /** mong central **/
-/* line 110, ../sass/_tables.scss */
+/* line 115, ../sass/_tables.scss */
 .modal .col-md-6 {
   width: 100%;
 }
-/* line 113, ../sass/_tables.scss */
+/* line 118, ../sass/_tables.scss */
 .modal .col-md-3 {
   width: 50%;
 }
-/* line 117, ../sass/_tables.scss */
+/* line 122, ../sass/_tables.scss */
 .modal .col-md-2 {
   padding-bottom: 10px;
   width: 33.33%;
 }
-/* line 122, ../sass/_tables.scss */
+/* line 127, ../sass/_tables.scss */
 .modal .col-md-1 {
   padding-bottom: 10px;
   width: 33.33%;
 }
-/* line 127, ../sass/_tables.scss */
+/* line 132, ../sass/_tables.scss */
 .modal .modal-hack {
   padding-right: 15px;
   float: right;
