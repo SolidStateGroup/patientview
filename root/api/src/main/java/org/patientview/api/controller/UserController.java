@@ -8,6 +8,7 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
@@ -197,7 +198,9 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/user/{userId}/verify/{verificationCode}", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Boolean> verify(@PathVariable("userId") Long userId, @PathVariable("verificationCode") String verificationCode) {
+    public ResponseEntity<Boolean> verify(@PathVariable("userId") Long userId,
+                                          @PathVariable("verificationCode") String verificationCode)
+    throws ResourceNotFoundException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, verificationCode);
         return new ResponseEntity<Boolean>(userService.verify(userId, verificationCode), HttpStatus.OK);
     }
@@ -215,7 +218,16 @@ public class UserController extends BaseController {
         headers.setLocation(uriComponents.toUri());
 
         return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
+    }
 
+    @RequestMapping(value = "/user/{userId}/identifier", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Identifier> createIdentifier(@PathVariable("userId") Long userId,
+                                          @RequestBody Identifier identifier)
+            throws ResourceNotFoundException {
+        LOG.debug("User with userId : {} is verifying with code {}", userId, identifier);
+        return new ResponseEntity<Identifier>(userService.createUserIdentifier(userId, identifier), HttpStatus.CREATED);
     }
 
 }

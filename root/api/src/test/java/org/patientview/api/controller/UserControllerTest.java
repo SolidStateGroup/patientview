@@ -9,8 +9,10 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
@@ -111,7 +113,7 @@ public class UserControllerTest {
      * Improve test to verify the correct user is being saved
      */
     @Test
-    public void testAddGroupRole()  {
+    public void testAddGroupRole() {
         Long userId = 1L;
         Long groupId = 2L;
         Long roleId = 3L;
@@ -128,6 +130,33 @@ public class UserControllerTest {
 
         verify(groupService, Mockito.times(1)).addGroupRole(Matchers.eq(userId), Matchers.eq(groupId), Matchers.eq(roleId));
     }
+
+    /**
+     * Test: Call for a User identifier
+     * Fail: The identifier does not get passed to the service
+     *
+     */
+    @Test
+    public void testAddIdentifier() throws ResourceNotFoundException {
+        Long userId = 1L;
+
+        String url = "/user/" + userId + "/identifier";
+        Identifier identifier = new Identifier();
+        identifier.setId(2L);
+
+        when(userService.createUserIdentifier(Matchers.eq(userId), Matchers.eq(identifier))).thenReturn(identifier);
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post(url)
+                    .content(mapper.writeValueAsString(identifier)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isCreated());
+        }
+        catch (Exception e) {
+            Assert.fail("The post request all should not fail " + e.getCause());
+        }
+
+
+    }
+
 
 
 }

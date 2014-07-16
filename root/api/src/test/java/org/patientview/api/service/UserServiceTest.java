@@ -7,6 +7,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -112,6 +113,28 @@ public class UserServiceTest {
         verify(userFeatureRepository, Mockito.times(1)).save(Matchers.eq(userFeature));
         verify(groupRoleRepository, Mockito.times(1)).save(Matchers.eq(groupRole));
         verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
+
+    }
+
+
+    /**
+     * Test: To create an identifier on a user record
+     * Fail: Identifier does not get created
+     */
+    @Test
+    public void testIdentifier() throws ResourceNotFoundException {
+        Long userId = 1L;
+        User user = TestUtils.createUser(2L, "testUser");
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setId(3L);
+
+
+        when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user);
+
+        userService.createUserIdentifier(userId, identifier);
+
+        verify(userRepository, Mockito.times(1)).save(Matchers.eq(user));
 
     }
 

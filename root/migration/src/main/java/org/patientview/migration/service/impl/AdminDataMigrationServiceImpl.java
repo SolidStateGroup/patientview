@@ -88,7 +88,8 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     public void migrate() {
         createGroups();
-        createCodes();
+        createCodes(getLookupByName("DIAGNOSIS"), "edtaCode");
+        createCodes(getLookupByName("TREATMENT"), "treatment");
     }
 
     public void createGroups() {
@@ -271,14 +272,14 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
 
 
-    public void createCodes() {
+    public void createCodes(Lookup codeType, String codeTypeName) {
 
         int i = 1;
-        for (EdtaCode edtaCode : edtaCodeDao.get("edtaCode", null)) {
+        for (EdtaCode edtaCode : edtaCodeDao.get(codeTypeName, null)) {
             Code code = new Code();
             code.setDisplayOrder(i++);
             code.setStandardType(getLookupByName("EDTA"));
-            code.setCodeType(getLookupByName("DIAGNOSIS"));
+            code.setCodeType(codeType);
             code.setDescription(edtaCode.getDescription());
             code.setCode(edtaCode.getEdtaCode());
             code.setLinks(PvUtil.getLinks(edtaCode));

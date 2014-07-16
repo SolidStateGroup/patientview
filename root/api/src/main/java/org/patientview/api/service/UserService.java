@@ -1,6 +1,8 @@
 package org.patientview.api.service;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,5 +61,7 @@ public interface UserService {
 
     public Boolean sendVerificationEmail(Long userId);
 
-    public Boolean verify(Long userId, String verificationCode);
+    public Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
+
+    Identifier createUserIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException;
 }

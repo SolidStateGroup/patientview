@@ -23,51 +23,51 @@ public final class PvUtil {
 
         Set<Link> links = new HashSet<Link>();
 
-        if (!StringUtils.isEmpty(edtaCode.getMedicalLink01())) {
+        if (!StringUtils.isEmpty(edtaCode.getPatientLink01())) {
             Link link = new Link();
             link.setDisplayOrder(links.size() + 1);
-            link.setName(edtaCode.getMedicalLinkText01());
-            link.setLink(edtaCode.getMedicalLink01());
+            link.setName(edtaCode.getPatientLinkText01());
+            link.setLink(edtaCode.getPatientLink01());
             links.add(link);
         }
 
-        if (!StringUtils.isEmpty(edtaCode.getMedicalLink02())) {
+        if (!StringUtils.isEmpty(edtaCode.getPatientLink02())) {
             Link link = new Link();
             link.setDisplayOrder(links.size() + 1);
-            link.setName(edtaCode.getMedicalLinkText02());
-            link.setLink(edtaCode.getMedicalLink02());
+            link.setName(edtaCode.getPatientLinkText02());
+            link.setLink(edtaCode.getPatientLink02());
             links.add(link);
         }
 
-        if (!StringUtils.isEmpty(edtaCode.getMedicalLink03())) {
+        if (!StringUtils.isEmpty(edtaCode.getPatientLink03())) {
             Link link = new Link();
             link.setDisplayOrder(links.size() + 1);
-            link.setName(edtaCode.getMedicalLinkText03());
-            link.setLink(edtaCode.getMedicalLink03());
+            link.setName(edtaCode.getPatientLinkText03());
+            link.setLink(edtaCode.getPatientLink03());
             links.add(link);
         }
 
-        if (!StringUtils.isEmpty(edtaCode.getMedicalLink04())) {
+        if (!StringUtils.isEmpty(edtaCode.getPatientLink04())) {
             Link link = new Link();
             link.setDisplayOrder(links.size() + 1);
-            link.setName(edtaCode.getMedicalLinkText04());
-            link.setLink(edtaCode.getMedicalLink04());
+            link.setName(edtaCode.getPatientLinkText04());
+            link.setLink(edtaCode.getPatientLink04());
             links.add(link);
         }
 
-        if (!StringUtils.isEmpty(edtaCode.getMedicalLink05())) {
+        if (!StringUtils.isEmpty(edtaCode.getPatientLink05())) {
             Link link = new Link();
             link.setDisplayOrder(links.size() + 1);
-            link.setName(edtaCode.getMedicalLinkText05());
-            link.setLink(edtaCode.getMedicalLink05());
+            link.setName(edtaCode.getPatientLinkText05());
+            link.setLink(edtaCode.getPatientLink05());
             links.add(link);
         }
 
-        if (!StringUtils.isEmpty(edtaCode.getMedicalLink06())) {
+        if (!StringUtils.isEmpty(edtaCode.getPatientLink06())) {
             Link link = new Link();
             link.setDisplayOrder(links.size() + 1);
-            link.setName(edtaCode.getMedicalLinkText06());
-            link.setLink(edtaCode.getMedicalLink06());
+            link.setName(edtaCode.getPatientLinkText06());
+            link.setLink(edtaCode.getPatientLink06());
             links.add(link);
         }
 

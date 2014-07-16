@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.patientview.api.controller.model.Email;
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
@@ -106,6 +107,7 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+        // TODO remove into a separate call
         if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
 
             for (Identifier identifier : user.getIdentifiers()) {
@@ -256,14 +258,29 @@ public class UserServiceImpl implements UserService {
         return emailService.sendEmail(email);
     }
 
-    public Boolean verify(Long userId, String verificationCode) {
+    public Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException {
         User user = userRepository.getOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user {}" + userId);
+        }
         if (user.getVerificationCode().equals(verificationCode)) {
             user.setVerified(true);
             userRepository.save(user);
             return true;
         }
         return false;
+    }
+
+    public Identifier createUserIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user {}" + userId);
+        }
+        user.getIdentifiers().add(identifier);
+        identifier.setUser(user);
+        userRepository.save(user);
+
+        return identifier;
     }
 
 }

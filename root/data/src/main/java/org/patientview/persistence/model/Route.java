@@ -121,4 +121,30 @@ public class Route extends SimpleAuditModel {
     public void setFeature(final Feature feature) {
         this.feature = feature;
     }
+
+    @Override
+    public int compareTo(Object object) {
+        Route route;
+
+        if (object == null) {
+            return 1;
+        } else {
+            route = (Route) object;
+        }
+
+        if (route.getDisplayOrder() > this.getDisplayOrder()) {
+            return -1;
+        }
+
+        if (route.getDisplayOrder() == this.getDisplayOrder()) {
+            return 0;
+        }
+        if (route.getDisplayOrder() < this.getDisplayOrder()) {
+            return 1;
+        }
+        return 0;
+    }
+
+
+
 }
