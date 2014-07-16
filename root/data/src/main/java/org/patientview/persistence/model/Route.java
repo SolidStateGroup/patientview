@@ -132,11 +132,15 @@ public class Route extends SimpleAuditModel {
             route = (Route) object;
         }
 
+        if (route.getDisplayOrder() > this.getDisplayOrder()) {
+            return -1;
+        }
+
         if (route.getDisplayOrder() == this.getDisplayOrder()) {
             return 0;
         }
         if (route.getDisplayOrder() < this.getDisplayOrder()) {
-            return -1;
+            return 1;
         }
         return 0;
     }
