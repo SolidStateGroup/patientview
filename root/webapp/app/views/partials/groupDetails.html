@@ -30,7 +30,7 @@
     <div class="links-container">
         <div class="col-md-12">
             <label>Links </label>
-            <div ng-hide="editGroup.links.length > 0" class="no-items"> There are currently no links associated with this code</div>
+            <div ng-hide="editGroup.links.length > 0" class="no-items"> There are currently no links associated with this group</div>
         </div>
         <div class="link-list-item" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
             <div class="col-md-3"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="link" name="link" ng-model="link.link" required></div>
