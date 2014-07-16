@@ -84,7 +84,12 @@
 
     &.six-col{
         .row-item,.head-item{
-            width:15%;
+            width:16.66%;
+        }
+    }
+    &.seven-col{
+        .row-item,.head-item{
+            width:14.44%;
         }
     }
 }
