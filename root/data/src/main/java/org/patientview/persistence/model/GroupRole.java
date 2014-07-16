@@ -66,17 +66,24 @@ public class GroupRole extends RangeModel {
             return 0;
         }
 
-        String thisType = this.getGroup().getGroupType().getValue();
-        String objectType = this.getGroup().getGroupType().getValue();
+        String thisType;
+        String objectType;
+
+        if (this.getGroup().getGroupType() != null && ((GroupRole) g1).getGroup() != null) {
+            thisType = this.getGroup().getGroupType().getValue();
+            objectType = ((GroupRole) g1).getGroup().getGroupType().getValue();
+        } else {
+            return 0;
+        }
 
         if (objectType.equalsIgnoreCase("SPECIALTY")) {
-            return -1;
+            return 1;
         } else if (thisType.equalsIgnoreCase("SPECIALTY")) {
-            return 1;
-        } else if (thisType.equalsIgnoreCase("UNIT") && objectType.equalsIgnoreCase("DISEASE_GROUP")) {
-            return 1;
-        } else if (thisType.equalsIgnoreCase("DISEASE_GROUP") && objectType.equalsIgnoreCase("UNIT")) {
             return -1;
+        } else if (thisType.equalsIgnoreCase("UNIT") && objectType.equalsIgnoreCase("DISEASE_GROUP")) {
+            return -1;
+        } else if (thisType.equalsIgnoreCase("DISEASE_GROUP") && objectType.equalsIgnoreCase("UNIT")) {
+            return 1;
         } else {
             return 0;
         }

@@ -28,6 +28,7 @@ import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import javax.persistence.EntityManager;
 import java.util.HashSet;
 import java.util.TreeSet;
 
@@ -66,6 +67,9 @@ public class UserServiceTest {
 
     @Mock
     private IdentifierRepository identifierRepository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private UserService userService = new UserServiceImpl();

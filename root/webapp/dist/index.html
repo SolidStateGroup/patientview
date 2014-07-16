@@ -16,7 +16,7 @@
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css({.tmp,app}) styles/main.css -->
-        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="styles/patientview/stylesheets/screen.css">
         <!-- endbuild -->
         <script src="https://www.google.com/jsapi" type="text/javascript"></script>
     </head>
@@ -27,12 +27,18 @@
 
         <!-- Application content here -->
         <div ng-include src="'views/partials/menus.html'"></div>
+
         <div class="container" ng-view="" ng-cloak></div>
-        <div class="container">
-            <div class="footer">
-                <p class="pull-left">PatientView 2 - {{endPoint}} - {{authToken}}<br/>
-                    {{loggedInUser.username}}</p>
-                <p class="pull-right">&copy; Solid State Group 2014</p>
+
+        <div class="footer">
+            <div class="container">
+                <div class="brand"><img src="images/pv-logo.png" alt="patient view"/></div>
+                <!--<p class="pull-left">PatientView 2 - {{endPoint}} - {{authToken}} - {{loggedInUser.username}}</p>-->
+                <ul class="inline unstyled pull-right legal-links">
+                    <li><a href="">Privacy Policy</a></li>
+                    <li><a href="">Terms &amp; Conditions</a></li>
+                    <li>Patient View 2014 &copy;</li>
+                </ul>
             </div>
         </div>
         <!--<p>{{loggedInUser}}</p>-->

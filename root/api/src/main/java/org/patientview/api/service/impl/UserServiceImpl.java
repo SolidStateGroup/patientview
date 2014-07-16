@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -66,6 +67,9 @@ public class UserServiceImpl implements UserService {
     private EmailService emailService;
 
     @Inject
+    private EntityManager entityManager;
+
+    @Inject
     private Properties properties;
 
     private User createUser(User user) {
@@ -97,6 +101,8 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+        entityManager.flush();
+
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
 
             for (UserFeature userFeature : user.getUserFeatures()) {
@@ -106,6 +112,8 @@ public class UserServiceImpl implements UserService {
                 userFeatureRepository.save(userFeature);
             }
         }
+
+        entityManager.flush();
 
         // TODO remove into a separate call
         if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
@@ -117,6 +125,8 @@ public class UserServiceImpl implements UserService {
                 identifierRepository.save(identifier);
             }
         }
+
+        entityManager.flush();
 
         user.setId(newUser.getId());
 
@@ -180,6 +190,8 @@ public class UserServiceImpl implements UserService {
         userFeatureRepository.delete(entityUser.getUserFeatures());
         identifierRepository.delete(entityUser.getIdentifiers());
 
+        entityManager.flush();
+
         // add updated groups and roles
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
             for (GroupRole groupRole : user.getGroupRoles()) {
@@ -190,6 +202,7 @@ public class UserServiceImpl implements UserService {
                 groupRoleRepository.save(groupRole);
             }
         }
+        entityManager.flush();
 
         // add updated features
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
@@ -200,6 +213,7 @@ public class UserServiceImpl implements UserService {
                 userFeatureRepository.save(userFeature);
             }
         }
+        entityManager.flush();
 
         // add identifiers
         if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
@@ -210,6 +224,7 @@ public class UserServiceImpl implements UserService {
                 identifierRepository.save(identifier);
             }
         }
+        entityManager.flush();
 
         return userRepository.save(user);
     }
