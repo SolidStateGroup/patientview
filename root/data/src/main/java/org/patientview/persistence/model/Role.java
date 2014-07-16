@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -30,8 +31,7 @@ public class Role extends AuditModel {
     @OneToMany(mappedBy = "role")
     private Set<Route> routes;
 
-    @JsonIgnore
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "type_id")
     private Lookup roleType;
 

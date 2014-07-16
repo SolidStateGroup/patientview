@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -21,7 +22,7 @@ public class UserFeature extends RangeModel {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "feature_id")
     private Feature feature;
 
@@ -40,4 +41,6 @@ public class UserFeature extends RangeModel {
     public void setUser(final User user) {
         this.user = user;
     }
+
+
 }

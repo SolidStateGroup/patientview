@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -23,7 +24,7 @@ public class Identifier extends RangeModel {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "type_id")
     private Lookup identifierType;
 

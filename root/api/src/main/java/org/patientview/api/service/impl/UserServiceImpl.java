@@ -29,9 +29,11 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -184,49 +186,38 @@ public class UserServiceImpl implements UserService {
 
     public User saveUser(User user) {
 
-        // clear existing user groups roles, features
-        User entityUser = userRepository.findOne(user.getId());
-        groupRoleRepository.delete(entityUser.getGroupRoles());
-        userFeatureRepository.delete(entityUser.getUserFeatures());
-        identifierRepository.delete(entityUser.getIdentifiers());
-
+        Set<GroupRole> groupRoles = user.getGroupRoles();
+        user.setGroupRoles(Collections.EMPTY_SET);
+        groupRoleRepository.deleteGroupRoleByUser(user);
         entityManager.flush();
 
-        // add updated groups and roles
-        if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
-            for (GroupRole groupRole : user.getGroupRoles()) {
-                groupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
-                groupRole.setRole(roleRepository.findOne(groupRole.getRole().getId()));
-                groupRole.setUser(userRepository.findOne(user.getId()));
-                groupRole.setCreator(userRepository.findOne(1L));
-                groupRoleRepository.save(groupRole);
+        for (UserFeature userFeature : user.getUserFeatures()) {
+            if (userFeature.getId() != null && userFeature.getId() < 0) {
+                userFeature.setId(null);
             }
+            userFeature.setUser(user);
         }
-        entityManager.flush();
 
-        // add updated features
-        if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
-            for (UserFeature userFeature : user.getUserFeatures()) {
-                userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
-                userFeature.setUser(userRepository.findOne(user.getId()));
-                userFeature.setCreator(userRepository.findOne(1L));
-                userFeatureRepository.save(userFeature);
-            }
-        }
-        entityManager.flush();
-
-        // add identifiers
-        if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
-            for (Identifier identifier : user.getIdentifiers()) {
+        for (Identifier identifier : user.getIdentifiers()) {
+            if (identifier.getId() != null && identifier.getId() < 0) {
                 identifier.setId(null);
-                identifier.setUser(userRepository.findOne(user.getId()));
-                identifier.setCreator(userRepository.findOne(1L));
-                identifierRepository.save(identifier);
+                identifier.setUser(user);
             }
         }
-        entityManager.flush();
 
-        return userRepository.save(user);
+        entityManager.merge(user);
+        user = userRepository.save(user);
+        for (GroupRole groupRole : groupRoles) {
+            if (groupRole.getId() != null && groupRole.getId() < 0) {
+                groupRole.setId(null);
+            }
+            groupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
+            groupRole.setRole(roleRepository.findOne((groupRole.getRole().getId())));
+            groupRole.setUser(user);
+            entityManager.persist(groupRole);
+        }
+
+        return user;
     }
 
     public List<User> getUserByGroupAndRole(Long groupId, Long roleId) {

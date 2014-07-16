@@ -145,6 +145,4 @@ public class Route extends SimpleAuditModel {
         return 0;
     }
 
-
-
 }

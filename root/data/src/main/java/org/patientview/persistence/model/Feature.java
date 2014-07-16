@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -35,7 +36,7 @@ public class Feature extends RangeModel {
     @OneToMany(mappedBy = "feature")
     private Set<GroupFeature> groupFeatures;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name="PV_Feature_Feature_Type",
             joinColumns = @JoinColumn(name="Feature_Id", referencedColumnName="Id"),
             inverseJoinColumns = @JoinColumn(name="Type_Id", referencedColumnName="Id"))

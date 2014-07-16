@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.UUID;
 
 /**
@@ -55,14 +54,14 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "fullname")
     private String name;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
     @SortNatural
-    private SortedSet<GroupRole> groupRoles;
+    private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<UserFeature> userFeatures;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<Identifier> identifiers;
 
     @Column(name = "fhir_resource_id")
@@ -145,11 +144,11 @@ public class User extends RangeModel implements UserDetails {
         this.fhirResourceId = fhirResourceId;
     }
 
-    public void setGroupRoles(final SortedSet<GroupRole> groupRoles) {
+    public void setGroupRoles(final Set<GroupRole> groupRoles) {
         this.groupRoles = groupRoles;
     }
 
-    public SortedSet<GroupRole> getGroupRoles() {
+    public Set<GroupRole> getGroupRoles() {
         return groupRoles;
     }
 
