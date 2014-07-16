@@ -57,4 +57,29 @@ public class GroupRole extends RangeModel {
     public void setUser(final User user) {
         this.user = user;
     }
+
+    //TODO - sort order just for the front end Enum sprint 2
+    @Override
+    public int compareTo(Object g1) {
+
+        if (g1 == null) {
+            return 0;
+        }
+
+        String thisType = this.getGroup().getGroupType().getValue();
+        String objectType = this.getGroup().getGroupType().getValue();
+
+        if (objectType.equalsIgnoreCase("SPECIALTY")) {
+            return -1;
+        } else if (thisType.equalsIgnoreCase("SPECIALTY")) {
+            return 1;
+        } else if (thisType.equalsIgnoreCase("UNIT") && objectType.equalsIgnoreCase("DISEASE_GROUP")) {
+            return 1;
+        } else if (thisType.equalsIgnoreCase("DISEASE_GROUP") && objectType.equalsIgnoreCase("UNIT")) {
+            return -1;
+        } else {
+            return 0;
+        }
+
+    }
 }

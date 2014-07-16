@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.SortNatural;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.UUID;
 
 /**
@@ -54,7 +56,8 @@ public class User extends RangeModel implements UserDetails {
     private String name;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private Set<GroupRole> groupRoles;
+    @SortNatural
+    private SortedSet<GroupRole> groupRoles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<UserFeature> userFeatures;
@@ -142,11 +145,11 @@ public class User extends RangeModel implements UserDetails {
         this.fhirResourceId = fhirResourceId;
     }
 
-    public void setGroupRoles(final Set<GroupRole> groupRoles) {
+    public void setGroupRoles(final SortedSet<GroupRole> groupRoles) {
         this.groupRoles = groupRoles;
     }
 
-    public Set<GroupRole> getGroupRoles() {
+    public SortedSet<GroupRole> getGroupRoles() {
         return groupRoles;
     }
 
@@ -208,4 +211,5 @@ public class User extends RangeModel implements UserDetails {
     public void setLastLogin(Date lastLogin) {
         this.lastLogin = lastLogin;
     }
+
 }

@@ -29,6 +29,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
 import java.util.HashSet;
+import java.util.TreeSet;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -96,7 +97,7 @@ public class UserServiceTest {
         Role role = TestUtils.createRole(5L, "TEST_ROLE", creator);
         Group group = TestUtils.createGroup(6L, "TEST_GROUP", creator);
         GroupRole groupRole = TestUtils.createGroupRole(7L, role, group, newUser, creator);
-        newUser.setGroupRoles(new HashSet<GroupRole>());
+        newUser.setGroupRoles(new TreeSet<GroupRole>());
         newUser.getGroupRoles().add(groupRole);
 
         // Add test identifier, with lookup type IDENTIFIER, value NHS_NUMBER

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -16,6 +17,7 @@ import javax.persistence.Table;
 @Table(name = "pv_identifier")
 public class Identifier extends RangeModel {
 
+    @MapsId("user_id")
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id")

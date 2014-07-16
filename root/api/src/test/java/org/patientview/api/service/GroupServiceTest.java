@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -292,7 +293,7 @@ public class GroupServiceTest {
         // add user as specialty admin to group
         Role role = TestUtils.createRole(5L, "SPECIALTY_ADMIN", creator);
         GroupRole groupRole = TestUtils.createGroupRole(6L, role, parentGroup, testUser, creator);
-        testUser.setGroupRoles(new HashSet<GroupRole>());
+        testUser.setGroupRoles(new TreeSet<GroupRole>());
         testUser.getGroupRoles().add(groupRole);
         List<Role> roles = new ArrayList<Role>();
         roles.add(role);
