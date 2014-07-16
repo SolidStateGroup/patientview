@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,15 @@ public class BaseController {
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public String handleEntityException(EntityExistsException e) {
         LOG.error("Handling Entity Exception {}", e);
+        return e.getMessage();
+    }
+
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public String handleEntityException(ResourceNotFoundException e) {
+        LOG.error("Could not find resource {}", e);
         return e.getMessage();
     }
 

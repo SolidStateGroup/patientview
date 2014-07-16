@@ -6,6 +6,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.patientview.Group;
 import org.patientview.GroupRole;
+import org.patientview.Identifier;
 import org.patientview.Role;
 import org.patientview.User;
 import org.patientview.migration.service.AdminDataMigrationService;
@@ -18,6 +19,7 @@ import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
+import org.patientview.service.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -48,6 +51,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
 
+    @Inject
+    private UserManager userManager;
+
 
     public void migrate() {
 
@@ -55,6 +61,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
 
             boolean isPatient = false;
+            Set<String> nhsNumbers = new HashSet<String>();
 
             User newUser = createUser(oldUser);
 
@@ -66,7 +73,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // We do want the patient group.
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
-
+                    nhsNumbers.add(userMapping.getNhsno());
                     Role patientRole = adminDataMigrationService.getRoleByName("PATIENT");
 
                     if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
@@ -78,7 +85,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         }
 
                         isPatient = true;
-
 
 
                     } else {
@@ -109,11 +115,21 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             }
 
-            if (isPatient) {
+            if (isPatient && newUser != null) {
                 addSpecialty(oldUser, newUser);
+                addIdentifier(newUser, nhsNumbers);
             }
         }
 
+    }
+
+    private void addIdentifier(User user, Set<String> nhsNumbers) {
+        for (String nhsNUmber : nhsNumbers) {
+                Identifier identifier = new Identifier();
+                identifier.setIdentifier(nhsNUmber);
+                identifier.setIdentifierType(adminDataMigrationService.getLookupByName("NHS_NUMBER"));
+                callApiAddIdentifier(identifier, user.getId());
+        }
     }
 
     private void addSpecialty(org.patientview.patientview.model.User user, User newUser) {
@@ -162,6 +178,26 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
     }
+
+    private Identifier callApiAddIdentifier(Identifier identifier, Long userId) {
+
+        String url = JsonUtil.pvUrl + "/user/" + userId + "/identifier";
+        try {
+            Identifier newIdentifier = JsonUtil.jsonRequest(url, Identifier.class, null, HttpPost.class);
+            LOG.info("Added Identifier");
+            return newIdentifier;
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to add identifier");
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to add identifier");
+        } catch (Exception e) {
+            LOG.error("Unable to add identifier");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 
     private User callApiCreateUser(User user) {
         String url = JsonUtil.pvUrl + "/user?encryptPassword=false";
