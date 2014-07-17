@@ -151,7 +151,6 @@ public class UserController extends BaseController {
     public ResponseEntity<Void> updateUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
-        user.setCreator(userService.getUser(1L));
 
         user = userService.saveUser(user);
 

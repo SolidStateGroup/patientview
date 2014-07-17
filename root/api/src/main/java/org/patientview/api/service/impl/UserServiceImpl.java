@@ -18,6 +18,7 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -67,6 +68,9 @@ public class UserServiceImpl implements UserService {
 
     @Inject
     private EmailService emailService;
+
+    @Inject
+    private LookupRepository lookupRepository;
 
     @Inject
     private EntityManager entityManager;
@@ -204,32 +208,35 @@ public class UserServiceImpl implements UserService {
         User creator = userRepository.getOne(1L);
 
         for (GroupRole groupRole : groupRoles) {
-            if (groupRole.getId() != null && groupRole.getId() < 0) {
-                groupRole.setId(null);
-            }
-            groupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
-            groupRole.setRole(roleRepository.findOne((groupRole.getRole().getId())));
-            groupRole.setUser(user);
-            groupRole.setCreator(creator);
-            entityManager.persist(groupRole);
+            GroupRole newGroupRole = new GroupRole();
+            newGroupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
+            newGroupRole.setRole(roleRepository.findOne((groupRole.getRole().getId())));
+            newGroupRole.setUser(user);
+            newGroupRole.setCreator(creator);
+            entityManager.merge(newGroupRole);
+            entityManager.persist(newGroupRole);
         }
 
         for (Identifier identifier : identifiers) {
             if (identifier.getId() != null && identifier.getId() < 0) {
                 identifier.setId(null);
             }
-            identifier.setCreator(creator);
-            identifier.setUser(userRepository.findOne(user.getId()));
-            entityManager.persist(identifier);
+            Identifier newIdentifier = new Identifier();
+            newIdentifier.setCreator(creator);
+            newIdentifier.setUser(userRepository.findOne(user.getId()));
+            newIdentifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
+            newIdentifier.setIdentifier(identifier.getIdentifier());
+            entityManager.merge(newIdentifier);
+            entityManager.persist(newIdentifier);
         }
 
         for (UserFeature userFeature : features) {
-            if (userFeature.getId() != null && userFeature.getId() < 0) {
-                userFeature.setId(null);
-            }
-            userFeature.setCreator(creator);
-            userFeature.setUser(userRepository.findOne(user.getId()));
-            entityManager.persist(userFeature);
+            UserFeature newUserFeature = new UserFeature();
+            newUserFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
+            newUserFeature.setCreator(creator);
+            newUserFeature.setUser(userRepository.findOne(user.getId()));
+            entityManager.merge(newUserFeature);
+            entityManager.persist(newUserFeature);
         }
 
         return user;

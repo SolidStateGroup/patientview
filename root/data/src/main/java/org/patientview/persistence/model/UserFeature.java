@@ -23,7 +23,7 @@ public class UserFeature extends RangeModel {
     private User user;
 
     @OneToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "feature_id")
+    @JoinColumn(name = "feature_id", nullable = false)
     private Feature feature;
 
     public Feature getFeature() {
