@@ -187,26 +187,22 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
 
         Set<GroupRole> groupRoles = user.getGroupRoles();
+        Set<Identifier> identifiers = user.getIdentifiers();
+        Set<UserFeature> features = user.getUserFeatures();
+
+        user.setIdentifiers(Collections.EMPTY_SET);
         user.setGroupRoles(Collections.EMPTY_SET);
-        groupRoleRepository.deleteGroupRoleByUser(user);
+        user.setUserFeatures(Collections.EMPTY_SET);
+        groupRoleRepository.deleteByUser(user);
+        userFeatureRepository.deleteByUser(user);
+        identifierRepository.deleteByUser(user);
         entityManager.flush();
-
-        for (UserFeature userFeature : user.getUserFeatures()) {
-            if (userFeature.getId() != null && userFeature.getId() < 0) {
-                userFeature.setId(null);
-            }
-            userFeature.setUser(user);
-        }
-
-        for (Identifier identifier : user.getIdentifiers()) {
-            if (identifier.getId() != null && identifier.getId() < 0) {
-                identifier.setId(null);
-                identifier.setUser(user);
-            }
-        }
 
         entityManager.merge(user);
         user = userRepository.save(user);
+
+        User creator = userRepository.getOne(1L);
+
         for (GroupRole groupRole : groupRoles) {
             if (groupRole.getId() != null && groupRole.getId() < 0) {
                 groupRole.setId(null);
@@ -214,7 +210,26 @@ public class UserServiceImpl implements UserService {
             groupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
             groupRole.setRole(roleRepository.findOne((groupRole.getRole().getId())));
             groupRole.setUser(user);
+            groupRole.setCreator(creator);
             entityManager.persist(groupRole);
+        }
+
+        for (Identifier identifier : identifiers) {
+            if (identifier.getId() != null && identifier.getId() < 0) {
+                identifier.setId(null);
+            }
+            identifier.setCreator(creator);
+            identifier.setUser(userRepository.findOne(user.getId()));
+            entityManager.persist(identifier);
+        }
+
+        for (UserFeature userFeature : features) {
+            if (userFeature.getId() != null && userFeature.getId() < 0) {
+                userFeature.setId(null);
+            }
+            userFeature.setCreator(creator);
+            userFeature.setUser(userRepository.findOne(user.getId()));
+            entityManager.persist(userFeature);
         }
 
         return user;
