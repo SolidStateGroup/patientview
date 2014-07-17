@@ -190,6 +190,8 @@ public class UserServiceImpl implements UserService {
 
     public User saveUser(User user) {
 
+        User creator = userRepository.getOne(1L);
+
         Set<GroupRole> groupRoles = user.getGroupRoles();
         Set<Identifier> identifiers = user.getIdentifiers();
         Set<UserFeature> features = user.getUserFeatures();
@@ -201,11 +203,11 @@ public class UserServiceImpl implements UserService {
         userFeatureRepository.deleteByUser(user);
         identifierRepository.deleteByUser(user);
         entityManager.flush();
-
+        user.setCreator(creator);
         entityManager.merge(user);
         user = userRepository.save(user);
 
-        User creator = userRepository.getOne(1L);
+
 
         for (GroupRole groupRole : groupRoles) {
             GroupRole newGroupRole = new GroupRole();
@@ -213,7 +215,7 @@ public class UserServiceImpl implements UserService {
             newGroupRole.setRole(roleRepository.findOne((groupRole.getRole().getId())));
             newGroupRole.setUser(user);
             newGroupRole.setCreator(creator);
-            entityManager.merge(newGroupRole);
+            //entityManager.merge(newGroupRole);
             entityManager.persist(newGroupRole);
         }
 
@@ -226,7 +228,7 @@ public class UserServiceImpl implements UserService {
             newIdentifier.setUser(userRepository.findOne(user.getId()));
             newIdentifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
             newIdentifier.setIdentifier(identifier.getIdentifier());
-            entityManager.merge(newIdentifier);
+            //entityManager.merge(newIdentifier);
             entityManager.persist(newIdentifier);
         }
 
@@ -235,7 +237,7 @@ public class UserServiceImpl implements UserService {
             newUserFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
             newUserFeature.setCreator(creator);
             newUserFeature.setUser(userRepository.findOne(user.getId()));
-            entityManager.merge(newUserFeature);
+            //entityManager.merge(newUserFeature);
             entityManager.persist(newUserFeature);
         }
 

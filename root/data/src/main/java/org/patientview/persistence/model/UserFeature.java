@@ -19,7 +19,7 @@ public class UserFeature extends RangeModel {
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToOne(cascade = CascadeType.MERGE)
