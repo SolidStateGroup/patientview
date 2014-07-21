@@ -91,9 +91,9 @@ public class SecurityServiceImpl implements SecurityService {
     //TODO - Refactor to Enum Sprint 2
     private boolean doesListContainRole(List<Role> roles, String roleName) {
         for (Role role : roles) {
-            if (role.getName().equalsIgnoreCase(roleName)) {
-                return true;
-            }
+         //   if (role.getRoleType().equals(Roles(roleName))) {
+         //       return true;
+         //   }
         }
         return false;
     }

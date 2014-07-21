@@ -13,6 +13,8 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.Roles;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +52,7 @@ public final class TestUtils {
     public static Role createRole(Long id, String name, User creator) {
         Role role = new Role();
         role.setId(id);
-        role.setName(name);
+        role.setName(Roles.PATIENT);
         role.setCreated(new Date());
         role.setCreator(creator);
         return role;
@@ -125,7 +127,7 @@ public final class TestUtils {
 
         LookupType lookupType = new LookupType();
         lookupType.setId(id);
-        lookupType.setType(type);
+        lookupType.setType(LookupTypes.ROLE);
         lookupType.setCreated(new Date());
         lookupType.setCreator(creator);
         return lookupType;

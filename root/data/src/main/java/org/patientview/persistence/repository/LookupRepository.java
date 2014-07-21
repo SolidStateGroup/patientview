@@ -2,6 +2,7 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -22,5 +23,5 @@ public interface LookupRepository extends CrudRepository<Lookup, Long>  {
 
     @Query("SELECT loo FROM Lookup loo WHERE loo.lookupType.type = :lookupType AND loo.value = :lookupValue")
     public Lookup findByTypeAndValue(
-            @Param("lookupType") String lookupType, @Param("lookupValue") String lookupValue);
+            @Param("lookupType") LookupTypes lookupType, @Param("lookupValue") String lookupValue);
 }

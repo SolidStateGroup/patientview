@@ -72,6 +72,9 @@ public class User extends RangeModel implements UserDetails {
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private Date lastLogin;
 
+    @Column(name = "contact_number")
+    private String contactNumber;
+
     public String getUsername() {
         return username;
     }
@@ -211,4 +214,11 @@ public class User extends RangeModel implements UserDetails {
         this.lastLogin = lastLogin;
     }
 
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(final String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
 }
