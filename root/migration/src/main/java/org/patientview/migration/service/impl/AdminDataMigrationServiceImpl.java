@@ -13,6 +13,7 @@ import org.patientview.GroupRole;
 import org.patientview.Link;
 import org.patientview.Lookup;
 import org.patientview.Role;
+import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.PvUtil;
@@ -317,9 +318,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return null;
     }
 
-    public Role getRoleByName(String name) {
+    public Role getRoleByName(Roles name) {
         for (Role role : roles) {
-            if (role.getName().equalsIgnoreCase(name)) {
+            if (role.getName().equals(name)) {
                 return role;
             }
         }

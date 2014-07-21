@@ -18,6 +18,7 @@ import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -97,7 +98,7 @@ public class UserServiceTest {
         newUser.getUserFeatures().add(userFeature);
 
         // Add test role group
-        Role role = TestUtils.createRole(5L, "TEST_ROLE", creator);
+        Role role = TestUtils.createRole(5L, Roles.PATIENT, creator);
         Group group = TestUtils.createGroup(6L, "TEST_GROUP", creator);
         GroupRole groupRole = TestUtils.createGroupRole(7L, role, group, newUser, creator);
         newUser.setGroupRoles(new HashSet<GroupRole>());

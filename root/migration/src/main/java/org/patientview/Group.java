@@ -2,6 +2,7 @@ package org.patientview;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -35,7 +36,7 @@ public class Group extends AuditModel {
     @Column(name = "visible_to_join")
     private Boolean visibleToJoin;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "type_id")
     private Lookup groupType;
 
@@ -185,4 +186,5 @@ public class Group extends AuditModel {
     public void setVisibleToJoin(Boolean visibleToJoin) {
         this.visibleToJoin = visibleToJoin;
     }
+
 }

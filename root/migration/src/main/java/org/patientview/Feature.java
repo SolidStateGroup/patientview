@@ -2,6 +2,7 @@ package org.patientview;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -14,6 +15,7 @@ import java.util.Set;
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
+
 public class Feature extends RangeModel {
 
     @Column(name = "feature_name")
@@ -25,16 +27,13 @@ public class Feature extends RangeModel {
     @OneToMany(mappedBy = "feature")
     private Set<Route> routes;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "feature")
     private Set<UserFeature> userFeatures;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "feature")
     private Set<GroupFeature> groupFeatures;
 
-    @JsonIgnore
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name="PV_Feature_Feature_Type",
             joinColumns = @JoinColumn(name="Feature_Id", referencedColumnName="Id"),
             inverseJoinColumns = @JoinColumn(name="Type_Id", referencedColumnName="Id"))
@@ -56,6 +55,7 @@ public class Feature extends RangeModel {
         this.description = description;
     }
 
+    @JsonIgnore
     public Set<Route> getRoutes() {
         return routes;
     }
@@ -64,6 +64,7 @@ public class Feature extends RangeModel {
         this.routes = routes;
     }
 
+    @JsonIgnore
     public Set<UserFeature> getUserFeatures() {
         return userFeatures;
     }
@@ -72,6 +73,7 @@ public class Feature extends RangeModel {
         this.userFeatures = userFeatures;
     }
 
+    @JsonIgnore
     public Set<GroupFeature> getGroupFeatures() {
         return groupFeatures;
     }
@@ -80,6 +82,7 @@ public class Feature extends RangeModel {
         this.groupFeatures = groupFeatures;
     }
 
+    @JsonIgnore
     public Set<Lookup> getFeatureTypes() {
         return featureTypes;
     }

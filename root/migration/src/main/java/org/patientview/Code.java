@@ -13,8 +13,7 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 25/06/2014
  */
-@Entity
-@Table(name = "pv_code")
+
 public class Code extends AuditModel {
 
     @Column(name = "code")

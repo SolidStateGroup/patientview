@@ -7,7 +7,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Collection;
@@ -22,6 +25,8 @@ import java.util.UUID;
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
+@Entity
+@Table(name = "pv_user")
 public class User extends RangeModel implements UserDetails {
 
     @Column(name = "username")
@@ -48,13 +53,15 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "fullname")
     private String name;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
     private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval=true)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<UserFeature> userFeatures;
 
-   // @Type(type="pg-uuid")
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<Identifier> identifiers;
+
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
 
@@ -62,6 +69,9 @@ public class User extends RangeModel implements UserDetails {
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private Date lastLogin;
+
+    @Column(name = "contact_number")
+    private String contactNumber;
 
     public String getUsername() {
         return username;
@@ -151,6 +161,14 @@ public class User extends RangeModel implements UserDetails {
         this.userFeatures = userFeatures;
     }
 
+    public Set<Identifier> getIdentifiers() {
+        return identifiers;
+    }
+
+    public void setIdentifiers(Set<Identifier> identifiers) {
+        this.identifiers = identifiers;
+    }
+
     //TODO User Detail fields need refactoring
     @JsonIgnore
     @Override
@@ -192,5 +210,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setLastLogin(Date lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(final String contactNumber) {
+        this.contactNumber = contactNumber;
     }
 }

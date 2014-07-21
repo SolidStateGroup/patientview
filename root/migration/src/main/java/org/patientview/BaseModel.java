@@ -10,7 +10,7 @@ import java.io.Serializable;
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
-@MappedSuperclass
+
 public class BaseModel implements Serializable, Comparable {
 
     protected BaseModel() {

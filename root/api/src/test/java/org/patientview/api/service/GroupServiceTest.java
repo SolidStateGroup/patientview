@@ -18,6 +18,7 @@ import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
@@ -226,7 +227,7 @@ public class GroupServiceTest {
     public void testAddGroupRole() {
         User testUser = TestUtils.createUser(2L, "testUser");
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Role testRole = TestUtils.createRole(3L, "testRole", creator);
+        Role testRole = TestUtils.createRole(3L, Roles.PATIENT, creator);
 
         GroupRole groupRole = TestUtils.createGroupRole(4L,testRole, testGroup, testUser, creator);
 
@@ -292,7 +293,7 @@ public class GroupServiceTest {
         allGroups.add(parentGroup);
 
         // add user as specialty admin to group
-        Role role = TestUtils.createRole(5L, "SPECIALTY_ADMIN", creator);
+        Role role = TestUtils.createRole(5L, Roles.SPECIALTY_ADMIN, creator);
         GroupRole groupRole = TestUtils.createGroupRole(6L, role, parentGroup, testUser, creator);
         testUser.setGroupRoles(new TreeSet<GroupRole>());
         testUser.getGroupRoles().add(groupRole);
