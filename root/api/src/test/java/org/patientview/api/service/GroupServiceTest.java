@@ -17,6 +17,7 @@ import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
@@ -125,8 +126,8 @@ public class GroupServiceTest {
         groups.add(testGroup);
 
         when(groupRepository.findAll()).thenReturn(groups);
-        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
-        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("CHILD"))).thenReturn(childRelationship);
 
         groups = groupService.findAll();
 
@@ -161,8 +162,8 @@ public class GroupServiceTest {
         Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
         Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
 
-        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
-        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("CHILD"))).thenReturn(childRelationship);
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
@@ -312,8 +313,8 @@ public class GroupServiceTest {
         parentGroup.setGroupRelationships(groupRelationships);
 
         // setup stubbing
-        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
-        when(lookupRepository.findByTypeAndValue(Matchers.anyString(), Matchers.eq("CHILD"))).thenReturn(childRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
+        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("CHILD"))).thenReturn(childRelationship);
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
         when(groupRepository.findOne(Matchers.eq(parentGroup.getId()))).thenReturn(parentGroup);

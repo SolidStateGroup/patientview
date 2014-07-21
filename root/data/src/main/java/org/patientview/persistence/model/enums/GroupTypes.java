@@ -1,16 +1,20 @@
 package org.patientview.persistence.model.enums;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
-public enum FeatureType {
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+public enum GroupTypes {
 
-    SHARING_THOUGHTS("Sharing Thoughts"), MESSAGING("Messaging"), FEEDBACK("Feedback"), ECS("Emergency Care Summary");
+    UNIT("unit"), DISEASE_GROUP("Disease Group"), SPECIALTY("Specialty");
 
     private String name;
-    FeatureType(String name) { this.name = name; }
+    GroupTypes(String name) { this.name = name; }
     public String getName() { return this.name; }
     public String getId() { return this.name(); }
+
 
 }

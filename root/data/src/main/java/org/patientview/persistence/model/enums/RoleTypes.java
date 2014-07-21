@@ -2,15 +2,16 @@ package org.patientview.persistence.model.enums;
 
 /**
  * Created by james@solidstategroup.com
- * Created on 05/06/2014
+ * Created on 20/07/2014
  */
-public enum FeatureType {
+public enum RoleTypes {
 
-    SHARING_THOUGHTS("Sharing Thoughts"), MESSAGING("Messaging"), FEEDBACK("Feedback"), ECS("Emergency Care Summary");
+    PATIENT("Patient"), STAFF("Staff");
 
     private String name;
-    FeatureType(String name) { this.name = name; }
+    RoleTypes(String name) { this.name = name; }
     public String getName() { return this.name; }
     public String getId() { return this.name(); }
+
 
 }

@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -14,5 +15,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface LookupTypeRepository extends CrudRepository<LookupType, Long> {
 
-    public LookupType findByType(String type);
+    public LookupType findByType(LookupTypes type);
 }

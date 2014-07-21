@@ -126,7 +126,7 @@ public class SecurityServiceTest {
 
 
     /**
-     * Test: Call the findGroupByUser method if a User does not have a superadmin role
+     * Test: Call the findGroupByUser method if a User does not have a globaladmin role
      * Fail: FindGroupByUser was not called (SuperAdmin -> findAll, Anyone else -> findGroupByUser)
      *
      * @return

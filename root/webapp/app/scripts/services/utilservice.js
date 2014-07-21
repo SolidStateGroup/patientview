@@ -18,10 +18,17 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
             return code;
         },
+
+        validateEmail: function (email)
+        {
+            var re = /\S+@\S+\.\S+/;
+            return !re.test(email);
+        },
+
         // Used when cleaning objects before they are passed to REST service, object fields to keep
         getFields: function (objectType) {
             var fields = [];
-            fields.user = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures', 'verified', 'verificationCode', 'identifiers'];
+            fields.user = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures', 'verified', 'verificationCode', 'identifiers', 'contactNumber'];
             fields.role = ['id','name','description','routes'];
             fields.group = ['id','name','code','sftpUser','groupType','groupFeatures','routes','links','locations','childGroups','parentGroups','children','parents','visible','visibleToJoin'];
             fields.code = ['id','code','codeType','standardType','description','links'];

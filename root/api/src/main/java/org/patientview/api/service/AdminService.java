@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleTypes;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public interface AdminService {
 
     List<Role> getAllRoles();
 
-    List<Role> getRolesByType(String type);
+    List<Role> getRolesByType(RoleTypes type);
 
     GroupFeature createGroupFeature(GroupFeature groupFeature);
 

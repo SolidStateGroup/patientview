@@ -9,11 +9,11 @@ function ($q, $rootScope, $location) {
             var method = config.method;
             var url = config.url;
 
-            if (status === 401) {
-                $location.path( '/login' );
-            } else {
-                $rootScope.error = method + ' on ' + url + ' failed with status ' + status;
-            }
+           // if (status === 401) {
+           //        $location.path( '/login' );
+           // } else {
+           //     $rootScope.error = method + ' on ' + url + ' failed with status ' + status;
+           // }
             return $q.reject(rejection);
         }
     };
