@@ -1,8 +1,12 @@
 package org.patientview;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.patientview.enums.Roles;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -15,7 +19,8 @@ import java.util.Set;
 public class Role extends AuditModel {
 
     @Column(name = "role_name")
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private Roles name;
 
     @Column(name = "level")
     private Integer level;
@@ -26,21 +31,21 @@ public class Role extends AuditModel {
     @OneToMany(mappedBy = "role")
     private Set<Route> routes;
 
-    @JsonIgnore
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "type_id")
-    private Lookup roleType;
+    private RoleType roleType;
 
     @JsonIgnore
     @OneToMany(mappedBy = "role")
     private Set<GroupRole> groupRoles;
 
+    private Boolean visible;
 
-    public String getName() {
+    public Roles getName() {
         return name;
     }
 
-    public void setName(final String name) {
+    public void setName(final Roles name) {
         this.name = name;
     }
 
@@ -60,11 +65,11 @@ public class Role extends AuditModel {
         this.routes = routes;
     }
 
-    public Lookup getRoleType() {
+    public RoleType getRoleType() {
         return roleType;
     }
 
-    public void setRoleType(final Lookup roleType) {
+    public void setRoleType(final RoleType roleType) {
         this.roleType = roleType;
     }
 
@@ -74,5 +79,13 @@ public class Role extends AuditModel {
 
     public void setLevel(final Integer level) {
         this.level = level;
+    }
+
+    public Boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(final Boolean visible) {
+        this.visible = visible;
     }
 }

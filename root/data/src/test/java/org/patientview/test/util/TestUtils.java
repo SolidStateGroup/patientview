@@ -49,10 +49,10 @@ public final class TestUtils {
         return user;
     }
 
-    public static Role createRole(Long id, String name, User creator) {
+    public static Role createRole(Long id, Roles name, User creator) {
         Role role = new Role();
         role.setId(id);
-        role.setName(Roles.PATIENT);
+        role.setName(name);
         role.setCreated(new Date());
         role.setCreator(creator);
         return role;

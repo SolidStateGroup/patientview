@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
@@ -52,9 +53,9 @@ public class AdminDataMigrationTest {
         adminDataMigrationService.migrate();
         Assert.assertNotNull("This group should not be null", adminDataMigrationService.getLookupByName("UNIT"));
         Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getFeatureByName("SHARING_THOUGHTS"));
-        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("PATIENT"));
-        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("UNIT_ADMIN"));
-        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName("STAFF_ADMIN"));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName(Roles.PATIENT));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName(Roles.UNIT_ADMIN));
+        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName(Roles.STAFF_ADMIN));
     }
 
 

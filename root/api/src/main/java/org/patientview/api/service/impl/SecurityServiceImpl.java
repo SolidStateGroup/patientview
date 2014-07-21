@@ -8,6 +8,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -76,10 +77,9 @@ public class SecurityServiceImpl implements SecurityService {
 
     public List<Group> getUserGroups(Long userId) {
         User user = userRepository.findOne(userId);
-        //TODO - Refactor to Enum Sprint 2
-        if (doesListContainRole(roleRepository.findByUser(user), "SUPER_ADMIN")) {
+        if (doesListContainRole(roleRepository.findByUser(user), Roles.GLOBAL_ADMIN)) {
             return Util.iterableToList(groupService.findAll());
-        } else if (doesListContainRole(roleRepository.findByUser(user), "SPECIALTY_ADMIN")) {
+        } else if (doesListContainRole(roleRepository.findByUser(user), Roles.SPECIALTY_ADMIN)) {
             // if specialty admin get specialty group and all child groups
             return Util.iterableToList(groupService.findGroupAndChildGroupsByUser(user));
         }
@@ -88,12 +88,11 @@ public class SecurityServiceImpl implements SecurityService {
         }
     }
 
-    //TODO - Refactor to Enum Sprint 2
-    private boolean doesListContainRole(List<Role> roles, String roleName) {
+    private boolean doesListContainRole(List<Role> roles, Roles roleName) {
         for (Role role : roles) {
-         //   if (role.getRoleType().equals(Roles(roleName))) {
-         //       return true;
-         //   }
+            if (role.getName().equals(roleName)) {
+                return true;
+            }
         }
         return false;
     }
