@@ -18,6 +18,13 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
             return code;
         },
+
+        validateEmail: function (email)
+        {
+            var re = /\S+@\S+\.\S+/;
+            return !re.test(email);
+        },
+
         // Used when cleaning objects before they are passed to REST service, object fields to keep
         getFields: function (objectType) {
             var fields = [];
