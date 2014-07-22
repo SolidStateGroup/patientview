@@ -13,7 +13,6 @@ public class GroupFeature extends RangeModel {
 
     @OneToOne
     @JoinColumn(name = "group_id")
-    @JsonIgnore
     private Group group;
 
     @OneToOne
@@ -28,6 +27,7 @@ public class GroupFeature extends RangeModel {
         this.feature = feature;
     }
 
+    @JsonIgnore
     public Group getGroup() {
         return group;
     }

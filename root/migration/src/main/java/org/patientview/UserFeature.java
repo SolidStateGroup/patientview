@@ -2,6 +2,8 @@ package org.patientview;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
@@ -12,12 +14,12 @@ import javax.persistence.OneToOne;
 public class UserFeature extends RangeModel {
 
     @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "feature_id")
+    @OneToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "feature_id", nullable = false)
     private Feature feature;
 
     public Feature getFeature() {
@@ -35,4 +37,6 @@ public class UserFeature extends RangeModel {
     public void setUser(final User user) {
         this.user = user;
     }
+
+
 }

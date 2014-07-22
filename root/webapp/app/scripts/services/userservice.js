@@ -49,6 +49,19 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // Reset user's password
+        changePassword: function (user) {
+            var deferred = $q.defer();
+            var newPasword = user.password;
+            // POST /user/{userId}/resetPassword
+            Restangular.one('user', user.id).post('resetPassword', {'password':newPasword}).then(function(successResult) {
+                deferred.resolve(successResult);
+                successResult.password = generatedPassword;
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Send user a verification email
         sendVerificationEmail: function (user) {
             var deferred = $q.defer();

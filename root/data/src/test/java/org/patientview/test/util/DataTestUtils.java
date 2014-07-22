@@ -7,7 +7,9 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.RoleType;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -77,7 +79,10 @@ public class DataTestUtils {
     }
 
     public Role createRole(String name, User creator) {
-        Role role = TestUtils.createRole(null, "PATIENT", creator);
+        Role role = TestUtils.createRole(null, Roles.PATIENT, creator);
+
+        RoleType roleType = new RoleType();
+        roleType.getValue();
         return roleRepository.save(role);
     }
 

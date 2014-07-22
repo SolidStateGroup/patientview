@@ -62,16 +62,17 @@ public class GroupRole extends RangeModel {
     @Override
     public int compareTo(Object g1) {
 
-        if (g1 == null) {
+      /*  if (g1 == null) {
             return 0;
         }
 
+        //TODO ENum Sprint 2
         String thisType;
         String objectType;
 
         if (this.getGroup().getGroupType() != null && ((GroupRole) g1).getGroup() != null) {
-            thisType = this.getGroup().getGroupType().getValue();
-            objectType = ((GroupRole) g1).getGroup().getGroupType().getValue();
+        //    thisType = this.getGroup().getGroupType().getValue();
+         //   objectType = ((GroupRole) g1).getGroup().getGroupType().getValue();
         } else {
             return 0;
         }
@@ -86,7 +87,8 @@ public class GroupRole extends RangeModel {
             return 1;
         } else {
             return 0;
-        }
+        }*/
+        return 0;
 
     }
 

@@ -6,6 +6,11 @@ package org.patientview.persistence.model.enums;
  */
 public enum FeatureType {
 
-    SHARINGTHOUGHTS, MESSAGING, FEEDBACK;
+    SHARING_THOUGHTS("Sharing Thoughts"), MESSAGING("Messaging"), FEEDBACK("Feedback"), ECS("Emergency Care Summary");
+
+    private String name;
+    FeatureType(String name) { this.name = name; }
+    public String getName() { return this.name; }
+    public String getId() { return this.name(); }
 
 }

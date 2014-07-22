@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,7 @@ public class StaticDataController extends  BaseController {
     @RequestMapping(value = "/lookupType/{lookupType}/lookups", method = RequestMethod.GET
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Lookup>> getLookupsByType(@PathVariable("lookupType") String lookupType) {
+    public ResponseEntity<List<Lookup>> getLookupsByType(@PathVariable("lookupType") LookupTypes lookupType) {
         LOG.debug("Request has been received to get lookups by type: {}", lookupType);
         return new ResponseEntity<List<Lookup>>(staticDataManager.getLookupsByType(lookupType), HttpStatus.OK);
     }
@@ -50,7 +51,7 @@ public class StaticDataController extends  BaseController {
     @RequestMapping(value = "/lookupType/{lookupType}/lookups/{lookupValue}", method = RequestMethod.GET
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Lookup> getLookupByTypeAndValue(@PathVariable("lookupType") String lookupType,
+    public ResponseEntity<Lookup> getLookupByTypeAndValue(@PathVariable("lookupType") LookupTypes lookupType,
                                                           @PathVariable("lookupValue") String lookupValue) {
         LOG.debug("Request has been received to get lookups by type: {}", lookupType);
         return new ResponseEntity<Lookup>(staticDataManager.getLookupByTypeAndValue(lookupType, lookupValue), HttpStatus.OK);

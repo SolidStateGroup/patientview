@@ -74,6 +74,23 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                 }
             };
         },
+        getAccountRoute: function() {
+            return {
+                'url': '/settings',
+                'templateUrl': 'views/account.html',
+                'controller': 'AccountCtrl',
+                'title': 'Settings',
+                'lookup': {
+                    'id': 99,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 2,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
         getRoutes: function (uuid) {
             var deferred = $q.defer();
             Restangular.all('security').one('user', uuid).customGET('routes').then(function (res) {

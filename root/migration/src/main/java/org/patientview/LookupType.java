@@ -1,8 +1,11 @@
 package org.patientview;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.patientview.enums.LookupTypes;
 
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import java.util.Set;
 
@@ -15,7 +18,8 @@ import java.util.Set;
 public class LookupType extends AuditModel {
 
     @Column(name = "lookup_type")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private LookupTypes type;
 
     @Column(name = "description")
     private String description;
@@ -24,11 +28,11 @@ public class LookupType extends AuditModel {
     @OneToMany(mappedBy = "lookupType")
     private Set<Lookup> lookups;
 
-    public String getType() {
+    public LookupTypes getType() {
         return type;
     }
 
-    public void setType(final String type) {
+    public void setType(final LookupTypes type) {
         this.type = type;
     }
 
