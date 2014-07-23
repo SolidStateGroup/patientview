@@ -4,11 +4,12 @@ import org.patientview.api.service.AuthenticationService;
 import org.patientview.persistence.model.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.annotation.PostConstruct;
@@ -27,13 +28,11 @@ import java.io.IOException;
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
-@WebFilter(urlPatterns = {"/test*"})
+@WebFilter(urlPatterns = {"/*"})
 public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
 
-    @Inject
-    @Qualifier(value = "authenticationService")
     private AuthenticationService authenticationService;
 
     @Inject
@@ -56,6 +55,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
+        setAuthenticationManager(request);
 
         String path = ((HttpServletRequest) request).getRequestURI();
         if (path.contains("/auth/login")) {
@@ -68,21 +68,27 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             String authToken = this.extractAuthTokenFromRequest(httpRequest);
             UserToken userToken = authenticationService.getToken(authToken);
 
+
             if (userToken != null) {
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userToken.getUser(), null, userToken.getUser().getAuthorities());
+
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            } else {
-
             }
 
             chain.doFilter(request, response);
         }
     }
 
+    private void setAuthenticationManager(ServletRequest servletRequest) {
+        if (authenticationService == null) {
+            WebApplicationContext webApplicationContext =
+                    WebApplicationContextUtils.getWebApplicationContext(servletRequest.getServletContext());
+            authenticationService = (AuthenticationService) webApplicationContext.getBean("authenticationServiceImpl");
+        }
+    }
 
     private HttpServletRequest getAsHttpRequest(ServletRequest request) {
         if (!(request instanceof HttpServletRequest)) {
