@@ -34,7 +34,7 @@ public class Role extends AuditModel implements GrantedAuthority {
     private String description;
 
     @OneToMany(mappedBy = "role")
-    private Set<Route> routes;
+    private Set<RouteLink> routeLinks;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "type_id")
@@ -62,12 +62,12 @@ public class Role extends AuditModel implements GrantedAuthority {
         this.description = description;
     }
 
-    public Set<Route> getRoutes() {
-        return routes;
+    public Set<RouteLink> getRouteLinks() {
+        return routeLinks;
     }
 
-    public void setRoutes(final Set<Route> routes) {
-        this.routes = routes;
+    public void setRouteLinks(final Set<RouteLink> routeLinks) {
+        this.routeLinks = routeLinks;
     }
 
     public RoleType getRoleType() {

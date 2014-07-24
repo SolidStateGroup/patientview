@@ -11,6 +11,7 @@ import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
+import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -110,6 +111,17 @@ public final class TestUtils {
         route.setLookup(lookup);
         route.setCreated(new Date());
         return route;
+    }
+
+    public static RouteLink createRouteLink(Long id, Route route, Role role, Group group, Feature feature, User creator) {
+        RouteLink routeLink = new RouteLink();
+        routeLink.setId(id);
+        routeLink.setRoute(route);
+        routeLink.setCreator(creator);
+        routeLink.setFeature(feature);
+        routeLink.setGroup(group);
+        return routeLink;
+
     }
 
     public static Lookup createLookup(Long id, LookupType lookupType, String lookupName, User creator) {

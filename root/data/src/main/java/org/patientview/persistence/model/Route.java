@@ -1,12 +1,13 @@
 package org.patientview.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -16,36 +17,36 @@ import javax.persistence.Table;
 @Table(name = "pv_route")
 public class Route extends SimpleAuditModel {
 
-    @Column(name = "display_order" )
+    @OrderColumn
+    @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
 
-    @Column(name = "url")
+    @Column(name = "url", nullable = false)
     private String url;
 
-    @Column(name = "template_url")
+    @Column(name = "template_url", nullable = false)
     private String templateUrl;
 
-    @Column(name = "controller")
+    @Column(name = "controller", nullable = false)
     private String controller;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
     @OneToOne
-    @JoinColumn(name = "type_id")
+    @JoinColumn(name = "type_id", nullable = false)
     private Lookup lookup;
 
-    @OneToOne(optional = true)
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @OneToMany(mappedBy = "route")
+    private Set<RouteLink> routeLink;
 
-    @OneToOne(optional = true)
-    @JoinColumn(name = "role_id")
-    private Role role;
+    public Set<RouteLink> getRouteLink() {
+        return routeLink;
+    }
 
-    @OneToOne(optional = true)
-    @JoinColumn(name = "feature_id")
-    private Feature feature;
+    public void setRouteLink(final Set<RouteLink> routeLink) {
+        this.routeLink = routeLink;
+    }
 
     public Integer getDisplayOrder() {
         return displayOrder;
@@ -93,33 +94,6 @@ public class Route extends SimpleAuditModel {
 
     public void setLookup(final Lookup lookup) {
         this.lookup = lookup;
-    }
-
-    @JsonIgnore
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(final Group group) {
-        this.group = group;
-    }
-
-    @JsonIgnore
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(final Role role) {
-        this.role = role;
-    }
-
-    @JsonIgnore
-    public Feature getFeature() {
-        return feature;
-    }
-
-    public void setFeature(final Feature feature) {
-        this.feature = feature;
     }
 
     @Override

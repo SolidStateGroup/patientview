@@ -86,6 +86,7 @@ public class DataTestUtils {
         return roleRepository.save(role);
     }
 
+
     public Group createGroup(String name, User creator) {
         Group group = TestUtils.createGroup(null, "TEST_GROUP", creator);
         return groupRepository.save(group);

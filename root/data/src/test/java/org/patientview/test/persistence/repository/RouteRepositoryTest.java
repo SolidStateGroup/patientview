@@ -10,6 +10,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
+import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -150,12 +151,8 @@ public class RouteRepositoryTest {
 
 
         // Create route with the role attached
-        Route route = new Route();
-        route.setLookup(lookup);
-        route.setCreator(creator);
-        route.setGroup(group);
-        route = routeRepository.save(route);
-
+        Route route = TestUtils.createRoute(1L, "testRoute", "testControler", lookup);
+        RouteLink routeLink = TestUtils.createRouteLink(2L, route, null, group, null, creator);
 
         // Create the user that should have the route
         User routeUser = dataTestUtils.createUser("testRouter");
@@ -180,6 +177,8 @@ public class RouteRepositoryTest {
         Assert.assertTrue("The route should be the one created", iterator.next().equals(route));
 
     }
+
+
 
 
 
