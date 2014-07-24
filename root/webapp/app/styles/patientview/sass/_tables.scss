@@ -16,7 +16,8 @@
             border-right: 1px solid $border-default;
             display: table-cell;
             vertical-align: middle;
-            text-align: center;
+            text-align: left;
+            padding:0 10px;
 
             a {
                 color: $textdefault;
@@ -54,7 +55,8 @@
 
         .row-item{
             display:table-cell;
-            text-align:center;
+            text-align:left;
+            padding:0 10px;
             color:$textlight;
             text-decoration:none;
             vertical-align: middle;
