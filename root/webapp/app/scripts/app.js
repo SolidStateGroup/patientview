@@ -180,3 +180,17 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
     $rootScope.initialised = true;
     $rootScope.endPoint = ENV.apiEndpoint;
 }]);
+
+//$('html').click(function(e){
+//    var target = $(e.target);
+//    var targetParent = $(e.target).parent();
+//
+//    if($('#filter-group').hasClass('open')){
+//        if(!target.hasClass('dropdown-toggle')){
+//            if (!target.hasClass('a-filter-group') && !targetParent.hasClass('a-filter-group')){
+//                $('.select-container .btn-group').removeClass('open');
+//            }
+//        }
+//    }
+//
+//});
