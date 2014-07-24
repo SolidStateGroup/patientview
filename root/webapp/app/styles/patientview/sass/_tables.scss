@@ -41,6 +41,18 @@
         .panel-heading{
             padding:0;
         }
+
+        .panel-collapse{
+            .btn{
+                line-height:20px;
+                min-height:30px;
+            }
+
+            .link-list-item{
+                clear:left;
+                margin-top:10px;
+            }
+        }
     }
 
     .accordion-toggle{

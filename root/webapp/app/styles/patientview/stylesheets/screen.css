@@ -568,17 +568,27 @@ i.icon-join {
   padding: 0;
 }
 /* line 46, ../sass/_tables.scss */
+.faux-table .accordion-group .panel-collapse .btn {
+  line-height: 20px;
+  min-height: 30px;
+}
+/* line 51, ../sass/_tables.scss */
+.faux-table .accordion-group .panel-collapse .link-list-item {
+  clear: left;
+  margin-top: 10px;
+}
+/* line 58, ../sass/_tables.scss */
 .faux-table .accordion-toggle {
   text-decoration: none;
 }
-/* line 50, ../sass/_tables.scss */
+/* line 62, ../sass/_tables.scss */
 .faux-table .faux-row {
   display: table;
   width: 100%;
   padding: 5px 0;
   font-size: 1.5rem;
 }
-/* line 56, ../sass/_tables.scss */
+/* line 68, ../sass/_tables.scss */
 .faux-table .faux-row .row-item {
   display: table-cell;
   text-align: left;
@@ -588,42 +598,42 @@ i.icon-join {
   vertical-align: middle;
   word-break: break-word;
 }
-/* line 65, ../sass/_tables.scss */
+/* line 77, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions {
   text-align: center;
 }
-/* line 68, ../sass/_tables.scss */
+/* line 80, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions .button-dropdown-group {
   width: 120px;
   margin: 0 auto;
 }
-/* line 77, ../sass/_tables.scss */
+/* line 89, ../sass/_tables.scss */
 .faux-table.four-col .row-item, .faux-table.four-col .head-item {
   width: 25%;
 }
-/* line 83, ../sass/_tables.scss */
+/* line 95, ../sass/_tables.scss */
 .faux-table.five-col .row-item, .faux-table.five-col .head-item {
   width: 20%;
 }
-/* line 89, ../sass/_tables.scss */
+/* line 101, ../sass/_tables.scss */
 .faux-table.six-col .row-item, .faux-table.six-col .head-item {
   width: 16.66%;
 }
-/* line 94, ../sass/_tables.scss */
+/* line 106, ../sass/_tables.scss */
 .faux-table.seven-col .row-item, .faux-table.seven-col .head-item {
   width: 14.44%;
 }
 
-/* line 100, ../sass/_tables.scss */
+/* line 112, ../sass/_tables.scss */
 .visible-for-col {
   padding-top: 20px;
 }
-/* line 102, ../sass/_tables.scss */
+/* line 114, ../sass/_tables.scss */
 .visible-for-col h5 {
   text-align: left;
   float: left;
 }
-/* line 106, ../sass/_tables.scss */
+/* line 118, ../sass/_tables.scss */
 .visible-for-col input[type="checkbox"] {
   height: auto;
   float: left;
@@ -632,25 +642,25 @@ i.icon-join {
 }
 
 /** mong central **/
-/* line 118, ../sass/_tables.scss */
+/* line 130, ../sass/_tables.scss */
 .modal .col-md-6 {
   width: 100%;
 }
-/* line 121, ../sass/_tables.scss */
+/* line 133, ../sass/_tables.scss */
 .modal .col-md-3 {
   width: 50%;
 }
-/* line 125, ../sass/_tables.scss */
+/* line 137, ../sass/_tables.scss */
 .modal .col-md-2 {
   padding-bottom: 10px;
   width: 33.33%;
 }
-/* line 130, ../sass/_tables.scss */
+/* line 142, ../sass/_tables.scss */
 .modal .col-md-1 {
   padding-bottom: 10px;
   width: 33.33%;
 }
-/* line 135, ../sass/_tables.scss */
+/* line 147, ../sass/_tables.scss */
 .modal .modal-hack {
   padding-right: 15px;
   float: right;
