@@ -28,7 +28,7 @@ public class Feature extends RangeModel {
     private String description;
 
     @OneToMany(mappedBy = "feature")
-    private Set<Route> routes;
+    private Set<RouteLink> routeLinks;
 
     @OneToMany(mappedBy = "feature")
     private Set<UserFeature> userFeatures;
@@ -59,12 +59,12 @@ public class Feature extends RangeModel {
     }
 
     @JsonIgnore
-    public Set<Route> getRoutes() {
-        return routes;
+    public Set<RouteLink> getRouteLinks() {
+        return routeLinks;
     }
 
-    public void setRoutes(final Set<Route> routes) {
-        this.routes = routes;
+    public void setRouteLinks(final Set<RouteLink> routeLinks) {
+        this.routeLinks = routeLinks;
     }
 
     @JsonIgnore

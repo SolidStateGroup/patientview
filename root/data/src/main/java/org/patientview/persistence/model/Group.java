@@ -51,7 +51,7 @@ public class Group extends AuditModel {
     private Set<GroupRole> groupRoles;
 
     @OneToMany(mappedBy = "group")
-    private Set<Route> routes;
+    private Set<RouteLink> routeLinks;
 
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<Link> links;
@@ -117,12 +117,12 @@ public class Group extends AuditModel {
     }
 
     @JsonIgnore
-    public Set<Route> getRoutes() {
-        return routes;
+    public Set<RouteLink> getRouteLinks() {
+        return routeLinks;
     }
 
-    public void setRoutes(final Set<Route> routes) {
-        this.routes = routes;
+    public void setRouteLinks(final Set<RouteLink> routeLinks) {
+        this.routeLinks = routeLinks;
     }
 
     public Set<Link> getLinks() {

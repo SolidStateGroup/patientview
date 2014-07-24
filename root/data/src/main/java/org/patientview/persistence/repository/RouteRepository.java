@@ -19,12 +19,27 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface RouteRepository extends CrudRepository<Route, Long> {
 
-    @Query("SELECT r FROM Route r JOIN r.feature.userFeatures uf WHERE uf.user = :user ")
+    @Query("SELECT r " +
+           "FROM   Route r " +
+           "JOIN   r.routeLinks rl " +
+           "JOIN   rl.feature f " +
+           "JOIN   f.userFeatures uf " +
+           "WHERE  uf.user = :user ")
     public Iterable<Route> findFeatureRoutesByUser(@Param("user") User user);
 
-    @Query("SELECT r FROM Route r JOIN r.group.groupRoles ug WHERE ug.user = :user ")
+    @Query("SELECT r " +
+           "FROM   Route r " +
+           "JOIN   r.routeLinks rl " +
+           "JOIN   rl.group g " +
+           "JOIN   g.groupRoles gr " +
+           "WHERE  gr.user = :user ")
     public Iterable<Route> findGroupRoutesByUser(@Param("user") User user);
 
-    @Query("SELECT r FROM Route r JOIN r.role.groupRoles rg WHERE rg.user = :user")
+    @Query("SELECT r " +
+           "FROM   Route r " +
+           "JOIN   r.routeLinks rl " +
+           "JOIN   rl.role rol " +
+           "JOIN   rol.groupRoles gr " +
+           "WHERE  gr.user = :user ")
     public Iterable<Route> findRoleRoutesByUser(@Param("user") User user);
 }
