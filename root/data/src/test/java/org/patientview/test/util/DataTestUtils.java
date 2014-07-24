@@ -8,6 +8,8 @@ import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.RoleType;
+import org.patientview.persistence.model.Route;
+import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -17,10 +19,13 @@ import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.persistence.repository.RoleRepository;
+import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.HashSet;
 
 /**
  * Test utilities for testing with a Persistence Context.
@@ -55,6 +60,9 @@ public class DataTestUtils {
     @Inject
     GroupRelationshipRepository groupRelationshipRepository;
 
+    @Inject
+    RouteRepository routeRepository;
+
     public Lookup createLookup(String lookupName, String lookupTypeName, User creator) {
 
         LookupType lookupType = TestUtils.createLookupType(null, lookupTypeName, creator);
@@ -68,13 +76,13 @@ public class DataTestUtils {
     }
 
     public User createUser(String username) {
-        User user = TestUtils.createUser(null, "testUser");
+        User user = TestUtils.createUser(null, username);
         return userRepository.save(user);
     }
 
     public Feature createFeature(String name, User creator) {
 
-        Feature feature = TestUtils.createFeature(null, "TestFeature", creator);
+        Feature feature = TestUtils.createFeature(null, name, creator);
         return featureRepository.save(feature);
     }
 
@@ -86,8 +94,9 @@ public class DataTestUtils {
         return roleRepository.save(role);
     }
 
+
     public Group createGroup(String name, User creator) {
-        Group group = TestUtils.createGroup(null, "TEST_GROUP", creator);
+        Group group = TestUtils.createGroup(null, name, creator);
         return groupRepository.save(group);
     }
 
@@ -101,6 +110,25 @@ public class DataTestUtils {
         GroupRelationship groupRelationship = TestUtils.createGroupRelationship(null, source, object, relationshipType, creator);
         return groupRelationshipRepository.save(groupRelationship);
     }
+
+    public Route createRoute(String title, String controller, Lookup lookup, User creator) {
+        Route route = TestUtils.createRoute(null, title, controller, lookup);
+        return routeRepository.save(route);
+
+    }
+
+    public Route createRouteLink(Route route, Role role, Feature feature, Group group, User creator) {
+        RouteLink routeLink = TestUtils.createRouteLink(null, route, role, group, feature, creator);
+
+        if (CollectionUtils.isEmpty(route.getRouteLinks())) {
+            route.setRouteLinks(new HashSet<RouteLink>());
+        }
+
+        route.getRouteLinks().add(routeLink);
+        return routeRepository.save(route);
+
+    }
+
 
 
 }
