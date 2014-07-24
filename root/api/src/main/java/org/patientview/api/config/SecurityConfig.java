@@ -17,31 +17,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-
-        // The security should not be used just yet
+        // The security is done through filter
         web.ignoring().antMatchers("/**");
 
     }
-
-
-   /*private WebApplicationContext createRootContext(ServletContext servletContext) {
-        AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.register(SecurityConfig.class);
-        rootContext.refresh();
-
-        servletContext.addListener(new ContextLoaderListener(rootContext));
-        servletContext.setInitParameter("defaultHtmlEscape", "true");
-        return rootContext;
-    }
-
-   private void configureSpringSecurity(ServletContext servletContext, WebApplicationContext rootContext) {
-        FilterRegistration.Dynamic springSecurity = servletContext.addFilter("springSecurityFilterChain",
-                new DelegatingFilterProxy("springSecurityFilterChain", rootContext));
-        springSecurity.addMappingForUrlPatterns(null, true, "/*");
-    }
-
-    public void onStartup(ServletContext servletContext) {
-        WebApplicationContext rootContext = createRootContext(servletContext);
-        configureSpringSecurity(servletContext, rootContext);
-    }*/
 }

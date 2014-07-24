@@ -1,25 +1,24 @@
 package org.patientview.api.filter;
 
 import org.patientview.api.service.AuthenticationService;
-import org.patientview.persistence.model.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -28,20 +27,18 @@ import java.io.IOException;
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
-@WebFilter(urlPatterns = {"/*"})
+@WebFilter(urlPatterns = {"*"}, filterName = "authenticationTokenFilter")
 public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
 
     private AuthenticationService authenticationService;
 
-    @Inject
-    ApplicationContext applicationContext;
-
     @PostConstruct
     public void init() {
-
+        LOG.info("Authentication token filter initialised");
     }
+
 
     /**
      * This is the method to authorize the user to use the service is spring.
@@ -55,31 +52,57 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
+
+        HttpServletRequest httpRequest = this.getAsHttpRequest(request);
+
+        // TODO Fix for Spring Boot bug with using delegating proxy
         setAuthenticationManager(request);
 
-        String path = ((HttpServletRequest) request).getRequestURI();
-        if (path.contains("/auth/login")) {
-            chain.doFilter(request, response); // Just continue chain for login
+        String path = httpRequest.getRequestURI();
+
+        if (path.contains("/error")) {
+            chain.doFilter(request, response);
+
         } else {
 
-            LOG.debug("Filtering on path {}", ((HttpServletRequest) request).getRequestURL().toString());
-
-            HttpServletRequest httpRequest = this.getAsHttpRequest(request);
-            String authToken = this.extractAuthTokenFromRequest(httpRequest);
-            UserToken userToken = authenticationService.getToken(authToken);
-
-
-            if (userToken != null) {
-
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userToken.getUser(), null, userToken.getUser().getAuthorities());
-
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/logout")) {
+                chain.doFilter(request, response);
+            } else {
+                if (!authenticateRequest(httpRequest)) {
+                    redirectFailedAuthentication((HttpServletResponse) response);
+                }
+                chain.doFilter(request, response);
             }
-
-            chain.doFilter(request, response);
         }
+
+    }
+
+    // Set the authentication in the security context
+    private boolean authenticateRequest(HttpServletRequest httpServletRequest) {
+        LOG.debug("Filtering on path {}", httpServletRequest.getRequestURL().toString());
+
+        String authToken = this.extractAuthTokenFromRequest(httpServletRequest);
+        PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(authToken, authToken);
+
+        try {
+            Authentication authentication = authenticationService.authenticate(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return true;
+        } catch (AuthenticationServiceException e) {
+            LOG.info("Authentication failed for {}", authenticationToken.getName());
+            return false;
+        }
+
+    }
+
+    private void redirectFailedAuthentication(HttpServletResponse response) {
+        try {
+            response.sendRedirect("/api/error");
+        } catch(IOException ioe) {
+            LOG.error("Could not redirect response");
+            throw new RuntimeException("Error redirecting unauthorised request");
+        }
+
     }
 
     private void setAuthenticationManager(ServletRequest servletRequest) {

@@ -21,7 +21,7 @@ import java.io.IOException;
 @WebFilter(urlPatterns = {"/*"})
 public class CorsFilter implements Filter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CorsFilter.class);
 
     @PostConstruct
     public void init() {
