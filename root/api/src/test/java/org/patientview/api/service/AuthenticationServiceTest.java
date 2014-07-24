@@ -8,11 +8,25 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.AuthenticationServiceImpl;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.test.util.TestUtils;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
@@ -26,6 +40,9 @@ public class AuthenticationServiceTest {
 
     @Mock
     private UserTokenRepository userTokenRepository;
+
+    @Mock
+    private RoleRepository roleRepository;
 
     @InjectMocks
     private AuthenticationService authenticationService = new AuthenticationServiceImpl();
@@ -57,4 +74,97 @@ public class AuthenticationServiceTest {
         }
 
     }
+
+    /**
+     * Test: Create a Authentication with a positive outcome
+     * Fail: The authentication has not been done
+     */
+    @Test
+    public void testAuthenticatePreAuthenticationToken() {
+        String testToken = "XXX-XXX-XXX";
+
+        User tokenUser = TestUtils.createUser(1L, "TokenUser");
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(tokenUser);
+        userToken.setToken(testToken);
+        userToken.setExpiration(new Date());
+        userToken.setCreated(new Date());
+
+
+        Authentication authenticationToken = new PreAuthenticatedAuthenticationToken(testToken, testToken);
+
+        when(userTokenRepository.findByToken(eq(testToken))).thenReturn(userToken);
+        when(roleRepository.findByUser(tokenUser)).thenReturn(Collections.EMPTY_LIST);
+        Authentication authentication = null;
+        try {
+            authentication = authenticationService.authenticate(authenticationToken);
+        } catch (AuthenticationServiceException a) {
+            Assert.fail("An exception should not have been raised");
+        }
+
+        Assert.assertTrue("The authentication objects should now be authenticated", authentication.isAuthenticated());
+        Assert.assertNotNull("The principal should not be null", authentication.getPrincipal());
+
+    }
+
+    /**
+     * Test: Create a Authentication with a negative outcome
+     * Fail: The authentication has not been done
+     */
+    @Test(expected = AuthenticationServiceException.class)
+    public void testAuthenticatePreAuthenticationToken_Failure() throws AuthenticationServiceException{
+        String testToken = "XXX-XXX-ZZZ";
+
+        User tokenUser = TestUtils.createUser(1L, "TokenUser");
+
+
+
+        Authentication authenticationToken = new PreAuthenticatedAuthenticationToken(testToken, testToken);
+
+        when(userTokenRepository.findByToken(eq(testToken))).thenReturn(null);
+        when(roleRepository.findByUser(tokenUser)).thenReturn(Collections.EMPTY_LIST);
+
+        authenticationService.authenticate(authenticationToken);
+        Assert.fail("An service exception should  been raised");
+
+    }
+
+    /**
+     * Test: Create a Authentication with a positive outcome with granted authorities associated to it
+     * Fail: The authentication has not been done and no authorities returned
+     */
+    @Test
+    public void testAuthenticatePreAuthenticationToken_Authorities() {
+        String testToken = "XXX-XXX-KKK";
+
+        User tokenUser = TestUtils.createUser(1L, "TokenUser");
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(tokenUser);
+        userToken.setToken(testToken);
+        userToken.setExpiration(new Date());
+        userToken.setCreated(new Date());
+
+        Role authority = TestUtils.createRole(1l, Roles.GLOBAL_ADMIN, TestUtils.createUser(2L, "creator"));
+        List<Role> authorities = new ArrayList<Role>();
+        authorities.add(authority);
+
+        Authentication authenticationToken = new PreAuthenticatedAuthenticationToken(testToken, testToken);
+
+        when(userTokenRepository.findByToken(eq(testToken))).thenReturn(userToken);
+        when(roleRepository.findByUser(tokenUser)).thenReturn(authorities);
+
+        Authentication authentication = null;
+        try {
+            authentication = authenticationService.authenticate(authenticationToken);
+        } catch (AuthenticationServiceException a) {
+            Assert.fail("An exception should not have been raised");
+        }
+
+        Assert.assertTrue("The authentication objects should now be authenticated", authentication.isAuthenticated());
+        Assert.assertNotNull("The principal should not be null", authentication.getPrincipal());
+        Assert.assertNotNull("The authorities should not be null", authentication.getAuthorities());
+    }
+
 }

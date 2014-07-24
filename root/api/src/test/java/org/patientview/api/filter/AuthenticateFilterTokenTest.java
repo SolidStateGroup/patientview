@@ -14,8 +14,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.Authentication;
 
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -69,8 +71,7 @@ public class AuthenticateFilterTokenTest {
      *
      */
     @Test
-    public void testAuthenticationFromToken() {
-
+    public void testAuthenticationFromToken_normalRequest() {
 
         //Create a token
         String token = "token";
@@ -79,10 +80,8 @@ public class AuthenticateFilterTokenTest {
         User user = new User();
         userToken.setUser(user);
 
-        when(authenticationService.getToken(eq(token))).thenReturn(userToken);
-
         MockFilterChain mockChain = new MockFilterChain();
-        MockHttpServletRequest req = new MockHttpServletRequest(HttpMethod.POST.name(), "/user/get/1");
+        MockHttpServletRequest req = new MockHttpServletRequest(HttpMethod.POST.name(), "/api/user/get/1");
         MockHttpServletResponse rsp = new MockHttpServletResponse();
         req.addHeader("X-Auth-Token", token);
         try {
@@ -91,8 +90,127 @@ public class AuthenticateFilterTokenTest {
             Assert.fail(e.getMessage());
         }
 
-        verify(authenticationService, Mockito.times(1)).getToken(eq(token));
+        verify(authenticationService, Mockito.times(1)).authenticate(any(Authentication.class));
 
     }
+
+    /**
+     * Test: To see if the filter will avoid authenticating /api/auth/login
+     * Fail: The filter will not authenticate the request
+     *
+     */
+    @Test
+    public void testAuthenticationFromToken_loginRequest() {
+
+        //Create a token
+        String token = "token";
+        UserToken userToken = new UserToken();
+        userToken.setToken(token);
+        User user = new User();
+        userToken.setUser(user);
+
+        MockFilterChain mockChain = new MockFilterChain();
+        MockHttpServletRequest req = new MockHttpServletRequest(HttpMethod.POST.name(), "/api/auth/login");
+        MockHttpServletResponse rsp = new MockHttpServletResponse();
+        req.addHeader("X-Auth-Token", token);
+        try {
+            authenticateTokenFilter.doFilter(req, rsp, mockChain);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        verify(authenticationService, Mockito.times(0)).authenticate(any(Authentication.class));
+
+    }
+
+    /**
+     * Test: To see if the filter will avoid authenticating /api/auth/logout
+     * Fail: The filter will not authenticate the request
+     *
+     */
+    @Test
+    public void testAuthenticationFromToken_logoutRequest() {
+
+        //Create a token
+        String token = "token";
+        UserToken userToken = new UserToken();
+        userToken.setToken(token);
+        User user = new User();
+        userToken.setUser(user);
+
+        MockFilterChain mockChain = new MockFilterChain();
+        MockHttpServletRequest req = new MockHttpServletRequest(HttpMethod.POST.name(), "/api/auth/logout");
+        MockHttpServletResponse rsp = new MockHttpServletResponse();
+        req.addHeader("X-Auth-Token", token);
+        try {
+            authenticateTokenFilter.doFilter(req, rsp, mockChain);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        verify(authenticationService, Mockito.times(0)).authenticate(any(Authentication.class));
+
+    }
+
+    /**
+     * Test: To see if the filter will avoid authenticating /api/auth/logout
+     * Fail: The filter will not authenticate the request
+     *
+     */
+    @Test
+    public void testAuthenticationFromToken_errorRequest() {
+
+        //Create a token
+        String token = "token";
+        UserToken userToken = new UserToken();
+        userToken.setToken(token);
+        User user = new User();
+        userToken.setUser(user);
+
+        MockFilterChain mockChain = new MockFilterChain();
+        MockHttpServletRequest req = new MockHttpServletRequest(HttpMethod.POST.name(), "/api/error");
+        MockHttpServletResponse rsp = new MockHttpServletResponse();
+        req.addHeader("X-Auth-Token", token);
+        try {
+            authenticateTokenFilter.doFilter(req, rsp, mockChain);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        verify(authenticationService, Mockito.times(0)).authenticate(any(Authentication.class));
+
+    }
+
+    /**
+     * Test: To see if the filter will avoid authenticating /api/auth/logout
+     * Fail: The filter will not authenticate the request
+     *
+     */
+    @Test
+    public void testAuthenticationFromToken_invalidRequest() {
+
+        //Create a token
+        String token = "token";
+        UserToken userToken = new UserToken();
+        userToken.setToken(token);
+        User user = new User();
+        userToken.setUser(user);
+
+        MockFilterChain mockChain = new MockFilterChain();
+        MockHttpServletRequest req = new MockHttpServletRequest(HttpMethod.POST.name(), "/api/user/1");
+        MockHttpServletResponse rsp = new MockHttpServletResponse();
+        req.addHeader("X-Auth-Token", token);
+
+        when(authenticationService.authenticate(any(Authentication.class))).thenThrow(AuthenticationServiceException.class);
+        try {
+            authenticateTokenFilter.doFilter(req, rsp, mockChain);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        verify(authenticationService, Mockito.times(1)).authenticate(any(Authentication.class));
+        Assert.assertTrue("The request should have been forwarded to '/api/error'", rsp.getRedirectedUrl().equals("/api/error"));
+    }
+
 
 }
