@@ -64,7 +64,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             chain.doFilter(request, response);
 
         } else {
-            // Fix for CORS not required for PORD
+            // Fix for CORS not required for PROD
             if (httpRequest.getMethod().equalsIgnoreCase("options")) {
                 chain.doFilter(request, response);
             } else if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/logout")) {
