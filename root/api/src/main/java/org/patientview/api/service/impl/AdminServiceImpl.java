@@ -3,9 +3,9 @@ package org.patientview.api.service.impl;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.GroupFeature;
-import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -66,11 +65,10 @@ public class AdminServiceImpl implements AdminService {
         return Util.iterableToList(roleRepository.findAll());
     }
 
-    public List<Role> getRolesByType(String type) {
-        Lookup roleLookup = lookupRepository.findByTypeAndValue("ROLE", type);
-        if (roleLookup != null) {
-            return Util.iterableToList(roleRepository.findByRoleType(roleLookup));
-        } else return Collections.<Role>emptyList();
+    public List<Role> getRolesByType(RoleTypes type) {
+
+        return Util.iterableToList(roleRepository.findByRoleType(type));
+
     }
 
     public User getByUsername(String username) {

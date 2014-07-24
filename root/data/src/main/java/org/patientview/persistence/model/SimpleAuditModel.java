@@ -27,7 +27,6 @@ public class SimpleAuditModel extends BaseModel {
     private User creator;
 
     protected SimpleAuditModel() {
-
     }
 
     @JsonIgnore
@@ -47,5 +46,6 @@ public class SimpleAuditModel extends BaseModel {
     public void setCreator(final User creator) {
         this.creator = creator;
     }
+
 }
 

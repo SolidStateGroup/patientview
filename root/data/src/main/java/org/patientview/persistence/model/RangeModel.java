@@ -24,7 +24,6 @@ public class RangeModel extends AuditModel {
     private Date endDate;
 
     protected RangeModel() {
-
     }
 
     @JsonIgnore
@@ -44,4 +43,5 @@ public class RangeModel extends AuditModel {
     public void setEndDate(final Date endDate) {
         this.endDate = endDate;
     }
+
 }

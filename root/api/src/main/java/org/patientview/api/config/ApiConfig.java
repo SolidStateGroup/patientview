@@ -1,11 +1,16 @@
 package org.patientview.api.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.Properties;
 
@@ -21,6 +26,24 @@ public class ApiConfig {
 
     @Inject
     private Properties properties;
+
+    @Bean
+    @Primary
+    public ObjectMapper getCustomerObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper(){
+            @PostConstruct
+            public void customConfiguration() {
+                // Uses Enum.toString() for serialization of an Enum
+                this.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+                // Uses Enum.toString() for deserialization of an Enum
+                this.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+
+            }
+        };
+
+        return objectMapper;
+    }
+
 
     @Bean
     public JavaMailSenderImpl javaMailSender() {

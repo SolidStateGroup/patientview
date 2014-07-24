@@ -12,6 +12,7 @@ import org.patientview.api.service.impl.SecurityServiceImpl;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -115,7 +116,7 @@ public class SecurityServiceTest {
         User testUser = TestUtils.createUser(23L, "testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, "SUPER_ADMIN", creator));
+        roles.add(TestUtils.createRole(1L, Roles.GLOBAL_ADMIN, creator));
         when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
@@ -126,7 +127,7 @@ public class SecurityServiceTest {
 
 
     /**
-     * Test: Call the findGroupByUser method if a User does not have a superadmin role
+     * Test: Call the findGroupByUser method if a User does not have a globaladmin role
      * Fail: FindGroupByUser was not called (SuperAdmin -> findAll, Anyone else -> findGroupByUser)
      *
      * @return
@@ -136,7 +137,7 @@ public class SecurityServiceTest {
         User testUser = TestUtils.createUser(23L, "testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, "UNIT_ADMIN", creator));
+        roles.add(TestUtils.createRole(1L, Roles.UNIT_ADMIN, creator));
         when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());

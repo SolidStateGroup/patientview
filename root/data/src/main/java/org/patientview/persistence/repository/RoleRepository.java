@@ -3,6 +3,7 @@ package org.patientview.persistence.repository;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleTypes;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -26,7 +27,11 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
            "AND  r.visible = true")
     public List<Role> findValidRolesByUser(@Param("userId") Long userId);
 
-    public List<Role> findByRoleType(Lookup roleType);
+    @Query("SELECT r " +
+           "FROM   Role r " +
+           "WHERE  r.roleType.value = :roleType " +
+           "AND    r.visible = true")
+    public List<Role> findByRoleType(@Param("roleType") RoleTypes roleType);
 
     @Query("SELECT gr.role FROM User u JOIN u.groupRoles gr WHERE u = :user AND gr.role.visible = true")
     public List<Role> findByUser(@Param("user") User user);

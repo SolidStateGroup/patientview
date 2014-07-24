@@ -5,6 +5,7 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
@@ -41,7 +42,7 @@ public class StaticDataManagerImpl implements StaticDataManager {
         return Util.iterableToList(featureRepository.findAll());
     }
 
-    public List<Lookup> getLookupsByType(String type) {
+    public List<Lookup> getLookupsByType(LookupTypes type) {
         LookupType lookupType = lookupTypeRepository.findByType(type);
         if (lookupType != null) {
             return Util.iterableToList(lookupRepository.findByType(lookupType));
@@ -49,12 +50,12 @@ public class StaticDataManagerImpl implements StaticDataManager {
         return Collections.<Lookup>emptyList();
     }
 
-    public Lookup getLookupByTypeAndValue(String type, String value) {
+    public Lookup getLookupByTypeAndValue(LookupTypes type, String value) {
         return lookupRepository.findByTypeAndValue(type, value);
     }
 
     public List<Feature> getFeaturesByType(String featureType) {
-        Lookup lookup = lookupRepository.findByTypeAndValue("FEATURE_TYPE", featureType);
+        Lookup lookup = lookupRepository.findByTypeAndValue(LookupTypes.FEATURE_TYPE, featureType);
         if (lookup != null) {
             return Util.iterableToList(featureRepository.findByType(lookup));
         }

@@ -150,8 +150,8 @@
                 <version>2.2</version>
                 <configuration>
                     <url>${tomcatmanagerurl}</url>
-                    <username>tomcat</username>
-                    <password>tomcat</password>
+                    <username>${tomcatusername}</username>
+                    <password>${tomcatpassword}</password>
                     <!--<path>${warpath}</path>-->
                 </configuration>
             </plugin>

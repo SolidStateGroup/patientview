@@ -32,6 +32,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u JOIN u.groupRoles gr WHERE gr.role = :role AND gr.group = :group")
     Iterable<User> findByGroupAndRole(@Param("group") Group group, @Param("role") Role role);
 
-    @Query("SELECT DISTINCT u FROM User u JOIN u.groupRoles gr WHERE gr.role.id IN :roleIds AND gr.group.id IN :groupIds")
+    @Query("SELECT DISTINCT u " +
+           "FROM User u " +
+           "JOIN u.groupRoles gr " +
+           "WHERE gr.role.id IN :roleIds AND gr.group.id IN :groupIds ")
     Iterable<User> findByGroupsAndRoles(@Param("groupIds") List<Long> groupIds, @Param("roleIds") List<Long> roleIds);
 }

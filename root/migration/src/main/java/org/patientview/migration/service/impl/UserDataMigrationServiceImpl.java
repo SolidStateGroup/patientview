@@ -9,6 +9,7 @@ import org.patientview.GroupRole;
 import org.patientview.Identifier;
 import org.patientview.Role;
 import org.patientview.User;
+import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
@@ -74,7 +75,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // We do want the patient group.
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
                     nhsNumbers.add(userMapping.getNhsno());
-                    Role patientRole = adminDataMigrationService.getRoleByName("PATIENT");
+                    Role patientRole = adminDataMigrationService.getRoleByName(Roles.PATIENT);
 
                     if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
 
@@ -97,10 +98,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                             String roleName = specialtyUserRoles.get(0).getRole(); //FIXME hack from original PV
                             if (roleName.equals("unitadmin")) {
-                                role = adminDataMigrationService.getRoleByName("UNIT_ADMIN");
+                                role = adminDataMigrationService.getRoleByName(Roles.UNIT_ADMIN);
                             }
                             if (roleName.equals("unitstaff")) {
-                                role = adminDataMigrationService.getRoleByName("STAFF_ADMIN");
+                                role = adminDataMigrationService.getRoleByName(Roles.STAFF_ADMIN);
                             }
 
 
@@ -136,7 +137,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         List<Group> groups = getUserSpecialty(user);
         for (Group group : groups) {
-            Role role = adminDataMigrationService.getRoleByName("PATIENT");
+            Role role = adminDataMigrationService.getRoleByName(Roles.PATIENT);
             if (newUser != null && group != null && role != null) {
                 callApiAddGroupRole(newUser.getId(), group.getId(), role.getId());
             }

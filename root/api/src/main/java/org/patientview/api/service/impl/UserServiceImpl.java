@@ -18,6 +18,7 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -28,9 +29,12 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -66,6 +70,12 @@ public class UserServiceImpl implements UserService {
     private EmailService emailService;
 
     @Inject
+    private LookupRepository lookupRepository;
+
+    @Inject
+    private EntityManager entityManager;
+
+    @Inject
     private Properties properties;
 
     private User createUser(User user) {
@@ -97,6 +107,8 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+        entityManager.flush();
+
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
 
             for (UserFeature userFeature : user.getUserFeatures()) {
@@ -106,6 +118,8 @@ public class UserServiceImpl implements UserService {
                 userFeatureRepository.save(userFeature);
             }
         }
+
+        entityManager.flush();
 
         // TODO remove into a separate call
         if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
@@ -117,6 +131,8 @@ public class UserServiceImpl implements UserService {
                 identifierRepository.save(identifier);
             }
         }
+
+        entityManager.flush();
 
         user.setId(newUser.getId());
 
@@ -174,44 +190,58 @@ public class UserServiceImpl implements UserService {
 
     public User saveUser(User user) {
 
-        // clear existing user groups roles, features
-        User entityUser = userRepository.findOne(user.getId());
-        groupRoleRepository.delete(entityUser.getGroupRoles());
-        userFeatureRepository.delete(entityUser.getUserFeatures());
-        identifierRepository.delete(entityUser.getIdentifiers());
+        User creator = userRepository.getOne(1L);
 
-        // add updated groups and roles
-        if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
-            for (GroupRole groupRole : user.getGroupRoles()) {
-                groupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
-                groupRole.setRole(roleRepository.findOne(groupRole.getRole().getId()));
-                groupRole.setUser(userRepository.findOne(user.getId()));
-                groupRole.setCreator(userRepository.findOne(1L));
-                groupRoleRepository.save(groupRole);
-            }
+        Set<GroupRole> groupRoles = user.getGroupRoles();
+        Set<Identifier> identifiers = user.getIdentifiers();
+        Set<UserFeature> features = user.getUserFeatures();
+
+        user.setIdentifiers(Collections.EMPTY_SET);
+        user.setGroupRoles(Collections.EMPTY_SET);
+        user.setUserFeatures(Collections.EMPTY_SET);
+        groupRoleRepository.deleteByUser(user);
+        userFeatureRepository.deleteByUser(user);
+        identifierRepository.deleteByUser(user);
+        entityManager.flush();
+        user.setCreator(creator);
+        entityManager.merge(user);
+        user = userRepository.save(user);
+
+
+
+        for (GroupRole groupRole : groupRoles) {
+            GroupRole newGroupRole = new GroupRole();
+            newGroupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
+            newGroupRole.setRole(roleRepository.findOne((groupRole.getRole().getId())));
+            newGroupRole.setUser(user);
+            newGroupRole.setCreator(creator);
+            //entityManager.merge(newGroupRole);
+            entityManager.persist(newGroupRole);
         }
 
-        // add updated features
-        if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
-            for (UserFeature userFeature : user.getUserFeatures()) {
-                userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
-                userFeature.setUser(userRepository.findOne(user.getId()));
-                userFeature.setCreator(userRepository.findOne(1L));
-                userFeatureRepository.save(userFeature);
-            }
-        }
-
-        // add identifiers
-        if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
-            for (Identifier identifier : user.getIdentifiers()) {
+        for (Identifier identifier : identifiers) {
+            if (identifier.getId() != null && identifier.getId() < 0) {
                 identifier.setId(null);
-                identifier.setUser(userRepository.findOne(user.getId()));
-                identifier.setCreator(userRepository.findOne(1L));
-                identifierRepository.save(identifier);
             }
+            Identifier newIdentifier = new Identifier();
+            newIdentifier.setCreator(creator);
+            newIdentifier.setUser(userRepository.findOne(user.getId()));
+            newIdentifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
+            newIdentifier.setIdentifier(identifier.getIdentifier());
+            //entityManager.merge(newIdentifier);
+            entityManager.persist(newIdentifier);
         }
 
-        return userRepository.save(user);
+        for (UserFeature userFeature : features) {
+            UserFeature newUserFeature = new UserFeature();
+            newUserFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
+            newUserFeature.setCreator(creator);
+            newUserFeature.setUser(userRepository.findOne(user.getId()));
+            //entityManager.merge(newUserFeature);
+            entityManager.persist(newUserFeature);
+        }
+
+        return user;
     }
 
     public List<User> getUserByGroupAndRole(Long groupId, Long roleId) {
