@@ -11,6 +11,7 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-connect-proxy');
     grunt.loadNpmTasks('grunt-war');
+    grunt.loadNpmTasks('grunt-tomcat-deploy');
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
@@ -20,7 +21,16 @@ module.exports = function (grunt) {
 
     // Define the configuration for all the tasks
     grunt.initConfig({
-
+     tomcat_deploy: {
+            host: 'localhost',
+            login: 'tomcat',
+            password: 'tomcat',
+            path: '/',
+            port: 8080,
+            dist: 'dist/webapp',
+            deploy: '/manager/text/deploy',
+            undeploy: '/manager/text/undeploy'
+        },
     war: {
         target: {
             options: {
@@ -635,7 +645,8 @@ module.exports = function (grunt) {
         'rev',
         'usemin',
         'htmlmin',
-        'war'
+        'war',
+        'tomcat-redeploy'
     ]);
 
     grunt.registerTask('default', [
@@ -648,7 +659,8 @@ module.exports = function (grunt) {
         'clean:dist',
         'ngconstant:apilocal',
         'copy:minimal',
-        'war'
+        'war',
+        'tomcat_deploy'
     ]);
 
     grunt.registerTask('minimallive', [

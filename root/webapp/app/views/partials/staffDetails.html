@@ -27,10 +27,7 @@
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
             <label class="inner-title">Add Group &amp; Role </label>
             <div class="select-add-group">
-                <div class="custom-select">
-                    <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
-                    <span class="caret-container"><span class="caret"></span></span>
-                </div>
+                <select class="form-control" ng-model="groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
                 <div class="group-list-item">
                     <button buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userForm, editUser, $event)"></button>
                 </div>
