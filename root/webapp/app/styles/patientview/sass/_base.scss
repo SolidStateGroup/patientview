@@ -113,12 +113,6 @@ ul {
     }
 }
 
-.feature-add-container{
-    select{
-
-    }
-}
-
 .badge{
     @include bootstrap-border-radius(50%);
     height:30px;
@@ -190,9 +184,9 @@ ul {
     @include bootstrap-border-radius(4px);
     color: $white;
     font-size: 1.5rem;
-    min-height:34px;
+    min-height:30px;
     min-width: 34px;
-    line-height:24px;
+    line-height:20px;
 
     &:hover {
         color: $white;
@@ -269,4 +263,10 @@ i.icon-join{
     background: url('../../../images/icons/join.png') 0 0 no-repeat;
     height: 24px;
     width: 22px;
+}
+
+i.icon-reply{
+    background: url('../../../images/icons/reply-icon.png') 0 0 no-repeat;
+    height: 15px;
+    width: 16px;
 }
