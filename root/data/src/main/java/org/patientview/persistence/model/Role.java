@@ -62,6 +62,7 @@ public class Role extends AuditModel implements GrantedAuthority {
         this.description = description;
     }
 
+    @JsonIgnore
     public Set<RouteLink> getRouteLinks() {
         return routeLinks;
     }

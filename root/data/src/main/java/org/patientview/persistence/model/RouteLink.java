@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -31,6 +33,7 @@ public class RouteLink extends SimpleAuditModel {
     @JoinColumn(name = "role_id", nullable = true)
     private Role role;
 
+    @JsonIgnore
     public Route getRoute() {
         return route;
     }
@@ -39,6 +42,7 @@ public class RouteLink extends SimpleAuditModel {
         this.route = route;
     }
 
+    @JsonIgnore
     public Group getGroup() {
         return group;
     }
@@ -47,6 +51,7 @@ public class RouteLink extends SimpleAuditModel {
         this.group = group;
     }
 
+    @JsonIgnore
     public Feature getFeature() {
         return feature;
     }
@@ -55,6 +60,7 @@ public class RouteLink extends SimpleAuditModel {
         this.feature = feature;
     }
 
+    @JsonIgnore
     public Role getRole() {
         return role;
     }

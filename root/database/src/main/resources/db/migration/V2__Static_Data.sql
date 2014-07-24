@@ -135,9 +135,10 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (17, 16, null, 6, null, now(), 1 );
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
-  (17, 16, null, 3, null, now(), 1 );
+  (18, 16, null, 3, null, now(), 1 );
 
-
+INSERT INTO PV_User_Token(Id, User_Id, Token, Creation_Date) VALUES
+  (1, 2, 'pppppp', now())
 
 
 

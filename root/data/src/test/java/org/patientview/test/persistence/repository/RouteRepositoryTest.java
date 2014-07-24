@@ -10,7 +10,6 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
-import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -72,11 +71,8 @@ public class RouteRepositoryTest {
         Feature feature = dataTestUtils.createFeature("TEST_FEATURE", creator);
 
         // Create route with the feature attached
-        Route route = new Route();
-        route.setLookup(lookup);
-        route.setCreator(creator);
-        route.setFeature(feature);
-        route = routeRepository.save(route);
+        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup, creator);
+        route = dataTestUtils.createRouteLink(route, null, feature , null, creator);
 
 
         // Create the user that should have the route
@@ -106,13 +102,10 @@ public class RouteRepositoryTest {
         // Create the role for the user and the route to link to
         Role role = dataTestUtils.createRole("TEST_FEATURE", creator);
 
-        // Create route with the role attached
-        Route route = new Route();
-        route.setLookup(lookup);
-        route.setCreator(creator);
-        route.setRole(role);
-        route = routeRepository.save(route);
 
+        // Create route with the role attached
+        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup, creator);
+        route = dataTestUtils.createRouteLink(route, role, null , null, creator);
 
         // Create the user that should have the route
         User routeUser = dataTestUtils.createUser("testRouter");
@@ -151,8 +144,8 @@ public class RouteRepositoryTest {
 
 
         // Create route with the role attached
-        Route route = TestUtils.createRoute(1L, "testRoute", "testControler", lookup);
-        RouteLink routeLink = TestUtils.createRouteLink(2L, route, null, group, null, creator);
+        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup, creator);
+        route = dataTestUtils.createRouteLink(route, null, null , group, creator);
 
         // Create the user that should have the route
         User routeUser = dataTestUtils.createUser("testRouter");

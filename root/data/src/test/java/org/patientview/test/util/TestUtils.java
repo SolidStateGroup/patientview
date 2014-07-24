@@ -108,6 +108,8 @@ public final class TestUtils {
         route.setController(controller);
         route.setId(id);
         route.setDisplayOrder(1);
+        route.setUrl("/test/url");
+        route.setTemplateUrl("/test/url");
         route.setLookup(lookup);
         route.setCreated(new Date());
         return route;
@@ -117,6 +119,7 @@ public final class TestUtils {
         RouteLink routeLink = new RouteLink();
         routeLink.setId(id);
         routeLink.setRoute(route);
+        routeLink.setRole(role);
         routeLink.setCreator(creator);
         routeLink.setFeature(feature);
         routeLink.setGroup(group);

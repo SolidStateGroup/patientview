@@ -1,5 +1,8 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -37,16 +40,8 @@ public class Route extends SimpleAuditModel {
     @JoinColumn(name = "type_id", nullable = false)
     private Lookup lookup;
 
-    @OneToMany(mappedBy = "route")
-    private Set<RouteLink> routeLink;
-
-    public Set<RouteLink> getRouteLink() {
-        return routeLink;
-    }
-
-    public void setRouteLink(final Set<RouteLink> routeLink) {
-        this.routeLink = routeLink;
-    }
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL)
+    private Set<RouteLink> routeLinks;
 
     public Integer getDisplayOrder() {
         return displayOrder;
@@ -119,4 +114,12 @@ public class Route extends SimpleAuditModel {
         return 0;
     }
 
+    @JsonIgnore
+    public Set<RouteLink> getRouteLinks() {
+        return routeLinks;
+    }
+
+    public void setRouteLinks(final Set<RouteLink> routeLinks) {
+        this.routeLinks = routeLinks;
+    }
 }

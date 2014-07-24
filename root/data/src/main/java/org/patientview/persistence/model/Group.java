@@ -116,6 +116,7 @@ public class Group extends AuditModel {
         this.groupFeatures = groupFeatures;
     }
 
+    @JsonIgnore
     public Set<RouteLink> getRouteLinks() {
         return routeLinks;
     }
