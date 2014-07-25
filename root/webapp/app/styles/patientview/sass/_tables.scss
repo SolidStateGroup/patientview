@@ -22,6 +22,7 @@
             a {
                 color: $textdefault;
                 text-decoration: none;
+                cursor:pointer;
             }
         }
     }
@@ -73,6 +74,8 @@
             text-decoration:none;
             vertical-align: middle;
             word-break: break-word;
+            font-family: 'Lato', sans-serif;
+
 
             &.actions{
                 text-align:center;

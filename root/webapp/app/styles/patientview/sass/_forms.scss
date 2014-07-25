@@ -12,6 +12,10 @@ input[type="text"], .group-select{
     }
 }
 
+select.form-control{
+    height:40px;
+}
+
 label{
     color:$textlight;
 }
@@ -123,7 +127,7 @@ label{
     .dropdown-menu{
         position:absolute;
         min-width:100px;
-        left:-65px;
+        left:-75px;
 
         > li a{
             text-align: left;
@@ -207,7 +211,7 @@ label{
 }
 
 .radio-button-list{
-    padding-left:0;
+    padding-left:10px;
     li{
         background:$inputaddon;
         color:$textdefault;
@@ -225,5 +229,34 @@ label{
             border-left:1px solid $aquadark;
             @include bootstrap-box-shadow(0);
         }
+
+        &.btn{
+            line-height:15px;
+        }
+    }
+}
+
+.select-add-group{
+    select{
+        width:50%;
+        float:left;
+        height:40px;
+    }
+
+    .group-list-item{
+        width:auto;
+        float:left;
+    }
+}
+
+.group-add-button, .feature-add-button{
+    height:40px;
+    margin-left:10px;
+}
+
+.add-feature{
+    select{
+        float:left;
+        width:80%;
     }
 }
