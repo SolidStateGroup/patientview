@@ -427,9 +427,6 @@ CREATE TABLE PV_Shared_Thought_Audit (
 CREATE TABLE PV_Route (
   Id                   BIGINT        NOT NULL,
   Type_Id              BIGINT        NOT NULL  REFERENCES PV_Lookup_Value (Id),
-  Group_Id             BIGINT        REFERENCES PV_Group (Id),
-  Role_Id              BIGINT        REFERENCES PV_Role (Id),
-  Feature_Id           BIGINT        REFERENCES PV_Feature (Id),
   Display_Order        INTEGER       NOT NULL,
   Url                  VARCHAR(2048) NOT NULL,
   Controller           VARCHAR(255)  NOT NULL,
@@ -439,6 +436,19 @@ CREATE TABLE PV_Route (
   Created_By           BIGINT        REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
+
+
+CREATE TABLE PV_Route_Link (
+  Id                   BIGINT        NOT NULL,
+  Route_Id             BIGINT        NOT NULL  REFERENCES PV_Route (Id),
+  Group_Id             BIGINT        REFERENCES PV_Group (Id),
+  Role_Id              BIGINT        REFERENCES PV_Role (Id),
+  Feature_Id           BIGINT        REFERENCES PV_Feature (Id),
+  Creation_Date        TIMESTAMP     NOT NULL,
+  Created_By           BIGINT        REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
 
 CREATE TABLE PV_Identifier
 (
