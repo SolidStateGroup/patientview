@@ -86,4 +86,12 @@ public class CodeServiceImpl implements CodeService {
     public void deleteCode(final Long codeId) {
         codeRepository.delete(codeId);
     }
+
+    public Link addLink(Long codeId, Link link) {
+        Code entityCode = codeRepository.findOne(codeId);
+        link.setCode(entityCode);
+        link.setCreator(userRepository.findOne(1L));
+        Link persistedLink = linkRepository.save(link);
+        return persistedLink;
+    }
 }

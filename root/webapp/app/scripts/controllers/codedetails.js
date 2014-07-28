@@ -5,8 +5,9 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
     $scope.addLink = function (form, code, link) {
         link.displayOrder = code.links.length +1;
 
-        CodeService.addLink(code, link).then(function () {
+        CodeService.addLink(code, link).then(function (successResult) {
             // added link
+            link.id = successResult.id;
             code.links.push(_.clone(link));
             link.link = link.name = '';
             form.$setDirty(true);

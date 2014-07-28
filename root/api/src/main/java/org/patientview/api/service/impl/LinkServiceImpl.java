@@ -3,7 +3,6 @@ package org.patientview.api.service.impl;
 import org.patientview.api.service.LinkService;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.repository.CodeRepository;
-import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.springframework.stereotype.Service;
@@ -19,9 +18,6 @@ public class LinkServiceImpl implements LinkService {
 
     @Inject
     private LinkRepository linkRepository;
-
-    @Inject
-    private GroupRepository groupRepository;
 
     @Inject
     private LookupRepository lookupRepository;
@@ -45,5 +41,9 @@ public class LinkServiceImpl implements LinkService {
 
     public Link getLink(final Long linkId) {
         return linkRepository.findOne(linkId);
+    }
+
+    public void deleteLink(final Long linkId) {
+        linkRepository.delete(linkId);
     }
 }

@@ -46,8 +46,7 @@ public class LinkController {
     @RequestMapping(value = "/link/{linkId}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Void> deleteLink(@PathVariable("linkId") Long linkId) {
-
-        // TODO: delete link
-        return new ResponseEntity<Void>( HttpStatus.NO_CONTENT);
+        linkService.deleteLink(linkId);
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 }
