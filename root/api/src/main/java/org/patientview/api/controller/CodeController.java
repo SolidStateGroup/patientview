@@ -97,4 +97,12 @@ public class CodeController extends BaseController {
         // return created code
         return new ResponseEntity<Code>(code, HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Void> addLink(@PathVariable("codeId") Long codeId) {
+
+        // TODO: add new link to code
+        return new ResponseEntity<Void>( HttpStatus.CREATED);
+    }
 }

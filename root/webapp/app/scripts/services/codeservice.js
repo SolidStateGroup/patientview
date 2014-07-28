@@ -75,6 +75,17 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Add new link to code
+        addLink: function (code, link) {
+            var deferred = $q.defer();
+            // POST /code/{codeId}/links
+            Restangular.one('code', code.id).all('links').post(link).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);
