@@ -23,7 +23,7 @@ angular.module('patientviewApp').factory('LinkService', ['$q', 'Restangular', fu
         // save link
         save: function (link) {
             var deferred = $q.defer();
-            Restangular.one('link', link.id).customPUT(link).then(function(successResult) {
+            Restangular.all('link').customPUT(link).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

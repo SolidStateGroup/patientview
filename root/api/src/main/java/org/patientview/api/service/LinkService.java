@@ -16,4 +16,6 @@ public interface LinkService {
     Link getLink(Long linkId);
 
     void deleteLink(Long linkId);
+
+    Link saveLink(Link link);
 }

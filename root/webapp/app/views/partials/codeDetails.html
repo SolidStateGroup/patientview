@@ -22,7 +22,9 @@
         </div>
     </div>
 </div>
-
+<br/>
+<button type="button" class="btn blue pull-right" ng-click="save(codeForm, editCode)" ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
+<hr />
 <div class="row">
     <div class="links-container">
         <div class="col-md-12">
@@ -40,7 +42,10 @@
                     <option ng-repeat="link in editCode.links">{{$index + 1}}</option>
                 </select>
             </div>
-            <div class=""><button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeForm, editCode, link)">Delete</button></span></div>
+            <div class="">
+                <button type="button" class="btn aquamarine link-update-button" ng-click="updateLink(codeForm, editCode, link)">Update</button>
+                <button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeForm, editCode, link)">Delete</button>
+            </div>
         </div>
         <br/>
 

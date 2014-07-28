@@ -4,7 +4,6 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
     function ($scope, CodeService, LinkService) {
     $scope.addLink = function (form, code, link) {
         link.displayOrder = code.links.length +1;
-
         CodeService.addLink(code, link).then(function (successResult) {
             // added link
             link.id = successResult.id;
@@ -17,8 +16,17 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
         });
     };
 
-    $scope.removeLink = function (form, code, link) {
+    $scope.updateLink = function (form, code, link) {
+        LinkService.save(link).then(function () {
+            // saved link
+            form.$setDirty(true);
+        }, function() {
+            // failure
+            alert("Error saving link");
+        });
+    };
 
+    $scope.removeLink = function (form, code, link) {
         LinkService.delete(link).then(function () {
             // deleted link
             for (var j = 0; j < code.links.length; j++) {
@@ -31,6 +39,5 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
             // failure
             alert("Error deleting link");
         });
-
     };
 }]);

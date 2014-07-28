@@ -46,4 +46,12 @@ public class LinkServiceImpl implements LinkService {
     public void deleteLink(final Long linkId) {
         linkRepository.delete(linkId);
     }
+
+    public Link saveLink(final Link link) {
+        Link entityLink = linkRepository.findOne(link.getId());
+        entityLink.setLink(link.getLink());
+        entityLink.setName(link.getName());
+        entityLink.setDisplayOrder(link.getDisplayOrder());
+        return linkRepository.save(entityLink);
+    }
 }
