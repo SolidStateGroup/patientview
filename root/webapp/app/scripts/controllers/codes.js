@@ -20,6 +20,7 @@ function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode
     $scope.editCode = editCode;
     $scope.codeTypes = codeTypes;
     $scope.standardTypes = standardTypes;
+    $scope.editMode = false;
 
     $scope.ok = function () {
         CodeService.new($scope.editCode, codeTypes, standardTypes).then(function(result) {
@@ -130,6 +131,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         code.codeTypeId = code.codeType.id;
         code.standardTypeId = code.standardType.id;
         $scope.editCode = _.clone(code);
+        $scope.editMode = true;
     };
 
     $scope.clone = function (codeId, $event) {
@@ -144,6 +146,8 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
     // open modal for new code
     $scope.openModalNewCode = function (size) {
+        // close any open edit panels
+        $('.panel-collapse.in').collapse('hide');
         $scope.errorMessage = '';
         $scope.successMessage = '';
         $scope.codeCreated = '';

@@ -28,14 +28,14 @@
             <h3 class="modal-title">Create New Code</h3>
         </div>
         <div class="modal-body">
-            <form name="codeForm" ng-model="editCode">
-                <div ng-include src="'views/partials/codeDetails.html'" ng-controller="CodeDetailsCtrl"></div>
+            <form name="codeFormNew" ng-model="editCode">
+                <div ng-include src="'views/partials/codeDetailsNew.html'" ng-controller="CodeDetailsCtrl"></div>
             </form>
         </div>
         <div class="modal-footer">
             <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!codeForm.$valid">Create New</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!codeFormNew.$valid">Create New</button>
         </div>
     </script>
 
@@ -64,7 +64,7 @@
                 <div class="form-horizontal" role="form">
                     <div class="select-container pull-left">
                         <div class="btn-group filter-select" id="filter-code-type" data-ng-class="{open: open1}">
-                            <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Code Type <span class="caret-container"><span class="caret"></span></span></button>
+                            <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Code <span class="caret-container"><span class="caret"></span></span></button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li><a data-ng-click="selectedCodeType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                 <li class="divider"></li>
@@ -74,7 +74,7 @@
                     </div>
                     <div class="select-container pull-left">
                         <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
-                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Standard Type <span class="caret-container"><span class="caret"></span></span></button>
+                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Standard <span class="caret-container"><span class="caret"></span></span></button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li><a data-ng-click="selectedStandardType=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                 <li class="divider"></li>

@@ -4,16 +4,25 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
     function ($scope, CodeService, LinkService) {
     $scope.addLink = function (form, code, link) {
         link.displayOrder = code.links.length +1;
-        CodeService.addLink(code, link).then(function (successResult) {
-            // added link
-            link.id = successResult.id;
+
+        // only do POST if in edit mode, otherwise just add to object
+        if ($scope.editMode) {
+            CodeService.addLink(code, link).then(function (successResult) {
+                // added link
+                link.id = successResult.id;
+                code.links.push(_.clone(link));
+                link.link = link.name = '';
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert("Error saving link");
+            });
+        } else {
+            link.id = Math.floor(Math.random() * (9999)) -10000;
             code.links.push(_.clone(link));
             link.link = link.name = '';
             form.$setDirty(true);
-        }, function() {
-            // failure
-            alert("Error saving link");
-        });
+        }
     };
 
     $scope.updateLink = function (form, code, link) {
@@ -27,17 +36,27 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
     };
 
     $scope.removeLink = function (form, code, link) {
-        LinkService.delete(link).then(function () {
-            // deleted link
+        // only do DELETE if in edit mode, otherwise just remove from object
+        if ($scope.editMode) {
+            LinkService.delete(link).then(function () {
+                // deleted link
+                for (var j = 0; j < code.links.length; j++) {
+                    if (code.links[j].id === link.id) {
+                        code.links.splice(j, 1);
+                    }
+                }
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert("Error deleting link");
+            });
+        } else {
             for (var j = 0; j < code.links.length; j++) {
                 if (code.links[j].id === link.id) {
                     code.links.splice(j, 1);
                 }
             }
             form.$setDirty(true);
-        }, function() {
-            // failure
-            alert("Error deleting link");
-        });
+        }
     };
 }]);
