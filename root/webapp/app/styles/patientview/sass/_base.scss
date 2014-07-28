@@ -1,7 +1,12 @@
+html{
+    font-family: 'Lato', sans-serif;
+}
+
 body {
     background: $background;
     color: $textdefault;
     margin-top: 20px;
+    font-family: 'Lato', sans-serif;
 }
 
 .page-content {
@@ -183,7 +188,7 @@ ul {
 .btn {
     @include bootstrap-border-radius(4px);
     color: $white;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     min-height:30px;
     min-width: 34px;
     line-height:20px;
@@ -269,4 +274,10 @@ i.icon-reply{
     background: url('../../../images/icons/reply-icon.png') 0 0 no-repeat;
     height: 15px;
     width: 16px;
+}
+
+i.icon-sort{
+    background: url('../../../images/icons/sort.png') 0 0 no-repeat;
+    height: 25px;
+    width: 20px;
 }
