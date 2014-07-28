@@ -125,13 +125,17 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
 
     // Opened for edit
-    $scope.opened = function (code) {
-        $scope.successMessage = '';
-        $scope.saved = '';
-        code.codeTypeId = code.codeType.id;
-        code.standardTypeId = code.standardType.id;
-        $scope.editCode = _.clone(code);
-        $scope.editMode = true;
+    $scope.opened = function (openedCode) {
+
+        // using lightweight list, do GET on id to get full code and populate editCode
+        CodeService.get(openedCode.id).then(function (code) {
+            $scope.successMessage = '';
+            $scope.saved = '';
+            code.codeTypeId = code.codeType.id;
+            code.standardTypeId = code.standardType.id;
+            $scope.editCode = _.clone(code);
+            $scope.editMode = true;
+        });
     };
 
     $scope.clone = function (codeId, $event) {
