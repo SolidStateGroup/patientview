@@ -9,9 +9,11 @@ import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class to control the crud operations of Codes.
@@ -32,7 +34,19 @@ public class CodeServiceImpl implements CodeService {
     public List<Code> getAllCodes() { return Util.iterableToList(codeRepository.findAll()); }
 
     public Code createCode(final Code code) {
-        return codeRepository.save(code);
+        Code persistedCode = codeRepository.save(code);
+        Set<Link> links = code.getLinks();
+
+        if (!CollectionUtils.isEmpty(links)) {
+            for (Link link : links) {
+                if (link.getId() < 0) { link.setId(null); }
+                link.setCode(persistedCode);
+                link.setCreator(userRepository.findOne(1L));
+                linkRepository.save(link);
+            }
+        }
+
+        return persistedCode;
     }
 
     public Code getCode(final Long codeId) {
