@@ -126,6 +126,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     // Opened for edit
     $scope.opened = function (code) {
         $scope.successMessage = '';
+        $scope.saved = '';
         code.codeTypeId = code.codeType.id;
         code.standardTypeId = code.standardType.id;
         $scope.editCode = _.clone(code);
@@ -213,14 +214,20 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         });
     };
 
-    // Save from edit
+    // Save code details from edit
     $scope.save = function (editCodeForm, code) {
         CodeService.save(code, $scope.codeTypes, $scope.standardTypes).then(function(successResult) {
             editCodeForm.$setPristine(true);
+            $scope.saved = true;
 
+            // update header details (code, type, standard, description)
             for(var i=0;i<$scope.list.length;i++) {
                 if($scope.list[i].id == code.id) {
-                    $scope.list[i] = _.clone(successResult);
+                    var headerDetails = $scope.list[i];
+                    headerDetails.code = successResult.code;
+                    headerDetails.codeType = successResult.codeType;
+                    headerDetails.standardType = successResult.standardType;
+                    headerDetails.description = successResult.description;
                 }
             }
 
