@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').factory('LinkService', ['$q', 'Restangular', function ($q, Restangular) {
+angular.module('patientviewApp').factory('LinkService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
     return {
         getAll: function () {
             var deferred = $q.defer();
@@ -22,6 +22,9 @@ angular.module('patientviewApp').factory('LinkService', ['$q', 'Restangular', fu
         },
         // save link
         save: function (link) {
+
+            link = UtilService.cleanObject(link, 'link');
+
             var deferred = $q.defer();
             Restangular.all('link').customPUT(link).then(function(successResult) {
                 deferred.resolve(successResult);

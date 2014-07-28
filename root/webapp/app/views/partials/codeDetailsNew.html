@@ -41,11 +41,7 @@
                     <option ng-repeat="link in editCode.links">{{$index + 1}}</option>
                 </select>
             </div>
-            <div class="btn-group" ng-show="editMode">
-                <button type="button" class="btn blue link-update-button" ng-click="updateLink(codeFormNew, editCode, link)">Update</button>
-                <button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeFormNew, editCode, link)">Delete</button>
-            </div>
-            <div ng-show="!editMode">
+            <div>
                 <button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeFormNew, editCode, link)">Delete</button>
             </div>
         </div>

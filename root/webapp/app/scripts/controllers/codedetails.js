@@ -15,7 +15,7 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
                 form.$setDirty(true);
             }, function () {
                 // failure
-                alert("Error saving link");
+                alert('Error saving link');
             });
         } else {
             link.id = Math.floor(Math.random() * (9999)) -10000;
@@ -25,13 +25,17 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
         }
     };
 
-    $scope.updateLink = function (form, code, link) {
+    $scope.updateLink = function (event, form, code, link) {
+        link.saved = false;
+
+        // try and save link
         LinkService.save(link).then(function () {
             // saved link
+            link.saved = true;
             form.$setDirty(true);
         }, function() {
             // failure
-            alert("Error saving link");
+            alert('Error saving link');
         });
     };
 
@@ -48,7 +52,7 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
                 form.$setDirty(true);
             }, function () {
                 // failure
-                alert("Error deleting link");
+                alert('Error deleting link');
             });
         } else {
             for (var j = 0; j < code.links.length; j++) {

@@ -44,9 +44,10 @@
                 </select>
             </div>
             <div class="btn-group">
-                <button type="button" class="btn blue link-update-button" ng-click="updateLink(codeForm, editCode, link)">Update</button>
+                <button type="button" class="btn blue link-update-button" ng-click="updateLink($event, codeForm, editCode, link)">Update</button>
                 <button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeForm, editCode, link)">Delete</button>
             </div>
+            <span class="saved-notification" ng-show="link.saved">&nbsp; Updated Link</span>
         </div>
         <br/>
 
@@ -63,7 +64,9 @@
                     <option >{{editCode.links.length + 1}}</option>
                 </select>
             </div>
-            <div class=""><button type="button" class="btn blue link-add-button" ng-click="addLink(codeForm, editCode, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
+            <div class="">
+                <button type="button" class="btn blue link-add-button" ng-click="addLink(codeForm, editCode, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button>
+            </div>
         </div>
     </div>
 </div>
