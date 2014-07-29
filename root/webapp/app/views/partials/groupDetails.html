@@ -24,6 +24,32 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <hr />
+    <div class="col-md-12">
+        <label>Additional Locations</label>
+        <div ng-hide="editGroup.locations.length > 0" class="no-items">No additional locations</div>
+    </div>
+    <div class="location-list-item"  ng-repeat="location in editGroup.locations | orderBy:'id'">
+        <div class="col-md-1 hidden">{{location.id}}</div>
+        <div class="col-md-1"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="label" name="label" ng-model="location.label" required></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="name" name="name" ng-model="location.name" required></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-phone-{{location.id}}" placeholder="phone" name="phone" ng-model="location.phone" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" ng-model="location.address" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" ng-model="location.web" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" ng-model="location.email" ></div>
+        <div><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+    </div>
+    <div class="add-form" ng-model="newLocation">
+        <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="label" name="newLocation" ng-model="newLocation.label"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="name" name="newLocation" ng-model="newLocation.name"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="phone" name="newLocation" ng-model="newLocation.phone"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="address" name="newLocation" ng-model="newLocation.address"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="web" name="newLocation" ng-model="newLocation.web"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-email" placeholder="email" name="newLocation" ng-model="newLocation.email"></div>
+        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupForm, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+    </div>
+</div>
         
 <div class="row">
     <hr />
@@ -59,33 +85,6 @@
 <div class="row">
     <hr />
     <div class="col-md-12">
-        <label>Additional Locations</label>
-        <div ng-hide="editGroup.locations.length > 0" class="no-items">No additional locations</div>
-    </div>
-    <div class="location-list-item"  ng-repeat="location in editGroup.locations | orderBy:'id'">
-        <div class="col-md-1 hidden">{{location.id}}</div>
-        <div class="col-md-1"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="label" name="label" ng-model="location.label" required></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="name" name="name" ng-model="location.name" required></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-phone-{{location.id}}" placeholder="phone" name="phone" ng-model="location.phone" ></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" ng-model="location.address" ></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" ng-model="location.web" ></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" ng-model="location.email" ></div>
-        <div><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
-    </div>
-    <div class="add-form" ng-model="newLocation">
-        <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="label" name="newLocation" ng-model="newLocation.label"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="name" name="newLocation" ng-model="newLocation.name"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="phone" name="newLocation" ng-model="newLocation.phone"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="address" name="newLocation" ng-model="newLocation.address"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="web" name="newLocation" ng-model="newLocation.web"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-email" placeholder="email" name="newLocation" ng-model="newLocation.email"></div>
-        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupForm, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
-    </div>
-</div>
-
-<div class="row">
-    <hr />
-    <div class="col-md-12">
         <label>Features</label>
         <div ng-hide="editGroup.groupFeatures.length > 0" class="no-items">No features</div>
     </div>
@@ -106,8 +105,8 @@
     </div>
 </div>
 
-
 <div class="row form-edit-row">
+    <hr/>
     <!-- TODO: hardcoded, only show parents if UNIT or DISEASE_GROUP -->
     <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT'] || editGroup.groupTypeId==groupTypesArray['DISEASE_GROUP']">
         <label>Parent Groups</label>
