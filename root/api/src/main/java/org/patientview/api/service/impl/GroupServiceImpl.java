@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
@@ -18,6 +19,7 @@ import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LinkRepository;
+import org.patientview.persistence.repository.ContactPointRepository;
 import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -60,6 +62,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Inject
     private LinkRepository linkRepository;
+
+    @Inject
+    private ContactPointRepository contactPointRepository;
 
     @Inject
     private UserRepository userRepository;
@@ -213,14 +218,6 @@ public class GroupServiceImpl implements GroupService {
         entityGroup.setAddress3(group.getAddress3());
         entityGroup.setPostcode(group.getPostcode());
 
-        if (!CollectionUtils.isEmpty(group.getContactPoints())) {
-            for (ContactPoint contactPoint : group.getContactPoints()) {
-                contactPoint.setGroup(groupRepository.findOne(entityGroup.getId()));
-                contactPoint.setCreator(userRepository.findOne(1L));
-                entityGroup.getContactPoints().add(contactPoint);
-            }
-        }
-
         entityGroup = groupRepository.save(entityGroup);
         return addSingleParentAndChildGroup(entityGroup);
     }
@@ -260,6 +257,14 @@ public class GroupServiceImpl implements GroupService {
             groupFeatures = new HashSet<GroupFeature>();
         }
 
+        Set<ContactPoint> contactPoints;
+        if (!CollectionUtils.isEmpty(group.getContactPoints())) {
+            contactPoints = new HashSet<ContactPoint>(group.getContactPoints());
+            group.getContactPoints().clear();
+        } else {
+            contactPoints = new HashSet<ContactPoint>();
+        }
+
 
         // save basic details
         try {
@@ -294,6 +299,21 @@ public class GroupServiceImpl implements GroupService {
             tempGroupFeature.setCreator(userRepository.findOne(1L));
             tempGroupFeature = groupFeatureRepository.save(tempGroupFeature);
             newGroup.getGroupFeatures().add(tempGroupFeature);
+        }
+
+        // save contact points
+        for (ContactPoint contactPoint : contactPoints) {
+            ContactPoint tempContactPoint = new ContactPoint();
+            tempContactPoint.setGroup(newGroup);
+            tempContactPoint.setCreator(userRepository.findOne(1L));
+            tempContactPoint.setContactPointType(contactPoint.getContactPointType());
+            //tempContactPoint.setContactPointType(lookupRepository.findByTypeAndValue(LookupTypes.CONTACT_POINT_TYPE, contactPoint.getContactPointType().getValue().getName()));
+
+            entityManager.merge(contactPoint.getContactPointType());
+
+            tempContactPoint.setContent(contactPoint.getContent());
+            tempContactPoint = contactPointRepository.save(tempContactPoint);
+            newGroup.getContactPoints().add(tempContactPoint);
         }
 
         // return new group with parents/children for front end to avoid recursion

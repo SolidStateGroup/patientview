@@ -10,12 +10,13 @@ var GroupStatisticsModalInstanceCtrl = ['$scope', '$modalInstance','statistics',
     }];
 
 // new group modal instance controller
-var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'groupTypes', 'editGroup', 'allFeatures', 'allParentGroups', 'allChildGroups', 'GroupService',
-function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup, allFeatures, allParentGroups, allChildGroups, GroupService) {
+var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'groupTypes', 'editGroup', 'allFeatures', 'contactPointTypes', 'allParentGroups', 'allChildGroups', 'GroupService',
+function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup, allFeatures, contactPointTypes, allParentGroups, allChildGroups, GroupService) {
     $scope.permissions = permissions;
     $scope.editGroup = editGroup;
     $scope.groupTypes = groupTypes;
     $scope.allFeatures = allFeatures;
+    $scope.contactPointTypes = contactPointTypes;
     $scope.editMode = false;
     var i;
 
@@ -352,6 +353,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
     // open modal for new group
     $scope.openModalNewGroup = function (size) {
+        // close any open edit panels
+        $('.panel-collapse.in').collapse('hide');
         $scope.errorMessage = '';
         $scope.successMessage = '';
         $scope.groupCreated = '';
@@ -360,6 +363,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.editGroup.locations = [];
         $scope.editGroup.groupFeatures = [];
         $scope.editGroup.availableFeatures = _.clone($scope.allFeatures);
+        $scope.editGroup.contactPoints = [];
 
         // set up parent/child groups
         $scope.editGroup.parentGroups = [];
@@ -380,6 +384,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 },
                 allFeatures: function(){
                     return $scope.allFeatures;
+                },
+                contactPointTypes: function(){
+                    return $scope.contactPointTypes;
                 },
                 allParentGroups: function(){
                     return $scope.allParentGroups;
