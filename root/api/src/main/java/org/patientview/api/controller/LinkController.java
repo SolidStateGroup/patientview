@@ -2,10 +2,13 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.LinkService;
 import org.patientview.persistence.model.Link;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +25,8 @@ import javax.inject.Inject;
  */
 @RestController
 public class LinkController {
+
+    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
 
     @Inject
     private LinkService linkService;
@@ -40,5 +45,23 @@ public class LinkController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<Link>(link, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/link/{linkId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteLink(@PathVariable("linkId") Long linkId) {
+        linkService.deleteLink(linkId);
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/link", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> saveLink(@RequestBody Link link, UriComponentsBuilder uriComponentsBuilder) {
+        Link updatedLink = linkService.saveLink(link);
+        LOG.info("Updated link with id " + updatedLink.getId());
+        UriComponents uriComponents = uriComponentsBuilder.path("/link/{linkId}").buildAndExpand(updatedLink.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+        return new ResponseEntity<Void>(headers, HttpStatus.OK);
     }
 }

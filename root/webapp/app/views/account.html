@@ -1,4 +1,4 @@
-<h1 ng-hide="authToken" ng-cloak ng-controller="AccountCtrl">Settings</h1>
+<h1 ng-controller="AccountCtrl">Account Settings</h1>
 <form class="form-horizontal" ng-cloak id="account-settings-form" >
 
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
@@ -27,7 +27,7 @@
     <div class="form-group">
         <label for="contactNumber" class="col-sm-3 control-label">Contact Number:</label>
         <div class="col-sm-4">
-            <input id="contactNumber" name="contactNumber"  type="text" class="form-control" ng-model="userdetails.contactNumber"  required="" />
+            <input id="contactNumber" name="contactNumber"  type="text" class="form-control" ng-model="userdetails.contactNumber"/>
         </div>
     </div>
 

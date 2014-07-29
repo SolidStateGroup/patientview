@@ -1,7 +1,7 @@
 <div class="row edit-code-input">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
-            <label for="code-code" class="control-label">Code <span class="error" ng-show="codeForm.code.$error.required"> *required</span></label>
+            <label for="code-code" class="control-label">Code <span class="error" ng-show="codeFormNew.code.$error.required"> *required</span></label>
             <div class=""><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" ng-model="editCode.code" required></div>
 
         </div>
@@ -16,14 +16,12 @@
 
         </div>
         <div class="col-md-3">
-            <label for="code-description" class="control-label">Description <span class="error" ng-show="codeForm.description.$error.required"> *required</span></label>
+            <label for="code-description" class="control-label">Description <span class="error" ng-show="codeFormNew.description.$error.required"> *required</span></label>
             <div class=""><input type="text" class="form-control" id="code-description" placeholder="Description" name="description" ng-model="editCode.description" required></div>
 
         </div>
     </div>
 </div>
-<button type="button" class="btn blue pull-right" ng-click="save(codeForm, editCode)" ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
-<span class="saved-notification pull-right" ng-show="codeForm.$pristine && saved">Saved Code Details &nbsp;</span>
 <br/>
 <hr />
 <div class="row">
@@ -33,21 +31,19 @@
         </div>
         <div class="link-list-item" ng-repeat="link in editCode.links | orderBy:'displayOrder'">
             <div class="col-md-3">
-                <input type="text" class="form-control" id="code-link-link-{{link.id}}" placeholder="link" name="link" ng-model="link.link" required>
+                <input type="text" class="form-control" id="code-link-link-{{link.id}}" placeholder="URL" name="link" ng-model="link.link" required>
             </div>
             <div class="col-md-3">
-                <input type="text" class="form-control" id="code-link-name-{{link.id}}" placeholder="name" name="name" ng-model="link.name" required>
+                <input type="text" class="form-control" id="code-link-name-{{link.id}}" placeholder="Description" name="name" ng-model="link.name" required>
             </div>
             <div class="col-md-3">
                 <select id="code-link-displayOrder-{{link.id}}" class="form-control" ng-model="link.displayOrder">
                     <option ng-repeat="link in editCode.links">{{$index + 1}}</option>
                 </select>
             </div>
-            <div class="btn-group">
-                <button type="button" class="btn blue link-update-button" ng-click="updateLink($event, codeForm, editCode, link)">Update</button>
-                <button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeForm, editCode, link)">Delete</button>
+            <div>
+                <button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeFormNew, editCode, link)">Delete</button>
             </div>
-            <span class="saved-notification" ng-show="link.saved">&nbsp; Updated Link</span>
         </div>
         <br/>
 
@@ -64,9 +60,7 @@
                     <option >{{editCode.links.length + 1}}</option>
                 </select>
             </div>
-            <div class="">
-                <button type="button" class="btn blue link-add-button" ng-click="addLink(codeForm, editCode, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button>
-            </div>
+            <div class=""><button type="button" class="btn blue link-add-button" ng-click="addLink(codeFormNew, editCode, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
         </div>
     </div>
 </div>

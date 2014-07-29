@@ -56,7 +56,6 @@ function ($q, Restangular, UtilService) {
             // POST /user/{userId}/resetPassword
             Restangular.one('user', user.id).post('resetPassword', {'password':newPasword}).then(function(successResult) {
                 deferred.resolve(successResult);
-                successResult.password = generatedPassword;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
@@ -115,6 +114,9 @@ function ($q, Restangular, UtilService) {
             for (i=0;i<inputUser.identifiers.length;i++) {
                 var identifier = inputUser.identifiers[i];
                 identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+                if (identifier.id < 0) {
+                    delete identifier.id;
+                }
                 cleanIdentifiers.push(identifier);
             }
             user.identifiers = cleanIdentifiers;
@@ -154,6 +156,9 @@ function ($q, Restangular, UtilService) {
             for (i=0;i<inputUser.identifiers.length;i++) {
                 var identifier = inputUser.identifiers[i];
                 identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+                if (identifier.id < 0) {
+                    delete identifier.id;
+                }
                 cleanIdentifiers.push(identifier);
             }
 
