@@ -83,7 +83,7 @@
         <label>Additional Contact Points</label>
         <div ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points</div>
     </div>
-    <div class="contactPoint-list-item"  ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
+    <div class="link-list-item" ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
         <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointTypeId" ng-options="contactPointType.id as contactPointType.value for contactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" ng-model="contactPoint.content" required></div>

@@ -90,12 +90,24 @@ function ($q, Restangular, UtilService) {
                 delete parentGroup.groupFeatures;
                 cleanParentGroups.push(parentGroup);
             }
+            
+            // clean contactPoints
+            var cleanContactPoints = [];
+            for (i=0;i<inputGroup.contactPoints.length;i++) {
+                var contactPoint = UtilService.cleanObject(inputGroup.contactPoints[i], 'contactPoint');
+                contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
+                if (contactPoint.id < 0) {
+                    delete contactPoint.id;
+                }
+                cleanContactPoints.push(contactPoint);
+            }
 
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
             var group = UtilService.cleanObject(inputGroup, 'group');
 
             // add cleaned objects
             group.groupFeatures = cleanGroupFeatures;
+            group.contactPoints = cleanContactPoints;
             group.childGroups = cleanChildGroups;
             group.parentGroups = cleanParentGroups;
             group.groupType = groupType;
