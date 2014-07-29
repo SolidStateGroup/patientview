@@ -125,7 +125,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
 
     // Opened for edit
-    $scope.opened = function (openedCode) {
+    $scope.opened = function (openedCode, $event) {
 
         // using lightweight list, do GET on id to get full code and populate editCode
         CodeService.get(openedCode.id).then(function (code) {

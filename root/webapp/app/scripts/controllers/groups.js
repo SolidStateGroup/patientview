@@ -238,9 +238,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             GroupService.get(openedGroup.id).then(function (group) {
-
-                var i = 0, j = 0;
-                $scope.statistics = '';
+                var i, j;
                 $scope.successMessage = '';
                 group.groupTypeId = group.groupType.id;
 
