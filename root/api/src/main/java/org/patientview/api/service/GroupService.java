@@ -4,6 +4,7 @@ import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.Roles;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupService {
 
-    @GroupMemberOnly
+    @GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
     Group findOne(Long id);
 
     List<Group> findAll();
@@ -27,6 +28,7 @@ public interface GroupService {
 
     List<Group> findGroupByType(Long lookupId);
 
+    @GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
     Group save(Group group);
 
     Group create(Group group);

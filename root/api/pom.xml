@@ -108,13 +108,13 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-            <version>1.7.0</version>
+            <version>1.8.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.7.0</version>
+            <version>1.8.0</version>
         </dependency>
 
 
@@ -138,6 +138,17 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>1.5.5</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -168,8 +179,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
 
@@ -181,12 +192,12 @@
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjrt</artifactId>
-                        <version>1.7.0</version>
+                        <version>1.8.0</version>
                     </dependency>
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjtools</artifactId>
-                        <version>1.7.0</version>
+                        <version>1.8.0</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -201,15 +212,15 @@
                     <outxml>true</outxml>
                     <verbose>true</verbose>
                     <showWeaveInfo>true</showWeaveInfo>
-                    <complianceLevel>1.6</complianceLevel>
+                    <complianceLevel>1.7</complianceLevel>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
                             <artifactId>spring-aspects</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
 

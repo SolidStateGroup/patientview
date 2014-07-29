@@ -16,7 +16,7 @@ import java.util.List;
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
-public final class Util {
+public class Util {
 
     private Util() {}
 

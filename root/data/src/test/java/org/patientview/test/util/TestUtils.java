@@ -20,7 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -216,15 +215,10 @@ public final class TestUtils {
 
     public static void authenticateTest(User user, Collection<Role> roles) {
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-
-        if (CollectionUtils.isEmpty(roles)) {
-            for (Role role : roles) {
-                authorities.add(role);
-            }
+        for (Role role : roles) {
+            authorities.add(role);
         }
-
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
