@@ -89,21 +89,19 @@
                             <div class="row-item accordion-heading-text">{{group.groupType.value}}</div>
                             <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="group in group.parentGroups">{{group.name}}</li></ul></div>
                             <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="groupFeature in group.groupFeatures">{{groupFeature.feature.description}}</li></ul></div>
-                            <div> <ul class="unstyled"></li></ul></div>
-                            <div class="row-item">
-
+                            <div >{{group.lastImport}}</div>
+                            <div class="row-item actions">
                                 <!-- Stats, Edit buttons -->
                                 <div class="btn-group">
                                     <button type="button" class="edit-button btn blue"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
-                                    <button type="button" class="statistics-button btn aquamarine"><span class="glyphicon glyphicon-stats"></span> Stats</button>
+                                    <button type="button" class="statistics-button btn aquamarine" ng-click="statistics(group.id, $event)"><span class="glyphicon glyphicon-stats"></span> Stats</button>
                                 </div>
-
                             </div>
                         </div>
                     </div accordion-heading>
 
                     <!-- edit pane -->
-                    <div ng-show="!statistics">
+                    <div>
                         <form name="groupForm">
                             <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
                         </form>
@@ -112,13 +110,6 @@
                             <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
                             <button type="button" class="btn blue" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
                         </div>
-                    </div>
-
-                    <!-- stats pane -->
-                    <div ng-show="statistics">
-                        <h2>Statistics</h2>
-                        <p>Group statistics are shown here.</p>
-                        <a class="btn pull-right btn-primary" ng-click="status.open = false">Back</a>
                     </div>
 
                 </div accordion-group>

@@ -19,7 +19,7 @@ function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup
     $scope.editMode = false;
     var i;
 
-    // restrict all but SUPER_ADMIN from adding new SPECIALTY type groups by reducing groupTypes
+    // restrict all but GLOBAL_ADMIN from adding new SPECIALTY type groups by reducing groupTypes
     for (i = 0; i < $scope.groupTypes.length; i++) {
         if (!$scope.permissions.isSuperAdmin && $scope.groupTypes[i].value === 'SPECIALTY') {
             $scope.groupTypes.splice(i, 1);
@@ -76,7 +76,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.predicate = 'id';
 
             // allowed relationship groups are those that can be added as parents or children to existing groups
-            // SUPER_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
+            // GLOBAL_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
             // SPECIALTY_ADMIN can only edit their specialty and add relationships so allowedRelationshipGroups is just a
             // list of all available units found from getUnitGroups which is $scope.AllUnits
             // all other users cannot add parents/children so allowedRelationshipGroups is an empty array
@@ -122,17 +122,17 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.loading = true;
         $scope.allUnits = [];
 
-        // TODO: set permissions for ui, hard coded to check if user has SUPER_ADMIN, SPECIALTY_ADMIN role anywhere, if so can do:
+        // TODO: set permissions for ui, hard coded to check if user has GLOBAL_ADMIN, SPECIALTY_ADMIN role anywhere, if so can do:
         // add SPECIALTY groups
         // edit group code
-        // edit parents groups (SUPER_ADMIN only)
+        // edit parents groups (GLOBAL_ADMIN only)
         // edit child groups
         // edit features
         // create group
         $scope.permissions = {};
 
-        // check if user is SUPER_ADMIN or SPECIALTY_ADMIN
-        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('SUPER_ADMIN', $scope.loggedInUser);
+        // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
+        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
         $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
 
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
@@ -238,9 +238,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             GroupService.get(openedGroup.id).then(function (group) {
-
-                var i = 0, j = 0;
-                $scope.statistics = '';
+                var i, j;
                 $scope.successMessage = '';
                 group.groupTypeId = group.groupType.id;
 

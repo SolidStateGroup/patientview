@@ -15,6 +15,7 @@ INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (6, now(), 'Type of feature','FEATURE_TYPE', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (7, now(), 'Group relationship type','RELATIONSHIP_TYPE', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (8, now(), 'Identifier','IDENTIFIER', '1');
+INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (9, now(), 'Contact point type','CONTACT_POINT_TYPE', '1');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (1, now(), 'UNIT','1', '1');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (2, now(), 'SPECIALTY','1','1');
@@ -38,6 +39,16 @@ INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (20, now(), 'NHS_NUMBER','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (21, now(), 'CHI_NUMBER','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (22, now(), 'NAV','1','2');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (23, now(), 'UNIT_WEB_ADDRESS','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (24, now(), 'TRUST_WEB_ADDRESS','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (25, now(), 'PV_ADMIN_NAME','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (26, now(), 'PV_ADMIN_PHONE','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (27, now(), 'PV_ADMIN_EMAIL','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (28, now(), 'UNIT_ENQUIRIES_PHONE','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (29, now(), 'UNIT_ENQUIRIES_EMAIL','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (30, now(), 'APPOINTMENT_PHONE','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (31, now(), 'APPOINTMENT_EMAIL','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, created_by, lookup_type_id) VALUES (32, now(), 'OUT_OF_HOURS_INFO','1','9');
 
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', null, 2, false, now(),1 );
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By) VALUES (2, 'Renal', 'Renal', null, 2, true, now(),1 );

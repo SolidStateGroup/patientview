@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -96,5 +97,23 @@ public class CodeController extends BaseController {
 
         // return created code
         return new ResponseEntity<Code>(code, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Link> addLink(@PathVariable("codeId") Long codeId, @RequestBody Link link
+            , UriComponentsBuilder uriComponentsBuilder) {
+
+        // create new link
+        Link newLink = codeService.addLink(codeId, link);
+        LOG.info("Created new Link with id " + newLink.getId() + " and added to Code with id " + codeId);
+
+        // set header with location
+        UriComponents uriComponents = uriComponentsBuilder.path("/link/{linkId}").buildAndExpand(newLink.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<Link>(newLink, HttpStatus.CREATED);
     }
 }
