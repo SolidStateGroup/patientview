@@ -109,7 +109,7 @@
 
 <div class="row form-edit-row">
     <!-- TODO: hardcoded, only show parents if UNIT or DISEASE_GROUP -->
-    <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT']">
+    <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT'] || editGroup.groupTypeId==groupTypesArray['DISEASE_GROUP']">
         <label>Parent Groups</label>
         <div ng-hide="editGroup.parentGroups.length > 0" class="no-items">No parent groups</div>
 
@@ -147,4 +147,3 @@
         </div>
     </div>
 </div>
-       
