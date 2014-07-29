@@ -193,6 +193,11 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 $scope.allFeatures.push({'feature':allFeatures[i]});
             }
         });
+
+        // get list of contact point types
+        StaticDataService.getLookupsByType('CONTACT_POINT_TYPE').then(function(contactPointTypes) {
+            $scope.contactPointTypes = contactPointTypes;
+        });
     };
 
     // filter by group type

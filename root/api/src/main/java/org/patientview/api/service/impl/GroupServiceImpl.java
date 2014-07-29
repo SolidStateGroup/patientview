@@ -208,6 +208,12 @@ public class GroupServiceImpl implements GroupService {
         entityGroup.setCode(group.getCode());
         entityGroup.setGroupType(group.getGroupType());
         entityGroup.setVisibleToJoin(group.getVisibleToJoin());
+        entityGroup.setAddress1(group.getAddress1());
+        entityGroup.setAddress2(group.getAddress2());
+        entityGroup.setAddress3(group.getAddress3());
+        entityGroup.setPostcode(group.getPostcode());
+
+
         entityGroup = groupRepository.save(entityGroup);
         return addSingleParentAndChildGroup(entityGroup);
     }

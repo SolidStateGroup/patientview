@@ -18,12 +18,38 @@
             <label for="group-sftp-user" class="control-label">SFTP User</label>
             <input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" ng-model="editGroup.sftpUser">
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-3">
+            <label for="group-address-1" class="control-label">Address 1</label>
+            <input type="text" class="form-control" id="group-address-1" placeholder="Address 1" name="address1" ng-model="editGroup.address1">
+        </div>
+        <div class="col-md-3">
+            <label for="group-address-2" class="control-label">Address 2</label>
+            <input type="text" class="form-control" id="group-address-2" placeholder="Address 2" name="address2" ng-model="editGroup.address2">
+        </div>
+        <div class="col-md-3">
+            <label for="group-address-3" class="control-label">Address 3</label>
+            <input type="text" class="form-control" id="group-address-3" placeholder="Address 1" name="address3" ng-model="editGroup.address3">
+        </div>
+        <div class="col-md-3">
+            <label for="group-postcode" class="control-label">Postcode</label>
+            <input type="text" class="form-control" id="group-postcode" placeholder="Postcode" name="postcode" ng-model="editGroup.postcode">
+        </div>
+    </div>
+</div>
+        
+<div class="row">
+    <div class="form-horizontal" role="form">
         <div class="col-md-3 visible-for-col">
             <h5 for="group-visible-to-join pull-left" class="control-label">Visible For Patients to Join</h5>
             <input type="checkbox" class="form-control" id="group-visible-to-join" name="visible-to-join" ng-model="editGroup.visibleToJoin"/>
         </div>
     </div>
 </div>
+        
 <div class="row">
     <hr />
     <div class="col-md-12">
@@ -50,6 +76,25 @@
         <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupForm, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
     </div>
 </div>
+        
+<div class="row">
+    <hr />
+    <div class="col-md-12">
+        <label>Additional Contact Points</label>
+        <div ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points</div>
+    </div>
+    <div class="contactPoint-list-item"  ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
+        <div class="col-md-1 hidden">{{contactPoint.id}}</div>
+        <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointTypeId" ng-options="contactPointType.id as contactPointType.value for contactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" ng-model="contactPoint.content" required></div>
+        <div><button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+    </div>
+    <div class="add-form" ng-model="newContactPoint">
+        <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" ng-model="newContactPoint.contactPointTypeId" ng-options="newContactPointType.id as newContactPointType.value for newContactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" ng-model="newContactPoint.content"></div>
+        <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" ng-click="addContactPoint(groupForm, editGroup, newContactPoint)" ng-disabled="!(newContactPoint.content)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+    </div>
+</div>    
         
 <div class="row">
     <hr />

@@ -30,13 +30,14 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             var fields = [];
             fields.user = ['id', 'username', 'password', 'email', 'name', 'changePassword', 'locked', 'userFeatures', 'verified', 'verificationCode', 'identifiers', 'contactNumber'];
             fields.role = ['id','name','description','routes'];
-            fields.group = ['id','name','code','sftpUser','groupType','groupFeatures','routes','links','locations','childGroups','parentGroups','children','parents','visible','visibleToJoin'];
+            fields.group = ['id','name','code','sftpUser','groupType','groupFeatures','routes','links','locations','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode'];
             fields.code = ['id','code','codeType','standardType','description','links'];
             fields.codeType = ['id','value','lookupType'];
             fields.standardType = ['id','value','lookupType'];
             fields.groupType = ['id','value','lookupType'];
             fields.identifierType = ['id','value','lookupType'];
             fields.link = ['id','displayOrder','link','linkType','name'];
+            fields.contactPoint = ['id','contactPointType','content'];
             return fields[objectType];
         },
         // used when converting from angular objects to those suitable for REST
