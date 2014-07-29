@@ -29,8 +29,6 @@ import static org.mockito.Mockito.when;
  */
 public class AuthenticateFilterTokenTest {
 
-
-
     @Mock
     private AuthenticationService authenticationService;
 
@@ -40,9 +38,7 @@ public class AuthenticateFilterTokenTest {
 
     @Before
     public void setUp() throws Throwable {
-
         MockitoAnnotations.initMocks(this);
-
     }
 
     /**
@@ -182,8 +178,8 @@ public class AuthenticateFilterTokenTest {
     }
 
     /**
-     * Test: To see if the filter will avoid authenticating /api/auth/logout
-     * Fail: The filter will not authenticate the request
+     * Test: To see if the filter will redirect unauthorised login
+     * Fail: The filter will not redirect the request to the error page
      *
      */
     @Test

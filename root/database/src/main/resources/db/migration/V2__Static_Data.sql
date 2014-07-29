@@ -66,59 +66,80 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (5, 2, 15);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (7, 3, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (9, 4, 14);
 
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (2, 4, 1, null, null, 1,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (4, 22, 1, null, 2, 14,  '/messages', 'views/messages.html','MessagesCtrl', 'Messages', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (6, 3, null, null, null, 1,  '/settings', 'views/settings.html','SettingsCtrl', 'Settings', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (7, 3, null, null, null, 1,  '/feedback', 'views/feedback.html','FeedbackCtrl', 'Feedback', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (8, 3, null, null, null, 1,  '/help', 'views/help.html','HelpCtrl', 'Help', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (10, 4, null, null, null, 2,  '/mydetails', 'views/mydetails.html','MydetailsCtrl', 'My Details', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (11, 4, null, null, null, 3,  '/results', 'views/results.html','ResultsCtrl', 'My Results', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (12, 5, null, null, null, 4,  '/resultsdetail', 'views/resultsdetail.html','ResultsDetailCtrl', 'Results Detail', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (13, 4, null, null, null, 5,  '/medicines', 'views/medicines.html','MedicinesCtrl', 'Medicines', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (14, 4, null, null, null, 6,  '/letters', 'views/letters.html','LettersCtrl', 'Letters', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (15, 4, null, null, 3, 7,  '/sharingthoughts', 'views/sharingthoughts.html','SharingthoughtsCtrl', 'Sharing Thoughts', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (16, 4, null, null, null, 8,  '/contact', 'views/contact.html','ContactCtrl', 'Contact', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (17, 4, null, 2, null, 9,  '/codes', 'views/codes.html','CodesCtrl', 'Codes', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (18, 4, null, 2, null, 11,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (19, 4, null, 2, null, 10,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (20, 4, null, 5, null, 9,  '/codes', 'views/codes.html','CodesCtrl', 'Codes', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (21, 4, null, 5, null, 11,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (22, 4, null, 5, null, 10,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (23, 4, null, 2, null, 12,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (24, 4, null, 5, null, 12,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (25, 4, null, 4, null, 9,  '/codes', 'views/codes.html','CodesCtrl', 'Codes', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (26, 4, null, 4, null, 11,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (27, 4, null, 4, null, 10,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (28, 4, null, 4, null, 12,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (29, 4, null, 6, null, 9,  '/codes', 'views/codes.html','CodesCtrl', 'Codes', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (30, 4, null, 6, null, 11,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (31, 4, null, 6, null, 10,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
-INSERT INTO PV_Route (Id, Type_Id, Group_Id, Role_Id, Feature_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (32, 4, null, 6, null, 12,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (1, 4, 1,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (2, 22, 14,  '/messages', 'views/messages.html','MessagesCtrl', 'Messages', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (3, 3, 1,  '/settings', 'views/settings.html','SettingsCtrl', 'Settings', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (4, 3, 1,  '/feedback', 'views/feedback.html','FeedbackCtrl', 'Feedback', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (5, 3, 1,  '/help', 'views/help.html','HelpCtrl', 'Help', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (6, 4, 2,  '/mydetails', 'views/mydetails.html','MydetailsCtrl', 'My Details', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (7, 4, 3,  '/results', 'views/results.html','ResultsCtrl', 'My Results', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (8, 5, 4,  '/resultsdetail', 'views/resultsdetail.html','ResultsDetailCtrl', 'Results Detail', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (9, 4, 5,  '/medicines', 'views/medicines.html','MedicinesCtrl', 'Medicines', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (10, 4, 6,  '/letters', 'views/letters.html','LettersCtrl', 'Letters', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (11, 4, 7,  '/sharingthoughts', 'views/sharingthoughts.html','SharingthoughtsCtrl', 'Sharing Thoughts', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (12, 4, 8,  '/contact', 'views/contact.html','ContactCtrl', 'Contact', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (13, 4, 9,  '/codes', 'views/codes.html','CodesCtrl', 'Codes', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (14, 4, 11,  '/staff', 'views/staff.html','StaffCtrl', 'Staff', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (15, 4, 10,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (16, 4, 12,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
+
+
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (1, 1, 1, null, null, now(), 1 );
+ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (2, 2, 1, null, 2, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (3, 13, null, 6, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (4, 13, null, 5, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (5, 13, null, 4, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (6, 14, null, 4, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (7, 14, null, 6, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (8, 14, null, 5, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (9, 14, null, 2, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (10, 15, null, 5, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (11, 15, null, 4, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (12, 15, null, 6, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (13, 15, null, 2, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (14, 16, null, 2, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (15, 16, null, 5, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (16, 16, null, 4, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (17, 16, null, 6, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (18, 16, null, 3, null, now(), 1 );
+
+INSERT INTO PV_User_Token(Id, User_Id, Token, Creation_Date) VALUES
+  (1, 2, 'pppppp', now())
+
+
+
+

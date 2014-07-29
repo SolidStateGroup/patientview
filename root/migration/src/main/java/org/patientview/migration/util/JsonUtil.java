@@ -93,6 +93,7 @@ public final class JsonUtil {
         }
 
         method.setHeader("Content-type", "application/json");
+        method.setHeader("X-Auth-Token", "pppppp");
         BufferedReader br;
         StringBuilder output = new StringBuilder();
 
@@ -156,6 +157,7 @@ public final class JsonUtil {
 
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/json");
+        post.setHeader("X-Auth-Token", "pppppp");
         return httpClient.execute(post);
 
     }
@@ -174,6 +176,7 @@ public final class JsonUtil {
         }
 
         put.setHeader("Content-type", "application/json");
+        put.setHeader("X-Auth-Token", "pppppp");
         return httpClient.execute(put);
 
     }
@@ -192,6 +195,7 @@ public final class JsonUtil {
 
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/json");
+        post.setHeader("X-Auth-Token", "pppppp");
         return httpClient.execute(post);
 
     }
@@ -204,7 +208,7 @@ public final class JsonUtil {
 
         HttpGet get = new HttpGet(url);
         get.addHeader("accept", "application/json");
-
+        get.addHeader("X-Auth-Token", "pppppp");
         HttpResponse httpResponse = null;
 
         try {
@@ -246,8 +250,9 @@ public final class JsonUtil {
         Gson gson = new Gson();
 
         HttpGet get = new HttpGet(getUrl);
-        get.addHeader("accept", "application/json");
 
+        get.addHeader("accept", "application/json");
+        get.addHeader("X-Auth-Token", "pppppp");
         HttpResponse httpResponse = null;
 
         try {
@@ -256,7 +261,7 @@ public final class JsonUtil {
             e.printStackTrace();
         }
 
-        if (httpResponse.getStatusLine().getStatusCode() != 200) {
+        if (httpResponse.getStatusLine().getStatusCode() != 200 ) {
             throw new RuntimeException("Failed : HTTP error code : "
                     + httpResponse.getStatusLine().getStatusCode() + getUrl);
         }
@@ -289,7 +294,7 @@ public final class JsonUtil {
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
-
+        get.addHeader("X-Auth-Token", "pppppp");
         HttpResponse httpResponse = null;
 
         try {
@@ -331,7 +336,7 @@ public final class JsonUtil {
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
-
+        get.addHeader("X-Auth-Token", "pppppp");
         HttpResponse httpResponse = null;
 
         try {
@@ -373,7 +378,7 @@ public final class JsonUtil {
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
-
+        get.addHeader("X-Auth-Token", "pppppp");
         HttpResponse httpResponse = null;
 
         try {
