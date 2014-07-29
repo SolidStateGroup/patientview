@@ -220,9 +220,6 @@ public class UserServiceImpl implements UserService {
         }
 
         for (Identifier identifier : identifiers) {
-            if (identifier.getId() != null && identifier.getId() < 0) {
-                identifier.setId(null);
-            }
             Identifier newIdentifier = new Identifier();
             newIdentifier.setCreator(creator);
             newIdentifier.setUser(userRepository.findOne(user.getId()));

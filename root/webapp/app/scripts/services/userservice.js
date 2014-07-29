@@ -114,6 +114,9 @@ function ($q, Restangular, UtilService) {
             for (i=0;i<inputUser.identifiers.length;i++) {
                 var identifier = inputUser.identifiers[i];
                 identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+                if (identifier.id < 0) {
+                    delete identifier.id;
+                }
                 cleanIdentifiers.push(identifier);
             }
             user.identifiers = cleanIdentifiers;
@@ -153,6 +156,9 @@ function ($q, Restangular, UtilService) {
             for (i=0;i<inputUser.identifiers.length;i++) {
                 var identifier = inputUser.identifiers[i];
                 identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+                if (identifier.id < 0) {
+                    delete identifier.id;
+                }
                 cleanIdentifiers.push(identifier);
             }
 
