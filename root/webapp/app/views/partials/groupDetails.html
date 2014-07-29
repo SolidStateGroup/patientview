@@ -85,7 +85,7 @@
     </div>
     <div class="link-list-item" ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
-        <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointTypeId" ng-options="contactPointType.id as contactPointType.value for contactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointType.id" ng-options="contactPointType.id as contactPointType.value for contactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" ng-model="contactPoint.content" required></div>
         <div><button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
     </div>

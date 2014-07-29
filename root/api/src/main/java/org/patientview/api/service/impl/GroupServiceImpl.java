@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
@@ -202,7 +203,6 @@ public class GroupServiceImpl implements GroupService {
         }
 
         entityGroup.setGroupFeatures(Collections.EMPTY_SET);
-
         entityGroup.setSftpUser(group.getSftpUser());
         entityGroup.setName(group.getName());
         entityGroup.setCode(group.getCode());
@@ -213,6 +213,13 @@ public class GroupServiceImpl implements GroupService {
         entityGroup.setAddress3(group.getAddress3());
         entityGroup.setPostcode(group.getPostcode());
 
+        if (!CollectionUtils.isEmpty(group.getContactPoints())) {
+            for (ContactPoint contactPoint : group.getContactPoints()) {
+                contactPoint.setGroup(groupRepository.findOne(entityGroup.getId()));
+                contactPoint.setCreator(userRepository.findOne(1L));
+                entityGroup.getContactPoints().add(contactPoint);
+            }
+        }
 
         entityGroup = groupRepository.save(entityGroup);
         return addSingleParentAndChildGroup(entityGroup);
