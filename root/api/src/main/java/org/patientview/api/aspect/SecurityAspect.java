@@ -7,14 +7,17 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.Roles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -39,12 +42,6 @@ public class SecurityAspect {
     }
 
 
-
-    @Before("execution(public * *(..))")
-    public void publicMethod() {
-        LOG.info("Before");
-    }
-
     @Pointcut("@annotation(org.patientview.api.annotation.GroupMemberOnly)")
     public void securityGroupAnnotation() {}
 
@@ -52,17 +49,46 @@ public class SecurityAspect {
 
     @Before("securityGroupAnnotation()")
     public void checkGroupMembership(JoinPoint joinPoint) {
+
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            throw new SecurityException("The user must be authenticated");
+        }
+
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (user == null) {
             throw new SecurityException("The user must be authenticated");
         }
 
-        List<Group> groups = groupService.findGroupByUser(user);
+
 
         Roles[] roles = Util.getRoles(joinPoint);
 
+        // TODO - retrieve group id from method call
+        if (doesUserHaveRoles(roles, SecurityContextHolder.getContext().getAuthentication().getAuthorities())) {
+            List<Group> groups = groupService.findGroupByUser(user);
+            if (groups.contains(null)) {
+
+            }
+
+        }
+
+
         LOG.info("PointCut");
+    }
+
+    private boolean doesUserHaveRoles(Roles[] annotatedRoles,
+                                      Collection<? extends GrantedAuthority> grantedAuthorities) {
+        for (Roles roles : annotatedRoles) {
+            for (GrantedAuthority grantedAuthority : grantedAuthorities) {
+                Role role = (Role) grantedAuthority;
+                if (role.getName().equals(roles)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 
