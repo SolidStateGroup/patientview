@@ -23,8 +23,9 @@ import java.util.List;
  * http://stackoverflow.com/questions/3271659/use-enum-type-as-a-value-parameter-for-rolesallowed-annotation
  *
  */
-@Component
+
 @Aspect
+@Component
 public class SecurityAspect {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspect.class);
@@ -51,8 +52,6 @@ public class SecurityAspect {
         List<Group> groups = groupService.findGroupByUser(user);
 
         Roles[] roles = Util.getRoles(joinPoint);
-        
-
 
     }
 

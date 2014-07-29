@@ -22,8 +22,10 @@ import org.patientview.persistence.model.enums.Roles;
 import org.patientview.test.util.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,8 +35,10 @@ import java.util.Set;
 
 import static org.mockito.Mockito.when;
 
+@Configuration
 @ContextConfiguration(classes={TestServiceConfig.class})
-@WebAppConfiguration("src/main/java")
+@EnableAspectJAutoProxy
+@ComponentScan(value = "org.patientview.api.aspect")
 public class SecurityAspectTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspectTest.class);
@@ -42,7 +46,7 @@ public class SecurityAspectTest {
     private User creator;
 
     @Mock
-    JoinPoint joinPoint;
+    private JoinPoint joinPoint;
 
     @Mock
     private GroupService groupService;
@@ -57,8 +61,8 @@ public class SecurityAspectTest {
     @Mock
     private Signature signature;
 
-   // @InjectMocks
-   // private SecurityAspect securityAspect = new SecurityAspectImpl();
+    //@InjectMocks
+    //private SecurityAspect securityAspect = new SecurityAspect();
 
 
     @Before
@@ -77,7 +81,7 @@ public class SecurityAspectTest {
     @Test(expected = SecurityException.class)
    // @Ignore
     public void testGroupMemberOnly() throws Throwable {
-
+        LOG.info("Security Aspect Test");
         User testUser = TestUtils.createUser(1L, "testUser");
         groupService.findOne(testUser.getId());
 

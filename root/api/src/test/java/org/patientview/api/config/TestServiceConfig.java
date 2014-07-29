@@ -1,5 +1,6 @@
 package org.patientview.api.config;
 
+import org.patientview.api.aspect.SecurityAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -33,5 +34,9 @@ public class TestServiceConfig extends TestPersistenceConfig {
         return javaMailSender;
     }
 
+    @Bean
+    public SecurityAspect securityAspect() {
+        return new SecurityAspect();
+    }
 
 }
