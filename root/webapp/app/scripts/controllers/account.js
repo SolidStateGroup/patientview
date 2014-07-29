@@ -38,7 +38,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['UserService', 'Auth
         $scope.successMessage = null;
         $scope.passwordErrorMessage = null;
         if ($scope.userdetails.newPassword !== $scope.userdetails.confirmPassword) {
-            $scope.passwordErrorMessage = 'The passwords do not match';
+            $scope.passwordErrorMessage = '- The passwords do not match';
         } else {
 
             AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword}).then(function () {
