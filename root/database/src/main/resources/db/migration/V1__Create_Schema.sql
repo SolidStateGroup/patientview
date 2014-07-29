@@ -55,12 +55,30 @@ CREATE TABLE PV_Group
   Fhir_Resource_Id UUID,
   Visible          BOOLEAN,
   Visible_To_Join  BOOLEAN,
+  Address_1        TEXT,
+  Address_2        TEXT,
+  Address_3        TEXT,
+  Postcode         VARCHAR(255),
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
+
+CREATE TABLE PV_Contact_Point
+(
+  Id               BIGINT    NOT NULL,
+  User_Id          BIGINT    REFERENCES PV_User (Id),
+  Group_Id         BIGINT    REFERENCES PV_Group (Id),
+  Type_Id          BIGINT    REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Content          TEXT      NOT NULL,
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+)
 
 CREATE TABLE PV_Group_Relationship
 (
