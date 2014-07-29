@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.config.TestServiceConfig;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.Group;
@@ -25,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -36,9 +34,8 @@ import java.util.Set;
 import static org.mockito.Mockito.when;
 
 @Configuration
-@ContextConfiguration(classes={TestServiceConfig.class})
-@EnableAspectJAutoProxy
-@ComponentScan(value = "org.patientview.api.aspect")
+@EnableAspectJAutoProxy(proxyTargetClass = false)
+@ComponentScan(basePackages = {"org.patientview.api.aspect","org.patientview.api.service"})
 public class SecurityAspectTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspectTest.class);
@@ -61,8 +58,6 @@ public class SecurityAspectTest {
     @Mock
     private Signature signature;
 
-    //@InjectMocks
-    //private SecurityAspect securityAspect = new SecurityAspect();
 
 
     @Before
@@ -79,7 +74,6 @@ public class SecurityAspectTest {
      * @throws Throwable
      */
     @Test(expected = SecurityException.class)
-   // @Ignore
     public void testGroupMemberOnly() throws Throwable {
         LOG.info("Security Aspect Test");
         User testUser = TestUtils.createUser(1L, "testUser");

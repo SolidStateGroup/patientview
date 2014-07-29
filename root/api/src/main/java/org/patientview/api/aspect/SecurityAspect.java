@@ -3,6 +3,7 @@ package org.patientview.api.aspect;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
@@ -39,10 +40,18 @@ public class SecurityAspect {
 
 
 
-    @Before("@annotation(org.patientview.api.annotation.GroupMemberOnly)")
-    public void checkGroupMembership(final JoinPoint joinPoint) throws Throwable {
+    @Before("execution(public * *(..))")
+    public void publicMethod() {
+        LOG.info("Before");
+    }
+
+    @Pointcut("@annotation(org.patientview.api.annotation.GroupMemberOnly)")
+    public void securityGroupAnnotation() {}
 
 
+
+    @Before("securityGroupAnnotation()")
+    public void checkGroupMembership(JoinPoint joinPoint) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (user == null) {
@@ -53,7 +62,9 @@ public class SecurityAspect {
 
         Roles[] roles = Util.getRoles(joinPoint);
 
+        LOG.info("PointCut");
     }
+
 
 
 

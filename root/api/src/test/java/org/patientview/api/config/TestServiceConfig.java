@@ -1,6 +1,5 @@
 package org.patientview.api.config;
 
-import org.patientview.api.aspect.SecurityAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,7 @@ import java.util.Properties;
 @EnableWebMvc
 @EnableAspectJAutoProxy(proxyTargetClass=false)
 @ComponentScan(value={"org.patientview.api.aspect"})
-public class TestServiceConfig extends TestPersistenceConfig {
+public class TestServiceConfig extends org.patientview.test.persistence.config.TestPersistenceConfig{
 
     @Inject
     Properties properties;
@@ -32,11 +31,6 @@ public class TestServiceConfig extends TestPersistenceConfig {
         javaMailSender.setPassword(properties.getProperty("smtp.password"));
         javaMailSender.setJavaMailProperties(properties);
         return javaMailSender;
-    }
-
-    @Bean
-    public SecurityAspect securityAspect() {
-        return new SecurityAspect();
     }
 
 }

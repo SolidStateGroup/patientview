@@ -1,6 +1,5 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
@@ -12,7 +11,6 @@ import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
-import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
@@ -94,7 +92,6 @@ public class GroupServiceImpl implements GroupService {
 
     }
 
-    @GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
     public Group findOne(Long id) {
         return addSingleParentAndChildGroup(groupRepository.findOne(id));
     }
