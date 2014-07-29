@@ -31,6 +31,14 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             delete codeToPost.codeTypeId;
             delete codeToPost.standardTypeId;
 
+            // clean negative number IDs
+            for (var i=0;i<codeToPost.links.length;i++) {
+                var link = codeToPost.links[i];
+                if (link.id < 0) {
+                    delete link.id;
+                }
+            }
+
             Restangular.all('code').post(codeToPost).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {

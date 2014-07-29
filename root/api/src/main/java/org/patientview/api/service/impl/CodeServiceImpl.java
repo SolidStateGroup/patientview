@@ -9,11 +9,8 @@ import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Class to control the crud operations of Codes.
@@ -34,7 +31,7 @@ public class CodeServiceImpl implements CodeService {
     public List<Code> getAllCodes() { return Util.iterableToList(codeRepository.findAll()); }
 
     public Code createCode(final Code code) {
-        Code persistedCode = codeRepository.save(code);
+        /*Code persistedCode = codeRepository.save(code);
         Set<Link> links = code.getLinks();
 
         if (!CollectionUtils.isEmpty(links)) {
@@ -46,7 +43,9 @@ public class CodeServiceImpl implements CodeService {
             }
         }
 
-        return persistedCode;
+        return persistedCode;*/
+
+        return codeRepository.save(code);
     }
 
     public Code getCode(final Long codeId) {
@@ -57,7 +56,7 @@ public class CodeServiceImpl implements CodeService {
         return codeRepository.save(code);
     }
 
-    public Code cloneCode(Long codeId) {
+    public Code cloneCode(final Long codeId) {
         Code entityCode = codeRepository.findOne(codeId);
         Code newCode = (Code)SerializationUtils.clone(entityCode);
         newCode.setId(null);
@@ -68,7 +67,7 @@ public class CodeServiceImpl implements CodeService {
         codeRepository.delete(codeId);
     }
 
-    public Link addLink(Long codeId, Link link) {
+    public Link addLink(final Long codeId, final Link link) {
         Code entityCode = codeRepository.findOne(codeId);
         link.setCode(entityCode);
         link.setCreator(userRepository.findOne(1L));
