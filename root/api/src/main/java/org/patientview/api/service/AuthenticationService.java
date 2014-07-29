@@ -1,6 +1,5 @@
 package org.patientview.api.service;
 
-import org.apache.http.auth.AuthenticationException;
 import org.patientview.persistence.model.UserToken;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -16,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface AuthenticationService extends UserDetailsService {
 
-    UserToken authenticate(String username, String password) throws AuthenticationException, UsernameNotFoundException;
+    UserToken authenticate(String username, String password) throws AuthenticationServiceException, UsernameNotFoundException;
 
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
 
     UserToken getToken(String token);
 
-    void logout(String token) throws AuthenticationException;
+    void logout(String token) throws AuthenticationServiceException;
 }

@@ -1,7 +1,6 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.auth.AuthenticationException;
 import org.patientview.api.controller.model.Credentials;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.persistence.model.UserToken;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +46,7 @@ public class AuthController extends BaseController {
     public ResponseEntity<UserToken> authenticate(@RequestBody Credentials credentials,
                                                   UriComponentsBuilder uriComponentsBuilder,
                                                   HttpServletRequest request)
-            throws UsernameNotFoundException, AuthenticationException{
+            throws UsernameNotFoundException, AuthenticationServiceException {
 
         if (StringUtils.isEmpty(credentials.getUsername())) {
             LOG.debug("A username must be supplied");
@@ -65,12 +65,13 @@ public class AuthController extends BaseController {
 
     @RequestMapping(value = "/auth/logout/{token}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteToken(@PathVariable("token") String token) throws AuthenticationException{
+    public ResponseEntity<Void> deleteToken(@PathVariable("token") String token)
+            throws AuthenticationServiceException {
         authenticationService.logout(token);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
+    @ExceptionHandler(AuthenticationServiceException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     public String handleAuthenticationException(Exception e) {

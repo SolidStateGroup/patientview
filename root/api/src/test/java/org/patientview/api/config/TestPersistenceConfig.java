@@ -23,7 +23,7 @@ import java.util.Properties;
  * Created on 17/06/2014
  */
 @Configuration
-@EnableJpaRepositories(basePackages = {"org.patientview.persistence.repository","org.patientview.api.service"})
+@EnableJpaRepositories(basePackages = {"org.patientview.persistence.repository"})
 @ComponentScan(basePackageClasses = DataTestUtils.class)
 @EnableTransactionManagement
 public class TestPersistenceConfig {
