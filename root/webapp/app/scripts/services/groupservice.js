@@ -100,6 +100,20 @@ function ($q, Restangular, UtilService) {
             group.parentGroups = cleanParentGroups;
             group.groupType = groupType;
 
+            // clean negative number IDs
+            for (i=0;i<group.links.length;i++) {
+                var link = group.links[i];
+                if (link.id < 0) {
+                    delete link.id;
+                }
+            }
+            for (i=0;i<group.locations.length;i++) {
+                var location = group.locations[i];
+                if (location.id < 0) {
+                    delete location.id;
+                }
+            }
+
             // PUT /group
             Restangular.all('group').customPUT(group).then(function(successResult) {
                 deferred.resolve(successResult);
@@ -152,6 +166,20 @@ function ($q, Restangular, UtilService) {
             group.childGroups = cleanChildGroups;
             group.parentGroups = cleanParentGroups;
             group.groupType = groupType;
+
+            // clean negative number IDs
+            for (i=0;i<group.links.length;i++) {
+                var link = group.links[i];
+                if (link.id < 0) {
+                    delete link.id;
+                }
+            }
+            for (i=0;i<group.locations.length;i++) {
+                var location = group.locations[i];
+                if (location.id < 0) {
+                    delete location.id;
+                }
+            }
 
             Restangular.all('group').post(group).then(function(successResult) {
                 deferred.resolve(successResult);
