@@ -56,7 +56,6 @@ function ($q, Restangular, UtilService) {
             // POST /user/{userId}/resetPassword
             Restangular.one('user', user.id).post('resetPassword', {'password':newPasword}).then(function(successResult) {
                 deferred.resolve(successResult);
-                successResult.password = generatedPassword;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
