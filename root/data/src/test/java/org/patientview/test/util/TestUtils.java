@@ -3,6 +3,7 @@ package org.patientview.test.util;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
@@ -94,6 +95,17 @@ public final class TestUtils {
         groupRole.setRole(role);
         groupRole.setCreator(creator);
         return groupRole;
+    }
+
+    public static GroupFeature createGroupFeature(Long id, Feature feature, Group group, User creator) {
+        GroupFeature groupFeature = new GroupFeature();
+        groupFeature.setId(id);
+        groupFeature.setCreated(new Date());
+        groupFeature.setFeature(feature);
+        groupFeature.setGroup(group);
+        groupFeature.setCreator(creator);
+        return groupFeature;
+
     }
 
     public static UserFeature createUserFeature(Long id, Feature feature, User user, User creator) {
