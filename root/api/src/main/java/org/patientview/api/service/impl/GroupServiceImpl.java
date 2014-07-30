@@ -424,5 +424,12 @@ public class GroupServiceImpl implements GroupService {
 
     }
 
+    public Link addLink(final Long groupId, final Link link) {
+        Group entityGroup = groupRepository.findOne(groupId);
+        link.setGroup(entityGroup);
+        link.setCreator(userRepository.findOne(1L));
+        Link persistedLink = linkRepository.save(link);
+        return persistedLink;
+    }
 
 }

@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.Roles;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,5 +37,7 @@ public interface GroupService {
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId);
 
     void addParentGroup(Long groupId, Long parentGroupId);
+
+    Link addLink(Long groupId, Link link);
 
 }

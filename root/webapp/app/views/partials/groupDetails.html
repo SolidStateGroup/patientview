@@ -111,7 +111,12 @@
                     <option ng-repeat="link in editGroup.links">{{$index + 1}}</option>
                 </select>
             </div>
-            <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>
+            <div class="btn-group">
+                <button type="button" class="btn blue link-update-button" ng-click="updateLink($event, groupForm, editGroup, link)">Update</button>
+                <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)">Delete</button>
+            </div>
+            <span class="saved-notification" ng-show="link.saved">&nbsp; Updated Link</span>
+            <!--<button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>-->
         </div>
         <div class="add-form" ng-model="newLink">
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" ng-model="newLink.link"></div>

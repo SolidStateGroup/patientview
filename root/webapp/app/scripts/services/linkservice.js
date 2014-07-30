@@ -22,9 +22,7 @@ angular.module('patientviewApp').factory('LinkService', ['$q', 'Restangular', 'U
         },
         // save link
         save: function (link) {
-
             link = UtilService.cleanObject(link, 'link');
-
             var deferred = $q.defer();
             Restangular.all('link').customPUT(link).then(function(successResult) {
                 deferred.resolve(successResult);

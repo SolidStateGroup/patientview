@@ -4,6 +4,7 @@ import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,5 +123,21 @@ public class GroupController extends BaseController {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/group/{groupId}/links", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Link> addLink(@PathVariable("groupId") Long groupId, @RequestBody Link link
+            , UriComponentsBuilder uriComponentsBuilder) {
 
+        // create new link
+        Link newLink = groupService.addLink(groupId, link);
+        LOG.info("Created new Link with id " + newLink.getId() + " and added to Code with id " + groupId);
+
+        // set header with location
+        UriComponents uriComponents = uriComponentsBuilder.path("/link/{linkId}").buildAndExpand(newLink.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<Link>(newLink, HttpStatus.CREATED);
+    }
 }

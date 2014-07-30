@@ -213,6 +213,17 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Add new link to group
+        addLink: function (group, link) {
+            var deferred = $q.defer();
+            // POST /group/{groupId}/links
+            Restangular.one('group', group.id).all('links').post(link).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

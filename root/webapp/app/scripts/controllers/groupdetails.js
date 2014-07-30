@@ -1,21 +1,68 @@
 'use strict';
 
-angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', function ($scope) {
+angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', 'GroupService', 'LinkService',
+function ($scope, GroupService, LinkService) {
+
     $scope.addLink = function (form, group, link) {
-        link.id = Math.floor(Math.random() * (9999)) -10000;
         link.displayOrder = group.links.length +1;
-        group.links.push(_.clone(link));
-        link.link = link.name = '';
-        form.$setDirty(true);
+
+        // only do POST if in edit mode, otherwise just add to object
+        if ($scope.editMode) {
+            GroupService.addLink(group, link).then(function (successResult) {
+                // added link
+                link.id = successResult.id;
+                group.links.push(_.clone(link));
+                link.link = link.name = '';
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error saving link');
+            });
+        } else {
+            link.id = Math.floor(Math.random() * (9999)) -10000;
+            group.links.push(_.clone(link));
+            link.link = link.name = '';
+            form.$setDirty(true);
+        }
+    };
+
+    $scope.updateLink = function (event, form, group, link) {
+        link.saved = false;
+
+        // try and save link
+        LinkService.save(link).then(function () {
+            // saved link
+            link.saved = true;
+            form.$setDirty(true);
+        }, function() {
+            // failure
+            alert('Error saving link');
+        });
     };
 
     $scope.removeLink = function (form, group, link) {
-        for (var j = 0; j < group.links.length; j++) {
-            if (group.links[j].id === link.id) {
-                group.links.splice(j, 1);
+        // only do DELETE if in edit mode, otherwise just remove from object
+        if ($scope.editMode) {
+            LinkService.delete(link).then(function () {
+                // deleted link
+                for (var j = 0; j < group.links.length; j++) {
+                    if (group.links[j].id === link.id) {
+                        group.links.splice(j, 1);
+                    }
+                }
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error deleting link');
+            });
+        } else {
+            for (var j = 0; j < group.links.length; j++) {
+                if (group.links[j].id === link.id) {
+                    group.links.splice(j, 1);
+                }
             }
+            form.$setDirty(true);
         }
-        form.$setDirty(true);
     };
 
     $scope.addLocation = function (form, group, location) {
