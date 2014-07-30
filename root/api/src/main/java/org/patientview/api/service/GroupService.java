@@ -43,4 +43,8 @@ public interface GroupService {
 
     Location addLocation(Long groupId, Location location);
 
+    void addFeature(Long groupId, Long featureId);
+
+    void deleteFeature(Long groupId, Long featureId);
+
 }

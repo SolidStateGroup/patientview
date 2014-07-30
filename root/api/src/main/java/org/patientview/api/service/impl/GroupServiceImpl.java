@@ -440,4 +440,17 @@ public class GroupServiceImpl implements GroupService {
         return persistedLocation;
     }
 
+    public void addFeature(Long groupId, Long featureId) {
+        GroupFeature groupFeature = new GroupFeature();
+        groupFeature.setFeature(featureRepository.findOne(featureId));
+        groupFeature.setGroup(groupRepository.findOne(groupId));
+        groupFeature.setCreator(userRepository.findOne(1L));
+        groupFeatureRepository.save(groupFeature);
+    }
+
+    public void deleteFeature(Long groupId, Long featureId) {
+        groupFeatureRepository.delete(groupFeatureRepository.findByGroupAndFeature(
+                groupRepository.findOne(groupId), featureRepository.findOne(featureId)));
+    }
+
 }

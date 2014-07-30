@@ -235,6 +235,28 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Add new feature to group
+        addFeature: function (group, featureId) {
+            var deferred = $q.defer();
+            // PUT /group/{groupId}/features/{featureId}
+            Restangular.one('group', group.id).one('features',featureId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete feature from group
+        deleteFeature: function (group, feature) {
+            var deferred = $q.defer();
+            // DELETE /group/{groupId}/features/{featureId}
+            Restangular.one('group', group.id).one('features',feature.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

@@ -159,4 +159,20 @@ public class GroupController extends BaseController {
 
         return new ResponseEntity<Location>(newLocation, HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addFeature(@PathVariable("groupId") Long groupId,
+                                               @PathVariable("featureId") Long featureId) {
+        groupService.addFeature(groupId, featureId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteFeature(@PathVariable("groupId") Long groupId,
+                                               @PathVariable("featureId") Long featureId) {
+        groupService.deleteFeature(groupId, featureId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
 }

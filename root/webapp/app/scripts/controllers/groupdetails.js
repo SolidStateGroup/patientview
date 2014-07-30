@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', 'GroupService', 'LinkService', 'LocationService',
-function ($scope, GroupService, LinkService, LocationService) {
+angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', 'GroupService', 'LinkService', 'LocationService', 'FeatureService',
+function ($scope, GroupService, LinkService, LocationService, FeatureService) {
 
     $scope.addLink = function (form, group, link) {
         link.displayOrder = group.links.length +1;
@@ -124,51 +124,92 @@ function ($scope, GroupService, LinkService, LocationService) {
             form.$setDirty(true);
         }
     };
-    
-    
 
-    /*$scope.addLocation = function (form, group, location) {
-        location.id = Math.floor(Math.random() * (9999)) -10000;
-        group.locations.push(_.clone(location));
-        location.label = location.name = location.phone = location.address = location.web = location.email = '';
-        form.$setDirty(true);
-    };
-
-    $scope.removeLocation = function (form, group, location) {
-        for (var j = 0; j < group.locations.length; j++) {
-            if (group.locations[j].id === location.id) {
-                group.locations.splice(j, 1);
-            }
-        }
-        form.$setDirty(true);
-    };*/
-
-    // add feature to current features, remove from allowed
     $scope.addFeature = function (form, group, featureId) {
-        for (var j = 0; j < group.availableFeatures.length; j++) {
-            if (group.availableFeatures[j].feature.id === featureId) {
-                group.groupFeatures.push(group.availableFeatures[j]);
-                group.availableFeatures.splice(j, 1);
+        // only do POST if in edit mode, otherwise just add to object
+        if ($scope.editMode) {
+            GroupService.addFeature(group, featureId).then(function (successResult) {
+                // added feature
+                for (var j = 0; j < group.availableFeatures.length; j++) {
+                    if (group.availableFeatures[j].feature.id === featureId) {
+                        group.groupFeatures.push(group.availableFeatures[j]);
+                        group.availableFeatures.splice(j, 1);
+                    }
+                }
+
+                // update accordion header with data from GET
+                GroupService.get(group.id).then(function (successResult) {
+                    for(var i=0;i<$scope.list.length;i++) {
+                        if($scope.list[i].id == group.id) {
+                            var headerDetails = $scope.list[i];
+                            headerDetails.groupFeatures = successResult.groupFeatures;
+                        }
+                    }
+                }, function () {
+                    // failure
+                    alert('Error updating header (saved successfully)');
+                });
+
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error saving feature');
+            });
+        } else {
+            for (var j = 0; j < group.availableFeatures.length; j++) {
+                if (group.availableFeatures[j].feature.id === featureId) {
+                    group.groupFeatures.push(group.availableFeatures[j]);
+                    group.availableFeatures.splice(j, 1);
+                }
             }
+            form.$setDirty(true);
         }
-        form.$setDirty(true);
     };
 
-    // remove feature from current features, add to allowed features
     $scope.removeFeature = function (form, group, feature) {
-        for (var j = 0; j < group.groupFeatures.length; j++) {
-            if (group.groupFeatures[j].feature.id === feature.feature.id) {
-                group.availableFeatures.push(group.groupFeatures[j]);
-                group.groupFeatures.splice(j, 1);
+        // only do DELETE if in edit mode, otherwise just remove from object
+        if ($scope.editMode) {
+            GroupService.deleteFeature(group, feature.feature).then(function () {
+                // deleted feature
+                for (var j = 0; j < group.groupFeatures.length; j++) {
+                    if (group.groupFeatures[j].feature.id === feature.feature.id) {
+                        group.availableFeatures.push(group.groupFeatures[j]);
+                        group.groupFeatures.splice(j, 1);
+                    }
+                }
+
+                // update accordion header with data from GET
+                GroupService.get(group.id).then(function (successResult) {
+                    for(var i=0;i<$scope.list.length;i++) {
+                        if($scope.list[i].id == group.id) {
+                            var headerDetails = $scope.list[i];
+                            headerDetails.groupFeatures = successResult.groupFeatures;
+                        }
+                    }
+                }, function () {
+                    // failure
+                    alert('Error updating header (saved successfully)');
+                });
+
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error deleting feature');
+            });
+        } else {
+            for (var j = 0; j < group.groupFeatures.length; j++) {
+                if (group.groupFeatures[j].feature.id === feature.feature.id) {
+                    group.availableFeatures.push(group.groupFeatures[j]);
+                    group.groupFeatures.splice(j, 1);
+                }
             }
+
+            form.$setDirty(true);
         }
-        form.$setDirty(true);
     };
 
     // add parent group to group, remove from available
     $scope.addParentGroup = function (form, group, parentGroupId) {
-
-        //var currentGroup = {};
 
         // set parent group for current group
         for (var j = 0; j < group.availableParentGroups.length; j++) {
@@ -178,14 +219,6 @@ function ($scope, GroupService, LinkService, LocationService) {
                 group.availableParentGroups.splice(j, 1);
             }
         }
-
-        // add corresponding child group (this group) for the new parent
-        /*for (var k = 0; k < $scope.allGroups; k++) {
-            var group = $scope.allGroups[k];
-            if (group.id === parentGroupId) {
-                group.childGroups.push(currentGroup);
-            }
-        }*/
 
         form.$setDirty(true);
     };
