@@ -117,5 +117,22 @@ angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', funct
         }
         form.$setDirty(true);
     };
+
+    $scope.addContactPoint = function (form, group, contactPoint) {
+        contactPoint.id = (new Date).getTime() * -1;
+        contactPoint.contactPointType = _.findWhere($scope.contactPointTypes, {id: contactPoint.contactPointTypeId});
+        group.contactPoints.push(_.clone(contactPoint));
+        contactPoint.content = '';
+        form.$setDirty(true);
+    };
+
+    $scope.removeContactPoint = function (form, group, contactPoint) {
+        for (var j = 0; j < group.contactPoints.length; j++) {
+            if (group.contactPoints[j].id === contactPoint.id) {
+                group.contactPoints.splice(j, 1);
+            }
+        }
+        form.$setDirty(true);
+    };
     
 }]);
