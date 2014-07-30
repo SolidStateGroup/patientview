@@ -26,7 +26,7 @@ import javax.inject.Inject;
 @RestController
 public class LocationController {
 
-    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(LocationController.class);
 
     @Inject
     private LocationService locationService;
