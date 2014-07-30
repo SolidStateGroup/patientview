@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.Link;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,4 +25,6 @@ public interface CodeService {
     void deleteCode(Long codeId);
 
     Code cloneCode(Long codeId);
+
+    Link addLink(Long codeId, Link link);
 }

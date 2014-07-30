@@ -3,6 +3,7 @@ package org.patientview.api.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.patientview.api.aspect.SecurityAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -62,6 +63,11 @@ public class ApiConfig {
         javaMailSender.setJavaMailProperties(javaMailProperties);
 
         return javaMailSender;
+    }
+
+    @Bean
+    public SecurityAspect securityAspect() {
+        return new SecurityAspect();
     }
 }
 

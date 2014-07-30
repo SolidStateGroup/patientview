@@ -59,6 +59,9 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<Location> locations;
 
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<ContactPoint> contactPoints;
+
     @Transient
     private Set<Group> parentGroups;
 
@@ -139,6 +142,14 @@ public class Group extends AuditModel {
 
     public void setLocations(Set<Location> locations) {
         this.locations = locations;
+    }
+
+    public Set<ContactPoint> getContactPoints() {
+        return contactPoints;
+    }
+
+    public void setContactPoints(Set<ContactPoint> contactPoints) {
+        this.contactPoints = contactPoints;
     }
 
     @JsonIgnore

@@ -16,8 +16,13 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.Roles;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -206,5 +211,14 @@ public final class TestUtils {
         }
         return list;
 
+    }
+
+    public static void authenticateTest(User user, Collection<Role> roles) {
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        for (Role role : roles) {
+            authorities.add(role);
+        }
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

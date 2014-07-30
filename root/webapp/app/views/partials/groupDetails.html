@@ -24,38 +24,6 @@
         </div>
     </div>
 </div>
-        
-<div class="row">
-    <hr />
-    <div class="links-container">
-        <div class="col-md-12">
-            <label>Links </label>
-            <div ng-hide="editGroup.links.length > 0" class="no-items"> There are currently no links associated with this group</div>
-        </div>
-        <div class="link-list-item" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
-            <div class="col-md-3"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="link" name="link" ng-model="link.link" required></div>
-            <div class="col-md-3"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="name" name="name" ng-model="link.name" required></div>
-            <div class="col-md-3">
-                <select id="group-link-displayOrder-{{link.id}}" class="form-control" ng-model="link.displayOrder">
-                    <option ng-repeat="link in editGroup.links">{{$index + 1}}</option>
-                </select>
-            </div>
-            <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>
-        </div>
-        <div class="add-form" ng-model="newLink">
-            <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="link" name="newLink" ng-model="newLink.link"></div>
-            <div class="col-md-2"><input type="text" class="form-control" id="group-newLink-name" placeholder="name" name="newLink" ng-model="newLink.name"></div>
-            <div class="col-md-2 hidden">
-                <select id="group-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
-                    <option ng-show="newLink.displayOrder" ng-repeat="link in editGroup.links">{{$index + 1}}</option>
-                    <option >{{editGroup.links.length + 1}}</option>
-                </select>
-            </div>
-            <button type="button" class="btn blue link-add-button" ng-click="addLink(groupForm, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
-        </div>
-    </div>
-</div>
-
 <div class="row">
     <hr />
     <div class="col-md-12">
@@ -82,6 +50,37 @@
         <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupForm, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
     </div>
 </div>
+        
+<div class="row">
+    <hr />
+    <div class="links-container">
+        <div class="col-md-12">
+            <label>Links </label>
+            <div ng-hide="editGroup.links.length > 0" class="no-items"> There are currently no links associated with this group</div>
+        </div>
+        <div class="link-list-item" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
+            <div class="col-md-3"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="URL" name="link" ng-model="link.link" required></div>
+            <div class="col-md-3"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="Description" name="name" ng-model="link.name" required></div>
+            <div class="col-md-3">
+                <select id="group-link-displayOrder-{{link.id}}" class="form-control" ng-model="link.displayOrder">
+                    <option ng-repeat="link in editGroup.links">{{$index + 1}}</option>
+                </select>
+            </div>
+            <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>
+        </div>
+        <div class="add-form" ng-model="newLink">
+            <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" ng-model="newLink.link"></div>
+            <div class="col-md-2"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" ng-model="newLink.name"></div>
+            <div class="col-md-2 hidden">
+                <select id="group-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
+                    <option ng-show="newLink.displayOrder" ng-repeat="link in editGroup.links">{{$index + 1}}</option>
+                    <option >{{editGroup.links.length + 1}}</option>
+                </select>
+            </div>
+            <button type="button" class="btn blue link-add-button" ng-click="addLink(groupForm, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <hr />
@@ -106,10 +105,10 @@
     </div>
 </div>
 
-
 <div class="row form-edit-row">
+    <hr/>
     <!-- TODO: hardcoded, only show parents if UNIT or DISEASE_GROUP -->
-    <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT']">
+    <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT'] || editGroup.groupTypeId==groupTypesArray['DISEASE_GROUP']">
         <label>Parent Groups</label>
         <div ng-hide="editGroup.parentGroups.length > 0" class="no-items">No parent groups</div>
 

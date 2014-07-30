@@ -1,7 +1,6 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.auth.AuthenticationException;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Role;
@@ -51,7 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
-            AuthenticationException {
+            AuthenticationServiceException {
 
         LOG.debug("Trying to authenticate user: {}", username);
 
@@ -62,7 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
-            throw new AuthenticationException("Invalid credentials");
+            throw new AuthenticationServiceException("Invalid credentials");
         }
 
         UserToken userToken = new UserToken();
@@ -106,11 +105,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return userRepository.findByUsername(username);
     }
 
-    public void logout(String token) throws AuthenticationException {
+    public void logout(String token) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
         if (userToken == null) {
-            throw new AuthenticationException("User is not currently logged in");
+            throw new AuthenticationServiceException("User is not currently logged in");
         }
 
         userTokenRepository.delete(userToken.getId());
