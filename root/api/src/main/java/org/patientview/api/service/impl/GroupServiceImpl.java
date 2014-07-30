@@ -412,10 +412,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     public void addParentGroup(Long groupId, Long parentGroupId) {
-
         Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
         Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
-
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(parentGroupId);
 
@@ -424,15 +422,33 @@ public class GroupServiceImpl implements GroupService {
     }
 
     public void deleteParentGroup(Long groupId, Long parentGroupId) {
-
         Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
         Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
-
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(parentGroupId);
 
         deleteRelationship(sourceGroup, objectGroup, parentRelationshipType);
         deleteRelationship(objectGroup, sourceGroup, childRelationshipType);
+    }
+
+    public void addChildGroup(Long groupId, Long childGroupId) {
+        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
+        Group sourceGroup = groupRepository.findOne(groupId);
+        Group objectGroup = groupRepository.findOne(childGroupId);
+
+        createRelationship(sourceGroup, objectGroup, childRelationshipType);
+        createRelationship(objectGroup, sourceGroup, parentRelationshipType);
+    }
+
+    public void deleteChildGroup(Long groupId, Long childGroupId) {
+        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
+        Group sourceGroup = groupRepository.findOne(groupId);
+        Group objectGroup = groupRepository.findOne(childGroupId);
+
+        deleteRelationship(sourceGroup, objectGroup, childRelationshipType);
+        deleteRelationship(objectGroup, sourceGroup, parentRelationshipType);
     }
 
     public Link addLink(final Long groupId, final Link link) {

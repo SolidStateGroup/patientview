@@ -132,6 +132,22 @@ public class GroupController extends BaseController {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addChildGroup(@PathVariable("groupId") Long groupId,
+                                                      @PathVariable("childId") Long childGroupId) {
+        groupService.addChildGroup(groupId,childGroupId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteChildGroup(@PathVariable("groupId") Long groupId,
+                                                  @PathVariable("childId") Long childGroupId) {
+        groupService.deleteChildGroup(groupId, childGroupId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/group/{groupId}/links", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

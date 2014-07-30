@@ -223,7 +223,7 @@ function ($scope, GroupService, LinkService, LocationService, FeatureService) {
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
                     for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == group.id) {
+                        if($scope.list[i].id == successResult.id) {
                             var headerDetails = $scope.list[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
@@ -264,7 +264,7 @@ function ($scope, GroupService, LinkService, LocationService, FeatureService) {
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
                     for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == group.id) {
+                        if($scope.list[i].id == successResult.id) {
                             var headerDetails = $scope.list[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
@@ -291,7 +291,91 @@ function ($scope, GroupService, LinkService, LocationService, FeatureService) {
         }
     };
 
-    // add child group to group, remove from available
+    $scope.addChildGroup = function (form, group, childGroupId) {
+        // only do POST if in edit mode, otherwise just add to object
+        if ($scope.editMode) {
+            GroupService.addChildGroup(group, childGroupId).then(function (successResult) {
+                // added childGroup
+                for (var j = 0; j < group.availableChildGroups.length; j++) {
+                    if (group.availableChildGroups[j].id === childGroupId) {
+                        group.childGroups.push(group.availableChildGroups[j]);
+                        group.availableChildGroups.splice(j, 1);
+                    }
+                }
+
+                // update accordion header for child group with data from GET
+                GroupService.get(childGroupId).then(function (successResult) {
+                    for(var i=0;i<$scope.list.length;i++) {
+                        if($scope.list[i].id == successResult.id) {
+                            var headerDetails = $scope.list[i];
+                            headerDetails.parentGroups = successResult.parentGroups;
+                        }
+                    }
+                }, function () {
+                    // failure
+                    alert('Error updating header (saved successfully)');
+                });
+
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error saving childGroup');
+            });
+        } else {
+            for (var j = 0; j < group.availableChildGroups.length; j++) {
+                if (group.availableChildGroups[j].id === childGroupId) {
+                    group.childGroups.push(group.availableChildGroups[j]);
+                    group.availableChildGroups.splice(j, 1);
+                }
+            }
+            form.$setDirty(true);
+        }
+    };
+
+    $scope.removeChildGroup = function (form, group, childGroup) {
+        // only do DELETE if in edit mode, otherwise just remove from object
+        if ($scope.editMode) {
+            GroupService.deleteChildGroup(group, childGroup).then(function () {
+                // deleted childGroup
+                for (var j = 0; j < group.childGroups.length; j++) {
+                    if (group.childGroups[j].id === childGroup.id) {
+                        group.availableChildGroups.push(group.childGroups[j]);
+                        group.childGroups.splice(j, 1);
+                    }
+                }
+
+                // update accordion header with data from GET
+                GroupService.get(childGroup.id).then(function (successResult) {
+                    for(var i=0;i<$scope.list.length;i++) {
+                        if($scope.list[i].id == successResult.id) {
+                            var headerDetails = $scope.list[i];
+                            headerDetails.parentGroups = successResult.parentGroups;
+                        }
+                    }
+                }, function () {
+                    // failure
+                    alert('Error updating header (saved successfully)');
+                });
+
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error deleting childGroup');
+            });
+        } else {
+            for (var j = 0; j < group.childGroups.length; j++) {
+                if (group.childGroups[j].id === childGroup.id) {
+                    group.availableChildGroups.push(group.childGroups[j]);
+                    group.childGroups.splice(j, 1);
+                }
+            }
+
+            form.$setDirty(true);
+        }
+    };
+    
+
+    /*// add child group to group, remove from available
     $scope.addChildGroup = function (form, group, childGroupId) {
 
         // set child group for current group
@@ -315,7 +399,7 @@ function ($scope, GroupService, LinkService, LocationService, FeatureService) {
             }
         }
         form.$setDirty(true);
-    };
+    };*/
 
     $scope.addContactPoint = function (form, group, contactPoint) {
         contactPoint.id = (new Date).getTime() * -1;

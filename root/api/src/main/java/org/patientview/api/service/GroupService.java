@@ -41,6 +41,10 @@ public interface GroupService {
 
     void deleteParentGroup(Long groupId, Long parentGroupId);
 
+    void addChildGroup(Long groupId, Long childGroupId);
+
+    void deleteChildGroup(Long groupId, Long childGroupId);
+
     Link addLink(Long groupId, Link link);
 
     Location addLocation(Long groupId, Location location);
