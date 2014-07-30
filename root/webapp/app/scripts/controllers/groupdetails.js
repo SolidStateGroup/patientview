@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', 'GroupService', 'LinkService', 'LocationService', 'FeatureService',
-function ($scope, GroupService, LinkService, LocationService, FeatureService) {
+angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', 'GroupService', 'LinkService', 'LocationService', 'ContactPointService',
+function ($scope, GroupService, LinkService, LocationService, ContactPointService) {
 
     $scope.addLink = function (form, group, link) {
         link.displayOrder = group.links.length +1;
@@ -375,20 +375,67 @@ function ($scope, GroupService, LinkService, LocationService, FeatureService) {
     };
 
     $scope.addContactPoint = function (form, group, contactPoint) {
-        contactPoint.id = (new Date).getTime() * -1;
-        contactPoint.contactPointType = _.findWhere($scope.contactPointTypes, {id: contactPoint.contactPointTypeId});
-        group.contactPoints.push(_.clone(contactPoint));
-        contactPoint.content = '';
-        form.$setDirty(true);
+
+        // only do POST if in edit mode, otherwise just add to object
+        if ($scope.editMode) {
+
+            contactPoint.contactPointType = _.findWhere($scope.contactPointTypes, {id: contactPoint.contactPointTypeId});
+
+            GroupService.addContactPoint(group, contactPoint).then(function (successResult) {
+                // added contactPoint
+                group.contactPoints.push(_.clone(contactPoint));
+                contactPoint.content = '';
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error saving contactPoint');
+            });
+        } else {
+            contactPoint.id = (new Date).getTime() * -1;
+            contactPoint.contactPointType = _.findWhere($scope.contactPointTypes, {id: contactPoint.contactPointTypeId});
+            group.contactPoints.push(_.clone(contactPoint));
+            contactPoint.content = '';
+            form.$setDirty(true);
+        }
+    };
+
+    $scope.updateContactPoint = function (event, form, group, contactPoint) {
+        contactPoint.saved = false;
+        contactPoint.contactPointType = _.findWhere($scope.contactPointTypes, {id: contactPoint.contactPointType.id});
+
+        // try and save contactPoint
+        ContactPointService.save(contactPoint).then(function () {
+            // saved contactPoint
+            contactPoint.saved = true;
+            form.$setDirty(true);
+        }, function() {
+            // failure
+            alert('Error saving contactPoint');
+        });
     };
 
     $scope.removeContactPoint = function (form, group, contactPoint) {
-        for (var j = 0; j < group.contactPoints.length; j++) {
-            if (group.contactPoints[j].id === contactPoint.id) {
-                group.contactPoints.splice(j, 1);
+        // only do DELETE if in edit mode, otherwise just remove from object
+        if ($scope.editMode) {
+            ContactPointService.delete(contactPoint).then(function () {
+                // deleted contactPoint
+                for (var j = 0; j < group.contactPoints.length; j++) {
+                    if (group.contactPoints[j].id === contactPoint.id) {
+                        group.contactPoints.splice(j, 1);
+                    }
+                }
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error deleting contactPoint');
+            });
+        } else {
+            for (var j = 0; j < group.contactPoints.length; j++) {
+                if (group.contactPoints[j].id === contactPoint.id) {
+                    group.contactPoints.splice(j, 1);
+                }
             }
+            form.$setDirty(true);
         }
-        form.$setDirty(true);
     };
-    
 }]);

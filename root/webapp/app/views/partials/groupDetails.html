@@ -95,7 +95,12 @@
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
         <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointType.id" ng-options="contactPointType.id as contactPointType.value for contactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" ng-model="contactPoint.content" required></div>
-        <div><button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+        <!--<div><button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>-->
+        <div class="btn-group">
+            <button type="button" class="btn blue contactPoint-update-button" ng-click="updateContactPoint($event, groupForm, editGroup, contactPoint)">Update</button>
+            <button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)">Delete</button>
+        </div>
+        <span class="saved-notification" ng-show="contactPoint.saved">&nbsp; Updated Contact Point</span>
     </div>
     <div class="add-form" ng-model="newContactPoint">
         <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" ng-model="newContactPoint.contactPointTypeId" ng-options="newContactPointType.id as newContactPointType.value for newContactPointType in contactPointTypes"></select></div>
@@ -156,7 +161,7 @@
         <div class="feature-add-container item-add-container" ng-show="editGroup.availableFeatures.length > 0 && permissions.canEditFeatures">
             <div class="custom-select">
                 <select class="form-control feature-select group-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editGroup.availableFeatures"></select>
-                <span class="caret-container"><span class="caret"></span></span>
+                <!--<span class="caret-container"><span class="caret"></span></span>-->
             </div>
             <button type="button" class="btn blue feature-add-button pull-left" ng-click="addFeature(groupForm, editGroup, featureToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
         </div>
@@ -181,7 +186,7 @@
         <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableParentGroups.length > 0 && permissions.canEditParentGroups">
             <div class="custom-select">
                 <select class="form-control parent-group-select group-select" ng-model="parentGroupToAdd" ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select>
-                <span class="caret-container"><span class="caret"></span></span>
+                <!--<span class="caret-container"><span class="caret"></span></span>-->
             </div>
             <button type="button" class="btn blue parent-group-add-button pull-left" ng-click="addParentGroup(groupForm, editGroup, parentGroupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
         </div>
@@ -198,7 +203,7 @@
         <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableChildGroups.length > 0 && permissions.canEditChildGroups">
             <div class="custom-select">
                 <select class="form-control child-group-select group-select" ng-model="childGroupToAdd" ng-options="childGroup.id as childGroup.name for childGroup in editGroup.availableChildGroups"></select>
-                <span class="caret-container"><span class="caret"></span></span>
+                <!--<span class="caret-container"><span class="caret"></span></span>-->
             </div>
             <button type="button" class="btn blue child-group-add-button pull-left" ng-click="addChildGroup(groupForm, editGroup, childGroupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
         </div>

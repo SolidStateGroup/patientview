@@ -377,19 +377,22 @@ public class GroupServiceImpl implements GroupService {
     }
 
     public Link addLink(final Long groupId, final Link link) {
-        Group entityGroup = groupRepository.findOne(groupId);
-        link.setGroup(entityGroup);
+        link.setGroup(groupRepository.findOne(groupId));
         link.setCreator(userRepository.findOne(1L));
-        Link persistedLink = linkRepository.save(link);
-        return persistedLink;
+        return linkRepository.save(link);
+    }
+
+    public ContactPoint addContactPoint(final Long groupId, final ContactPoint contactPoint) {
+        contactPoint.setGroup(groupRepository.findOne(groupId));
+        contactPoint.setCreator(userRepository.findOne(1L));
+        contactPoint.setContactPointType(entityManager.find(ContactPointType.class, contactPoint.getContactPointType().getId()));
+        return contactPointRepository.save(contactPoint);
     }
 
     public Location addLocation(final Long groupId, final Location location) {
-        Group entityGroup = groupRepository.findOne(groupId);
-        location.setGroup(entityGroup);
+        location.setGroup(groupRepository.findOne(groupId));
         location.setCreator(userRepository.findOne(1L));
-        Location persistedLocation = locationRepository.save(location);
-        return persistedLocation;
+        return locationRepository.save(location);
     }
 
     public void addFeature(Long groupId, Long featureId) {

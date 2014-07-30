@@ -301,6 +301,18 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Add new contactPoint to group
+        addContactPoint: function (group, contactPoint) {
+            var deferred = $q.defer();
+            contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
+            // POST /group/{groupId}/contactpoints
+            Restangular.one('group', group.id).all('contactpoints').post(UtilService.cleanObject(contactPoint, 'contactPoint')).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

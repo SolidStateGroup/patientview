@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Link;
@@ -156,7 +157,7 @@ public class GroupController extends BaseController {
 
         // create new link
         Link newLink = groupService.addLink(groupId, link);
-        LOG.info("Created new Link with id " + newLink.getId() + " and added to Code with id " + groupId);
+        LOG.info("Created new Link with id " + newLink.getId() + " and added to Group with id " + groupId);
 
         // set header with location
         UriComponents uriComponents = uriComponentsBuilder.path("/link/{linkId}").buildAndExpand(newLink.getId());
@@ -164,6 +165,24 @@ public class GroupController extends BaseController {
         headers.setLocation(uriComponents.toUri());
 
         return new ResponseEntity<Link>(newLink, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<ContactPoint> addContactPoint(@PathVariable("groupId") Long groupId, @RequestBody ContactPoint contactPoint
+            , UriComponentsBuilder uriComponentsBuilder) {
+
+        // create new contactPoint
+        ContactPoint newContactPoint = groupService.addContactPoint(groupId, contactPoint);
+        LOG.info("Created new ContactPoint with id " + newContactPoint.getId() + " and added to Group with id " + groupId);
+
+        // set header with location
+        UriComponents uriComponents = uriComponentsBuilder.path("/contactpoint/{contactPointId}").buildAndExpand(newContactPoint.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<ContactPoint>(newContactPoint, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST
@@ -174,7 +193,7 @@ public class GroupController extends BaseController {
 
         // create new location
         Location newLocation = groupService.addLocation(groupId, location);
-        LOG.info("Created new Location with id " + newLocation.getId() + " and added to Code with id " + groupId);
+        LOG.info("Created new Location with id " + newLocation.getId() + " and added to Group with id " + groupId);
 
         // set header with location
         UriComponents uriComponents = uriComponentsBuilder.path("/location/{locationId}").buildAndExpand(newLocation.getId());

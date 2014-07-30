@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
@@ -46,6 +47,8 @@ public interface GroupService {
     void deleteChildGroup(Long groupId, Long childGroupId);
 
     Link addLink(Long groupId, Link link);
+
+    ContactPoint addContactPoint(Long groupId, ContactPoint contactPoint);
 
     Location addLocation(Long groupId, Location location);
 
