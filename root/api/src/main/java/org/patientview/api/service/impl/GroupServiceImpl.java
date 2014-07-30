@@ -140,86 +140,11 @@ public class GroupServiceImpl implements GroupService {
 
 
     /**
-     * TODO remove links, relationships, locations, and features SPRINT 2
-     * FIXME Hacked to get saves
-     *
      * @param group
      * @return
      */
     public Group save(Group group) {
-
-        // get existing group
-        Group entityGroup = groupRepository.findOne(group.getId());
-
-        // save group relationships
-        saveGroupRelationships(group);
-
-        linkRepository.deleteByGroup(group);
-        entityManager.flush();
-
-        // set new group links and persist
-        if (!CollectionUtils.isEmpty(group.getLinks())) {
-
-            for (Link link : group.getLinks()) {
-                //if (link.getId() < 0) {
-                link.setId(null);
-                //}
-                link.setGroup(entityGroup);
-                link.setCreator(userRepository.findOne(1L));
-                Link persistedLink = linkRepository.save(link);
-                LOG.debug("Save link " + persistedLink.getId());
-            }
-        }
-
-        entityGroup.setLinks(Collections.EMPTY_SET);
-
-
-        locationRepository.delete(entityGroup.getLocations());
-        entityManager.flush();
-
-        // remove deleted group locations
-        if (!CollectionUtils.isEmpty(group.getLocations())) {
-
-            // set new group locations and persist
-            if (!CollectionUtils.isEmpty(group.getLocations())) {
-                for (Location location : group.getLocations()) {
-                    location.setId(null);
-                    location.setGroup(entityGroup);
-                    location.setCreator(userRepository.findOne(1L));
-                    locationRepository.save(location);
-                }
-            }
-        }
-
-        entityGroup.setLocations(Collections.EMPTY_SET);
-
-        groupFeatureRepository.delete(entityGroup.getGroupFeatures());
-        entityManager.flush();
-
-        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
-
-            // save group features
-            for (GroupFeature groupFeature : group.getGroupFeatures()) {
-                groupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
-                groupFeature.setGroup(groupRepository.findOne(entityGroup.getId()));
-                groupFeature.setCreator(userRepository.findOne(1L));
-                groupFeatureRepository.save(groupFeature);
-            }
-        }
-
-        entityGroup.setGroupFeatures(Collections.EMPTY_SET);
-        entityGroup.setSftpUser(group.getSftpUser());
-        entityGroup.setName(group.getName());
-        entityGroup.setCode(group.getCode());
-        entityGroup.setGroupType(group.getGroupType());
-        entityGroup.setVisibleToJoin(group.getVisibleToJoin());
-        entityGroup.setAddress1(group.getAddress1());
-        entityGroup.setAddress2(group.getAddress2());
-        entityGroup.setAddress3(group.getAddress3());
-        entityGroup.setPostcode(group.getPostcode());
-
-        entityGroup = groupRepository.save(entityGroup);
-        return addSingleParentAndChildGroup(entityGroup);
+        return groupRepository.save(group);
     }
 
     /**
@@ -306,7 +231,7 @@ public class GroupServiceImpl implements GroupService {
             ContactPoint tempContactPoint = new ContactPoint();
             tempContactPoint.setGroup(newGroup);
             tempContactPoint.setCreator(userRepository.findOne(1L));
-            tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class,contactPoint.getContactPointType().getId()));
+            tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class, contactPoint.getContactPointType().getId()));
             tempContactPoint.setContent(contactPoint.getContent());
             tempContactPoint = contactPointRepository.save(tempContactPoint);
             newGroup.getContactPoints().add(tempContactPoint);

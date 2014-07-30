@@ -21,7 +21,7 @@
             <div class="modal-footer">
                 <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn blue" ng-click="ok()" ng-disabled="!groupForm.$valid">Create New</button>
+                <button class="btn blue" ng-click="ok()" ng-disabled="!groupFormNew.$valid">Create New</button>
             </div>
         </script>
 
@@ -107,8 +107,7 @@
                         </form>
                         <hr>
                         <div class="group-save-cancel pull-right">
-                            <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                            <button type="button" class="btn blue" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
+                            <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
                         </div>
                     </div>
 

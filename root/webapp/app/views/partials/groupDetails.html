@@ -49,7 +49,10 @@
         </div>
     </div>
 </div>
-        
+
+<button type="button" class="btn blue pull-right" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
+<span class="saved-notification pull-right" ng-show="groupForm.$pristine && saved">Saved Group Details &nbsp;</span>
+<br/>
 <div class="row">
     <hr />
     <div class="col-md-12">
