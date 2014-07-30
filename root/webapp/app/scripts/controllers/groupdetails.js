@@ -383,6 +383,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
             GroupService.addContactPoint(group, contactPoint).then(function (successResult) {
                 // added contactPoint
+                contactPoint.id = successResult.id;
                 group.contactPoints.push(_.clone(contactPoint));
                 contactPoint.content = '';
                 form.$setDirty(true);
