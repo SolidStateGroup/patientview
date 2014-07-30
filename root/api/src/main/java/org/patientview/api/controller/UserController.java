@@ -40,7 +40,7 @@ import java.util.List;
 @RestController
 public class UserController extends BaseController {
 
-    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @Inject
     private UserService userService;

@@ -26,7 +26,7 @@ import javax.inject.Inject;
 @RestController
 public class ContactPointController {
 
-    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ContactPointController.class);
 
     @Inject
     private ContactPointService contactPointService;

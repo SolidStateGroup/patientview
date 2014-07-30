@@ -26,7 +26,7 @@ import java.util.List;
 @RestController
 public class StaticDataController extends  BaseController {
 
-    private final static Logger LOG = LoggerFactory.getLogger(SecurityController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(StaticDataController.class);
 
     @Inject
     private StaticDataManager staticDataManager;

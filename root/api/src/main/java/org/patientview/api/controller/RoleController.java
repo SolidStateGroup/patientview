@@ -23,7 +23,7 @@ import java.util.List;
  */
 @RestController
 public class RoleController extends BaseController {
-    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(RoleController.class);
 
     @Inject
     private AdminService adminService;
