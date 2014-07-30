@@ -208,30 +208,87 @@ function ($scope, GroupService, LinkService, LocationService, FeatureService) {
         }
     };
 
-    // add parent group to group, remove from available
     $scope.addParentGroup = function (form, group, parentGroupId) {
+        // only do POST if in edit mode, otherwise just add to object
+        if ($scope.editMode) {
+            GroupService.addParentGroup(group, parentGroupId).then(function (successResult) {
+                // added parentGroup
+                for (var j = 0; j < group.availableParentGroups.length; j++) {
+                    if (group.availableParentGroups[j].id === parentGroupId) {
+                        group.parentGroups.push(group.availableParentGroups[j]);
+                        group.availableParentGroups.splice(j, 1);
+                    }
+                }
 
-        // set parent group for current group
-        for (var j = 0; j < group.availableParentGroups.length; j++) {
-            if (group.availableParentGroups[j].id === parentGroupId) {
-                //currentGroup = group.availableParentGroups[j];
-                group.parentGroups.push(group.availableParentGroups[j]);
-                group.availableParentGroups.splice(j, 1);
+                // update accordion header with data from GET
+                GroupService.get(group.id).then(function (successResult) {
+                    for(var i=0;i<$scope.list.length;i++) {
+                        if($scope.list[i].id == group.id) {
+                            var headerDetails = $scope.list[i];
+                            headerDetails.parentGroups = successResult.parentGroups;
+                        }
+                    }
+                }, function () {
+                    // failure
+                    alert('Error updating header (saved successfully)');
+                });
+
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error saving parentGroup');
+            });
+        } else {
+            for (var j = 0; j < group.availableParentGroups.length; j++) {
+                if (group.availableParentGroups[j].id === parentGroupId) {
+                    group.parentGroups.push(group.availableParentGroups[j]);
+                    group.availableParentGroups.splice(j, 1);
+                }
             }
+            form.$setDirty(true);
         }
-
-        form.$setDirty(true);
     };
 
-    // remove parentGroup from current parentGroups, add to allowed parentGroups
     $scope.removeParentGroup = function (form, group, parentGroup) {
-        for (var j = 0; j < group.parentGroups.length; j++) {
-            if (group.parentGroups[j].id === parentGroup.id) {
-                group.availableParentGroups.push(group.parentGroups[j]);
-                group.parentGroups.splice(j, 1);
+        // only do DELETE if in edit mode, otherwise just remove from object
+        if ($scope.editMode) {
+            GroupService.deleteParentGroup(group, parentGroup).then(function () {
+                // deleted parentGroup
+                for (var j = 0; j < group.parentGroups.length; j++) {
+                    if (group.parentGroups[j].id === parentGroup.id) {
+                        group.availableParentGroups.push(group.parentGroups[j]);
+                        group.parentGroups.splice(j, 1);
+                    }
+                }
+
+                // update accordion header with data from GET
+                GroupService.get(group.id).then(function (successResult) {
+                    for(var i=0;i<$scope.list.length;i++) {
+                        if($scope.list[i].id == group.id) {
+                            var headerDetails = $scope.list[i];
+                            headerDetails.parentGroups = successResult.parentGroups;
+                        }
+                    }
+                }, function () {
+                    // failure
+                    alert('Error updating header (saved successfully)');
+                });
+
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error deleting parentGroup');
+            });
+        } else {
+            for (var j = 0; j < group.parentGroups.length; j++) {
+                if (group.parentGroups[j].id === parentGroup.id) {
+                    group.availableParentGroups.push(group.parentGroups[j]);
+                    group.parentGroups.splice(j, 1);
+                }
             }
+
+            form.$setDirty(true);
         }
-        form.$setDirty(true);
     };
 
     // add child group to group, remove from available

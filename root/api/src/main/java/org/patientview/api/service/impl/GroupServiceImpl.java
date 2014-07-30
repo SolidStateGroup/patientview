@@ -363,8 +363,9 @@ public class GroupServiceImpl implements GroupService {
         return groupRelationshipRepository.save(groupRelationship);
     }
 
-
-
+    private void deleteRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
+        groupRelationshipRepository.deleteBySourceObjectRelationshipType(sourceGroup, objectGroup, relationshipType);
+    }
 
     private Group addSingleParentAndChildGroup(Group group) {
         // TODO Move this to PostConstruct sort out Transaction scope;
@@ -408,7 +409,6 @@ public class GroupServiceImpl implements GroupService {
         }
 
         return groups;
-
     }
 
     public void addParentGroup(Long groupId, Long parentGroupId) {
@@ -421,7 +421,18 @@ public class GroupServiceImpl implements GroupService {
 
         createRelationship(sourceGroup, objectGroup, parentRelationshipType);
         createRelationship(objectGroup, sourceGroup, childRelationshipType);
+    }
 
+    public void deleteParentGroup(Long groupId, Long parentGroupId) {
+
+        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
+
+        Group sourceGroup = groupRepository.findOne(groupId);
+        Group objectGroup = groupRepository.findOne(parentGroupId);
+
+        deleteRelationship(sourceGroup, objectGroup, parentRelationshipType);
+        deleteRelationship(objectGroup, sourceGroup, childRelationshipType);
     }
 
     public Link addLink(final Long groupId, final Link link) {

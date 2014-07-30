@@ -257,6 +257,28 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Add new parent group to group relationships
+        addParentGroup: function (group, parentGroupId) {
+            var deferred = $q.defer();
+            // PUT /group/{groupId}/parent/{parentGroupId}
+            Restangular.one('group', group.id).one('parent',parentGroupId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete parent from group relationships
+        deleteParentGroup: function (group, parentGroup) {
+            var deferred = $q.defer();
+            // DELETE /group/{groupId}/parent/{parentGroupId}
+            Restangular.one('group', group.id).one('parent',parentGroup.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);
