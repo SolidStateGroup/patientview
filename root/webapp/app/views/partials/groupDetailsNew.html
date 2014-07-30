@@ -67,13 +67,13 @@
         <div><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupFormNew, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
     </div>
     <div class="add-form" ng-model="newLocation">
-        <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="label" name="newLocation" ng-model="newLocation.label"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="name" name="newLocation" ng-model="newLocation.name"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="phone" name="newLocation" ng-model="newLocation.phone"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="address" name="newLocation" ng-model="newLocation.address"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="web" name="newLocation" ng-model="newLocation.web"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-email" placeholder="email" name="newLocation" ng-model="newLocation.email"></div>
-        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupFormNew, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+        <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" ng-model="newLocation.label"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="Name" name="newLocationName" ng-model="newLocation.name"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="Phone" name="newLocationPhone" ng-model="newLocation.phone"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="Address" name="newLocationAddress" ng-model="newLocation.address"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="Web" name="newLocationWeb" ng-model="newLocation.web"></div>
+        <div class="col-md-2"><input type="email" class="form-control" id="group-newLocation-email" placeholder="Email" name="newLocationEmail" ng-model="newLocation.email"> <span ng-show="groupFormNew.newLocationEmail.$error.email"> Invalid</span></div>
+        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupFormNew, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name && !groupFormNew.newLocationEmail.$error.email)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
     </div>
 </div>
         
