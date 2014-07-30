@@ -1,4 +1,4 @@
-package org.patientview.api.audit;
+package org.patientview.persistence.model.enums;
 
 /**
  * Created by james@solidstategroup.com

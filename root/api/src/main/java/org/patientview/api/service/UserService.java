@@ -1,7 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.Audit;
-import org.patientview.api.audit.AuditActions;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Identifier;
