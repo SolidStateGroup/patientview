@@ -306,11 +306,7 @@ public class GroupServiceImpl implements GroupService {
             ContactPoint tempContactPoint = new ContactPoint();
             tempContactPoint.setGroup(newGroup);
             tempContactPoint.setCreator(userRepository.findOne(1L));
-            tempContactPoint.setContactPointType(contactPoint.getContactPointType());
-            //tempContactPoint.setContactPointType(lookupRepository.findByTypeAndValue(LookupTypes.CONTACT_POINT_TYPE, contactPoint.getContactPointType().getValue().getName()));
-
-            entityManager.merge(contactPoint.getContactPointType());
-
+            tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class,contactPoint.getContactPointType().getId()));
             tempContactPoint.setContent(contactPoint.getContent());
             tempContactPoint = contactPointRepository.save(tempContactPoint);
             newGroup.getContactPoints().add(tempContactPoint);

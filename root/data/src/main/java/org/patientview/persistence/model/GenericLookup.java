@@ -1,5 +1,6 @@
 package org.patientview.persistence.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
@@ -12,7 +13,7 @@ import javax.persistence.OneToOne;
 @MappedSuperclass
 public class GenericLookup extends BaseModel {
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "lookup_type_id")
     private LookupType lookupType;
 
