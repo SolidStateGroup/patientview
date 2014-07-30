@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.enums.LookupTypes;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.util.Set;
 
 /**
@@ -15,6 +17,8 @@ import java.util.Set;
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
+@Entity
+@Table(name = "pv_lookup_type")
 public class LookupType extends AuditModel {
 
     @Column(name = "lookup_type")

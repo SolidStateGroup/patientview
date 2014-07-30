@@ -49,7 +49,6 @@ public class Group extends AuditModel {
     @Column(name = "address_3")
     private String address3;
 
-
     @Column(name = "postcode")
     private String postcode;
 

@@ -1,11 +1,11 @@
-INSERT INTO pv_user (id, username, password, change_password, locked, email, fullname, start_date, creation_date, created_by) VALUES
-  (1, 'system','pppppp', false, false, 'system@patientview.org', 'system', now(), now(), 1);
+INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by) VALUES
+  (1, 'system','pppppp', false, false, 'system@patientview.org', 'system', 'system', now(), now(), 1);
 
-INSERT INTO pv_user (id, username, password, change_password, locked, email, fullname, start_date, creation_date, created_by) VALUES
-  (2, 'migration','pppppp', false, false, 'migration@patientview.org', 'migration', now(), now(), 1);
+INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by) VALUES
+  (2, 'migration','pppppp', false, false, 'migration@patientview.org', 'migration', 'migration', now(), now(), 1);
 
-INSERT INTO pv_user (id, username, password, change_password, locked, email, fullname, start_date, creation_date, created_by) VALUES
-  (3, 'globaladmin','pppppp', false, false, 'migration@patientview.org', 'migration', now(), now(), 1);
+INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by) VALUES
+  (3, 'globaladmin','pppppp', false, false, 'migration@patientview.org', 'globaladmin', 'globaladmin', now(), now(), 1);
 
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (1, now(), 'Type of group','GROUP', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (2, now(), 'Type of menu','MENU', '1');

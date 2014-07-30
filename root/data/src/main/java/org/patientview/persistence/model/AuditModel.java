@@ -18,7 +18,7 @@ import java.util.Date;
 @MappedSuperclass
 public class AuditModel extends SimpleAuditModel {
 
-    @Column(name = "Last_Update_Date")
+    @Column(name = "last_update_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUpdate;
 

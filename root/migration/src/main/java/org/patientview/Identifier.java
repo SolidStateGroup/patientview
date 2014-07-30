@@ -4,13 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 10/07/2014
  */
+@Entity
+@Table(name = "pv_identifier")
 public class Identifier extends RangeModel {
 
     @JsonIgnore

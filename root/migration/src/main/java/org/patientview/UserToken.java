@@ -1,8 +1,10 @@
 package org.patientview;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
@@ -11,6 +13,8 @@ import java.util.Date;
  * Created by james@solidstategroup.com
  * Created on 13/06/2014
  */
+@Entity
+@Table(name = "pv_user_token")
 public class UserToken extends BaseModel {
 
     @OneToOne

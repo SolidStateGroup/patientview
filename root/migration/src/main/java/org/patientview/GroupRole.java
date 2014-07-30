@@ -3,8 +3,10 @@ package org.patientview;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 /**
  * Object to link an user to Group and Roles.
@@ -15,6 +17,8 @@ import javax.persistence.OneToOne;
  * Created by james@solidstategroup.com
  * Created on 20/06/2014
  */
+@Entity
+@Table(name = "pv_user_group_role")
 public class GroupRole extends RangeModel {
 
     @OneToOne

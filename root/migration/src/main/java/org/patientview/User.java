@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -50,7 +51,11 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "fullname")
+    @Column(name = "date_of_birth")
+    @Temporal(TemporalType.DATE)
+    private Date dateOfBirth;
+
+    @Transient
     private String name;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
@@ -129,13 +134,6 @@ public class User extends RangeModel implements UserDetails {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
 
     public UUID getFhirResourceId() {
         return fhirResourceId;
@@ -167,6 +165,10 @@ public class User extends RangeModel implements UserDetails {
 
     public void setIdentifiers(Set<Identifier> identifiers) {
         this.identifiers = identifiers;
+    }
+
+    public String getName() {
+        return name;
     }
 
     //TODO User Detail fields need refactoring
@@ -218,5 +220,17 @@ public class User extends RangeModel implements UserDetails {
 
     public void setContactNumber(final String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(final Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 }

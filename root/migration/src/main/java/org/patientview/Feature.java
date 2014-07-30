@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +17,8 @@ import java.util.Set;
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
-
+@Entity
+@Table(name = "pv_feature")
 public class Feature extends RangeModel {
 
     @Column(name = "feature_name")
@@ -25,7 +28,7 @@ public class Feature extends RangeModel {
     private String description;
 
     @OneToMany(mappedBy = "feature")
-    private Set<Route> routes;
+    private Set<RouteLink> routeLinks;
 
     @OneToMany(mappedBy = "feature")
     private Set<UserFeature> userFeatures;
@@ -56,12 +59,12 @@ public class Feature extends RangeModel {
     }
 
     @JsonIgnore
-    public Set<Route> getRoutes() {
-        return routes;
+    public Set<RouteLink> getRouteLinks() {
+        return routeLinks;
     }
 
-    public void setRoutes(final Set<Route> routes) {
-        this.routes = routes;
+    public void setRouteLinks(final Set<RouteLink> routeLinks) {
+        this.routeLinks = routeLinks;
     }
 
     @JsonIgnore

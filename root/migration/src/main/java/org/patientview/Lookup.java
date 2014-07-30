@@ -1,9 +1,11 @@
 package org.patientview;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 /**
  * TODO Add generics for enum http://www.gabiaxel.com/2011/01/better-enum-mapping-with-hibernate.html
@@ -11,6 +13,8 @@ import javax.persistence.OneToOne;
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
+@Entity
+@Table(name = "pv_lookup_value")
 public class Lookup extends AuditModel {
 
     @Column(name = "value")
