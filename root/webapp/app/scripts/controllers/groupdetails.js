@@ -373,33 +373,6 @@ function ($scope, GroupService, LinkService, LocationService, FeatureService) {
             form.$setDirty(true);
         }
     };
-    
-
-    /*// add child group to group, remove from available
-    $scope.addChildGroup = function (form, group, childGroupId) {
-
-        // set child group for current group
-        for (var j = 0; j < group.availableChildGroups.length; j++) {
-            if (group.availableChildGroups[j].id === childGroupId) {
-                //currentGroup = group.availableChildGroups[j];
-                group.childGroups.push(group.availableChildGroups[j]);
-                group.availableChildGroups.splice(j, 1);
-            }
-        }
-
-        form.$setDirty(true);
-    };
-
-    // remove childGroup from current childGroups, add to allowed childGroups
-    $scope.removeChildGroup = function (form, group, childGroup) {
-        for (var j = 0; j < group.childGroups.length; j++) {
-            if (group.childGroups[j].id === childGroup.id) {
-                group.availableChildGroups.push(group.childGroups[j]);
-                group.childGroups.splice(j, 1);
-            }
-        }
-        form.$setDirty(true);
-    };*/
 
     $scope.addContactPoint = function (form, group, contactPoint) {
         contactPoint.id = (new Date).getTime() * -1;
