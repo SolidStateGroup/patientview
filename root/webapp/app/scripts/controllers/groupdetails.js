@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', 'GroupService', 'LinkService',
-function ($scope, GroupService, LinkService) {
+angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', 'GroupService', 'LinkService', 'LocationService',
+function ($scope, GroupService, LinkService, LocationService) {
 
     $scope.addLink = function (form, group, link) {
         link.displayOrder = group.links.length +1;
@@ -64,8 +64,70 @@ function ($scope, GroupService, LinkService) {
             form.$setDirty(true);
         }
     };
-
+    
     $scope.addLocation = function (form, group, location) {
+        // only do POST if in edit mode, otherwise just add to object
+        if ($scope.editMode) {
+            GroupService.addLocation(group, location).then(function (successResult) {
+                // added location
+                location.id = successResult.id;
+                group.locations.push(_.clone(location));
+                location.label = location.name = location.phone = location.address = location.web = location.email = '';
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error saving location');
+            });
+        } else {
+            location.id = Math.floor(Math.random() * (9999)) -10000;
+            group.locations.push(_.clone(location));
+            location.label = location.name = location.phone = location.address = location.web = location.email = '';
+            form.$setDirty(true);
+        }
+    };
+
+    $scope.updateLocation = function (event, form, group, location) {
+        location.saved = false;
+
+        // try and save location
+        LocationService.save(location).then(function () {
+            // saved location
+            location.saved = true;
+            form.$setDirty(true);
+        }, function() {
+            // failure
+            alert('Error saving location');
+        });
+    };
+
+    $scope.removeLocation = function (form, group, location) {
+        // only do DELETE if in edit mode, otherwise just remove from object
+        if ($scope.editMode) {
+            LocationService.delete(location).then(function () {
+                // deleted location
+                for (var j = 0; j < group.locations.length; j++) {
+                    if (group.locations[j].id === location.id) {
+                        group.locations.splice(j, 1);
+                    }
+                }
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error deleting location');
+            });
+        } else {
+            for (var j = 0; j < group.locations.length; j++) {
+                if (group.locations[j].id === location.id) {
+                    group.locations.splice(j, 1);
+                }
+            }
+            form.$setDirty(true);
+        }
+    };
+    
+    
+
+    /*$scope.addLocation = function (form, group, location) {
         location.id = Math.floor(Math.random() * (9999)) -10000;
         group.locations.push(_.clone(location));
         location.label = location.name = location.phone = location.address = location.web = location.email = '';
@@ -79,7 +141,7 @@ function ($scope, GroupService, LinkService) {
             }
         }
         form.$setDirty(true);
-    };
+    };*/
 
     // add feature to current features, remove from allowed
     $scope.addFeature = function (form, group, featureId) {

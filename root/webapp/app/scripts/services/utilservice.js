@@ -39,6 +39,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.contactPoint = ['id','contactPointType','content'];
             fields.contactPointType = ['id','value','lookupType'];
             fields.link = ['id','displayOrder','link','linkType','name'];
+            fields.location = ['id','label','name','phone','address','web','email'];
             return fields[objectType];
         },
         // used when converting from angular objects to those suitable for REST

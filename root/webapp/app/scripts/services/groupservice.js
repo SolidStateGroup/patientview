@@ -224,6 +224,17 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Add new location to group
+        addLocation: function (group, location) {
+            var deferred = $q.defer();
+            // POST /group/{groupId}/locations
+            Restangular.one('group', group.id).all('locations').post(location).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

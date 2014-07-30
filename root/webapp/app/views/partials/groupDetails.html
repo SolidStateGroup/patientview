@@ -64,7 +64,12 @@
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" ng-model="location.address" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" ng-model="location.web" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" ng-model="location.email" ></div>
-        <div><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+        <!--<div><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>-->
+        <div class="btn-group">
+            <button type="button" class="btn blue location-update-button" ng-click="updateLocation($event, groupForm, editGroup, location)">Update</button>
+            <button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)">Delete</button>
+        </div>
+        <span class="saved-notification" ng-show="location.saved">&nbsp; Updated Location</span>
     </div>
     <div class="add-form" ng-model="newLocation">
         <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="label" name="newLocation" ng-model="newLocation.label"></div>
