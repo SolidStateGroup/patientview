@@ -78,7 +78,7 @@ CREATE TABLE PV_Contact_Point
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
+);
 
 CREATE TABLE PV_Group_Relationship
 (
