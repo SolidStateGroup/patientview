@@ -34,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -209,6 +210,7 @@ public class GroupServiceTest {
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
         // Test
+        TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
         Group group = groupService.save(testGroup);
 
         // Verify
