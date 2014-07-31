@@ -141,86 +141,11 @@ public class GroupServiceImpl implements GroupService {
 
 
     /**
-     * TODO remove links, relationships, locations, and features SPRINT 2
-     * FIXME Hacked to get saves
-     *
      * @param group
      * @return
      */
     public Group save(Group group) {
-
-        // get existing group
-        Group entityGroup = groupRepository.findOne(group.getId());
-
-        // save group relationships
-        saveGroupRelationships(group);
-
-        linkRepository.deleteByGroup(group);
-        entityManager.flush();
-
-        // set new group links and persist
-        if (!CollectionUtils.isEmpty(group.getLinks())) {
-
-            for (Link link : group.getLinks()) {
-                //if (link.getId() < 0) {
-                link.setId(null);
-                //}
-                link.setGroup(entityGroup);
-                link.setCreator(userRepository.findOne(1L));
-                Link persistedLink = linkRepository.save(link);
-                LOG.debug("Save link " + persistedLink.getId());
-            }
-        }
-
-        entityGroup.setLinks(Collections.EMPTY_SET);
-
-
-        locationRepository.delete(entityGroup.getLocations());
-        entityManager.flush();
-
-        // remove deleted group locations
-        if (!CollectionUtils.isEmpty(group.getLocations())) {
-
-            // set new group locations and persist
-            if (!CollectionUtils.isEmpty(group.getLocations())) {
-                for (Location location : group.getLocations()) {
-                    location.setId(null);
-                    location.setGroup(entityGroup);
-                    location.setCreator(userRepository.findOne(1L));
-                    locationRepository.save(location);
-                }
-            }
-        }
-
-        entityGroup.setLocations(Collections.EMPTY_SET);
-
-        groupFeatureRepository.delete(entityGroup.getGroupFeatures());
-        entityManager.flush();
-
-        if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
-
-            // save group features
-            for (GroupFeature groupFeature : group.getGroupFeatures()) {
-                groupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
-                groupFeature.setGroup(groupRepository.findOne(entityGroup.getId()));
-                groupFeature.setCreator(userRepository.findOne(1L));
-                groupFeatureRepository.save(groupFeature);
-            }
-        }
-
-        entityGroup.setGroupFeatures(Collections.EMPTY_SET);
-        entityGroup.setSftpUser(group.getSftpUser());
-        entityGroup.setName(group.getName());
-        entityGroup.setCode(group.getCode());
-        entityGroup.setGroupType(group.getGroupType());
-        entityGroup.setVisibleToJoin(group.getVisibleToJoin());
-        entityGroup.setAddress1(group.getAddress1());
-        entityGroup.setAddress2(group.getAddress2());
-        entityGroup.setAddress3(group.getAddress3());
-        entityGroup.setPostcode(group.getPostcode());
-
-        entityGroup = groupRepository.save(entityGroup);
-        return addSingleParentAndChildGroup(entityGroup);
+        return groupRepository.save(group);
     }
 
     /**
@@ -364,8 +289,9 @@ public class GroupServiceImpl implements GroupService {
         return groupRelationshipRepository.save(groupRelationship);
     }
 
-
-
+    private void deleteRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
+        groupRelationshipRepository.deleteBySourceObjectRelationshipType(sourceGroup, objectGroup, relationshipType);
+    }
 
     private Group addSingleParentAndChildGroup(Group group) {
         // TODO Move this to PostConstruct sort out Transaction scope;
@@ -422,7 +348,68 @@ public class GroupServiceImpl implements GroupService {
 
         createRelationship(sourceGroup, objectGroup, parentRelationshipType);
         createRelationship(objectGroup, sourceGroup, childRelationshipType);
+    }
 
+    public void deleteParentGroup(Long groupId, Long parentGroupId) {
+        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
+        Group sourceGroup = groupRepository.findOne(groupId);
+        Group objectGroup = groupRepository.findOne(parentGroupId);
+
+        deleteRelationship(sourceGroup, objectGroup, parentRelationshipType);
+        deleteRelationship(objectGroup, sourceGroup, childRelationshipType);
+    }
+
+    public void addChildGroup(Long groupId, Long childGroupId) {
+        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
+        Group sourceGroup = groupRepository.findOne(groupId);
+        Group objectGroup = groupRepository.findOne(childGroupId);
+
+        createRelationship(sourceGroup, objectGroup, childRelationshipType);
+        createRelationship(objectGroup, sourceGroup, parentRelationshipType);
+    }
+
+    public void deleteChildGroup(Long groupId, Long childGroupId) {
+        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
+        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
+        Group sourceGroup = groupRepository.findOne(groupId);
+        Group objectGroup = groupRepository.findOne(childGroupId);
+
+        deleteRelationship(sourceGroup, objectGroup, childRelationshipType);
+        deleteRelationship(objectGroup, sourceGroup, parentRelationshipType);
+    }
+
+    public Link addLink(final Long groupId, final Link link) {
+        link.setGroup(groupRepository.findOne(groupId));
+        link.setCreator(userRepository.findOne(1L));
+        return linkRepository.save(link);
+    }
+
+    public ContactPoint addContactPoint(final Long groupId, final ContactPoint contactPoint) {
+        contactPoint.setGroup(groupRepository.findOne(groupId));
+        contactPoint.setCreator(userRepository.findOne(1L));
+        contactPoint.setContactPointType(entityManager.find(ContactPointType.class, contactPoint.getContactPointType().getId()));
+        return contactPointRepository.save(contactPoint);
+    }
+
+    public Location addLocation(final Long groupId, final Location location) {
+        location.setGroup(groupRepository.findOne(groupId));
+        location.setCreator(userRepository.findOne(1L));
+        return locationRepository.save(location);
+    }
+
+    public void addFeature(Long groupId, Long featureId) {
+        GroupFeature groupFeature = new GroupFeature();
+        groupFeature.setFeature(featureRepository.findOne(featureId));
+        groupFeature.setGroup(groupRepository.findOne(groupId));
+        groupFeature.setCreator(userRepository.findOne(1L));
+        groupFeatureRepository.save(groupFeature);
+    }
+
+    public void deleteFeature(Long groupId, Long featureId) {
+        groupFeatureRepository.delete(groupFeatureRepository.findByGroupAndFeature(
+                groupRepository.findOne(groupId), featureRepository.findOne(featureId)));
     }
 
     public List<Group> findChildren(Long groupId) throws ResourceNotFoundException {
@@ -436,6 +423,5 @@ public class GroupServiceImpl implements GroupService {
         return Util.iterableToList(groupRepository.findChildren(group));
 
     }
-
-
+    
 }

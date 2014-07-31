@@ -1,9 +1,12 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.Roles;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,5 +42,21 @@ public interface GroupService {
     void addParentGroup(Long groupId, Long parentGroupId);
 
     List<Group> findChildren(Long groupId) throws ResourceNotFoundException;
+
+    void deleteParentGroup(Long groupId, Long parentGroupId);
+
+    void addChildGroup(Long groupId, Long childGroupId);
+
+    void deleteChildGroup(Long groupId, Long childGroupId);
+
+    Link addLink(Long groupId, Link link);
+
+    ContactPoint addContactPoint(Long groupId, ContactPoint contactPoint);
+
+    Location addLocation(Long groupId, Location location);
+
+    void addFeature(Long groupId, Long featureId);
+
+    void deleteFeature(Long groupId, Long featureId);
 
 }

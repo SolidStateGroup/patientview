@@ -89,6 +89,40 @@ public class GroupControllerTest {
         verify(groupService, Mockito.times(1)).addParentGroup(eq(groupId), eq(parentGroupId));
     }
 
+    @Test
+    public void testAddFeature() {
+
+        Long groupId = 1L;
+        Long featureId = 2L;
+
+        String url = "/group/" + groupId + "/features/" + featureId;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.put(url)).andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(groupService, Mockito.times(1)).addFeature(eq(groupId), eq(featureId));
+    }
+
+    @Test
+    public void testDeleteFeature() {
+
+        Long groupId = 1L;
+        Long featureId = 2L;
+
+        String url = "/group/" + groupId + "/features/" + featureId;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(groupService, Mockito.times(1)).deleteFeature(eq(groupId), eq(featureId));
+    }
+
 
     /**
      * Test: The submission of a JoinRequest object to the controller

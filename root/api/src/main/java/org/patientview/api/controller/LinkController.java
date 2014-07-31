@@ -26,7 +26,7 @@ import javax.inject.Inject;
 @RestController
 public class LinkController {
 
-    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
+    private final static Logger LOG = LoggerFactory.getLogger(LinkController.class);
 
     @Inject
     private LinkService linkService;

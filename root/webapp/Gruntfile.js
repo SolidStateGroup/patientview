@@ -434,7 +434,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                        apiEndpoint: 'http://localhost:8089/api'
+                        apiEndpoint: 'http://localhost:8080/api'
                     }
                 }
             },
@@ -446,7 +446,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                        apiEndpoint: 'http://localhost:8089/api'
+                        apiEndpoint: 'http://localhost:8080/api'
                     }
                 }
             },
@@ -480,6 +480,17 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
+                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
+                    }
+                }
+            },
+            apissgdev: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'production',
                         apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
                     }
                 }
@@ -654,6 +665,13 @@ module.exports = function (grunt) {
     grunt.registerTask('minimallive', [
         'clean:dist',
         'ngconstant:apiprod',
+        'copy:minimal',
+        'war'
+    ]);
+
+    grunt.registerTask('minimalssgdev', [
+        'clean:dist',
+        'ngconstant:apissgdev',
         'copy:minimal',
         'war'
     ]);
