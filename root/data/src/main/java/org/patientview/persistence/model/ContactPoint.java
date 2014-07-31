@@ -25,7 +25,7 @@ public class ContactPoint extends AuditModel {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "type_id")
     private ContactPointType contactPointType;
 
