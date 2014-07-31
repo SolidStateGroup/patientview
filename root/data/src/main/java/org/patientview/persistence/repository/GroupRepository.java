@@ -47,7 +47,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
 
     @Query("SELECT gr.objectGroup " +
            "FROM   GroupRelationship gr " +
-           "WHERE  gr.lookup.value = 'CHILD' " +
+           "WHERE  gr.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.CHILD " +
            "AND    gr.sourceGroup = :group ")
     public Iterable<Group> findChildren(@Param("group") Group group);
 

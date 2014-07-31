@@ -3,7 +3,7 @@
 angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 'JoinRequestService', 'StaticDataService', '$scope', '$rootScope', 'UtilService', function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,UtilService) {
 
     $scope.joinRequest = {};
-
+    $scope.pw = '';
     $scope.months = UtilService.generateMonths();
     $scope.years = UtilService.generateYears();
     $scope.days = UtilService.generateDays();

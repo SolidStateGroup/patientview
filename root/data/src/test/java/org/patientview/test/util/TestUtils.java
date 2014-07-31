@@ -16,6 +16,7 @@ import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.Roles;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -176,12 +177,12 @@ public final class TestUtils {
     }
 
     public static GroupRelationship createGroupRelationship(Long id, Group source, Group object
-            , Lookup relationshipType, User creator) {
+            , RelationshipTypes relationshipType, User creator) {
         GroupRelationship groupRelationship = new GroupRelationship();
         groupRelationship.setId(id);
         groupRelationship.setStartDate(new Date());
         groupRelationship.setCreator(creator);
-        groupRelationship.setLookup(relationshipType);
+        groupRelationship.setRelationshipType(relationshipType);
         groupRelationship.setObjectGroup(object);
         groupRelationship.setSourceGroup(source);
 

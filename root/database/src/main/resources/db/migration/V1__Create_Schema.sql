@@ -88,7 +88,7 @@ CREATE TABLE PV_Group_Relationship
   Id               BIGINT    NOT NULL,
   Source_Group_Id         BIGINT    NOT NULL,
   Object_Group_Id  BIGINT    REFERENCES PV_Group (Id) NOT NULL,
-  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Relationship_Type VARCHAR(100) NOT NULL,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP NOT NULL,

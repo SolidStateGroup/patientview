@@ -22,6 +22,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
@@ -122,8 +123,8 @@ public class GroupServiceTest {
         Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "PARENT", creator);
 
         Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship parent =  TestUtils.createGroupRelationship(7L, testGroup, parentGroup, parentRelationship, creator);
-        GroupRelationship child =  TestUtils.createGroupRelationship(8L, testGroup, childGroup, childRelationship, creator);
+        GroupRelationship parent =  TestUtils.createGroupRelationship(7L, testGroup, parentGroup, RelationshipTypes.PARENT, creator);
+        GroupRelationship child =  TestUtils.createGroupRelationship(8L, testGroup, childGroup, RelationshipTypes.CHILD, creator);
         groupRelationships.add(parent);
         groupRelationships.add(child);
 
@@ -355,8 +356,8 @@ public class GroupServiceTest {
 
         // create group relationships
         Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship child1 =  TestUtils.createGroupRelationship(8L, parentGroup, childGroup1, childRelationship, creator);
-        GroupRelationship child2 =  TestUtils.createGroupRelationship(9L, parentGroup, childGroup2, childRelationship, creator);
+        GroupRelationship child1 =  TestUtils.createGroupRelationship(8L, parentGroup, childGroup1, RelationshipTypes.CHILD, creator);
+        GroupRelationship child2 =  TestUtils.createGroupRelationship(9L, parentGroup, childGroup2, RelationshipTypes.CHILD, creator);
         groupRelationships.add(child1);
         groupRelationships.add(child2);
         parentGroup.setGroupRelationships(groupRelationships);

@@ -14,6 +14,7 @@ import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
@@ -120,7 +121,7 @@ public class GroupServiceImpl implements GroupService {
         // for each group get list of children if present
         for (Group group : groups) {
             for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
-                if (groupRelationship.getLookup().equals(childRelationshipType)) {
+                if (groupRelationship.getRelationshipType() == RelationshipTypes.CHILD) {
                     groups.add(groupRelationship.getObjectGroup());
                 }
             }
@@ -267,36 +268,34 @@ public class GroupServiceImpl implements GroupService {
             for (Group parentGroup : group.getParentGroups()) {
 
                 Group objectGroup = groupRepository.findOne(parentGroup.getId());
-                createRelationship(sourceGroup, objectGroup, parentRelationshipType);
-                createRelationship(objectGroup, sourceGroup, childRelationshipType);
+                createRelationship(sourceGroup, objectGroup, RelationshipTypes.PARENT);
+                createRelationship(objectGroup, sourceGroup, RelationshipTypes.CHILD);
             }
         }
         if (!CollectionUtils.isEmpty(group.getChildGroups())) {
             for (Group childGroup : group.getChildGroups()) {
 
                 Group objectGroup = groupRepository.findOne(childGroup.getId());
-                createRelationship(sourceGroup, objectGroup, childRelationshipType);
-                createRelationship(objectGroup, sourceGroup, parentRelationshipType);
+                createRelationship(sourceGroup, objectGroup, RelationshipTypes.CHILD);
+                createRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
             }
         }
     }
 
-    private GroupRelationship createRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
+    private GroupRelationship createRelationship(Group sourceGroup, Group objectGroup, RelationshipTypes relationshipType) {
         GroupRelationship groupRelationship = new GroupRelationship();
         groupRelationship.setSourceGroup(sourceGroup);
         groupRelationship.setObjectGroup(objectGroup);
-        groupRelationship.setLookup(relationshipType);
+        groupRelationship.setRelationshipType(relationshipType);
         return groupRelationshipRepository.save(groupRelationship);
     }
 
-    private void deleteRelationship(Group sourceGroup, Group objectGroup, Lookup relationshipType) {
+    private void deleteRelationship(Group sourceGroup, Group objectGroup, RelationshipTypes relationshipType) {
         groupRelationshipRepository.deleteBySourceObjectRelationshipType(sourceGroup, objectGroup, relationshipType);
     }
 
     private Group addSingleParentAndChildGroup(Group group) {
         // TODO Move this to PostConstruct sort out Transaction scope;
-        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
-        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
 
         Set<Group> parentGroups = new HashSet<Group>();
         Set<Group> childGroups = new HashSet<Group>();
@@ -304,7 +303,7 @@ public class GroupServiceImpl implements GroupService {
         if (!CollectionUtils.isEmpty(group.getGroupRelationships())) {
             for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
 
-                if (groupRelationship.getLookup().equals(parentRelationshipType)) {
+                if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
                     Group detachedParentGroup = groupRelationship.getObjectGroup();
                     entityManager.detach(detachedParentGroup);
                     detachedParentGroup.setParentGroups(Collections.EMPTY_SET);
@@ -312,7 +311,7 @@ public class GroupServiceImpl implements GroupService {
                     parentGroups.add(detachedParentGroup);
                 }
 
-                if (groupRelationship.getLookup().equals(childRelationshipType)) {
+                if (groupRelationship.getRelationshipType() == RelationshipTypes.CHILD) {
                     Group detachedChildGroup = groupRelationship.getObjectGroup();
                     entityManager.detach(detachedChildGroup);
                     detachedChildGroup.setParentGroups(Collections.EMPTY_SET);
@@ -339,35 +338,27 @@ public class GroupServiceImpl implements GroupService {
     }
 
     public void addParentGroup(Long groupId, Long parentGroupId) {
-
-        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
-        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
-
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(parentGroupId);
 
-        createRelationship(sourceGroup, objectGroup, parentRelationshipType);
-        createRelationship(objectGroup, sourceGroup, childRelationshipType);
+        createRelationship(sourceGroup, objectGroup, RelationshipTypes.PARENT);
+        createRelationship(objectGroup, sourceGroup, RelationshipTypes.CHILD);
     }
 
     public void deleteParentGroup(Long groupId, Long parentGroupId) {
-        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
-        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(parentGroupId);
 
-        deleteRelationship(sourceGroup, objectGroup, parentRelationshipType);
-        deleteRelationship(objectGroup, sourceGroup, childRelationshipType);
+        deleteRelationship(sourceGroup, objectGroup, RelationshipTypes.PARENT);
+        deleteRelationship(objectGroup, sourceGroup, RelationshipTypes.CHILD);
     }
 
     public void addChildGroup(Long groupId, Long childGroupId) {
-        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
-        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(childGroupId);
 
-        createRelationship(sourceGroup, objectGroup, childRelationshipType);
-        createRelationship(objectGroup, sourceGroup, parentRelationshipType);
+        createRelationship(sourceGroup, objectGroup, RelationshipTypes.CHILD);
+        createRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
     }
 
     public void deleteChildGroup(Long groupId, Long childGroupId) {
@@ -376,8 +367,8 @@ public class GroupServiceImpl implements GroupService {
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(childGroupId);
 
-        deleteRelationship(sourceGroup, objectGroup, childRelationshipType);
-        deleteRelationship(objectGroup, sourceGroup, parentRelationshipType);
+        deleteRelationship(sourceGroup, objectGroup, RelationshipTypes.CHILD);
+        deleteRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
     }
 
     public Link addLink(final Long groupId, final Link link) {
