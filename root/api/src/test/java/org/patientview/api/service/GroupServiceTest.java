@@ -190,7 +190,7 @@ public class GroupServiceTest {
      *
      */
     @Test
-    public void testAddGroupChildAndParentOnSave() {
+    public void testAddGroupChildAndParentOnCreate() {
         User testUser = TestUtils.createUser(2L, "testUser");
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
         Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
@@ -214,7 +214,7 @@ public class GroupServiceTest {
 
         // Test
         TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
-        Group group = groupService.save(testGroup);
+        Group group = groupService.create(testGroup);
 
         // Verify
         verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
