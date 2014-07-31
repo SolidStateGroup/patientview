@@ -2,7 +2,6 @@ package org.patientview;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
