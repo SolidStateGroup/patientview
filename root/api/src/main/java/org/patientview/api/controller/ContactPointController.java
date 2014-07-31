@@ -1,7 +1,9 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.service.ContactPointService;
 import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.ContactPointType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -58,10 +60,22 @@ public class ContactPointController {
     @ResponseBody
     public ResponseEntity<Void> saveContactPoint(@RequestBody ContactPoint contactPoint, UriComponentsBuilder uriComponentsBuilder) {
         ContactPoint updatedContactPoint = contactPointService.saveContactPoint(contactPoint);
-        LOG.info("Updated contactPoint with id " + updatedContactPoint.getId());
+        LOG.debug("Updated contactPoint with id " + updatedContactPoint.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/contactpoint/{contactPointId}").buildAndExpand(updatedContactPoint.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<Void>(headers, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/contactpoint/type/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<ContactPointType> getContactPointType(@PathVariable(value = "type") String type)
+            throws ResourceInvalidException {
+        ContactPointType contactPointType = contactPointService.getContactPointType(type);
+        LOG.debug("Getting contact point type " + type);
+        return new ResponseEntity<> (contactPointType, HttpStatus.OK);
+    }
+
+
+
 }

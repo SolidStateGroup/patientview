@@ -218,7 +218,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public User createUser(org.patientview.patientview.model.User user) {
         User newUser = new User();
-        newUser.setName(user.getFirstName() + " " + user.getLastName());
+        newUser.setForename(user.getFirstName());
+        newUser.setSurname(user.getLastName());
         newUser.setChangePassword(user.isFirstlogon());
         newUser.setPassword(user.getPassword());
         newUser.setLocked(user.isAccountlocked());
