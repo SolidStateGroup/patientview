@@ -18,6 +18,9 @@ module.exports = function (grunt) {
     // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
 
+    // register port option
+    var port = grunt.option('port');
+
     // Define the configuration for all the tasks
     grunt.initConfig({
 
@@ -434,7 +437,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                        apiEndpoint: 'http://localhost:8080/api'
+                        apiEndpoint: 'http://localhost:' + port + '/api'
                     }
                 }
             },
@@ -446,7 +449,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                        apiEndpoint: 'http://localhost:8080/api'
+                        apiEndpoint: 'http://localhost:' + port + '/api'
                     }
                 }
             },
@@ -656,6 +659,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('minimal', [
+
         'clean:dist',
         'ngconstant:apilocal',
         'copy:minimal',
