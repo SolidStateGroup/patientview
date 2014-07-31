@@ -34,12 +34,8 @@ public class JoinRequest extends BaseModel {
     private String nhsNumber;
 
     @OneToOne
-    @JoinColumn(name = "specialty_id")
-    private Group specialty;
-
-    @OneToOne
-    @JoinColumn(name  = "unit_id")
-    private Group unit;
+    @JoinColumn(name = "group_id")
+    private Group group;
 
     @Column(name = "email")
     private String email;
@@ -80,20 +76,12 @@ public class JoinRequest extends BaseModel {
         this.nhsNumber = nhsNumber;
     }
 
-    public Group getSpecialty() {
-        return specialty;
+    public Group getGroup() {
+        return group;
     }
 
-    public void setSpecialty(final Group specialty) {
-        this.specialty = specialty;
-    }
-
-    public Group getUnit() {
-        return unit;
-    }
-
-    public void setUnit(final Group unit) {
-        this.unit = unit;
+    public void setGroup(final Group group) {
+        this.group = group;
     }
 
     public String getEmail() {

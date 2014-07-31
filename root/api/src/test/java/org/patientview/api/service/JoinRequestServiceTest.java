@@ -55,28 +55,24 @@ public class JoinRequestServiceTest {
     @Test
     public void testAddJoinRequest() throws ResourceNotFoundException {
 
-        Group specialty = TestUtils.createGroup(1L, "TestSpecialty", creator);
-        Group unit =  TestUtils.createGroup(2L, "TestUnit", creator);
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
         joinRequest.setDateOfBirth(new Date());
-        joinRequest.setSpecialty(specialty);
-        joinRequest.setUnit(unit);
 
-        when(groupRepository.findOne(eq(specialty.getId()))).thenReturn(specialty);
-        when(groupRepository.findOne(eq(unit.getId()))).thenReturn(unit);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(joinRequestRepository.save(any(JoinRequest.class))).thenReturn(joinRequest);
 
-        joinRequest = joinRequestService.addJoinRequest(joinRequest);
+        joinRequest = joinRequestService.addJoinRequest(group.getId(), joinRequest);
 
-        verify(groupRepository, Mockito.times(2)).findOne(any(Long.class));
+        verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
         verify(joinRequestRepository, Mockito.times(1)).save(any(JoinRequest.class));
 
         Assert.assertNotNull("The return join request should not be null", joinRequest);
-        Assert.assertNotNull("The specialty should not be null", joinRequest.getSpecialty());
-        Assert.assertNotNull("The unit should not be null", joinRequest.getUnit());
+        Assert.assertNotNull("The group should not be null", joinRequest.getGroup());
 
     }
 
@@ -87,49 +83,18 @@ public class JoinRequestServiceTest {
      * @throws ResourceNotFoundException
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testAddJoinRequest_InValidUnit() throws ResourceNotFoundException {
-        Group specialty = TestUtils.createGroup(1L, "TestSpecialty", creator);
-        Group unit =  TestUtils.createGroup(2L, "TestUnit", creator);
+    public void testAddJoinRequest_InValidGroup() throws ResourceNotFoundException {
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
         joinRequest.setDateOfBirth(new Date());
-        joinRequest.setSpecialty(specialty);
-        joinRequest.setUnit(unit);
+        joinRequest.setGroup(group);
 
-        when(groupRepository.findOne(eq(specialty.getId()))).thenReturn(null);
-        when(groupRepository.findOne(eq(unit.getId()))).thenReturn(unit);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
 
-        joinRequestService.addJoinRequest(joinRequest);
-
-        verify(groupRepository.findOne(any(Long.class)), Mockito.times(1));
-        verify(joinRequestRepository.save(eq(joinRequest)), Mockito.times(0));
-        Assert.fail("The service should throw an exception");
-    }
-
-    /**
-     * Test: Attempt to create a join request with an invalid unit
-     * Fail: The join request is created without error
-     *
-     * @throws ResourceNotFoundException
-     */
-    @Test(expected = ResourceNotFoundException.class)
-    public void testAddJoinRequest_InValidSpecialty() throws ResourceNotFoundException {
-        Group specialty = TestUtils.createGroup(1L, "TestSpecialty", creator);
-        Group unit =  TestUtils.createGroup(2L, "TestUnit", creator);
-
-        JoinRequest joinRequest = new JoinRequest();
-        joinRequest.setForename("Test");
-        joinRequest.setSurname("User");
-        joinRequest.setDateOfBirth(new Date());
-        joinRequest.setSpecialty(specialty);
-        joinRequest.setUnit(unit);
-
-        when(groupRepository.findOne(eq(specialty.getId()))).thenReturn(specialty);
-        when(groupRepository.findOne(eq(unit.getId()))).thenReturn(null);
-
-        joinRequestService.addJoinRequest(joinRequest);
+        joinRequestService.addJoinRequest(group.getId(), joinRequest);
 
         verify(groupRepository.findOne(any(Long.class)), Mockito.times(1));
         verify(joinRequestRepository.save(eq(joinRequest)), Mockito.times(0));

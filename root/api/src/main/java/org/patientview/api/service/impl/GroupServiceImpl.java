@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.ContactPoint;
@@ -421,6 +422,18 @@ public class GroupServiceImpl implements GroupService {
 
         createRelationship(sourceGroup, objectGroup, parentRelationshipType);
         createRelationship(objectGroup, sourceGroup, childRelationshipType);
+
+    }
+
+    public List<Group> findChildren(Long groupId) throws ResourceNotFoundException {
+
+        Group group = groupRepository.findOne(groupId);
+
+        if (group == null) {
+            throw new ResourceNotFoundException("The group id is not valid");
+        }
+
+        return Util.iterableToList(groupRepository.findChildren(group));
 
     }
 

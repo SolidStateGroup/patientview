@@ -12,6 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface JoinRequestService {
 
-    public JoinRequest addJoinRequest(JoinRequest joinRequest) throws ResourceNotFoundException;
+    JoinRequest addJoinRequest(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException;
 
 }

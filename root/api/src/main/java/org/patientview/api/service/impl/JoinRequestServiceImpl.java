@@ -27,23 +27,15 @@ public class JoinRequestServiceImpl implements JoinRequestService {
 
 
     @Override
-    public JoinRequest addJoinRequest(final JoinRequest joinRequest) throws ResourceNotFoundException {
+    public JoinRequest addJoinRequest(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException {
 
-        if (joinRequest.getSpecialty() != null) {
-            Group group = groupRepository.findOne(joinRequest.getSpecialty().getId());
-            if (group == null) {
-                throw new ResourceNotFoundException("Could not find specialty for Join Request");
-            }
-            joinRequest.setSpecialty(group);
-        }
+        Group group = groupRepository.findOne(groupId);
 
-        if (joinRequest.getUnit() != null) {
-            Group group = groupRepository.findOne(joinRequest.getUnit().getId());
-            if (group == null) {
-                throw new ResourceNotFoundException("Could not find unit for Join Request");
-            }
-            joinRequest.setUnit(group);
+        if (group == null) {
+            throw new ResourceNotFoundException("Could not find unit for Join Request");
         }
+        joinRequest.setGroup(group);
+
 
         return joinRequestRepository.save(joinRequest);
     }

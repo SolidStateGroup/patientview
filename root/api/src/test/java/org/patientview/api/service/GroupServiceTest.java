@@ -9,6 +9,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -328,5 +330,53 @@ public class GroupServiceTest {
         Group group = groupService.save(parentGroup);
 
         Assert.assertEquals("Should retrieve 3 groups", 3, securityService.getUserGroups(testUser.getId()).size());
+    }
+
+
+    /**
+     * Test: To simple call to the repository to retrieve child groups
+     *
+     */
+    @Test
+    public void testFindChildGroups() throws ResourceNotFoundException {
+
+        // Set up groups
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group childGroup = TestUtils.createGroup(2L, "childGroup", creator);
+
+        List<Group> childGroups = new ArrayList<>();
+
+        childGroups.add(childGroup);
+
+        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findChildren(eq(testGroup))).thenReturn(childGroups);
+
+        childGroups = groupService.findChildren(testGroup.getId());
+        Assert.assertFalse("There should be child objects", CollectionUtils.isEmpty(childGroups));
+
+    }
+
+    /**
+     * Test: To simple call to the repository to retrieve child groups with an invalid group id
+     */
+    @Test(expected = ResourceNotFoundException.class)
+    public void testFindChildGroups_Exception() throws ResourceNotFoundException {
+
+        // Set up groups
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group childGroup = TestUtils.createGroup(2L, "childGroup", creator);
+
+        List<Group> childGroups = new ArrayList<>();
+
+        childGroups.add(childGroup);
+
+        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(null);
+        when(groupRepository.findChildren(eq(testGroup))).thenReturn(childGroups);
+
+        childGroups = groupService.findChildren(testGroup.getId());
+
+        verify(groupRepository, Mockito.times(1)).findChildren(eq(testGroup));
+        Assert.assertFalse("There should be child objects", CollectionUtils.isEmpty(childGroups));
+
     }
 }

@@ -483,8 +483,7 @@ CREATE TABLE PV_Join_Request
   Date_Of_Birth    DATE NOT NULL,
   Email            VARCHAR(500) NOT NULL,
   Nhs_Number       VARCHAR(10),
-  Specialty_Id     BIGINT REFERENCES PV_Group (Id),
-  Unit_Id          BIGINT REFERENCES PV_Group (Id),
+  Group_Id     BIGINT REFERENCES PV_Group (Id),
   Creation_Date    TIMESTAMP   NOT NULL,
   PRIMARY KEY (Id)
 );

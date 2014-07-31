@@ -1,9 +1,12 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.JoinRequestService;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,10 @@ import java.util.List;
 public class GroupController extends BaseController {
 
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
+
+    @Inject
+    private JoinRequestService joinRequestService;
+
 
     @Inject
     private AdminService adminService;
@@ -122,5 +129,23 @@ public class GroupController extends BaseController {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
+
+    @RequestMapping(value = "/group/{groupId}/joinRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> addJoinRequest(@PathVariable("groupId") Long groupId,
+                                               @RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
+        LOG.debug("Join Request Received for {} {}", joinRequest.getForename(), joinRequest.getSurname());
+
+        joinRequestService.addJoinRequest(groupId, joinRequest);
+
+        return new ResponseEntity<Void>(HttpStatus.CREATED);
+
+    }
+
+    @RequestMapping(value = "/group/{groupId}/children", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<Group>> getChildreb(@PathVariable("groupId") Long groupId)
+            throws ResourceNotFoundException{
+        return new ResponseEntity<List<Group>>(groupService.findChildren(groupId), HttpStatus.OK);
+    }
 
 }

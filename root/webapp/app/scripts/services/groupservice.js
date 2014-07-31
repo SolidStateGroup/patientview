@@ -213,6 +213,15 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        getChildren: function (groupId) {
+            var deferred = $q.defer();
+            Restangular.all('group/' + groupId + '/children').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);
