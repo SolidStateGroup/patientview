@@ -38,7 +38,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.groupType = ['id','value','lookupType'];
             fields.identifierType = ['id','value','description','lookupType'];
             fields.contactPoint = ['id','contactPointType','content'];
-            fields.contactPointType = ['id','value','description','lookupType'];
+            fields.contactPointType = ['id','value','lookupType'];
             fields.link = ['id','displayOrder','link','linkType','name'];
             fields.location = ['id','label','name','phone','address','web','email'];
             return fields[objectType];
