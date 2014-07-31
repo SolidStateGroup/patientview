@@ -12,6 +12,8 @@ import javax.persistence.Table;
  * Created by jamesr@solidstategroup.com
  * Created on 07/07/2014
  */
+@Entity
+@Table(name = "pv_location")
 public class Location extends AuditModel {
 
     @JsonIgnore

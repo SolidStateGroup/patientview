@@ -91,6 +91,23 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                 }
             };
         },
+        getJoinRequestRoute: function() {
+            return {
+                'url': '/joinrequest',
+                'templateUrl': 'views/joinrequest.html',
+                'controller': 'JoinRequestCtrl',
+                'title': 'Join Request',
+                'lookup': {
+                    'id': 99,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 2,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
         getRoutes: function (uuid) {
             var deferred = $q.defer();
             Restangular.all('security').one('user', uuid).customGET('routes').then(function (res) {

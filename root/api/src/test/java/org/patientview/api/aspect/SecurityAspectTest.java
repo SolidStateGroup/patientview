@@ -9,6 +9,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -93,6 +94,7 @@ public class SecurityAspectTest {
      *
      * @throws Throwable
      */
+    @Ignore
     @Test(expected = SecurityException.class)
     public void testGroupMemberOnly() throws Throwable {
         LOG.info("Security Aspect Test");

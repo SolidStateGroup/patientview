@@ -1,7 +1,5 @@
 package org.patientview.api.service;
 
-import org.patientview.api.annotation.Audit;
-import org.patientview.api.audit.AuditActions;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Identifier;
@@ -35,13 +33,13 @@ public interface UserService {
      * @param user
      * @return
      */
-    @Audit(value = AuditActions.CREATE_USER)
+   // @Audit(value = AuditActions.CREATE_USER)
     User createUserWithPasswordEncryption(User user);
 
-    @Audit(value = AuditActions.CREATE_USER)
+   // @Audit(value = AuditActions.CREATE_USER)
     public User createUserNoEncryption(User user);
 
-    @Audit(value = AuditActions.EDIT_USER)
+    //@Audit(value = AuditActions.EDIT_USER)
     User saveUser(User user);
 
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);

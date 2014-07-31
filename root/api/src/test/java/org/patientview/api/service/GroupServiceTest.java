@@ -9,6 +9,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -21,6 +22,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -120,8 +123,8 @@ public class GroupServiceTest {
         Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "PARENT", creator);
 
         Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship parent =  TestUtils.createGroupRelationship(7L, testGroup, parentGroup, parentRelationship, creator);
-        GroupRelationship child =  TestUtils.createGroupRelationship(8L, testGroup, childGroup, childRelationship, creator);
+        GroupRelationship parent =  TestUtils.createGroupRelationship(7L, testGroup, parentGroup, RelationshipTypes.PARENT, creator);
+        GroupRelationship child =  TestUtils.createGroupRelationship(8L, testGroup, childGroup, RelationshipTypes.CHILD, creator);
         groupRelationships.add(parent);
         groupRelationships.add(child);
 
@@ -190,7 +193,7 @@ public class GroupServiceTest {
      *
      */
     @Test
-    public void testAddGroupChildAndParentOnSave() {
+    public void testAddGroupChildAndParentOnCreate() {
         User testUser = TestUtils.createUser(2L, "testUser");
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
         Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
@@ -214,7 +217,7 @@ public class GroupServiceTest {
 
         // Test
         TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
-        Group group = groupService.save(testGroup);
+        Group group = groupService.create(testGroup);
 
         // Verify
         verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
@@ -353,8 +356,8 @@ public class GroupServiceTest {
 
         // create group relationships
         Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship child1 =  TestUtils.createGroupRelationship(8L, parentGroup, childGroup1, childRelationship, creator);
-        GroupRelationship child2 =  TestUtils.createGroupRelationship(9L, parentGroup, childGroup2, childRelationship, creator);
+        GroupRelationship child1 =  TestUtils.createGroupRelationship(8L, parentGroup, childGroup1, RelationshipTypes.CHILD, creator);
+        GroupRelationship child2 =  TestUtils.createGroupRelationship(9L, parentGroup, childGroup2, RelationshipTypes.CHILD, creator);
         groupRelationships.add(child1);
         groupRelationships.add(child2);
         parentGroup.setGroupRelationships(groupRelationships);
@@ -372,5 +375,53 @@ public class GroupServiceTest {
         Group group = groupService.save(parentGroup);
 
         Assert.assertEquals("Should retrieve 3 groups", 3, securityService.getUserGroups(testUser.getId()).size());
+    }
+
+
+    /**
+     * Test: To simple call to the repository to retrieve child groups
+     *
+     */
+    @Test
+    public void testFindChildGroups() throws ResourceNotFoundException {
+
+        // Set up groups
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group childGroup = TestUtils.createGroup(2L, "childGroup", creator);
+
+        List<Group> childGroups = new ArrayList<>();
+
+        childGroups.add(childGroup);
+
+        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findChildren(eq(testGroup))).thenReturn(childGroups);
+
+        childGroups = groupService.findChildren(testGroup.getId());
+        Assert.assertFalse("There should be child objects", CollectionUtils.isEmpty(childGroups));
+
+    }
+
+    /**
+     * Test: To simple call to the repository to retrieve child groups with an invalid group id
+     */
+    @Test(expected = ResourceNotFoundException.class)
+    public void testFindChildGroups_Exception() throws ResourceNotFoundException {
+
+        // Set up groups
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group childGroup = TestUtils.createGroup(2L, "childGroup", creator);
+
+        List<Group> childGroups = new ArrayList<>();
+
+        childGroups.add(childGroup);
+
+        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(null);
+        when(groupRepository.findChildren(eq(testGroup))).thenReturn(childGroups);
+
+        childGroups = groupService.findChildren(testGroup.getId());
+
+        verify(groupRepository, Mockito.times(1)).findChildren(eq(testGroup));
+        Assert.assertFalse("There should be child objects", CollectionUtils.isEmpty(childGroups));
+
     }
 }

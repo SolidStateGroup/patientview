@@ -1,9 +1,13 @@
 'use strict';
 
 angular.module('patientviewApp').controller('AccountCtrl', ['UserService', 'AuthService', '$scope', '$rootScope', 'UtilService', function (UserService,AuthService,$scope,$rootScope,UtilService) {
+
+    $scope.pw ='';
+
     UserService.get($rootScope.loggedInUser.id).then(function(data) {
         $scope.userdetails = data;
         $scope.userdetails.confirmEmail = $scope.userdetails.email;
+
     });
 
     $scope.saveSettings = function () {
@@ -37,14 +41,14 @@ angular.module('patientviewApp').controller('AccountCtrl', ['UserService', 'Auth
     $scope.savePassword = function () {
         $scope.successMessage = null;
         $scope.passwordErrorMessage = null;
-        if ($scope.userdetails.newPassword !== $scope.userdetails.confirmPassword) {
+        if ($scope.pw !== $scope.userdetails.confirmPassword) {
             $scope.passwordErrorMessage = '- The passwords do not match';
         } else {
 
             AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword}).then(function () {
 
                 // set the password
-                $scope.userdetails.password = $scope.userdetails.newPassword;
+                $scope.userdetails.password =  $scope.pw;
 
                 UserService.changePassword($scope.userdetails).then(function () {
                     // successfully changed user password

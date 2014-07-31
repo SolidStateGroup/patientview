@@ -25,7 +25,6 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
     public Iterable<User> findGroupStaffByRole(@Param("groupId") Long groupId,
                                                @Param("roleType") String roleType);
 
-
     @Query("SELECT gr.group " +
            "FROM   User u " +
            "JOIN   u.groupRoles gr " +
@@ -45,5 +44,11 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "FROM   Group g " +
            "WHERE  g.groupType = :groupType")
     public Iterable<Group> findGroupByType(@Param("groupType") Lookup groupType);
+
+    @Query("SELECT gr.objectGroup " +
+           "FROM   GroupRelationship gr " +
+           "WHERE  gr.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.CHILD " +
+           "AND    gr.sourceGroup = :group ")
+    public Iterable<Group> findChildren(@Param("group") Group group);
 
 }

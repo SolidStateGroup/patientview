@@ -11,6 +11,7 @@ import org.patientview.persistence.model.RoleType;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
@@ -106,7 +107,7 @@ public class DataTestUtils {
         return groupRoleRepository.save(groupRole);
     }
 
-    public GroupRelationship createGroupRelationship(Group source, Group object, Lookup relationshipType, User creator) {
+    public GroupRelationship createGroupRelationship(Group source, Group object, RelationshipTypes relationshipType, User creator) {
         GroupRelationship groupRelationship = TestUtils.createGroupRelationship(null, source, object, relationshipType, creator);
         return groupRelationshipRepository.save(groupRelationship);
     }

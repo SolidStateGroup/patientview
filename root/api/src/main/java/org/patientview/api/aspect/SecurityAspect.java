@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
@@ -48,11 +49,14 @@ public class SecurityAspect {
         LOG.info("Security Aspect Initialised");
     }
 
-
-   // @Pointcut("@annotation(org.patientview.api.annotation.GroupMemberOnly)")
-   // public void securityGroupAnnotation() {}
-
-
+    @PostConstruct
+    public void init() {
+        if (groupService == null || groupRepository == null) {
+            throw new IllegalStateException("Injection failed for aspect");
+        } else {
+            LOG.info("Security aspect started correctly");
+        }
+    }
 
     @Before("@annotation(org.patientview.api.annotation.GroupMemberOnly)")
     public void checkGroupMembership(JoinPoint joinPoint) throws ResourceForbiddenException {

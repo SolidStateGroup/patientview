@@ -3,14 +3,18 @@ package org.patientview;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 /**
  * Created by james@solidstategroup.com
  * Created on 18/06/2014
  */
+@Entity
+@Table(name = "pv_feature_user")
 public class UserFeature extends RangeModel {
 
     @JsonIgnore

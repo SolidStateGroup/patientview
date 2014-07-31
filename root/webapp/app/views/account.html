@@ -1,10 +1,11 @@
 <h1 ng-controller="AccountCtrl">Account Settings</h1>
-<form class="form-horizontal" ng-cloak id="account-settings-form" >
+<form class="form-horizontal" ng-cloak id="account-settings-form">
 
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
     <div class="form-group">
         <label class="col-sm-3 control-label">Username:</label>
+
         <div class="col-sm-4">
             <label id="username" type="text" class="form-control" ng-bind="userdetails.username"/>
         </div>
@@ -12,6 +13,7 @@
 
     <div class="form-group">
         <label for="email" class="col-sm-3 control-label">Email:</label>
+
         <div class="col-sm-4">
             <input id="email" name=email" type="text" class="form-control" ng-model="userdetails.email" required=""/>
         </div>
@@ -19,15 +21,19 @@
 
     <div class="form-group">
         <label for="confirmEmail" class="col-sm-3 control-label">Confirm Email:</label>
+
         <div class="col-sm-4">
-            <input id="confirmEmail" name=confirmEmail" type="text" class="form-control" ng-model="userdetails.confirmEmail"/>
+            <input id="confirmEmail" name=confirmEmail" type="text" class="form-control"
+                   ng-model="userdetails.confirmEmail"/>
         </div>
     </div>
 
     <div class="form-group">
         <label for="contactNumber" class="col-sm-3 control-label">Contact Number:</label>
+
         <div class="col-sm-4">
-            <input id="contactNumber" name="contactNumber"  type="text" class="form-control" ng-model="userdetails.contactNumber"/>
+            <input id="contactNumber" name="contactNumber" type="text" class="form-control"
+                   ng-model="userdetails.contactNumber"/>
         </div>
     </div>
 
@@ -44,28 +50,37 @@
     </div>
 </form>
 
-<form class="form-horizontal" ng-cloak id="account-password-form" >
+<form class="form-horizontal" ng-cloak id="account-password-form">
 
 
     <div class="form-group">
         <label for="currentPassword" class="col-sm-3 control-label">Current Password:</label>
+
         <div class="col-sm-4">
-            <input id="currentPassword" ng-model="userdetails.currentPassword" name="currentPassword" type="password" class="form-control" required=""/>
+            <input id="currentPassword" ng-model="userdetails.currentPassword" name="currentPassword" type="password"
+                   class="form-control" required=""/>
         </div>
     </div>
 
 
     <div class="form-group">
         <label for="newPassword" class="col-sm-3 control-label">New Password:</label>
+
         <div class="col-sm-4">
-            <input id="newPassword" ng-model="userdetails.newPassword" name="newPassword" type="password" class="form-control" required=""/>
+            <input id="newPassword" ng-model="pw" name="pw" type="password" class="form-control"
+                   required=""/>
+        </div>
+        <div>
+            <ul id="strengthTest" check-strength="pw"></ul>
         </div>
     </div>
 
     <div class="form-group">
         <label for="passwordConfirm" class="col-sm-3 control-label">Confirm Password:</label>
+
         <div class="col-sm-4">
-            <input id="passwordConfirm" ng-model="userdetails.confirmPassword" name="password" type="password" class="form-control" required=""/>
+            <input id="passwordConfirm" ng-model="userdetails.confirmPassword" name="password" type="password"
+                   class="form-control" required=""/>
         </div>
     </div>
 

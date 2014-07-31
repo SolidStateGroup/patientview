@@ -1,6 +1,6 @@
 package org.patientview.api.annotation;
 
-import org.patientview.api.audit.AuditActions;
+import org.patientview.persistence.model.enums.AuditActions;
 
 /**
  * Created by james@solidstategroup.com

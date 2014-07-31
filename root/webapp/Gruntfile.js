@@ -483,6 +483,17 @@ module.exports = function (grunt) {
                         apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
                     }
                 }
+            },
+            apissgdev: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'production',
+                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
+                    }
+                }
             }
         }
     });
@@ -654,6 +665,13 @@ module.exports = function (grunt) {
     grunt.registerTask('minimallive', [
         'clean:dist',
         'ngconstant:apiprod',
+        'copy:minimal',
+        'war'
+    ]);
+
+    grunt.registerTask('minimalssgdev', [
+        'clean:dist',
+        'ngconstant:apissgdev',
         'copy:minimal',
         'war'
     ]);

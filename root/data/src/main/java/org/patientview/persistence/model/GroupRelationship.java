@@ -1,6 +1,11 @@
 package org.patientview.persistence.model;
 
+import org.patientview.persistence.model.enums.RelationshipTypes;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -23,9 +28,9 @@ public class GroupRelationship extends RangeModel {
     @JoinColumn(name = "object_group_id")
     private Group objectGroup;
 
-    @OneToOne
-    @JoinColumn(name = "type_id")
-    Lookup lookup;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "relationship_type")
+    private RelationshipTypes relationshipType;
 
     public Group getSourceGroup() {
         return sourceGroup;
@@ -43,11 +48,11 @@ public class GroupRelationship extends RangeModel {
         this.objectGroup = objectGroup;
     }
 
-    public Lookup getLookup() {
-        return lookup;
+    public RelationshipTypes getRelationshipType() {
+        return relationshipType;
     }
 
-    public void setLookup(final Lookup lookup) {
-        this.lookup = lookup;
+    public void setRelationshipType(final RelationshipTypes relationshipType) {
+        this.relationshipType = relationshipType;
     }
 }
