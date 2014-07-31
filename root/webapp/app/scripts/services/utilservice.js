@@ -32,12 +32,12 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.role = ['id','name','description','routes'];
             fields.group = ['id','name','code','sftpUser','groupType','groupFeatures','routes','links','locations','contactPoints','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode'];
             fields.code = ['id','code','codeType','standardType','description','links'];
-            fields.codeType = ['id','value','lookupType'];
-            fields.standardType = ['id','value','lookupType'];
+            fields.codeType = ['id','value','description','lookupType'];
+            fields.standardType = ['id','value','description','lookupType'];
             fields.groupType = ['id','value','lookupType'];
-            fields.identifierType = ['id','value','lookupType'];
+            fields.identifierType = ['id','value','description','lookupType'];
             fields.contactPoint = ['id','contactPointType','content'];
-            fields.contactPointType = ['id','value','lookupType'];
+            fields.contactPointType = ['id','value','description','lookupType'];
             fields.link = ['id','displayOrder','link','linkType','name'];
             fields.location = ['id','label','name','phone','address','web','email'];
             return fields[objectType];
