@@ -310,8 +310,8 @@ CREATE TABLE PV_Log (
 CREATE TABLE PV_Audit (
   Id            BIGINT    NOT NULL,
   Action        VARCHAR(200),
-  Source        VARCHAR(50),
-  Object_id     BIGINT,
+  Source_Object_Type    VARCHAR(50),
+  Source_Object_Id      BIGINT,
   Pre_Value     VARCHAR(500),
   Post_Value    VARCHAR(500),
   Action_Date   TIMESTAMP NOT NULL,
