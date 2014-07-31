@@ -20,7 +20,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupService {
 
-    //@GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
+    @GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
     Group findOne(Long id);
 
     List<Group> findAll();
@@ -31,7 +31,7 @@ public interface GroupService {
 
     List<Group> findGroupByType(Long lookupId);
 
-    //@GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
+    @GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
     Group save(Group group);
 
     Group create(Group group);

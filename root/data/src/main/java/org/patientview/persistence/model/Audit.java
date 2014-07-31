@@ -20,10 +20,8 @@ import java.util.Date;
 public class Audit extends BaseModel {
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "action")
     private AuditActions auditActions;
-
-    @Column(name = "source_object_type")
-    private String source;
 
     @Column(name = "source_object_id")
     private Long sourceObjectId;
@@ -50,14 +48,6 @@ public class Audit extends BaseModel {
 
     public void setAuditActions(final AuditActions auditActions) {
         this.auditActions = auditActions;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(final String source) {
-        this.source = source;
     }
 
     public Long getSourceObjectId() {
