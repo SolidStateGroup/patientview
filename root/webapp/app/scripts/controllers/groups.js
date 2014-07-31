@@ -439,7 +439,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 alert('Error updating header (saved successfully)');
             });
 
-            $scope.successMessage = 'Code saved';
+            $scope.successMessage = 'Group saved';
         });
     };
 
