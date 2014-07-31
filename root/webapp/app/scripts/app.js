@@ -97,6 +97,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
         data.routes.push(RouteService.getLogoutRoute());
         data.routes.push(RouteService.getLoginRoute());
         data.routes.push(RouteService.getAccountRoute());
+        data.routes.push(RouteService.getJoinRequestRoute());
 
         if (data !== undefined) {
             for (var j=0 ; j < data.routes.length; j++ ) {

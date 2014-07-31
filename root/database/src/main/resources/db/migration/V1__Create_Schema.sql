@@ -7,7 +7,9 @@ CREATE TABLE PV_User
   Locked           BOOL         NOT NULL,
   Fhir_Resource_Id UUID UNIQUE,
   Email            VARCHAR(200) NOT NULL,
-  Fullname             VARCHAR(200) NOT NULL,
+  Forename             VARCHAR(500) NOT NULL,
+  Surname             VARCHAR(500) NOT NULL,
+  Date_Of_Birth    DATE,
   Verification_Code    VARCHAR(200),
   Verified         BOOL         NOT NULL DEFAULT FALSE,
   Contact_Number   VARCHAR(50),
@@ -279,17 +281,6 @@ CREATE TABLE PV_Code (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Join_Request (
-  Id            BIGINT       NOT NULL,
-  Forename      VARCHAR(200) NOT NULL,
-  Surname       VARCHAR(200) NOT NULL,
-  DOB           DATE         NOT NULL,
-  Nhs_Number    VARCHAR(10),
-  Join_Group_Id BIGINT       NOT NULL  REFERENCES PV_Group (Id),
-  Creation_Date TIMESTAMP    NOT NULL,
-  PRIMARY KEY (Id)
-);
-
 CREATE TABLE PV_Location (
   Id            BIGINT    NOT NULL,
   Group_Id      BIGINT    NOT NULL  REFERENCES PV_Group (Id),
@@ -481,6 +472,20 @@ CREATE TABLE PV_Identifier
   Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+
+CREATE TABLE PV_Join_Request
+(
+  Id               BIGINT      NOT NULL,
+  Forename         VARCHAR(500)   NOT NULL,
+  Surname          VARCHAR(500) NOT NULL,
+  Date_Of_Birth    DATE NOT NULL,
+  Email            VARCHAR(500) NOT NULL,
+  Nhs_Number       VARCHAR(10),
+  Group_Id     BIGINT REFERENCES PV_Group (Id),
+  Creation_Date    TIMESTAMP   NOT NULL,
   PRIMARY KEY (Id)
 );
 

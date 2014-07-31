@@ -3,7 +3,6 @@ package org.patientview;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "pv_user")
-public class User extends RangeModel implements UserDetails {
+public class User  extends AuditModel {
 
     @Column(name = "username")
     private String username;
@@ -50,10 +50,17 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "fullname")
+    @Column(name = "forename")
+    private String forename;
+
+    @Column(name = "surname")
+    private String surname;
+
+    @Transient
     private String name;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
+    //@SortNatural
     private Set<GroupRole> groupRoles;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -129,12 +136,24 @@ public class User extends RangeModel implements UserDetails {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
+    public String getForename() {
+        return forename;
+    }
+
+    public void setForename(final String forename) {
+        this.forename = forename;
     }
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(final String surname) {
+        this.surname = surname;
     }
 
     public UUID getFhirResourceId() {
@@ -169,36 +188,35 @@ public class User extends RangeModel implements UserDetails {
         this.identifiers = identifiers;
     }
 
+    public String getName() {
+        return forename + " " + surname;
+    }
+
     //TODO User Detail fields need refactoring
     @JsonIgnore
-    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.<GrantedAuthority>emptyList();
     }
 
     @JsonIgnore
-    @Override
     public boolean isAccountNonExpired()
     {
         return true;
     }
 
     @JsonIgnore
-    @Override
     public boolean isAccountNonLocked()
     {
         return true;
     }
 
     @JsonIgnore
-    @Override
     public boolean isCredentialsNonExpired()
     {
         return true;
     }
 
     @JsonIgnore
-    @Override
     public boolean isEnabled()
     {
         return true;

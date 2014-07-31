@@ -1,7 +1,9 @@
 package org.patientview;
 
+import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 /**
  * Contains the one level mapping between groups and their parents/children
@@ -9,6 +11,8 @@ import javax.persistence.OneToOne;
  * Created by james@solidstategroup.com
  * Created on 08/07/2014
  */
+@Entity
+@Table(name = "pv_group_relationship")
 public class GroupRelationship extends RangeModel {
 
     @OneToOne

@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.ContactPoint;
@@ -231,7 +232,7 @@ public class GroupServiceImpl implements GroupService {
             ContactPoint tempContactPoint = new ContactPoint();
             tempContactPoint.setGroup(newGroup);
             tempContactPoint.setCreator(userRepository.findOne(1L));
-            tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class, contactPoint.getContactPointType().getId()));
+            tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class,contactPoint.getContactPointType().getId()));
             tempContactPoint.setContent(contactPoint.getContent());
             tempContactPoint = contactPointRepository.save(tempContactPoint);
             newGroup.getContactPoints().add(tempContactPoint);
@@ -334,11 +335,14 @@ public class GroupServiceImpl implements GroupService {
         }
 
         return groups;
+
     }
 
     public void addParentGroup(Long groupId, Long parentGroupId) {
+
         Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
         Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
+
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(parentGroupId);
 
@@ -408,4 +412,16 @@ public class GroupServiceImpl implements GroupService {
                 groupRepository.findOne(groupId), featureRepository.findOne(featureId)));
     }
 
+    public List<Group> findChildren(Long groupId) throws ResourceNotFoundException {
+
+        Group group = groupRepository.findOne(groupId);
+
+        if (group == null) {
+            throw new ResourceNotFoundException("The group id is not valid");
+        }
+
+        return Util.iterableToList(groupRepository.findChildren(group));
+
+    }
+    
 }
