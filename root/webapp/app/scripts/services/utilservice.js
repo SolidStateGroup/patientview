@@ -58,7 +58,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             for (var i=1;i<=31;i++) {
                 days.push(i);
             }
-            return days
+            return days;
         },
 
         generateMonths: function () {

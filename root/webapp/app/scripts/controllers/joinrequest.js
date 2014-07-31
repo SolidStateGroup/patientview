@@ -88,7 +88,7 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
             GroupService.getChildren($scope.joinRequest.specialty).then(function (units) {
                 $scope.units = units;
             });
-         }
+        }
     };
 
 }]);
