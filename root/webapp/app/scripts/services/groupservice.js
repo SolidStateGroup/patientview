@@ -315,6 +315,7 @@ function ($q, Restangular, UtilService) {
         addContactPoint: function (group, contactPoint) {
             var deferred = $q.defer();
             contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
+            delete contactPoint.id;
             // POST /group/{groupId}/contactpoints
             Restangular.one('group', group.id).all('contactpoints').post(UtilService.cleanObject(contactPoint, 'contactPoint')).then(function(successResult) {
                 deferred.resolve(successResult);
