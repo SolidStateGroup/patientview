@@ -2,8 +2,11 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,5 +125,97 @@ public class GroupController extends BaseController {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteParentGroup(@PathVariable("groupId") Long groupId,
+                                                  @PathVariable("parentId") Long parentGroupId) {
+        groupService.deleteParentGroup(groupId, parentGroupId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
 
+    @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addChildGroup(@PathVariable("groupId") Long groupId,
+                                                      @PathVariable("childId") Long childGroupId) {
+        groupService.addChildGroup(groupId,childGroupId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteChildGroup(@PathVariable("groupId") Long groupId,
+                                                  @PathVariable("childId") Long childGroupId) {
+        groupService.deleteChildGroup(groupId, childGroupId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/links", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Link> addLink(@PathVariable("groupId") Long groupId, @RequestBody Link link
+            , UriComponentsBuilder uriComponentsBuilder) {
+
+        // create new link
+        Link newLink = groupService.addLink(groupId, link);
+        LOG.info("Created new Link with id " + newLink.getId() + " and added to Group with id " + groupId);
+
+        // set header with location
+        UriComponents uriComponents = uriComponentsBuilder.path("/link/{linkId}").buildAndExpand(newLink.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<Link>(newLink, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<ContactPoint> addContactPoint(@PathVariable("groupId") Long groupId, @RequestBody ContactPoint contactPoint
+            , UriComponentsBuilder uriComponentsBuilder) {
+
+        // create new contactPoint
+        ContactPoint newContactPoint = groupService.addContactPoint(groupId, contactPoint);
+        LOG.info("Created new ContactPoint with id " + newContactPoint.getId() + " and added to Group with id " + groupId);
+
+        // set header with location
+        UriComponents uriComponents = uriComponentsBuilder.path("/contactpoint/{contactPointId}").buildAndExpand(newContactPoint.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<ContactPoint>(newContactPoint, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Location> addLocation(@PathVariable("groupId") Long groupId, @RequestBody Location location
+            , UriComponentsBuilder uriComponentsBuilder) {
+
+        // create new location
+        Location newLocation = groupService.addLocation(groupId, location);
+        LOG.info("Created new Location with id " + newLocation.getId() + " and added to Group with id " + groupId);
+
+        // set header with location
+        UriComponents uriComponents = uriComponentsBuilder.path("/location/{locationId}").buildAndExpand(newLocation.getId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<Location>(newLocation, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addFeature(@PathVariable("groupId") Long groupId,
+                                               @PathVariable("featureId") Long featureId) {
+        groupService.addFeature(groupId, featureId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteFeature(@PathVariable("groupId") Long groupId,
+                                               @PathVariable("featureId") Long featureId) {
+        groupService.deleteFeature(groupId, featureId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
 }

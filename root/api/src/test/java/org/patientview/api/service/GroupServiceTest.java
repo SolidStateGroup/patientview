@@ -10,13 +10,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.GroupServiceImpl;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -245,6 +248,47 @@ public class GroupServiceTest {
         verify(groupRoleRepository, Mockito.times(1)).save(Matchers.any(GroupRole.class));
 
 
+    }
+
+    @Test
+    public void testAddGroupFeature() {
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Feature testFeature = TestUtils.createFeature(2L, FeatureType.MESSAGING.getName(), creator);
+        GroupFeature groupFeature = TestUtils.createGroupFeature(3L, testFeature, testGroup, creator);
+
+        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
+        testGroup.getGroupFeatures().add(groupFeature);
+
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(featureRepository.findOne(Matchers.eq(testFeature.getId()))).thenReturn(testFeature);
+        when(groupFeatureRepository.save(Matchers.any(GroupFeature.class))).thenReturn(groupFeature);
+
+        groupService.addFeature(testGroup.getId(), testFeature.getId());
+
+        Assert.assertNotNull("The returned object should not be null", groupRepository.findOne(testGroup.getId()).getGroupFeatures());
+
+        verify(groupFeatureRepository, Mockito.times(1)).save(Matchers.any(GroupFeature.class));
+    }
+
+    @Test
+    public void testRemoveGroupFeature() {
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Feature testFeature = TestUtils.createFeature(2L, FeatureType.MESSAGING.getName(), creator);
+        GroupFeature groupFeature = TestUtils.createGroupFeature(3L, testFeature, testGroup, creator);
+
+        testGroup.setGroupFeatures(new HashSet<GroupFeature>());
+        testGroup.getGroupFeatures().add(groupFeature);
+
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(featureRepository.findOne(Matchers.eq(testFeature.getId()))).thenReturn(testFeature);
+        when(groupFeatureRepository.save(Matchers.any(GroupFeature.class))).thenReturn(groupFeature);
+
+        groupService.deleteFeature(testGroup.getId(), testFeature.getId());
+        testGroup.getGroupFeatures().remove(groupFeature);
+
+        Assert.assertEquals("There should be no group features", 0, groupRepository.findOne(testGroup.getId()).getGroupFeatures().size());
+
+        verify(groupFeatureRepository, Mockito.times(1)).delete(Matchers.any(GroupFeature.class));
     }
 
     /**
