@@ -23,7 +23,7 @@
     </div>
 </div>
 <button type="button" class="btn blue pull-right" ng-click="save(codeForm, editCode)" ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
-<span class="saved-notification pull-right" ng-show="codeForm.$pristine && saved">Saved Code Details &nbsp;</span>
+<span class="saved-notification pull-right" ng-show="codeForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <br/>
 <hr />
 <div class="row">
@@ -47,7 +47,7 @@
                 <button type="button" class="btn blue link-update-button" ng-click="updateLink($event, codeForm, editCode, link)">Update</button>
                 <button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeForm, editCode, link)">Delete</button>
             </div>
-            <span class="saved-notification" ng-show="link.saved">&nbsp; Updated Link</span>
+            <span class="saved-notification" ng-show="link.saved">&nbsp; Saved Successfully!</span>
         </div>
         <br/>
 

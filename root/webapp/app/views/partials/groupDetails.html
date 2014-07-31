@@ -51,7 +51,7 @@
 </div>
 
 <button type="button" class="btn blue pull-right" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
-<span class="saved-notification pull-right" ng-show="groupForm.$pristine && saved">Saved Group Details &nbsp;</span>
+<span class="saved-notification pull-right" ng-show="groupForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <br/>
 <div class="row">
     <hr />
@@ -72,7 +72,7 @@
             <button type="button" class="btn blue location-update-button" ng-click="updateLocation($event, groupForm, editGroup, location)">Update</button>
             <button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)">Delete</button>
         </div>
-        <span class="saved-notification" ng-show="location.saved">&nbsp; Updated Location</span>
+        <span class="saved-notification" ng-show="location.saved">&nbsp; Saved Successfully!</span>
     </div>
     <div class="add-form" ng-model="newLocation">
         <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" ng-model="newLocation.label"></div>
@@ -100,7 +100,7 @@
             <button type="button" class="btn blue contactPoint-update-button" ng-click="updateContactPoint($event, groupForm, editGroup, contactPoint)">Update</button>
             <button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)">Delete</button>
         </div>
-        <span class="saved-notification" ng-show="contactPoint.saved">&nbsp; Updated Contact Point</span>
+        <span class="saved-notification" ng-show="contactPoint.saved">&nbsp; Saved Successfully!</span>
     </div>
     <div class="add-form" ng-model="newContactPoint">
         <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" ng-model="newContactPoint.contactPointTypeId" ng-options="newContactPointType.id as newContactPointType.value for newContactPointType in contactPointTypes"></select></div>
@@ -128,7 +128,7 @@
                 <button type="button" class="btn blue link-update-button" ng-click="updateLink($event, groupForm, editGroup, link)">Update</button>
                 <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)">Delete</button>
             </div>
-            <span class="saved-notification" ng-show="link.saved">&nbsp; Updated Link</span>
+            <span class="saved-notification" ng-show="link.saved">&nbsp; Saved Successfully!</span>
             <!--<button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>-->
         </div>
         <div class="add-form" ng-model="newLink">
