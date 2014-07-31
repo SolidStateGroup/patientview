@@ -37,6 +37,7 @@ CREATE TABLE PV_Lookup_Value (
   Id               BIGINT       NOT NULL,
   Lookup_Type_Id   BIGINT       NOT NULL REFERENCES PV_Lookup_Type (Id),
   Value            VARCHAR(100) NOT NULL,
+  Description      TEXT,
   Creation_Date    TIMESTAMP    NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
@@ -78,7 +79,7 @@ CREATE TABLE PV_Contact_Point
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
+);
 
 CREATE TABLE PV_Group_Relationship
 (

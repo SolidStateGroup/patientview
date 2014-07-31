@@ -90,12 +90,24 @@ function ($q, Restangular, UtilService) {
                 delete parentGroup.groupFeatures;
                 cleanParentGroups.push(parentGroup);
             }
+            
+            // clean contactPoints
+            var cleanContactPoints = [];
+            for (i=0;i<inputGroup.contactPoints.length;i++) {
+                var contactPoint = UtilService.cleanObject(inputGroup.contactPoints[i], 'contactPoint');
+                contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
+                if (contactPoint.id < 0) {
+                    delete contactPoint.id;
+                }
+                cleanContactPoints.push(contactPoint);
+            }
 
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
             var group = UtilService.cleanObject(inputGroup, 'group');
 
             // add cleaned objects
             group.groupFeatures = cleanGroupFeatures;
+            group.contactPoints = cleanContactPoints;
             group.childGroups = cleanChildGroups;
             group.parentGroups = cleanParentGroups;
             group.groupType = groupType;
@@ -157,12 +169,24 @@ function ($q, Restangular, UtilService) {
                 cleanParentGroups.push(parentGroup);
             }
 
+            // clean contactPoints
+            var cleanContactPoints = [];
+            for (i=0;i<inputGroup.contactPoints.length;i++) {
+                var contactPoint = UtilService.cleanObject(inputGroup.contactPoints[i], 'contactPoint');
+                contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
+                if (contactPoint.id < 0) {
+                    delete contactPoint.id;
+                }
+                cleanContactPoints.push(contactPoint);
+            }
+
             // convert group and standard type ids to actual objects and clean
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
             var group = UtilService.cleanObject(inputGroup, 'group');
 
             // add cleaned objects
             group.groupFeatures = cleanGroupFeatures;
+            group.contactPoints = cleanContactPoints;
             group.childGroups = cleanChildGroups;
             group.parentGroups = cleanParentGroups;
             group.groupType = groupType;
@@ -185,6 +209,106 @@ function ($q, Restangular, UtilService) {
                 deferred.resolve(successResult);
                 successResult.parentGroups = successResult.parents;
                 successResult.childGroups = successResult.children;
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new link to group
+        addLink: function (group, link) {
+            var deferred = $q.defer();
+            // POST /group/{groupId}/links
+            Restangular.one('group', group.id).all('links').post(link).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new location to group
+        addLocation: function (group, location) {
+            var deferred = $q.defer();
+            // POST /group/{groupId}/locations
+            Restangular.one('group', group.id).all('locations').post(location).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new feature to group
+        addFeature: function (group, featureId) {
+            var deferred = $q.defer();
+            // PUT /group/{groupId}/features/{featureId}
+            Restangular.one('group', group.id).one('features',featureId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete feature from group
+        deleteFeature: function (group, feature) {
+            var deferred = $q.defer();
+            // DELETE /group/{groupId}/features/{featureId}
+            Restangular.one('group', group.id).one('features',feature.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new parent group to group relationships
+        addParentGroup: function (group, parentGroupId) {
+            var deferred = $q.defer();
+            // PUT /group/{groupId}/parent/{parentGroupId}
+            Restangular.one('group', group.id).one('parent',parentGroupId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete parent from group relationships
+        deleteParentGroup: function (group, parentGroup) {
+            var deferred = $q.defer();
+            // DELETE /group/{groupId}/parent/{parentGroupId}
+            Restangular.one('group', group.id).one('parent',parentGroup.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new child group to group relationships
+        addChildGroup: function (group, childGroupId) {
+            var deferred = $q.defer();
+            // PUT /group/{groupId}/child/{childGroupId}
+            Restangular.one('group', group.id).one('child',childGroupId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete child from group relationships
+        deleteChildGroup: function (group, childGroup) {
+            var deferred = $q.defer();
+            // DELETE /group/{groupId}/child/{childGroupId}
+            Restangular.one('group', group.id).one('child',childGroup.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new contactPoint to group
+        addContactPoint: function (group, contactPoint) {
+            var deferred = $q.defer();
+            contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
+            // POST /group/{groupId}/contactpoints
+            Restangular.one('group', group.id).all('contactpoints').post(UtilService.cleanObject(contactPoint, 'contactPoint')).then(function(successResult) {
+                deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });

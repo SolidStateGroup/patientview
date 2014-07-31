@@ -1,41 +1,41 @@
 'use strict';
 
-angular.module('patientviewApp').factory('LinkService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
+angular.module('patientviewApp').factory('LocationService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
     return {
         getAll: function () {
             var deferred = $q.defer();
-            Restangular.all('link').getList().then(function(successResult) {
+            Restangular.all('location').getList().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        get: function (linkId) {
+        get: function (locationId) {
             var deferred = $q.defer();
-            Restangular.one('link', linkId).get().then(function(successResult) {
+            Restangular.one('location', locationId).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        // save link
-        save: function (link) {
-            link = UtilService.cleanObject(link, 'link');
+        // save location
+        save: function (location) {
+            location = UtilService.cleanObject(location, 'location');
             var deferred = $q.defer();
-            Restangular.all('link').customPUT(link).then(function(successResult) {
+            Restangular.all('location').customPUT(location).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        // Remove a single link based on linkId
-        delete: function (link) {
+        // Remove a single location based on locationId
+        delete: function (location) {
             var deferred = $q.defer();
-            // DELETE /link/{linkId}
-            Restangular.one('link', link.id).remove().then(function(successResult) {
+            // DELETE /location/{locationId}
+            Restangular.one('location', location.id).remove().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

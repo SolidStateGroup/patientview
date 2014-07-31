@@ -1,8 +1,11 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.Roles;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,7 +20,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupService {
 
-    @GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
+    //@GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
     Group findOne(Long id);
 
     List<Group> findAll();
@@ -28,7 +31,7 @@ public interface GroupService {
 
     List<Group> findGroupByType(Long lookupId);
 
-    @GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
+    //@GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
     Group save(Group group);
 
     Group create(Group group);
@@ -36,5 +39,21 @@ public interface GroupService {
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId);
 
     void addParentGroup(Long groupId, Long parentGroupId);
+
+    void deleteParentGroup(Long groupId, Long parentGroupId);
+
+    void addChildGroup(Long groupId, Long childGroupId);
+
+    void deleteChildGroup(Long groupId, Long childGroupId);
+
+    Link addLink(Long groupId, Link link);
+
+    ContactPoint addContactPoint(Long groupId, ContactPoint contactPoint);
+
+    Location addLocation(Long groupId, Location location);
+
+    void addFeature(Long groupId, Long featureId);
+
+    void deleteFeature(Long groupId, Long featureId);
 
 }
