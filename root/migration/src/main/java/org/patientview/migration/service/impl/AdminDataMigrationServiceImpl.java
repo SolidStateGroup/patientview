@@ -6,12 +6,15 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.patientview.Code;
+import org.patientview.ContactPoint;
+import org.patientview.ContactPointType;
 import org.patientview.Feature;
 import org.patientview.Group;
 import org.patientview.GroupFeature;
 import org.patientview.GroupRole;
 import org.patientview.Link;
 import org.patientview.Lookup;
+import org.patientview.LookupType;
 import org.patientview.Role;
 import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
@@ -31,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +90,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
     }
 
-
     public void migrate() {
         createGroups();
         createCodes(getLookupByName("DIAGNOSIS"), "edtaCode");
@@ -125,6 +128,13 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
                 callApiCreateParentGroup(group, parentGroup);
             } else {
                 LOG.error("Unable to find parent group");
+            }
+
+            // Add the contact points
+            if (group != null) {
+                for (ContactPoint contactPoint : createGroupContactPoints(unit)) {
+                    callApiCreateContactPoint(group, contactPoint);
+                }
             }
 
         }
@@ -167,6 +177,24 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
         LOG.info("Success: feature created for group");
 
+
+        return null;
+
+    }
+
+    private ContactPoint callApiCreateContactPoint(Group group, ContactPoint contactPoint) {
+
+        String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/contactpoints";
+
+        try {
+            return JsonUtil.jsonRequest(featureUrl, ContactPoint.class, contactPoint, HttpPost.class);
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create contact point: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.info("Could not create contact point: {}", group.getName());
+        } catch (Exception jee) {
+            LOG.info("Could not create contact point: {}", group.getName());
+        }
 
         return null;
 
@@ -222,6 +250,21 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             LOG.error("Unable to create link: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {
             LOG.error("Unable to create link: ", jee.getMessage());
+        }
+
+        return newLink;
+    }
+
+    private ContactPointType callApiGetType(String type) {
+        ContactPointType newLink = null;
+        String url = JsonUtil.pvUrl + "/contactpoint/type/" + type;
+        try {
+            newLink = JsonUtil.jsonRequest(url, ContactPointType.class, null , HttpGet.class);
+            LOG.info("Got Contact Point Type");
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to get contact point: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to get contact point: ", jee.getMessage());
         }
 
         return newLink;
@@ -335,6 +378,47 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             }
         }
         return null;
+    }
+
+            /*INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (28, now(), 'UNIT_ENQUIRIES_PHONE','Unit Enquiries Phone','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (29, now(), 'UNIT_ENQUIRIES_EMAIL','Unit Enquiries Email','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (30, now(), 'APPOINTMENT_PHONE','Appointment Phone','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (31, now(), 'APPOINTMENT_EMAIL','Appointment Email','1','9');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (32, now(), 'OUT_OF_HOURS_INFO','Out of Hours Information','1','9');(*/
+
+
+    private List<ContactPoint> createGroupContactPoints(Unit unit) {
+        List<ContactPoint> contactPoints = new ArrayList<ContactPoint>();
+
+        if (unit.getAppointmentphone() != null) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType("APPOINTMENT_PHONE"));
+            contactPoint.setContent(unit.getAppointmentphone());
+            contactPoints.add(contactPoint);
+        }
+
+        if (unit.getAppointmentemail() != null) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType("APPOINTMENT_EMAIL"));
+            contactPoint.setContent(unit.getAppointmentemail());
+            contactPoints.add(contactPoint);
+        }
+
+        if (unit.getUnitenquiriesemail() != null) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType("UNIT_ENQUIRIES_EMAIL"));
+            contactPoint.setContent(unit.getUnitenquiriesemail());
+            contactPoints.add(contactPoint);
+        }
+
+        if (unit.getOutofhours() != null) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType("OUT_OF_HOURS_INFO"));
+            contactPoint.setContent(unit.getOutofhours());
+            contactPoints.add(contactPoint);
+        }
+
+        return contactPoints;
     }
 
     private Group createGroup(Unit unit) {
