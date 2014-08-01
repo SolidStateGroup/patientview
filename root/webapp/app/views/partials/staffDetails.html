@@ -29,11 +29,11 @@
         </ul>
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
             <div class="select-add-group">
-                <select class="form-control" ng-model="groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
+                <select class="form-control" ng-model="editUser.groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
                 <div class="group-list-item">
                     <button buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userForm, editUser, $event)"></button>
                 </div>
-                <button type="button" class="btn blue group-add-button" ng-click="addGroup(userForm, editUser, groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button>
+                <button type="button" class="btn blue group-add-button" ng-click="addGroup(userForm, editUser, editUser.groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button>
             </div>
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
@@ -47,8 +47,8 @@
         <div class="feature-add-container" ng-show="editUser.availableFeatures.length > 0 ">
             <h5 class="inner-title">Add Feature </h5>
             <div class="add-feature">
-                <select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
-                <button type="button" class="btn blue feature-add-button" ng-click="addFeature(userForm, editUser, featureToAdd)">Add</button>
+                <select class="form-control feature-select" ng-model="editUser.featureToAdd" ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
+                <button type="button" class="btn blue feature-add-button" ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
             </div>
         </div>
     </div>

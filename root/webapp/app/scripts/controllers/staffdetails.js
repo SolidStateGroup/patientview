@@ -10,13 +10,16 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', funct
             var newGroup = _.findWhere($scope.allGroups, {id: groupId});
             newGroup.role = _.findWhere($scope.allowedRoles, {id: user.selectedRole});
             user.groups.push(newGroup);
-            user.selectedRole = '';
 
             // for REST compatibility
             user.groupRoles = [];
             for(var i=0;i<user.groups.length;i++) {
                 var group = user.groups[i];
                 user.groupRoles.push({'group': group, 'role': group.role});
+            }
+
+            if (user.availableGroups && user.availableGroups.length > 0) {
+                user.groupToAdd = user.availableGroups[0].id;
             }
 
             form.$setDirty(true);
@@ -27,6 +30,11 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', funct
     $scope.removeGroup = function (form, user, group) {
         user.groups = _.without(user.groups, _.findWhere(user.groups, {id: group.id}));
         user.availableGroups.push(group);
+        user.availableGroups = _.sortBy(user.availableGroups, 'name');
+
+        if (user.availableGroups && user.availableGroups.length > 0) {
+            $scope.groupToAdd = user.availableGroups[0].id;
+        }
 
         // for REST compatibility
         user.groupRoles = [];
@@ -46,6 +54,11 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', funct
                 user.availableFeatures.splice(i, 1);
             }
         }
+
+        if ($scope.editUser.availableFeatures && $scope.editUser.availableFeatures.length > 0) {
+            $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+        }
+
         form.$setDirty(true);
     };
 
@@ -57,6 +70,11 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', funct
                 user.userFeatures.splice(i, 1);
             }
         }
+
+        if ($scope.editUser.availableFeatures && $scope.editUser.availableFeatures.length > 0) {
+            $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+        }
+
         form.$setDirty(true);
     };
 

@@ -13,11 +13,14 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
 
     // set initial group and feature (avoid blank option)
     if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
-        $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
+        $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
     }
     if ($scope.editUser.availableFeatures && $scope.editUser.availableFeatures.length > 0) {
-        $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+        console.log($scope.editUser.availableFeatures[0].feature.id);
+        $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
     }
+
+
 
     // click Create New button
     $scope.new = function () {
@@ -364,10 +367,10 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
                 // set initial group and feature (avoid blank <select> option)
                 if ($scope.editUser.availableGroups[0]) {
-                    $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
+                    $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
                 }
                 if ($scope.editUser.availableFeatures[0]) {
-                    $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+                    $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
                 }
             });
         }
