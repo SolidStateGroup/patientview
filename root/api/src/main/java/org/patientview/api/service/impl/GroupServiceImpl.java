@@ -252,6 +252,11 @@ public class GroupServiceImpl implements GroupService {
         return groupRoleRepository.save(groupRole);
     }
 
+    public void deleteGroupRole(Long userId, Long groupId, Long roleId) {
+        groupRoleRepository.delete(groupRoleRepository.findByUserGroupRole(
+                userRepository.findOne(userId), groupRepository.findOne(groupId), roleRepository.findOne(roleId)
+        ));
+    }
 
     private void saveGroupRelationships(Group group) {
 

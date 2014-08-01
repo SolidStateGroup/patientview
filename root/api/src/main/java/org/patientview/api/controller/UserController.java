@@ -58,14 +58,22 @@ public class UserController extends BaseController {
 
     }
 
-    @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}",
-            method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<GroupRole> addUserGroupRole(@PathVariable("userId") Long userId,
+    public ResponseEntity<Void> addUserGroupRole(@PathVariable("userId") Long userId,
                                                       @PathVariable("groupId") Long groupId,
                                                       @PathVariable("roleId") Long roleId) {
-        return new ResponseEntity<GroupRole>(groupService.addGroupRole(userId, groupId, roleId), HttpStatus.OK);
+        groupService.addGroupRole(userId, groupId, roleId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
 
+    @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteUserGroupRole(@PathVariable("userId") Long userId,
+                                                      @PathVariable("groupId") Long groupId,
+                                                      @PathVariable("roleId") Long roleId) {
+        groupService.deleteGroupRole(userId, groupId, roleId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
     //TODO Sprint 2
@@ -229,4 +237,19 @@ public class UserController extends BaseController {
         return new ResponseEntity<Identifier>(userService.createUserIdentifier(userId, identifier), HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addFeature(@PathVariable("userId") Long userId,
+                                           @PathVariable("featureId") Long featureId) {
+        userService.addFeature(userId, featureId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> deleteFeature(@PathVariable("userId") Long userId,
+                                              @PathVariable("featureId") Long featureId) {
+        userService.deleteFeature(userId, featureId);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
 }

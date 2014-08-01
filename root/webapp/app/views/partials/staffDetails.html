@@ -18,8 +18,11 @@
         </div>
     </div>
 </div>
-
+<br/>
+<button type="button" class="btn blue pull-right" ng-click="save(userForm, editUser)" ng-disabled="userForm.$pristine || !userForm.$valid">Save</button>
+<span class="saved-notification pull-right" ng-show="userForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <div class="row form-edit-row">
+    <hr/>
     <div class="col-md-6 grey-right-border">
         <label class="inner-title">Groups &amp; Roles </label>
         <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-show="groupRole.group.visible === true">

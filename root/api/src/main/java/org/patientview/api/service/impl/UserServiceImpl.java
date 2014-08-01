@@ -310,4 +310,16 @@ public class UserServiceImpl implements UserService {
         return identifier;
     }
 
+    public void addFeature(Long userId, Long featureId) {
+        UserFeature userFeature = new UserFeature();
+        userFeature.setFeature(featureRepository.findOne(featureId));
+        userFeature.setUser(userRepository.findOne(userId));
+        userFeature.setCreator(userRepository.findOne(1L));
+        userFeatureRepository.save(userFeature);
+    }
+
+    public void deleteFeature(Long userId, Long featureId) {
+        userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(
+                userRepository.findOne(userId), featureRepository.findOne(featureId)));
+    }
 }

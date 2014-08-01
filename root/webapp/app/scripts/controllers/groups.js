@@ -426,7 +426,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
     // Save from edit
     $scope.save = function (editGroupForm, group) {
-        GroupService.save(group, $scope.groupTypes).then(function(successResult) {
+        GroupService.save(group, $scope.groupTypes).then(function() {
 
             // successfully saved, replace existing element in data grid with updated
             editGroupForm.$setPristine(true);

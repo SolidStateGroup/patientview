@@ -39,6 +39,8 @@ public interface GroupService {
 
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId);
 
+    void deleteGroupRole(Long userId, Long groupId, Long roleId);
+
     void addParentGroup(Long groupId, Long parentGroupId);
 
     List<Group> findChildren(Long groupId) throws ResourceNotFoundException;

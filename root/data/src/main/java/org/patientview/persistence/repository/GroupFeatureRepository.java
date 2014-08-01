@@ -23,5 +23,5 @@ public interface GroupFeatureRepository extends CrudRepository<GroupFeature, Lon
             "JOIN    gf.feature f " +
             "WHERE   g = :group " +
             "AND     f = :feature ")
-    public GroupFeature findByGroupAndFeature(@Param("group") Group user, @Param("feature") Feature feature);
+    public GroupFeature findByGroupAndFeature(@Param("group") Group group, @Param("feature") Feature feature);
 }
