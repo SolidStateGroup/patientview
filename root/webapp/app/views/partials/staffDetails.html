@@ -9,9 +9,12 @@
             <div class=""><input type="text" class="form-control" id="new-user-email" placeholder="Email" name="email" ng-model="editUser.email" required></div>
         </div>
         <div class="col-md-3">
-            <label for="new-user-name" class="control-label">Name <span class="error" ng-show="userForm.name.$error.required">required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-name" placeholder="Name" name="name" ng-model="editUser.name" required></div>
-
+            <label for="new-user-forename" class="control-label">Forename <span class="error" ng-show="userForm.forename.$error.required">required</span></label>
+            <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename" name="forename" ng-model="editUser.forename" required></div>
+        </div>
+        <div class="col-md-3">
+            <label for="new-user-surname" class="control-label">Surname <span class="error" ng-show="userForm.surname.$error.required">required</span></label>
+            <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname" name="surname" ng-model="editUser.surname" required></div>
         </div>
     </div>
 </div>
