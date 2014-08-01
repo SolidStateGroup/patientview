@@ -79,8 +79,7 @@ public class GroupController extends BaseController {
     @RequestMapping(value = "/group", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Group>> getGroups() {
-        List<Group> groups = groupService.findAll();
-        return new ResponseEntity<List<Group>>(groups, HttpStatus.OK);
+        return new ResponseEntity<List<Group>>(groupService.findAll(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.PUT)
