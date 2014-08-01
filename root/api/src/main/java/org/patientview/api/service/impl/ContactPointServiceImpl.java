@@ -42,7 +42,7 @@ public class ContactPointServiceImpl implements ContactPointService {
     }
 
     public void deleteContactPoint(final Long contactPointId) {
-        contactPointRepository.delete(contactPointId);
+        contactPointRepository.delete(contactPointRepository.findOne(contactPointId)); //(contactPointId);
     }
 
     public ContactPoint saveContactPoint(final ContactPoint contactPoint) {
