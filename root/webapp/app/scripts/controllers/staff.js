@@ -16,11 +16,8 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
         $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
     }
     if ($scope.editUser.availableFeatures && $scope.editUser.availableFeatures.length > 0) {
-        console.log($scope.editUser.availableFeatures[0].feature.id);
         $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
     }
-
-
 
     // click Create New button
     $scope.new = function () {
