@@ -22,7 +22,6 @@
             <div class="group-list-role"><span class="group-list-role">{{groupRole.role.description}}</span></div>
         </div>
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
-            <h5 class="inner-title">Add Group &amp; Role </h5>
             <div class="row">
                 <div class="col-sm-10">
                     Role: <br/><div buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userFormExisting, editUser, $event)"></div>

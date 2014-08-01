@@ -29,7 +29,6 @@
             <li class="group-list-delete" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</a></span></li>
         </ul>
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
-            <label class="inner-title">Add Group &amp; Role </label>
             <div class="select-add-group">
                 <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
                 <ul class="group-list-item">
