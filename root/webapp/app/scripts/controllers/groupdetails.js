@@ -12,7 +12,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // added link
                 link.id = successResult.id;
                 group.links.push(_.clone(link));
-                link.link = link.name = '';
+                delete link.id;
+                delete link.link;
+                delete link.name;
                 form.$setDirty(true);
             }, function () {
                 // failure
@@ -21,7 +23,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
         } else {
             link.id = Math.floor(Math.random() * (9999)) -10000;
             group.links.push(_.clone(link));
-            link.link = link.name = '';
+            delete link.id;
+            delete link.link;
+            delete link.name;
             form.$setDirty(true);
         }
     };
@@ -72,7 +76,8 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // added location
                 location.id = successResult.id;
                 group.locations.push(_.clone(location));
-                location.label = location.name = location.phone = location.address = location.web = location.email = '';
+                group.newLocation = {};
+                group.newLocation.label = 'Additional Location';
                 form.$setDirty(true);
             }, function () {
                 // failure
@@ -81,7 +86,8 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
         } else {
             location.id = Math.floor(Math.random() * (9999)) -10000;
             group.locations.push(_.clone(location));
-            location.label = location.name = location.phone = location.address = location.web = location.email = '';
+            group.newLocation = {};
+            group.newLocation.label = 'Additional Location';
             form.$setDirty(true);
         }
     };
@@ -385,7 +391,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // added contactPoint
                 contactPoint.id = successResult.id;
                 group.contactPoints.push(_.clone(contactPoint));
-                contactPoint.content = '';
+                delete contactPoint.id;
+                delete contactPoint.contactPointType;
+                delete contactPoint.content;
                 form.$setDirty(true);
             }, function () {
                 // failure
@@ -395,7 +403,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
             contactPoint.id = (new Date).getTime() * -1;
             contactPoint.contactPointType = _.findWhere($scope.contactPointTypes, {id: contactPoint.contactPointTypeId});
             group.contactPoints.push(_.clone(contactPoint));
-            contactPoint.content = '';
+            delete contactPoint.id;
+            delete contactPoint.contactPointType;
+            delete contactPoint.content;
             form.$setDirty(true);
         }
     };

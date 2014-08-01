@@ -313,6 +313,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                     group.groupFeatures = [];
                 }
 
+                // set default of new location label to Additional Location
+                group.newLocation = {};
+                group.newLocation.label = 'Additional Location';
+
                 $scope.editGroup = _.clone(group);
 
                 if ($scope.editGroup.availableFeatures[0]) {
@@ -371,6 +375,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.editGroup.childGroups = [];
         $scope.editGroup.availableParentGroups = _.clone($scope.allParentGroups);
         $scope.editGroup.availableChildGroups = _.clone($scope.allChildGroups);
+
+        // set default of new location label to Additional Location
+        $scope.editGroup.newLocation = {};
+        $scope.editGroup.newLocation.label = 'Additional Location';
 
         var modalInstance = $modal.open({
             templateUrl: 'newGroupModal.html',
