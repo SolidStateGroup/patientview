@@ -6,7 +6,6 @@ import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.repository.ContactPointRepository;
-import org.patientview.persistence.repository.LookupRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -21,9 +20,6 @@ public class ContactPointServiceImpl implements ContactPointService {
 
     @Inject
     private ContactPointRepository contactPointRepository;
-
-    @Inject
-    private LookupRepository lookupRepository;
 
     @Inject
     private EntityManager entityManager;
@@ -42,7 +38,9 @@ public class ContactPointServiceImpl implements ContactPointService {
     }
 
     public void deleteContactPoint(final Long contactPointId) {
-        contactPointRepository.delete(contactPointRepository.findOne(contactPointId)); //(contactPointId);
+        ContactPoint contactPoint = contactPointRepository.findOne(contactPointId);
+        contactPoint.getGroup().getContactPoints().remove(contactPoint);
+        contactPointRepository.delete(contactPointId);
     }
 
     public ContactPoint saveContactPoint(final ContactPoint contactPoint) {
