@@ -40,7 +40,7 @@ public interface UserService {
     public User createUserNoEncryption(User user);
 
     //@Audit(value = AuditActions.EDIT_USER)
-    User saveUser(User user);
+    User save(User user) throws ResourceNotFoundException ;
 
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);
 

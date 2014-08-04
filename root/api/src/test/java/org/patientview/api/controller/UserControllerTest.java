@@ -14,6 +14,7 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,6 +48,8 @@ public class UserControllerTest {
     @Mock
     private GroupService groupService;
 
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserController userController;
@@ -139,12 +142,15 @@ public class UserControllerTest {
     @Test
     public void testAddIdentifier() throws ResourceNotFoundException {
         Long userId = 1L;
+        User testUser = TestUtils.createUser(userId, "testUser");
 
-        String url = "/user/" + userId + "/identifier";
+        String url = "/user/" + userId + "/identifiers";
         Identifier identifier = new Identifier();
         identifier.setId(2L);
 
         when(userService.addIdentifier(Matchers.eq(userId), Matchers.eq(identifier))).thenReturn(identifier);
+        when(userRepository.findOne(Matchers.eq(userId))).thenReturn(testUser);
+
         try {
             mockMvc.perform(MockMvcRequestBuilders.post(url)
                     .content(mapper.writeValueAsString(identifier)).contentType(MediaType.APPLICATION_JSON))

@@ -30,11 +30,9 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -188,8 +186,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User saveUser(User user) {
+    public User save(User user) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(user.getId());
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("Could not find user {}" + user.getId());
+        }
         entityUser.setForename(user.getForename());
         entityUser.setSurname(user.getSurname());
         entityUser.setUsername(user.getUsername());

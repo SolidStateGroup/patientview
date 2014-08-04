@@ -160,14 +160,16 @@ public class UserController extends BaseController {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
 
-        user = userService.saveUser(user);
+        try {
+            user = userService.save(user);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
-
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
-
     }
 
     @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,

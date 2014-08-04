@@ -135,6 +135,6 @@ public class UserServiceTest {
 
         when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user);
         userService.addIdentifier(userId, identifier);
-        verify(userRepository, Mockito.times(1)).save(Matchers.eq(user));
+        verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
     }
 }
