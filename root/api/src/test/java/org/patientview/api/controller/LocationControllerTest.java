@@ -8,8 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.LinkService;
-import org.patientview.persistence.model.Link;
+import org.patientview.api.service.LocationService;
+import org.patientview.persistence.model.Location;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -21,64 +21,63 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by james@solidstategroup.com
- * Created on 15/07/2014
+ * Created by jamesr@solidstategroup.com
+ * Created on 04/08/2014
  */
-public class LinkControllerTest {
+public class LocationControllerTest {
 
     private ObjectMapper mapper = new ObjectMapper();
 
     @Mock
-    private LinkService linkService;
+    private LocationService locationService;
 
     @InjectMocks
-    private LinkController linkController;
+    private LocationController locationController;
 
     private MockMvc mockMvc;
-
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(linkController).build();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(locationController).build();
     }
 
     @Test
-    public void testCreateLink() {
-        Link testLink = new Link();
-        testLink.setId(1L);
+    public void testCreateLocation() {
+        Location testLocation = new Location();
+        testLocation.setId(1L);
 
         try {
-            when(linkService.create(eq(testLink))).thenReturn(testLink);
-            mockMvc.perform(MockMvcRequestBuilders.post("/link")
-                    .content(mapper.writeValueAsString(testLink)).contentType(MediaType.APPLICATION_JSON))
+            when(locationService.create(eq(testLocation))).thenReturn(testLocation);
+            mockMvc.perform(MockMvcRequestBuilders.post("/location")
+                    .content(mapper.writeValueAsString(testLocation)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(linkService, Mockito.times(1)).create(eq(testLink));
+            verify(locationService, Mockito.times(1)).create(eq(testLocation));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
     }
 
     @Test
-    public void testUpdateLink() {
-        Link testLink = new Link();
-        testLink.setId(1L);
+    public void testUpdateLocation() {
+        Location testLocation = new Location();
+        testLocation.setId(1L);
 
         try {
-            when(linkService.saveLink(eq(testLink))).thenReturn(testLink);
-            mockMvc.perform(MockMvcRequestBuilders.put("/link")
-                    .content(mapper.writeValueAsString(testLink)).contentType(MediaType.APPLICATION_JSON))
+            when(locationService.saveLocation(eq(testLocation))).thenReturn(testLocation);
+            mockMvc.perform(MockMvcRequestBuilders.put("/location")
+                    .content(mapper.writeValueAsString(testLocation)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(linkService, Mockito.times(1)).saveLink(eq(testLink));
+            verify(locationService, Mockito.times(1)).saveLocation(eq(testLocation));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
     }
 
     @Test
-    public void testDeleteLink() {
-        Long linkId = 1L;
-        String url = "/link/" + linkId;
+    public void testDeleteLocation() {
+        Long locationId = 1L;
+        String url = "/location/" + locationId;
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isNoContent());
@@ -86,9 +85,6 @@ public class LinkControllerTest {
             Assert.fail("Exception throw");
         }
 
-        verify(linkService, Mockito.times(1)).deleteLink(eq(linkId));
+        verify(locationService, Mockito.times(1)).deleteLocation(eq(locationId));
     }
-
-
-
 }

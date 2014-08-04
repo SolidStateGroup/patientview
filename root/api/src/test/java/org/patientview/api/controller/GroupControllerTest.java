@@ -12,7 +12,12 @@ import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.JoinRequestService;
+import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.JoinRequest;
+import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Location;
+import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -69,6 +74,24 @@ public class GroupControllerTest {
 
         verify(groupService, Mockito.times(1)).findGroupByType(eq(typeId));
 
+    }
+
+    @Test
+    public void testAddChildGroup() {
+
+        Long groupId = 1L;
+        Long childGroupId = 2L;
+
+        String url = "/group/" + groupId + "/child/" + childGroupId;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.put(url))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(groupService, Mockito.times(1)).addChildGroup(eq(groupId), eq(childGroupId));
     }
 
     @Test
@@ -170,6 +193,76 @@ public class GroupControllerTest {
 
         verify(groupService, Mockito.times(1)).findChildren(eq(groupId));
 
+    }
+
+    @Test
+    public void testAddAdditionalLocation() {
+        Location location = new Location();
+        location.setId(1L);
+        location.setLabel("Additional Location");
+        location.setName("New location");
+        location.setPhone("0123456789");
+        location.setAddress("1 Road Street, Town, AB12CD");
+        location.setWeb("http://www.additional.com");
+        location.setEmail("test@solidstategroup.com");
+
+        Long groupId = 2L;
+
+        try {
+            when(groupService.addLocation(eq(groupId), eq(location))).thenReturn(location);
+            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/locations")
+                    .content(mapper.writeValueAsString(location)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isCreated());
+            verify(groupService, Mockito.times(1)).addLocation(eq(groupId), eq(location));
+        } catch (Exception e) {
+            Assert.fail("This call should not fail");
+        }
+    }
+
+    @Test
+    public void testAddContactPoint() {
+        ContactPoint contactPoint = new ContactPoint();
+        contactPoint.setId(1L);
+
+        ContactPointType contactPointType = new ContactPointType();
+        contactPointType.setId(2L);
+        contactPointType.setValue(ContactPointTypes.PV_ADMIN_NAME);
+        contactPoint.setContactPointType(contactPointType);
+
+        contactPoint.setContent("test@solidstategroup.com");
+
+        Long groupId = 3L;
+
+        try {
+            when(groupService.addContactPoint(eq(groupId), eq(contactPoint))).thenReturn(contactPoint);
+            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/contactpoints")
+                    .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isCreated());
+            verify(groupService, Mockito.times(1)).addContactPoint(eq(groupId), eq(contactPoint));
+        } catch (Exception e) {
+            Assert.fail("This call should not fail");
+        }
+    }
+
+    @Test
+    public void testAddLink() {
+        Link link = new Link();
+        link.setId(1L);
+        link.setDisplayOrder(1);
+        link.setName("Home");
+        link.setLink("http://www.solidstategroup.com");
+
+        Long groupId = 2L;
+
+        try {
+            when(groupService.addLink(eq(groupId), eq(link))).thenReturn(link);
+            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/links")
+                    .content(mapper.writeValueAsString(link)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isCreated());
+            verify(groupService, Mockito.times(1)).addLink(eq(groupId), eq(link));
+        } catch (Exception e) {
+            Assert.fail("This call should not fail");
+        }
     }
 
 }

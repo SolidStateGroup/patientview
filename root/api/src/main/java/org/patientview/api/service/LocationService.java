@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface LocationService {
 
-    Location create(Location link);
+    Location create(Location location);
 
-    Location getLocation(Long linkId);
+    Location getLocation(Long locationId);
 
-    void deleteLocation(Long linkId);
+    void deleteLocation(Long locationId);
 
-    Location saveLocation(Location link);
+    Location saveLocation(Location location);
 }
