@@ -254,6 +254,7 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
 
             if (valid) {
                 if ($scope.editMode) {
+                    delete identifier.id;
                     UserService.addIdentifier(user, identifier).then(function (successResult) {
                         // added identifier
                         identifier.id = successResult.id;
@@ -291,7 +292,7 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
         }
     };
 
-    $scope.updateIdentifier = function (event, form, group, identifier) {
+    $scope.updateIdentifier = function (event, form, user, identifier) {
         identifier.saved = false;
 
         // try and save identifier
@@ -328,6 +329,19 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
                     }
                 }
                 form.$setDirty(true);
+
+                // update accordion header with data from GET
+                UserService.get(user.id).then(function (successResult) {
+                    for(var i=0;i<$scope.list.length;i++) {
+                        if($scope.list[i].id == user.id) {
+                            var headerDetails = $scope.list[i];
+                            headerDetails.identifiers = successResult.identifiers;
+                        }
+                    }
+                }, function () {
+                    // failure
+                    alert('Error updating header (saved successfully)');
+                });
             }, function () {
                 // failure
                 alert('Error deleting identifier');

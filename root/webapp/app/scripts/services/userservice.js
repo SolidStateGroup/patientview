@@ -85,41 +85,10 @@ function ($q, Restangular, UtilService) {
         },
         // Save existing user
         save: function (inputUser) {
-            var i;
             var deferred = $q.defer();
 
             // clean user object
-            var user = UtilService.cleanObject(inputUser, 'user');
-
-            // clean group roles (clean role and group then add to groupRoles)
-            user.groupRoles = [];
-            for (i=0;i<inputUser.groupRoles.length;i++) {
-                var inputGroupRole = inputUser.groupRoles[i];
-                var role = UtilService.cleanObject(inputGroupRole.role, 'role');
-                var group = UtilService.cleanObject(inputGroupRole.group, 'group');
-                user.groupRoles.push({'group':group,'role':role});
-            }
-
-            // clean user features
-            var cleanUserFeatures = [];
-            for (i=0;i<inputUser.userFeatures.length;i++) {
-                var userFeature = inputUser.userFeatures[i];
-                var feature = {'id':userFeature.feature.id,'name':userFeature.feature.name,'description':''};
-                cleanUserFeatures.push({'feature':feature});
-            }
-            user.userFeatures = cleanUserFeatures;
-
-            // clean identifiers
-            var cleanIdentifiers = [];
-            for (i=0;i<inputUser.identifiers.length;i++) {
-                var identifier = inputUser.identifiers[i];
-                identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
-                if (identifier.id < 0) {
-                    delete identifier.id;
-                }
-                cleanIdentifiers.push(identifier);
-            }
-            user.identifiers = cleanIdentifiers;
+            var user = UtilService.cleanObject(inputUser, 'userDetails');
 
             // PUT /user
             Restangular.all('user').customPUT(user).then(function(successResult) {
@@ -248,6 +217,7 @@ function ($q, Restangular, UtilService) {
         // Add new identifier to user
         addIdentifier: function (user, identifier) {
             var deferred = $q.defer();
+            identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
             // POST /user/{userId}/identifiers
             Restangular.one('user', user.id).all('identifiers').post(identifier).then(function(successResult) {
                 deferred.resolve(successResult);

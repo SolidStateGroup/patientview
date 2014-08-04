@@ -144,7 +144,7 @@ public class UserControllerTest {
         Identifier identifier = new Identifier();
         identifier.setId(2L);
 
-        when(userService.createUserIdentifier(Matchers.eq(userId), Matchers.eq(identifier))).thenReturn(identifier);
+        when(userService.addIdentifier(Matchers.eq(userId), Matchers.eq(identifier))).thenReturn(identifier);
         try {
             mockMvc.perform(MockMvcRequestBuilders.post(url)
                     .content(mapper.writeValueAsString(identifier)).contentType(MediaType.APPLICATION_JSON))

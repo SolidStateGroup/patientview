@@ -227,14 +227,14 @@ public class UserController extends BaseController {
         return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/{userId}/identifier", method = RequestMethod.POST,
+    @RequestMapping(value = "/user/{userId}/identifiers", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Identifier> createIdentifier(@PathVariable("userId") Long userId,
+    public ResponseEntity<Identifier> addIdentifier(@PathVariable("userId") Long userId,
                                           @RequestBody Identifier identifier)
             throws ResourceNotFoundException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, identifier);
-        return new ResponseEntity<Identifier>(userService.createUserIdentifier(userId, identifier), HttpStatus.CREATED);
+        return new ResponseEntity<Identifier>(userService.addIdentifier(userId, identifier), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.PUT)

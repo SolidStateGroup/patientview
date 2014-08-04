@@ -66,7 +66,7 @@ public interface UserService {
 
     public Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
 
-    Identifier createUserIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException;
+    Identifier addIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException;
 
     void addFeature(Long userId, Long featureId);
 

@@ -189,56 +189,12 @@ public class UserServiceImpl implements UserService {
     }
 
     public User saveUser(User user) {
-
-        User creator = userRepository.getOne(1L);
-
-        Set<GroupRole> groupRoles = user.getGroupRoles();
-        Set<Identifier> identifiers = user.getIdentifiers();
-        Set<UserFeature> features = user.getUserFeatures();
-
-        user.setIdentifiers(Collections.EMPTY_SET);
-        user.setGroupRoles(Collections.EMPTY_SET);
-        user.setUserFeatures(Collections.EMPTY_SET);
-        groupRoleRepository.deleteByUser(user);
-        userFeatureRepository.deleteByUser(user);
-        identifierRepository.deleteByUser(user);
-        entityManager.flush();
-        user.setCreator(creator);
-        entityManager.merge(user);
-        user = userRepository.save(user);
-
-
-
-        for (GroupRole groupRole : groupRoles) {
-            GroupRole newGroupRole = new GroupRole();
-            newGroupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
-            newGroupRole.setRole(roleRepository.findOne((groupRole.getRole().getId())));
-            newGroupRole.setUser(user);
-            newGroupRole.setCreator(creator);
-            //entityManager.merge(newGroupRole);
-            entityManager.persist(newGroupRole);
-        }
-
-        for (Identifier identifier : identifiers) {
-            Identifier newIdentifier = new Identifier();
-            newIdentifier.setCreator(creator);
-            newIdentifier.setUser(userRepository.findOne(user.getId()));
-            newIdentifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
-            newIdentifier.setIdentifier(identifier.getIdentifier());
-            //entityManager.merge(newIdentifier);
-            entityManager.persist(newIdentifier);
-        }
-
-        for (UserFeature userFeature : features) {
-            UserFeature newUserFeature = new UserFeature();
-            newUserFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
-            newUserFeature.setCreator(creator);
-            newUserFeature.setUser(userRepository.findOne(user.getId()));
-            //entityManager.merge(newUserFeature);
-            entityManager.persist(newUserFeature);
-        }
-
-        return user;
+        User entityUser = userRepository.findOne(user.getId());
+        entityUser.setForename(user.getForename());
+        entityUser.setSurname(user.getSurname());
+        entityUser.setUsername(user.getUsername());
+        entityUser.setEmail(user.getEmail());
+        return userRepository.save(entityUser);
     }
 
     public List<User> getUserByGroupAndRole(Long groupId, Long roleId) {
@@ -298,16 +254,17 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-    public Identifier createUserIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException {
+    public Identifier addIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user {}" + userId);
         }
+        identifier.setCreator(userRepository.findOne(1L));
         user.getIdentifiers().add(identifier);
         identifier.setUser(user);
-        userRepository.save(user);
+        //userRepository.save(user);
 
-        return identifier;
+        return identifierRepository.save(identifier);
     }
 
     public void addFeature(Long userId, Long featureId) {
