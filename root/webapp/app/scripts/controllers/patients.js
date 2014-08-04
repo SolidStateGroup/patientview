@@ -531,6 +531,18 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             });
         };
 
+        // view patient
+        $scope.viewUser = function (userId, $event) {
+            $scope.successMessage = '';
+
+            // workaround for cloned object not capturing ng-click properties
+            var eventUserId = $event.currentTarget.dataset.userid;
+
+            UserService.get(eventUserId).then(function(user) {
+                alert('TODO: view patient "' + user.forename + ' ' + user.surname + '" ');
+            });
+        };
+
         // reset user password
         $scope.resetUserPassword = function (userId, $event) {
             $scope.successMessage = '';
