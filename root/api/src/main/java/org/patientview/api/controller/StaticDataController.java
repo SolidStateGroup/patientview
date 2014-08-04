@@ -4,8 +4,6 @@ import org.patientview.api.service.StaticDataManager;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.LookupTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -24,9 +23,7 @@ import java.util.List;
  * Created on 05/06/2014
  */
 @RestController
-public class StaticDataController extends  BaseController {
-
-    private final static Logger LOG = LoggerFactory.getLogger(StaticDataController.class);
+public class StaticDataController extends BaseController<StaticDataController> {
 
     @Inject
     private StaticDataManager staticDataManager;

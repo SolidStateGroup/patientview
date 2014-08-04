@@ -66,7 +66,7 @@ public class JoinRequestServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(joinRequestRepository.save(any(JoinRequest.class))).thenReturn(joinRequest);
 
-        joinRequest = joinRequestService.addJoinRequest(group.getId(), joinRequest);
+        joinRequest = joinRequestService.add(group.getId(), joinRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
         verify(joinRequestRepository, Mockito.times(1)).save(any(JoinRequest.class));
@@ -83,7 +83,7 @@ public class JoinRequestServiceTest {
      * @throws ResourceNotFoundException
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testAddJoinRequest_InValidGroup() throws ResourceNotFoundException {
+    public void testAddJoinRequest_invalidGroup() throws ResourceNotFoundException {
         Group group = TestUtils.createGroup(1L, "TestGroup", creator);
 
         JoinRequest joinRequest = new JoinRequest();
@@ -94,12 +94,53 @@ public class JoinRequestServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
 
-        joinRequestService.addJoinRequest(group.getId(), joinRequest);
+        joinRequestService.add(group.getId(), joinRequest);
 
-        verify(groupRepository.findOne(any(Long.class)), Mockito.times(1));
-        verify(joinRequestRepository.save(eq(joinRequest)), Mockito.times(0));
+        verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
         Assert.fail("The service should throw an exception");
     }
 
+    /**
+     * Test: Attempt to retrieve the join request that are related to a group
+     * Fail: Appropriate service method not called
+     */
+    @Test
+    public void testGetJoinRequest_validGroup() throws ResourceNotFoundException {
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
 
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setForename("Test");
+        joinRequest.setSurname("User");
+        joinRequest.setDateOfBirth(new Date());
+        joinRequest.setGroup(group);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+        joinRequestService.get(group.getId());
+
+        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(joinRequestRepository, Mockito.times(1)).findByGroup(eq(group));
+    }
+
+    /**
+     * Test: Attempt to retrieve the join request that are related to a group
+     * Fail: An exception should be thrown for the null group
+     */
+    @Test(expected = ResourceNotFoundException.class)
+    public void testGetJoinRequest_invalidGroup() throws ResourceNotFoundException {
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setForename("Test");
+        joinRequest.setSurname("User");
+        joinRequest.setDateOfBirth(new Date());
+        joinRequest.setGroup(group);
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
+
+        joinRequestService.get(group.getId());
+
+        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(joinRequestRepository, Mockito.times(0)).findByGroup(eq(group));
+    }
 }

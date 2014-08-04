@@ -4,8 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.controller.model.Credentials;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.persistence.model.UserToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +27,7 @@ import javax.servlet.http.HttpServletRequest;
  * Created on 13/06/2014
  */
 @RestController
-public class AuthController extends BaseController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
+public class AuthController extends BaseController<AuthController> {
 
     @Inject
     private AuthenticationService authenticationService;

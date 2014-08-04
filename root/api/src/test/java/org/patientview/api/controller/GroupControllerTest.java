@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.Assert;
 import org.junit.Before;
@@ -18,13 +19,19 @@ import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -36,6 +43,7 @@ import static org.mockito.Mockito.when;
  */
 public class GroupControllerTest {
 
+    protected final Logger LOG = LoggerFactory.getLogger(GroupControllerTest.class);
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -163,11 +171,11 @@ public class GroupControllerTest {
         Long groupId = 2L;
 
         try {
-            when(joinRequestService.addJoinRequest(eq(groupId), eq(joinRequest))).thenReturn(joinRequest);
+            when(joinRequestService.add(eq(groupId), eq(joinRequest))).thenReturn(joinRequest);
             mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/joinRequest")
                     .content(mapper.writeValueAsString(joinRequest)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(joinRequestService, Mockito.times(1)).addJoinRequest(eq(groupId), eq(joinRequest));
+            verify(joinRequestService, Mockito.times(1)).add(eq(groupId), eq(joinRequest));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
@@ -264,5 +272,78 @@ public class GroupControllerTest {
             Assert.fail("This call should not fail");
         }
     }
+
+    /**
+     * Test: The request of the join request for a unit
+     * Fail: The service does not get called for join requests
+     */
+    @Test
+    public void testGroupJoinRequest() throws ResourceNotFoundException {
+        Long groupId = 1L;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/group/" + groupId + "/joinrequests"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(joinRequestService, Mockito.times(1)).get(eq(groupId));
+    }
+
+    /**
+     * Test: The request of the join request for a unit
+     * Fail: The service does not get called for join requests
+     */
+    @Test
+    public void testGroupJoinRequest_withParameter() throws ResourceNotFoundException, JsonProcessingException{
+        Long groupId = 1L;
+
+        Set<JoinRequestStatus> statuses = new HashSet<>();
+
+        String url = "/group/" + groupId + "/joinrequests?statuses=" + mapper.writeValueAsString(statuses);
+
+        LOG.info("Called url pattern :" + url);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get(url)
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(joinRequestService, Mockito.times(1)).getByType(eq(groupId), eq(Collections.EMPTY_SET));
+    }
+
+    /**
+     * Test: The request of the join request for a unit
+     * Fail: The service does not get called for join requests
+     */
+    @Test
+    public void testGroupJoinRequest_withParameterAndData() throws ResourceNotFoundException, JsonProcessingException{
+        Long groupId = 1L;
+
+        Set<String> statuses = new HashSet<>();
+        statuses.add(JoinRequestStatus.COMPLETED.getId());
+
+        Set<JoinRequestStatus> returnStatuses = new HashSet<>();
+        returnStatuses.add(JoinRequestStatus.COMPLETED);
+
+        String url = "/group/" + groupId + "/joinrequests?statuses=" + mapper.writeValueAsString(statuses);
+
+        LOG.info("Called url pattern :" + url);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get(url)
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(joinRequestService, Mockito.times(1)).getByType(eq(groupId), eq(returnStatuses));
+    }
+
 
 }

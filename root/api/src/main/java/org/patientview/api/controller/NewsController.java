@@ -2,8 +2,6 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.NewsService;
 import org.patientview.persistence.model.NewsItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,9 +26,7 @@ import javax.inject.Inject;
  * Created on 20/06/2014
  */
 @RestController
-public class NewsController extends BaseController {
-
-    private final static Logger LOG = LoggerFactory.getLogger(NewsController.class);
+public class NewsController extends BaseController<NewsController> {
 
     @Inject
     private NewsService newsService;

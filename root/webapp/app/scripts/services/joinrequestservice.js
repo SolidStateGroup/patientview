@@ -14,6 +14,16 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+
+        getByType: function (groupId, statuses) {
+            var deferred = $q.defer();
+            Restangular.one('group', groupId).all('joinrequests').getList({'statuses': statuses}).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

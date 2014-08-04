@@ -2,8 +2,6 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.LinkService;
 import org.patientview.persistence.model.Link;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,9 +22,7 @@ import javax.inject.Inject;
  * Created on 15/07/2014
  */
 @RestController
-public class LinkController {
-
-    private final static Logger LOG = LoggerFactory.getLogger(LinkController.class);
+public class LinkController extends BaseController<LinkController> {
 
     @Inject
     private LinkService linkService;
