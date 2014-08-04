@@ -22,4 +22,6 @@ public interface JoinRequestService {
 
     List<JoinRequest> getByType(Long groupId, Set<JoinRequestStatus> joinRequestStatuses)
             throws ResourceNotFoundException;
+
+    JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException ;
 }

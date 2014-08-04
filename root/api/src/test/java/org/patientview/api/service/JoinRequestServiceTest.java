@@ -12,10 +12,13 @@ import org.patientview.api.service.impl.JoinRequestServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.JoinRequestRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.util.Collections;
 import java.util.Date;
 
 import static org.mockito.Matchers.any;
@@ -34,6 +37,9 @@ public class JoinRequestServiceTest {
 
     @Mock
     GroupRepository groupRepository;
+
+    @Mock
+    UserRepository userRepository;
 
     @InjectMocks
     JoinRequestService joinRequestService = new JoinRequestServiceImpl();
@@ -101,33 +107,35 @@ public class JoinRequestServiceTest {
     }
 
     /**
-     * Test: Attempt to retrieve the join request that are related to a group
+     * Test: Attempt to retrieve the join request that are related to a user
      * Fail: Appropriate service method not called
      */
     @Test
     public void testGetJoinRequest_validGroup() throws ResourceNotFoundException {
         Group group = TestUtils.createGroup(1L, "TestGroup", creator);
-
+        User user = TestUtils.createUser(2L, "testUser");
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
         joinRequest.setDateOfBirth(new Date());
         joinRequest.setGroup(group);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
         joinRequestService.get(group.getId());
 
-        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(1)).findByGroup(eq(group));
+        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(joinRequestRepository, Mockito.times(1)).findByUser(eq(user));
     }
 
     /**
-     * Test: Attempt to retrieve the join request that are related to a group
+     * Test: Attempt to retrieve the join request that are related to a user
      * Fail: An exception should be thrown for the null group
      */
     @Test(expected = ResourceNotFoundException.class)
     public void testGetJoinRequest_invalidGroup() throws ResourceNotFoundException {
+
+        User user = TestUtils.createUser(2L, "testUser");
         Group group = TestUtils.createGroup(1L, "TestGroup", creator);
 
         JoinRequest joinRequest = new JoinRequest();
@@ -136,11 +144,38 @@ public class JoinRequestServiceTest {
         joinRequest.setDateOfBirth(new Date());
         joinRequest.setGroup(group);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
+        when(userRepository.findOne(eq(group.getId()))).thenReturn(null);
 
         joinRequestService.get(group.getId());
 
-        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(0)).findByGroup(eq(group));
+        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(joinRequestRepository, Mockito.times(0)).findByUser(eq(user));
     }
+
+
+    /**
+     * Test: Save a join request from the controller
+     * Fail: A called to the save method should be called
+     */
+    @Test
+    public void testSaveJoinRequest() throws ResourceNotFoundException, SecurityException {
+        User user = TestUtils.createUser(2L, "testUser");
+
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setId(10L);
+        joinRequest.setForename("Test");
+        joinRequest.setSurname("User");
+        joinRequest.setDateOfBirth(new Date());
+        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
+
+        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(joinRequestRepository.findOne(eq(joinRequest.getId()))).thenReturn(joinRequest);
+        joinRequestService.save(joinRequest);
+
+        verify(joinRequestRepository, Mockito.times(1)).save(eq(joinRequest));
+
+    }
+
 }

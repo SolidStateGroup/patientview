@@ -1,9 +1,13 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.patientview.persistence.model.enums.JoinRequestStatus;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -43,6 +47,21 @@ public class JoinRequest extends BaseModel {
     @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date created = new Date();
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private JoinRequestStatus status;
+
+    @Column(name = "status_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date completionDate;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "completed_by")
+    private User completedBy;
+
+    @Column(name = "notes")
+    private String notes;
 
     public String getForename() {
         return forename;
@@ -98,5 +117,37 @@ public class JoinRequest extends BaseModel {
 
     public void setCreated(final Date created) {
         this.created = created;
+    }
+
+    public JoinRequestStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(final JoinRequestStatus status) {
+        this.status = status;
+    }
+
+    public Date getCompletionDate() {
+        return completionDate;
+    }
+
+    public void setCompletionDate(final Date completionDate) {
+        this.completionDate = completionDate;
+    }
+
+    public User getCompletedBy() {
+        return completedBy;
+    }
+
+    public void setCompletedBy(final User completedBy) {
+        this.completedBy = completedBy;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(final String notes) {
+        this.notes = notes;
     }
 }

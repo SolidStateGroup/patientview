@@ -6,7 +6,8 @@ package org.patientview.persistence.model.enums;
  */
 public enum JoinRequestStatus {
 
-    INCOMPLETE("Incomplete"), COMPLETED ("Completed"), IGNORED("Ignored"), DUPLICATE("Duplicate");
+    INCOMPLETE("Incomplete"), COMPLETED ("Completed"),
+    IGNORED("Ignored"), DUPLICATE("Duplicate"), SUBMITTED("Submitted");
 
     private String name;
     JoinRequestStatus(String name) { this.name = name; }
