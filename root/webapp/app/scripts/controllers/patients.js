@@ -305,7 +305,15 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         var childMenu = $('<div class="child-menu"></div>');
                         var dropDownMenuToAdd = $('#' + $event.target.id + '-menu').clone().attr('id', '').show();
 
+                        // manually remove Send Verification Email link if already verified
+                        if (openedUser.emailVerified) {
+                            $(dropDownMenuToAdd).find('#li-email-verified-' + openedUser.id).hide();
+                        } else {
+                            $(dropDownMenuToAdd).find('#li-email-verified-' + openedUser.id).show();
+                        }
+
                         // http://stackoverflow.com/questions/16949299/getting-ngclick-to-work-on-dynamic-fields
+                        // http://stackoverflow.com/questions/12202067/angularjs-ng-click-broken-inside-a-popover
                         var compiledElement = $compile(dropDownMenuToAdd)($scope);
                         $(childMenu).append(compiledElement);
                         $('#' + $event.target.id).parent().append(childMenu);
