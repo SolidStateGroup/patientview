@@ -105,11 +105,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     public List<Group> findGroupByUser(User user) {
-
         List<Group> groups = Util.iterableToList(groupRepository.findGroupByUser(user));
-
         return addParentAndChildGroups(groups);
-
     }
 
     public List<Group> findGroupAndChildGroupsByUser(User user) {
@@ -131,22 +128,32 @@ public class GroupServiceImpl implements GroupService {
     }
 
     public List<Group> findGroupByType(Long lookupId) {
-
         Lookup groupType = lookupRepository.findOne(lookupId);
-
         List<Group> groups = Util.iterableToList(groupRepository.findGroupByType(groupType));
-
         return addParentAndChildGroups(groups);
-
     }
-
 
     /**
      * @param group
      * @return
      */
-    public Group save(Group group) {
-        return groupRepository.save(group);
+    public Group save(Group group) throws ResourceNotFoundException {
+        Group entityGroup = groupRepository.findOne(group.getId());
+
+        if (entityGroup == null) {
+            throw new ResourceNotFoundException("Could not find group {}" + group.getId());
+        }
+
+        entityGroup.setCode(group.getCode());
+        entityGroup.setName(group.getName());
+        entityGroup.setGroupType(group.getGroupType());
+        entityGroup.setSftpUser(group.getSftpUser());
+        entityGroup.setAddress1(group.getAddress1());
+        entityGroup.setAddress2(group.getAddress2());
+        entityGroup.setAddress3(group.getAddress3());
+        entityGroup.setPostcode(group.getPostcode());
+        entityGroup.setVisibleToJoin(group.getVisibleToJoin());
+        return groupRepository.save(entityGroup);
     }
 
     /**

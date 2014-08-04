@@ -2,10 +2,10 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -17,18 +17,18 @@ import javax.persistence.Table;
 @Table(name = "pv_identifier")
 public class Identifier extends RangeModel {
 
-    @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne
     @JoinColumn(name = "type_id")
     private Lookup identifierType;
 
     @Column(name = "identifier")
     private String identifier;
 
+    @JsonIgnore
     public User getUser() {
         return user;
     }

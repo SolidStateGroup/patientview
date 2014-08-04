@@ -64,7 +64,7 @@ public class AuthenticationServiceTest {
         User user = new User();
         user.setUsername("testUsername");
         user.setPassword(DigestUtils.sha256Hex(password));
-        user.setVerified(true);
+        user.setEmailVerified(true);
 
         try {
             when(userRepository.findByUsername(any(String.class))).thenReturn(user);

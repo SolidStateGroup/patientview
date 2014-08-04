@@ -49,10 +49,11 @@ public final class TestUtils {
         user.setUsername(name);
         user.setChangePassword(Boolean.FALSE);
         user.setLocked(Boolean.FALSE);
+        user.setDummy(Boolean.FALSE);
         user.setStartDate(new Date());
         user.setName(name);
         user.setEmail("test@patientview.org");
-        user.setVerified(true);
+        user.setEmailVerified(true);
         user.setPassword("doNotShow");
         return user;
     }

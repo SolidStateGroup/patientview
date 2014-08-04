@@ -121,28 +121,20 @@ public class UserServiceTest {
 
     }
 
-
     /**
      * Test: To create an identifier on a user record
      * Fail: Identifier does not get created
      */
     @Test
-    public void testIdentifier() throws ResourceNotFoundException {
+    public void testAddIdentifier() throws ResourceNotFoundException {
         Long userId = 1L;
         User user = TestUtils.createUser(2L, "testUser");
         user.setIdentifiers(new HashSet<Identifier>());
         Identifier identifier = new Identifier();
         identifier.setId(3L);
 
-
         when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user);
-
-        userService.createUserIdentifier(userId, identifier);
-
-        verify(userRepository, Mockito.times(1)).save(Matchers.eq(user));
-
+        userService.addIdentifier(userId, identifier);
+        verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
     }
-
-
-
 }

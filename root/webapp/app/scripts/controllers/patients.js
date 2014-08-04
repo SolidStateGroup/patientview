@@ -290,6 +290,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.successMessage = '';
             $scope.editUser = '';
             $scope.editMode = true;
+            $scope.saved = '';
 
             // TODO: handle accordion and bootstrap dropdowns correctly without workaround
             if ($event) {
@@ -304,7 +305,15 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         var childMenu = $('<div class="child-menu"></div>');
                         var dropDownMenuToAdd = $('#' + $event.target.id + '-menu').clone().attr('id', '').show();
 
+                        // manually remove Send Verification Email link if already verified
+                        if (openedUser.emailVerified) {
+                            $(dropDownMenuToAdd).find('#li-email-verified-' + openedUser.id).hide();
+                        } else {
+                            $(dropDownMenuToAdd).find('#li-email-verified-' + openedUser.id).show();
+                        }
+
                         // http://stackoverflow.com/questions/16949299/getting-ngclick-to-work-on-dynamic-fields
+                        // http://stackoverflow.com/questions/12202067/angularjs-ng-click-broken-inside-a-popover
                         var compiledElement = $compile(dropDownMenuToAdd)($scope);
                         $(childMenu).append(compiledElement);
                         $('#' + $event.target.id).parent().append(childMenu);
@@ -377,6 +386,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         UserService.save(user).then(function() {
             // successfully saved user
             editUserForm.$setPristine(true);
+            $scope.saved = true;
 
             // update accordion header for group with data from GET
             UserService.get(user.id).then(function (successResult) {
@@ -518,6 +528,18 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 }, function () {
                     // closed
                 });
+            });
+        };
+
+        // view patient
+        $scope.viewUser = function (userId, $event) {
+            $scope.successMessage = '';
+
+            // workaround for cloned object not capturing ng-click properties
+            var eventUserId = $event.currentTarget.dataset.userid;
+
+            UserService.get(eventUserId).then(function(user) {
+                alert('TODO: view patient "' + user.forename + ' ' + user.surname + '" ');
             });
         };
 

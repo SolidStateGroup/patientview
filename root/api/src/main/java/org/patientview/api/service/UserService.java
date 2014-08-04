@@ -40,7 +40,7 @@ public interface UserService {
     public User createUserNoEncryption(User user);
 
     //@Audit(value = AuditActions.EDIT_USER)
-    User saveUser(User user);
+    User save(User user) throws ResourceNotFoundException ;
 
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);
 
@@ -66,7 +66,7 @@ public interface UserService {
 
     public Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
 
-    Identifier createUserIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException;
+    Identifier addIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException;
 
     void addFeature(Long userId, Long featureId);
 

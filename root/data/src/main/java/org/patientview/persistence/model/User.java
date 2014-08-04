@@ -42,8 +42,11 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "locked")
     private Boolean locked;
 
-    @Column(name = "verified")
-    private Boolean verified;
+    @Column(name = "dummy")
+    private Boolean dummy;
+
+    @Column(name = "email_verified")
+    private Boolean emailVerified;
 
     @Column(name = "verification_code")
     private String verificationCode;
@@ -60,14 +63,14 @@ public class User extends RangeModel implements UserDetails {
     @Transient
     private String name;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE})
     //@SortNatural
     private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<UserFeature> userFeatures;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<Identifier> identifiers;
 
     @Column(name = "fhir_resource_id")
@@ -113,12 +116,20 @@ public class User extends RangeModel implements UserDetails {
         this.locked = locked;
     }
 
-    public Boolean getVerified() {
-        return verified;
+    public Boolean getDummy() {
+        return dummy;
     }
 
-    public void setVerified(Boolean verified) {
-        this.verified = verified;
+    public void setDummy(Boolean dummy) {
+        this.dummy = dummy;
+    }
+
+    public Boolean getEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(Boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 
     public String getVerificationCode() {

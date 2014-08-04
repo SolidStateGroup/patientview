@@ -160,14 +160,16 @@ public class UserController extends BaseController {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
 
-        user = userService.saveUser(user);
+        try {
+            user = userService.save(user);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
 
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
-
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
-
     }
 
     @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,
@@ -227,14 +229,14 @@ public class UserController extends BaseController {
         return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/{userId}/identifier", method = RequestMethod.POST,
+    @RequestMapping(value = "/user/{userId}/identifiers", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Identifier> createIdentifier(@PathVariable("userId") Long userId,
+    public ResponseEntity<Identifier> addIdentifier(@PathVariable("userId") Long userId,
                                           @RequestBody Identifier identifier)
             throws ResourceNotFoundException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, identifier);
-        return new ResponseEntity<Identifier>(userService.createUserIdentifier(userId, identifier), HttpStatus.CREATED);
+        return new ResponseEntity<Identifier>(userService.addIdentifier(userId, identifier), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.PUT)

@@ -30,11 +30,9 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -188,57 +186,19 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User saveUser(User user) {
-
-        User creator = userRepository.getOne(1L);
-
-        Set<GroupRole> groupRoles = user.getGroupRoles();
-        Set<Identifier> identifiers = user.getIdentifiers();
-        Set<UserFeature> features = user.getUserFeatures();
-
-        user.setIdentifiers(Collections.EMPTY_SET);
-        user.setGroupRoles(Collections.EMPTY_SET);
-        user.setUserFeatures(Collections.EMPTY_SET);
-        groupRoleRepository.deleteByUser(user);
-        userFeatureRepository.deleteByUser(user);
-        identifierRepository.deleteByUser(user);
-        entityManager.flush();
-        user.setCreator(creator);
-        entityManager.merge(user);
-        user = userRepository.save(user);
-
-
-
-        for (GroupRole groupRole : groupRoles) {
-            GroupRole newGroupRole = new GroupRole();
-            newGroupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
-            newGroupRole.setRole(roleRepository.findOne((groupRole.getRole().getId())));
-            newGroupRole.setUser(user);
-            newGroupRole.setCreator(creator);
-            //entityManager.merge(newGroupRole);
-            entityManager.persist(newGroupRole);
+    public User save(User user) throws ResourceNotFoundException {
+        User entityUser = userRepository.findOne(user.getId());
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("Could not find user {}" + user.getId());
         }
-
-        for (Identifier identifier : identifiers) {
-            Identifier newIdentifier = new Identifier();
-            newIdentifier.setCreator(creator);
-            newIdentifier.setUser(userRepository.findOne(user.getId()));
-            newIdentifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
-            newIdentifier.setIdentifier(identifier.getIdentifier());
-            //entityManager.merge(newIdentifier);
-            entityManager.persist(newIdentifier);
-        }
-
-        for (UserFeature userFeature : features) {
-            UserFeature newUserFeature = new UserFeature();
-            newUserFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
-            newUserFeature.setCreator(creator);
-            newUserFeature.setUser(userRepository.findOne(user.getId()));
-            //entityManager.merge(newUserFeature);
-            entityManager.persist(newUserFeature);
-        }
-
-        return user;
+        entityUser.setForename(user.getForename());
+        entityUser.setSurname(user.getSurname());
+        entityUser.setUsername(user.getUsername());
+        entityUser.setEmail(user.getEmail());
+        entityUser.setEmailVerified(user.getEmailVerified());
+        entityUser.setLocked(user.getLocked());
+        entityUser.setDummy(user.getDummy());
+        return userRepository.save(entityUser);
     }
 
     public List<User> getUserByGroupAndRole(Long groupId, Long roleId) {
@@ -291,23 +251,24 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("Could not find user {}" + userId);
         }
         if (user.getVerificationCode().equals(verificationCode)) {
-            user.setVerified(true);
+            user.setEmailVerified(true);
             userRepository.save(user);
             return true;
         }
         return false;
     }
 
-    public Identifier createUserIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException {
+    public Identifier addIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user {}" + userId);
         }
+        identifier.setCreator(userRepository.findOne(1L));
         user.getIdentifiers().add(identifier);
         identifier.setUser(user);
-        userRepository.save(user);
+        //userRepository.save(user);
 
-        return identifier;
+        return identifierRepository.save(identifier);
     }
 
     public void addFeature(Long userId, Long featureId) {
