@@ -244,6 +244,17 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Add new identifier to user
+        addIdentifier: function (user, identifier) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/identifiers
+            Restangular.one('user', user.id).all('identifiers').post(identifier).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

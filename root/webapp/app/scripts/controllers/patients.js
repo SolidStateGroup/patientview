@@ -10,13 +10,14 @@ var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'pe
         $scope.allGroups = allGroups;
         $scope.allowedRoles = allowedRoles;
         $scope.identifierTypes = identifierTypes;
+        $scope.editMode = false;
 
         // set initial group and feature (avoid blank option)
         if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
-            $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
+            $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
         }
         if ($scope.editUser.availableFeatures && $scope.editUser.availableFeatures.length > 0) {
-            $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+            $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
         }
 
         // click Create New button
@@ -288,6 +289,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.opened = function (openedUser, $event, status) {
             $scope.successMessage = '';
             $scope.editUser = '';
+            $scope.editMode = true;
 
             // TODO: handle accordion and bootstrap dropdowns correctly without workaround
             if ($event) {
@@ -361,27 +363,44 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
                     // set initial group and feature (avoid blank <select> option)
                     if ($scope.editUser.availableGroups[0]) {
-                        $scope.groupToAdd = $scope.editUser.availableGroups[0].id;
+                        $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
                     }
                     if ($scope.editUser.availableFeatures[0]) {
-                        $scope.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
+                        $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
                     }
                 });
             }
         };
 
-        // Save from edit
-        $scope.save = function (editUserForm, user, index) {
-            UserService.save(user).then(function() {
-                // successfully saved user
-                editUserForm.$setPristine(true);
-                $scope.list[index] = _.clone(user);
-                $scope.successMessage = 'User saved';
+    // Save from edit
+    $scope.save = function (editUserForm, user, index) {
+        UserService.save(user).then(function() {
+            // successfully saved user
+            editUserForm.$setPristine(true);
+
+            // update accordion header for group with data from GET
+            UserService.get(user.id).then(function (successResult) {
+                for(var i=0;i<$scope.list.length;i++) {
+                    if($scope.list[i].id == successResult.id) {
+                        var headerDetails = $scope.list[i];
+                        headerDetails.forename = successResult.forename;
+                        headerDetails.surname = successResult.surname;
+                        headerDetails.email = successResult.email;
+                    }
+                }
+            }, function () {
+                // failure
+                alert('Error updating header (saved successfully)');
             });
-        };
+
+            $scope.successMessage = 'User saved';
+        });
+    };
 
         // handle opening modal (Angular UI Modal http://angular-ui.github.io/bootstrap/)
         $scope.openModalNewPatient = function (size) {
+            // close any open edit panels
+            $('.panel-collapse.in').collapse('hide');
             // clear messages
             $scope.errorMessage = '';
             $scope.warningMessage = '';
