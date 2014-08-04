@@ -85,6 +85,7 @@ public class AdminServiceIntegrationTest {
         user.setUsername(name);
         user.setChangePassword(Boolean.FALSE);
         user.setLocked(Boolean.FALSE);
+        user.setDummy(Boolean.FALSE);
         user.setStartDate(new Date());
         user.setName(name);
         user.setEmail("test@patientview.org");
@@ -98,6 +99,7 @@ public class AdminServiceIntegrationTest {
         user.setUsername("system");
         user.setChangePassword(Boolean.FALSE);
         user.setLocked(Boolean.FALSE);
+        user.setDummy(Boolean.FALSE);
         user.setStartDate(new Date());
         user.setName("System User");
         user.setEmail("System@patientview.org");

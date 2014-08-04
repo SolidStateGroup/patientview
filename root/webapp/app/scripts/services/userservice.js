@@ -145,7 +145,8 @@ function ($q, Restangular, UtilService) {
 
             // lock and generate verification code
             user.locked = 'false';
-            user.verified = 'false';
+            user.dummy = 'false';
+            user.emailVerified = 'false';
             user.verificationCode = UtilService.generateVerificationCode();
 
             // POST /user

@@ -195,6 +195,9 @@ public class UserServiceImpl implements UserService {
         entityUser.setSurname(user.getSurname());
         entityUser.setUsername(user.getUsername());
         entityUser.setEmail(user.getEmail());
+        entityUser.setEmailVerified(user.getEmailVerified());
+        entityUser.setLocked(user.getLocked());
+        entityUser.setDummy(user.getDummy());
         return userRepository.save(entityUser);
     }
 
@@ -248,7 +251,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("Could not find user {}" + userId);
         }
         if (user.getVerificationCode().equals(verificationCode)) {
-            user.setVerified(true);
+            user.setEmailVerified(true);
             userRepository.save(user);
             return true;
         }
