@@ -23,7 +23,7 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
 
     @Query("SELECT r " +
            "FROM Role r " +
-           "WHERE r.level < (SELECT MAX(r.level) FROM User u JOIN u.groupRoles gr JOIN gr.role r WHERE u.id = :userId)" +
+           "WHERE r.level <= (SELECT MAX(r.level) FROM User u JOIN u.groupRoles gr JOIN gr.role r WHERE u.id = :userId)" +
            "AND  r.visible = true")
     public List<Role> findValidRolesByUser(@Param("userId") Long userId);
 

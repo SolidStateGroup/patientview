@@ -313,6 +313,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                     group.groupFeatures = [];
                 }
 
+                // set default of new location label to Additional Location
+                group.newLocation = {};
+                group.newLocation.label = 'Additional Location';
+
                 $scope.editGroup = _.clone(group);
 
                 if ($scope.editGroup.availableFeatures[0]) {
@@ -372,6 +376,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.editGroup.availableParentGroups = _.clone($scope.allParentGroups);
         $scope.editGroup.availableChildGroups = _.clone($scope.allChildGroups);
 
+        // set default of new location label to Additional Location
+        $scope.editGroup.newLocation = {};
+        $scope.editGroup.newLocation.label = 'Additional Location';
+
         var modalInstance = $modal.open({
             templateUrl: 'newGroupModal.html',
             controller: NewGroupModalInstanceCtrl,
@@ -418,7 +426,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
     // Save from edit
     $scope.save = function (editGroupForm, group) {
-        GroupService.save(group, $scope.groupTypes).then(function(successResult) {
+        GroupService.save(group, $scope.groupTypes).then(function() {
 
             // successfully saved, replace existing element in data grid with updated
             editGroupForm.$setPristine(true);
@@ -439,7 +447,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 alert('Error updating header (saved successfully)');
             });
 
-            $scope.successMessage = 'Code saved';
+            $scope.successMessage = 'Group saved';
         });
     };
 

@@ -200,6 +200,50 @@ function ($q, Restangular, UtilService) {
             } else {
                 return false;
             }
+        },
+        // Add new feature to user
+        addFeature: function (user, featureId) {
+            var deferred = $q.defer();
+            // PUT /user/{userId}/features/{featureId}
+            Restangular.one('user', user.id).one('features',featureId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete feature from user
+        deleteFeature: function (user, feature) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/features/{featureId}
+            Restangular.one('user', user.id).one('features',feature.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // add new grouprole
+        addGroupRole: function (user, groupId, roleId) {
+            var deferred = $q.defer();
+            // PUT /user/{userId}/group/{groupId}/role/{roleId}
+            Restangular.one('user', user.id).one('group',groupId).one('role',roleId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete grouprole
+        deleteGroupRole: function (user, groupId, roleId) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/group/{groupId}/role/{roleId}
+            Restangular.one('user', user.id).one('group',groupId).one('role',roleId).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

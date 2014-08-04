@@ -15,7 +15,7 @@ then
 	echo "Please supply all paramaters"
 	echo "command [portNumber]"
 else
-    grunt minimal
+    grunt minimal --port=$1
 
     if [ $? -eq 0 ]; then
         curl -T "dist/webapp.war" "http://tomcat:tomcat@localhost:$port/manager/text/deploy?path=/&update=true"

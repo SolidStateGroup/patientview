@@ -10,8 +10,12 @@
 
     </div>
     <div class="col-md-3">
-        <label for="new-user-name" class="control-label">Name <span class="error" ng-show="userFormNew.name.$error.required && !userFormNew.$pristine">required</span></label>
-        <div class=""><input type="text" class="form-control" id="new-user-name" placeholder="Name" name="name" ng-model="editUser.name" required></div>
+        <label for="new-user-forename" class="control-label">Forename <span class="error" ng-show="userFormNew.forename.$error.required">required</span></label>
+        <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename" name="forename" ng-model="editUser.forename" required></div>
+    </div>
+    <div class="col-md-3">
+        <label for="new-user-surname" class="control-label">Surname <span class="error" ng-show="userFormNew.surname.$error.required">required</span></label>
+        <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname" name="surname" ng-model="editUser.surname" required></div>
     </div>
 </div>
 
@@ -24,12 +28,11 @@
             <li class="group-list-delete negative pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userFormNew, editUser, groupRole.group)" >Delete</a></span></li>
         </ul>
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
-            <label class="inner-title">Add Group &amp; Role </label>
             <div class="group-list-item">
-                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
+                <select class="form-control group-select" ng-model="editUser.groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
                 <div buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userFormNew, editUser, $event)"></div>
             </div>
-            <div class=""><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userFormNew, editUser, groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button></div>
+            <div class=""><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userFormNew, editUser, editUser.groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button></div>
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
     </div>
@@ -42,8 +45,8 @@
         <div class="feature-add-container" ng-show="editUser.availableFeatures.length > 0 ">
             <label class="inner-title">Add Feature </label>
             <div class="row">
-                <div class="col-md-8"><select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editUser.availableFeatures"></select></div>
-                <div class=""><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userFormNew, editUser, featureToAdd)">Add</button></div>
+                <div class="col-md-8"><select class="form-control feature-select" ng-model="editUser.featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editUser.availableFeatures"></select></div>
+                <div class=""><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userFormNew, editUser, editUser.featureToAdd)">Add</button></div>
             </div>
         </div>
     </div>

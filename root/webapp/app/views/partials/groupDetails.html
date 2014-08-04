@@ -51,7 +51,7 @@
 </div>
 
 <button type="button" class="btn blue pull-right" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
-<span class="saved-notification pull-right" ng-show="groupForm.$pristine && saved">Saved Group Details &nbsp;</span>
+<span class="saved-notification pull-right" ng-show="groupForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <br/>
 <div class="row">
     <hr />
@@ -72,16 +72,16 @@
             <button type="button" class="btn blue location-update-button" ng-click="updateLocation($event, groupForm, editGroup, location)">Update</button>
             <button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)">Delete</button>
         </div>
-        <span class="saved-notification" ng-show="location.saved">&nbsp; Updated Location</span>
+        <span class="saved-notification" ng-show="location.saved">&nbsp; Saved Successfully!</span>
     </div>
-    <div class="add-form" ng-model="newLocation">
-        <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" ng-model="newLocation.label"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="Name" name="newLocationName" ng-model="newLocation.name"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="Phone" name="newLocationPhone" ng-model="newLocation.phone"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="Address" name="newLocationAddress" ng-model="newLocation.address"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="Web" name="newLocationWeb" ng-model="newLocation.web"></div>
-        <div class="col-md-2"><input type="email" class="form-control" id="group-newLocation-email" placeholder="Email" name="newLocationEmail" ng-model="newLocation.email"> <span ng-show="groupForm.newLocationEmail.$error.email"> Invalid</span></div>
-        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupForm, editGroup, newLocation)" ng-disabled="!(newLocation.label && newLocation.name && !groupForm.newLocationEmail.$error.email)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+    <div class="add-form" ng-model="editGroup.newLocation">
+        <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" ng-model="editGroup.newLocation.label"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="Name" name="newLocationName" ng-model="editGroup.newLocation.name"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="Phone" name="newLocationPhone" ng-model="editGroup.newLocation.phone"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="Address" name="newLocationAddress" ng-model="editGroup.newLocation.address"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="Web" name="newLocationWeb" ng-model="editGroup.newLocation.web"></div>
+        <div class="col-md-2"><input type="email" class="form-control" id="group-newLocation-email" placeholder="Email" name="newLocationEmail" ng-model="editGroup.newLocation.email"> <span ng-show="groupForm.newLocationEmail.$error.email"> Invalid</span></div>
+        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupForm, editGroup, editGroup.newLocation)" ng-disabled="!(editGroup.newLocation.label && editGroup.newLocation.name && !groupForm.newLocationEmail.$error.email)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
     </div>
 </div>
         
@@ -93,17 +93,17 @@
     </div>
     <div class="link-list-item" ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
-        <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointType.id" ng-options="contactPointType.id as contactPointType.value for contactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointType.id" ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" ng-model="contactPoint.content" required></div>
         <!--<div><button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>-->
         <div class="btn-group">
             <button type="button" class="btn blue contactPoint-update-button" ng-click="updateContactPoint($event, groupForm, editGroup, contactPoint)">Update</button>
             <button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)">Delete</button>
         </div>
-        <span class="saved-notification" ng-show="contactPoint.saved">&nbsp; Updated Contact Point</span>
+        <span class="saved-notification" ng-show="contactPoint.saved">&nbsp; Saved Successfully!</span>
     </div>
     <div class="add-form" ng-model="newContactPoint">
-        <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" ng-model="newContactPoint.contactPointTypeId" ng-options="newContactPointType.id as newContactPointType.value for newContactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" ng-model="newContactPoint.contactPointTypeId" ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" ng-model="newContactPoint.content"></div>
         <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" ng-click="addContactPoint(groupForm, editGroup, newContactPoint)" ng-disabled="!(newContactPoint.content)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
     </div>
@@ -128,7 +128,7 @@
                 <button type="button" class="btn blue link-update-button" ng-click="updateLink($event, groupForm, editGroup, link)">Update</button>
                 <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)">Delete</button>
             </div>
-            <span class="saved-notification" ng-show="link.saved">&nbsp; Updated Link</span>
+            <span class="saved-notification" ng-show="link.saved">&nbsp; Saved Successfully!</span>
             <!--<button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>-->
         </div>
         <div class="add-form" ng-model="newLink">

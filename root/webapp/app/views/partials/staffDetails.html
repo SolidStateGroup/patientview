@@ -9,14 +9,20 @@
             <div class=""><input type="text" class="form-control" id="new-user-email" placeholder="Email" name="email" ng-model="editUser.email" required></div>
         </div>
         <div class="col-md-3">
-            <label for="new-user-name" class="control-label">Name <span class="error" ng-show="userForm.name.$error.required">required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-name" placeholder="Name" name="name" ng-model="editUser.name" required></div>
-
+            <label for="new-user-forename" class="control-label">Forename <span class="error" ng-show="userForm.forename.$error.required">required</span></label>
+            <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename" name="forename" ng-model="editUser.forename" required></div>
+        </div>
+        <div class="col-md-3">
+            <label for="new-user-surname" class="control-label">Surname <span class="error" ng-show="userForm.surname.$error.required">required</span></label>
+            <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname" name="surname" ng-model="editUser.surname" required></div>
         </div>
     </div>
 </div>
-
+<br/>
+<button type="button" class="btn blue pull-right" ng-click="save(userForm, editUser)" ng-disabled="userForm.$pristine || !userForm.$valid">Save</button>
+<span class="saved-notification pull-right" ng-show="userForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <div class="row form-edit-row">
+    <hr/>
     <div class="col-md-6 grey-right-border">
         <label class="inner-title">Groups &amp; Roles </label>
         <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-show="groupRole.group.visible === true">
@@ -25,13 +31,12 @@
             <li class="group-list-delete negative pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</a></span></li>
         </ul>
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
-            <label class="inner-title">Add Group &amp; Role </label>
             <div class="select-add-group">
-                <select class="form-control" ng-model="groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
+                <select class="form-control" ng-model="editUser.groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
                 <div class="group-list-item">
                     <button buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userForm, editUser, $event)"></button>
                 </div>
-                <button type="button" class="btn blue group-add-button" ng-click="addGroup(userForm, editUser, groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button>
+                <button type="button" class="btn blue group-add-button" ng-click="addGroup(userForm, editUser, editUser.groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button>
             </div>
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
@@ -45,8 +50,8 @@
         <div class="feature-add-container" ng-show="editUser.availableFeatures.length > 0 ">
             <h5 class="inner-title">Add Feature </h5>
             <div class="add-feature">
-                <select class="form-control feature-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
-                <button type="button" class="btn blue feature-add-button" ng-click="addFeature(userForm, editUser, featureToAdd)">Add</button>
+                <select class="form-control feature-select" ng-model="editUser.featureToAdd" ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
+                <button type="button" class="btn blue feature-add-button" ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
             </div>
         </div>
     </div>

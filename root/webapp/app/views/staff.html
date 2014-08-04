@@ -115,7 +115,7 @@
                     <div accordion-heading class="accordion-heading">
                         <div class="faux-row" ng-click="opened(user, $event)">
                             <div class="row-item hidden">{{user.id}}</div>
-                            <div class="row-item accordion-heading-text">{{user.name}}</div>
+                            <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
                             <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div class="row-item accordion-heading-text">
 
@@ -156,15 +156,14 @@
                     <hr>
                     <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin}}</div>
                     <div class="user-save-cancel pull-right">
-                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                        <button type="button" class="btn btn-primary" ng-click="save(userForm, editUser, $index)" ng-disabled="userForm.$pristine || !userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Save</button>
+                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
                     </div>
                 </div accordion-group>
             </div accordion>
         </div>
         <div class="col-md-12" data-ng-show="filtered.length == 0">
             <div class="col-md-12">
-                <h4>No users found</h4>
+                <h4>No staff found</h4>
             </div>
         </div>
 
