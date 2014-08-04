@@ -84,12 +84,19 @@ public class GroupController extends BaseController {
 
     @RequestMapping(value = "/group", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Group> saveGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Void> saveGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
+
+        try {
+            group = groupService.save(group);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
+
         LOG.info("Updated group with id " + group.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(group.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<Group>(groupService.save(group), headers, HttpStatus.OK);
+        return new ResponseEntity<Void>(headers, HttpStatus.OK);
     }
 
 

@@ -33,7 +33,7 @@ public interface GroupService {
     List<Group> findGroupByType(Long lookupId);
 
     //@GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
-    Group save(Group group);
+    Group save(Group group) throws ResourceNotFoundException;
 
     Group create(Group group);
 

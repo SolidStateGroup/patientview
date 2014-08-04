@@ -291,6 +291,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.successMessage = '';
         $scope.editUser = '';
         $scope.editMode = true;
+        $scope.saved = '';
 
         // TODO: handle accordion and bootstrap dropdowns correctly without workaround
         if ($event) {
@@ -380,6 +381,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         UserService.save(user).then(function() {
             // successfully saved user
             editUserForm.$setPristine(true);
+            $scope.saved = true;
 
             // update accordion header for group with data from GET
             UserService.get(user.id).then(function (successResult) {
