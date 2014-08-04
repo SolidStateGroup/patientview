@@ -14,10 +14,10 @@
             </div>
             <div class="modal-body">
                 <form name="userFormNew" ng-show="!existingUser">
-                    <div ng-include src="'views/partials/staffDetailsNew.html'" ng-controller="StaffDetailsCtrl"></div>
+                    <div ng-include src="'views/partials/staffDetailsNew.html'" ng-controller="UserDetailsCtrl"></div>
                 </form>
                 <form name="userFormExisting" ng-show="existingUser">
-                    <div ng-include src="'views/partials/staffDetailsExisting.html'" ng-controller="StaffDetailsCtrl"></div>
+                    <div ng-include src="'views/partials/staffDetailsExisting.html'" ng-controller="UserDetailsCtrl"></div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -28,7 +28,6 @@
                 <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userFormExisting.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
-
 
         <!-- delete staff modal -->
         <script type="text/ng-template" id="deleteStaffModal.html">
@@ -151,7 +150,7 @@
                     </div accordion-heading>
                     <!-- edit pane -->
                     <form name="userForm">
-                        <div ng-include src="'views/partials/staffDetails.html'" ng-controller="StaffDetailsCtrl"></div>
+                        <div ng-include src="'views/partials/staffDetails.html'" ng-controller="UserDetailsCtrl"></div>
                     </form>
                     <hr>
                     <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin}}</div>

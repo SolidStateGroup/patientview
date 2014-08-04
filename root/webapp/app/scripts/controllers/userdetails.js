@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', 'UserService', function ($scope, UserService) {
+angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserService', 'IdentifierService', function ($scope, UserService, IdentifierService) {
     var i, j;
 
     // add group to current group, remove from allowed
@@ -253,10 +253,37 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', 'User
             }
 
             if (valid) {
-                identifier.id = Math.floor(Math.random() * (9999)) - 10000;
-                user.identifiers.push(_.clone(identifier));
-                identifier.identifier = '';
-                form.$setDirty(true);
+                if ($scope.editMode) {
+                    UserService.addIdentifier(user, identifier).then(function (successResult) {
+                        // added identifier
+                        identifier.id = successResult.id;
+                        user.identifiers.push(_.clone(identifier));
+                        identifier.identifier = '';
+                        form.$setDirty(true);
+
+                        // update accordion header with data from GET
+                        UserService.get(user.id).then(function (successResult) {
+                            for(var i=0;i<$scope.list.length;i++) {
+                                if($scope.list[i].id == user.id) {
+                                    var headerDetails = $scope.list[i];
+                                    headerDetails.identifiers = successResult.identifiers;
+                                }
+                            }
+                        }, function () {
+                            // failure
+                            alert('Error updating header (saved successfully)');
+                        });
+
+                    }, function () {
+                        // failure
+                        alert('Error adding identifier');
+                    });
+                } else {
+                    identifier.id = Math.floor(Math.random() * (9999)) - 10000;
+                    user.identifiers.push(_.clone(identifier));
+                    identifier.identifier = '';
+                    form.$setDirty(true);
+                }
             } else {
                 identifier.identifierType = identifier.identifierType.id;
                 alert(errorMessage);
@@ -264,12 +291,54 @@ angular.module('patientviewApp').controller('StaffDetailsCtrl', ['$scope', 'User
         }
     };
 
+    $scope.updateIdentifier = function (event, form, group, identifier) {
+        identifier.saved = false;
+
+        // try and save identifier
+        IdentifierService.save(identifier).then(function () {
+            // saved identifier
+            identifier.saved = true;
+            form.$setDirty(true);
+
+            // update accordion header with data from GET
+            UserService.get(user.id).then(function (successResult) {
+                for(var i=0;i<$scope.list.length;i++) {
+                    if($scope.list[i].id == user.id) {
+                        var headerDetails = $scope.list[i];
+                        headerDetails.identifiers = successResult.identifiers;
+                    }
+                }
+            }, function () {
+                // failure
+                alert('Error updating header (saved successfully)');
+            });
+        }, function() {
+            // failure
+            alert('Error saving identifier');
+        });
+    };
+
     $scope.removeIdentifier = function (form, user, identifier) {
-        for (i = 0; i < user.identifiers.length; i++) {
-            if (user.identifiers[i].id === identifier.id) {
-                user.identifiers.splice(i, 1);
+        if ($scope.editMode) {
+            IdentifierService.delete(identifier).then(function () {
+                // deleted identifier
+                for (i = 0; i < user.identifiers.length; i++) {
+                    if (user.identifiers[i].id === identifier.id) {
+                        user.identifiers.splice(i, 1);
+                    }
+                }
+                form.$setDirty(true);
+            }, function () {
+                // failure
+                alert('Error deleting identifier');
+            });
+        } else {
+            for (i = 0; i < user.identifiers.length; i++) {
+                if (user.identifiers[i].id === identifier.id) {
+                    user.identifiers.splice(i, 1);
+                }
             }
+            form.$setDirty(true);
         }
-        form.$setDirty(true);
     };
 }]);
