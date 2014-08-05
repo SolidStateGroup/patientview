@@ -1,6 +1,6 @@
 <div class="hider" ng-show="status.open"></div>
 
-<div class="container" ng-show="!loading" ng-cloak>
+<div class="" ng-show="!loading" ng-cloak>
     <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
@@ -125,7 +125,7 @@
         <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
-        <div class="faux-table seven-col data-ng-show="filtered.length  >
+        <div class="faux-table seven-col" data-ng-show="filtered.length  > 0">
             <!-- header -->
             <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="table-head accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
