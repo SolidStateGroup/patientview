@@ -163,11 +163,11 @@ public class GroupControllerTest {
         Long groupId = 2L;
 
         try {
-            when(joinRequestService.addJoinRequest(eq(groupId), eq(joinRequest))).thenReturn(joinRequest);
+            when(joinRequestService.add(eq(groupId), eq(joinRequest))).thenReturn(joinRequest);
             mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/joinRequest")
                     .content(mapper.writeValueAsString(joinRequest)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(joinRequestService, Mockito.times(1)).addJoinRequest(eq(groupId), eq(joinRequest));
+            verify(joinRequestService, Mockito.times(1)).add(eq(groupId), eq(joinRequest));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }

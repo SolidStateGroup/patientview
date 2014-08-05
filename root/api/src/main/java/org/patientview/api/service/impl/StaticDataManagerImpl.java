@@ -25,7 +25,8 @@ import java.util.List;
  */
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public class StaticDataManagerImpl implements StaticDataManager {
+public class StaticDataManagerImpl extends AbstractServiceImpl<StaticDataManagerImpl>
+        implements StaticDataManager {
 
     @Inject
     private LookupRepository lookupRepository;

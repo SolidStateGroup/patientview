@@ -179,7 +179,7 @@ public class GroupServiceTest {
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
         // Test
-        Group group = groupService.create(testGroup);
+        Group group = groupService.add(testGroup);
 
         // Verify
         verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
@@ -217,7 +217,7 @@ public class GroupServiceTest {
 
         // Test
         TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
-        Group group = groupService.create(testGroup);
+        Group group = groupService.add(testGroup);
 
         // Verify
         verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));

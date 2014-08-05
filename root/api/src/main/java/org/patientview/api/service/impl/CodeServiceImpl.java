@@ -19,7 +19,7 @@ import java.util.List;
  * Created on 25/06/2014
  */
 @Service
-public class CodeServiceImpl implements CodeService {
+public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implements CodeService {
 
     @Inject
     private CodeRepository codeRepository;
@@ -30,29 +30,15 @@ public class CodeServiceImpl implements CodeService {
 
     public List<Code> getAllCodes() { return Util.iterableToList(codeRepository.findAll()); }
 
-    public Code createCode(final Code code) {
-        /*Code persistedCode = codeRepository.save(code);
-        Set<Link> links = code.getLinks();
-
-        if (!CollectionUtils.isEmpty(links)) {
-            for (Link link : links) {
-                if (link.getId() < 0) { link.setId(null); }
-                link.setCode(persistedCode);
-                link.setCreator(userRepository.findOne(1L));
-                linkRepository.save(link);
-            }
-        }
-
-        return persistedCode;*/
-
+    public Code add(final Code code) {
         return codeRepository.save(code);
     }
 
-    public Code getCode(final Long codeId) {
+    public Code get(final Long codeId) {
         return codeRepository.findOne(codeId);
     }
 
-    public Code saveCode(final Code code) {
+    public Code save(final Code code) {
         return codeRepository.save(code);
     }
 
@@ -63,7 +49,7 @@ public class CodeServiceImpl implements CodeService {
         return codeRepository.save(newCode);
     }
 
-    public void deleteCode(final Long codeId) {
+    public void delete(final Long codeId) {
         codeRepository.delete(codeId);
     }
 

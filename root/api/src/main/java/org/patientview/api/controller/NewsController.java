@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.NewsService;
 import org.patientview.persistence.model.NewsItem;
 import org.slf4j.Logger;
@@ -36,40 +37,41 @@ public class NewsController extends BaseController {
     private NewsService newsService;
 
     @RequestMapping(value = "/news", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NewsItem> createGroup(@RequestBody NewsItem newsItem, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<NewsItem> createGroup(@RequestBody NewsItem newsItem, UriComponentsBuilder uriComponentsBuilder)
+    throws ResourceNotFoundException {
 
-        newsItem = newsService.createNewsItem(newsItem);
+        newsItem = newsService.add(newsItem);
 
         LOG.info("Created new item with id " + newsItem.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/news/{id}").buildAndExpand(newsItem.getId());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<NewsItem>(newsItem, HttpStatus.CREATED);
+        return new ResponseEntity<>(newsItem, HttpStatus.CREATED);
 
     }
 
     @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<NewsItem> getNewsItem(@PathVariable("newsItemId") Long newsItemId) {
-        return new ResponseEntity<NewsItem>(newsService.getNewsItem(newsItemId), HttpStatus.OK);
+    public ResponseEntity<NewsItem> getNewsItem(@PathVariable("newsItemId") Long newsItemId) throws ResourceNotFoundException  {
+        return new ResponseEntity<>(newsService.get(newsItemId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/news", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<NewsItem> saveNewsItem(@RequestBody NewsItem newsItem, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<NewsItem> saveNewsItem(@RequestBody NewsItem newsItem, UriComponentsBuilder uriComponentsBuilder) throws ResourceNotFoundException  {
         LOG.info("Updated new item with id " + newsItem.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/news/{id}").buildAndExpand(newsItem.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<NewsItem>(newsService.saveNewsItem(newsItem), headers, HttpStatus.OK);
+        return new ResponseEntity<>(newsService.save(newsItem), headers, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteNewsItem(@PathVariable("newsItemId") Long newsItemId) {
-        newsService.deleteNewsItem(newsItemId);
-        return new ResponseEntity<Void>( HttpStatus.NO_CONTENT);
+    public ResponseEntity<Void> deleteNewsItem(@PathVariable("newsItemId") Long newsItemId) throws ResourceNotFoundException {
+        newsService.delete(newsItemId);
+        return new ResponseEntity<>( HttpStatus.NO_CONTENT);
     }
 
 

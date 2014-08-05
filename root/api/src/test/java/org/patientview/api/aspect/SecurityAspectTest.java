@@ -99,7 +99,7 @@ public class SecurityAspectTest {
     public void testGroupMemberOnly() throws Throwable {
         LOG.info("Security Aspect Test");
         User testUser = TestUtils.createUser(1L, "testUser");
-        groupService.findOne(testUser.getId());
+        groupService.get(testUser.getId());
 
     }
 

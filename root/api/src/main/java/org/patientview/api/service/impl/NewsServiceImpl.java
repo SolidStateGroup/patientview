@@ -21,7 +21,7 @@ import java.util.Set;
  * Created on 20/06/2014
  */
 @Service
-public class NewsServiceImpl implements NewsService {
+public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implements NewsService {
 
     @Inject
     private UserRepository userRepository;
@@ -40,7 +40,7 @@ public class NewsServiceImpl implements NewsService {
 
 
 
-    public NewsItem createNewsItem(final NewsItem newsItem) {
+    public NewsItem add(final NewsItem newsItem) {
 
         NewsItem persistedNewsItem = newsItemRepository.save(newsItem);
 
@@ -65,15 +65,15 @@ public class NewsServiceImpl implements NewsService {
         return persistedNewsItem;
     }
 
-    public NewsItem getNewsItem(final Long newsItemId) {
+    public NewsItem get(final Long newsItemId) {
         return newsItemRepository.findOne(newsItemId);
     }
 
-    public NewsItem saveNewsItem(final NewsItem newsItem) {
+    public NewsItem save(final NewsItem newsItem) {
         return newsItemRepository.save(newsItem);
     }
 
-    public void deleteNewsItem(final Long newsItemId) {
+    public void delete(final Long newsItemId) {
         newsItemRepository.delete(newsItemId);
     }
 }

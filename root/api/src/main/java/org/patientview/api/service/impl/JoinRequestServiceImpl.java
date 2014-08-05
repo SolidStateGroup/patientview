@@ -27,7 +27,7 @@ public class JoinRequestServiceImpl implements JoinRequestService {
 
 
     @Override
-    public JoinRequest addJoinRequest(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException {
+    public JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException {
 
         Group group = groupRepository.findOne(groupId);
 

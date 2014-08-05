@@ -21,7 +21,7 @@ public class LocationServiceImpl implements LocationService {
     @Inject
     private GroupRepository groupRepository;
 
-    public Location create(final Location location) {
+    public Location add(final Location location) {
 
         if (location.getGroup() != null) {
             location.setGroup(groupRepository.findOne(location.getGroup().getId()));
@@ -30,15 +30,15 @@ public class LocationServiceImpl implements LocationService {
         return locationRepository.save(location);
     }
 
-    public Location getLocation(final Long locationId) {
+    public Location get(final Long locationId) {
         return locationRepository.findOne(locationId);
     }
 
-    public void deleteLocation(final Long locationId) {
+    public void delete(final Long locationId) {
         locationRepository.delete(locationId);
     }
 
-    public Location saveLocation(final Location location) {
+    public Location save(final Location location) {
         Location entityLocation = locationRepository.findOne(location.getId());
         entityLocation.setLabel(location.getLabel());
         entityLocation.setName(location.getName());

@@ -9,13 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 15/07/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface LinkService {
+public interface LinkService extends CrudService<Link> {
 
-    Link create(Link link);
-
-    Link getLink(Long linkId);
-
-    void deleteLink(Long linkId);
-
-    Link saveLink(Link link);
 }

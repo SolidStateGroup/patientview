@@ -66,7 +66,7 @@ public class JoinRequestServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(joinRequestRepository.save(any(JoinRequest.class))).thenReturn(joinRequest);
 
-        joinRequest = joinRequestService.addJoinRequest(group.getId(), joinRequest);
+        joinRequest = joinRequestService.add(group.getId(), joinRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
         verify(joinRequestRepository, Mockito.times(1)).save(any(JoinRequest.class));
@@ -94,7 +94,7 @@ public class JoinRequestServiceTest {
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
 
-        joinRequestService.addJoinRequest(group.getId(), joinRequest);
+        joinRequestService.add(group.getId(), joinRequest);
 
         verify(groupRepository.findOne(any(Long.class)), Mockito.times(1));
         verify(joinRequestRepository.save(eq(joinRequest)), Mockito.times(0));

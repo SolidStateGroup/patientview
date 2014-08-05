@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.persistence.model.Identifier;
 import org.slf4j.Logger;
@@ -39,7 +40,8 @@ public class IdentifierController {
 
     @RequestMapping(value = "/identifier", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Void> save(@RequestBody Identifier identifier, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Void> save(@RequestBody Identifier identifier, UriComponentsBuilder uriComponentsBuilder)
+        throws ResourceNotFoundException{
         Identifier updatedIdentifier = identifierService.save(identifier);
         LOG.info("Updated identifier with id " + updatedIdentifier.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/identifier/{identifierId}").buildAndExpand(updatedIdentifier.getId());

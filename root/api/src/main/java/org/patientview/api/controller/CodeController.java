@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Link;
@@ -37,10 +38,11 @@ public class CodeController extends BaseController {
 
     @RequestMapping(value = "/code", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Code> newCode(@RequestBody Code code, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Code> newCode(@RequestBody Code code, UriComponentsBuilder uriComponentsBuilder)
+        throws ResourceNotFoundException {
 
         // create new code
-        code = codeService.createCode(code);
+        code = codeService.add(code);
         LOG.info("Created new code with id " + code.getId());
 
         // set header with location
@@ -49,36 +51,37 @@ public class CodeController extends BaseController {
         headers.setLocation(uriComponents.toUri());
 
         // return created code
-        return new ResponseEntity<Code>(code, HttpStatus.CREATED);
+        return new ResponseEntity<>(code, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/code", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Code>> getAllCodes() {
-        return new ResponseEntity<List<Code>>(codeService.getAllCodes(), HttpStatus.OK);
+        return new ResponseEntity<>(codeService.getAllCodes(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/code/{codeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Code> getCode(@PathVariable("codeId") Long codeId) {
-        return new ResponseEntity<Code>(codeService.getCode(codeId), HttpStatus.OK);
+    public ResponseEntity<Code> getCode(@PathVariable("codeId") Long codeId) throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.get(codeId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/code", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Code> saveCode(@RequestBody Code code, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Code> saveCode(@RequestBody Code code, UriComponentsBuilder uriComponentsBuilder)
+            throws ResourceNotFoundException {
         LOG.info("Updated code with id " + code.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/code/{id}").buildAndExpand(code.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<Code>(codeService.saveCode(code), headers, HttpStatus.OK);
+        return new ResponseEntity<>(codeService.save(code), headers, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/code/{codeId}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Void> deleteCode(@PathVariable("codeId") Long codeId) {
-        codeService.deleteCode(codeId);
-        return new ResponseEntity<Void>( HttpStatus.NO_CONTENT);
+        codeService.delete(codeId);
+        return new ResponseEntity<>( HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/code/{codeId}/clone", method = RequestMethod.POST
@@ -96,7 +99,7 @@ public class CodeController extends BaseController {
         headers.setLocation(uriComponents.toUri());
 
         // return created code
-        return new ResponseEntity<Code>(code, HttpStatus.CREATED);
+        return new ResponseEntity<>(code, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST
@@ -114,6 +117,6 @@ public class CodeController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<Link>(newLink, HttpStatus.CREATED);
+        return new ResponseEntity<>(newLink, HttpStatus.CREATED);
     }
 }

@@ -50,11 +50,11 @@ public class CodeControllerTest {
         Code testCode = TestUtils.createCode(1L, "TestCode", new User());
 
         try {
-            when(codeService.createCode(eq(testCode))).thenReturn(testCode);
+            when(codeService.add(eq(testCode))).thenReturn(testCode);
             mockMvc.perform(MockMvcRequestBuilders.post("/code")
                     .content(mapper.writeValueAsString(testCode)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(codeService, Mockito.times(1)).createCode(eq(testCode));
+            verify(codeService, Mockito.times(1)).add(eq(testCode));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
