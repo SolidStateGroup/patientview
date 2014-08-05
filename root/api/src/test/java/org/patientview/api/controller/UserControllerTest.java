@@ -70,11 +70,11 @@ public class UserControllerTest {
      *
      */
     @Test
-    public void testGetUser() {
+    public void testGetUser() throws ResourceNotFoundException  {
 
         Long testUserId = 10L;
 
-        when(userService.getUser(eq(testUserId))).thenReturn(new User());;
+        when(userService.get(eq(testUserId))).thenReturn(new User());;
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + Long.toString(testUserId)))
                     .andExpect(MockMvcResultMatchers.status().isOk());;
@@ -90,10 +90,10 @@ public class UserControllerTest {
      * Improve test to verify the correct user is being saved
      */
     @Test
-    public void testCreateUser()  {
+    public void testCreateUser() throws ResourceNotFoundException {
         User postUser = TestUtils.createUser(null, "testPost");
 
-        when(userService.getUser(anyLong())).thenReturn(TestUtils.createUser(1L, "creator"));
+        when(userService.get(anyLong())).thenReturn(TestUtils.createUser(1L, "creator"));
         when(userService.createUserWithPasswordEncryption(any(User.class))).thenReturn(postUser);
         try {
             mockMvc.perform(MockMvcRequestBuilders.post("/user")

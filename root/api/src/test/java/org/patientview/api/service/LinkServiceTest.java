@@ -68,7 +68,7 @@ public class LinkServiceTest {
         when(linkRepository.save(eq(link))).thenReturn(link);
         when(codeRepository.findOne(eq(code.getId()))).thenReturn(code);
 
-        linkService.create(link);
+        linkService.add(link);
 
 
         Assert.assertNotNull("The returned link should not be null", link);

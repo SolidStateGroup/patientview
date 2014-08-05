@@ -15,19 +15,17 @@ import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.repository.ContactPointRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LinkRepository;
-import org.patientview.persistence.repository.ContactPointRepository;
 import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -46,9 +44,7 @@ import java.util.Set;
  * Created on 09/07/2014
  */
 @Service
-public class GroupServiceImpl implements GroupService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(GroupServiceImpl.class);
+public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> implements GroupService {
 
     @Inject
     private GroupRepository groupRepository;
@@ -100,7 +96,7 @@ public class GroupServiceImpl implements GroupService {
 
     }
 
-    public Group findOne(Long id) {
+    public Group get(Long id) {
         return addSingleParentAndChildGroup(groupRepository.findOne(id));
     }
 
@@ -163,7 +159,7 @@ public class GroupServiceImpl implements GroupService {
      * @return
      * @throws javax.persistence.EntityExistsException
      */
-    public Group create(Group group) throws EntityExistsException {
+    public Group add (Group group) throws EntityExistsException {
         Group newGroup;
 
         Set<Link> links;
@@ -425,6 +421,11 @@ public class GroupServiceImpl implements GroupService {
 
         return Util.iterableToList(groupRepository.findChildren(group));
 
+    }
+
+
+    public void delete(Long id){
+        LOG.info("Not Implemented");
     }
     
 }

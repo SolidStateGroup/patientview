@@ -11,7 +11,7 @@ import javax.inject.Inject;
  * Created on 04/08/2014
  */
 @Service
-public class IdentifierServiceImpl implements IdentifierService {
+public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierServiceImpl> implements IdentifierService {
 
     @Inject
     private IdentifierRepository identifierRepository;
@@ -29,5 +29,10 @@ public class IdentifierServiceImpl implements IdentifierService {
         entityIdentifier.setIdentifier(identifier.getIdentifier());
         entityIdentifier.setIdentifierType(identifier.getIdentifierType());
         return identifierRepository.save(entityIdentifier);
+    }
+
+    public Identifier add(Identifier identifier) {
+        LOG.info("Not implemented");
+        return null;
     }
 }

@@ -49,11 +49,11 @@ public class LinkControllerTest {
         testLink.setId(1L);
 
         try {
-            when(linkService.create(eq(testLink))).thenReturn(testLink);
+            when(linkService.add(eq(testLink))).thenReturn(testLink);
             mockMvc.perform(MockMvcRequestBuilders.post("/link")
                     .content(mapper.writeValueAsString(testLink)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(linkService, Mockito.times(1)).create(eq(testLink));
+            verify(linkService, Mockito.times(1)).add(eq(testLink));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
@@ -65,11 +65,11 @@ public class LinkControllerTest {
         testLink.setId(1L);
 
         try {
-            when(linkService.saveLink(eq(testLink))).thenReturn(testLink);
+            when(linkService.save(eq(testLink))).thenReturn(testLink);
             mockMvc.perform(MockMvcRequestBuilders.put("/link")
                     .content(mapper.writeValueAsString(testLink)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(linkService, Mockito.times(1)).saveLink(eq(testLink));
+            verify(linkService, Mockito.times(1)).save(eq(testLink));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
@@ -86,7 +86,7 @@ public class LinkControllerTest {
             Assert.fail("Exception throw");
         }
 
-        verify(linkService, Mockito.times(1)).deleteLink(eq(linkId));
+        verify(linkService, Mockito.times(1)).delete(eq(linkId));
     }
 
 

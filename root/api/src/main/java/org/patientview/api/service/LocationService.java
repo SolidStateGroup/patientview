@@ -9,13 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 15/07/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface LocationService {
+public interface LocationService extends CrudService<Location> {
 
-    Location create(Location location);
-
-    Location getLocation(Long locationId);
-
-    void deleteLocation(Long locationId);
-
-    Location saveLocation(Location location);
 }

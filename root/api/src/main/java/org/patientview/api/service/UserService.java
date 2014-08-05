@@ -14,17 +14,13 @@ import java.util.List;
  * Created on 19/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface UserService {
+public interface UserService extends CrudService<User> {
 
     List<Feature> getUserFeatures(Long userId);
 
     User getByUsername(String username);
 
     User getByEmail(String username);
-
-    void deleteUser(Long userId);
-
-    User getUser(Long userId);
 
     /**
      * This persists the User map with GroupRoles and UserFeatures. The static
@@ -40,7 +36,7 @@ public interface UserService {
     public User createUserNoEncryption(User user);
 
     //@Audit(value = AuditActions.EDIT_USER)
-    User save(User user) throws ResourceNotFoundException ;
+    User save(User user) throws ResourceNotFoundException;
 
     List<User> getUserByGroupAndRole(Long groupId, Long roleId);
 

@@ -28,7 +28,7 @@ import java.util.TreeSet;
  * Created on 19/06/2014
  */
 @Service
-public class SecurityServiceImpl implements SecurityService {
+public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl> implements SecurityService {
 
     @Inject
     private RoleRepository roleRepository;
