@@ -105,6 +105,18 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
             $scope.user.canRemoveFromMyGroups = true;
         }
 
+        // check if any group in user's groupRoles has the KEEP_ALL_DATA feature, used during removeFromAllGroups to permanently delete
+        $scope.user.keepData = false;
+
+        for (i=0;i<user.groupRoles.length;i++) {
+            for (j=0;j<user.groupRoles[i].group.groupFeatures;j++) {
+                var feature = user.groupRoles[i].group.groupFeatures[j];
+                if (feature.name = 'KEEP_ALL_DATA') {
+                    $scope.user.keepData = true;
+                }
+            }
+        }
+
         // can be removed from all groups
         $scope.user.canRemoveFromAllGroups = true;
 
@@ -121,14 +133,14 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                 }
             }
             $q.all(promises).then(function () {
-                $scope.successMessage = 'Patient has been removed from your units.';
+                $scope.successMessage = 'Patient has been removed from your groups.';
                 $scope.user.canRemoveFromMyGroups = false;
             }, function() {
                 $scope.errorMessage = 'There was an error';
             });
         };
 
-        // remove from all units
+        // remove from all units, then permanently delete if no Keep All Data feature available on units
         $scope.removeFromAllGroups = function () {
             var promises = [];
             // remove group roles from user with multiple deleteGroupRole
@@ -137,9 +149,16 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                 promises.push(UserService.deleteGroupRole(user, groupRole.group.id, groupRole.role.id));
             }
             $q.all(promises).then(function () {
-                $scope.successMessage = 'Patient has been removed from all units.';
+                $scope.successMessage = 'Patient has been removed from all groups';
                 $scope.user.canRemoveFromMyGroups = false;
                 $scope.user.canRemoveFromAllGroups = false;
+
+                if ($scope.user.keepData) {
+                    $scope.successMessage += ' but data has not been permanently deleted.';
+                } else {
+                    $scope.successMessage += ' and data has been permanently deleted.';
+                    $scope.user.canDelete = false;
+                }
             }, function() {
                 $scope.errorMessage = 'There was an error';
             });
@@ -267,7 +286,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.allGroups = [];
             $scope.allRoles = [];
 
-            // TODO: set permissions for ui
             $scope.permissions = {};
             // used in html when checking for user group membership by id only (e.g. to show/hide delete on patient GroupRole)
             // A unit admin cannot remove patient from groups to which the unit admin is not assigned.
@@ -277,11 +295,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
             $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
 
-            // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN
+            // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN ...
             if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
                 // to delete group membership in edit UI
                 $scope.permissions.canDeleteGroupRolesDuringEdit = true;
-                // to permanently delete patients
+                // to see the option to permanently delete patients
                 $scope.permissions.canDeleteUsers = true;
             }
 
