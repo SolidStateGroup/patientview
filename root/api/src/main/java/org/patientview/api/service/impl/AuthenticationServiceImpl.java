@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,11 +38,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Inject
     private RoleRepository roleRepository;
-
-    @PostConstruct
-    private void init() {
-        LOG.info("Authentication service started");
-    }
 
     public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
             AuthenticationServiceException {

@@ -16,14 +16,11 @@ import java.util.List;
 public interface JoinRequestService {
 
     JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException;
-<<<<<<< HEAD
-=======
 
-    List<JoinRequest> get(Long groupId) throws ResourceNotFoundException;
+    List<JoinRequest> get(Long userId) throws ResourceNotFoundException;
 
     List<JoinRequest> getByStatus(Long userId, JoinRequestStatus joinRequestStatuses)
             throws ResourceNotFoundException;
->>>>>>> 73e9ade59079103c7eef7e11d644aedf97818ec5
 
     JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException ;
 }

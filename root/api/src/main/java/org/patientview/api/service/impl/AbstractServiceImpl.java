@@ -3,6 +3,8 @@ package org.patientview.api.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.lang.reflect.ParameterizedType;
 
 /**
@@ -18,6 +20,16 @@ public class AbstractServiceImpl<T extends AbstractServiceImpl> {
     public Class<T> getServiceClass()  {
         ParameterizedType superclass = (ParameterizedType) getClass().getGenericSuperclass();
         return (Class<T>) superclass.getActualTypeArguments()[0];
+    }
+
+    @PostConstruct
+    public void init() {
+        LOG.info("Service started");
+    }
+
+    @PreDestroy
+    public void close() {
+        LOG.info("Service closing");
     }
 
 }

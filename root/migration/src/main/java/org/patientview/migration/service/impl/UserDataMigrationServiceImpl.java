@@ -223,13 +223,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setChangePassword(user.isFirstlogon());
         newUser.setPassword(user.getPassword());
         newUser.setLocked(user.isAccountlocked());
+        newUser.setDummy(user.isDummypatient());
         if (StringUtils.isEmpty(user.getEmail())) {
             newUser.setEmail("Unknown@patientview.org");
         } else{
             newUser.setEmail(user.getEmail());
         }
         newUser.setUsername(user.getUsername());
-        newUser.setVerified(user.isEmailverified());
+        newUser.setEmailVerified(user.isEmailverified());
         return newUser;
     }
 

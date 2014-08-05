@@ -36,8 +36,6 @@ public class JoinRequestServiceImpl implements JoinRequestService {
 
     @Override
     public JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException {
-<<<<<<< HEAD
-=======
 
         Group group = findGroup(groupId);
         joinRequest.setGroup(group);
@@ -57,7 +55,6 @@ public class JoinRequestServiceImpl implements JoinRequestService {
         User user = findUser(userId);
         return Util.iterableToList(joinRequestRepository.findByUserAndType(user, joinRequestStatuses));
     }
->>>>>>> 73e9ade59079103c7eef7e11d644aedf97818ec5
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {
         Group group = groupRepository.findOne(groupId);
