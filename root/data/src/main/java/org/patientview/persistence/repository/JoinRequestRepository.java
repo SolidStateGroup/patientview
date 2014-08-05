@@ -2,6 +2,7 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +23,12 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
            "JOIN   jr.group.groupRoles gr " +
            "WHERE  gr.user = :user")
     Iterable<JoinRequest> findByUser(@Param("user") User user);
+
+    @Query("SELECT jr " +
+            "FROM   JoinRequest jr " +
+            "JOIN   jr.group.groupRoles gr " +
+            "WHERE  gr.user = :user " +
+            "AND    jr.status = :status")
+    Iterable<JoinRequest> findByUserAndType(@Param("user") User user,
+                                            @Param("status")JoinRequestStatus joinRequestStatus);
 }

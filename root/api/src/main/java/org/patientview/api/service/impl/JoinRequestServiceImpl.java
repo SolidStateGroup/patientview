@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -51,10 +50,10 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     }
 
     @Override
-    public List<JoinRequest> getByType(Long userId, Set<JoinRequestStatus> joinRequestStatuses)
+    public List<JoinRequest> getByStatus(Long userId, JoinRequestStatus joinRequestStatuses)
             throws ResourceNotFoundException {
         User user = findUser(userId);
-        return null;
+        return Util.iterableToList(joinRequestRepository.findByUserAndType(user, joinRequestStatuses));
     }
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {

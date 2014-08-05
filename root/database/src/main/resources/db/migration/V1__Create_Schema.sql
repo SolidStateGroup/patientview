@@ -486,7 +486,7 @@ CREATE TABLE PV_Join_Request
   Nhs_Number       VARCHAR(10),
   Notes            TEXT,
   Completion_Date  TIMESTAMP,
-  Completed_By     BIGINT REFERENCES PV_User (Id) NOT NULL,
+  Completed_By     BIGINT REFERENCES PV_User (Id),
   Status           VARCHAR(50),
   Group_Id         BIGINT REFERENCES PV_Group (Id),
   Creation_Date    TIMESTAMP   NOT NULL,

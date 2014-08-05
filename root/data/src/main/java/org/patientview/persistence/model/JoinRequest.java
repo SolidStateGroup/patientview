@@ -46,18 +46,19 @@ public class JoinRequest extends BaseModel {
 
     @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private Date created = new Date();
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private JoinRequestStatus status;
 
-    @Column(name = "status_date")
+    @Column(name = "completion_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date completionDate;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "completed_by")
+    @JoinColumn(name = "completed_by", nullable = true)
     private User completedBy;
 
     @Column(name = "notes")

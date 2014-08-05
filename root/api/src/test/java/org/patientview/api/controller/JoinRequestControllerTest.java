@@ -19,10 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -89,28 +86,6 @@ public class JoinRequestControllerTest {
         verify(joinRequestService, Mockito.times(1)).get(eq(groupId));
     }
 
-    /**
-     * Test: The request of the join request for a unit
-     * Fail: The service does not get called for join requests
-     */
-    @Test
-    public void testGroupJoinRequest_withParameter() throws ResourceNotFoundException, JsonProcessingException{
-        Long userId = 1L;
-
-        Set<JoinRequestStatus> statuses = new HashSet<>();
-
-        String url = "/user/" + userId + "/joinrequests?statuses=" + mapper.writeValueAsString(statuses);
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get(url)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            Assert.fail("Exception throw");
-        }
-
-        verify(joinRequestService, Mockito.times(1)).getByType(eq(userId), eq(Collections.EMPTY_SET));
-    }
 
     /**
      * Test: The request of the join request for a unit
@@ -120,13 +95,9 @@ public class JoinRequestControllerTest {
     public void testGroupJoinRequest_withParameterAndData() throws ResourceNotFoundException, JsonProcessingException{
         Long userId = 1L;
 
-        Set<String> statuses = new HashSet<>();
-        statuses.add(JoinRequestStatus.COMPLETED.getId());
+        JoinRequestStatus returnStatus  = JoinRequestStatus.COMPLETED;
 
-        Set<JoinRequestStatus> returnStatuses = new HashSet<>();
-        returnStatuses.add(JoinRequestStatus.COMPLETED);
-
-        String url = "/user/" + userId + "/joinrequests?statuses=" + mapper.writeValueAsString(statuses);
+        String url = "/user/" + userId + "/joinrequests?status=" + returnStatus;
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get(url)
@@ -136,7 +107,7 @@ public class JoinRequestControllerTest {
             Assert.fail("Exception throw");
         }
 
-        verify(joinRequestService, Mockito.times(1)).getByType(eq(userId), eq(returnStatuses));
+        verify(joinRequestService, Mockito.times(1)).getByStatus(eq(userId), eq(JoinRequestStatus.COMPLETED));
     }
 
     /**
