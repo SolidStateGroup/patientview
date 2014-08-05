@@ -30,7 +30,7 @@ import java.util.Set;
  * Created on 19/06/2014
  */
 @RestController
-public class SecurityController extends BaseController {
+public class SecurityController extends BaseController<SecurityController> {
 
     private final static Logger LOG = LoggerFactory.getLogger(SecurityController.class);
 

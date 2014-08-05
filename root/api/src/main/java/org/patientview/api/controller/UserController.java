@@ -37,7 +37,7 @@ import java.util.List;
  * Created on 03/06/2014.
  */
 @RestController
-public class UserController extends BaseController {
+public class UserController extends BaseController<UserController> {
 
     private final static Logger LOG = LoggerFactory.getLogger(UserController.class);
 

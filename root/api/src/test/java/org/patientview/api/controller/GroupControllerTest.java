@@ -18,6 +18,9 @@ import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -36,6 +39,7 @@ import static org.mockito.Mockito.when;
  */
 public class GroupControllerTest {
 
+    protected final Logger LOG = LoggerFactory.getLogger(GroupControllerTest.class);
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -159,6 +163,8 @@ public class GroupControllerTest {
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
         joinRequest.setDateOfBirth(new Date());
+        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
+
 
         Long groupId = 2L;
 
@@ -264,5 +270,6 @@ public class GroupControllerTest {
             Assert.fail("This call should not fail");
         }
     }
+
 
 }

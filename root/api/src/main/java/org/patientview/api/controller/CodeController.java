@@ -4,8 +4,6 @@ import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Link;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,9 +27,7 @@ import java.util.List;
  * Created on 26/06/2014
  */
 @RestController
-public class CodeController extends BaseController {
-
-    private final static Logger LOG = LoggerFactory.getLogger(CodeController.class);
+public class CodeController extends BaseController<CodeController> {
 
     @Inject
     private CodeService codeService;
