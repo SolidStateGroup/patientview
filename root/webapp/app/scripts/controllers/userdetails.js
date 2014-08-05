@@ -247,7 +247,7 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
             // validate NHS_NUMBER
             var valid = true, errorMessage = '';
 
-            if (identifier.identifierType.value === 'NHS_NUMBER') {
+            if (identifier.identifierType.value === 'NHS_NUMBER' && user.dummy != true) {
                 valid = $scope.validateNHSNumber(identifier.identifier);
                 errorMessage = 'Invalid NHS Number, please check format';
             }

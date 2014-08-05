@@ -35,12 +35,41 @@
                 <h3 class="modal-title">Delete Patient User</h3>
             </div>
             <div class="modal-body">
-                <p>Are you sure? This will delete user with username <strong>{{user.username}}</strong>.</p>
+                <p>There are multiple options for deleting the patient <strong>"{{user.forename}} {{user.surname}}"</strong> with username <strong>"{{user.username}}"</strong>.</p>
+                <br/>
+
+                <div ng-show="user.canRemoveFromAllGroups">
+                    <h4>Remove Patient From My Groups</h4>
+                    <div ng-show="user.canRemoveFromMyGroups">
+                        <p>This will remove the patient from your groups. The patient is also a member of another group
+                            that you do not control.</p>
+                        <p><button class="btn btn-primary" ng-click="removeFromMyGroups()">Remove Patient From My Groups</button></p>
+                    </div>
+                    <div ng-show="!user.canRemoveFromMyGroups">
+                        <p>This patient is not part of another group. </p>
+                        <p>If you wish to remove the patient from PatientView altogether, please select the "Remove Patient
+                            From All Groups" option (proceeding with caution!).</p>
+                    </div>
+                </div>
+
+                <div ng-show="user.canRemoveFromAllGroups">
+                    <h4>Remove Patient From All Groups</h4>
+                    <p>This will remove a patient from all groups, please proceed with caution. If the patient belongs
+                        to a group with the "Keep All Data" feature then the patient's data will be kept in PatientView,
+                        otherwise the patient will be deleted permanently. Permanently deleting a patient cannot be undone.</p>
+                    <p><button class="btn btn-primary" ng-click="removeFromAllGroups()">Remove Patient From All Groups</button></p>
+                </div>
+
+                <div ng-show="user.canDelete">
+                    <h4>Permanently Delete Patient</h4>
+                    <p>This will completely delete a patient from PatientView and cannot be undone.</p>
+                    <p><button class="btn btn-primary" ng-click="delete()">Permanently Delete Patient</button></p>
+                </div>
             </div>
             <div class="modal-footer">
                 <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
-                <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" ng-click="ok()">Delete</button>
+                <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
+                <button class="btn btn-grey" ng-click="cancel()">Close</button>
             </div>
         </script>
 
