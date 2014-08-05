@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -35,11 +34,12 @@ import java.util.List;
  */
 
 @Aspect
-@Component
 @Configurable
 public class SecurityAspect {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspect.class);
+
+    private static SecurityAspect instance;
 
     @Inject
     private GroupService groupService;
@@ -47,7 +47,7 @@ public class SecurityAspect {
     @Inject
     private GroupRepository groupRepository;
 
-    public SecurityAspect() {
+    private SecurityAspect() {
         LOG.info("Security Aspect Initialised");
     }
 
@@ -147,5 +147,14 @@ public class SecurityAspect {
         return null;
     }
 
+
+    public static SecurityAspect aspectOf(){
+
+        if (instance == null) {
+            instance = new SecurityAspect();
+        }
+        return instance;
+
+    }
 
 }

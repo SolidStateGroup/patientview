@@ -3,6 +3,8 @@ package org.patientview.api.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.patientview.api.aspect.AuditAspect;
+import org.patientview.api.aspect.LoggingAspect;
 import org.patientview.api.aspect.SecurityAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,6 +30,7 @@ public class ApiConfig {
     @Inject
     private Properties properties;
 
+    //TODO this just gets the "name" of the enum
     @Bean
     @Primary
     public ObjectMapper getCustomerObjectMapper() {
@@ -38,11 +41,25 @@ public class ApiConfig {
                 this.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
                 // Uses Enum.toString() for deserialization of an Enum
                 this.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
-
             }
         };
 
         return objectMapper;
+    }
+
+    @Bean
+    public SecurityAspect securityAspectBean() {
+        return SecurityAspect.aspectOf();
+    }
+
+    @Bean
+    public AuditAspect auditAspectBean() {
+        return AuditAspect.aspectOf();
+    }
+
+    @Bean
+    public LoggingAspect loggingAspectBean() {
+        return LoggingAspect.aspectOf();
     }
 
 
@@ -63,11 +80,6 @@ public class ApiConfig {
         javaMailSender.setJavaMailProperties(javaMailProperties);
 
         return javaMailSender;
-    }
-
-    @Bean
-    public SecurityAspect securityAspect() {
-        return new SecurityAspect();
     }
 }
 
