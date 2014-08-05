@@ -14,7 +14,7 @@ import javax.inject.Inject;
  * Created on 24/06/2014
  */
 @Service
-public class EmailServiceImpl implements EmailService {
+public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> implements EmailService {
 
     @Inject
     private JavaMailSenderImpl javaMailSender;

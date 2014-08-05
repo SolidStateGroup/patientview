@@ -48,11 +48,11 @@ public class LocationControllerTest {
         testLocation.setId(1L);
 
         try {
-            when(locationService.create(eq(testLocation))).thenReturn(testLocation);
+            when(locationService.add(eq(testLocation))).thenReturn(testLocation);
             mockMvc.perform(MockMvcRequestBuilders.post("/location")
                     .content(mapper.writeValueAsString(testLocation)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(locationService, Mockito.times(1)).create(eq(testLocation));
+            verify(locationService, Mockito.times(1)).add(eq(testLocation));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
@@ -64,11 +64,11 @@ public class LocationControllerTest {
         testLocation.setId(1L);
 
         try {
-            when(locationService.saveLocation(eq(testLocation))).thenReturn(testLocation);
+            when(locationService.save(eq(testLocation))).thenReturn(testLocation);
             mockMvc.perform(MockMvcRequestBuilders.put("/location")
                     .content(mapper.writeValueAsString(testLocation)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(locationService, Mockito.times(1)).saveLocation(eq(testLocation));
+            verify(locationService, Mockito.times(1)).save(eq(testLocation));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
@@ -85,6 +85,6 @@ public class LocationControllerTest {
             Assert.fail("Exception throw");
         }
 
-        verify(locationService, Mockito.times(1)).deleteLocation(eq(locationId));
+        verify(locationService, Mockito.times(1)).delete(eq(locationId));
     }
 }

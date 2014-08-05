@@ -1,11 +1,11 @@
-INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by) VALUES
-  (1, 'system','pppppp', false, false, 'system@patientview.org', 'system', 'system', now(), now(), 1);
+INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by, dummy) VALUES
+  (1, 'system','pppppp', false, false, 'system@patientview.org', 'system', 'system', now(), now(), 1, false);
 
-INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by) VALUES
-  (2, 'migration','pppppp', false, false, 'migration@patientview.org', 'migration', 'migration', now(), now(), 1);
+INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by, dummy) VALUES
+  (2, 'migration','pppppp', false, false, 'migration@patientview.org', 'migration', 'migration', now(), now(), 1, false);
 
-INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by) VALUES
-  (3, 'globaladmin','pppppp', false, false, 'migration@patientview.org', 'globaladmin', 'globaladmin', now(), now(), 1);
+INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by, dummy) VALUES
+  (3, 'globaladmin','pppppp', false, false, 'migration@patientview.org', 'globaladmin', 'globaladmin', now(), now(), 1, false);
 
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (1, now(), 'Type of group','GROUP', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (2, now(), 'Type of menu','MENU', '1');
@@ -106,6 +106,8 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
   (15, 4, 10,  '/groups', 'views/groups.html','GroupsCtrl', 'Groups', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (16, 4, 12,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (17, 4, 13,  '/joinrequestadmin', 'views/joinrequestadmin.html','JoinRequestAdminCtrl', 'Join Request Admin', now(), 1 );
 
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
@@ -144,6 +146,8 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
   (17, 16, null, 6, null, now(), 1 );
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (18, 16, null, 3, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (19, 17, null, 2, null, now(), 1 );
 
 INSERT INTO PV_User_Token(Id, User_Id, Token, Creation_Date) VALUES
   (1, 2, 'pppppp', now())

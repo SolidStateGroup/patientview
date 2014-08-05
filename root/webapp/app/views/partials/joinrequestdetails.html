@@ -1,0 +1,28 @@
+<div class="row editJoinRequest">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-3">
+            <label for="join-request-notes" class="control-label">Notes</label>
+
+            <div class=""><input type="text" class="form-control" id="join-request-notes" placeholder="Notes"
+                                 name="notes" ng-model="joinRequest.notes" required></div>
+            <label for="join-request-notes" class="control-label">Status</label>
+            <div>
+            <select ng-model="joinRequest.status"
+                    ng-options="status as status for status in statuses"
+                    class="form-control"></select>
+            </div>
+            <label class="control-label" ng-show="joinRequest.completedBy">Completed By</label>
+            <div class="">{{joinRequest.completedBy.forename}} {{joinRequest.completedBy.surname}}</div>
+
+        </div>
+    </div>
+</div>
+<br/>
+<button type="button" class="btn blue pull-right" ng-click="save(joinRequestForm, joinRequest)"
+        ng-disabled="joinRequestForm.$pristine">Save
+</button>
+
+<div class="user-save-cancel pull-right">
+    <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
+</div>
+<span class="saved-notification pull-right" ng-show="saved">Saved Successfully! &nbsp;</span>

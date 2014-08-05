@@ -11,15 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 30/07/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface ContactPointService {
-
-    ContactPoint create(ContactPoint contactPoint);
-
-    ContactPoint getContactPoint(Long contactPointId);
-
-    void deleteContactPoint(Long contactPointId);
-
-    ContactPoint saveContactPoint(ContactPoint contactPoint);
+public interface ContactPointService extends CrudService<ContactPoint> {
 
     ContactPointType getContactPointType(String type) throws ResourceInvalidException;
 }

@@ -22,8 +22,6 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -39,9 +37,7 @@ import java.util.Properties;
  * Created on 19/06/2014
  */
 @Service
-public class UserServiceImpl implements UserService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
+public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implements UserService {
 
     @Inject
     private UserRepository userRepository;
@@ -76,7 +72,7 @@ public class UserServiceImpl implements UserService {
     @Inject
     private Properties properties;
 
-    private User createUser(User user) {
+    public User add(User user) {
 
         User newUser;
 
@@ -159,21 +155,21 @@ public class UserServiceImpl implements UserService {
 
     public User createUserWithPasswordEncryption(User user) {
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-        return createUser(user);
+        return add(user);
     }
 
 
     public User createUserResetPassword(User user) {
         user.setPassword(DigestUtils.sha256Hex(CommonUtils.getAuthtoken()));
-        return createUser(user);
+        return add(user);
     }
 
     //Migration Only
     public User createUserNoEncryption(User user) {
-        return createUser(user);
+        return add(user);
     }
 
-    public User getUser(Long userId) {
+    public User get(Long userId) {
         return userRepository.findOne(userId);
 
     }
@@ -213,7 +209,7 @@ public class UserServiceImpl implements UserService {
         return Util.iterableToList(userRepository.findByGroupsAndRoles(groupIds, roleIds));
     }
 
-    public void deleteUser(Long userId) {
+    public void delete(Long userId) {
         userRepository.delete(userId);
     }
 

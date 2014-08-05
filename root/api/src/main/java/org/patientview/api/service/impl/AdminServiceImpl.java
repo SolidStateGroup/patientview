@@ -12,8 +12,6 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -27,9 +25,7 @@ import java.util.List;
  * TODO name change and refactor
  */
 @Service
-public class AdminServiceImpl implements AdminService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AdminServiceImpl.class);
+public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> implements AdminService {
 
     @Inject
     private UserRepository userRepository;

@@ -2,8 +2,11 @@ package org.patientview.api.service;
 
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.JoinRequest;
+import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -12,6 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface JoinRequestService {
 
-    JoinRequest addJoinRequest(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException;
+    JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException;
 
+    List<JoinRequest> get(Long userId) throws ResourceNotFoundException;
+
+    List<JoinRequest> getByStatus(Long userId, JoinRequestStatus joinRequestStatuses)
+            throws ResourceNotFoundException;
+
+    JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException ;
 }

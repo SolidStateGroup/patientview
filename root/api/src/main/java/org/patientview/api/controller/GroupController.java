@@ -35,13 +35,12 @@ import java.util.List;
  * Created on 03/06/2014
  */
 @RestController
-public class GroupController extends BaseController {
+public class GroupController extends BaseController<GroupController> {
 
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
 
     @Inject
     private JoinRequestService joinRequestService;
-
 
     @Inject
     private AdminService adminService;
@@ -52,34 +51,34 @@ public class GroupController extends BaseController {
     @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Group> createGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
 
-        group = groupService.create(group);
+        group = groupService.add(group);
 
         LOG.info("Created group with id " + group.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(group.getId());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<Group>(group, HttpStatus.CREATED);
+        return new ResponseEntity<>(group, HttpStatus.CREATED);
 
     }
 
     @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId) throws SecurityException {
-        return new ResponseEntity<Group>(groupService.findOne(groupId), HttpStatus.OK);
+        return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
     }
 
     // TODO: return statistics for group, not just group
     @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Group> getGroupStatistics(@PathVariable("groupId") Long groupId) {
-        return new ResponseEntity<Group>(groupService.findOne(groupId), HttpStatus.OK);
+        return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Group>> getGroups() {
-        return new ResponseEntity<List<Group>>(groupService.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(groupService.findAll(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.PUT)
@@ -89,14 +88,14 @@ public class GroupController extends BaseController {
         try {
             group = groupService.save(group);
         } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         LOG.info("Updated group with id " + group.getId());
         UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(group.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<Void>(headers, HttpStatus.OK);
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
 
@@ -105,7 +104,7 @@ public class GroupController extends BaseController {
     @ResponseBody
     public ResponseEntity<GroupFeature> getGroup(@PathVariable("groupId") Long groupId,
                                           @PathVariable("featureId") Long featureId) {
-        return new ResponseEntity<GroupFeature>(adminService.addGroupFeature(groupId, featureId), HttpStatus.OK);
+        return new ResponseEntity<>(adminService.addGroupFeature(groupId, featureId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/groupfeature", method = RequestMethod.POST)
@@ -114,7 +113,7 @@ public class GroupController extends BaseController {
         UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(groupFeature.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<GroupFeature>(groupFeature, HttpStatus.CREATED);
+        return new ResponseEntity<>(groupFeature, HttpStatus.CREATED);
     }
 
     //TODO, similar to /user?roleType=staff&groupId=111&groupId=222&groupId=333 in UserController.java but only for a single group
@@ -122,13 +121,13 @@ public class GroupController extends BaseController {
     @ResponseBody
     public ResponseEntity<List<User>> getGroupStaff(@PathVariable("groupId") Long groupId,
                                                     @RequestParam("roleType") String roleType) {
-        return new ResponseEntity<List<User>>(adminService.getGroupUserByRoleStaff(groupId), HttpStatus.OK);
+        return new ResponseEntity<>(adminService.getGroupUserByRoleStaff(groupId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/type/{typeId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Group>> getGroupsByType(@PathVariable("typeId") Long lookupId) {
-        return new ResponseEntity<List<Group>>(groupService.findGroupByType(lookupId), HttpStatus.OK);
+        return new ResponseEntity<>(groupService.findGroupByType(lookupId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.PUT)
@@ -136,7 +135,7 @@ public class GroupController extends BaseController {
     public ResponseEntity<Void> addParentGroup(@PathVariable("groupId") Long groupId,
                                                       @PathVariable("parentId") Long parentGroupId) {
         groupService.addParentGroup(groupId,parentGroupId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.DELETE)
@@ -144,7 +143,7 @@ public class GroupController extends BaseController {
     public ResponseEntity<Void> deleteParentGroup(@PathVariable("groupId") Long groupId,
                                                   @PathVariable("parentId") Long parentGroupId) {
         groupService.deleteParentGroup(groupId, parentGroupId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/joinRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -152,9 +151,9 @@ public class GroupController extends BaseController {
                                                @RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
         LOG.debug("Join Request Received for {} {}", joinRequest.getForename(), joinRequest.getSurname());
 
-        joinRequestService.addJoinRequest(groupId, joinRequest);
+        joinRequestService.add(groupId, joinRequest);
 
-        return new ResponseEntity<Void>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
 
     }
 
@@ -162,7 +161,7 @@ public class GroupController extends BaseController {
     @ResponseBody
     public ResponseEntity<List<Group>> getChildreb(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException{
-        return new ResponseEntity<List<Group>>(groupService.findChildren(groupId), HttpStatus.OK);
+        return new ResponseEntity<>(groupService.findChildren(groupId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.PUT)
@@ -178,7 +177,7 @@ public class GroupController extends BaseController {
     public ResponseEntity<Void> deleteChildGroup(@PathVariable("groupId") Long groupId,
                                                   @PathVariable("childId") Long childGroupId) {
         groupService.deleteChildGroup(groupId, childGroupId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/links", method = RequestMethod.POST
@@ -196,7 +195,7 @@ public class GroupController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<Link>(newLink, HttpStatus.CREATED);
+        return new ResponseEntity<>(newLink, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST
@@ -214,7 +213,7 @@ public class GroupController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<ContactPoint>(newContactPoint, HttpStatus.CREATED);
+        return new ResponseEntity<>(newContactPoint, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST
@@ -232,7 +231,7 @@ public class GroupController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<Location>(newLocation, HttpStatus.CREATED);
+        return new ResponseEntity<>(newLocation, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.PUT)
@@ -240,7 +239,7 @@ public class GroupController extends BaseController {
     public ResponseEntity<Void> addFeature(@PathVariable("groupId") Long groupId,
                                                @PathVariable("featureId") Long featureId) {
         groupService.addFeature(groupId, featureId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.DELETE)
@@ -248,6 +247,8 @@ public class GroupController extends BaseController {
     public ResponseEntity<Void> deleteFeature(@PathVariable("groupId") Long groupId,
                                                @PathVariable("featureId") Long featureId) {
         groupService.deleteFeature(groupId, featureId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
 }

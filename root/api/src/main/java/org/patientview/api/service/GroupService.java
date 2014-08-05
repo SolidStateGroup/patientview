@@ -1,14 +1,12 @@
 package org.patientview.api.service;
 
-import org.patientview.api.annotation.GroupMemberOnly;
-import org.patientview.persistence.model.ContactPoint;
 import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.Roles;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +20,7 @@ import java.util.List;
 public interface GroupService {
 
     //@GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
-    Group findOne(Long id);
+    Group get(Long id);
 
     List<Group> findAll();
 
@@ -35,7 +33,7 @@ public interface GroupService {
     //@GroupMemberOnly(roles = {Roles.UNIT_ADMIN, Roles.STAFF_ADMIN})
     Group save(Group group) throws ResourceNotFoundException;
 
-    Group create(Group group);
+    Group add(Group group);
 
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId);
 

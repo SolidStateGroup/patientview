@@ -9,8 +9,6 @@ import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,9 +28,7 @@ import java.util.List;
  * Created on 13/06/2014
  */
 @Service
-public class AuthenticationServiceImpl implements AuthenticationService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
+public class AuthenticationServiceImpl extends AbstractServiceImpl<AuthenticationServiceImpl> implements AuthenticationService {
 
     @Inject
     private UserRepository userRepository;
@@ -43,11 +38,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Inject
     private RoleRepository roleRepository;
-
-    @PostConstruct
-    private void init() {
-        LOG.info("Authentication service started");
-    }
 
     public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
             AuthenticationServiceException {

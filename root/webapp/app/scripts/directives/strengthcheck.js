@@ -10,7 +10,7 @@ angular.module('patientviewApp').directive('checkStrength', function () {
 
                 var strength = {
                     colors: ['#F00', '#F90', '#FF0', '#9F0', '#0F0'],
-                    mesureStrength: function (p) {
+                    measureStrength: function (p) {
 
                         var _force = 0;
                         var _regex = /[$-/:-?{-~!"^_`\[\]]/g;
@@ -55,7 +55,7 @@ angular.module('patientviewApp').directive('checkStrength', function () {
                     if (scope.pw === '') {
                         iElement.css({ "display": "none"  });
                     } else {
-                        var c = strength.getColor(strength.mesureStrength(scope.pw));
+                        var c = strength.getColor(strength.measureStrength(scope.pw));
                         iElement.css({ "display": "inline" });
                         iElement.children('li')
                             .css({ "background": "#DDD" })

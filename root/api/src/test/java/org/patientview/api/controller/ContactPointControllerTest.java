@@ -68,11 +68,11 @@ public class ContactPointControllerTest {
         testContactPoint.setId(1L);
 
         try {
-            when(contactPointService.saveContactPoint(eq(testContactPoint))).thenReturn(testContactPoint);
+            when(contactPointService.save(eq(testContactPoint))).thenReturn(testContactPoint);
             mockMvc.perform(MockMvcRequestBuilders.put("/contactpoint")
                     .content(mapper.writeValueAsString(testContactPoint)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(contactPointService, Mockito.times(1)).saveContactPoint(eq(testContactPoint));
+            verify(contactPointService, Mockito.times(1)).save(eq(testContactPoint));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }
@@ -89,6 +89,6 @@ public class ContactPointControllerTest {
             Assert.fail("Exception throw");
         }
 
-        verify(contactPointService, Mockito.times(1)).deleteContactPoint(eq(contactPointId));
+        verify(contactPointService, Mockito.times(1)).delete(eq(contactPointId));
     }
 }
