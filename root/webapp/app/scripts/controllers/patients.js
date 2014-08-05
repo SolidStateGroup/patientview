@@ -641,6 +641,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     $scope.init();
                 }, function () {
                     // closed
+                    $scope.init();
                 });
             });
         };
