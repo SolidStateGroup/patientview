@@ -73,6 +73,9 @@ public class User extends RangeModel implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.EAGER)
     private Set<Identifier> identifiers;
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.EAGER)
+    private Set<ConversationUser> conversationUsers;
+
     @Column(name = "fhir_resource_id")
     private UUID fhirResourceId;
 
@@ -198,6 +201,15 @@ public class User extends RangeModel implements UserDetails {
 
     public void setIdentifiers(Set<Identifier> identifiers) {
         this.identifiers = identifiers;
+    }
+
+    @JsonIgnore
+    public Set<ConversationUser> getConversationUsers() {
+        return conversationUsers;
+    }
+
+    public void setConversationUsers(Set<ConversationUser> conversationUsers) {
+        this.conversationUsers = conversationUsers;
     }
 
     public String getName() {

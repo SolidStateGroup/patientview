@@ -218,7 +218,7 @@ CREATE TABLE PV_News_Link (
 
 CREATE TABLE PV_Conversation (
   Id               BIGINT       NOT NULL,
-  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id),
+  Type             VARCHAR(255) NOT NULL,
   Image_Data       TEXT,
   Rating           INTEGER,
   Status           INTEGER,
@@ -234,20 +234,25 @@ CREATE TABLE PV_Conversation (
 CREATE TABLE PV_Message (
   Id              BIGINT    NOT NULL,
   Conversation_Id BIGINT    NOT NULL  REFERENCES PV_Conversation (Id),
-  Type_Id         BIGINT REFERENCES PV_Lookup_Value (Id),
+  Type            VARCHAR(255) NOT NULL,
   Message         TEXT      NOT NULL,
+  User_Id         BIGINT    NOT NULL REFERENCES PV_User (Id),
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Conversation_Participant (
+CREATE TABLE PV_Conversation_User (
   Id              BIGINT    NOT NULL,
   Conversation_Id BIGINT    NOT NULL REFERENCES PV_Conversation (Id),
   User_Id         BIGINT    NOT NULL REFERENCES PV_User (Id),
   Anonymous       BOOL      NOT NULL,
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 

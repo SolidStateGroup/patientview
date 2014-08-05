@@ -32,16 +32,19 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', 'Conversat
     };
 
     $scope.$watch("currentPage", function(newValue, oldValue) {
-        $scope.pagedItems = ConversationService.getAll($scope.loggedInUser, newValue*$scope.itemsPerPage, $scope.itemsPerPage);
+        $scope.loading = true;
+        ConversationService.getAll($scope.loggedInUser, newValue*$scope.itemsPerPage, $scope.itemsPerPage).then(function(result) {
+            $scope.pagedItems = result;
+            $scope.loading = false;
+        }, function() {
+            $scope.loading = false;
+            // error
+        });
         //$scope.total = ConversationService.total();
     });
 
     $scope.init = function() {
         $scope.loading = true;
-
-
-        //$scope.pagedItems = ConversationService.getAll($scope.loggedInUser, $scope.itemsPerPage, $scope.currentPage);
-
         $scope.loading = false;
     };
 
