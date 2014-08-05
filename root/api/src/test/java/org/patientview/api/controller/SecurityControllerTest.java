@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
  * Created by james@solidstategroup.com
  * Created on 19/06/2014
  */
-public class SecurityControllerTest extends BaseControllerTest<SecurityController> {
+public class SecurityControllerTest {
 
 
     @Mock

@@ -7,7 +7,6 @@ import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
@@ -38,7 +37,7 @@ import java.util.List;
  * Created on 03/06/2014.
  */
 @RestController
-public class UserController extends BaseController {
+public class UserController extends BaseController<UserController> {
 
     private final static Logger LOG = LoggerFactory.getLogger(UserController.class);
 

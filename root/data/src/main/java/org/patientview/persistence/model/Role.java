@@ -96,6 +96,7 @@ public class Role extends AuditModel implements GrantedAuthority {
     }
 
     @Override
+    @JsonIgnore
     public String getAuthority() {
         return getName().toString();
     }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.persistence.EntityExistsException;
+import java.lang.reflect.ParameterizedType;
 
 /**
  * Base controller containing exception handling
@@ -16,10 +17,14 @@ import javax.persistence.EntityExistsException;
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
-public class BaseController {
+public abstract class BaseController<T extends BaseController> {
 
+    protected final Logger LOG = LoggerFactory.getLogger(getControllerClass());
 
-    private final static Logger LOG = LoggerFactory.getLogger(BaseController.class);
+    public Class<T> getControllerClass()  {
+        ParameterizedType superclass = (ParameterizedType) getClass().getGenericSuperclass();
+        return (Class<T>) superclass.getActualTypeArguments()[0];
+    }
 
     @ExceptionHandler(EntityExistsException.class)
     @ResponseBody

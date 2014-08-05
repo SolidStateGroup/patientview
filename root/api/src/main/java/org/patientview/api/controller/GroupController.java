@@ -35,13 +35,12 @@ import java.util.List;
  * Created on 03/06/2014
  */
 @RestController
-public class GroupController extends BaseController {
+public class GroupController extends BaseController<GroupController> {
 
     private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
 
     @Inject
     private JoinRequestService joinRequestService;
-
 
     @Inject
     private AdminService adminService;
@@ -152,7 +151,7 @@ public class GroupController extends BaseController {
                                                @RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
         LOG.debug("Join Request Received for {} {}", joinRequest.getForename(), joinRequest.getSurname());
 
-        joinRequestService.addJoinRequest(groupId, joinRequest);
+        joinRequestService.add(groupId, joinRequest);
 
         return new ResponseEntity<Void>(HttpStatus.CREATED);
 
@@ -250,4 +249,6 @@ public class GroupController extends BaseController {
         groupService.deleteFeature(groupId, featureId);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
+
+
 }

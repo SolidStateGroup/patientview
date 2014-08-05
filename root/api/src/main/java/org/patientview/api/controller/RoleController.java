@@ -3,8 +3,6 @@ package org.patientview.api.controller;
 import org.patientview.api.service.AdminService;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.RoleTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +20,7 @@ import java.util.List;
  * Created on 06/06/2014
  */
 @RestController
-public class RoleController extends BaseController {
-    private final static Logger LOG = LoggerFactory.getLogger(RoleController.class);
+public class RoleController extends BaseController<RoleController> {
 
     @Inject
     private AdminService adminService;
