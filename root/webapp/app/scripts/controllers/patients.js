@@ -143,11 +143,17 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         // remove from all units, then permanently delete if no Keep All Data feature available on units
         $scope.removeFromAllGroups = function () {
             var promises = [];
-            // remove group roles from user with multiple deleteGroupRole
-            for(i=0;i<user.groupRoles.length;i++) {
-                var groupRole = user.groupRoles[i];
-                promises.push(UserService.deleteGroupRole(user, groupRole.group.id, groupRole.role.id));
+
+            // if keeping data remove group roles from user with multiple deleteGroupRole, otherwise delete permanently
+            if ($scope.user.keepData) {
+                for (i = 0; i < user.groupRoles.length; i++) {
+                    var groupRole = user.groupRoles[i];
+                    promises.push(UserService.deleteGroupRole(user, groupRole.group.id, groupRole.role.id));
+                }
+            } else {
+                promises.push(UserService.delete(user));
             }
+
             $q.all(promises).then(function () {
                 $scope.successMessage = 'Patient has been removed from all groups';
                 $scope.user.canRemoveFromMyGroups = false;
