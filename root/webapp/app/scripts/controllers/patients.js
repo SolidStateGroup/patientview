@@ -78,20 +78,90 @@ var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'pe
     }];
 
 // delete patient modal instance controller
-var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
-    function ($scope, $modalInstance, user, UserService) {
+var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','user','UserService','allGroups','allRoles','$q',
+    function ($scope, $modalInstance, permissions, user, UserService, allGroups, allRoles, $q) {
+        var i, j, inMyGroups = false, notMyGroupCount = 0;
+        $scope.successMessage = $scope.errorMessage = '';
         $scope.user = user;
-        $scope.ok = function () {
+
+        // check if user can be removed from groups associated with logged in user
+        $scope.user.canRemoveFromMyGroups = false;
+
+        // check if user in other groups but mine (not including Generic)
+        for (i=0;i<allGroups.length;i++) {
+            for (j=0;j<user.groupRoles.length;j++) {
+                if (user.groupRoles[j].group.code != 'Generic') {
+                    if (allGroups[i].id === user.groupRoles[j].group.id) {
+                        inMyGroups = true;
+                    } else {
+                        notMyGroupCount++;
+                    }
+                }
+            }
+        }
+
+        // only allow removal from my group if a member of another group
+        if (inMyGroups && (notMyGroupCount > 0)) {
+            $scope.user.canRemoveFromMyGroups = true;
+        }
+
+        // can be removed from all groups
+        $scope.user.canRemoveFromAllGroups = true;
+
+        // can delete permanently
+        $scope.user.canDelete = permissions.canDeleteUsers;
+
+        // remove from my units
+        $scope.removeFromMyGroups = function () {
+            var promises = [];
+            // remove group roles from user where group is my unit with multiple deleteGroupRole
+            for (i=0;i<allGroups.length;i++) {
+                for (j=0;j<allRoles.length;j++) {
+                    promises.push(UserService.deleteGroupRole(user, allGroups[i].id, allRoles[j].id));
+                }
+            }
+            $q.all(promises).then(function () {
+                $scope.successMessage = 'Patient has been removed from your units.';
+                $scope.user.canRemoveFromMyGroups = false;
+            }, function() {
+                $scope.errorMessage = 'There was an error';
+            });
+        };
+
+        // remove from all units
+        $scope.removeFromAllGroups = function () {
+            var promises = [];
+            // remove group roles from user with multiple deleteGroupRole
+            for(i=0;i<user.groupRoles.length;i++) {
+                var groupRole = user.groupRoles[i];
+                promises.push(UserService.deleteGroupRole(user, groupRole.group.id, groupRole.role.id));
+            }
+            $q.all(promises).then(function () {
+                $scope.successMessage = 'Patient has been removed from all units.';
+                $scope.user.canRemoveFromMyGroups = false;
+                $scope.user.canRemoveFromAllGroups = false;
+            }, function() {
+                $scope.errorMessage = 'There was an error';
+            });
+        };
+
+        // delete patient permanently
+        $scope.delete = function () {
             UserService.delete(user).then(function() {
                 // successfully deleted user
-                $modalInstance.close();
+                $scope.successMessage = 'Patient has been permanently deleted.';
+                $scope.user.canRemoveFromMyGroups = false;
+                $scope.user.canRemoveFromAllGroups = false;
+                $scope.user.canDelete = false;
             }, function() {
                 // error
                 $scope.errorMessage = 'There was an error';
             });
         };
+
         $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
+            //$modalInstance.dismiss('cancel');
+            $modalInstance.close();
         };
     }];
 
@@ -203,6 +273,18 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             // A unit admin cannot remove patient from groups to which the unit admin is not assigned.
             $scope.permissions.allGroupsIds = [];
 
+            // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
+            $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+            $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+
+            // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN
+            if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
+                // to delete group membership in edit UI
+                $scope.permissions.canDeleteGroupRolesDuringEdit = true;
+                // to permanently delete patients
+                $scope.permissions.canDeleteUsers = true;
+            }
+
             // get patient type roles
             RoleService.getByType('PATIENT').then(function(roles) {
 
@@ -300,6 +382,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         $('#' + $event.target.id).parent().children('.child-menu').remove();
                         $event.stopPropagation();
                     } else {
+                        // close any open edit panels
+                        $('.panel-collapse.in').collapse('hide');
                         $('.child-menu').remove();
                         $event.stopPropagation();
                         var childMenu = $('<div class="child-menu"></div>');
@@ -499,6 +583,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         // delete user
         $scope.deleteUser = function (userId, $event) {
             $scope.successMessage = '';
+            // close any open edit panels
+            $('.panel-collapse.in').collapse('hide');
 
             // workaround for cloned object not capturing ng-click properties
             var eventUserId = $event.currentTarget.dataset.userid;
@@ -508,23 +594,27 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     templateUrl: 'deletePatientModal.html',
                     controller: DeletePatientModalInstanceCtrl,
                     resolve: {
+                        permissions: function(){
+                            return $scope.permissions;
+                        },
                         user: function(){
                             return user;
                         },
                         UserService: function(){
                             return UserService;
+                        },
+                        allGroups: function(){
+                            return $scope.allGroups;
+                        },
+                        allRoles: function(){
+                            return $scope.allRoles;
                         }
                     }
                 });
 
                 modalInstance.result.then(function () {
-                    // ok, delete from list
-                    for(var l=0;l<$scope.list.length;l++) {
-                        if ($scope.list[l].id.toString() === eventUserId) {
-                            $scope.list = _.without($scope.list, $scope.list[l]);
-                        }
-                    }
-                    $scope.successMessage = 'User successfully deleted';
+                    // closed, refresh list
+                    $scope.init();
                 }, function () {
                     // closed
                 });

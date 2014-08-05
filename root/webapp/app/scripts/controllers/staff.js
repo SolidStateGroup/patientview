@@ -301,6 +301,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     $('#' + $event.target.id).parent().children('.child-menu').remove();
                     $event.stopPropagation();
                 } else {
+                    // close any open edit panels
+                    $('.panel-collapse.in').collapse('hide');
                     $('.child-menu').remove();
                     $event.stopPropagation();
                     var childMenu = $('<div class="child-menu"></div>');
