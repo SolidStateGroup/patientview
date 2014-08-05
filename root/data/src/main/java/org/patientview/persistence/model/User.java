@@ -7,8 +7,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -24,6 +26,8 @@ import java.util.UUID;
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
+@Entity
+@Table(name = "pv_user")
 public class User extends RangeModel implements UserDetails {
 
     @Column(name = "username")
