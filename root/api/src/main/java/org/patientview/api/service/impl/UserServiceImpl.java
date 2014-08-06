@@ -64,9 +64,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private EmailService emailService;
 
     @Inject
-    private LookupRepository lookupRepository;
-
-    @Inject
     private EntityManager entityManager;
 
     @Inject
@@ -171,7 +168,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public User get(Long userId) {
         return userRepository.findOne(userId);
-
     }
 
     public User getByUsername(String username) {
