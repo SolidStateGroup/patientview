@@ -78,7 +78,9 @@ public class AuditAspect {
         }
 
         Audit audit = new Audit();
-        audit.setActorId(user.getId());
+        if (user != null) {
+            audit.setActorId(user.getId());
+        }
         audit.setSourceObjectId(objectId);
         audit.setSourceObjectType(auditTrail.objectType().getSimpleName());
         audit.setAuditActions(auditTrail.value());
