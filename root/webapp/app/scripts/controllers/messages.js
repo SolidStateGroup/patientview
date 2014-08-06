@@ -2,10 +2,16 @@
 
 
 // new conversation modal instance controller
-var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newConversation', 'ConversationService',
-    function ($scope, $rootScope, $modalInstance, newConversation, ConversationService) {
+var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newConversation', 'ConversationService', 'recipients',
+    function ($scope, $rootScope, $modalInstance, newConversation, ConversationService, recipients) {
         var i;
         $scope.newConversation = newConversation;
+        newConversation.availableRecipients = _.clone(recipients);
+        newConversation.allRecipients = [];
+
+        for (i = 0; i < recipients.length; i++) {
+            newConversation.allRecipients[recipients[i].id] = recipients[i];
+        }
 
         $scope.ok = function () {
             // build correct conversation from newConversation
@@ -24,15 +30,17 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
             // add conversation users from list of users (temp anonymous = false)
             var conversationUsers = [];
-            for (i=0;i<newConversation.users.length;i++) {
+            for (i=0;i<newConversation.recipients.length;i++) {
                 conversationUsers[i] = {};
-                conversationUsers[i].user = newConversation.users[i];
+                conversationUsers[i].user = {};
+                conversationUsers[i].user.id = newConversation.recipients[i].id;
                 conversationUsers[i].anonymous = false;
             }
 
             // add logged in user to list of conversation users
             var conversationUser = {};
-            conversationUser.user = $scope.loggedInUser;
+            conversationUser.user = {};
+            conversationUser.user.id = $scope.loggedInUser.id;
             conversationUser.anonymous = false;
             conversationUsers.push(conversationUser);
 
@@ -55,8 +63,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 'ConversationService',
-    function ($scope, $modal, ConversationService) {
+angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 'ConversationService', 'GroupService', 'RoleService', 'UserService',
+    function ($scope, $modal, ConversationService, GroupService, RoleService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -146,38 +154,80 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
 
     // open modal for new conversation
     $scope.openModalNewConversation = function (size) {
+        var i;
         $scope.errorMessage = '';
         $scope.newConversation = {};
-        $scope.newConversation.users = [];
+        $scope.newConversation.recipients = [];
+        var roleIds = [], groupIds = [];
 
-        var modalInstance = $modal.open({
-            templateUrl: 'newConversationModal.html',
-            controller: NewConversationModalInstanceCtrl,
-            size: size,
-            resolve: {
-                newConversation: function(){
-                    return $scope.newConversation;
-                },
-                ConversationService: function(){
-                    return ConversationService;
+        // populate list of allowed recipients
+        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+            // get logged in user's groups
+            for (i = 0; i < groups.length; i++) {
+                var group = groups[i];
+                if (group.visible === true) {
+                    groupIds.push(group.id);
                 }
             }
-        });
 
-        modalInstance.result.then(function () {
-            $scope.loading = true;
-            ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(result) {
-                $scope.pagedItems = result;
-                $scope.loading = false;
-                $scope.successMessage = 'Conversation successfully created';
-            }, function() {
-                $scope.loading = false;
-                // error
+            RoleService.getByType('STAFF').then(function(roles) {
+                // get roles for recipients
+                for (i = 0; i < roles.length; i++) {
+                    var role = roles[i];
+                    if (role.visible === true) {
+                        roleIds.push(role.id);
+                    }
+                }
+
+                // now have user's groups and list of roles, get all users
+                UserService.getByGroupsAndRoles(groupIds, roleIds).then(function (users) {
+
+                    // open modal
+                    var modalInstance = $modal.open({
+                        templateUrl: 'newConversationModal.html',
+                        controller: NewConversationModalInstanceCtrl,
+                        size: size,
+                        resolve: {
+                            recipients: function(){
+                                return users;
+                            },
+                            newConversation: function(){
+                                return $scope.newConversation;
+                            },
+                            ConversationService: function(){
+                                return ConversationService;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        $scope.loading = true;
+                        ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(result) {
+                            $scope.pagedItems = result;
+                            $scope.loading = false;
+                            $scope.successMessage = 'Conversation successfully created';
+                        }, function() {
+                            $scope.loading = false;
+                            // error
+                        });
+                    }, function () {
+                        // cancel
+                        $scope.editConversation = '';
+                    });
+
+                }, function () {
+                    // error retrieving users
+                    alert('Error loading possible message recipients [3]');
+                });
+            }, function () {
+                // error retrieving roles
+                alert('Error loading possible message recipients [2]');
             });
         }, function () {
-            // cancel
-            $scope.editConversation = '';
+            // error retrieving groups
+            alert('Error loading possible message recipients [1]');
         });
+
     };
     
 }]);

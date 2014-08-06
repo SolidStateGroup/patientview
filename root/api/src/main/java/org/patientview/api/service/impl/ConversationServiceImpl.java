@@ -7,6 +7,7 @@ import org.patientview.persistence.model.ConversationUser;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.ConversationRepository;
+import org.patientview.persistence.repository.ConversationUserRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import javax.inject.Inject;
@@ -27,6 +28,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private ConversationRepository conversationRepository;
+
+    @Inject
+    private ConversationUserRepository conversationUserRepository;
 
     public Conversation get(Long conversationId) {
         return conversationRepository.findOne(conversationId);
@@ -130,6 +134,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newConversationUser.setUser(entityUser);
             newConversationUser.setAnonymous(conversationUser.getAnonymous());
             conversationUserSet.add(newConversationUser);
+            conversationUserRepository.save(newConversationUser);
         }
 
         entityConversation.setConversationUsers(conversationUserSet);

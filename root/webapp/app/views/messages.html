@@ -16,7 +16,7 @@
         <div class="modal-footer">
             <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!conversationFormNew.$valid">Create New Conversation</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)">Create New Conversation</button>
         </div>
     </script>
 
@@ -24,7 +24,7 @@
         <div class="content-panel">
             <ul class="pull-right aside-actions unstyled">
                 <li><a class="aside-link active" ng-click="conversation.showMessages = !conversation.showMessages; conversation.quickReplyOpen = false">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
-                <li><a class="aside-link reply" ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
+                <li><a class="aside-link qreply" ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
             </ul>
             <div class="message-summary">
                 <h2 class="message-title">{{conversation.title}}
