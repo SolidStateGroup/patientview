@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.patientview.api.aspect.AuditAspect;
-import org.patientview.api.aspect.LoggingAspect;
 import org.patientview.api.aspect.SecurityAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -57,10 +56,10 @@ public class ApiConfig {
         return AuditAspect.aspectOf();
     }
 
-    @Bean
-    public LoggingAspect loggingAspectBean() {
-        return LoggingAspect.aspectOf();
-    }
+    //@Bean
+    //public LoggingAspect loggingAspectBean() {
+//        return LoggingAspect.aspectOf();
+ //   }
 
 
     @Bean

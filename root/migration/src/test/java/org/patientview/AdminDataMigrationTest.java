@@ -1,13 +1,10 @@
 package org.patientview;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
-import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.Rollback;
@@ -30,15 +27,7 @@ public class AdminDataMigrationTest {
     private static final Logger LOG = LoggerFactory.getLogger(AdminDataMigrationTest.class);
 
     @Inject
-    private UnitDao unitDao;
-
-    @Inject
     private AdminDataMigrationService adminDataMigrationService;
-
-    @Before
-    public void setup() {
-
-    }
 
     /**
      * Order(1) Migrates all the static data like groups, specialities

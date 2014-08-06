@@ -3,9 +3,12 @@ package org.patientview.api.service.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
@@ -39,6 +42,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Inject
     private RoleRepository roleRepository;
 
+    @Inject
+    private AuditRepository auditRepository;
+
     public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
             AuthenticationServiceException {
 
@@ -51,9 +57,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
+            createAudit(AuditActions.LOGON_FAIL, user.getUsername());
             throw new AuthenticationServiceException("Invalid credentials");
         }
 
+        createAudit(AuditActions.LOGON_SUCCESS, user.getUsername());
         UserToken userToken = new UserToken();
         userToken.setUser(user);
         userToken.setToken(CommonUtils.getAuthtoken());
@@ -101,7 +109,15 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (userToken == null) {
             throw new AuthenticationServiceException("User is not currently logged in");
         }
-
+        createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername());
         userTokenRepository.delete(userToken.getId());
+    }
+
+    // TODO sprint 3 manage this with annotation
+    private void createAudit(AuditActions auditActions, String username) {
+        Audit audit = new Audit();
+        audit.setAuditActions(auditActions);
+        audit.setPreValue(username);
+        auditRepository.save(audit);
     }
 }

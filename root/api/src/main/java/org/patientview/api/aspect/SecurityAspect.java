@@ -122,6 +122,7 @@ public class SecurityAspect {
         return false;
     }
 
+    // TODO the next two methods can be fixed up with annotations on the parameters
     // Assuming we apply the annotation to a method with a groupId
     private Long getGroupId(JoinPoint joinPoint) {
 

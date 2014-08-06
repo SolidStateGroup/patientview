@@ -315,8 +315,7 @@ CREATE TABLE PV_Audit (
   Source_Object_Id      BIGINT,
   Pre_Value     VARCHAR(500),
   Post_Value    VARCHAR(500),
-  Action_Date   TIMESTAMP NOT NULL,
-  Actor_Id      BIGINT    NOT NULL REFERENCES PV_User (Id),
+  Actor_Id      BIGINT   REFERENCES PV_User (Id),
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
 );
@@ -417,21 +416,6 @@ CREATE TABLE PV_Shared_Thought (
   Created_By           BIGINT    REFERENCES PV_User (Id),
   Last_Update_Date     TIMESTAMP,
   Last_Updated_By      BIGINT    REFERENCES PV_User (Id),
-  PRIMARY KEY (Id)
-);
-
-CREATE TABLE PV_Shared_Thought_Audit (
-  Id                   BIGINT       NOT NULL,
-  Shared_Thought_Id    BIGINT       NOT NULL REFERENCES PV_Shared_Thought (Id),
-  User_Id              BIGINT       NOT NULL REFERENCES PV_User (Id),
-  Group_Id             BIGINT       NOT NULL REFERENCES PV_Group (Id),
-  Message_Id           BIGINT       REFERENCES PV_Message (Id),
-  Responder_Id         BIGINT       REFERENCES PV_User (Id),
-  Action               VARCHAR(255) NOT NULL,
-  Creation_Date        TIMESTAMP    NOT NULL,
-  Created_By           BIGINT       REFERENCES PV_User (Id),
-  Last_Update_Date     TIMESTAMP,
-  Last_Updated_By      BIGINT       REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
