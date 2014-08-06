@@ -1,13 +1,30 @@
 <div class="hider" ng-show="status.open"></div>
 
 <div class="" ng-show="!loading" ng-cloak>
-    <h1>Conversations <button class="btn blue">Create New</button></h1>
+    <h1>Conversations <button class="btn blue" ng-click="openModalNewConversation('lg')">Create New</button></h1>
+
+    <!-- new conversation modal template -->
+    <script type="text/ng-template" id="newConversationModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Conversation</h3>
+        </div>
+        <div class="modal-body">
+            <form name="conversationFormNew" ng-model="newConversation">
+                <div ng-include src="'views/partials/conversationDetailsNew.html'" ng-controller="ConversationDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!conversationFormNew.$valid">Create New Conversation</button>
+        </div>
+    </script>
 
     <div class="message-item" ng-repeat="conversation in pagedItems">
         <div class="content-panel">
             <ul class="pull-right aside-actions unstyled">
-                <li><a class="aside-link active" ng-click="conversation.showMessages = !conversation.showMessages">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
-                <li><a class="aside-link reply" ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen">Quick Reply</a></li>
+                <li><a class="aside-link active" ng-click="conversation.showMessages = !conversation.showMessages; conversation.quickReplyOpen = false">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
+                <li><a class="aside-link reply" ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
             </ul>
             <div class="message-summary">
                 <h2 class="message-title">{{conversation.title}}

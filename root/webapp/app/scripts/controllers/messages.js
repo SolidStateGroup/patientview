@@ -1,8 +1,31 @@
 'use strict';
 
-// pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
 
-angular.module('patientviewApp').controller('MessagesCtrl',['$scope', 'ConversationService', function ($scope, ConversationService) {
+// new conversation modal instance controller
+var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newConversation', 'ConversationService',
+    function ($scope, $rootScope, $modalInstance, newConversation, ConversationService) {
+        $scope.newConversation = newConversation;
+
+        $scope.ok = function () {
+            ConversationService.new($scope.newConversation).then(function() {
+                $modalInstance.close();
+            }, function(result) {
+                if (result.data) {
+                    $scope.errorMessage = ' - ' + result.data;
+                } else {
+                    $scope.errorMessage = ' ';
+                }
+            });
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }];
+
+// pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
+angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 'ConversationService',
+    function ($scope, $modal, ConversationService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -66,7 +89,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', 'Conversat
             // error
             alert('Error adding message');
         });
-    }
+    };
 
     $scope.quickReply = function(conversation) {
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.quickReplyContent).then(function() {
@@ -87,5 +110,42 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', 'Conversat
             // error
             alert('Error adding message');
         });
-    }
+    };
+
+
+    // open modal for new conversation
+    $scope.openModalNewConversation = function (size) {
+        $scope.errorMessage = '';
+        $scope.editConversation = {};
+
+        var modalInstance = $modal.open({
+            templateUrl: 'newConversationModal.html',
+            controller: NewConversationModalInstanceCtrl,
+            size: size,
+            resolve: {
+                newConversation: function(){
+                    return $scope.newConversation;
+                },
+                ConversationService: function(){
+                    return ConversationService;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            $scope.loading = true;
+            ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(result) {
+                $scope.pagedItems = result;
+                $scope.loading = false;
+                $scope.successMessage = 'Conversation successfully created';
+            }, function() {
+                $scope.loading = false;
+                // error
+            });
+        }, function () {
+            // cancel
+            $scope.editConversation = '';
+        });
+    };
+    
 }]);

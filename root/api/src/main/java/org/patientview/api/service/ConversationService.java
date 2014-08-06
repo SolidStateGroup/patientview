@@ -19,4 +19,6 @@ public interface ConversationService extends CrudService<Conversation> {
 
     void addMessage(Long conversationId, Message message) throws ResourceNotFoundException;
 
+    void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException;
+
 }
