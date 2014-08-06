@@ -119,15 +119,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         messageSet.add(newMessage);
         newConversation.setMessages(messageSet);
 
-        // persist conversation
-        Conversation entityConversation = conversationRepository.save(newConversation);
-
         // set conversation users
         Set<ConversationUser> conversationUserSet = new HashSet<>();
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             ConversationUser newConversationUser = new ConversationUser();
-            newConversationUser.setConversation(entityConversation);
+            newConversationUser.setConversation(newConversation);
 
             entityUser = userRepository.findOne(conversationUser.getUser().getId());
             if (entityUser == null) {
@@ -138,12 +135,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newConversationUser.setAnonymous(conversationUser.getAnonymous());
             newConversationUser.setCreator(userRepository.findOne(creator.getId()));
             conversationUserSet.add(newConversationUser);
-            //conversationUserRepository.save(newConversationUser);
         }
 
-        entityConversation.setConversationUsers(conversationUserSet);
+        newConversation.setConversationUsers(conversationUserSet);
 
-        // persist conversation with conversation users
-        conversationRepository.save(entityConversation);
+        // persist conversation
+        conversationRepository.save(newConversation);
     }
 }
