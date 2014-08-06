@@ -108,7 +108,7 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
+    // TODO Sprint 3 split this into different methods
     @RequestMapping(value = "/user", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -137,18 +137,17 @@ public class UserController extends BaseController<UserController> {
         }
         if (user.getId() == null) {
             try {
-
                 user = userService.createUserWithPasswordEncryption(user);
             } catch (EntityExistsException eee) {
                 return new ResponseEntity<>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
             }
         }
-        
+
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<>(user, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
 
     }
 

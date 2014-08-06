@@ -98,8 +98,8 @@ public class SecurityAspectTest {
     @Test(expected = SecurityException.class)
     public void testGroupMemberOnly() throws Throwable {
         LOG.info("Security Aspect Test");
-        User testUser = TestUtils.createUser(1L, "testUser");
-        groupService.get(testUser.getId());
+        Group testGroup = TestUtils.createGroup(1L, "testUser", creator);
+        groupService.get(testGroup.getId());
 
     }
 

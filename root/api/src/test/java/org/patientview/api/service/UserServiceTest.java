@@ -7,6 +7,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.persistence.model.Feature;
@@ -30,6 +31,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.HashSet;
 
 import static org.mockito.Mockito.verify;
@@ -74,6 +76,11 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService = new UserServiceImpl();
 
+    @Mock
+    AuditService auditService;
+
+    @InjectMocks
+    AuditAspect auditAspect = AuditAspect.aspectOf();
 
     @Before
     public void setUp() throws Exception {
@@ -88,8 +95,10 @@ public class UserServiceTest {
      */
     @Test
     public void testCreateUser() {
+
         User creator = TestUtils.createUser(1L, "testCreateUser");
         User newUser = TestUtils.createUser(2L, "newTestUser");
+        TestUtils.authenticateTest(newUser, Collections.<Role>emptyList());
         Feature feature = TestUtils.createFeature(3L, "TEST_FEATURE", creator);
 
         // Add test feature

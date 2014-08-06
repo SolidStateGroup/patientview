@@ -9,6 +9,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.Feature;
@@ -94,6 +95,13 @@ public class GroupServiceTest {
     @InjectMocks
     private GroupService groupService = new GroupServiceImpl();
 
+    @Mock
+    private AuditService auditService;
+
+    @InjectMocks
+    private AuditAspect auditAspect = AuditAspect.aspectOf();
+
+
     private User creator;
 
     @Before
@@ -153,8 +161,11 @@ public class GroupServiceTest {
      *
      */
     @Test
+
     public void testAddGroupChildAndParent() {
         User testUser = TestUtils.createUser(2L, "testUser");
+        TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
+
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
         Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
         Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
