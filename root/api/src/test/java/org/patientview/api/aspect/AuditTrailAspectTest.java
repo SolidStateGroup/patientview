@@ -23,6 +23,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
 /**
+ * TODO test needs to be improved to test for return types
+ *
  * Created by james@solidstategroup.com
  * Created on 29/07/2014
  */

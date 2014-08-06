@@ -6,7 +6,6 @@ import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
-import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -158,12 +157,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return add(user);
     }
 
-
-    public User createUserResetPassword(User user) {
-        user.setPassword(DigestUtils.sha256Hex(CommonUtils.getAuthtoken()));
-        return add(user);
-    }
-
     //Migration Only
     public User createUserNoEncryption(User user) {
         return add(user);
@@ -195,14 +188,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setLocked(user.getLocked());
         entityUser.setDummy(user.getDummy());
         return userRepository.save(entityUser);
-    }
-
-    public List<User> getUserByGroupAndRole(Long groupId, Long roleId) {
-        Group group = groupRepository.findOne(groupId);
-        Role role = roleRepository.findOne(roleId);
-
-        return Util.iterableToList(userRepository.findByGroupAndRole(group, role));
-
     }
 
     public List<User> getUsersByGroupsAndRoles(List<Long> groupIds, List<Long> roleIds) {
