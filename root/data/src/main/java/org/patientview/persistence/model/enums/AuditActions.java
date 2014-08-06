@@ -6,7 +6,9 @@ package org.patientview.persistence.model.enums;
  */
 public enum AuditActions {
 
-    CREATE_USER("Create User"), EDIT_USER("Edit User"), CHANGE_PASSWORD("Change Password"), DELETE_USER("Delete User");
+    CREATE("Create"), EDIT("Edit"), VIEW("View"), CHANGE_PASSWORD("Change Password"), DELETE("Delete User"),
+    RESET_PASSWORD("Reset Password"), VERIFY_EMAIL("Verify Email"), LOGON_SUCCESS("Logon Success"), MAP("Map"),
+    LOGON_FAIL("Logon failed"), LOGOFF("log off");
 
     private String name;
     AuditActions(String name) { this.name = name; }

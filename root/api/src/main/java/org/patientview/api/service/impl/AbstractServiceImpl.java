@@ -13,7 +13,7 @@ import java.lang.reflect.ParameterizedType;
  * Created by james@solidstategroup.com
  * Created on 05/08/2014
  */
-public class AbstractServiceImpl<T extends AbstractServiceImpl> {
+public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
     protected final Logger LOG = LoggerFactory.getLogger(getServiceClass());
 

@@ -12,6 +12,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
@@ -44,6 +45,9 @@ public class AuthenticationServiceTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    private AuditRepository auditRepository;
+
     @InjectMocks
     private AuthenticationService authenticationService = new AuthenticationServiceImpl();
 
@@ -71,6 +75,7 @@ public class AuthenticationServiceTest {
             authenticationService.authenticate(user.getUsername(), password);
         } catch (Exception e) {
             Assert.fail("This call should not fail");
+            e.printStackTrace();
         }
 
     }

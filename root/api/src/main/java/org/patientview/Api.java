@@ -5,6 +5,7 @@ import org.patientview.api.config.SecurityConfig;
 import org.patientview.persistence.config.PersistenceConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +19,8 @@ import org.springframework.context.annotation.Import;
  * https://spring.io/guides/tutorials/rest/5/
  */
 @Configuration
-@EnableAutoConfiguration
 @EnableAspectJAutoProxy
+@EnableAutoConfiguration(exclude=AopAutoConfiguration.class)
 @Import({ApiConfig.class, PersistenceConfig.class, SecurityConfig.class})
 public class Api extends SpringBootServletInitializer {
 

@@ -40,7 +40,7 @@ public class Audit extends BaseModel {
 
     @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate;
+    private Date creationDate = new Date();
 
     public AuditActions getAuditActions() {
         return auditActions;
