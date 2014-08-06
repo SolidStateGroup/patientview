@@ -53,7 +53,11 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', 'Conversat
             conversation.addMessageContent = '';
 
             ConversationService.get(conversation.id).then(function(successResult) {
-                conversation = successResult;
+                for(var i =0; i<$scope.pagedItems.length;i++) {
+                    if($scope.pagedItems[i].id == successResult.id) {
+                        $scope.pagedItems[i].messages = successResult.messages;
+                    }
+                }
             }, function() {
                 // error
                 alert('Error updating conversation (message added successfully)');
