@@ -143,10 +143,10 @@ public class UserController extends BaseController<UserController> {
             }
         }
 
-       // UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
+        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
 
-      //  HttpHeaders headers = new HttpHeaders();
-       // headers.setLocation(uriComponents.toUri());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<>(user, HttpStatus.CREATED);
 
     }

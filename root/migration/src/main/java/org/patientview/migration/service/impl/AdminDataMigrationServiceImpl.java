@@ -146,7 +146,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
 
         try {
-            GroupRole groupRole = JsonUtil.jsonRequest(featureUrl, GroupRole.class, null, HttpPut.class);
+            JsonUtil.jsonRequest(featureUrl, GroupRole.class, null, HttpPut.class);
             LOG.info("Success: feature created for group");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to parent group: ", jme.getMessage());

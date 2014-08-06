@@ -40,7 +40,8 @@ public interface UserService extends CrudService<User> {
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
     User save(User user) throws ResourceNotFoundException;
 
-    List<User> getUserByGroupAndRole(Long groupId, Long roleId);
+    @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
+    User get(Long userId);
 
     /**
      * Get users based on a list of groups and role types
@@ -49,14 +50,6 @@ public interface UserService extends CrudService<User> {
      * @return
      */
     List<User> getUsersByGroupsAndRoles(List<Long> groupIds,List<Long> roleIds);
-
-    /**
-     * This persists the User in the above method with a new password.
-     *
-     * @param user
-     * @return
-     */
-    User createUserResetPassword(User user);
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
     User updatePassword(Long userId, String password);
