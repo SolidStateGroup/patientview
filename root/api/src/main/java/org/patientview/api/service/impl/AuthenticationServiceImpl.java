@@ -19,11 +19,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 /**
  *
@@ -32,6 +35,8 @@ import java.util.List;
  */
 @Service
 public class AuthenticationServiceImpl extends AbstractServiceImpl<AuthenticationServiceImpl> implements AuthenticationService {
+
+    private Integer maximumLoginAttempts;
 
     @Inject
     private UserRepository userRepository;
@@ -45,10 +50,20 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Inject
     private AuditRepository auditRepository;
 
+    @Inject
+    private Properties properties;
+
+    @PostConstruct
+    public void setParameter() {
+        maximumLoginAttempts = Integer.parseInt(properties.getProperty("maximum.failed.logons"));
+        LOG.debug("Setting the maximum failed logons attempts to {}", maximumLoginAttempts);
+    }
+
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
     public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
             AuthenticationServiceException {
 
-        LOG.debug("Trying to authenticate user: {}", username);
+        LOG.debug("Authenticating user: {}", username);
 
         User user = userRepository.findByUsername(username);
 
@@ -57,8 +72,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
+            //TODO handled with aspects
             createAudit(AuditActions.LOGON_FAIL, user.getUsername());
+            incrementFailedLogon(user);
             throw new AuthenticationServiceException("Invalid credentials");
+        }
+
+        if (user.getLocked()) {
+            throw new AuthenticationServiceException("This account is locked");
         }
 
         createAudit(AuditActions.LOGON_SUCCESS, user.getUsername());
@@ -68,6 +89,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setCreated(new Date());
         userToken = userTokenRepository.save(userToken);
 
+        user.setFailedLogonAttempts(0);
         user.setLastLogin(new Date());
         userRepository.save(user);
 
@@ -80,10 +102,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         if (userToken != null) {
 
-            List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+            List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 
             for (Role role : roleRepository.findByUser(userToken.getUser())) {
-                grantedAuthorities.add((GrantedAuthority) role);
+                grantedAuthorities.add(role);
             }
             return new UsernamePasswordAuthenticationToken(userToken.getUser(), userToken.getUser().getId(),
                     grantedAuthorities);
@@ -91,8 +113,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         } else {
             throw new AuthenticationServiceException("Token could not be found");
         }
-
-
     }
 
     public UserToken getToken(String token) {
@@ -119,5 +139,19 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         audit.setAuditActions(auditActions);
         audit.setPreValue(username);
         auditRepository.save(audit);
+    }
+
+    private void incrementFailedLogon(User user) {
+        Integer failedLogonAttempts = user.getFailedLogonAttempts();
+        if (failedLogonAttempts == null) {
+            failedLogonAttempts = 0;
+        }
+        ++failedLogonAttempts;
+        if (failedLogonAttempts > 3) {
+            user.setLocked(Boolean.TRUE);
+        }
+
+        user.setFailedLogonAttempts(failedLogonAttempts);
+        userRepository.save(user);
     }
 }
