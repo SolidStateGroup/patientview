@@ -112,12 +112,15 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         messageSet.add(newMessage);
         newConversation.setMessages(messageSet);
 
+        // persist conversation
+        Conversation entityConversation = conversationRepository.save(newConversation);
+
         // set conversation users
         Set<ConversationUser> conversationUserSet = new HashSet<>();
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             ConversationUser newConversationUser = new ConversationUser();
-            newConversationUser.setConversation(conversation);
+            newConversationUser.setConversation(entityConversation);
 
             entityUser = userRepository.findOne(conversationUser.getUser().getId());
             if (entityUser == null) {
@@ -129,9 +132,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversationUserSet.add(newConversationUser);
         }
 
-        conversation.setConversationUsers(conversationUserSet);
+        entityConversation.setConversationUsers(conversationUserSet);
 
-        // persist
-        conversationRepository.save(newConversation);
+        // persist conversation with conversation users
+        conversationRepository.save(entityConversation);
     }
 }

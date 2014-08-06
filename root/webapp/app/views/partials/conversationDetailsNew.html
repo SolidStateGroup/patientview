@@ -1,1 +1,16 @@
-conversation modal
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="conversation-title" class="control-label">Title <span class="error" ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" ng-model="newConversation.title" required></div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="conversation-message" class="control-label">Message <span class="error" ng-show="conversationFormNew.message.$error.required && !conversationFormNew.$pristine"> *required</span></label>
+            <div class=""><textarea class="form-control" id="conversation-message" placeholder="Messasge" name="message" ng-model="newConversation.message" required /></div>
+        </div>
+    </div>
+</div>

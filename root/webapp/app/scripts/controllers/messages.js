@@ -4,10 +4,41 @@
 // new conversation modal instance controller
 var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newConversation', 'ConversationService',
     function ($scope, $rootScope, $modalInstance, newConversation, ConversationService) {
+        var i;
         $scope.newConversation = newConversation;
 
         $scope.ok = function () {
-            ConversationService.new($scope.newConversation).then(function() {
+            // build correct conversation from newConversation
+            var conversation = {};
+            conversation.type = "MESSAGE";
+            conversation.title = newConversation.title;
+            conversation.messages = [];
+            conversation.open = true;
+
+            // build message
+            var message = {};
+            message.user = $scope.loggedInUser;
+            message.message = newConversation.message;
+            message.type = "MESSAGE";
+            conversation.messages[0] = message;
+
+            // add conversation users from list of users (temp anonymous = false)
+            var conversationUsers = [];
+            for (i=0;i<newConversation.users.length;i++) {
+                conversationUsers[i] = {};
+                conversationUsers[i].user = newConversation.users[i];
+                conversationUsers[i].anonymous = false;
+            }
+
+            // add logged in user to list of conversation users
+            var conversationUser = {};
+            conversationUser.user = $scope.loggedInUser;
+            conversationUser.anonymous = false;
+            conversationUsers.push(conversationUser);
+
+            conversation.conversationUsers = conversationUsers;
+
+            ConversationService.new($scope.loggedInUser, conversation).then(function() {
                 $modalInstance.close();
             }, function(result) {
                 if (result.data) {
@@ -116,7 +147,8 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     // open modal for new conversation
     $scope.openModalNewConversation = function (size) {
         $scope.errorMessage = '';
-        $scope.editConversation = {};
+        $scope.newConversation = {};
+        $scope.newConversation.users = [];
 
         var modalInstance = $modal.open({
             templateUrl: 'newConversationModal.html',
