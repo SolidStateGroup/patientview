@@ -41,7 +41,7 @@ public class Conversation extends AuditModel {
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
     private Set<ConversationUser> conversationUsers;
 
-    @OneToMany(mappedBy = "conversation")
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
     private Set<Message> messages;
 
     public ConversationTypes getType() {

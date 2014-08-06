@@ -16,7 +16,7 @@
                 <div class="last-message">
                     <h4>Most recent message from: {{conversation.messages[conversation.messages.length-1].user.forename}} {{conversation.messages[conversation.messages.length-1].user.surname}}</h4>
                     <p class="message-content">{{conversation.messages[conversation.messages.length-1].message}}</p>
-                    <p class="date-stamp"><strong>{{message.creationDate}}</strong></p>
+                    <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MM-yyyy HH:mm:ss'}}</strong></p>
                     <!--<p class="date-stamp"><strong>19th June 2014</strong> @ 12:34pm</p>-->
                 </div>
             </div>
@@ -24,29 +24,33 @@
         <div class="quick-reply content-panel" ng-show="conversation.quickReplyOpen">
             <form class="form-quick-reply">
                 <label for="quick-reply-input">Quick Reply</label>
-                <textarea id="quick-reply-input"></textarea>
+                <textarea id="quick-reply-input" ng-model="conversation.quickReplyContent"></textarea>
                 <fieldset>
-                    <button class="btn btn-grey pull-right" ng-click="conversation.quickReplyOpen = false">Close</button>
-                    <button class="btn blue pull-right" ng-click="quickReply()"><i class="icon-reply"></i> Send</button>
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-grey" ng-click="conversation.quickReplyOpen = false">Close</button>
+                        <button class="btn blue" ng-click="quickReply(conversation)"><i class="icon-reply"></i> Send</button>
+                    </div>
                 </fieldset>
             </form>
         </div>
         <div class="quick-reply content-panel" ng-show="conversation.showMessages">
-            <div class="message-summary" ng-repeat="message in conversation.messages">
+            <div class="message-summary" ng-repeat="message in conversation.messages | orderBy:'created'">
                 <div class="last-message">
                     <h4>{{message.user.forename}} {{message.user.surname}}</h4>
                     <p class="message-content">{{message.message}}</p>
-                    <p class="date-stamp"><strong>{{message.creationDate}}</strong></p>
+                    <p class="date-stamp"><strong>{{message.created | date:'dd-MM-yyyy HH:mm:ss'}}</strong></p>
                 </div>
                 <hr/>
             </div>
 
             <form class="form-quick-reply">
                 <label for="add-message-input">Add Message</label>
-                <textarea id="add-message-input"></textarea>
+                <textarea id="add-message-input" ng-model="conversation.addMessageContent"></textarea>
                 <fieldset>
-                    <button class="btn btn-grey pull-right" ng-click="conversation.showMessages = false">Close</button>
-                    <button class="btn blue pull-right" ng-click="addMessage()"><i class="icon-reply"></i> Send</button>
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-grey" ng-click="conversation.showMessages = false">Close</button>
+                        <button class="btn blue" ng-click="addMessage(conversation)"><i class="icon-reply"></i> Send</button>
+                    </div>
                 </fieldset>
             </form>
         </div>

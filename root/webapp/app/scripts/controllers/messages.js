@@ -44,9 +44,23 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', 'Conversat
     });
 
     $scope.init = function() {
-        $scope.loading = true;
-        $scope.loading = false;
     };
 
     $scope.init();
+
+    $scope.addMessage = function(conversation) {
+        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent).then(function() {
+            conversation.addMessageContent = '';
+
+            ConversationService.get(conversation.id).then(function(successResult) {
+                conversation = successResult;
+            }, function() {
+                // error
+                alert('Error updating conversation (message added successfully)');
+            });
+        }, function() {
+            // error
+            alert('Error adding message');
+        });
+    }
 }]);

@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.ConversationService;
 import org.patientview.persistence.model.Conversation;
+import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -53,5 +54,26 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return conversationRepository.findByUser(entityUser);
+    }
+
+    public void addMessage(Long conversationId, Message message) throws ResourceNotFoundException {
+        Conversation entityConversation = conversationRepository.findOne(conversationId);
+        if (entityConversation == null) {
+            throw new ResourceNotFoundException("Could not find conversation {}" + conversationId);
+        }
+
+        User entityUser = userRepository.findOne(message.getUser().getId());
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        Message newMessage = new Message();
+        newMessage.setUser(entityUser);
+        newMessage.setConversation(entityConversation);
+        newMessage.setMessage(message.getMessage());
+        newMessage.setType(message.getType());
+
+        entityConversation.getMessages().add(newMessage);
+        conversationRepository.save(entityConversation);
     }
 }
