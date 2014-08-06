@@ -67,4 +67,25 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', 'Conversat
             alert('Error adding message');
         });
     }
+
+    $scope.quickReply = function(conversation) {
+        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.quickReplyContent).then(function() {
+            conversation.quickReplyContent = '';
+            conversation.quickReplyOpen = false;
+
+            ConversationService.get(conversation.id).then(function(successResult) {
+                for(var i =0; i<$scope.pagedItems.length;i++) {
+                    if($scope.pagedItems[i].id == successResult.id) {
+                        $scope.pagedItems[i].messages = successResult.messages;
+                    }
+                }
+            }, function() {
+                // error
+                alert('Error updating conversation (quick reply added successfully)');
+            });
+        }, function() {
+            // error
+            alert('Error adding message');
+        });
+    }
 }]);
