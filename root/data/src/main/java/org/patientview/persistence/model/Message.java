@@ -1,14 +1,19 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.MessageTypes;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -16,7 +21,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "pv_message")
-public class Message extends AuditModel {
+public class Message extends BaseModel {
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
@@ -36,6 +41,24 @@ public class Message extends AuditModel {
     public MessageTypes getType() {
         return type;
     }
+
+    @Column(name = "last_update_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastUpdate;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_updated_by")
+    private User lastUpdater;
+
+    // need created date for UI unlike AuditModel based objects
+    @Column(name = "creation_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    //@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy hh:mm")
+    private Date created = new Date();
+
+    @OneToOne
+    @JoinColumn(name = "created_by")
+    private User creator;
 
     public void setType(MessageTypes type) {
         this.type = type;
@@ -65,4 +88,40 @@ public class Message extends AuditModel {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(final Date created) {
+        this.created = created;
+    }
+
+    @JsonIgnore
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    @JsonIgnore
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(final Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    @JsonIgnore
+    public User getLastUpdater() {
+        return lastUpdater;
+    }
+
+    public void setLastUpdater(final User lastUpdater) {
+        this.lastUpdater = lastUpdater;
+    }
+
 }

@@ -1,0 +1,35 @@
+
+<ul class="feature-list">
+    <li class="feature-list-item" ng-repeat="user in newConversation.recipients">
+        <div class="feature-list-name"><span class="feature-list-name">{{user.forename}} {{user.surname}}</span> &nbsp;
+            <a id="remove-recipient-{{user.id}}" href="" ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
+    </li>
+</ul>
+
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <div class="custom-select">
+                <select class="form-control recipient-select" id="conversation-add-recipient" ng-model="recipientToAdd" ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
+            </div>
+            <button type="button" class="btn blue recipient-add-button pull-left" ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)"><i class="glyphicon glyphicon-plus-sign"></i> Add Recipient</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="conversation-title" class="control-label">Title <span class="error" ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" ng-model="newConversation.title" required></div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="conversation-message" class="control-label">Message <span class="error" ng-show="conversationFormNew.message.$error.required && !conversationFormNew.$pristine"> *required</span></label>
+            <div class=""><textarea class="form-control" id="conversation-message" placeholder="Messasge" name="message" ng-model="newConversation.message" required /></div>
+        </div>
+    </div>
+</div>
