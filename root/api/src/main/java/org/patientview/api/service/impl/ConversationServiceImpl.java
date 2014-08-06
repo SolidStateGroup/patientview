@@ -9,6 +9,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.ConversationUserRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -87,6 +88,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     public void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException {
 
+        User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -133,8 +136,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
             newConversationUser.setUser(entityUser);
             newConversationUser.setAnonymous(conversationUser.getAnonymous());
+            newConversationUser.setCreator(userRepository.findOne(creator.getId()));
             conversationUserSet.add(newConversationUser);
-            conversationUserRepository.save(newConversationUser);
+            //conversationUserRepository.save(newConversationUser);
         }
 
         entityConversation.setConversationUsers(conversationUserSet);
