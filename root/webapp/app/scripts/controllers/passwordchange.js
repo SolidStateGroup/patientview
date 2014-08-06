@@ -21,7 +21,7 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
                     // successfully changed user password
                     $scope.successMessage = 'The password has been changed';
 
-                    RouteService.getRoutes(user.id).then(function (data) {
+                    RouteService.getRoutes($scope.userdetails.id).then(function (data) {
                             $rootScope.routes = data;
                             localStorageService.set('routes', data);
                             $location.path('/dashboard');
