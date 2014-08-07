@@ -18,24 +18,17 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserService extends CrudService<User> {
 
-    List<Feature> getUserFeatures(Long userId);
+    List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException ;
 
     User getByUsername(String username);
 
     User getByEmail(String username);
 
-    /**
-     * This persists the User map with GroupRoles and UserFeatures. The static
-     * data objects are detached so have to be become managed again without updating the objects.
-     *
-     * @param user
-     * @return
-     */
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
     User createUserWithPasswordEncryption(User user);
 
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
-    public User createUserNoEncryption(User user);
+    User createUserNoEncryption(User user);
 
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
     User save(User user) throws ResourceNotFoundException;
@@ -43,20 +36,17 @@ public interface UserService extends CrudService<User> {
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId);
 
-    /**
-     * Get users based on a list of groups and role types
-     * @param groupIds
-     * @param roleIds
-     * @return
-     */
     List<User> getUsersByGroupsAndRoles(List<Long> groupIds,List<Long> roleIds);
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
-    User updatePassword(Long userId, String password);
+    User changePassword(final Long userId, final String password) throws ResourceNotFoundException ;
 
-    public Boolean sendVerificationEmail(Long userId);
+    @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
+    User resetPassword(Long userId, String password) throws ResourceNotFoundException ;
 
-    public Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
+    Boolean sendVerificationEmail(Long userId);
+
+    Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
 
     Identifier addIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException;
 

@@ -24,7 +24,6 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
                     RouteService.getRoutes($scope.userdetails.id).then(function (data) {
                             $rootScope.routes = data;
                             localStorageService.set('routes', data);
-                            $location.path('/dashboard');
                     });
 
                 }, function () {
