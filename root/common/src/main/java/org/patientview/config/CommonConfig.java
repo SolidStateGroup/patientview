@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * TODO mask to load all environment property files instead of just API
+ * TODO mask to load all environment property files instead of just API.
  *
  * Created by james@solidstategroup.com
  * Created on 11/06/2014
@@ -18,7 +18,6 @@ public class CommonConfig {
 
     private static String environment;
 
-
     static {
         environment = System.getProperty("env");
         if (environment == null) {
@@ -27,7 +26,7 @@ public class CommonConfig {
     }
 
     @Bean
-    public Properties properties() {
+    public Properties propertiesBean() {
         try {
             Properties props = PropertiesLoaderUtils.loadAllProperties("conf/" + environment + "-api.properties");
             return props;

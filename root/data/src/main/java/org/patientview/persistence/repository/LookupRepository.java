@@ -24,4 +24,5 @@ public interface LookupRepository extends CrudRepository<Lookup, Long>  {
     @Query("SELECT loo FROM Lookup loo WHERE loo.lookupType.type = :lookupType AND loo.value = :lookupValue")
     public Lookup findByTypeAndValue(
             @Param("lookupType") LookupTypes lookupType, @Param("lookupValue") String lookupValue);
+
 }

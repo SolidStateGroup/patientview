@@ -11,6 +11,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.NewsLinkRepository;
@@ -54,7 +55,7 @@ public class NewsRepositoryTest {
     @Before
     public void setup () {
         creator = dataTestUtils.createUser("testCreator");
-        lookup = dataTestUtils.createLookup("TOP", "ROUTE_TYPE", creator);
+        lookup = dataTestUtils.createLookup("TOP", LookupTypes.IDENTIFIER, creator);
 
     }
 

@@ -95,7 +95,7 @@ public class GroupRepositoryTest {
     public void testFindGroupByType() {
 
         Group group = dataTestUtils.createGroup("testGroup", creator);
-        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", "GROUP_TYPE", creator);
+        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP, creator);
         group.setGroupType(lookup);
         groupRepository.save(group);
 
@@ -109,7 +109,7 @@ public class GroupRepositoryTest {
     public void testGroupContactPoints() {
 
         Group group = dataTestUtils.createGroup("testGroup", creator);
-        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", "GROUP_TYPE", creator);
+        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP, creator);
         group.setGroupType(lookup);
         group.setContactPoints(new HashSet<ContactPoint>());
 

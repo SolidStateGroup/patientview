@@ -484,6 +484,16 @@ CREATE TABLE PV_Join_Request
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Group_Statistics (
+  Id               BIGINT NOT NULL,
+  Start_Date       DATE NOT NULL,
+  End_Date         DATE NOT NULL,
+  Collated_Period  VARCHAR(50),
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Value            BIGINT DEFAULT 0,
+  PRIMARY KEY (Id)
+);
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

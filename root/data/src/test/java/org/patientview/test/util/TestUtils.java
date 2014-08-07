@@ -157,11 +157,11 @@ public final class TestUtils {
         return lookup;
     }
 
-    public static LookupType createLookupType(Long id, String type, User creator) {
+    public static LookupType createLookupType(Long id, LookupTypes type, User creator) {
 
         LookupType lookupType = new LookupType();
         lookupType.setId(id);
-        lookupType.setType(LookupTypes.ROLE);
+        lookupType.setType(type);
         lookupType.setCreated(new Date());
         lookupType.setCreator(creator);
         return lookupType;
