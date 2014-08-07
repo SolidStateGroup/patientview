@@ -3,12 +3,19 @@ package org.patientview.api.service.impl;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.ConversationService;
 import org.patientview.persistence.model.Conversation;
+import org.patientview.persistence.model.ConversationUser;
+import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.ConversationRepository;
+import org.patientview.persistence.repository.ConversationUserRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -22,6 +29,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private ConversationRepository conversationRepository;
+
+    @Inject
+    private ConversationUserRepository conversationUserRepository;
 
     public Conversation get(Long conversationId) {
         return conversationRepository.findOne(conversationId);
@@ -53,5 +63,83 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return conversationRepository.findByUser(entityUser);
+    }
+
+    public void addMessage(Long conversationId, Message message) throws ResourceNotFoundException {
+        Conversation entityConversation = conversationRepository.findOne(conversationId);
+        if (entityConversation == null) {
+            throw new ResourceNotFoundException("Could not find conversation {}" + conversationId);
+        }
+
+        User entityUser = userRepository.findOne(message.getUser().getId());
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        Message newMessage = new Message();
+        newMessage.setUser(entityUser);
+        newMessage.setConversation(entityConversation);
+        newMessage.setMessage(message.getMessage());
+        newMessage.setType(message.getType());
+
+        entityConversation.getMessages().add(newMessage);
+        conversationRepository.save(entityConversation);
+    }
+
+    public void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException {
+
+        User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        User entityUser = userRepository.findOne(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        // create new conversation
+        Conversation newConversation = new Conversation();
+        newConversation.setTitle(conversation.getTitle());
+        newConversation.setImageData(conversation.getImageData());
+        newConversation.setOpen(conversation.getOpen());
+        newConversation.setRating(conversation.getRating());
+        newConversation.setStatus(conversation.getStatus());
+        newConversation.setType(conversation.getType());
+
+        // get first message from passed in conversation
+        Iterator iter = conversation.getMessages().iterator();
+        Message message = (Message)iter.next();
+
+        // set message properties and add to conversation
+        Message newMessage = new Message();
+        newMessage.setUser(entityUser);
+        newMessage.setConversation(newConversation);
+        newMessage.setMessage(message.getMessage());
+        newMessage.setType(message.getType());
+
+        Set<Message> messageSet = new HashSet<>();
+        messageSet.add(newMessage);
+        newConversation.setMessages(messageSet);
+
+        // set conversation users
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            ConversationUser newConversationUser = new ConversationUser();
+            newConversationUser.setConversation(newConversation);
+
+            entityUser = userRepository.findOne(conversationUser.getUser().getId());
+            if (entityUser == null) {
+                throw new ResourceNotFoundException("Could not find user");
+            }
+
+            newConversationUser.setUser(entityUser);
+            newConversationUser.setAnonymous(conversationUser.getAnonymous());
+            newConversationUser.setCreator(userRepository.findOne(creator.getId()));
+            conversationUserSet.add(newConversationUser);
+        }
+
+        newConversation.setConversationUsers(conversationUserSet);
+
+        // persist conversation
+        conversationRepository.save(newConversation);
     }
 }

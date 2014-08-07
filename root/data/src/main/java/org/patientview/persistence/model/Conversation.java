@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.util.Set;
 
@@ -41,7 +42,8 @@ public class Conversation extends AuditModel {
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
     private Set<ConversationUser> conversationUsers;
 
-    @OneToMany(mappedBy = "conversation")
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
+    @OrderBy("created ASC")
     private Set<Message> messages;
 
     public ConversationTypes getType() {
