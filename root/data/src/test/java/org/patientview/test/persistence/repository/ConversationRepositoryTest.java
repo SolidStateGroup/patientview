@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.HashSet;
 
 /**
@@ -127,7 +128,9 @@ public class ConversationRepositoryTest {
             conversation.getConversationUsers().add(conversationUser1);
             conversation.getConversationUsers().add(conversationUser2);
 
-            conversation.setTitle(String.valueOf(i));
+            conversation.setTitle(String.valueOf(i+1));
+            conversation.setLastUpdate(new Date());
+
             conversationRepository.save(conversation);
         }
 
@@ -138,6 +141,6 @@ public class ConversationRepositoryTest {
         PageRequest pageablePage2 = new PageRequest(2, 5);
         entityConversations = conversationRepository.findByUser(user1, pageablePage2);
         Assert.assertTrue("Should find 5 Conversations for user", entityConversations.getContent().size() == 5);
-        Assert.assertTrue("Should get title of '10'", entityConversations.getContent().get(0).getTitle().equals("10"));
+        Assert.assertTrue("Should get title of '20'", entityConversations.getContent().get(0).getTitle().equals("20"));
     }
 }
