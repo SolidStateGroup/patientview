@@ -24,7 +24,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
             "JOIN    c.conversationUsers cu " +
             "WHERE   cu.conversation = c " +
             "AND     cu.user = :user " +
-            "ORDER BY c.created")
+            "ORDER BY c.lastUpdate DESC")
     Page<Conversation> findByUser(@Param("user") User user, Pageable pageable);
 
 }

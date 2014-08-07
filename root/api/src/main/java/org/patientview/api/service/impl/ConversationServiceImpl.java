@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -84,7 +86,15 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setMessage(message.getMessage());
         newMessage.setType(message.getType());
 
+        MessageReadReceipt messageReadReceipt = new MessageReadReceipt();
+        messageReadReceipt.setMessage(newMessage);
+        messageReadReceipt.setUser(entityUser);
+        newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
+        newMessage.getReadReceipts().add(messageReadReceipt);
+
         entityConversation.getMessages().add(newMessage);
+        entityConversation.setLastUpdate(new Date());
+
         conversationRepository.save(entityConversation);
     }
 
@@ -117,6 +127,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setMessage(message.getMessage());
         newMessage.setType(message.getType());
 
+        MessageReadReceipt messageReadReceipt = new MessageReadReceipt();
+        messageReadReceipt.setMessage(newMessage);
+        messageReadReceipt.setUser(entityUser);
+        newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
+        newMessage.getReadReceipts().add(messageReadReceipt);
+
         Set<Message> messageSet = new HashSet<>();
         messageSet.add(newMessage);
         newConversation.setMessages(messageSet);
@@ -140,6 +156,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         newConversation.setConversationUsers(conversationUserSet);
+
+        // set updated, used in UI to order conversations
+        newConversation.setLastUpdate(new Date());
 
         // persist conversation
         conversationRepository.save(newConversation);
