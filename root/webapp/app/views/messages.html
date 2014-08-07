@@ -20,7 +20,7 @@
         </div>
     </script>
 
-    <div ng-show="pagedItems.length > 0">
+    <div ng-show="pagedItems.length > 0 && totalPages > 1">
         <ul class="pagination">
             <li ng-class="prevPageDisabled()">
                 <a href ng-click="prevPage()">« Prev</a>

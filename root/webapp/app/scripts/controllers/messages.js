@@ -132,17 +132,11 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
         });
     });
 
-    $scope.init = function() {
-    };
-
-    $scope.init();
-
     $scope.addMessage = function(conversation) {
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent).then(function() {
             conversation.addMessageContent = '';
-            $scope.currentPage = 0;
 
-            /*ConversationService.get(conversation.id).then(function(successResult) {
+            ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
                     if($scope.pagedItems[i].id == successResult.id) {
                         $scope.pagedItems[i].messages = successResult.messages;
@@ -151,7 +145,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
             }, function() {
                 // error
                 alert('Error updating conversation (message added successfully)');
-            });*/
+            });
         }, function() {
             // error
             alert('Error adding message');
@@ -179,7 +173,6 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
         });
     };
 
-
     // open modal for new conversation
     $scope.openModalNewConversation = function (size) {
         var i;
@@ -198,6 +191,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
                 }
             }
 
+            // todo: how to deal with patients sending messages
             RoleService.getByType('STAFF').then(function(roles) {
                 // get roles for recipients
                 for (i = 0; i < roles.length; i++) {
@@ -230,8 +224,10 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
 
                     modalInstance.result.then(function () {
                         $scope.loading = true;
-                        ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(result) {
-                            $scope.pagedItems = result;
+                        ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
+                            $scope.pagedItems = page.content;
+                            $scope.total = page.totalElements;
+                            $scope.totalPages = page.totalPages;
                             $scope.loading = false;
                             $scope.successMessage = 'Conversation successfully created';
                         }, function() {
@@ -255,7 +251,6 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
             // error retrieving groups
             alert('Error loading possible message recipients [1]');
         });
-
     };
     
 }]);
