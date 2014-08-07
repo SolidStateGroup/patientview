@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -85,12 +84,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setConversation(entityConversation);
         newMessage.setMessage(message.getMessage());
         newMessage.setType(message.getType());
-
-        MessageReadReceipt messageReadReceipt = new MessageReadReceipt();
-        messageReadReceipt.setMessage(newMessage);
-        messageReadReceipt.setUser(entityUser);
         newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
-        newMessage.getReadReceipts().add(messageReadReceipt);
+        newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
 
         entityConversation.getMessages().add(newMessage);
         entityConversation.setLastUpdate(new Date());
@@ -98,14 +93,36 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         conversationRepository.save(entityConversation);
     }
 
-    public void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException {
-
-        User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
+    private User findEntityUser(Long userId) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
+        return entityUser;
+    }
+
+    private Set<ConversationUser> createEntityConversationUserSet
+            (Set<ConversationUser> conversationUsers, Conversation conversation, User creator)
+            throws ResourceNotFoundException {
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+
+        for (ConversationUser conversationUser : conversationUsers) {
+            ConversationUser newConversationUser = new ConversationUser();
+            newConversationUser.setConversation(conversation);
+            newConversationUser.setUser(userRepository.findOne(conversationUser.getUser().getId()));
+            newConversationUser.setAnonymous(conversationUser.getAnonymous());
+            newConversationUser.setCreator(creator);
+            conversationUserSet.add(newConversationUser);
+        }
+
+        return conversationUserSet;
+    }
+
+    public void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException {
+
+        User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        creator = userRepository.findOne(creator.getId());
+        User entityUser = findEntityUser(userId);
 
         // create new conversation
         Conversation newConversation = new Conversation();
@@ -126,36 +143,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setConversation(newConversation);
         newMessage.setMessage(message.getMessage());
         newMessage.setType(message.getType());
-
-        MessageReadReceipt messageReadReceipt = new MessageReadReceipt();
-        messageReadReceipt.setMessage(newMessage);
-        messageReadReceipt.setUser(entityUser);
         newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
-        newMessage.getReadReceipts().add(messageReadReceipt);
+        newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
 
         Set<Message> messageSet = new HashSet<>();
         messageSet.add(newMessage);
         newConversation.setMessages(messageSet);
 
         // set conversation users
-        Set<ConversationUser> conversationUserSet = new HashSet<>();
-
-        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
-            ConversationUser newConversationUser = new ConversationUser();
-            newConversationUser.setConversation(newConversation);
-
-            entityUser = userRepository.findOne(conversationUser.getUser().getId());
-            if (entityUser == null) {
-                throw new ResourceNotFoundException("Could not find user");
-            }
-
-            newConversationUser.setUser(entityUser);
-            newConversationUser.setAnonymous(conversationUser.getAnonymous());
-            newConversationUser.setCreator(userRepository.findOne(creator.getId()));
-            conversationUserSet.add(newConversationUser);
-        }
-
-        newConversation.setConversationUsers(conversationUserSet);
+        newConversation.setConversationUsers(createEntityConversationUserSet(conversation.getConversationUsers(),
+                newConversation, creator));
 
         // set updated, used in UI to order conversations
         newConversation.setLastUpdate(new Date());
@@ -183,10 +180,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         if (!found) {
-            MessageReadReceipt messageReadReceipt = new MessageReadReceipt();
-            messageReadReceipt.setUser(entityUser);
-            messageReadReceipt.setMessage(entityMessage);
-            entityMessage.getReadReceipts().add(messageReadReceipt);
+            entityMessage.getReadReceipts().add(new MessageReadReceipt(entityMessage, entityUser));
             messageRepository.save(entityMessage);
         }
     }

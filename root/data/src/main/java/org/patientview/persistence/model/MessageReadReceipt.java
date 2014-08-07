@@ -30,6 +30,14 @@ public class MessageReadReceipt extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created = new Date();
 
+    public MessageReadReceipt() {
+    }
+
+    public MessageReadReceipt(Message message, User user) {
+        this.message = message;
+        this.user = user;
+    }
+
     @JsonIgnore
     public Message getMessage() {
         return message;
