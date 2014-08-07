@@ -80,7 +80,7 @@
                 <textarea id="add-message-input" ng-model="conversation.addMessageContent"></textarea>
                 <fieldset>
                     <div class="btn-group pull-right">
-                        <button class="btn btn-grey" ng-click="conversation.showMessages = false">Close</button>
+                        <button class="btn btn-grey" ng-click="viewMessages(conversation)">Close</button>
                         <button class="btn blue" ng-click="addMessage(conversation)"><i class="icon-reply"></i> Send</button>
                     </div>
                 </fieldset>
