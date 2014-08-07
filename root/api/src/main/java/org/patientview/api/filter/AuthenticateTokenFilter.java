@@ -52,7 +52,6 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
-
         HttpServletRequest httpRequest = this.getAsHttpRequest(request);
 
         // TODO Fix for Spring Boot bug with using delegating proxy

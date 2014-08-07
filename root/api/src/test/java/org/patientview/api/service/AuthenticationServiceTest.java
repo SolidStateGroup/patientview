@@ -69,7 +69,7 @@ public class AuthenticationServiceTest {
         user.setUsername("testUsername");
         user.setPassword(DigestUtils.sha256Hex(password));
         user.setEmailVerified(true);
-
+        user.setLocked(Boolean.FALSE);
         try {
             when(userRepository.findByUsername(any(String.class))).thenReturn(user);
             authenticationService.authenticate(user.getUsername(), password);
@@ -81,7 +81,7 @@ public class AuthenticationServiceTest {
     }
 
     /**
-     * Test: Create a Authentication with a positive outcome
+     * Test: Create a authentication from a token with a positive outcome
      * Fail: The authentication has not been done
      */
     @Test
@@ -114,7 +114,7 @@ public class AuthenticationServiceTest {
     }
 
     /**
-     * Test: Create a Authentication with a negative outcome
+     * Test: Create a authentication form a token with a negative outcome
      * Fail: The authentication has not been done
      */
     @Test(expected = AuthenticationServiceException.class)
@@ -122,8 +122,6 @@ public class AuthenticationServiceTest {
         String testToken = "XXX-XXX-ZZZ";
 
         User tokenUser = TestUtils.createUser(1L, "TokenUser");
-
-
 
         Authentication authenticationToken = new PreAuthenticatedAuthenticationToken(testToken, testToken);
 
@@ -136,7 +134,7 @@ public class AuthenticationServiceTest {
     }
 
     /**
-     * Test: Create a Authentication with a positive outcome with granted authorities associated to it
+     * Test: Create a authentication from a token with a positive outcome with granted authorities associated to it
      * Fail: The authentication has not been done and no authorities returned
      */
     @Test
@@ -170,6 +168,44 @@ public class AuthenticationServiceTest {
         Assert.assertTrue("The authentication objects should now be authenticated", authentication.isAuthenticated());
         Assert.assertNotNull("The principal should not be null", authentication.getPrincipal());
         Assert.assertNotNull("The authorities should not be null", authentication.getAuthorities());
+    }
+
+    /**
+     * Test: Try and authenticate against an account that's locked
+     * Fail: An exception is not raised
+     */
+    @Test(expected = AuthenticationServiceException.class)
+    public void testLockAccount() throws AuthenticationServiceException {
+        String password = "doNotShow";
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(Boolean.TRUE);
+        user.setLocked(Boolean.TRUE);
+
+        when(userRepository.findByUsername(any(String.class))).thenReturn(user);
+        authenticationService.authenticate(user.getUsername(), password);
+
+    }
+
+    /**
+     * Test: Try and authenticate against when 2 attempts have already been made
+     * Fail: An exception is not raised
+     */
+    @Test(expected = AuthenticationServiceException.class)
+    public void testAfterThreeLoginAttempt() throws AuthenticationServiceException {
+        String password = "doNotShow";
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(Boolean.TRUE);
+        user.setLocked(Boolean.FALSE);
+        user.setFailedLogonAttempts(3);
+
+        when(userRepository.findByUsername(any(String.class))).thenReturn(user);
+        authenticationService.authenticate(user.getUsername(), "NotThePasswordWanted");
     }
 
 }

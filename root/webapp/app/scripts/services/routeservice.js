@@ -64,7 +64,7 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                 'controller': 'LogoutCtrl',
                 'title': 'Log Out',
                 'lookup': {
-                    'id': 99,
+                    'id': 96,
                     'value': 'NOT_DISPLAYED',
                     'lookupType': {
                         'id': 2,
@@ -81,7 +81,7 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                 'controller': 'AccountCtrl',
                 'title': 'Settings',
                 'lookup': {
-                    'id': 99,
+                    'id': 97,
                     'value': 'NOT_DISPLAYED',
                     'lookupType': {
                         'id': 2,
@@ -98,10 +98,27 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                 'controller': 'JoinRequestCtrl',
                 'title': 'Join Request',
                 'lookup': {
-                    'id': 99,
+                    'id': 98,
                     'value': 'NOT_DISPLAYED',
                     'lookupType': {
                         'id': 2,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
+        getChangePasswordRoute: function() {
+            return {
+                'url': '/changepassword',
+                'templateUrl': 'views/changepassword.html',
+                'controller': 'PasswordChangeCtrl',
+                'title': 'Change Password',
+                'lookup': {
+                    'id': 99,
+                    'value': 'TOP',
+                    'lookupType': {
+                        'id': 3,
                         'type': 'MENU',
                         'description': 'Type of menu'
                     }

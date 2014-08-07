@@ -49,12 +49,12 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        // Reset user's password
+        // Change user's password, sets the change flag to false
         changePassword: function (user) {
             var deferred = $q.defer();
             var newPasword = user.password;
-            // POST /user/{userId}/resetPassword
-            Restangular.one('user', user.id).post('resetPassword', {'password':newPasword}).then(function(successResult) {
+            // POST /user/{userId}/changePassword
+            Restangular.one('user', user.id).post('changePassword', {'password':newPasword}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

@@ -173,7 +173,9 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId,
+                                                         UriComponentsBuilder uriComponentsBuilder)
+            throws ResourceNotFoundException {
 
         LOG.debug("Request has been received for userId : {}", userId);
         return new ResponseEntity<>(userService.getUserFeatures(userId), HttpStatus.OK);
@@ -183,7 +185,8 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/resetPassword", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> resetPassword(@PathVariable("userId") Long userId, @RequestBody Credentials credentials) {
+    public ResponseEntity<User> resetPassword(@PathVariable("userId") Long userId,
+                                              @RequestBody Credentials credentials) throws ResourceNotFoundException {
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
             LOG.debug("A password must be supplied");
@@ -191,8 +194,24 @@ public class UserController extends BaseController<UserController> {
         }
 
         LOG.debug("Password reset requested for userId : {}", userId);
-        return new ResponseEntity<>(userService.updatePassword(userId, credentials.getPassword()), HttpStatus.OK);
+        return new ResponseEntity<>(userService.resetPassword(userId, credentials.getPassword()), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/user/{userId}/changePassword", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<User> changePassword(@PathVariable("userId") Long userId,
+                                              @RequestBody Credentials credentials) throws ResourceNotFoundException {
+
+        if (StringUtils.isEmpty(credentials.getPassword())) {
+            LOG.debug("A password must be supplied");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        LOG.debug("Password reset requested for userId : {}", userId);
+        return new ResponseEntity<>(userService.changePassword(userId, credentials.getPassword()), HttpStatus.OK);
+    }
+
 
     @RequestMapping(value = "/user/{userId}/sendVerificationEmail", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

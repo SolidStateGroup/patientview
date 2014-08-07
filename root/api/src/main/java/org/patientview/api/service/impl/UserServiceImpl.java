@@ -17,7 +17,6 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
-import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -125,7 +124,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityManager.flush();
 
         user.setId(newUser.getId());
-
+        // Everyone should change their password at login
+        user.setChangePassword(Boolean.TRUE);
         // Everyone should be in the generic group.
         addUserToGenericGroup(newUser);
 
@@ -148,7 +148,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRoleRepository.save(groupRole);
     }
 
-
+    /**
+     * This persists the User map with GroupRoles and UserFeatures. The static
+     * data objects are detached so have to be become managed again without updating the objects.
+     *
+     * @param user
+     * @return
+     */
     public User createUserWithPasswordEncryption(User user) {
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
         return add(user);
@@ -172,10 +178,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     public User save(User user) throws ResourceNotFoundException {
-        User entityUser = userRepository.findOne(user.getId());
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("Could not find user {}" + user.getId());
-        }
+        User entityUser = findUser(user.getId());
         entityUser.setForename(user.getForename());
         entityUser.setSurname(user.getSurname());
         entityUser.setUsername(user.getUsername());
@@ -186,6 +189,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return userRepository.save(entityUser);
     }
 
+    /**
+     * Get users based on a list of groups and role types
+     *
+     * @param groupIds
+     * @param roleIds
+     * @return
+     */
     public List<User> getUsersByGroupsAndRoles(List<Long> groupIds, List<Long> roleIds) {
         return Util.iterableToList(userRepository.findByGroupsAndRoles(groupIds, roleIds));
     }
@@ -194,17 +204,45 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         userRepository.delete(userId);
     }
 
-    public List<Feature> getUserFeatures(Long userId) {
-        User user = userRepository.getOne(userId);
+    public List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException {
+        User user = findUser(userId);
         return Util.iterableToList(Util.iterableToList(featureRepository.findByUser(user)));
     }
 
-    public User updatePassword(Long userId, String password) {
-        User user = userRepository.getOne(userId);
+    /**
+     * Reset the flag so the user will not be prompted to change the password again
+     *
+     * @param userId
+     * @param password
+     * @return
+     */
+    public User changePassword(Long userId, String password) throws ResourceNotFoundException {
+        User user = findUser(userId);
+        user.setChangePassword(Boolean.FALSE);
         user.setPassword(DigestUtils.sha256Hex(password));
         return userRepository.save(user);
     }
 
+    /**
+     * On a password reset the user should change on login
+     *
+     * @param userId
+     * @param password
+     * @return
+     */
+    public User resetPassword(Long userId, String password) throws ResourceNotFoundException {
+        User user = findUser(userId);
+        user.setChangePassword(Boolean.TRUE);
+        user.setPassword(DigestUtils.sha256Hex(password));
+        return userRepository.save(user);
+    }
+
+    /**
+     * Send a email to the user email address to verify have access to the email account
+     *
+     * @param userId
+     * @return
+     */
     public Boolean sendVerificationEmail(Long userId) {
         User user = userRepository.getOne(userId);
         Email email = new Email();
@@ -223,10 +261,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     public Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException {
-        User user = userRepository.getOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user {}" + userId);
-        }
+        User user = findUser(userId);
         if (user.getVerificationCode().equals(verificationCode)) {
             user.setEmailVerified(true);
             userRepository.save(user);
@@ -236,14 +271,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     public Identifier addIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user {}" + userId);
-        }
+        User user = findUser(userId);
         identifier.setCreator(userRepository.findOne(1L));
         user.getIdentifiers().add(identifier);
         identifier.setUser(user);
-        //userRepository.save(user);
 
         return identifierRepository.save(identifier);
     }
@@ -259,5 +290,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public void deleteFeature(Long userId, Long featureId) {
         userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(
                 userRepository.findOne(userId), featureRepository.findOne(featureId)));
+    }
+
+    private User findUser(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user {}" + userId);
+        }
+        return user;
     }
 }
