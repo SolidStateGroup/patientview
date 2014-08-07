@@ -2,14 +2,14 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -24,6 +24,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
             "JOIN    c.conversationUsers cu " +
             "WHERE   cu.conversation = c " +
             "AND     cu.user = :user " +
-            "ORDER BY c.created")
-    List<Conversation> findByUser(@Param("user") User user);
+            "ORDER BY c.lastUpdate DESC")
+    Page<Conversation> findByUser(@Param("user") User user, Pageable pageable);
+
 }

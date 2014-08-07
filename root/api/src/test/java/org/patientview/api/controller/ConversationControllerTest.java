@@ -14,6 +14,9 @@ import org.patientview.api.service.ConversationService;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.User;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -58,14 +61,17 @@ public class ConversationControllerTest {
         List<Conversation> conversationList = new ArrayList<>();
         conversationList.add(conversation);
 
+        PageRequest pageable = new PageRequest(0, 5);
+        Page<Conversation> conversationPage = new PageImpl(conversationList, pageable, conversationList.size());
+
         try {
-            when(conversationService.findByUserId(Matchers.eq(testUser.getId()))).thenReturn(conversationList);
+            when(conversationService.findByUserId(Matchers.eq(testUser.getId()), Matchers.eq(pageable))).thenReturn(conversationPage);
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("Getting conversations should not fail.");
         }
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + testUser.getId() + "/conversations")
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + testUser.getId() + "/conversations?size=5&page=0")
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
@@ -73,7 +79,7 @@ public class ConversationControllerTest {
         }
 
         try {
-            verify(conversationService, Mockito.times(1)).findByUserId(eq(testUser.getId()));
+            verify(conversationService, Mockito.times(1)).findByUserId(eq(testUser.getId()), eq(pageable));
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("Verifying conversation set should not fail.");
         }

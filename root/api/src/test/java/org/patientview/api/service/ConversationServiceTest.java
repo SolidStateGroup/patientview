@@ -94,6 +94,5 @@ public class ConversationServiceTest {
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("resource not found exception");
         }
-
     }
 }

@@ -20,15 +20,29 @@
         </div>
     </script>
 
+    <div ng-show="pagedItems.length > 0 && totalPages > 1">
+        <ul class="pagination">
+            <li ng-class="prevPageDisabled()">
+                <a href ng-click="prevPage()">« Prev</a>
+            </li>
+            <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+                <a href>{{n+1}}</a>
+            </li>
+            <li ng-class="nextPageDisabled()">
+                <a href ng-click="nextPage()">Next »</a>
+            </li>
+        </ul>
+    </div>
+
     <div class="message-item" ng-repeat="conversation in pagedItems">
         <div class="content-panel">
             <ul class="pull-right aside-actions unstyled">
-                <li><a class="aside-link active" ng-click="conversation.showMessages = !conversation.showMessages; conversation.quickReplyOpen = false">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
+                <li><a class="aside-link active" ng-click="viewMessages(conversation)">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
                 <li><a class="aside-link qreply" ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
             </ul>
             <div class="message-summary">
-                <h2 class="message-title">{{conversation.title}}
-                    <span class="recipient">with: </span><span class="recipient" ng-repeat="conversationUser in conversation.conversationUsers">{{conversationUser.user.forename}} {{conversationUser.user.surname}} </span>
+                <h2 class="message-title"><span ng-show="conversation.unread" class="alert-success"> &nbsp;New Message </span> &nbsp;{{conversation.title}}
+                    <span class="recipient">with: </span><span class="recipient" ng-repeat="conversationUser in conversation.conversationUsers" ng-show="conversationUser.user.id != loggedInUser.id">{{conversationUser.user.forename}} {{conversationUser.user.surname}} </span>
                 </h2>
                 <div class="last-message">
                     <h4>Most recent message from: {{conversation.messages[conversation.messages.length-1].user.forename}} {{conversation.messages[conversation.messages.length-1].user.surname}}</h4>
@@ -53,6 +67,7 @@
         <div class="quick-reply content-panel" ng-show="conversation.showMessages">
             <div class="message-summary" ng-repeat="message in conversation.messages | orderBy:'created'">
                 <div class="last-message">
+                    <span ng-show="message.unread" class="alert-success"> New </span>
                     <h4>{{message.user.forename}} {{message.user.surname}}</h4>
                     <p class="message-content">{{message.message}}</p>
                     <p class="date-stamp"><strong>{{message.created | date:'dd-MM-yyyy HH:mm:ss'}}</strong></p>
@@ -65,7 +80,7 @@
                 <textarea id="add-message-input" ng-model="conversation.addMessageContent"></textarea>
                 <fieldset>
                     <div class="btn-group pull-right">
-                        <button class="btn btn-grey" ng-click="conversation.showMessages = false">Close</button>
+                        <button class="btn btn-grey" ng-click="viewMessages(conversation)">Close</button>
                         <button class="btn blue" ng-click="addMessage(conversation)"><i class="icon-reply"></i> Send</button>
                     </div>
                 </fieldset>
@@ -73,4 +88,11 @@
         </div>
     </div>
 
+    <div ng-show="pagedItems.length < 1">
+        <h4>No Conversations Found</h4>
+    </div>
+
 </div>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>

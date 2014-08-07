@@ -3,17 +3,21 @@ package org.patientview.persistence.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.MessageTypes;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -38,10 +42,6 @@ public class Message extends BaseModel {
     @Column(name = "message")
     private String message;
 
-    public MessageTypes getType() {
-        return type;
-    }
-
     @Column(name = "last_update_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUpdate;
@@ -60,8 +60,15 @@ public class Message extends BaseModel {
     @JoinColumn(name = "created_by")
     private User creator;
 
+    @OneToMany(mappedBy = "message", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<MessageReadReceipt> readReceipts;
+
     public void setType(MessageTypes type) {
         this.type = type;
+    }
+
+    public MessageTypes getType() {
+        return type;
     }
 
     @JsonIgnore
@@ -124,4 +131,11 @@ public class Message extends BaseModel {
         this.lastUpdater = lastUpdater;
     }
 
+    public Set<MessageReadReceipt> getReadReceipts() {
+        return readReceipts;
+    }
+
+    public void setReadReceipts(Set<MessageReadReceipt> readReceipts) {
+        this.readReceipts = readReceipts;
+    }
 }
