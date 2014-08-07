@@ -9,12 +9,13 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.ConversationUserRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,9 +30,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private ConversationRepository conversationRepository;
-
-    @Inject
-    private ConversationUserRepository conversationUserRepository;
 
     public Conversation get(Long conversationId) {
         return conversationRepository.findOne(conversationId);
@@ -56,13 +54,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         conversationRepository.delete(conversationId);
     }
 
-    public List<Conversation> findByUserId(Long userId) throws ResourceNotFoundException {
+    public Page<Conversation> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException("Could not find user {}" + userId);
         }
 
-        return conversationRepository.findByUser(entityUser);
+        return conversationRepository.findByUser(entityUser, pageable);
     }
 
     public void addMessage(Long conversationId, Message message) throws ResourceNotFoundException {

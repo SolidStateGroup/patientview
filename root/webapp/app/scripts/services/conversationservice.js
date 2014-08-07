@@ -11,9 +11,11 @@ angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangu
             });
             return deferred.promise;
         },
-        getAll: function (user, pageSize, offset) {
+        getAll: function (user, page, size) {
             var deferred = $q.defer();
-            Restangular.one('user', user.id).all('conversations').getList().then(function(successResult) {
+            // GET /user/{userId}/conversations?page=0&size=5
+            // returns page
+            Restangular.one('user', user.id).one('conversations').get({'page': page, 'size': size}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

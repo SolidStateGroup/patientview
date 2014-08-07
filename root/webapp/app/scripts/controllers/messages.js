@@ -69,6 +69,31 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
 
+    $scope.range = function() {
+        var rangeSize = 5;
+        var ret = [];
+        var start;
+
+        start = 1;
+        if ( start > $scope.totalPages-rangeSize ) {
+            start = $scope.totalPages-rangeSize;
+        }
+
+        for (var i=start; i<start+rangeSize; i++) {
+            if (i > -1) {
+                ret.push(i);
+            }
+        }
+
+        return ret;
+    };
+
+    $scope.setPage = function(n) {
+        if (n > -1 && n < $scope.totalPages) {
+            $scope.currentPage = n;
+        }
+    };
+
     $scope.prevPage = function() {
         if ($scope.currentPage > 0) {
             $scope.currentPage--;
@@ -76,33 +101,31 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "disabled" : "";
+        return $scope.currentPage === 0 ? "hidden" : "";
     };
 
     $scope.nextPage = function() {
-        if ($scope.currentPage < $scope.pageCount() - 1) {
+        if ($scope.currentPage < $scope.totalPages - 1) {
             $scope.currentPage++;
         }
     };
 
     $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.pageCount() - 1 ? "disabled" : "";
+        return $scope.currentPage === $scope.totalPages - 1 ? "hidden" : "";
     };
 
-    $scope.pageCount = function() {
-        return Math.ceil($scope.total/$scope.itemsPerPage);
-    };
-
+    // get page of data every time currentPage is changed
     $scope.$watch("currentPage", function(newValue, oldValue) {
         $scope.loading = true;
-        ConversationService.getAll($scope.loggedInUser, newValue*$scope.itemsPerPage, $scope.itemsPerPage).then(function(result) {
-            $scope.pagedItems = result;
+        ConversationService.getAll($scope.loggedInUser, newValue, $scope.itemsPerPage).then(function(page) {
+            $scope.pagedItems = page.content;
+            $scope.total = page.totalElements;
+            $scope.totalPages = page.totalPages;
             $scope.loading = false;
         }, function() {
             $scope.loading = false;
             // error
         });
-        //$scope.total = ConversationService.total();
     });
 
     $scope.init = function() {

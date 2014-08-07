@@ -20,6 +20,20 @@
         </div>
     </script>
 
+    <div class="pagination">
+        <ul>
+            <li ng-class="prevPageDisabled()">
+                <a href ng-click="prevPage()">« Prev</a>
+            </li>
+            <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+                <a href>{{n+1}}</a>
+            </li>
+            <li ng-class="nextPageDisabled()">
+                <a href ng-click="nextPage()">Next »</a>
+            </li>
+        </ul>
+    </div>
+
     <div class="message-item" ng-repeat="conversation in pagedItems">
         <div class="content-panel">
             <ul class="pull-right aside-actions unstyled">
@@ -74,3 +88,6 @@
     </div>
 
 </div>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
