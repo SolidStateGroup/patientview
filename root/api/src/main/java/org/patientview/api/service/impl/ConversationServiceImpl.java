@@ -5,9 +5,10 @@ import org.patientview.api.service.ConversationService;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
 import org.patientview.persistence.model.Message;
+import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.ConversationRepository;
-import org.patientview.persistence.repository.ConversationUserRepository;
+import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private ConversationRepository conversationRepository;
+
+    @Inject
+    private MessageRepository messageRepository;
 
     public Conversation get(Long conversationId) {
         return conversationRepository.findOne(conversationId);
@@ -139,5 +143,32 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // persist conversation
         conversationRepository.save(newConversation);
+    }
+
+    public void addMessageReadReceipt(Long messageId, Long userId) throws ResourceNotFoundException {
+        User entityUser = userRepository.findOne(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        Message entityMessage = messageRepository.findOne(messageId);
+        if (entityMessage == null) {
+            throw new ResourceNotFoundException("Could not find message");
+        }
+
+        boolean found = false;
+        for (MessageReadReceipt messageReadReceipt : entityMessage.getReadReceipts()) {
+            if (messageReadReceipt.getUser().equals(entityUser)) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            MessageReadReceipt messageReadReceipt = new MessageReadReceipt();
+            messageReadReceipt.setUser(entityUser);
+            messageReadReceipt.setMessage(entityMessage);
+            entityMessage.getReadReceipts().add(messageReadReceipt);
+            messageRepository.save(entityMessage);
+        }
     }
 }

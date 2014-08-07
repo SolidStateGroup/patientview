@@ -46,6 +46,15 @@ angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangu
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        addMessageReadReceipt: function (messageId, userId) {
+            var deferred = $q.defer();
+            Restangular.one('message', messageId).one('readreceipt', userId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

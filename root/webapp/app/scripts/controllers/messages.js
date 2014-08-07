@@ -63,8 +63,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 'ConversationService', 'GroupService', 'RoleService', 'UserService',
-    function ($scope, $modal, ConversationService, GroupService, RoleService, UserService) {
+angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService', 'RoleService', 'UserService',
+    function ($scope, $modal, $q, ConversationService, GroupService, RoleService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -122,6 +122,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     $scope.$watch("currentPage", function(newValue, oldValue) {
         $scope.loading = true;
         ConversationService.getAll($scope.loggedInUser, newValue, $scope.itemsPerPage).then(function(page) {
+            page.content = $scope.addReadReceiptNotifications(page.content);
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
@@ -131,6 +132,72 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
             // error
         });
     });
+
+    // add unread notification to parent conversation and messages based on read receipts for current user
+    $scope.addReadReceiptNotifications = function(conversations) {
+        var i, j, k;
+
+        for (i=0;i<conversations.length;i++) {
+            var conversation = conversations[i];
+            conversation.unread = true;
+
+            for (j=0;j<conversation.messages.length;j++) {
+                var message = conversation.messages[j];
+                message.unread = true;
+
+                for (k=0;k<message.readReceipts.length;k++) {
+                    if (message.readReceipts[k].user.id === $scope.loggedInUser.id) {
+                        message.unread = false;
+                        conversation.unread = false;
+                    }
+                }
+            }
+        }
+
+        return conversations;
+    };
+
+    $scope.viewMessages = function(conversation) {
+        if (conversation.showMessages) {
+            for (i=0;i<conversation.messages.length;i++) {
+                conversation.messages[i].unread = false;
+            }
+            conversation.showMessages = false;
+        } else {
+            conversation.quickReplyOpen = false;
+            var i, j;
+            var unreadMessages = [], promises = [];
+
+            // add read receipt for all messages not currently read
+            for (i = 0; i < conversation.messages.length; i++) {
+                var message = conversation.messages[i];
+                var receiptFound = false;
+
+                for (j = 0; j < message.readReceipts.length; j++) {
+                    var readReceipt = message.readReceipts[j];
+                    if (readReceipt.user.id === $scope.loggedInUser.id) {
+                        receiptFound = true;
+                    }
+                }
+
+                if (!receiptFound) {
+                    unreadMessages.push(message.id);
+                }
+            }
+
+            // mark messages as read then get conversation fresh from GET, hides new notification
+            for (i=0;i<unreadMessages.length;i++) {
+                promises.push(ConversationService.addMessageReadReceipt(unreadMessages[i], $scope.loggedInUser.id));
+            }
+
+            $q.all(promises).then(function () {
+                conversation.unread = false;
+                conversation.showMessages = true;
+            }, function() {
+                alert('Error adding read receipt for new messages');
+            });
+        }
+    };
 
     $scope.addMessage = function(conversation) {
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent).then(function() {
@@ -143,11 +210,9 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
                     }
                 }
             }, function() {
-                // error
                 alert('Error updating conversation (message added successfully)');
             });
         }, function() {
-            // error
             alert('Error adding message');
         });
     };
@@ -164,11 +229,9 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
                     }
                 }
             }, function() {
-                // error
                 alert('Error updating conversation (quick reply added successfully)');
             });
         }, function() {
-            // error
             alert('Error adding message');
         });
     };
@@ -225,6 +288,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
                     modalInstance.result.then(function () {
                         $scope.loading = true;
                         ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
+                            page.content = $scope.addReadReceiptNotifications(page.content);
                             $scope.pagedItems = page.content;
                             $scope.total = page.totalElements;
                             $scope.totalPages = page.totalPages;

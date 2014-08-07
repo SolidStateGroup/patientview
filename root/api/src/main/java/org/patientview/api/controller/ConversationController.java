@@ -107,4 +107,16 @@ public class ConversationController extends BaseController<ConversationControlle
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addMessageReadReceipt(@PathVariable("messageId") Long messageId,
+                                              @PathVariable("userId") Long userId) {
+        try {
+            conversationService.addMessageReadReceipt(messageId, userId);
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }
