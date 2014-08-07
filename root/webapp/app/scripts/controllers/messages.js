@@ -111,7 +111,11 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     };
 
     $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.totalPages - 1 ? "hidden" : "";
+        if ($scope.totalPages > 0) {
+            return $scope.currentPage === $scope.totalPages - 1 ? "hidden" : "";
+        } else {
+            return "hidden";
+        }
     };
 
     // get page of data every time currentPage is changed
@@ -136,8 +140,9 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     $scope.addMessage = function(conversation) {
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent).then(function() {
             conversation.addMessageContent = '';
+            $scope.currentPage = 0;
 
-            ConversationService.get(conversation.id).then(function(successResult) {
+            /*ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
                     if($scope.pagedItems[i].id == successResult.id) {
                         $scope.pagedItems[i].messages = successResult.messages;
@@ -146,7 +151,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
             }, function() {
                 // error
                 alert('Error updating conversation (message added successfully)');
-            });
+            });*/
         }, function() {
             // error
             alert('Error adding message');

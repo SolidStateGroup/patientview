@@ -20,7 +20,7 @@
         </div>
     </script>
 
-    <div>
+    <div ng-show="pagedItems.length > 0">
         <ul class="pagination">
             <li ng-class="prevPageDisabled()">
                 <a href ng-click="prevPage()">« Prev</a>
@@ -85,6 +85,10 @@
                 </fieldset>
             </form>
         </div>
+    </div>
+
+    <div ng-show="pagedItems.length < 1">
+        <h4>No Conversations Found</h4>
     </div>
 
 </div>
