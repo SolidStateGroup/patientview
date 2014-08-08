@@ -13,7 +13,7 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
         },
         getByUser: function (userId, page, size) {
             var deferred = $q.defer();
-            // GET /user/{userId}/newss?page=0&size=5
+            // GET /user/{userId}/news?page=0&size=5
             // returns page
             Restangular.one('user', userId).one('news').get({'page': page, 'size': size}).then(function(successResult) {
                 deferred.resolve(successResult);
@@ -22,9 +22,29 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
-        new: function (news) {
+        new: function (newsItem) {
+            var i, newsLink, newsLinks = [];
+            
+            for (i=0;i<newsItem.groups.length;i++) {
+                newsLink = {};
+                newsLink.group = {};
+                newsLink.group.id = newsItem.groups[i].id;
+                newsLinks.push(newsLink);
+            }
+            
+            for (i=0;i<newsItem.roles.length;i++) {
+                newsLink = {};
+                newsLink.role = {};
+                newsLink.role.id = newsItem.roles[i].id;
+                newsLinks.push(newsLink);
+            }
+
+            newsItem.newsLinks = newsLinks;
+
+            newsItem = UtilService.cleanObject(newsItem, 'newsItem');
+
             var deferred = $q.defer();
-            Restangular.all('news').post(news).then(function(successResult) {
+            Restangular.all('news').post(newsItem).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

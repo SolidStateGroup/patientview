@@ -43,20 +43,11 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     private RoleRepository roleRepository;
 
     @Inject
-    private NewsLinkRepository newsLinkRepository;
-
-    @Inject
     private NewsItemRepository newsItemRepository;
 
     public NewsItem add(final NewsItem newsItem) {
-
-        NewsItem persistedNewsItem = newsItemRepository.save(newsItem);
-
-        Set<NewsLink> newsLinks = newsItem.getNewsLinks();
-
-        // Reattach the group or role
-        if (!CollectionUtils.isEmpty(newsLinks)) {
-            for (NewsLink newsLink : newsLinks) {
+        if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
+            for (NewsLink newsLink : newsItem.getNewsLinks()) {
                 if (newsLink.getGroup() != null) {
                     newsLink.setGroup(groupRepository.findOne(newsLink.getGroup().getId()));
                 }
@@ -64,11 +55,11 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 if (newsLink.getRole() != null) {
                     newsLink.setRole(roleRepository.findOne(newsLink.getRole().getId()));
                 }
-                newsLink.setNewsItem(persistedNewsItem);
+                newsLink.setNewsItem(newsItem);
                 newsLink.setCreator(userRepository.findOne(1L));
-                newsLinkRepository.save(newsLink);
             }
         }
+        NewsItem persistedNewsItem = newsItemRepository.save(newsItem);
 
         return persistedNewsItem;
     }
@@ -110,9 +101,13 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         Collections.sort(newsItems);
 
         // manually do pagination
-        int page = pageable.getOffset();
-        int size = pageable.getPageSize();
-        List<NewsItem> pagedNewsItems = newsItems.subList(page * size, (page * size) + size);
+        int left = pageable.getOffset();
+        int right = (left + pageable.getPageSize()) > newsItems.size() ? newsItems.size() : pageable.getPageSize();
+        List<NewsItem> pagedNewsItems = new ArrayList<>();
+
+        if (!newsItems.isEmpty()) {
+            pagedNewsItems = newsItems.subList(left, right);
+        }
 
         return new PageImpl<>(pagedNewsItems, pageable, newsItems.size());
     }

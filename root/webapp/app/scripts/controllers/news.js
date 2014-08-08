@@ -2,51 +2,28 @@
 
 
 // new news modal instance controller
-var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNews', 'NewsService', 'recipients',
-    function ($scope, $rootScope, $modalInstance, newNews, NewsService, recipients) {
+var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNews', 'NewsService',
+    function ($scope, $rootScope, $modalInstance, newNews, NewsService) {
         var i;
         $scope.newNews = newNews;
-        newNews.availableRecipients = _.clone(recipients);
-        newNews.allRecipients = [];
-
-        for (i = 0; i < recipients.length; i++) {
-            newNews.allRecipients[recipients[i].id] = recipients[i];
+        
+        $scope.newNews.availableGroups = _.clone($scope.newNews.allGroups);
+        $scope.newNews.allGroups = [];
+        for (i = 0; i < $scope.newNews.availableGroups.length; i++) {
+            $scope.newNews.allGroups[$scope.newNews.availableGroups[i].id] = $scope.newNews.availableGroups[i];
+        }
+        
+        $scope.newNews.availableRoles = _.clone($scope.newNews.allRoles);
+        $scope.newNews.allRoles = [];
+        for (i = 0; i < $scope.newNews.availableRoles.length; i++) {
+            $scope.newNews.allRoles[$scope.newNews.availableRoles[i].id] = $scope.newNews.availableRoles[i];
         }
 
         $scope.ok = function () {
-            // build correct news from newNews
-            var news = {};
-            news.type = "MESSAGE";
-            news.title = newNews.title;
-            news.messages = [];
-            news.open = true;
+            newNews.creator = {};
+            newNews.creator.id = $scope.loggedInUser.id;
 
-            // build message
-            var message = {};
-            message.user = $scope.loggedInUser;
-            message.message = newNews.message;
-            message.type = "MESSAGE";
-            news.messages[0] = message;
-
-            // add news users from list of users (temp anonymous = false)
-            var newsUsers = [];
-            for (i=0;i<newNews.recipients.length;i++) {
-                newsUsers[i] = {};
-                newsUsers[i].user = {};
-                newsUsers[i].user.id = newNews.recipients[i].id;
-                newsUsers[i].anonymous = false;
-            }
-
-            // add logged in user to list of news users
-            var newsUser = {};
-            newsUser.user = {};
-            newsUser.user.id = $scope.loggedInUser.id;
-            newsUser.anonymous = false;
-            newsUsers.push(newsUser);
-
-            news.newsUsers = newsUsers;
-
-            NewsService.new($scope.loggedInUser, news).then(function() {
+            NewsService.new(newNews).then(function() {
                 $modalInstance.close();
             }, function(result) {
                 if (result.data) {
@@ -122,7 +99,7 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
     $scope.$watch("currentPage", function(newValue, oldValue) {
         $scope.loading = true;
         NewsService.getByUser($scope.loggedInUser.id, newValue, $scope.itemsPerPage).then(function(page) {
-            page.content = $scope.addReadReceiptNotifications(page.content);
+            page.content = page.content;
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
@@ -137,13 +114,14 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
     $scope.openModalNewNews = function (size) {
         var i;
         $scope.errorMessage = '';
+        $scope.editMode = false;
         $scope.newNews = {};
-        $scope.newNews.recipients = [];
+        $scope.newNews.groups = [];
+        $scope.newNews.roles = [];
         var roleIds = [], groupIds = [];
 
-        // populate list of allowed recipients
+        // populate list of allowed groups for current user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            // get logged in user's groups
             for (i = 0; i < groups.length; i++) {
                 var group = groups[i];
                 if (group.visible === true) {
@@ -151,9 +129,10 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                 }
             }
 
-            // todo: how to deal with patients sending messages
-            RoleService.getByType('STAFF').then(function(roles) {
-                // get roles for recipients
+            $scope.newNews.allGroups = $scope.newNews.availableGroups = groups;
+
+            // todo: currently gets all roles
+            RoleService.getAll().then(function(roles) {
                 for (i = 0; i < roles.length; i++) {
                     var role = roles[i];
                     if (role.visible === true) {
@@ -161,48 +140,37 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                     }
                 }
 
-                // now have user's groups and list of roles, get all users
-                UserService.getByGroupsAndRoles(groupIds, roleIds).then(function (users) {
+                $scope.newNews.allRoles = $scope.newNews.availableRoles = roles;
 
-                    // open modal
-                    var modalInstance = $modal.open({
-                        templateUrl: 'newNewsModal.html',
-                        controller: NewNewsModalInstanceCtrl,
-                        size: size,
-                        resolve: {
-                            recipients: function(){
-                                return users;
-                            },
-                            newNews: function(){
-                                return $scope.newNews;
-                            },
-                            NewsService: function(){
-                                return NewsService;
-                            }
+                var modalInstance = $modal.open({
+                    templateUrl: 'newNewsModal.html',
+                    controller: NewNewsModalInstanceCtrl,
+                    size: size,
+                    resolve: {
+                        newNews: function(){
+                            return $scope.newNews;
+                        },
+                        NewsService: function(){
+                            return NewsService;
                         }
-                    });
+                    }
+                });
 
-                    modalInstance.result.then(function () {
-                        $scope.loading = true;
-                        NewsService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
-                            page.content = $scope.addReadReceiptNotifications(page.content);
-                            $scope.pagedItems = page.content;
-                            $scope.total = page.totalElements;
-                            $scope.totalPages = page.totalPages;
-                            $scope.loading = false;
-                            $scope.successMessage = 'News successfully created';
-                        }, function() {
-                            $scope.loading = false;
-                            // error
-                        });
-                    }, function () {
-                        // cancel
-                        $scope.editNews = '';
+                modalInstance.result.then(function () {
+                    $scope.loading = true;
+                    NewsService.getByUser($scope.loggedInUser.id, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
+                        page.content = page.content;
+                        $scope.pagedItems = page.content;
+                        $scope.total = page.totalElements;
+                        $scope.totalPages = page.totalPages;
+                        $scope.loading = false;
+                        $scope.successMessage = 'News item successfully created';
+                    }, function() {
+                        $scope.loading = false;
                     });
-
                 }, function () {
-                    // error retrieving users
-                    alert('Error loading possible message recipients [3]');
+                    // cancel
+                    $scope.newNews = '';
                 });
             }, function () {
                 // error retrieving roles
@@ -213,5 +181,13 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
             alert('Error loading possible message recipients [1]');
         });
     };
-    
-}]);
+
+    $scope.edit = function(news) {
+        if (news.showEdit) {
+            news.showEdit = false;
+        } else {
+            news.showEdit = true;
+        }
+    };
+
+    }]);

@@ -1,0 +1,60 @@
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="news-heading" class="control-label">Heading <span class="error" ng-show="newsFormNew.heading.$error.required && !newsFormNew.$pristine"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="news-heading" placeholder="Heading" name="heading" ng-model="newNews.heading" required></div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="news-story" class="control-label">Story <span class="error" ng-show="newsFormNew.story.$error.required && !newsFormNew.$pristine"> *required</span></label>
+            <div class=""><textarea class="form-control" id="news-story" placeholder="Story" name="story" ng-model="newNews.story" required /></div>
+        </div>
+    </div>
+</div>
+
+<div class="row form-edit-row">
+    <hr/>
+    <div class="col-md-6">
+        <label>Visible to Groups</label>
+        <div ng-hide="newNews.groups.length > 0" class="no-items">Not currently visible by any groups</div>
+
+        <ul class="feature-list unstyled">
+            <li class="feature-list-item" ng-repeat="group in newNews.groups | orderBy:'name'">
+                <div class="feature-list-name"><span class="feature-list-name">{{group.name}}</span> &nbsp;
+                    <a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(newsFormNew, newNews, group)" ng-show="newNews.groups.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
+                </div>
+            </li>
+        </ul>
+        <div class="group-add-container item-add-container" ng-show="newNews.availableGroups.length > 0">
+            <div class="custom-select">
+                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in newNews.availableGroups | orderBy:'name'"></select>
+            </div>
+            <button type="button" class="btn blue group-add-button pull-left" ng-click="addGroup(newsFormNew, newNews, groupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
+        </div>
+    </div>
+</div>
+
+<div class="row form-edit-row">
+    <hr/>
+    <div class="col-md-6">
+        <label>Visible to Roles</label>
+        <div ng-hide="newNews.roles.length > 0" class="no-items">Not currently visible by people with any roles</div>
+
+        <ul class="feature-list unstyled">
+            <li class="feature-list-item" ng-repeat="role in newNews.roles | orderBy:'description'">
+                <div class="feature-list-name"><span class="feature-list-name">{{role.description}}</span> &nbsp;
+                    <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsFormNew, newNews, role)" ng-show="newNews.roles.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
+                </div>
+            </li>
+        </ul>
+        <div class="role-add-container item-add-container" ng-show="newNews.availableRoles.length > 0">
+            <div class="custom-select">
+                <select class="form-control group-select" ng-model="roleToAdd" ng-options="role.id as role.description for role in newNews.availableRoles | orderBy:'description'"></select>
+            </div>
+            <button type="button" class="btn blue role-add-button pull-left" ng-click="addRole(newsFormNew, newNews, roleToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
+        </div>
+    </div>
+</div>
