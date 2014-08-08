@@ -99,7 +99,6 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
     $scope.$watch("currentPage", function(newValue, oldValue) {
         $scope.loading = true;
         NewsService.getByUser($scope.loggedInUser.id, newValue, $scope.itemsPerPage).then(function(page) {
-            page.content = page.content;
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
@@ -159,7 +158,6 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                 modalInstance.result.then(function () {
                     $scope.loading = true;
                     NewsService.getByUser($scope.loggedInUser.id, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
-                        page.content = page.content;
                         $scope.pagedItems = page.content;
                         $scope.total = page.totalElements;
                         $scope.totalPages = page.totalPages;
@@ -174,11 +172,11 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                 });
             }, function () {
                 // error retrieving roles
-                alert('Error loading possible message recipients [2]');
+                alert('Error loading possible roles');
             });
         }, function () {
             // error retrieving groups
-            alert('Error loading possible message recipients [1]');
+            alert('Error loading possible groups');
         });
     };
 
@@ -190,4 +188,22 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         }
     };
 
-    }]);
+    $scope.delete = function(news) {
+        NewsService.delete(news).then(function() {
+            $scope.loading = true;
+            NewsService.getByUser($scope.loggedInUser.id, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
+                $scope.pagedItems = page.content;
+                $scope.total = page.totalElements;
+                $scope.totalPages = page.totalPages;
+                $scope.loading = false;
+                $scope.successMessage = 'News item successfully created';
+            }, function() {
+                $scope.loading = false;
+            });
+        }, function() {
+            alert('Error deleting news item');
+            $scope.loading = false;
+        });
+    };
+
+}]);

@@ -30,7 +30,7 @@
         </ul>
         <div class="group-add-container item-add-container" ng-show="newNews.availableGroups.length > 0">
             <div class="custom-select">
-                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in newNews.availableGroups | orderBy:'name'"></select>
+                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in newNews.availableGroups | orderBy:['groupType.description','name']"></select>
             </div>
             <button type="button" class="btn blue group-add-button pull-left" ng-click="addGroup(newsFormNew, newNews, groupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
         </div>

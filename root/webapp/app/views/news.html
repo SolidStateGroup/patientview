@@ -16,7 +16,7 @@
         <div class="modal-footer">
             <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!newsFormNew.$valid">Create New News Item</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!newsFormNew.$valid || (newNews.groups.length + newNews.roles.length < 1)">Create New News Item</button>
         </div>
     </script>
 
@@ -38,11 +38,12 @@
         <div class="content-panel">
             <ul class="pull-right aside-actions unstyled">
                 <li><a href="" class="aside-link active" ng-click="edit(news)">Edit</a></li>
+                <li><a href="" class="aside-link" ng-click="delete(news)" ng-confirm-click="Are you sure you want to delete this news item?">Delete</a></li>
             </ul>
             <div class="message-summary">
                 <h2 class="message-title">{{news.heading}}</h2>
                 <div class="last-message">
-                    <p class="date-stamp"><strong>{{news.created | date:'dd-MM-yyyy'}}</strong></p>
+                    <p class="date-stamp"><strong>{{news.created | date:'dd-MM-yyyy HH:mm'}}</strong></p>
                     <p class="message-content">{{news.story}}</p>
                 </div>
             </div>

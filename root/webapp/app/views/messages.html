@@ -47,7 +47,7 @@
                 <div class="last-message">
                     <h4>Most recent message from: {{conversation.messages[conversation.messages.length-1].user.forename}} {{conversation.messages[conversation.messages.length-1].user.surname}}</h4>
                     <p class="message-content">{{conversation.messages[conversation.messages.length-1].message}}</p>
-                    <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MM-yyyy HH:mm:ss'}}</strong></p>
+                    <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MM-yyyy HH:mm'}}</strong></p>
                     <!--<p class="date-stamp"><strong>19th June 2014</strong> @ 12:34pm</p>-->
                 </div>
             </div>
@@ -70,7 +70,7 @@
                     <span ng-show="message.unread" class="alert-success"> New </span>
                     <h4>{{message.user.forename}} {{message.user.surname}}</h4>
                     <p class="message-content">{{message.message}}</p>
-                    <p class="date-stamp"><strong>{{message.created | date:'dd-MM-yyyy HH:mm:ss'}}</strong></p>
+                    <p class="date-stamp"><strong>{{message.created | date:'dd-MM-yyyy HH:mm'}}</strong></p>
                 </div>
                 <hr/>
             </div>
