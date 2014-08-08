@@ -171,19 +171,68 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                     $scope.newNews = '';
                 });
             }, function () {
-                // error retrieving roles
                 alert('Error loading possible roles');
             });
         }, function () {
-            // error retrieving groups
             alert('Error loading possible groups');
         });
     };
 
     $scope.edit = function(news) {
+        var i, newsLink, groupIds = [], roleIds = [];
+
         if (news.showEdit) {
+            $scope.editNews = '';
             news.showEdit = false;
         } else {
+            NewsService.get(news.id).then(function(newsItem) {
+                $scope.editNews = _.clone(news);
+
+                GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+                    for (i = 0; i < groups.length; i++) {
+                        var group = groups[i];
+                        if (group.visible === true) {
+                            groupIds.push(group.id);
+                        }
+                    }
+
+                    // todo: currently gets all roles
+                    RoleService.getAll().then(function(roles) {
+                        for (i = 0; i < roles.length; i++) {
+                            var role = roles[i];
+                            if (role.visible === true) {
+                                roleIds.push(role.id);
+                            }
+                        }
+
+                        $scope.editNews.allRoles = $scope.editNews.availableRoles = roles;
+                        $scope.editNews.allGroups = $scope.editNews.availableGroups = groups;
+
+                        $scope.editNews.groups = [];
+                        $scope.editNews.roles = [];
+
+                        console.log($scope.editNews);
+
+                        for (i = 0; i < $scope.editNews.newsLinks.length; i++) {
+                            newsLink = $scope.editNews.newsLinks[i];
+                            if (newsLink.group) {
+                                $scope.editNews.groups.push(newsLink.group);
+                            }
+                            if (newsLink.role) {
+                                $scope.editNews.roles.push(newsLink.role);
+                            }
+                        }
+
+                        console.log($scope.editNews);
+                    }, function () {
+                        alert('Error loading roles');
+                    });
+                }, function () {
+                    alert('Error loading groups');
+                });
+            }, function () {
+                alert('Error loading news item');
+            });
             news.showEdit = true;
         }
     };
