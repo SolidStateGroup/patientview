@@ -21,7 +21,7 @@ public class NewsItem extends AuditModel {
     @Column(name = "story")
     private String story;
 
-    @OneToMany(mappedBy = "newsItem", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "newsItem", cascade = CascadeType.ALL)
     private Set<NewsLink> newsLinks;
 
     public String getHeading() {
@@ -46,5 +46,22 @@ public class NewsItem extends AuditModel {
 
     public void setNewsLinks(final Set<NewsLink> newsLinks) {
         this.newsLinks = newsLinks;
+    }
+
+    @Override
+    public int compareTo(Object object) {
+        NewsItem newsItem;
+
+        if (object == null) {
+            return 1;
+        } else {
+            newsItem = (NewsItem) object;
+        }
+
+        if (newsItem.getCreated().before(this.getCreated())) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 }

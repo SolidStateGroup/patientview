@@ -1,0 +1,97 @@
+<div class="hider" ng-show="status.open"></div>
+
+<div class="" ng-show="!loading" ng-cloak>
+    <h1>News <button class="btn blue" ng-click="openModalNewNews('lg')">Create New</button></h1>
+
+    <!-- new news modal template -->
+    <script type="text/ng-template" id="newNewsModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New News Item</h3>
+        </div>
+        <div class="modal-body">
+            <form name="newsFormNew" ng-model="newNews">
+                <div ng-include src="'views/partials/newsDetailsNew.html'" ng-controller="NewsDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!newsFormNew.$valid || (newNews.recipients.length < 1)">Create New News</button>
+        </div>
+    </script>
+
+    <div ng-show="pagedItems.length > 0 && totalPages > 1">
+        <ul class="pagination">
+            <li ng-class="prevPageDisabled()">
+                <a href ng-click="prevPage()">« Prev</a>
+            </li>
+            <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+                <a href>{{n+1}}</a>
+            </li>
+            <li ng-class="nextPageDisabled()">
+                <a href ng-click="nextPage()">Next »</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="message-item" ng-repeat="news in pagedItems">
+        <div class="content-panel">
+            <ul class="pull-right aside-actions unstyled">
+                <li><a class="aside-link active" ng-click="viewMessages(news)">View Messages<span class="message-count">{{news.messages.length}}</span></a></li>
+                <li><a class="aside-link qreply" ng-click="news.quickReplyOpen = !news.quickReplyOpen; news.showMessages = false">Quick Reply</a></li>
+            </ul>
+            <div class="message-summary">
+                <h2 class="message-title"><span ng-show="news.unread" class="alert-success"> &nbsp;New Message </span> &nbsp;{{news.title}}
+                    <span class="recipient">with: </span><span class="recipient" ng-repeat="newsUser in news.newsUsers" ng-show="newsUser.user.id != loggedInUser.id">{{newsUser.user.forename}} {{newsUser.user.surname}} </span>
+                </h2>
+                <div class="last-message">
+                    <h4>Most recent message from: {{news.messages[news.messages.length-1].user.forename}} {{news.messages[news.messages.length-1].user.surname}}</h4>
+                    <p class="message-content">{{news.messages[news.messages.length-1].message}}</p>
+                    <p class="date-stamp"><strong>{{news.messages[news.messages.length-1].created | date:'dd-MM-yyyy HH:mm:ss'}}</strong></p>
+                </div>
+            </div>
+        </div>
+        <div class="quick-reply content-panel" ng-show="news.quickReplyOpen">
+            <form class="form-quick-reply">
+                <label for="quick-reply-input">Quick Reply</label>
+                <textarea id="quick-reply-input" ng-model="news.quickReplyContent"></textarea>
+                <fieldset>
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-grey" ng-click="news.quickReplyOpen = false">Close</button>
+                        <button class="btn blue" ng-click="quickReply(news)"><i class="icon-reply"></i> Send</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div class="quick-reply content-panel" ng-show="news.showMessages">
+            <div class="message-summary" ng-repeat="message in news.messages | orderBy:'created'">
+                <div class="last-message">
+                    <span ng-show="message.unread" class="alert-success"> New </span>
+                    <h4>{{message.user.forename}} {{message.user.surname}}</h4>
+                    <p class="message-content">{{message.message}}</p>
+                    <p class="date-stamp"><strong>{{message.created | date:'dd-MM-yyyy HH:mm:ss'}}</strong></p>
+                </div>
+                <hr/>
+            </div>
+
+            <form class="form-quick-reply">
+                <label for="add-message-input">Add Message</label>
+                <textarea id="add-message-input" ng-model="news.addMessageContent"></textarea>
+                <fieldset>
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-grey" ng-click="viewMessages(news)">Close</button>
+                        <button class="btn blue" ng-click="addMessage(news)"><i class="icon-reply"></i> Send</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+    <div ng-show="pagedItems.length < 1">
+        <h4>No News Found</h4>
+    </div>
+
+</div>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>

@@ -1,17 +1,27 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.NewsService;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.NewsLinkRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,8 +47,6 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     @Inject
     private NewsItemRepository newsItemRepository;
-
-
 
     public NewsItem add(final NewsItem newsItem) {
 
@@ -75,5 +83,37 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     public void delete(final Long newsItemId) {
         newsItemRepository.delete(newsItemId);
+    }
+
+    public Page<NewsItem> findByUserId(Long userId, Pageable pageable)  throws ResourceNotFoundException {
+        User entityUser = userRepository.findOne(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("Could not find user {}" + userId);
+        }
+
+        // get both role and group news
+        PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Page<NewsItem> roleNews = newsItemRepository.findRoleNewsByUser(entityUser, pageableAll);
+        Page<NewsItem> groupNews = newsItemRepository.findGroupNewsByUser(entityUser, pageableAll);
+
+        // combine results
+        Set<NewsItem> newsItemSet = new HashSet<>();
+        if (roleNews.getNumberOfElements() > 0) {
+            newsItemSet.addAll(roleNews.getContent());
+        }
+        if (groupNews.getNumberOfElements() > 0) {
+            newsItemSet.addAll(groupNews.getContent());
+        }
+        List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
+
+        // sort combined list
+        Collections.sort(newsItems);
+
+        // manually do pagination
+        int page = pageable.getOffset();
+        int size = pageable.getPageSize();
+        List<NewsItem> pagedNewsItems = newsItems.subList(page * size, (page * size) + size);
+
+        return new PageImpl<>(pagedNewsItems, pageable, newsItems.size());
     }
 }

@@ -35,18 +35,6 @@ public interface SecurityService {
     List<Group> getGroupByUserAndRole(Long userId, Long roleId);
 
     /**
-     * This is the method the retrieves the news for a news. News can be linked by :-
-     *
-     * User -> Roles -> News
-     * User -> Groups -> News
-     *
-     * @param userId
-     * @return
-     */
-    List<NewsItem> getNewsByUser(Long userId);
-
-
-    /**
      * Get the groups that are assigned to the user.
      * N.B. SuperAdmin gets them all/
      *

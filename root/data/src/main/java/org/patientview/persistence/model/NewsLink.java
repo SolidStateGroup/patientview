@@ -39,6 +39,7 @@ public class NewsLink extends SimpleAuditModel {
         this.newsItem = newsItem;
     }
 
+    @JsonIgnore
     public Group getGroup() {
         return group;
     }
@@ -47,6 +48,7 @@ public class NewsLink extends SimpleAuditModel {
         this.group = group;
     }
 
+    @JsonIgnore
     public Role getRole() {
         return role;
     }

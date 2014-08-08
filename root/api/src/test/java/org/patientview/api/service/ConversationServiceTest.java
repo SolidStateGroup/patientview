@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.ConversationServiceImpl;
@@ -18,6 +19,9 @@ import org.patientview.persistence.model.enums.MessageTypes;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -88,6 +92,13 @@ public class ConversationServiceTest {
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
         when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
         when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+
+        // mock logged in user
+        Authentication authentication = Mockito.mock(Authentication.class);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(user1);
+        SecurityContextHolder.setContext(securityContext);
 
         try {
             conversationService.addConversation(user1.getId(), conversation);
