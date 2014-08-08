@@ -5,15 +5,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.api.config.TestPersistenceConfig;
+import org.patientview.api.controller.model.Statistic;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.test.util.DataTestUtils;
+import org.patientview.test.util.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * So this is kind of an integration test but to can't win them all.
@@ -47,6 +51,9 @@ public class GroupStatisticsServiceTest {
 
     @Inject
     LookupRepository lookupRepository;
+
+    @Inject
+    LookupTypeRepository lookupTypeRepository;
 
     @Inject
     DataTestUtils dataTestUtils;
@@ -68,13 +75,7 @@ public class GroupStatisticsServiceTest {
     @Test
     public void testGenerateGroupStatistic() {
 
-        Lookup lookup = dataTestUtils.createLookup("PATIENT", LookupTypes.STATISTICS_TYPE, creator);
-        lookup.setDescription("SELECT COUNT(1) FROM pv_user_group_role WHERE creation_date BETWEEN :startDate AND :endDate AND group_id = :groupId");
-        lookupRepository.save(lookup);
-
-        lookup = dataTestUtils.createLookup("LOGON", LookupTypes.STATISTICS_TYPE, creator);
-        lookup.setDescription("SELECT COUNT(1) FROM pv_audit WHERE creation_date BETWEEN :startDate AND :endDate AND id > :groupId");
-        lookupRepository.save(lookup);
+        createStatisticLookups();
 
         Calendar calendar = Calendar.getInstance();
         Date endDate = calendar.getTime();
@@ -82,6 +83,24 @@ public class GroupStatisticsServiceTest {
         Date startDate =  calendar.getTime();;
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
 
+
+    }
+
+    private void createStatisticLookups() {
+        LookupType lookupType = TestUtils.createLookupType(null, LookupTypes.STATISTICS_TYPE, creator);
+        lookupTypeRepository.save(lookupType);
+
+        Lookup lookup = new Lookup();
+        lookup.setValue(org.patientview.persistence.model.enums.Statistic.PATIENT_COUNT.name());
+        lookup.setDescription("SELECT COUNT(1) FROM pv_user_group_role WHERE creation_date BETWEEN :startDate AND :endDate AND group_id = :groupId");
+        lookup.setLookupType(lookupType);
+        lookupRepository.save(lookup);
+
+        lookup = new Lookup();
+        lookup.setValue(org.patientview.persistence.model.enums.Statistic.LOGON_COUNT.name());
+        lookup.setDescription("SELECT COUNT(1) FROM pv_audit WHERE creation_date BETWEEN :startDate AND :endDate AND id > :groupId");
+        lookup.setLookupType(lookupType);
+        lookupRepository.save(lookup);
 
     }
 
