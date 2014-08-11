@@ -19,6 +19,7 @@ import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -88,6 +89,8 @@ public class ConversationServiceTest {
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
         when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
         when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+
+        TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
 
         try {
             conversationService.addConversation(user1.getId(), conversation);

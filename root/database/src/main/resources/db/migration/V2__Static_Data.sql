@@ -108,6 +108,8 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
   (16, 4, 12,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (17, 4, 13,  '/joinrequestadmin', 'views/joinrequestadmin.html','JoinRequestAdminCtrl', 'Join Request Admin', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (18, 4, 15,  '/news', 'views/news.html','NewsCtrl', 'News', now(), 1 );
 
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
@@ -148,6 +150,8 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
   (18, 16, null, 3, null, now(), 1 );
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (19, 17, null, 2, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (20, 18, 1, null, null, now(), 1 );
 
 INSERT INTO PV_User_Token(Id, User_Id, Token, Creation_Date) VALUES
   (1, 2, 'pppppp', now())

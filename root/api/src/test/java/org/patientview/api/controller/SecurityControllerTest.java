@@ -106,7 +106,7 @@ public class SecurityControllerTest {
      *
      * TODO test needs expanding into testing returned data
      */
-    @Test
+    /*@Test
     public void testNewsByUser() {
 
         Long testUserId = 10L;
@@ -122,7 +122,7 @@ public class SecurityControllerTest {
 
         verify(securityService, Mockito.times(1)).getNewsByUser(Matchers.eq(testUserId));
 
-    }
+    }*/
 
     /**
      * Test: Get the groups that should be accessible to a user
