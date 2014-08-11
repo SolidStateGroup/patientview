@@ -60,11 +60,17 @@ public class NewsController extends BaseController<NewsController> {
     @RequestMapping(value = "/news", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<NewsItem> save(@RequestBody NewsItem newsItem, UriComponentsBuilder uriComponentsBuilder) throws ResourceNotFoundException  {
-        LOG.info("Updated new item with id " + newsItem.getId());
-        UriComponents uriComponents = uriComponentsBuilder.path("/news/{id}").buildAndExpand(newsItem.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<>(newsService.save(newsItem), headers, HttpStatus.OK);
+
+        try {
+            NewsItem news = newsService.save(newsItem);
+            LOG.info("Updated new item with id " + newsItem.getId());
+            UriComponents uriComponents = uriComponentsBuilder.path("/news/{id}").buildAndExpand(newsItem.getId());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(uriComponents.toUri());
+            return new ResponseEntity<>(news, headers, HttpStatus.OK);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.DELETE)
@@ -73,7 +79,6 @@ public class NewsController extends BaseController<NewsController> {
         newsService.delete(newsItemId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 
     @RequestMapping(value = "/user/{userId}/news", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -100,5 +105,37 @@ public class NewsController extends BaseController<NewsController> {
         } catch (ResourceNotFoundException rnf) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @RequestMapping(value = "/news/{newsItemId}/group/{groupId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addGroup(@PathVariable("newsItemId") Long newsItemId,
+                                         @PathVariable("groupId") Long groupId) throws ResourceNotFoundException {
+        newsService.addGroup(newsItemId, groupId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/news/{newsItemId}/group/{groupId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> removeGroup(@PathVariable("newsItemId") Long newsItemId,
+                                         @PathVariable("groupId") Long groupId) throws ResourceNotFoundException {
+        newsService.removeGroup(newsItemId, groupId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/news/{newsItemId}/role/{roleId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addRole(@PathVariable("newsItemId") Long newsItemId,
+                                         @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
+        newsService.addRole(newsItemId, roleId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/news/{newsItemId}/role/{roleId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> removeRole(@PathVariable("newsItemId") Long newsItemId,
+                                         @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
+        newsService.removeRole(newsItemId, roleId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

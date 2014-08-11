@@ -15,6 +15,10 @@
     </div>
 </div>
 
+<br/>
+<button type="button" class="btn blue pull-right" ng-click="save(newsForm, editNews)" ng-disabled="newsForm.$pristine || !newsForm.$valid">Save</button>
+<span class="saved-notification pull-right" ng-show="newsForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+
 <div class="row form-edit-row">
     <hr/>
     <div class="col-md-6">
@@ -50,11 +54,11 @@
                 </div>
             </li>
         </ul>
-        <div class="role-add-container item-add-container" ng-show="editNews.availableRoles.length > 0">
+        <div class="group-add-container item-add-container" ng-show="editNews.availableRoles.length > 0">
             <div class="custom-select">
                 <select class="form-control group-select" ng-model="roleToAdd" ng-options="role.id as role.description for role in editNews.availableRoles | orderBy:'description'"></select>
             </div>
-            <button type="button" class="btn blue role-add-button pull-left" ng-click="addRole(newsForm, editNews, roleToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
+            <button type="button" class="btn blue group-add-button pull-left" ng-click="addRole(newsForm, editNews, roleToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
         </div>
     </div>
 </div>

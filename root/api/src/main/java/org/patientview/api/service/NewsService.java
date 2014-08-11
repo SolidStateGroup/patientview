@@ -15,4 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 public interface NewsService extends CrudService<NewsItem> {
 
     public Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException;
+
+    NewsItem save(NewsItem newsItem) throws ResourceNotFoundException;
+
+    public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException;
+    
+    public void removeGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException;
+
+    public void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
+    
+    public void removeRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
+
 }

@@ -29,7 +29,7 @@ public class NewsItem extends BaseModel {
     @Column(name = "story")
     private String story;
 
-    @OneToMany(mappedBy = "newsItem", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "newsItem", cascade = {CascadeType.ALL})
     private Set<NewsLink> newsLinks;
 
     @Column(name = "last_update_date")

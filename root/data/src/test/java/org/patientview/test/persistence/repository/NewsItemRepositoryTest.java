@@ -23,7 +23,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.Date;
+import java.util.HashSet;
 
 /**
  * Tests concerned with retrieving the correct news for a user.
@@ -44,6 +46,9 @@ public class NewsItemRepositoryTest {
 
     @Inject
     GroupRoleRepository groupRoleRepository;
+
+    @Inject
+    EntityManager entityManager;
 
     @Inject
     DataTestUtils dataTestUtils;
@@ -140,6 +145,46 @@ public class NewsItemRepositoryTest {
         // Which should get 1 route back and it should be the one that was created
         Assert.assertTrue("There should be 1 news item available", newsItems.getContent().size() == 1);
         Assert.assertTrue("The news item should be the one created", newsItems.getContent().get(0).equals(newsItem));
+    }
+
+    /**
+     * Test: Create a news item link it to a group, link a user to the group and then retrieve the news
+     * Fail: The correct news it not retrieved
+     *
+     */
+    @Test
+    public void testGetRoleNewsByUser_deleteNewsItemLink() {
+
+        // Create a news item
+        NewsItem newsItem = new NewsItem();
+        newsItem.setCreator(creator);
+        newsItem.setCreated(new Date());
+        newsItemRepository.save(newsItem);
+
+        // Create a role for the news to be linked too
+        Role role = dataTestUtils.createRole("TestRole", creator);
+        NewsLink newsLink = new NewsLink();
+        newsLink.setCreator(creator);
+        newsLink.setCreated(new Date());
+        newsLink.setRole(role);
+        newsLink.setNewsItem(newsItem);
+
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+        newsItem.getNewsLinks().add(newsLink);
+        NewsItem entityNewsItem = newsItemRepository.save(newsItem);
+
+        Assert.assertTrue("There should be 1 news link", newsItem.getNewsLinks().size() == 1);
+
+        NewsLink tempNewsLink = null;
+        for (NewsLink temp : entityNewsItem.getNewsLinks()) {
+            tempNewsLink = temp;
+        }
+
+        //entityManager.remove(tempNewsLink); // required in service
+        entityNewsItem.getNewsLinks().remove(tempNewsLink);
+        entityNewsItem = newsItemRepository.save(entityNewsItem);
+
+        Assert.assertTrue("There should be 0 news links", entityNewsItem.getNewsLinks().size() == 0);
     }
 
     @Test
