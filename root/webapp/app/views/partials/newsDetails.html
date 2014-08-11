@@ -41,7 +41,7 @@
         <ul class="feature-list unstyled">
             <li class="feature-list-item" ng-repeat="group in editNews.groups | orderBy:'name'">
                 <div class="feature-list-name"><span class="feature-list-name">{{group.name}}</span> &nbsp;
-                    <a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(newsForm, editNews, group)" ng-show="editNews.groups.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
+                    <a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(newsForm, editNews, group)"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
             </li>
         </ul>
@@ -63,7 +63,7 @@
         <ul class="feature-list unstyled">
             <li class="feature-list-item" ng-repeat="role in editNews.roles | orderBy:'description'" ng-show="!(role.name === 'GLOBAL_ADMIN')">
                 <div class="feature-list-name"><span class="feature-list-name">{{role.description}}</span> &nbsp;
-                    <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsForm, editNews, role)" ng-show="editNews.roles.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
+                    <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsForm, editNews, role)"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
             </li>
         </ul>

@@ -37,7 +37,7 @@
         <ul class="feature-list unstyled">
             <li class="feature-list-item" ng-repeat="group in newNews.groups | orderBy:'name'">
                 <div class="feature-list-name"><span class="feature-list-name">{{group.name}}</span> &nbsp;
-                    <a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(newsFormNew, newNews, group)" ng-show="newNews.groups.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
+                    <a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(newsFormNew, newNews, group)"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
             </li>
         </ul>
@@ -57,9 +57,9 @@
         <div ng-hide="newNews.roles.length > 0" class="no-items">Not currently visible by people with any roles</div>
 
         <ul class="feature-list unstyled">
-            <li class="feature-list-item" ng-repeat="role in newNews.roles | orderBy:'description'">
+            <li class="feature-list-item" ng-repeat="role in newNews.roles | orderBy:'description'" ng-show="!(role.name === 'GLOBAL_ADMIN')">
                 <div class="feature-list-name"><span class="feature-list-name">{{role.description}}</span> &nbsp;
-                    <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsFormNew, newNews, role)" ng-show="newNews.roles.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
+                    <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsFormNew, newNews, role)"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
             </li>
         </ul>
