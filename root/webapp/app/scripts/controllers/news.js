@@ -4,7 +4,16 @@
 // new news modal instance controller
 var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNews', 'NewsService',
     function ($scope, $rootScope, $modalInstance, newNews, NewsService) {
+        var i;
         $scope.newNews = newNews;
+
+        // add GLOBAL_ADMIN role to all news by default
+        for (i = 0; i < $scope.newNews.availableRoles.length; i++) {
+            if ($scope.newNews.availableRoles[i].name === 'GLOBAL_ADMIN') {
+                $scope.newNews.roles.push($scope.newNews.allRoles[$scope.newNews.availableRoles[i].id]);
+                $scope.newNews.availableRoles.splice(i, 1);
+            }
+        }
 
         $scope.ok = function () {
             newNews.creator = {};
