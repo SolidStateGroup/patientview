@@ -14,6 +14,19 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label class="control-label">Preview </label>
+            <div class="message-summary">
+                <h2 class="message-title">{{editNews.heading}}</h2>
+                <div class="last-message">
+                    <p class="message-content" ng-bind-html="parseStoryPreview(editNews.story)"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <br/>
 <button type="button" class="btn blue pull-right" ng-click="save(newsForm, editNews)" ng-disabled="newsForm.$pristine || !newsForm.$valid">Save</button>

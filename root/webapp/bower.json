@@ -9,7 +9,7 @@
     "bootstrap": "~3.0.3",
     "angular-resource": "1.2.15",
     "angular-cookies": "1.2.15",
-    "angular-sanitize": "1.2.15",
+    "angular-sanitize": "~1.2.21",
     "angular-route": "1.2.15",
     "restangular": "~1.4.0",
     "respond": "~1.4.2",
