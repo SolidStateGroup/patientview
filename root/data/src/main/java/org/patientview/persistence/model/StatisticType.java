@@ -1,6 +1,6 @@
 package org.patientview.persistence.model;
 
-import org.patientview.persistence.model.enums.Statistic;
+import org.patientview.persistence.model.enums.StatisticTypes;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,13 +20,13 @@ public class StatisticType extends GenericLookup {
 
     @Column(name = "value")
     @Enumerated(EnumType.STRING)
-    private Statistic value;
+    private StatisticTypes value;
 
-    public Statistic getValue() {
+    public StatisticTypes getValue() {
         return value;
     }
 
-    public void setValue(final Statistic value) {
+    public void setValue(final StatisticTypes value) {
         this.value = value;
     }
 

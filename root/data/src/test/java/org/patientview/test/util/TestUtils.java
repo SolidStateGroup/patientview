@@ -6,6 +6,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
@@ -18,11 +19,13 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,8 +42,11 @@ import java.util.List;
  */
 public final class TestUtils {
 
-    private TestUtils() {
+    //TODO Sprint 3 factor this into the methods to reduce parameters
+    User creator;
 
+    private TestUtils() {
+        creator = createUser(1897987L, "testCreator");
     }
 
     public static User createUser(Long id, String name) {
@@ -234,5 +240,16 @@ public final class TestUtils {
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public static GroupStatistic createGroupStatistics(Group group, BigInteger value, Lookup lookup) {
+        GroupStatistic groupStatistic = new GroupStatistic();
+        groupStatistic.setGroup(group);
+        groupStatistic.setValue(value);
+        groupStatistic.setStatisticType(lookup);
+        groupStatistic.setEndDate(new Date());
+        groupStatistic.setStartDate(new Date());
+        groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
+        return groupStatistic;
     }
 }

@@ -11,10 +11,12 @@ import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +24,7 @@ import java.util.List;
  * Created by james@solidstategroup.com
  * Created on 07/08/2014
  */
+@Service
 public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatisticsServiceImpl> implements GroupStatisticService {
 
     @Inject
@@ -44,7 +47,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
      * @throws ResourceNotFoundException
      */
     @Override
-    public List<GroupStatistic> getMonthGroupStatistics(final Long groupId)
+    public List<GroupStatistic> getMonthlyGroupStatistics(final Long groupId)
             throws ResourceNotFoundException {
 
         Group group = groupRepository.findOne(groupId);
@@ -53,16 +56,11 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         }
 
         List<GroupStatistic> groupStatistics =
-                Util.iterableToList(groupStatisticRepository.findByGroupIdAndStatisticPeriod(groupId,
+                Util.iterableToList(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
                         StatisticPeriod.MONTH));
 
         return groupStatistics;
     }
-
-    private List<GroupStatistic> getDayGroupStatistics(final Long groupId, final Date startDate, final Date endDate) {
-        return null;
-    }
-
 
     /**
      * Creates statistics for all the groups. Loop through the statistics and then the groups.
@@ -82,22 +80,22 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         for (Lookup lookup : lookupTypeRepository.findByType(LookupTypes.STATISTICS_TYPE).getLookups()) {
 
             groupStatistic.setStatisticType(lookup);
-
-            Query query = entityManager.createNativeQuery(lookup.getDescription(), Long.class);
+            Query query = entityManager.createNativeQuery(lookup.getDescription());
             query.setParameter("startDate", startDate);
             query.setParameter("endDate", endDate);
 
             for (Group group : groupRepository.findAll()) {
-
+                groupStatistic.setGroup(group);
                 query.setParameter("groupId", group.getId());
-                // Set the value and save
-                groupStatistic.setValue((Long) query.getSingleResult());
+                // Direct cast as hibernate returns BigInteger
+                groupStatistic.setValue((BigInteger) query.getSingleResult());
                 groupStatisticRepository.save(groupStatistic);
             }
             groupStatistic = createGroupStatistic(groupStatistic);
         }
     }
 
+    // Refresh the group statistic object for the next generated value
     private GroupStatistic createGroupStatistic(GroupStatistic groupStatistic) {
         GroupStatistic newGroupStatistic = new GroupStatistic();
         newGroupStatistic.setStartDate(groupStatistic.getStartDate());
@@ -106,7 +104,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         newGroupStatistic.setStatisticPeriod(groupStatistic.getStatisticPeriod());
         return newGroupStatistic;
     }
-
 
 
 }

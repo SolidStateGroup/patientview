@@ -1,5 +1,6 @@
 package org.patientview.persistence.repository;
 
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface GroupStatisticRepository extends JpaRepository<GroupStatistic, Long> {
 
-    Iterable<GroupStatistic> findByGroupIdAndStatisticPeriod(Long groupId, StatisticPeriod month);
+    Iterable<GroupStatistic> findByGroupAndStatisticPeriod(Group group, StatisticPeriod month);
 
 }

@@ -16,7 +16,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupStatisticService {
 
-    List<GroupStatistic> getMonthGroupStatistics(Long groupId) throws ResourceNotFoundException;
+    List<GroupStatistic> getMonthlyGroupStatistics(Long groupId) throws ResourceNotFoundException;
 
     void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod);
 }

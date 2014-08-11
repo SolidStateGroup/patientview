@@ -21,7 +21,7 @@ public class NewsItem extends AuditModel {
     @Column(name = "story")
     private String story;
 
-    @OneToMany(mappedBy = "newsItem", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "newsItem", cascade = CascadeType.ALL)
     private Set<NewsLink> newsLinks;
 
     public String getHeading() {

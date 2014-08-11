@@ -4,10 +4,14 @@ import org.patientview.persistence.model.enums.StatisticPeriod;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -15,7 +19,7 @@ import java.util.Date;
  * Created on 07/08/2014
  */
 @Entity
-@Table(name = "group_statistic")
+@Table(name = "pv_group_statistic")
 public class GroupStatistic extends BaseModel {
 
     @OneToOne
@@ -23,9 +27,11 @@ public class GroupStatistic extends BaseModel {
     private Group group;
 
     @Column(name = "start_date")
+    @Temporal(TemporalType.DATE)
     private Date startDate;
 
     @Column(name = "end_date")
+    @Temporal(TemporalType.DATE)
     private Date endDate;
 
     @OneToOne
@@ -33,9 +39,9 @@ public class GroupStatistic extends BaseModel {
     private Lookup statisticType;
 
     @Column(name = "value")
-    private Long value;
+    private BigInteger value;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "Collated_Period")
     private StatisticPeriod statisticPeriod;
 
@@ -71,11 +77,11 @@ public class GroupStatistic extends BaseModel {
         this.statisticType = statisticType;
     }
 
-    public Long getValue() {
+    public BigInteger getValue() {
         return value;
     }
 
-    public void setValue(final Long value) {
+    public void setValue(final BigInteger value) {
         this.value = value;
     }
 

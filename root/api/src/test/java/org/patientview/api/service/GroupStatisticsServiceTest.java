@@ -1,107 +1,155 @@
 package org.patientview.api.service;
 
-
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.patientview.api.config.TestPersistenceConfig;
-import org.patientview.api.controller.model.Statistic;
-import org.patientview.api.service.impl.GroupServiceImpl;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
-import org.patientview.test.util.DataTestUtils;
 import org.patientview.test.util.TestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.stereotype.Component;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 
 /**
- * So this is kind of an integration test but to can't win them all.
- *
+ * Created by james@solidstategroup.com
+ * Created on 11/08/2014
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-// ApplicationContext will be loaded from the static inner ContextConfiguration class
-@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
-@EnableAutoConfiguration
 public class GroupStatisticsServiceTest {
 
     User creator;
 
-    @Inject
-    GroupStatisticService groupStatisticService;
+    @Mock
+    GroupStatisticRepository groupStatisticRepository;
 
-    @Inject
+    @Mock
+    GroupRepository groupRepository;
+
+    @Mock
     LookupRepository lookupRepository;
 
-    @Inject
+    @Mock
     LookupTypeRepository lookupTypeRepository;
 
-    @Inject
-    DataTestUtils dataTestUtils;
+    @Mock
+    EntityManager entityManager;
 
-    @Configuration
-    @Import(TestPersistenceConfig.class)
-    static class config {
-        @Bean(name = "groupStatisticService")
-        public GroupStatisticService groupStatisticServiceBean() {
-            return new GroupStatisticsServiceImpl();
-        }
-    }
+    @Mock
+    Query query;
+
+    @InjectMocks
+    GroupStatisticService groupStatisticService = new GroupStatisticsServiceImpl();
 
     @Before
-    public void setup() {
-        creator = dataTestUtils.createUser("user");
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        creator = TestUtils.createUser(1L, "creator");
     }
 
+    /**
+     * Test: The retrieval of monthly statistics for groups
+     * Fail: The repository is not accessed to retrieve the results
+     */
     @Test
-    public void testGenerateGroupStatistic() {
+    public void testGetMonthlyGroupStatistics() throws ResourceNotFoundException {
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
 
-        createStatisticLookups();
+        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
 
+        groupStatisticService.getMonthlyGroupStatistics(testGroup.getId());
+
+        verify(groupStatisticRepository, Mockito.times(1)).findByGroupAndStatisticPeriod(eq(testGroup), eq(StatisticPeriod.MONTH));
+
+    }
+
+    /**
+     * Test: The generation of monthly statistics for all groups
+     * Fail: The statistics will not be generated for any groups
+     */
+    @Test
+    public void testGenerateGroupStatistics() {
+        // Create statistical lookups
+        Set<Lookup> lookups = new HashSet<>();
+        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.STATISTICS_TYPE, creator);
+        lookupType.setLookups(lookups);
+        lookupType.getLookups().add(TestUtils.createLookup(3L, lookupType, "TestStatistics1", creator));
+        lookupType.getLookups().add(TestUtils.createLookup(4L, lookupType, "TestStatistics2", creator));
+
+        // Create dates
         Calendar calendar = Calendar.getInstance();
+        Date startDate = calendar.getTime();
+        calendar.roll(Calendar.MONTH, + 1);
         Date endDate = calendar.getTime();
-        calendar.roll(Calendar.MONTH, -1);
-        Date startDate =  calendar.getTime();;
+
+        // Create groups
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        List<Group> groups = new ArrayList<>();
+        groups.add(testGroup);
+        when(groupRepository.findAll()).thenReturn(groups);
+
+
+        when(lookupTypeRepository.findByType(eq(LookupTypes.STATISTICS_TYPE))).thenReturn(lookupType);
+        when(entityManager.createNativeQuery(any(String.class))).thenReturn(query);
+        when(query.getSingleResult()).thenReturn(BigInteger.ONE);
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
 
+        // There should be 2 results returned
+        verify(query, Mockito.times(2)).setParameter(eq("startDate"), eq(startDate));
+        verify(query, Mockito.times(2)).setParameter(eq("endDate"), eq(endDate));
+
+        verify(query, Mockito.times(2)).setParameter(eq("groupId"), eq(testGroup.getId()));
+        verify(query, Mockito.times(2)).getSingleResult();
+
+        verify(groupStatisticRepository, Mockito.times(2)).save(any(GroupStatistic.class));
 
     }
 
-    private void createStatisticLookups() {
-        LookupType lookupType = TestUtils.createLookupType(null, LookupTypes.STATISTICS_TYPE, creator);
-        lookupTypeRepository.save(lookupType);
 
-        Lookup lookup = new Lookup();
-        lookup.setValue(org.patientview.persistence.model.enums.Statistic.PATIENT_COUNT.name());
-        lookup.setDescription("SELECT COUNT(1) FROM pv_user_group_role WHERE creation_date BETWEEN :startDate AND :endDate AND group_id = :groupId");
-        lookup.setLookupType(lookupType);
-        lookupRepository.save(lookup);
 
-        lookup = new Lookup();
-        lookup.setValue(org.patientview.persistence.model.enums.Statistic.LOGON_COUNT.name());
-        lookup.setDescription("SELECT COUNT(1) FROM pv_audit WHERE creation_date BETWEEN :startDate AND :endDate AND id > :groupId");
-        lookup.setLookupType(lookupType);
-        lookupRepository.save(lookup);
+    /**
+     * Test: The retrieval of monthly statistics for groups with an invalid group
+     * Fail: The exception is not thrown
+     */
+    @Test(expected = ResourceNotFoundException.class)
+    public void testGetMonthlyGroupStatistics_UnknownGroup() throws ResourceNotFoundException {
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+
+        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
+
+        groupStatisticService.getMonthlyGroupStatistics(null);
+
+        verify(groupStatisticRepository.findByGroupAndStatisticPeriod(eq(testGroup), eq(StatisticPeriod.MONTH)));
 
     }
+
+
+
+
 
 }

@@ -22,7 +22,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -44,6 +46,9 @@ public class NewsRepositoryTest {
 
     @Inject
     GroupRoleRepository groupRoleRepository;
+
+    @Inject
+    EntityManager entityManager;
 
     @Inject
     DataTestUtils dataTestUtils;
@@ -101,10 +106,46 @@ public class NewsRepositoryTest {
     }
 
     /**
-     * Test: Create a news item link it to a group, link a user to the group and then retrieve the news
+     * Test: Create a news item link it to a group, then delete the link
      * Fail: The correct news it not retrieved
      *
      */
+    @Test
+    public void testGetRoleNewsByUser_Delete() {
+
+        // Create a news item
+        NewsItem newsItem = new NewsItem();
+        newsItem.setCreator(creator);
+        newsItem.setCreated(new Date());
+        newsItemRepository.save(newsItem);
+
+        NewsLink newsLink = new NewsLink();
+        newsLink.setCreator(creator);
+        newsLink.setCreated(new Date());
+        newsLink.setNewsItem(newsItem);
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+        newsItem.getNewsLinks().add(newsLink);
+        newsItem = newsItemRepository.save(newsItem);
+
+        Assert.assertTrue(newsItem.getNewsLinks().size() == 1);
+
+        for (NewsLink newsLink1 : newsItem.getNewsLinks()) {
+            newsLink = newsLink1;
+        }
+
+        newsItem.getNewsLinks().remove(newsLink);
+        entityManager.flush();
+        newsItem = newsItemRepository.save(newsItem);
+
+        Assert.assertTrue(newsItem.getNewsLinks().size() == 0);
+
+    }
+
+        /**
+         * Test: Create a news item link it to a group, link a user to the group and then retrieve the news
+         * Fail: The correct news it not retrieved
+         *
+         */
     @Test
     public void testGetRoleNewsByUser() {
 

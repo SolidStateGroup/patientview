@@ -25,7 +25,7 @@ public class CommonConfig {
         }
     }
 
-    @Bean
+    @Bean(name = "properties")
     public Properties propertiesBean() {
         try {
             Properties props = PropertiesLoaderUtils.loadAllProperties("conf/" + environment + "-api.properties");

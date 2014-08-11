@@ -484,13 +484,14 @@ CREATE TABLE PV_Join_Request
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Group_Statistics (
+CREATE TABLE PV_Group_Statistic (
   Id               BIGINT NOT NULL,
+  Group_Id         BIGINT        REFERENCES PV_Group (Id),
   Start_Date       DATE NOT NULL,
   End_Date         DATE NOT NULL,
   Collated_Period  VARCHAR(50),
   Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
-  Value            BIGINT DEFAULT 0,
+  Value            NUMERIC(19, 2) DEFAULT 0,
   PRIMARY KEY (Id)
 );
 

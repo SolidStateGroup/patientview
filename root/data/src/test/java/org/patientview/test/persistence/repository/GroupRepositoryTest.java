@@ -45,7 +45,7 @@ public class GroupRepositoryTest {
     User creator;
 
     @Before
-    public void setup () {
+    public void setup() {
         creator = dataTestUtils.createUser("testCreator");
     }
 
@@ -132,7 +132,7 @@ public class GroupRepositoryTest {
 
         Assert.assertTrue("Group should have contact points", iter.hasNext());
 
-        ContactPoint firstContactPoint = (ContactPoint)iter.next();
+        ContactPoint firstContactPoint = (ContactPoint) iter.next();
 
         Assert.assertTrue("Contact point type should be PV_ADMIN_NAME",
                 firstContactPoint.getContactPointType().getValue().equals(ContactPointTypes.PV_ADMIN_NAME));
