@@ -1,4 +1,21 @@
-<div class="hider" ng-show="status.open"></div>
+<style>
+    .showHideText {
+        font-size: 16px;
+        line-height: 16px;
+        height: 35px;
+        overflow: hidden;
+    }
+    .show {
+        overflow: visible;
+        height: auto;
+        min-height: 35px;
+    }
+    .showHideLink {
+        font-size: 16px;
+    }
+</style>
+
+    <div class="hider" ng-show="status.open"></div>
 
 <div class="" ng-show="!loading" ng-cloak>
     <h1>News <button class="btn blue" ng-click="openModalNewNews('lg')">Create New</button></h1>
@@ -44,7 +61,13 @@
                 <h2 class="message-title">{{news.heading}}</h2>
                 <div class="last-message">
                     <p class="date-stamp"><strong>{{news.created | date:'dd-MM-yyyy HH:mm'}}</strong></p>
-                    <p class="message-content" dd-collapse-text="100">{{news.story}}</p>
+                    <p class="message-content">
+                        <div class="showHideText" ng-class="{show: show}" ng-bind-html="news.story"></div>
+                        <a href="" class="showHideLink" ng-click="show = true" ng-show="!show">show more</a><a href="" class="showHideLink" ng-click="show = false" ng-show="show">show less</a>
+                        <!--<span ng-show="!news.showMore" ng-bind-html="news.story | truncateFilter"></span>-->
+                        <!--<span ng-show="!news.showMore">{{news.story | truncateFilter}}</span>-->
+
+                    </p>
                 </div>
             </div>
         </div>
