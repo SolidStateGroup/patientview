@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -138,6 +139,8 @@ public class NewsServiceTest {
         newsLink.setId(4L);
         newsLink.setNewsItem(newsItem);
         newsLink.setGroup(TestUtils.createGroup(5L, "testGroup", creator));
+
+        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
 
         when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
         newsService.add(newsItem);
