@@ -61,7 +61,7 @@
         <div ng-hide="editNews.roles.length > 0" class="no-items">Not currently visible by people with any roles</div>
 
         <ul class="feature-list unstyled">
-            <li class="feature-list-item" ng-repeat="role in editNews.roles | orderBy:'description'">
+            <li class="feature-list-item" ng-repeat="role in editNews.roles | orderBy:'description'" ng-show="!(role.name === 'GLOBAL_ADMIN')">
                 <div class="feature-list-name"><span class="feature-list-name">{{role.description}}</span> &nbsp;
                     <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsForm, editNews, role)" ng-show="editNews.roles.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
