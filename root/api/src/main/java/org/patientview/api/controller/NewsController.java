@@ -112,7 +112,7 @@ public class NewsController extends BaseController<NewsController> {
     public ResponseEntity<Void> addGroup(@PathVariable("newsItemId") Long newsItemId,
                                          @PathVariable("groupId") Long groupId) throws ResourceNotFoundException {
         newsService.addGroup(newsItemId, groupId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/news/{newsItemId}/group/{groupId}", method = RequestMethod.DELETE)
@@ -128,7 +128,7 @@ public class NewsController extends BaseController<NewsController> {
     public ResponseEntity<Void> addRole(@PathVariable("newsItemId") Long newsItemId,
                                          @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
         newsService.addRole(newsItemId, roleId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/news/{newsItemId}/role/{roleId}", method = RequestMethod.DELETE)

@@ -120,7 +120,14 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         // manually do pagination
         int left = pageable.getOffset();
-        int right = (left + pageable.getPageSize()) > newsItems.size() ? newsItems.size() : pageable.getPageSize();
+        int right;
+
+        if ((left + pageable.getPageSize()) > newsItems.size()) {
+            right = newsItems.size();
+        } else {
+            right = pageable.getPageSize();
+        }
+
         List<NewsItem> pagedNewsItems = new ArrayList<>();
 
         if (!newsItems.isEmpty()) {
