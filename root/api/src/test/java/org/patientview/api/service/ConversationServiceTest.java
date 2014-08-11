@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.ConversationServiceImpl;
@@ -19,9 +18,6 @@ import org.patientview.persistence.model.enums.MessageTypes;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
 import java.util.HashSet;
