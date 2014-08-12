@@ -16,4 +16,5 @@ import org.springframework.transaction.annotation.Transactional;
 public interface LookupTypeRepository extends CrudRepository<LookupType, Long> {
 
     public LookupType findByType(LookupTypes type);
+
 }

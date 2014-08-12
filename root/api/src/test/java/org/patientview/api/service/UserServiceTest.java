@@ -20,6 +20,7 @@ import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -116,7 +117,7 @@ public class UserServiceTest {
         newUser.getGroupRoles().add(groupRole);
 
         // Add test identifier, with lookup type IDENTIFIER, value NHS_NUMBER
-        LookupType lookupType = TestUtils.createLookupType(8L, "IDENTIFIER", creator);
+        LookupType lookupType = TestUtils.createLookupType(8L, LookupTypes.IDENTIFIER, creator);
         Lookup lookup = TestUtils.createLookup(9L, lookupType, "NHS_NUMBER", creator);
         Identifier identifier = TestUtils.createIdentifier(10L, lookup, newUser, creator);
         newUser.setIdentifiers(new HashSet<Identifier>());

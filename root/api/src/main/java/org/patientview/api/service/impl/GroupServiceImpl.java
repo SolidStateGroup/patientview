@@ -263,9 +263,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     private void saveGroupRelationships(Group group) {
 
-        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
-        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
-
         // delete existing groups
         groupRelationshipRepository.deleteBySourceGroup(group);
 

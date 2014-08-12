@@ -8,17 +8,24 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.aspect.SecurityAspect;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.JoinRequestService;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.test.util.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -27,6 +34,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
 import java.util.Date;
 
 import static org.mockito.Matchers.eq;
@@ -43,6 +51,8 @@ public class GroupControllerTest {
 
     private ObjectMapper mapper = new ObjectMapper();
 
+    User creator;
+
     @Mock
     private AdminService adminService;
 
@@ -52,6 +62,15 @@ public class GroupControllerTest {
     @Mock
     private JoinRequestService joinRequestService;
 
+    @Mock
+    private GroupStatisticService groupStatisticService;
+
+    @Mock
+    private GroupRepository groupRepository;
+
+    @InjectMocks
+    private SecurityAspect securityAspect = SecurityAspect.aspectOf();
+
     @InjectMocks
     private GroupController groupController;
 
@@ -59,6 +78,7 @@ public class GroupControllerTest {
 
     @Before
     public void setup() {
+        creator = TestUtils.createUser(1L, "creator");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
     }
@@ -272,4 +292,29 @@ public class GroupControllerTest {
     }
 
 
+    /**
+     * Test: The retrieval of the group statistics for a specific group
+     * Fail: The statistics service is not contacted about the request
+     */
+    @Test
+    public void testGroupStatistics() throws ResourceNotFoundException {
+
+        Group group = TestUtils.createGroup(1L,"testGroup", creator);
+        TestUtils.authenticateTest(TestUtils.createUser(2L, "testUser"), Collections.<Role>emptyList());
+
+        when(groupRepository.findOne(group.getId())).thenReturn(group);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/statistics"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(groupStatisticService, Mockito.times(1)).getMonthlyGroupStatistics(eq(group.getId()));
+
+    }
+
 }
+
+

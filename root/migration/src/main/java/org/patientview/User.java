@@ -53,6 +53,9 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "forename")
     private String forename;
 
+    @Column(name = "failed_logon_attempts")
+    private Integer failedLogonAttempts;
+
     @Column(name = "surname")
     private String surname;
 
@@ -249,5 +252,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setContactNumber(final String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public Integer getFailedLogonAttempts() {
+        return failedLogonAttempts;
+    }
+
+    public void setFailedLogonAttempts(final Integer failedLogonAttempts) {
+        this.failedLogonAttempts = failedLogonAttempts;
     }
 }

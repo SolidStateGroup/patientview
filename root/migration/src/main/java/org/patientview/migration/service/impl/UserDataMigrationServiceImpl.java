@@ -224,6 +224,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setPassword(user.getPassword());
         newUser.setLocked(user.isAccountlocked());
         newUser.setDummy(user.isDummypatient());
+        newUser.setFailedLogonAttempts(user.getFailedlogons());
+
         if (StringUtils.isEmpty(user.getEmail())) {
             newUser.setEmail("Unknown@patientview.org");
         } else{
@@ -234,7 +236,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         return newUser;
     }
 
-    public List<Group> getUserSpecialty(org.patientview.patientview.model.User  oldUser) {
+    public List<Group> getUserSpecialty(org.patientview.patientview.model.User oldUser) {
 
         List<Group> groups = new ArrayList<Group>();
 

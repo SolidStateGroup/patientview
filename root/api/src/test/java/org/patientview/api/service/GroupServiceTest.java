@@ -125,7 +125,7 @@ public class GroupServiceTest {
         Group childGroup = TestUtils.createGroup(3L, "childGroup", creator);
 
         // Create relationships
-        LookupType relationshipType = TestUtils.createLookupType(4L, "RELATIONSHIP_TYPE", creator);
+        LookupType relationshipType = TestUtils.createLookupType(4L, LookupTypes.RELATIONSHIP_TYPE, creator);
         Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
 
         Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "PARENT", creator);
@@ -177,7 +177,7 @@ public class GroupServiceTest {
         testGroup.setParentGroups(parentGroups);
 
         // Create relationships lookups
-        LookupType relationshipType = TestUtils.createLookupType(4L, "RELATIONSHIP_TYPE", creator);
+        LookupType relationshipType = TestUtils.createLookupType(4L, LookupTypes.RELATIONSHIP_TYPE, creator);
         Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
         Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
 
@@ -217,7 +217,7 @@ public class GroupServiceTest {
         testGroup.setParentGroups(parentGroups);
 
         // Create relationships loopkups
-        LookupType relationshipType = TestUtils.createLookupType(4L, "RELATIONSHIP_TYPE", creator);
+        LookupType relationshipType = TestUtils.createLookupType(4L, LookupTypes.RELATIONSHIP_TYPE, creator);
         Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
         Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
 
@@ -361,7 +361,7 @@ public class GroupServiceTest {
         roles.add(role);
 
         // Create relationships lookups
-        LookupType relationshipType = TestUtils.createLookupType(5L, "RELATIONSHIP_TYPE", creator);
+        LookupType relationshipType = TestUtils.createLookupType(5L, LookupTypes.RELATIONSHIP_TYPE, creator);
         Lookup parentRelationship = TestUtils.createLookup(6L, relationshipType, "PARENT", creator);
         Lookup childRelationship = TestUtils.createLookup(7L, relationshipType, "CHILD", creator);
 
