@@ -11,6 +11,7 @@ import org.patientview.persistence.model.RoleType;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -64,7 +65,7 @@ public class DataTestUtils {
     @Inject
     RouteRepository routeRepository;
 
-    public Lookup createLookup(String lookupName, String lookupTypeName, User creator) {
+    public Lookup createLookup(String lookupName, LookupTypes lookupTypeName, User creator) {
 
         LookupType lookupType = TestUtils.createLookupType(null, lookupTypeName, creator);
         lookupType.setCreator(creator);

@@ -52,7 +52,7 @@ angular.module('patientviewApp').directive('checkStrength', function () {
                 };
 
                 scope.$watch(iAttrs.checkStrength, function () {
-                    if (scope.pw === '') {
+                    if (scope.pw === '' || typeof scope.pw  === "undefined") {
                         iElement.css({ "display": "none"  });
                     } else {
                         var c = strength.getColor(strength.measureStrength(scope.pw));
