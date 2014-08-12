@@ -247,14 +247,14 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                         // set available roles and groups by removing existing
                         for (i = 0; i < $scope.editNews.availableRoles.length; i++) {
                             for (j = 0; j < $scope.editNews.roles.length; j++) {
-                                if ($scope.editNews.availableRoles[i].id === $scope.editNews.roles[j].id) {
+                                if ($scope.editNews.availableRoles[i] && ($scope.editNews.availableRoles[i].id === $scope.editNews.roles[j].id)) {
                                     $scope.editNews.availableRoles.splice(i, 1);
                                 }
                             }
                         }
                         for (i = 0; i < $scope.editNews.availableGroups.length; i++) {
                             for (j = 0; j < $scope.editNews.groups.length; j++) {
-                                if ($scope.editNews.availableGroups[i].id === $scope.editNews.groups[j].id) {
+                                if ($scope.editNews.availableGroups[i] && ($scope.editNews.availableGroups[i].id === $scope.editNews.groups[j].id)) {
                                     $scope.editNews.availableGroups.splice(i, 1);
                                 }
                             }
