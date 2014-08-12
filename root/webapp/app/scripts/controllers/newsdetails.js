@@ -16,6 +16,7 @@ angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsS
                         if (newsItem.availableGroups[i].id === groupId) {
                             newsItem.groups.push(newsItem.allGroups[groupId]);
                             newsItem.availableGroups.splice(i, 1);
+                            newsItem.newsLinks = NewsService.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
                         }
                     }
                 }, function () {
@@ -26,6 +27,7 @@ angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsS
                     if (newsItem.availableGroups[i].id === groupId) {
                         newsItem.groups.push(newsItem.allGroups[groupId]);
                         newsItem.availableGroups.splice(i, 1);
+                        newsItem.newsLinks = NewsService.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
                     }
                 }
             }
@@ -40,6 +42,7 @@ angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsS
                         if (newsItem.groups[i].id === group.id) {
                             newsItem.availableGroups.push(newsItem.allGroups[group.id]);
                             newsItem.groups.splice(i, 1);
+                            newsItem.newsLinks = NewsService.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
                         }
                     }
                 }, function () {
@@ -50,6 +53,7 @@ angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsS
                     if (newsItem.groups[i].id === group.id) {
                         newsItem.availableGroups.push(newsItem.allGroups[group.id]);
                         newsItem.groups.splice(i, 1);
+                        newsItem.newsLinks = NewsService.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
                     }
                 }
             }
@@ -64,6 +68,7 @@ angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsS
                         if (newsItem.availableRoles[i].id === roleId) {
                             newsItem.roles.push(newsItem.allRoles[roleId]);
                             newsItem.availableRoles.splice(i, 1);
+                            newsItem.newsLinks = NewsService.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
                         }
                     }
                 }, function () {
@@ -74,6 +79,7 @@ angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsS
                     if (newsItem.availableRoles[i].id === roleId) {
                         newsItem.roles.push(newsItem.allRoles[roleId]);
                         newsItem.availableRoles.splice(i, 1);
+                        newsItem.newsLinks = NewsService.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
                     }
                 }
             }
@@ -88,6 +94,7 @@ angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsS
                         if (newsItem.roles[i].id === role.id) {
                             newsItem.availableRoles.push(newsItem.allRoles[role.id]);
                             newsItem.roles.splice(i, 1);
+                            newsItem.newsLinks = NewsService.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
                         }
                     }
                 }, function () {
@@ -98,6 +105,7 @@ angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsS
                     if (newsItem.roles[i].id === role.id) {
                         newsItem.availableRoles.push(newsItem.allRoles[role.id]);
                         newsItem.roles.splice(i, 1);
+                        newsItem.newsLinks = NewsService.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
                     }
                 }
             }

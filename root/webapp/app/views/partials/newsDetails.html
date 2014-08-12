@@ -19,10 +19,10 @@
         <div class="col-md-12">
             <label class="control-label">Preview </label>
             <div class="message-summary">
-                <h2 class="message-title">{{editNews.heading}}                
-                    <span ng-repeat="newsLink in news.newsLinks" class="pull-right">&nbsp;
-                        <span class="label label-primary" ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>&nbsp;
-                        <span class="label label-success" ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
+                <h2 class="message-title">{{editNews.heading}}
+                    <span ng-repeat="newsLink in editNews.newsLinks" class="pull-right">
+                        <span class="label label-primary" ng-show="newsLink.group != null && editNews.allGroups[newsLink.group.id].groupType.value == 'SPECIALTY'">{{editNews.allGroups[newsLink.group.id].name}}</span>
+                        <span class="label label-success" ng-show="newsLink.role != null && editNews.allRoles[newsLink.role.id].name === 'PUBLIC'">{{editNews.allRoles[newsLink.role.id].description}}</span>
                     </span>
                 </h2>
                 <div class="last-message">
@@ -52,7 +52,7 @@
         </ul>
         <div class="group-add-container item-add-container" ng-show="editNews.availableGroups.length > 0">
             <div class="custom-select">
-                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in editNews.availableGroups | orderBy:'name'"></select>
+                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editNews.availableGroups | orderBy:'name'"></select>
             </div>
             <button type="button" class="btn blue group-add-button pull-left" ng-click="addGroup(newsForm, editNews, groupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
         </div>
