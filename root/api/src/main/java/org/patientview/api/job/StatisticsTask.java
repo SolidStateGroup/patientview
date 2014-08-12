@@ -1,7 +1,7 @@
 package org.patientview.api.job;
 
 import org.patientview.api.service.GroupStatisticService;
-import org.patientview.api.timer.Timer;
+import org.patientview.api.service.Timer;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,14 +45,15 @@ public class StatisticsTask {
             Date endDate = calendar.getTime();
             calendar.roll(Calendar.MONTH, -1);
             Date startDate = calendar.getTime();
-            groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
+            groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.CUMULATIVE_MONTH);
         }
     }
 
     /**
      * Cumulative stats for the month, run once a day.
      */
-    @Scheduled(cron = "*/5 * * * * *") //every five minutes
+    //@Scheduled(cron = "*/5 * * * * *") //every five minutes
+    @Scheduled(fixedRate = 5000L)
     public void executeDaily() {
         LOG.info("Executing daily statistics");
         Calendar calendar = timer.getCurrentDate();

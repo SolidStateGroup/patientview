@@ -2,51 +2,79 @@
     <h3 class="modal-title">Statistics</h3>
 </div>
 <div class="modal-body">
-    <p>{{statistics}}</p>
 
-    <table>
-        <th>
-            <tr>
-                <td>
-                    Date
-                </td>
-                <td>
-                    Number of Patients
-                </td>
-                <td>
-                    Number of Logons
-                </td>
-                <td>
-                    Number of Unique Logons
-                </td>
-                <td>
-                    Number of Patients Added
-                </td>
-                <td>
-                    Number of Imports
-                </td>
-                <td>
-                    Number of Imports Failed
-                </td>
-                <td>
-                    NUmber of Passwords Changed
-                </td>
-                <td>
-                    Number of Accounts Locked
-                </td>
-                <td>
-                    Number of Patients Remove
-                </td>
-                <td>
-                    Number of Patients Deleted
-                </td>
-            </tr>
-        </th>
+    <table class="table">
+        <tr>
+            <th>
+                Date
+            </th>
+            <th>
+                Patients
+            </th>
+            <th>
+                Logons
+            </th>
+            <th>
+                Unique Logons
+            </th>
+            <th>
+                Patients Added
+            </th>
+            <th>
+                Imports
+            </th>
+            <th>
+                Imports Failed
+            </th>
+            <th>
+                Passwords Changed
+            </th>
+            <th>
+                Accounts Locked
+            </th>
+            <th>
+                Patients Remove
+            </th>
+            <th>
+                Patients Deleted
+            </th>
+        </tr>
         <tbody>
-            <tr>
-                
+            <tr ng-repeat="statistic in statistics">
+                <td>
+                    {{statistic.startDate}}-{{statistic.endDate}}
+                </td>
+                <td>
+                    {{statistic.countOfPatients}}
+                </td>
+                <td>
+                    {{statistic.countOfLogons}}
+                </td>
+                <td>
+                    {{statistic.countOfUniqueLogons}}
+                </td>
+                <td>
+                    {{statistic.countOfPatientViews}}
+                </td>
+                <td>
+                    {{statistic.countOfImportLoads}}
+                </td>
+                <td>
+                    {{statistic.countOfImportFails}}
+                </td>
+                <td>
+                    {{statistic.countOfPasswordChanges}}
+                </td>
+                <td>
+                    {{statistic.countOfAccountLocks}}
+                </td>
+                <td>
+                    {{statistic.countOfPatientRemoves}}
+                </td>
+                <td>
+                    {{statistic.countOfPatientDeletes}}
+                </td>
             </tr>
-
         </tbody>
     </table>
 </div>

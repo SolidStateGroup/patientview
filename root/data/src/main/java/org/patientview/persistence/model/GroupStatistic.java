@@ -92,4 +92,5 @@ public class GroupStatistic extends BaseModel {
     public void setStatisticPeriod(final StatisticPeriod statisticPeriod) {
         this.statisticPeriod = statisticPeriod;
     }
+
 }

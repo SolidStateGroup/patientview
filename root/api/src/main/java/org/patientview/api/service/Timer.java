@@ -1,4 +1,4 @@
-package org.patientview.api.timer;
+package org.patientview.api.service;
 
 import java.util.Calendar;
 

@@ -77,31 +77,43 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         groupStatistic.setEndDate(endDate);
         groupStatistic.setStatisticPeriod(statisticPeriod);
 
-        for (Lookup lookup : lookupTypeRepository.findByType(LookupTypes.STATISTICS_TYPE).getLookups()) {
+        for (Group group : groupRepository.findAll()) {
 
-            groupStatistic.setStatisticType(lookup);
-            Query query = entityManager.createNativeQuery(lookup.getDescription());
-            query.setParameter("startDate", startDate);
-            query.setParameter("endDate", endDate);
+            groupStatisticRepository.deleteByGroupStartDateAndPeriod(group, startDate, statisticPeriod);
+            groupStatistic.setGroup(group);
 
-            for (Group group : groupRepository.findAll()) {
-                groupStatistic.setGroup(group);
+            for (Lookup lookup : lookupTypeRepository.findByType(LookupTypes.STATISTIC_TYPE).getLookups()) {
+
+                groupStatistic.setStatisticType(lookup);
+
+                Query query = entityManager.createNativeQuery(lookup.getDescription());
+                query.setParameter("startDate", startDate);
+                query.setParameter("endDate", endDate);
                 query.setParameter("groupId", group.getId());
+
+                LOG.debug("Process statistic {}", groupStatistic.getStatisticType().getValue());
                 // Direct cast as hibernate returns BigInteger
-                groupStatistic.setValue((BigInteger) query.getSingleResult());
+                try {
+                    groupStatistic.setValue((BigInteger) query.getSingleResult());
+                } catch (Exception sge) {
+                    LOG.error("The SQL is invalid ", sge);
+                    LOG.error("The SQL is: " + lookup.getDescription());
+                }
                 groupStatisticRepository.save(groupStatistic);
+                groupStatistic = createGroupStatistic(groupStatistic, group);
             }
-            groupStatistic = createGroupStatistic(groupStatistic);
+
         }
     }
 
-    // Refresh the group statistic object for the next generated value
-    private GroupStatistic createGroupStatistic(GroupStatistic groupStatistic) {
+    // Refresh the group statistic object for the next statistics
+    private GroupStatistic createGroupStatistic(GroupStatistic groupStatistic, Group group) {
         GroupStatistic newGroupStatistic = new GroupStatistic();
         newGroupStatistic.setStartDate(groupStatistic.getStartDate());
         newGroupStatistic.setEndDate(groupStatistic.getEndDate());
         newGroupStatistic.setStartDate(groupStatistic.getStartDate());
         newGroupStatistic.setStatisticPeriod(groupStatistic.getStatisticPeriod());
+        newGroupStatistic.setGroup(group);
         return newGroupStatistic;
     }
 

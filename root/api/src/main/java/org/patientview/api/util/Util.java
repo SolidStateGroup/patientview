@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by james@solidstategroup.com
@@ -90,12 +90,13 @@ public class Util {
     // TODO sprint 3 included in the ENUM fix
     public static Collection<GroupStatisticTO> convertGroupStatistics(final List<GroupStatistic> groupStatistics) {
 
-        Map<Date, GroupStatisticTO> groupStatisticTOs = new HashMap<>();
-        GroupStatisticTO groupStatisticTO = new GroupStatisticTO();
+        Map<Date, GroupStatisticTO> groupStatisticTOs = new TreeMap<>();
 
         for (GroupStatistic groupStatistic : groupStatistics) {
             StatisticTypes statisticType = StatisticTypes.valueOf(groupStatistic.getStatisticType().getValue());
-
+            GroupStatisticTO groupStatisticTO = getGroupStatisticTO(groupStatisticTOs, groupStatistic.getStartDate());
+            groupStatisticTO.setStartDate(groupStatistic.getStartDate());
+            groupStatisticTO.setEndDate(groupStatistic.getEndDate());
             switch (statisticType) {
                 case ADD_PATIENT_COUNT:
                     groupStatisticTO.setCountOfPatientAdds(groupStatistic.getValue());
@@ -130,13 +131,17 @@ public class Util {
                 case REMOVE_PATIENT_COUNT:
                     groupStatisticTO.setCountOfPatientRemoves(groupStatistic.getValue());
                     break;
-
             }
-
         }
         return groupStatisticTOs.values();
     }
 
+    private static GroupStatisticTO getGroupStatisticTO(Map<Date, GroupStatisticTO> groupStatisticTOMap, Date startDate)  {
+        if (groupStatisticTOMap.get(startDate) == null) {
+            groupStatisticTOMap.put(startDate, new GroupStatisticTO());
+        }
+        return groupStatisticTOMap.get(startDate);
+    }
 
 }
 

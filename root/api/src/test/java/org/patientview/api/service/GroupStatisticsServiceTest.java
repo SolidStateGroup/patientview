@@ -96,7 +96,7 @@ public class GroupStatisticsServiceTest {
     public void testGenerateGroupStatistics() {
         // Create statistical lookups
         Set<Lookup> lookups = new HashSet<>();
-        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.STATISTICS_TYPE, creator);
+        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.STATISTIC_TYPE, creator);
         lookupType.setLookups(lookups);
         lookupType.getLookups().add(TestUtils.createLookup(3L, lookupType, "TestStatistics1", creator));
         lookupType.getLookups().add(TestUtils.createLookup(4L, lookupType, "TestStatistics2", creator));
@@ -114,7 +114,7 @@ public class GroupStatisticsServiceTest {
         when(groupRepository.findAll()).thenReturn(groups);
 
 
-        when(lookupTypeRepository.findByType(eq(LookupTypes.STATISTICS_TYPE))).thenReturn(lookupType);
+        when(lookupTypeRepository.findByType(eq(LookupTypes.STATISTIC_TYPE))).thenReturn(lookupType);
         when(entityManager.createNativeQuery(any(String.class))).thenReturn(query);
         when(query.getSingleResult()).thenReturn(BigInteger.ONE);
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);

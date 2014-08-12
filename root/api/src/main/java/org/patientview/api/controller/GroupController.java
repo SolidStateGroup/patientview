@@ -31,6 +31,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -252,11 +253,9 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<GroupStatisticTO> getStatistics(@PathVariable("groupId") Long groupId)
+    public ResponseEntity<Collection<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException {
-        GroupStatisticTO groupStatisticTO = Util.convertGroupStatistics(groupStatisticService.getMonthlyGroupStatistics(groupId));
+        Collection<GroupStatisticTO> groupStatisticTO = Util.convertGroupStatistics(groupStatisticService.getMonthlyGroupStatistics(groupId));
         return new ResponseEntity<>(groupStatisticTO, HttpStatus.OK);
     }
-
-
 }

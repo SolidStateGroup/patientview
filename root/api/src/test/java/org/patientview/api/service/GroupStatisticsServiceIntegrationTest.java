@@ -96,7 +96,7 @@ public class GroupStatisticsServiceIntegrationTest {
     }
 
     private void createStatisticLookups() {
-        LookupType lookupType = TestUtils.createLookupType(null, LookupTypes.STATISTICS_TYPE, creator);
+        LookupType lookupType = TestUtils.createLookupType(null, LookupTypes.STATISTIC_TYPE, creator);
         lookupTypeRepository.save(lookupType);
 
         Lookup lookup = new Lookup();

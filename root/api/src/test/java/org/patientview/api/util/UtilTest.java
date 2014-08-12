@@ -14,6 +14,7 @@ import org.patientview.test.util.TestUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,7 +64,6 @@ public class UtilTest {
         Assert.assertTrue("We have 10 results in our list", groupList.size() == sizeOfList);
     }
 
-    @Test
     public void testGetRoles() throws Exception {
 
     }
@@ -81,10 +81,10 @@ public class UtilTest {
     public void convertStatisticListToModelObject() {
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
         List<GroupStatistic> groupStatistics = createGroupStatistics(testGroup);
-        List<GroupStatisticTO> groupStatisticTOs = Util.convertGroupStatistics(groupStatistics);
+        Collection<GroupStatisticTO> groupStatisticTOs = Util.convertGroupStatistics(groupStatistics);
 
         // Get the only statistic
-        GroupStatisticTO groupStatisticTO = groupStatisticTOs.get(0);
+        GroupStatisticTO groupStatisticTO = (GroupStatisticTO) groupStatisticTOs.toArray()[0];
 
         // Make sure the count is set to ten for all the properties
         Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatients() == BigInteger.TEN);
@@ -106,7 +106,7 @@ public class UtilTest {
     private List<GroupStatistic> createGroupStatistics(Group group) {
         List<GroupStatistic> groupStatistics = new ArrayList<>();
 
-        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.STATISTICS_TYPE, creator);
+        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.STATISTIC_TYPE, creator);
 
         int i = 0;
         for (StatisticTypes statisticType : StatisticTypes.values()) {

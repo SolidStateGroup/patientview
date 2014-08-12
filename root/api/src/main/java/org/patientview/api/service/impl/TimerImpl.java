@@ -1,6 +1,6 @@
-package org.patientview.api.timer.impl;
+package org.patientview.api.service.impl;
 
-import org.patientview.api.timer.Timer;
+import org.patientview.api.service.Timer;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;

@@ -5,5 +5,5 @@ package org.patientview.persistence.model.enums;
  * Created on 07/08/2014
  */
 public enum StatisticPeriod {
-    DAY, MONTH;
+    DAY, MONTH, CUMULATIVE_MONTH;
 }

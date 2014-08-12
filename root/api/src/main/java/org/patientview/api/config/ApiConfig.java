@@ -23,7 +23,7 @@ import java.util.Properties;
  * Created on 03/06/2014.
  */
 @Configuration
-@ComponentScan(basePackages = {"org.patientview.api.service","org.patientview.api.aspect","org.patientview.api.task"})
+@ComponentScan(basePackages = {"org.patientview.api.service","org.patientview.api.aspect","org.patientview.api.job"})
 @EnableWebMvc
 @EnableScheduling
 public class ApiConfig {

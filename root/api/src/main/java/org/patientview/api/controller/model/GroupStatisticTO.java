@@ -1,6 +1,7 @@
 package org.patientview.api.controller.model;
 
 import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * TODO refactor the others classes into ...TO or put in a different package
@@ -8,7 +9,10 @@ import java.math.BigInteger;
  * Created by james@solidstategroup.com
  * Created on 07/08/2014
  */
-public class GroupStatisticTO {
+public class GroupStatisticTO implements Comparable {
+
+    private Date startDate;
+    private Date endDate;
 
     private BigInteger countOfPatients = BigInteger.ZERO;
     private BigInteger countOfLogons = BigInteger.ZERO;
@@ -108,5 +112,35 @@ public class GroupStatisticTO {
 
     public void setCountOfPatientDeletes(final BigInteger countOfPatientDeletes) {
         this.countOfPatientDeletes = countOfPatientDeletes;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(final Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(final Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public int compareTo(Object o) {
+        if (o != null && o instanceof GroupStatisticTO) {
+            GroupStatisticTO groupStatisticTO = (GroupStatisticTO) o;
+            if (this.getStartDate().getTime() < groupStatisticTO.getStartDate().getTime()) {
+                return -1;
+            } else if (this.getStartDate().getTime() > groupStatisticTO.getStartDate().getTime()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        return -1;
     }
 }
