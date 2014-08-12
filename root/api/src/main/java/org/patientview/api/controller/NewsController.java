@@ -152,4 +152,17 @@ public class NewsController extends BaseController<NewsController> {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @RequestMapping(value = "/news/{newsItemId}/newslinks/{newsLinkId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Void> removeNewsLink(@PathVariable("newsItemId") Long newsItemId,
+                                               @PathVariable("newsLinkId") Long newsLinkId)
+                                        throws ResourceNotFoundException {
+        try {
+            newsService.removeNewsLink(newsItemId, newsLinkId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

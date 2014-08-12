@@ -82,10 +82,21 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // Add new group and role to news links
-        addGroupAndRole: function (newsId, groupId, roleId) {
+        addGroupAndRole: function (newsItemId, groupId, roleId) {
             var deferred = $q.defer();
             // PUT /group/{groupId}/role/{roleId}/news/{newsId}
-            Restangular.one('group',groupId).one('role', roleId).one('news', newsId).put().then(function(successResult) {
+            Restangular.one('group',groupId).one('role', roleId).one('news', newsItemId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // remove a news link
+        removeNewsLink: function (newsItemId, newsLinkId) {
+            var deferred = $q.defer();
+            // DELETE /news/{newsItemId}/newslinks/{newsLinkId}
+            Restangular.one('news',newsItemId).one('newslinks', newsLinkId).remove().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

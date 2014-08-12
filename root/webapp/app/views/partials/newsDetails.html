@@ -21,8 +21,8 @@
             <div class="message-summary">
                 <h2 class="message-title">{{editNews.heading}}
                     <span ng-repeat="newsLink in editNews.newsLinks" class="pull-right news-link-labels">
-                        <span class="label label-primary" ng-show="newsLink.group != null && editNews.allGroups[newsLink.group.id].groupType.value == 'SPECIALTY'">{{editNews.allGroups[newsLink.group.id].name}}</span>
-                        <span class="label label-success" ng-show="newsLink.role != null && editNews.allRoles[newsLink.role.id].name === 'PUBLIC'">{{editNews.allRoles[newsLink.role.id].description}}</span>
+                        <span class="label label-primary" ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
+                        <span class="label label-success" ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
                     </span>
                 </h2>
                 <div class="last-message">
@@ -40,43 +40,24 @@
 <div class="row form-edit-row">
     <hr/>
     <div class="col-md-6">
-        <label>Visible to Groups</label>
-        <div ng-hide="editNews.groups.length > 0" class="no-items">Not currently visible by any groups</div>
-
-        <ul class="feature-list unstyled">
-            <li class="feature-list-item" ng-repeat="group in editNews.groups | orderBy:'name'">
-                <div class="feature-list-name"><span class="feature-list-name">{{group.name}}</span> &nbsp;
-                    <a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(newsForm, editNews, group)"><i class="glyphicon glyphicon-remove"></i></a>
-                </div>
+        <label class="inner-title">Groups &amp; Roles </label>
+        <ul class="group-list-item unstyled inline clearfix" ng-repeat="newsLink in editNews.newsLinks" ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">
+            <li class="group-list-name pull-left">
+                <span class="group-list-name" ng-show="newsLink.group">{{newsLink.group.name}}</span>
+                <span class="group-list-name" ng-show="!newsLink.group.id">All Groups</span>
             </li>
-        </ul>
-        <div class="group-add-container item-add-container" ng-show="editNews.availableGroups.length > 0">
-            <div class="custom-select">
-                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editNews.availableGroups | orderBy:'name'"></select>
-            </div>
-            <button type="button" class="btn blue group-add-button pull-left" ng-click="addGroup(newsForm, editNews, groupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
-        </div>
-    </div>
-</div>
-
-<div class="row form-edit-row">
-    <hr/>
-    <div class="col-md-6">
-        <label>Visible to Roles</label>
-        <div ng-hide="editNews.roles.length > 0" class="no-items">Not currently visible by people with any roles</div>
-
-        <ul class="feature-list unstyled">
-            <li class="feature-list-item" ng-repeat="role in editNews.roles | orderBy:'description'" ng-show="!(role.name === 'GLOBAL_ADMIN')">
-                <div class="feature-list-name"><span class="feature-list-name">{{role.description}}</span> &nbsp;
-                    <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsForm, editNews, role)"><i class="glyphicon glyphicon-remove"></i></a>
-                </div>
+            <li class="group-list-role  pull-left">
+                <span class="group-list-role" ng-show="newsLink.role">{{newsLink.role.description}}</span>
+                <span class="group-list-role" ng-show="!newsLink.role.id">All Roles</span>
             </li>
+            <li class="group-list-delete negative pull-left"><span class="group-list-delete"><a id="remove-group-{{newsLink.group.id}}" href="" ng-click="removeNewsLink(newsForm, editNews, newsLink)" >Delete</a></span></li>
         </ul>
-        <div class="group-add-container item-add-container" ng-show="editNews.availableRoles.length > 0">
-            <div class="custom-select">
-                <select class="form-control group-select" ng-model="roleToAdd" ng-options="role.id as role.description for role in editNews.availableRoles | orderBy:'description'"></select>
+        <div class="group-add-container">
+            <div class="group-list-item">
+                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editNews.allGroups | orderBy:['groupType.value','name']"></select>
+                <div buttongroup="" buttongroupname="role" model="roleToAdd" options="editNews.allRoles" ng-init="roleToAdd" ng-click="selectRole(userFormNew, editNews, $event)"></div>
             </div>
-            <button type="button" class="btn blue group-add-button pull-left" ng-click="addRole(newsForm, editNews, roleToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
+            <div class=""><button type="button" class="btn btn-primary group-add-button" ng-click="addNewsLink(newsForm, editNews, groupToAdd, roleToAdd)" ng-disabled="!roleToAdd">Add</button></div>
         </div>
     </div>
 </div>
