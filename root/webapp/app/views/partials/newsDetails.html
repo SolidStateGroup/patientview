@@ -19,7 +19,12 @@
         <div class="col-md-12">
             <label class="control-label">Preview </label>
             <div class="message-summary">
-                <h2 class="message-title">{{editNews.heading}}</h2>
+                <h2 class="message-title">{{editNews.heading}}                
+                    <span ng-repeat="newsLink in news.newsLinks" class="pull-right">&nbsp;
+                        <span class="label label-primary" ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>&nbsp;
+                        <span class="label label-success" ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
+                    </span>
+                </h2>
                 <div class="last-message">
                     <p class="message-content" ng-bind-html="parseStoryPreview(editNews.story)"></p>
                 </div>
