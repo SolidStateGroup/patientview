@@ -59,8 +59,8 @@
             </ul>
             <div class="message-summary">
                 <h2 class="message-title">{{news.heading}}
-                    <span ng-repeat="newsLink in news.newsLinks" class="pull-right">&nbsp;
-                        <span class="label label-primary" ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>&nbsp;
+                    <span ng-repeat="newsLink in news.newsLinks" class="pull-right news-link-labels">
+                        <span class="label label-primary" ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
                         <span class="label label-success" ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
                     </span>
                 </h2>

@@ -20,7 +20,7 @@
             <label class="control-label">Preview </label>
             <div class="message-summary">
                 <h2 class="message-title">{{editNews.heading}}
-                    <span ng-repeat="newsLink in editNews.newsLinks" class="pull-right">
+                    <span ng-repeat="newsLink in editNews.newsLinks" class="pull-right news-link-labels">
                         <span class="label label-primary" ng-show="newsLink.group != null && editNews.allGroups[newsLink.group.id].groupType.value == 'SPECIALTY'">{{editNews.allGroups[newsLink.group.id].name}}</span>
                         <span class="label label-success" ng-show="newsLink.role != null && editNews.allRoles[newsLink.role.id].name === 'PUBLIC'">{{editNews.allRoles[newsLink.role.id].description}}</span>
                     </span>

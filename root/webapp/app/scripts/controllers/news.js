@@ -288,7 +288,6 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                         var newsItemToUpdate = $scope.pagedItems[i];
                         newsItemToUpdate.heading = entityNews.heading;
                         newsItemToUpdate.story = entityNews.story;
-                        newsItemToUpdate.newsLinks = entityNews.newsLinks;
                     }
                 }
             }, function () {
