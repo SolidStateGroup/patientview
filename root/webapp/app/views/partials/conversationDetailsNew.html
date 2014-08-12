@@ -1,20 +1,25 @@
 
-<ul class="feature-list">
-    <li class="feature-list-item" ng-repeat="user in newConversation.recipients">
-        <div class="feature-list-name"><span class="feature-list-name">{{user.forename}} {{user.surname}}</span> &nbsp;
-            <a id="remove-recipient-{{user.id}}" href="" ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
-        </div>
-    </li>
-</ul>
-
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
-            <div class="custom-select">
-                <select class="form-control recipient-select" id="conversation-add-recipient" ng-model="recipientToAdd" ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
-            </div>
-            <button type="button" class="btn blue recipient-add-button pull-left" ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)"><i class="glyphicon glyphicon-plus-sign"></i> Add Recipient</button>
+            <label for="conversation-add-recipient" class="control-label">Recipients <span class="error" ng-show="newConversation.recipients.length < 1 && !conversationFormNew.$pristine"> *required</span></label>
+            <ul class="feature-list unstyled">
+                <li class="feature-list-item" ng-repeat="user in newConversation.recipients">
+                    <div class="feature-list-name"><span class="feature-list-name">{{user.forename}} {{user.surname}}</span> &nbsp;
+                        <a id="remove-recipient-{{user.id}}" href="" ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
+                    </div>
+                </li>
+            </ul>
         </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="custom-select col-md-3">
+            <select class="form-control recipient-select" id="conversation-add-recipient" ng-model="recipientToAdd" ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
+        </div>
+            <button type="button" class="btn blue recipient-add-button pull-left" ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)"><i class="glyphicon glyphicon-plus-sign"></i> Add Recipient</button>
     </div>
 </div>
 <div class="row">

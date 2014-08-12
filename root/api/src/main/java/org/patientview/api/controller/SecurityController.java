@@ -2,7 +2,6 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.SecurityService;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ public class SecurityController extends BaseController<SecurityController> {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Role>> getSecurityRolesByUser(@PathVariable("userId") Long userId) {
-        return new ResponseEntity<List<Role>>(securityService.getUserRoles(userId), HttpStatus.OK);
+        return new ResponseEntity<>(securityService.getUserRoles(userId), HttpStatus.OK);
     }
 
 
@@ -67,24 +66,7 @@ public class SecurityController extends BaseController<SecurityController> {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<Set<Route>>(securityService.getUserRoutes(userId), HttpStatus.OK);
-
-    }
-
-    @RequestMapping(value = "/security/user/{userId}/news", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<NewsItem>> getUserNews(@PathVariable("userId") Long userId,
-                                                     UriComponentsBuilder uriComponentsBuilder) {
-
-        LOG.trace("Request has been received for userId : {}", userId);
-
-        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
-        return new ResponseEntity<List<NewsItem>>(securityService.getNewsByUser(userId), HttpStatus.OK);
+        return new ResponseEntity<>(securityService.getUserRoutes(userId), HttpStatus.OK);
 
     }
 
@@ -101,7 +83,7 @@ public class SecurityController extends BaseController<SecurityController> {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
 
-        return new ResponseEntity<List<Group>>(securityService.getUserGroups(userId), HttpStatus.OK);
+        return new ResponseEntity<>(securityService.getUserGroups(userId), HttpStatus.OK);
 
     }
 

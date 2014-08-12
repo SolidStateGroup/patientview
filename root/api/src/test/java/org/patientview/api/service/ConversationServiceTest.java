@@ -92,11 +92,12 @@ public class ConversationServiceTest {
         when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
         when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
 
+        TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
+
         try {
             conversationService.addConversation(user1.getId(), conversation);
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("resource not found exception");
         }
-
     }
 }

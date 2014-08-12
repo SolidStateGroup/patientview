@@ -109,4 +109,38 @@ public class Conversation extends AuditModel {
     public void setMessages(Set<Message> messages) {
         this.messages = messages;
     }
+
+    /*
+    // TODO: temporarily kept, may be useful
+    @Override
+    public int compareTo(Object object) {
+        Conversation conversation;
+
+        if (object == null) {
+            return 1;
+        } else {
+            conversation = (Conversation) object;
+        }
+
+        Date myMostRecentMessageDate = new Date(0);
+        Date theirMostRecentMessageDate = new Date(0);
+
+        for (Message message: this.getMessages()) {
+            if (message.getCreated().after(myMostRecentMessageDate)) {
+                myMostRecentMessageDate = message.getCreated();
+            }
+        }
+
+        for (Message message: conversation.getMessages()) {
+            if (message.getCreated().after(theirMostRecentMessageDate)) {
+                theirMostRecentMessageDate = message.getCreated();
+            }
+        }
+
+        if (theirMostRecentMessageDate.after(myMostRecentMessageDate)) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }*/
 }
