@@ -54,7 +54,7 @@
         </ul>
         <div class="group-add-container">
             <div class="group-list-item">
-                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editNews.allGroups | orderBy:['groupType.value','name']"></select>
+                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editNews.allGroups | orderBy:[orderGroups,'name']"></select>
                 <div buttongroup="" buttongroupname="role" model="roleToAdd" options="editNews.allRoles" ng-init="roleToAdd" ng-click="selectRole(userFormNew, editNews, $event)"></div>
             </div>
             <div class=""><button type="button" class="btn btn-primary group-add-button" ng-click="addNewsLink(newsForm, editNews, groupToAdd, roleToAdd)" ng-disabled="!roleToAdd">Add</button></div>
