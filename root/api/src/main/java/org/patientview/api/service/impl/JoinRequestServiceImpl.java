@@ -60,7 +60,8 @@ public class JoinRequestServiceImpl implements JoinRequestService {
         Group group = groupRepository.findOne(groupId);
 
         if (group == null) {
-            throw new ResourceNotFoundException("Could not find unit for Join Request");
+            throw new ResourceNotFoundException(String.format("Could not find unit for Join Request with id %s"
+                    , groupId));
         }
         return group;
     }
@@ -69,7 +70,8 @@ public class JoinRequestServiceImpl implements JoinRequestService {
         User user = userRepository.findOne(userid);
 
         if (user == null) {
-            throw new ResourceNotFoundException("Could not find unit for Join Request");
+            throw new ResourceNotFoundException(String.format("Could not find user for Join Request with id %s"
+                    , userid));
         }
         return user;
     }

@@ -295,7 +295,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private User findUser(Long userId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
-            throw new ResourceNotFoundException("Could not find user {}" + userId);
+            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
         }
         return user;
     }

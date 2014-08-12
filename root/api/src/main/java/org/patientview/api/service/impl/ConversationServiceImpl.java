@@ -48,7 +48,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     public Conversation save(Conversation conversation) throws ResourceNotFoundException {
         Conversation entityConversation = conversationRepository.findOne(conversation.getId());
         if (entityConversation == null) {
-            throw new ResourceNotFoundException("Could not find conversation {}" + conversation.getId());
+            throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversation.getId()));
         }
 
         // TODO: save conversation fields
@@ -62,7 +62,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     public Page<Conversation> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
-            throw new ResourceNotFoundException("Could not find user {}" + userId);
+            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
         }
 
         return conversationRepository.findByUser(entityUser, pageable);
@@ -71,12 +71,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     public void addMessage(Long conversationId, Message message) throws ResourceNotFoundException {
         Conversation entityConversation = conversationRepository.findOne(conversationId);
         if (entityConversation == null) {
-            throw new ResourceNotFoundException("Could not find conversation {}" + conversationId);
+            throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversationId));
         }
 
         User entityUser = userRepository.findOne(message.getUser().getId());
         if (entityUser == null) {
-            throw new ResourceNotFoundException("Could not find user");
+            throw new ResourceNotFoundException(String.format("Could not find user %s", message.getUser().getId()));
         }
 
         Message newMessage = new Message();
@@ -96,7 +96,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private User findEntityUser(Long userId) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
-            throw new ResourceNotFoundException("Could not find user");
+            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
         }
         return entityUser;
     }
@@ -164,12 +164,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     public void addMessageReadReceipt(Long messageId, Long userId) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
-            throw new ResourceNotFoundException("Could not find user");
+            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
         }
 
         Message entityMessage = messageRepository.findOne(messageId);
         if (entityMessage == null) {
-            throw new ResourceNotFoundException("Could not find message");
+            throw new ResourceNotFoundException(String.format("Could not find message %s", messageId));
         }
 
         boolean found = false;
