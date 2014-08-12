@@ -53,7 +53,7 @@ public class StatisticsTask {
      * Cumulative stats for the month, run once a day.
      */
     //@Scheduled(cron = "*/5 * * * * *") //every five minutes
-    @Scheduled(fixedRate = 5000L)
+    @Scheduled(fixedRate = 5000000L)
     public void executeDaily() {
         LOG.info("Executing daily statistics");
         Calendar calendar = timer.getCurrentDate();
