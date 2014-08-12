@@ -130,11 +130,15 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                 }
             }
 
-            // todo: currently gets all roles
+            // todo: currently gets all roles, adds public role
             RoleService.getAll().then(function(roles) {
                 for (i = 0; i < roles.length; i++) {
                     var role = roles[i];
                     if (role.visible === true) {
+                        roleIds.push(role.id);
+                        $scope.newNews.allRoles[role.id] = role;
+                        $scope.newNews.availableRoles.push(role);
+                    } else if (role.name === 'PUBLIC') {
                         roleIds.push(role.id);
                         $scope.newNews.allRoles[role.id] = role;
                         $scope.newNews.availableRoles.push(role);
@@ -214,11 +218,15 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                         }
                     }
 
-                    // todo: currently gets all roles
+                    // todo: currently gets all roles, adds public role
                     RoleService.getAll().then(function(roles) {
                         for (i = 0; i < roles.length; i++) {
                             var role = roles[i];
                             if (role.visible === true) {
+                                roleIds.push(role.id);
+                                $scope.editNews.allRoles[role.id] = role;
+                                $scope.editNews.availableRoles.push(role);
+                            } else if (role.name === 'PUBLIC') {
                                 roleIds.push(role.id);
                                 $scope.editNews.allRoles[role.id] = role;
                                 $scope.editNews.availableRoles.push(role);
