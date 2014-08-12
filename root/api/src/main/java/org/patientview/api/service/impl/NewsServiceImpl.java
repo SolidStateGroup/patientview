@@ -58,20 +58,23 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
             for (NewsLink newsLink : newsItem.getNewsLinks()) {
-                if (newsLink.getGroup() != null) {
+                if (newsLink.getGroup() != null && newsLink.getGroup().getId() != null) {
                     newsLink.setGroup(groupRepository.findOne(newsLink.getGroup().getId()));
+                } else {
+                    newsLink.setGroup(null);
                 }
 
-                if (newsLink.getRole() != null) {
+                if (newsLink.getRole() != null && newsLink.getRole().getId() != null) {
                     newsLink.setRole(roleRepository.findOne(newsLink.getRole().getId()));
+                } else {
+                    newsLink.setRole(null);
                 }
+
                 newsLink.setNewsItem(newsItem);
                 newsLink.setCreator(creator);
             }
         }
-        NewsItem persistedNewsItem = newsItemRepository.save(newsItem);
-
-        return persistedNewsItem;
+        return newsItemRepository.save(newsItem);
     }
 
     public NewsItem get(final Long newsItemId) {
@@ -82,7 +85,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItem.getId());
         if (entityNewsItem == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + newsItem.getId());
+            throw new ResourceNotFoundException(String.format("Could not find news %s", newsItem.getId()));
         }
 
         entityNewsItem.setHeading(newsItem.getHeading());
@@ -97,7 +100,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     public Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
-            throw new ResourceNotFoundException("Could not find user {}" + userId);
+            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
         }
 
         // get both role and group news
@@ -119,19 +122,19 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         Collections.sort(newsItems);
 
         // manually do pagination
-        int left = pageable.getOffset();
-        int right;
+        int startIndex = pageable.getOffset();
+        int endIndex;
 
-        if ((left + pageable.getPageSize()) > newsItems.size()) {
-            right = newsItems.size();
+        if ((startIndex + pageable.getPageSize()) > newsItems.size()) {
+            endIndex = newsItems.size();
         } else {
-            right = pageable.getPageSize();
+            endIndex = pageable.getPageSize();
         }
 
         List<NewsItem> pagedNewsItems = new ArrayList<>();
 
         if (!newsItems.isEmpty()) {
-            pagedNewsItems = newsItems.subList(left, right);
+            pagedNewsItems = newsItems.subList(startIndex, endIndex);
         }
 
         return new PageImpl<>(pagedNewsItems, pageable, newsItems.size());
@@ -140,19 +143,19 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + newsItemId);
+            throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
         }
 
         Group entityGroup = groupRepository.findOne(groupId);
         if (entityGroup == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + groupId);
+            throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
         }
 
         boolean found = false;
 
         for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
             Group newsLinkGroup = newsLink.getGroup();
-            if (newsLink.getGroup() != null && (newsLinkGroup.getId() == entityGroup.getId())) {
+            if (newsLink.getGroup() != null && (newsLinkGroup.getId().equals(entityGroup.getId()))) {
                 found = true;
             }
         }
@@ -174,12 +177,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     public void removeGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + newsItemId);
+            throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
         }
 
         Group entityGroup = groupRepository.findOne(groupId);
         if (entityGroup == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + groupId);
+            throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
         }
 
         NewsLink tempNewsLink = null;
@@ -197,19 +200,19 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     public void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + newsItemId);
+            throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
         }
 
         Role entityRole = roleRepository.findOne(roleId);
         if (entityRole == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + roleId);
+            throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
         }
 
         boolean found = false;
 
         for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
             Role newsLinkRole = newsLink.getRole();
-            if (newsLink.getRole() != null && (newsLinkRole.getId() == entityRole.getId())) {
+            if (newsLink.getRole() != null && (newsLinkRole.getId().equals(entityRole.getId()))) {
                 found = true;
             }
         }
@@ -231,17 +234,76 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     public void removeRole(Long newsItemId, Long roleId) throws ResourceNotFoundException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + newsItemId);
+            throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
         }
 
         Role entityRole = roleRepository.findOne(roleId);
         if (entityRole == null) {
-            throw new ResourceNotFoundException("Could not find news {}" + roleId);
+            throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
         }
 
         NewsLink tempNewsLink = null;
         for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
             if (newsLink.getRole() != null && (newsLink.getRole().getId().equals(entityRole.getId()))) {
+                tempNewsLink = newsLink;
+            }
+        }
+
+        entityNewsItem.getNewsLinks().remove(tempNewsLink);
+        entityManager.remove(tempNewsLink);
+        newsItemRepository.save(entityNewsItem);
+    }
+
+    public void addGroupAndRole(Long newsItemId, Long groupId, Long roleId) throws ResourceNotFoundException {
+        NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
+        if (entityNewsItem == null) {
+            throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
+        }
+
+        Group entityGroup = groupRepository.findOne(groupId);
+        if (entityGroup == null) {
+            throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
+        }
+
+        Role entityRole = roleRepository.findOne(roleId);
+        if (entityRole == null) {
+            throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
+        }
+
+        boolean found = false;
+
+        for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
+            Group newsLinkGroup = newsLink.getGroup();
+            Role newsLinkRole = newsLink.getRole();
+            if ((newsLink.getGroup() != null && (newsLinkGroup.getId().equals(entityGroup.getId())))
+               && (newsLink.getRole() != null && (newsLinkRole.getId().equals(entityRole.getId())))) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            NewsLink newsLink = new NewsLink();
+            newsLink.setNewsItem(entityNewsItem);
+            newsLink.setGroup(entityGroup);
+            newsLink.setRole(entityRole);
+            newsLink.setCreator(userRepository.findOne(creator.getId()));
+
+            entityNewsItem.getNewsLinks().add(newsLink);
+            newsItemRepository.save(entityNewsItem);
+        }
+    }
+
+    public void removeNewsLink(Long newsItemId, Long newsLinkId) throws ResourceNotFoundException {
+        NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
+        if (entityNewsItem == null) {
+            throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
+        }
+
+        NewsLink tempNewsLink = null;
+        for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
+            if ((newsLink.getId().equals(newsLinkId))) {
                 tempNewsLink = newsLink;
             }
         }

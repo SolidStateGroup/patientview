@@ -4,14 +4,15 @@
 // new news modal instance controller
 var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNews', 'NewsService',
     function ($scope, $rootScope, $modalInstance, newNews, NewsService) {
-        var i;
+        var i, newsLink = {};
         $scope.newNews = newNews;
+        $scope.groupToAdd = -1;
 
-        // add GLOBAL_ADMIN role to all news by default
-        for (i = 0; i < $scope.newNews.availableRoles.length; i++) {
-            if ($scope.newNews.availableRoles[i].name === 'GLOBAL_ADMIN') {
-                $scope.newNews.roles.push($scope.newNews.allRoles[$scope.newNews.availableRoles[i].id]);
-                $scope.newNews.availableRoles.splice(i, 1);
+        // add GLOBAL_ADMIN role (no group) to all news by default
+        for (i = 0; i < $scope.newNews.allRoles.length; i++) {
+            if ($scope.newNews.allRoles[i] && $scope.newNews.allRoles[i].name === 'GLOBAL_ADMIN') {
+                newsLink.role = $scope.newNews.allRoles[i];
+                $scope.newNews.newsLinks.push(newsLink);
             }
         }
 
@@ -36,11 +37,17 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNe
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService', 'RoleService', 'UserService',
-    function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService) {
+angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService', 'RoleService', 'UserService', '$sce',
+    function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService, $sce) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
+
+    $scope.parseStoryPreview = function (text) {
+        if (text) {
+            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
+        }
+    };
 
     $scope.range = function() {
         var rangeSize = 5;
@@ -107,41 +114,36 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
 
     // open modal for new news
     $scope.openModalNewNews = function (size) {
-        var i;
+        var i, group;
         $scope.errorMessage = '';
         $scope.editMode = false;
         $scope.newNews = {};
-        $scope.newNews.roles = [];
-        $scope.newNews.groups = [];
         $scope.newNews.allRoles = [];
         $scope.newNews.allGroups = [];
-        $scope.newNews.availableRoles = [];
-        $scope.newNews.availableGroups = [];
-        var roleIds = [], groupIds = [];
+        $scope.newNews.newsLinks = [];
 
         // populate list of allowed groups for current user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+
+            // add 'All Groups' option (with id -1)
+            group = {};
+            group.id = -1;
+            group.name = 'All Groups';
+            $scope.newNews.allGroups.push(group);
+
             for (i = 0; i < groups.length; i++) {
-                var group = groups[i];
+                group = groups[i];
                 if (group.visible === true) {
-                    groupIds.push(group.id);
-                    $scope.newNews.allGroups[group.id] = group;
-                    $scope.newNews.availableGroups.push(group);
+                    $scope.newNews.allGroups.push(group);
                 }
             }
 
-            // todo: currently gets all roles, adds public role
+            // todo: currently gets all roles, adds public & member roles
             RoleService.getAll().then(function(roles) {
                 for (i = 0; i < roles.length; i++) {
                     var role = roles[i];
-                    if (role.visible === true) {
-                        roleIds.push(role.id);
-                        $scope.newNews.allRoles[role.id] = role;
-                        $scope.newNews.availableRoles.push(role);
-                    } else if (role.name === 'PUBLIC') {
-                        roleIds.push(role.id);
-                        $scope.newNews.allRoles[role.id] = role;
-                        $scope.newNews.availableRoles.push(role);
+                    if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
+                        $scope.newNews.allRoles.push(role);
                     }
                 }
 
@@ -183,7 +185,7 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
     };
 
     $scope.edit = function(news) {
-        var i, j, newsLink, groupIds = [], roleIds = [];
+        var i;
         $scope.saved = '';
 
         if (news.showEdit) {
@@ -203,63 +205,32 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                 $scope.editNews = _.clone(newsItem);
                 $scope.editNews.allRoles = [];
                 $scope.editNews.allGroups = [];
-                $scope.editNews.groups = [];
-                $scope.editNews.roles = [];
-                $scope.editNews.availableRoles = [];
-                $scope.editNews.availableGroups = [];
 
                 GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+
+                    // add 'All Groups' option (with id -1)
+                    group = {};
+                    group.id = -1;
+                    group.name = 'All Groups';
+                    $scope.editNews.allGroups.push(group);
+
                     for (i = 0; i < groups.length; i++) {
                         var group = groups[i];
                         if (group.visible === true) {
-                            groupIds.push(group.id);
-                            $scope.editNews.allGroups[group.id] = group;
-                            $scope.editNews.availableGroups.push(group);
+                            $scope.editNews.allGroups.push(group);
                         }
                     }
 
-                    // todo: currently gets all roles, adds public role
+                    $scope.groupToAdd = -1;
+
+                    // todo: currently gets all roles, adds public and member role
                     RoleService.getAll().then(function(roles) {
                         for (i = 0; i < roles.length; i++) {
                             var role = roles[i];
-                            if (role.visible === true) {
-                                roleIds.push(role.id);
-                                $scope.editNews.allRoles[role.id] = role;
-                                $scope.editNews.availableRoles.push(role);
-                            } else if (role.name === 'PUBLIC') {
-                                roleIds.push(role.id);
-                                $scope.editNews.allRoles[role.id] = role;
-                                $scope.editNews.availableRoles.push(role);
+                            if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
+                                $scope.editNews.allRoles.push(role);
                             }
                         }
-
-                        // add to roles/groups from group.newsLinks
-                        for (i = 0; i < $scope.editNews.newsLinks.length; i++) {
-                            newsLink = $scope.editNews.newsLinks[i];
-                            if (newsLink.group) {
-                                $scope.editNews.groups.push(newsLink.group);
-                            }
-                            if (newsLink.role) {
-                                $scope.editNews.roles.push(newsLink.role);
-                            }
-                        }
-
-                        // set available roles and groups by removing existing
-                        for (i = 0; i < $scope.editNews.availableRoles.length; i++) {
-                            for (j = 0; j < $scope.editNews.roles.length; j++) {
-                                if ($scope.editNews.availableRoles[i] && ($scope.editNews.availableRoles[i].id === $scope.editNews.roles[j].id)) {
-                                    $scope.editNews.availableRoles.splice(i, 1);
-                                }
-                            }
-                        }
-                        for (i = 0; i < $scope.editNews.availableGroups.length; i++) {
-                            for (j = 0; j < $scope.editNews.groups.length; j++) {
-                                if ($scope.editNews.availableGroups[i] && ($scope.editNews.availableGroups[i].id === $scope.editNews.groups[j].id)) {
-                                    $scope.editNews.availableGroups.splice(i, 1);
-                                }
-                            }
-                        }
-
                     }, function () {
                         alert('Error loading roles');
                     });
@@ -281,13 +252,14 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
             editNewsForm.$setPristine(true);
             $scope.saved = true;
 
-            // update accordion header for news with data from GET
+            // update header for news with data from GET
             NewsService.get(news.id).then(function (entityNews) {
                 for (var i=0;i<$scope.pagedItems.length;i++) {
                     if ($scope.pagedItems[i].id == entityNews.id) {
                         var newsItemToUpdate = $scope.pagedItems[i];
                         newsItemToUpdate.heading = entityNews.heading;
                         newsItemToUpdate.story = entityNews.story;
+                        newsItemToUpdate.newsLinks = entityNews.newsLinks;
                     }
                 }
             }, function () {

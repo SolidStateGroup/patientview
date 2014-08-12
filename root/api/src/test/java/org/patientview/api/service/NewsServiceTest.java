@@ -13,7 +13,11 @@ import org.patientview.api.service.impl.NewsServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
+import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.model.User;
 import org.patientview.test.util.TestUtils;
@@ -45,6 +49,12 @@ public class NewsServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    GroupRepository groupRepository;
+
+    @Mock
+    RoleRepository roleRepository;
+
     @InjectMocks
     NewsService newsService = new NewsServiceImpl();
 
@@ -60,7 +70,6 @@ public class NewsServiceTest {
      */
     @Test
     public void testGetNewsByUser() {
-
         Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         User testUser = TestUtils.createUser(1L, "testUser");
         Group testGroup = TestUtils.createGroup(2L, "testGroup", creator);
@@ -124,8 +133,38 @@ public class NewsServiceTest {
     }
 
     @Test
-    public void testCreateNewsItem() {
+    public void testAddGroupAndRole() {
+        User user = TestUtils.createUser(1L, "testUser");
+        Group group = TestUtils.createGroup(5L, "testGroup", creator);
+        Role role = TestUtils.createRole(6L, Roles.PATIENT, creator);
 
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(3L);
+        newsItem.setCreator(user);
+        newsItem.setHeading("HEADING TEXT");
+        newsItem.setStory("NEWS STORY TEXT");
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+
+        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
+
+        when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
+        newsItem = newsService.add(newsItem);
+        verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
+
+        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
+        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
+        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(role);
+
+        try {
+            newsService.addGroupAndRole(newsItem.getId(), 5L, 6L);
+            verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
+        } catch (ResourceNotFoundException rnf) {
+            Assert.fail("ResourceNotFoundException: " + rnf.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreateNewsItem() {
         User user = TestUtils.createUser(1L, "testUser");
 
         NewsItem newsItem = new NewsItem();

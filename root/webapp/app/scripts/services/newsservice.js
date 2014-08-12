@@ -42,8 +42,14 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             return newsLinks;
         },
         new: function (newsItem) {
-            newsItem.newsLinks = this.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
+            var i;
+
+            //newsItem.newsLinks = this.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
             newsItem = UtilService.cleanObject(newsItem, 'newsItem');
+            for (i=0;i<newsItem.newsLinks.length;i++) {
+                newsItem.newsLinks[i].group = UtilService.cleanObject(newsItem.newsLinks[i].group, 'group');
+                newsItem.newsLinks[i].role = UtilService.cleanObject(newsItem.newsLinks[i].role, 'role');
+            }
 
             var deferred = $q.defer();
             Restangular.all('news').post(newsItem).then(function(successResult) {
@@ -69,6 +75,28 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             var deferred = $q.defer();
             // DELETE /news/{newsId}
             Restangular.one('news', news.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new group and role to news links
+        addGroupAndRole: function (newsItemId, groupId, roleId) {
+            var deferred = $q.defer();
+            // PUT /group/{groupId}/role/{roleId}/news/{newsId}
+            Restangular.one('group',groupId).one('role', roleId).one('news', newsItemId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // remove a news link
+        removeNewsLink: function (newsItemId, newsLinkId) {
+            var deferred = $q.defer();
+            // DELETE /news/{newsItemId}/newslinks/{newsLinkId}
+            Restangular.one('news',newsItemId).one('newslinks', newsLinkId).remove().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

@@ -26,4 +26,8 @@ public interface NewsService extends CrudService<NewsItem> {
     
     public void removeRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
 
+    public void addGroupAndRole(Long newsItemId, Long groupId, Long roleId) throws ResourceNotFoundException;
+
+    public void removeNewsLink(Long newsItemId, Long newsLinkId) throws ResourceNotFoundException;
+
 }
