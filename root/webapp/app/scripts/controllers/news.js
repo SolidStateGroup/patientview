@@ -37,11 +37,17 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNe
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService', 'RoleService', 'UserService',
-    function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService) {
+angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService', 'RoleService', 'UserService', '$sce',
+    function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService, $sce) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
+
+    $scope.parseStoryPreview = function (text) {
+        if (text) {
+            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
+        }
+    };
 
     $scope.range = function() {
         var rangeSize = 5;

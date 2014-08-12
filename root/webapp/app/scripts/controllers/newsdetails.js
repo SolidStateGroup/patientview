@@ -1,11 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsService', '$sce',
-    function ($scope, NewsService, $sce) {
-
-        $scope.parseStoryPreview = function (text) {
-            return $sce.trustAsHtml(text);
-        };
+angular.module('patientviewApp').controller('NewsDetailsCtrl', ['$scope', 'NewsService',
+    function ($scope, NewsService) {
 
         $scope.addNewsLink = function (form, newsItem, groupId, roleId) {
             var i, newsLink;
