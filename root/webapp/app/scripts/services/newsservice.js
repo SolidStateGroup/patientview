@@ -22,25 +22,27 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
-        new: function (newsItem) {
+        getNewsLinksFromGroupsRoles: function (groups, roles) {
             var i, newsLink, newsLinks = [];
-            
-            for (i=0;i<newsItem.groups.length;i++) {
+
+            for (i=0;i<groups.length;i++) {
                 newsLink = {};
                 newsLink.group = {};
-                newsLink.group.id = newsItem.groups[i].id;
+                newsLink.group.id = groups[i].id;
                 newsLinks.push(newsLink);
             }
-            
-            for (i=0;i<newsItem.roles.length;i++) {
+
+            for (i=0;i<roles.length;i++) {
                 newsLink = {};
                 newsLink.role = {};
-                newsLink.role.id = newsItem.roles[i].id;
+                newsLink.role.id = roles[i].id;
                 newsLinks.push(newsLink);
             }
 
-            newsItem.newsLinks = newsLinks;
-
+            return newsLinks;
+        },
+        new: function (newsItem) {
+            newsItem.newsLinks = this.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
             newsItem = UtilService.cleanObject(newsItem, 'newsItem');
 
             var deferred = $q.defer();

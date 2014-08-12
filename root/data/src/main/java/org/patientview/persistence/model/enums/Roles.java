@@ -19,7 +19,8 @@ public enum Roles {
     PATIENT, UNIT_ADMIN,
     STAFF_ADMIN, SPECIALTY_ADMIN,
     GLOBAL_ADMIN, GP_ADMIN,
-    MEMBER;
+    MEMBER,
+    PUBLIC;
 
 
 }

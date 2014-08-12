@@ -14,6 +14,24 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label class="control-label">Preview </label>
+            <div class="message-summary">
+                <h2 class="message-title">{{editNews.heading}}
+                    <span ng-repeat="newsLink in editNews.newsLinks" class="pull-right news-link-labels">
+                        <span class="label label-primary" ng-show="newsLink.group != null && editNews.allGroups[newsLink.group.id].groupType.value == 'SPECIALTY'">{{editNews.allGroups[newsLink.group.id].name}}</span>
+                        <span class="label label-success" ng-show="newsLink.role != null && editNews.allRoles[newsLink.role.id].name === 'PUBLIC'">{{editNews.allRoles[newsLink.role.id].description}}</span>
+                    </span>
+                </h2>
+                <div class="last-message">
+                    <p class="message-content" ng-bind-html="parseStoryPreview(editNews.story)"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <br/>
 <button type="button" class="btn blue pull-right" ng-click="save(newsForm, editNews)" ng-disabled="newsForm.$pristine || !newsForm.$valid">Save</button>
@@ -28,13 +46,13 @@
         <ul class="feature-list unstyled">
             <li class="feature-list-item" ng-repeat="group in editNews.groups | orderBy:'name'">
                 <div class="feature-list-name"><span class="feature-list-name">{{group.name}}</span> &nbsp;
-                    <a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(newsForm, editNews, group)" ng-show="editNews.groups.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
+                    <a id="remove-group-modal-{{group.id}}" href="" ng-click="removeGroup(newsForm, editNews, group)"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
             </li>
         </ul>
         <div class="group-add-container item-add-container" ng-show="editNews.availableGroups.length > 0">
             <div class="custom-select">
-                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name for group in editNews.availableGroups | orderBy:'name'"></select>
+                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editNews.availableGroups | orderBy:'name'"></select>
             </div>
             <button type="button" class="btn blue group-add-button pull-left" ng-click="addGroup(newsForm, editNews, groupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
         </div>
@@ -48,9 +66,9 @@
         <div ng-hide="editNews.roles.length > 0" class="no-items">Not currently visible by people with any roles</div>
 
         <ul class="feature-list unstyled">
-            <li class="feature-list-item" ng-repeat="role in editNews.roles | orderBy:'description'">
+            <li class="feature-list-item" ng-repeat="role in editNews.roles | orderBy:'description'" ng-show="!(role.name === 'GLOBAL_ADMIN')">
                 <div class="feature-list-name"><span class="feature-list-name">{{role.description}}</span> &nbsp;
-                    <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsForm, editNews, role)" ng-show="editNews.roles.length > 1"><i class="glyphicon glyphicon-remove"></i></a>
+                    <a id="remove-role-modal-{{role.id}}" href="" ng-click="removeRole(newsForm, editNews, role)"><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
             </li>
         </ul>
