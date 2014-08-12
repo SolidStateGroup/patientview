@@ -42,8 +42,14 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             return newsLinks;
         },
         new: function (newsItem) {
-            newsItem.newsLinks = this.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
+            var i;
+
+            //newsItem.newsLinks = this.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
             newsItem = UtilService.cleanObject(newsItem, 'newsItem');
+            for (i=0;i<newsItem.newsLinks.length;i++) {
+                newsItem.newsLinks[i].group = UtilService.cleanObject(newsItem.newsLinks[i].group, 'group');
+                newsItem.newsLinks[i].role = UtilService.cleanObject(newsItem.newsLinks[i].role, 'role');
+            }
 
             var deferred = $q.defer();
             Restangular.all('news').post(newsItem).then(function(successResult) {

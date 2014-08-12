@@ -58,13 +58,18 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
             for (NewsLink newsLink : newsItem.getNewsLinks()) {
-                if (newsLink.getGroup() != null) {
+                if (newsLink.getGroup() != null && newsLink.getGroup().getId() != null) {
                     newsLink.setGroup(groupRepository.findOne(newsLink.getGroup().getId()));
+                } else {
+                    newsLink.setGroup(null);
                 }
 
-                if (newsLink.getRole() != null) {
+                if (newsLink.getRole() != null && newsLink.getRole().getId() != null) {
                     newsLink.setRole(roleRepository.findOne(newsLink.getRole().getId()));
+                } else {
+                    newsLink.setRole(null);
                 }
+
                 newsLink.setNewsItem(newsItem);
                 newsLink.setCreator(creator);
             }
@@ -249,5 +254,47 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         entityNewsItem.getNewsLinks().remove(tempNewsLink);
         entityManager.remove(tempNewsLink);
         newsItemRepository.save(entityNewsItem);
+    }
+
+    public void addGroupAndRole(Long newsItemId, Long groupId, Long roleId) throws ResourceNotFoundException {
+        NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
+        if (entityNewsItem == null) {
+            throw new ResourceNotFoundException("Could not find news {}" + newsItemId);
+        }
+
+        Group entityGroup = groupRepository.findOne(roleId);
+        if (entityGroup == null) {
+            throw new ResourceNotFoundException("Could not find group {}" + groupId);
+        }
+
+        Role entityRole = roleRepository.findOne(roleId);
+        if (entityRole == null) {
+            throw new ResourceNotFoundException("Could not find role {}" + roleId);
+        }
+
+        boolean found = false;
+
+        for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
+            Group newsLinkGroup = newsLink.getGroup();
+            Role newsLinkRole = newsLink.getRole();
+            if ((newsLink.getGroup() != null && (newsLinkGroup.getId().equals(entityGroup.getId())))
+               && (newsLink.getRole() != null && (newsLinkRole.getId().equals(entityRole.getId())))) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            creator = userRepository.findOne(creator.getId());
+
+            NewsLink newsLink = new NewsLink();
+            newsLink.setNewsItem(entityNewsItem);
+            newsLink.setGroup(entityGroup);
+            newsLink.setRole(entityRole);
+            newsLink.setCreator(creator);
+
+            entityNewsItem.getNewsLinks().add(newsLink);
+            newsItemRepository.save(entityNewsItem);
+        }
     }
 }

@@ -138,4 +138,18 @@ public class NewsController extends BaseController<NewsController> {
         newsService.removeRole(newsItemId, roleId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @RequestMapping(value = "/group/{groupId}/role/{roleId}/news/{newsItemId}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> addGroupAndRole(@PathVariable("groupId") Long groupId,
+                                        @PathVariable("roleId") Long roleId,
+                                        @PathVariable("newsItemId") Long newsItemId)
+                                        throws ResourceNotFoundException {
+        try {
+            newsService.addGroupAndRole(newsItemId, groupId, roleId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }
