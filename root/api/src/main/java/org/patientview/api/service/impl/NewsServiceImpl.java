@@ -103,10 +103,13 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
         }
 
-        // get both role and group news
+        // get both role and group news (directly accessed through newsLink)
         PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         Page<NewsItem> roleNews = newsItemRepository.findRoleNewsByUser(entityUser, pageableAll);
         Page<NewsItem> groupNews = newsItemRepository.findGroupNewsByUser(entityUser, pageableAll);
+
+        // get specialty news (accessed by parent/child relationships from groups in newsLink)
+        Page<NewsItem> specialtyNews = newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll);
 
         // combine results
         Set<NewsItem> newsItemSet = new HashSet<>();
@@ -115,6 +118,9 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
         if (groupNews.getNumberOfElements() > 0) {
             newsItemSet.addAll(groupNews.getContent());
+        }
+        if (specialtyNews.getNumberOfElements() > 0) {
+            newsItemSet.addAll(specialtyNews.getContent());
         }
         List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
 

@@ -2,10 +2,11 @@
 
 
 // new news modal instance controller
-var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNews', 'NewsService',
-    function ($scope, $rootScope, $modalInstance, newNews, NewsService) {
+var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNews', 'NewsService', 'permissions',
+    function ($scope, $rootScope, $modalInstance, newNews, NewsService, permissions) {
         var i, newsLink = {};
         $scope.newNews = newNews;
+        $scope.permissions = permissions;
         $scope.groupToAdd = -1;
 
         // add GLOBAL_ADMIN role (no group) to all news by default
@@ -57,6 +58,19 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
+
+    $scope.init = function () {
+        // set up permissions
+        var permissions = {};
+
+        // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
+        permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+        permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+
+        if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin) {
+
+        }
+    };
 
     // simple sorting
     $scope.orderGroups = function (group) {
