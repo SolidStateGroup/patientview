@@ -10,6 +10,7 @@ import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -43,8 +44,22 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     public Code cloneCode(final Long codeId) {
+        // clone original
         Code entityCode = codeRepository.findOne(codeId);
         Code newCode = (Code)SerializationUtils.clone(entityCode);
+
+        // set up links
+        newCode.setLinks(new HashSet<Link>());
+        for (Link link : entityCode.getLinks()) {
+            Link newLink = new Link();
+            newLink.setLink(link.getLink());
+            newLink.setName(link.getName());
+            newLink.setDisplayOrder(link.getDisplayOrder());
+            newLink.setCode(newCode);
+            newLink.setLinkType(link.getLinkType());
+            newLink.setCreator(userRepository.findOne(1L));
+            newCode.getLinks().add(newLink);
+        }
         newCode.setId(null);
         return codeRepository.save(newCode);
     }
