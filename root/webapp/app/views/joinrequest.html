@@ -7,6 +7,10 @@
             the enrolment forms, after which you will receive your account details.</strong>
     </div>
 
+    <div>
+        <p>Please enter your details. Ensure they are accurate since they will be used by your unit's staff to verify who you are and to contact you to add you to PatientView.</p>
+        <p>If your local unit has PatientView, the message will go to the local PatientView admin. If it doesn't, we'll send it to someone senior at the unit. See if your unit has PatientView on the map <a href="http://www.rixg.org/developer/pages/how-to/where.php" target="_blank">bit.ly/rpvsites</a></p>
+    </div>
 
     <div class="form-group">
         <label for="forename" class="col-sm-3 control-label">Forename:</label>
@@ -31,20 +35,24 @@
 
         <div class="col-sm-4">
 
-            Day:<select ng-model="joinRequest.selectedDay"
+            Day:<select required="required"
+                        ng-model="joinRequest.selectedDay"
                         ng-options="option as option for option in days"
                         class="form-control"
                         ng-init="daySelect='1'"></select>
 
-            Month:<select ng-model="joinRequest.selectedMonth"
+            Month:<select required="required"
+                          ng-model="joinRequest.selectedMonth"
                           ng-options="option as option for option in months"
                           class="form-control"
                           ng-init="yearSelect='1'"></select>
 
-            Year:<select ng-model="joinRequest.selectedYear"
+            Year:<select required="required"
+                         ng-model="joinRequest.selectedYear"
                          ng-options="option as option for option in years"
                          class="form-control"
-                         ng-init="yearSelect='1920'"></select>
+                         ng-init="yearSelect='1920'">
+                         </select>
 
         </div>
     </div>
@@ -53,7 +61,7 @@
         <label for="nhsNumber" class="col-sm-3 control-label">NHS Number (if known):</label>
 
         <div class="col-sm-4">
-            <input id="nhsNumber" name="nhsNumber" type="text" class="form-control" ng-model="joinRequest.nhsNumber"/>
+            <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" ng-model="joinRequest.nhsNumber"/>
         </div>
     </div>
 
@@ -62,10 +70,12 @@
 
         <div class="col-sm-4">
 
-            <select ng-model="joinRequest.specialty"
+            <select required="required"
+                    ng-model="joinRequest.specialty"
                     ng-change="refreshUnits()"
                     ng-options="obj.id as obj.name for obj in specialties"
-                    class="form-control"></select>
+                    class="form-control">
+                    </select>
         </div>
     </div>
 
@@ -74,9 +84,11 @@
 
         <div class="col-sm-4">
 
-            <select ng-model="joinRequest.unit"
+            <select required="required"
+                    ng-model="joinRequest.unit"
                     ng-options="obj.id as obj.name for obj in units"
-                    class="form-control"></select>
+                    class="form-control">
+                    </select>
         </div>
     </div>
 
@@ -97,7 +109,7 @@
 
     <div class="form-group" ng-show="errorMessage">
         <div class="col-sm-9 col-sm-offset-3 alert alert-danger">
-            <p><strong>Error saving settings</strong>{{errorMessage}}</p>
+            <p><strong>Error submitting request</strong>{{errorMessage}}</p>
         </div>
     </div>
 
