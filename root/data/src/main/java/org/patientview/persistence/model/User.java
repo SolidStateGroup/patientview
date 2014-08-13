@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -38,6 +39,9 @@ public class User extends RangeModel implements UserDetails {
 
     @Column(name = "change_password")
     private Boolean changePassword;
+
+    @Column(name = "failed_logon_attempts")
+    private Integer failedLogonAttempts;
 
     @Column(name = "locked")
     private Boolean locked;
@@ -265,5 +269,20 @@ public class User extends RangeModel implements UserDetails {
 
     public void setContactNumber(final String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public Integer getFailedLogonAttempts() {
+        return failedLogonAttempts;
+    }
+
+    public void setFailedLogonAttempts(final Integer failedLogonAttempts) {
+        this.failedLogonAttempts = failedLogonAttempts;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.failedLogonAttempts == null) {
+            this.failedLogonAttempts = 0;
+        }
     }
 }

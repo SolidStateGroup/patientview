@@ -80,7 +80,7 @@ public class Group extends AuditModel {
     @Transient
     private Set<Group> childGroups;
 
-    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<GroupRelationship> groupRelationships;
 
     public String getName() {

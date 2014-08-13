@@ -13,7 +13,7 @@ import java.util.Date;
  * Created on 03/06/2014
  */
 @MappedSuperclass
-public class RangeModel extends AuditModel {
+public abstract class RangeModel extends AuditModel {
 
     @Column(name = "Start_Date")
     @Temporal(TemporalType.DATE)

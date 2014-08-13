@@ -10,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
@@ -22,8 +23,9 @@ import java.util.Properties;
  * Created on 03/06/2014.
  */
 @Configuration
-@ComponentScan(basePackages = {"org.patientview.api.service","org.patientview.api.aspect"})
+@ComponentScan(basePackages = {"org.patientview.api.service","org.patientview.api.aspect","org.patientview.api.job"})
 @EnableWebMvc
+@EnableScheduling
 public class ApiConfig {
 
     @Inject

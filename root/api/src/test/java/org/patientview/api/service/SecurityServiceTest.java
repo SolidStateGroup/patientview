@@ -51,9 +51,6 @@ public class SecurityServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private NewsItemRepository newsItemRepository;
-
     @InjectMocks
     private SecurityService securityService = new SecurityServiceImpl();
 
@@ -65,23 +62,6 @@ public class SecurityServiceTest {
 
         MockitoAnnotations.initMocks(this);
         creator = TestUtils.createUser(1L, "creator");
-    }
-
-
-    /**
-     * Test: To see if the news is return by single group OR role
-     * Fail: The calls to the repository are not made
-     */
-    @Test
-    public void testGetNewsByUser() {
-
-        User testUser = TestUtils.createUser(23L, "testUser");
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-
-        securityService.getNewsByUser(testUser.getId());
-
-        verify(newsItemRepository, Mockito.times(1)).findGroupNewsByUser(Matchers.eq(testUser));
-        verify(newsItemRepository, Mockito.times(1)).findRoleNewsByUser(Matchers.eq(testUser));
     }
 
     /**
@@ -124,7 +104,6 @@ public class SecurityServiceTest {
         verify(groupService, Mockito.times(1)).findAll();
 
     }
-
 
     /**
      * Test: Call the findGroupByUser method if a User does not have a globaladmin role

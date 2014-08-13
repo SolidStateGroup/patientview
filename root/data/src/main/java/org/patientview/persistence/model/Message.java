@@ -53,7 +53,6 @@ public class Message extends BaseModel {
     // need created date for UI unlike AuditModel based objects
     @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
-    //@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy hh:mm")
     private Date created = new Date();
 
     @OneToOne

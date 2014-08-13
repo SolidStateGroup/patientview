@@ -61,8 +61,8 @@
             <url>http://nexus.solidstategroup.com/content/repositories/snapshots/</url>
         </repository>
     </distributionManagement>
-    <!--
-      <build>
+
+    <!--  <build>
           <plugins>
               <plugin>
                   <groupId>org.codehaus.mojo</groupId>
@@ -84,9 +84,9 @@
               </plugin>
 
           </plugins>
-      </build>
+      </build> -->
 
-      <build>
+<!--      <build>
      <pluginManagement>
              <plugins>
                  <plugin>
@@ -116,7 +116,6 @@
                              <encoding>UTF-8</encoding>
                              <consoleOutput>true</consoleOutput>
                              <failsOnError>true</failsOnError>
-                             <linkXRef>false</linkXRef>
                          </configuration>
                          <goals>
                              <goal>check</goal>
@@ -135,5 +134,5 @@
                  <version>2.3</version>
              </plugin>
          </plugins>
-     </reporting> -->
+     </reporting>-->
 </project>

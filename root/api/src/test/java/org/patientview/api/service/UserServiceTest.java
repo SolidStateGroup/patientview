@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -19,6 +20,7 @@ import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -34,6 +36,7 @@ import javax.persistence.EntityManager;
 import java.util.Collections;
 import java.util.HashSet;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -114,7 +117,7 @@ public class UserServiceTest {
         newUser.getGroupRoles().add(groupRole);
 
         // Add test identifier, with lookup type IDENTIFIER, value NHS_NUMBER
-        LookupType lookupType = TestUtils.createLookupType(8L, "IDENTIFIER", creator);
+        LookupType lookupType = TestUtils.createLookupType(8L, LookupTypes.IDENTIFIER, creator);
         Lookup lookup = TestUtils.createLookup(9L, lookupType, "NHS_NUMBER", creator);
         Identifier identifier = TestUtils.createIdentifier(10L, lookup, newUser, creator);
         newUser.setIdentifiers(new HashSet<Identifier>());
@@ -146,4 +149,36 @@ public class UserServiceTest {
         userService.addIdentifier(userId, identifier);
         verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
     }
+
+    /**
+     * Test: Password reset check
+     * Fail: Service is not called and the change password flag is not set
+     *
+     */
+    @Test
+    public void testPasswordReset() throws ResourceNotFoundException {
+        String password = "newPassword";
+        User user = TestUtils.createUser(2L, "testPasswordUser");
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        userService.resetPassword(user.getId(), password);
+        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
+        Assert.assertTrue("The user now has the change password flag set", user.getChangePassword());
+    }
+
+    /**
+     * Test: Password change check
+     * Fail: Service is not called and the change password is still set.
+     *
+     */
+    @Test
+    public void testPasswordChange() throws ResourceNotFoundException {
+        String password = "newPassword";
+        User user = TestUtils.createUser(2L, "testPasswordUser");
+        user.setChangePassword(Boolean.TRUE);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        userService.changePassword(user.getId(), password);
+        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
+        Assert.assertTrue("The user now has the change password flag set", !user.getChangePassword());
+    }
+
 }

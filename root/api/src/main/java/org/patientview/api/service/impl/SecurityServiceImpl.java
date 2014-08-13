@@ -4,13 +4,11 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -46,9 +44,6 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
     @Inject
     private UserRepository userRepository;
 
-    @Inject
-    private NewsItemRepository newsItemRepository;
-
     public List<Role> getUserRoles(Long userId) {
         return Util.iterableToList(roleRepository.findValidRolesByUser(userId));
     }
@@ -66,13 +61,6 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         User user = userRepository.findOne(userId);
         Role role = roleRepository.findOne(roleId);
         return Util.iterableToList(groupRepository.findGroupByUserAndRole(user, role));
-    }
-
-    public List<NewsItem> getNewsByUser(Long userId) {
-        User user = userRepository.findOne(userId);
-        List<NewsItem> newsItems = Util.iterableToList(newsItemRepository.findGroupNewsByUser(user));
-        newsItems.addAll(Util.iterableToList(newsItemRepository.findRoleNewsByUser(user)));
-        return newsItems;
     }
 
     public List<Group> getUserGroups(Long userId) {

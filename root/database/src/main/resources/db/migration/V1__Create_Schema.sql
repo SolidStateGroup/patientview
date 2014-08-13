@@ -4,15 +4,16 @@ CREATE TABLE PV_User
   Username         VARCHAR(50)  NOT NULL UNIQUE,
   Password         VARCHAR(100) NOT NULL,
   Change_Password  BOOL         NOT NULL,
+  Failed_Logon_Attempts INTEGER NOT NULL DEFAULT 0,
   Locked           BOOL         NOT NULL,
   Dummy            BOOL         NOT NULL,
   Fhir_Resource_Id UUID UNIQUE,
   Email            VARCHAR(200) NOT NULL,
-  Forename             VARCHAR(500) NOT NULL,
-  Surname             VARCHAR(500) NOT NULL,
+  Forename         VARCHAR(500) NOT NULL,
+  Surname          VARCHAR(500) NOT NULL,
   Date_Of_Birth    DATE,
   Verification_Code    VARCHAR(200),
-  Email_Verified         BOOL         NOT NULL DEFAULT FALSE,
+  Email_Verified   BOOL         NOT NULL DEFAULT FALSE,
   Contact_Number   VARCHAR(50),
   Last_Login       TIMESTAMP,
   Start_Date       DATE         NOT NULL,
@@ -480,6 +481,17 @@ CREATE TABLE PV_Join_Request
   Status           VARCHAR(50),
   Group_Id         BIGINT REFERENCES PV_Group (Id),
   Creation_Date    TIMESTAMP   NOT NULL,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Group_Statistic (
+  Id               BIGINT NOT NULL,
+  Group_Id         BIGINT        REFERENCES PV_Group (Id),
+  Start_Date       DATE NOT NULL,
+  End_Date         DATE NOT NULL,
+  Collated_Period  VARCHAR(50),
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Value            NUMERIC(19, 2) DEFAULT 0,
   PRIMARY KEY (Id)
 );
 

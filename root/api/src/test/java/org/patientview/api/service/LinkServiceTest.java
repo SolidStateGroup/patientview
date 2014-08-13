@@ -13,6 +13,7 @@ import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LinkRepository;
@@ -60,7 +61,7 @@ public class LinkServiceTest {
     @Test
     public void testCreateLink() {
 
-        LookupType lookupType = TestUtils.createLookupType(2L, "Link_Type", creator);
+        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.CODE_TYPE, creator);
         Lookup linkType = TestUtils.createLookup(3L, lookupType, "LinkType", creator);
         Code code = TestUtils.createCode(4L, "testGroup", creator);
         Link link = TestUtils.createLink(5L, code, "TestLink", linkType, creator);

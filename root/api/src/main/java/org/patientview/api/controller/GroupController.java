@@ -1,9 +1,12 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.controller.model.GroupStatisticTO;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.JoinRequestService;
+import org.patientview.api.util.Util;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
@@ -28,6 +31,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -48,6 +52,9 @@ public class GroupController extends BaseController<GroupController> {
     @Inject
     private GroupService groupService;
 
+    @Inject
+    private GroupStatisticService groupStatisticService;
+
     @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Group> createGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
 
@@ -65,13 +72,6 @@ public class GroupController extends BaseController<GroupController> {
     @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId) throws SecurityException {
-        return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
-    }
-
-    // TODO: return statistics for group, not just group
-    @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Group> getGroupStatistics(@PathVariable("groupId") Long groupId) {
         return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
     }
 
@@ -251,4 +251,11 @@ public class GroupController extends BaseController<GroupController> {
     }
 
 
+    @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Collection<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
+            throws ResourceNotFoundException {
+        Collection<GroupStatisticTO> groupStatisticTO = Util.convertGroupStatistics(groupStatisticService.getMonthlyGroupStatistics(groupId));
+        return new ResponseEntity<>(groupStatisticTO, HttpStatus.OK);
+    }
 }

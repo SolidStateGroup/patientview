@@ -6,10 +6,13 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.NewsItem;
+import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
@@ -18,15 +21,18 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,8 +45,11 @@ import java.util.List;
  */
 public final class TestUtils {
 
-    private TestUtils() {
+    //TODO Sprint 3 factor this into the methods to reduce parameters
+    User creator;
 
+    private TestUtils() {
+        creator = createUser(1897987L, "testCreator");
     }
 
     public static User createUser(Long id, String name) {
@@ -55,6 +64,7 @@ public final class TestUtils {
         user.setEmail("test@patientview.org");
         user.setEmailVerified(true);
         user.setPassword("doNotShow");
+        user.setGroupRoles(new HashSet<GroupRole>());
         return user;
     }
 
@@ -157,11 +167,11 @@ public final class TestUtils {
         return lookup;
     }
 
-    public static LookupType createLookupType(Long id, String type, User creator) {
+    public static LookupType createLookupType(Long id, LookupTypes type, User creator) {
 
         LookupType lookupType = new LookupType();
         lookupType.setId(id);
-        lookupType.setType(LookupTypes.ROLE);
+        lookupType.setType(type);
         lookupType.setCreated(new Date());
         lookupType.setCreator(creator);
         return lookupType;
@@ -234,5 +244,37 @@ public final class TestUtils {
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public static GroupStatistic createGroupStatistics(Group group, BigInteger value, Lookup lookup) {
+        GroupStatistic groupStatistic = new GroupStatistic();
+        groupStatistic.setGroup(group);
+        groupStatistic.setValue(value);
+        groupStatistic.setStatisticType(lookup);
+        groupStatistic.setEndDate(new Date());
+        groupStatistic.setStartDate(new Date());
+        groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
+        return groupStatistic;
+    }
+
+    public static NewsItem createNewsItem(Long id, String heading, String story, User creator) {
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(id);
+        newsItem.setCreator(creator);
+        newsItem.setHeading(heading);
+        newsItem.setStory(story);
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+        newsItem.setCreated(new Date());
+        return newsItem;
+    }
+
+    public static NewsLink createNewsLink(Long id, NewsItem newsItem, Group group, Role role, User creator) {
+        NewsLink newsLink = new NewsLink();
+        newsLink.setId(id);
+        newsLink.setNewsItem(newsItem);
+        newsLink.setGroup(group);
+        newsLink.setRole(role);
+        newsLink.setCreator(creator);
+        return newsLink;
     }
 }

@@ -11,7 +11,7 @@ import javax.persistence.OneToOne;
  * Created on 17/07/2014
  */
 @MappedSuperclass
-public class GenericLookup extends BaseModel {
+public abstract class GenericLookup extends BaseModel {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "lookup_type_id")
