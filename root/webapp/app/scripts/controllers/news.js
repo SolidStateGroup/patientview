@@ -72,10 +72,15 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
         permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
         permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
         permissions.canAddAllGroups = false;
 
         if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin) {
             permissions.canAddAllGroups = true;
+        }
+
+        if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin || permissions.isUnitAdmin) {
+            permissions.canAddNews = true;
         }
 
         $scope.permissions = permissions;
