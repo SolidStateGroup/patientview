@@ -119,7 +119,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
             // only STAFF role types can edit/delete, allow edit/delete if newsLink linked to your group and UNIT_ADMIN
             if (groupRoleRoleType.equals(RoleTypes.STAFF) &&
-                    ((groupRoleGroup.equals(newsLink.getGroup()) && groupRoleRoleName.equals(Roles.UNIT_ADMIN)))) {
+                    (groupRoleGroup.equals(newsLink.getGroup()) && groupRoleRoleName.equals(Roles.UNIT_ADMIN))) {
                 return true;
             }
         }
@@ -127,18 +127,20 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     }
 
     private boolean userCanEditDeleteNewsItem(final NewsItem newsItem, final User user) {
-
+        boolean canEditDeleteNewsItem = false;
         for (NewsLink newsLink : newsItem.getNewsLinks()) {
             Group newsLinkGroup = newsLink.getGroup();
             Role newsLinkRole = newsLink.getRole();
 
             // ignore newsLink where global admin role and no group (added by default during creation)
             if (!(newsLinkRole != null && newsLinkRole.equals(Roles.GLOBAL_ADMIN)) && newsLinkGroup != null) {
-                return userIsUnitAdminForNewsLink(newsLink, user);
+                if(userIsUnitAdminForNewsLink(newsLink, user)) {
+                    canEditDeleteNewsItem = true;
+                }
             }
         }
 
-        return false;
+        return canEditDeleteNewsItem;
     }
 
     private NewsItem setEditable(final NewsItem newsItem, final User user) {
