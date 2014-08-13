@@ -100,45 +100,44 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         newsItemRepository.delete(newsItemId);
     }
 
+    private boolean userIsGlobalSpecialtyAdmin(User user) {
+        boolean specialtyOrGlobalAdmin = false;
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            Roles groupRoleName = groupRole.getRole().getName();
+            if (groupRoleName.equals(Roles.GLOBAL_ADMIN) || groupRoleName.equals(Roles.SPECIALTY_ADMIN)) {
+                specialtyOrGlobalAdmin = true;
+            }
+        }
+        return specialtyOrGlobalAdmin;
+    }
+
     private NewsItem setEditable(final NewsItem newsItem, User user) {
         boolean edit = false;
         boolean delete = false;
         boolean specialtyOrGlobalAdmin = false;
-        boolean singleGroup = true;
-
         // todo: single group check, required?
 
         // specialty and global admins can always edit/delete
         // (assume no users are specialty admin in one specialty and unit admin/patient in another)
-        for (GroupRole groupRole : user.getGroupRoles()) {
-            Roles groupRoleName = groupRole.getRole().getName();
-            if (groupRoleName.equals(Roles.GLOBAL_ADMIN) || groupRoleName.equals(Roles.SPECIALTY_ADMIN)){
-                edit = delete = specialtyOrGlobalAdmin = true;
-            }
-        }
+        edit = delete = specialtyOrGlobalAdmin = userIsGlobalSpecialtyAdmin(user);
 
         // for other users, can edit/delete if unit admin in group
         if (!specialtyOrGlobalAdmin) {
             for (NewsLink newsLink : newsItem.getNewsLinks()) {
                 Group newsLinkGroup = newsLink.getGroup();
                 Role newsLinkRole = newsLink.getRole();
-                // can only edit/delete if user has exclusive access to newsitem (not attached to multiple groups)
-                // todo: discuss
-                if (singleGroup) {
-                    // ignore newsLink where global admin role and no group (added by default during creation)
-                    if (!(newsLinkRole != null && newsLinkRole.equals(Roles.GLOBAL_ADMIN))) {
-                        if (newsLinkGroup != null) {
-                            for (GroupRole groupRole : user.getGroupRoles()) {
-                                Role groupRoleRole = groupRole.getRole();
-                                Group groupRoleGroup = groupRole.getGroup();
-                                // only STAFF role types can edit/delete
-                                if (groupRoleRole.getRoleType().getValue().equals(RoleTypes.STAFF)) {
-                                    // allow edit/delete if newsLink linked to your group and UNIT_ADMIN
-                                    if (groupRoleGroup.equals(newsLinkGroup) && groupRoleRole.getName().equals(Roles.UNIT_ADMIN)) {
-                                        edit = delete = true;
-                                    }
-                                }
-                            }
+
+                // ignore newsLink where global admin role and no group (added by default during creation)
+                if (!(newsLinkRole != null && newsLinkRole.equals(Roles.GLOBAL_ADMIN)) && newsLinkGroup != null) {
+                    for (GroupRole groupRole : user.getGroupRoles()) {
+                        RoleTypes groupRoleRoleType = groupRole.getRole().getRoleType().getValue();
+                        Roles groupRoleRoleName = groupRole.getRole().getName();
+                        Group groupRoleGroup = groupRole.getGroup();
+
+                        // only STAFF role types can edit/delete, allow edit/delete if newsLink linked to your group and UNIT_ADMIN
+                        if ((groupRoleRoleType.equals(RoleTypes.STAFF)) &&
+                            ((groupRoleGroup.equals(newsLinkGroup) && groupRoleRoleName.equals(Roles.UNIT_ADMIN)))) {
+                            edit = delete = true;
                         }
                     }
                 }
