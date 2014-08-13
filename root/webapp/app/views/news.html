@@ -54,8 +54,8 @@
     <div class="message-item" ng-repeat="news in pagedItems">
         <div class="content-panel">
             <ul class="pull-right aside-actions unstyled">
-                <li><a href="" class="aside-link active" ng-click="edit(news)">Edit</a></li>
-                <li><a href="" class="aside-link" ng-click="delete(news)" ng-confirm-click="Are you sure you want to delete this news item?">Delete</a></li>
+                <li><a href="" class="aside-link active" ng-click="edit(news)" ng-show="news.edit">Edit</a></li>
+                <li><a href="" class="aside-link" ng-click="delete(news)" ng-confirm-click="Are you sure you want to delete this news item?" ng-show="news.delete">Delete</a></li>
             </ul>
             <div class="message-summary">
                 <h2 class="message-title">{{news.heading}}

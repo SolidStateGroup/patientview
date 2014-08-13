@@ -16,7 +16,7 @@ import java.util.Date;
  * Created on 03/06/2014
  */
 @MappedSuperclass
-public class AuditModel extends SimpleAuditModel {
+public abstract class AuditModel extends SimpleAuditModel {
 
     @Column(name = "last_update_date")
     @Temporal(TemporalType.TIMESTAMP)

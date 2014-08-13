@@ -72,10 +72,13 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
         permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
         permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        permissions.canAddAllGroups = false;
 
         if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin) {
-
+            permissions.canAddAllGroups = true;
         }
+
+        $scope.permissions = permissions;
     };
 
     // simple sorting
@@ -190,11 +193,13 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         // populate list of allowed groups for current user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
 
-            // add 'All Groups' option (with id -1)
-            group = {};
-            group.id = -1;
-            group.name = 'All Groups';
-            $scope.newNews.allGroups.push(group);
+            // add 'All Groups' option (with id -1) if allowed
+            if ($scope.permissions.canAddAllGroups) {
+                group = {};
+                group.id = -1;
+                group.name = 'All Groups';
+                $scope.newNews.allGroups.push(group);
+            }
 
             for (i = 0; i < groups.length; i++) {
                 group = groups[i];
@@ -276,11 +281,13 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
 
                 GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
 
-                    // add 'All Groups' option (with id -1)
-                    group = {};
-                    group.id = -1;
-                    group.name = 'All Groups';
-                    $scope.editNews.allGroups.push(group);
+                    // add 'All Groups' option (with id -1) if allowed
+                    if ($scope.permissions.canAddAllGroups) {
+                        group = {};
+                        group.id = -1;
+                        group.name = 'All Groups';
+                        $scope.editNews.allGroups.push(group);
+                    }
 
                     for (i = 0; i < groups.length; i++) {
                         var group = groups[i];
@@ -357,4 +364,5 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         });
     };
 
+    $scope.init();
 }]);
