@@ -111,8 +111,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         // specialty and global admins can always edit/delete
         // (assume no users are specialty admin in one specialty and unit admin/patient in another)
         for (GroupRole groupRole : user.getGroupRoles()) {
-            if (groupRole.getRole().getName().equals(Roles.GLOBAL_ADMIN)
-                    || groupRole.getRole().getName().equals(Roles.SPECIALTY_ADMIN)){
+            Roles groupRoleName = groupRole.getRole().getName();
+            if (groupRoleName.equals(Roles.GLOBAL_ADMIN) || groupRoleName.equals(Roles.SPECIALTY_ADMIN)){
                 edit = delete = specialtyOrGlobalAdmin = true;
             }
         }
@@ -120,17 +120,21 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         // for other users, can edit/delete if unit admin in group
         if (!specialtyOrGlobalAdmin) {
             for (NewsLink newsLink : newsItem.getNewsLinks()) {
+                Group newsLinkGroup = newsLink.getGroup();
+                Role newsLinkRole = newsLink.getRole();
                 // can only edit/delete if user has exclusive access to newsitem (not attached to multiple groups)
                 // todo: discuss
                 if (singleGroup) {
                     // ignore newsLink where global admin role and no group (added by default during creation)
-                    if (!(newsLink.getRole() != null && newsLink.getRole().equals(Roles.GLOBAL_ADMIN))) {
-                        if (newsLink.getGroup() != null) {
+                    if (!(newsLinkRole != null && newsLinkRole.equals(Roles.GLOBAL_ADMIN))) {
+                        if (newsLinkGroup != null) {
                             for (GroupRole groupRole : user.getGroupRoles()) {
+                                Role groupRoleRole = groupRole.getRole();
+                                Group groupRoleGroup = groupRole.getGroup();
                                 // only STAFF role types can edit/delete
-                                if (groupRole.getRole().getRoleType().getValue().equals(RoleTypes.STAFF)) {
+                                if (groupRoleRole.getRoleType().getValue().equals(RoleTypes.STAFF)) {
                                     // allow edit/delete if newsLink linked to your group and UNIT_ADMIN
-                                    if (groupRole.getGroup().equals(newsLink.getGroup()) && groupRole.getRole().getName().equals(Roles.UNIT_ADMIN)) {
+                                    if (groupRoleGroup.equals(newsLinkGroup) && groupRoleRole.getName().equals(Roles.UNIT_ADMIN)) {
                                         edit = delete = true;
                                     }
                                 }
@@ -143,7 +147,6 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         newsItem.setEdit(edit);
         newsItem.setDelete(delete);
-
         return newsItem;
     }
 
