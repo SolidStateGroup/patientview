@@ -11,6 +11,8 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.NewsItem;
+import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,6 +64,7 @@ public final class TestUtils {
         user.setEmail("test@patientview.org");
         user.setEmailVerified(true);
         user.setPassword("doNotShow");
+        user.setGroupRoles(new HashSet<GroupRole>());
         return user;
     }
 
@@ -251,5 +255,26 @@ public final class TestUtils {
         groupStatistic.setStartDate(new Date());
         groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
         return groupStatistic;
+    }
+
+    public static NewsItem createNewsItem(Long id, String heading, String story, User creator) {
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(id);
+        newsItem.setCreator(creator);
+        newsItem.setHeading(heading);
+        newsItem.setStory(story);
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+        newsItem.setCreated(new Date());
+        return newsItem;
+    }
+
+    public static NewsLink createNewsLink(Long id, NewsItem newsItem, Group group, Role role, User creator) {
+        NewsLink newsLink = new NewsLink();
+        newsLink.setId(id);
+        newsLink.setNewsItem(newsItem);
+        newsLink.setGroup(group);
+        newsLink.setRole(role);
+        newsLink.setCreator(creator);
+        return newsLink;
     }
 }

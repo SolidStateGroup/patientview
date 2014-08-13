@@ -2,10 +2,11 @@
 
 
 // new news modal instance controller
-var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNews', 'NewsService',
-    function ($scope, $rootScope, $modalInstance, newNews, NewsService) {
+var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$sce', '$modalInstance', 'newNews', 'NewsService', 'permissions',
+    function ($scope, $rootScope, $sce, $modalInstance, newNews, NewsService, permissions) {
         var i, newsLink = {};
         $scope.newNews = newNews;
+        $scope.permissions = permissions;
         $scope.groupToAdd = -1;
 
         // add GLOBAL_ADMIN role (no group) to all news by default
@@ -29,6 +30,12 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNe
                 }
             }
             return 0;
+        };
+
+        $scope.parseStoryPreview = function (text) {
+            if (text) {
+                return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
+            }
         };
 
         $scope.ok = function () {
@@ -57,6 +64,42 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
+
+    $scope.init = function () {
+        // set up permissions
+        var permissions = {};
+
+        // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
+        permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+        permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+        permissions.canAddAllGroups = false;
+
+        if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin) {
+            permissions.canAddAllGroups = true;
+        }
+
+        if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin || permissions.isUnitAdmin) {
+            permissions.canAddNews = true;
+        }
+
+        $scope.permissions = permissions;
+    };
+
+    // simple sorting
+    $scope.orderGroups = function (group) {
+        if (group.groupType) {
+            var groupTypes = [];
+            groupTypes.SPECIALTY = 1;
+            groupTypes.UNIT = 2;
+            groupTypes.DISEASE_GROUP = 3;
+
+            if (groupTypes[group.groupType.value]) {
+                return groupTypes[group.groupType.value];
+            }
+        }
+        return 0;
+    };
 
     $scope.parseStoryPreview = function (text) {
         if (text) {
@@ -155,11 +198,13 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         // populate list of allowed groups for current user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
 
-            // add 'All Groups' option (with id -1)
-            group = {};
-            group.id = -1;
-            group.name = 'All Groups';
-            $scope.newNews.allGroups.push(group);
+            // add 'All Groups' option (with id -1) if allowed
+            if ($scope.permissions.canAddAllGroups) {
+                group = {};
+                group.id = -1;
+                group.name = 'All Groups';
+                $scope.newNews.allGroups.push(group);
+            }
 
             for (i = 0; i < groups.length; i++) {
                 group = groups[i];
@@ -187,6 +232,9 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                         },
                         NewsService: function(){
                             return NewsService;
+                        },
+                        permissions: function(){
+                            return $scope.permissions;
                         }
                     }
                 });
@@ -238,11 +286,13 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
 
                 GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
 
-                    // add 'All Groups' option (with id -1)
-                    group = {};
-                    group.id = -1;
-                    group.name = 'All Groups';
-                    $scope.editNews.allGroups.push(group);
+                    // add 'All Groups' option (with id -1) if allowed
+                    if ($scope.permissions.canAddAllGroups) {
+                        group = {};
+                        group.id = -1;
+                        group.name = 'All Groups';
+                        $scope.editNews.allGroups.push(group);
+                    }
 
                     for (i = 0; i < groups.length; i++) {
                         var group = groups[i];
@@ -319,4 +369,5 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         });
     };
 
+    $scope.init();
 }]);

@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.NewsItem;
@@ -12,11 +13,15 @@ import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.repository.GroupRelationshipRepository;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.NewsLinkRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
+import org.patientview.test.util.TestUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,7 +51,13 @@ public class NewsItemRepositoryTest {
     NewsLinkRepository newsLinkRepository;
 
     @Inject
+    GroupRepository groupRepository;
+
+    @Inject
     GroupRoleRepository groupRoleRepository;
+
+    @Inject
+    GroupRelationshipRepository groupRelationshipRepository;
 
     @Inject
     EntityManager entityManager;
@@ -251,32 +262,23 @@ public class NewsItemRepositoryTest {
         Assert.assertTrue("The news item should be the one created", newsItems.getContent().get(0).equals(newsItem));
     }
 
-    /*@Test
-    public void testGetGroupAndRoleNewsByUser() {
+    @Test
+    public void testGetNewsFromSpecialtyGroup() {
 
         // Create a news item
         NewsItem newsItem = new NewsItem();
         newsItem.setCreator(creator);
         newsItem.setCreated(new Date());
-        newsItemRepository.save(newsItem);
-
-        // Create a role for the news to be linked too
-        Role role = dataTestUtils.createRole("TestRole", creator);
-        NewsLink newsLink = new NewsLink();
-        newsLink.setCreator(creator);
-        newsLink.setCreated(new Date());
-        newsLink.setRole(role);
-        newsLink.setNewsItem(newsItem);
-        newsLinkRepository.save(newsLink);
+        newsItem.setHeading("HEADING");
+        newsItem.setStory("STORY");
 
         // Create a group for the news to be linked too
         Group group = dataTestUtils.createGroup("TEST_GROUP", creator);
-        newsLink = new NewsLink();
+        NewsLink newsLink = new NewsLink();
         newsLink.setCreator(creator);
         newsLink.setCreated(new Date());
         newsLink.setGroup(group);
         newsLink.setNewsItem(newsItem);
-        newsLinkRepository.save(newsLink);
 
         // Create a second group for the news to be linked too
         Group group2 = dataTestUtils.createGroup("TEST_GROUP_2", creator);
@@ -285,32 +287,49 @@ public class NewsItemRepositoryTest {
         newsLink2.setCreated(new Date());
         newsLink2.setGroup(group2);
         newsLink2.setNewsItem(newsItem);
-        newsLinkRepository.save(newsLink2);
 
-        // Create the user and link the groups to the user
-        User newsUser = dataTestUtils.createUser("NewsUser");
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+        newsItem.getNewsLinks().add(newsLink);
+        newsItem.getNewsLinks().add(newsLink2);
+        newsItemRepository.save(newsItem);
+
+        // Create a specialty
+        Group specialty = dataTestUtils.createGroup("SPECIALTY", creator);
+        specialty.setGroupType(dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP, creator));
+
+        // Create parent relationship to TEST_GROUP
+        group.setGroupRelationships(new HashSet<GroupRelationship>());
+        specialty.setGroupRelationships(new HashSet<GroupRelationship>());
+        group.getGroupRelationships().add(TestUtils.createGroupRelationship(null, group, specialty, RelationshipTypes.PARENT, creator));
+        specialty.getGroupRelationships().add(TestUtils.createGroupRelationship(null, specialty, group, RelationshipTypes.CHILD, creator));
+        groupRepository.save(group);
+        groupRepository.save(specialty);
+
+        group = groupRepository.findOne(group.getId());
+        specialty = groupRepository.findOne(specialty.getId());
+
+        Assert.assertEquals("There should be a 1 relationship for TEST_GROUP", 1, group.getGroupRelationships().size());
+        Assert.assertEquals("There should be a 1 relationship for SPECIALTY", 1, specialty.getGroupRelationships().size());
+
+        // Create the specialty user and link the specialty to the user
+        User specialtyUser = dataTestUtils.createUser("NewsUser");
         GroupRole groupRole = new GroupRole();
-        groupRole.setUser(newsUser);
-        groupRole.setRole(role);
-        groupRole.setGroup(group);
+        groupRole.setUser(specialtyUser);
+        groupRole.setRole(dataTestUtils.createRole("TEST_ROLE", creator));
+        groupRole.setGroup(specialty);
         groupRole.setCreator(creator);
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
 
-        GroupRole groupRole2 = new GroupRole();
-        groupRole2.setUser(newsUser);
-        groupRole2.setRole(role);
-        groupRole2.setGroup(group2);
-        groupRole2.setCreator(creator);
-        groupRole2.setStartDate(new Date());
-        groupRoleRepository.save(groupRole2);
-
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        Page<NewsItem> newsItems = newsItemRepository.findGroupNewsByUser(specialtyUser, pageable);
 
-        Page<NewsItem> newsItems = newsItemRepository.findGroupAndRoleNewsByUser(newsUser, pageable);
+        // should be no direct news relationship (as news is attached to TEST_GROUP not SPECIALTY)
+        Assert.assertEquals("There should be 0 news item available", 0, newsItems.getContent().size());
 
-        // Which should get 1 route back and it should be the one that was created
-        Assert.assertEquals("There should be 1 news item available", 1, newsItems.getContent().size());
-        Assert.assertTrue("The news item should be the one created", newsItems.getContent().get(0).equals(newsItem));
-    }*/
+        // should be a single news item as a result of parent/child relationship between SPECIALTY and TEST_GROUP
+        Page<NewsItem> newsItems2 = newsItemRepository.findSpecialtyNewsByUser(specialtyUser, pageable);
+        Assert.assertEquals("There should be 1 news item available", 1, newsItems2.getContent().size());
+    }
+
 }

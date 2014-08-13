@@ -16,7 +16,7 @@ import java.util.Date;
  * Created on 03/06/2014
  */
 @MappedSuperclass
-public class SimpleAuditModel extends BaseModel {
+public abstract class SimpleAuditModel extends BaseModel {
 
     @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)

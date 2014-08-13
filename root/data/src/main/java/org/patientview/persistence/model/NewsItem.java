@@ -12,6 +12,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.Date;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "pv_news_item")
-public class NewsItem extends BaseModel {
+public class NewsItem extends BaseModel implements Editable {
 
     @Column(name = "heading")
     private String heading;
@@ -48,6 +49,12 @@ public class NewsItem extends BaseModel {
     @OneToOne
     @JoinColumn(name = "created_by")
     private User creator;
+
+    @Transient
+    private boolean edit;
+
+    @Transient
+    private boolean delete;
 
     public String getHeading() {
         return heading;
@@ -108,7 +115,22 @@ public class NewsItem extends BaseModel {
         this.creator = creator;
     }
 
-    @Override
+    public boolean isEdit() {
+        return edit;
+    }
+
+    public void setEdit(boolean edit) {
+        this.edit = edit;
+    }
+
+    public boolean isDelete() {
+        return delete;
+    }
+
+    public void setDelete(boolean delete) {
+        this.delete = delete;
+    }
+
     public int compareTo(Object object) {
         NewsItem newsItem;
 
