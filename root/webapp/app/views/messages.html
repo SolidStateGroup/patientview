@@ -3,6 +3,14 @@
 <div class="" ng-show="!loading" ng-cloak>
     <h1>Conversations <button class="btn blue" ng-click="openModalNewConversation('lg')">Create New</button></h1>
 
+    <div class="panel panel-info">
+        <div class="panel-body">
+        <p>Click on <strong>View Messages</strong> to see the full conversation or <strong>Quick Reply</strong> to reply to it. To send a new message, click
+        on <strong>Create New</strong> above. When you send a message, the recipient will receive an email asking them to log in to read
+        it, if they have an email address in the system.</p>
+        </div>
+    </div>
+
     <!-- new conversation modal template -->
     <script type="text/ng-template" id="newConversationModal.html">
         <div class="modal-header">
@@ -41,13 +49,13 @@
                 <li><a href="" class="aside-link qreply" ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
             </ul>
             <div class="message-summary">
-                <h2 class="message-title"><span ng-show="conversation.unread" class="alert-success"> &nbsp;New Message </span> &nbsp;{{conversation.title}}
-                    <span class="recipient">with: </span><span class="recipient" ng-repeat="conversationUser in conversation.conversationUsers" ng-show="conversationUser.user.id != loggedInUser.id">{{conversationUser.user.forename}} {{conversationUser.user.surname}} </span>
+                <h2 class="message-title"><span ng-show="conversation.unread" class="label label-success"> &nbsp;New Message </span> &nbsp;{{conversation.title}}
+                    <span class="recipient">with: </span><span class="recipient" ng-repeat="conversationUser in conversation.conversationUsers" ng-show="conversationUser.user.id != loggedInUser.id"><span class="label label-info">{{conversationUser.user.forename}} {{conversationUser.user.surname}}</span></span>
                 </h2>
                 <div class="last-message">
                     <h4>Most recent message from: {{conversation.messages[conversation.messages.length-1].user.forename}} {{conversation.messages[conversation.messages.length-1].user.surname}}</h4>
                     <p class="message-content" ng-bind-html="parseMessage(conversation.messages[conversation.messages.length-1].message)"></p>
-                    <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MM-yyyy HH:mm'}}</strong></p>
+                    <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                     <!--<p class="date-stamp"><strong>19th June 2014</strong> @ 12:34pm</p>-->
                 </div>
             </div>
@@ -70,7 +78,7 @@
                     <span ng-show="message.unread" class="alert-success"> New </span>
                     <h4>{{message.user.forename}} {{message.user.surname}}</h4>
                     <p class="message-content" ng-bind-html="parseMessage(message.message)"></p>
-                    <p class="date-stamp"><strong>{{message.created | date:'dd-MM-yyyy HH:mm'}}</strong></p>
+                    <p class="date-stamp"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                 </div>
                 <hr/>
             </div>
