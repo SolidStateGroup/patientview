@@ -2,8 +2,8 @@
 
 
 // new news modal instance controller
-var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNews', 'NewsService', 'permissions',
-    function ($scope, $rootScope, $modalInstance, newNews, NewsService, permissions) {
+var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$sce', '$modalInstance', 'newNews', 'NewsService', 'permissions',
+    function ($scope, $rootScope, $sce, $modalInstance, newNews, NewsService, permissions) {
         var i, newsLink = {};
         $scope.newNews = newNews;
         $scope.permissions = permissions;
@@ -30,6 +30,12 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newNe
                 }
             }
             return 0;
+        };
+
+        $scope.parseStoryPreview = function (text) {
+            if (text) {
+                return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
+            }
         };
 
         $scope.ok = function () {
@@ -216,6 +222,9 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                         },
                         NewsService: function(){
                             return NewsService;
+                        },
+                        permissions: function(){
+                            return $scope.permissions;
                         }
                     }
                 });
