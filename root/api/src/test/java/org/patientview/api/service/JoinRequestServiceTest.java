@@ -241,4 +241,48 @@ public class JoinRequestServiceTest {
 
     }
 
+
+    /**
+     * Test: Attempt to retrieve the join request that are related to a user
+     * Fail: Appropriate service method not called
+     */
+    @Test
+    public void testGetJoinRequestCountUnitAdmin_validGroup() throws ResourceNotFoundException {
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(3l, RoleName.UNIT_ADMIN, creator));
+        User user = TestUtils.createUser(2L, "testUser");
+        TestUtils.authenticateTest(user, roles);
+
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+
+        joinRequestService.getCount(group.getId());
+
+        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(joinRequestRepository, Mockito.times(1)).countByUser(eq(user));
+    }
+
+
+
+    /**
+     * Test: Attempt to retrieve the join request that are related to a user
+     * Fail: Appropriate service method not called
+     */
+    @Test
+    public void testGetJoinRequestCountSpecialtyAdmin_validGroup() throws ResourceNotFoundException {
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(3l, RoleName.SPECIALTY_ADMIN, creator));
+        User user = TestUtils.createUser(2L, "testUser");
+        TestUtils.authenticateTest(user, roles);
+
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+
+        joinRequestService.getCount(group.getId());
+
+        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(joinRequestRepository, Mockito.times(1)).countByParentUser(eq(user));
+    }
 }

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 30/07/2014
@@ -20,6 +22,22 @@ import org.springframework.transaction.annotation.Transactional;
 public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long> {
 
     Iterable<JoinRequest> findByStatus(JoinRequestStatus status);
+
+    @Query("SELECT  COUNT(1)  " +
+            "FROM   JoinRequest jr " +
+            "JOIN   jr.group.groupRoles gr " +
+            "WHERE  gr.user = :user")
+    BigInteger countByUser(@Param("user") User user);
+
+    @Query("SELECT COUNT(1) " +
+            "FROM   JoinRequest jr " +
+            "JOIN   jr.group jgr " +
+            "JOIN   jgr.groupRelationships grs " +
+            "JOIN   grs.objectGroup.groupRoles gr " +
+            "WHERE  gr.user = :user " +
+            "AND    grs.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.PARENT")
+    BigInteger countByParentUser(@Param("user") User user);
+
 
     @Query("SELECT jr " +
            "FROM   JoinRequest jr " +

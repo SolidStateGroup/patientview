@@ -1,22 +1,28 @@
 <div class="row editJoinRequest">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
-            <label for="join-request-notes" class="control-label">Notes</label>
-
-            <div class=""><input cols="40"
-                                 rows="5"
-                                 type="text" class="form-control" id="join-request-notes" placeholder="Notes"
-                                 name="notes" ng-model="joinRequest.notes" required></div>
-            <label for="join-request-notes" class="control-label">Status</label>
-
             <div>
+                <label for="join-request-notes" class="control-label">Status</label>
                 <select ng-model="joinRequest.newStatus"
                         ng-options="status as status for status in statuses"
                         class="form-control"></select>
             </div>
+
+            <div class="">
+                <label for="join-request-notes" class="control-label">Notes</label>
+                <textarea cols="40"
+                          rows="5"
+                          type="text" class="form-control" id="join-request-notes" placeholder="Notes"
+                          name="notes" ng-model="joinRequest.notes" required></textarea></div>
+
+
             <label class="control-label" ng-show="joinRequest.completedBy">Completed By</label>
 
-            <div class="">{{joinRequest.completedBy.forename}} {{joinRequest.completedBy.surname}}</div>
+            <div ng-show="joinRequest.completedBy">{{joinRequest.completedBy.forename}} {{joinRequest.completedBy.surname}}</div>
+
+            <label class="control-label" ng-show="joinRequest.completedBy">Completed On</label>
+
+            <div ng-show="joinRequest.completedBy">{{joinRequest.completionDate}}</div>
 
         </div>
     </div>

@@ -55,7 +55,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.groupDetails = ['id','name','code','sftpUser','groupType','visibleToJoin','address1','address2','address3','postcode'];
             fields.code = ['id','code','codeType','standardType','description','links'];
             fields.codeType = ['id','value','description','lookupType'];
-            fields.joinRequest = ['id','forename','surname', 'nhsNumber', 'dateOfBirth', 'email'];
+            fields.joinRequest = ['id','forename','surname', 'nhsNumber', 'status', 'notes', 'dateOfBirth', 'email'];
             fields.standardType = ['id','value','description','lookupType'];
             fields.groupType = ['id','value','lookupType'];
             fields.identifierType = ['id','value','description','lookupType'];

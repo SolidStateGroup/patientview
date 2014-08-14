@@ -25,7 +25,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
     protected final Logger LOG = LoggerFactory.getLogger(getServiceClass());
 
-    public Class<T> getServiceClass()  {
+    private Class<T> getServiceClass()  {
         ParameterizedType superclass = (ParameterizedType) getClass().getGenericSuperclass();
         return (Class<T>) superclass.getActualTypeArguments()[0];
     }

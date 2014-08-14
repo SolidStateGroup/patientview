@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
 
@@ -87,6 +88,66 @@ public class JoinRequestRepositoryTest {
         List<JoinRequest> joinRequests = TestUtils.iterableToList(joinRequestRepository.findByParentUser(user));
 
         Assert.assertTrue("The is one join request", !CollectionUtils.isEmpty(joinRequests));
+
+    }
+
+    /**
+     * Test: Create a parent and child relationship. Add a join request to the child and a user to the parent
+     * Fail: The join request is not found
+     * @throws Exception
+     */
+    @Test
+    public void testCountByParentUser() throws Exception {
+
+        Group parentGroup = dataTestUtils.createGroup("parentGroup", creator);
+        Group childGroup = dataTestUtils.createGroup("childGroup", creator);
+
+        parentGroup.setGroupRelationships(new HashSet<GroupRelationship>());
+        childGroup.setGroupRelationships(new HashSet<GroupRelationship>());
+
+        // This is not how it's supposed to be
+        parentGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.PARENT, creator));
+        parentGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(childGroup, parentGroup, RelationshipTypes.CHILD, creator));
+        childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(childGroup, parentGroup, RelationshipTypes.PARENT, creator));
+        childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.CHILD, creator));
+
+        JoinRequest joinRequest = TestUtils.createJoinRequest(childGroup);
+        joinRequestRepository.save(joinRequest);
+
+        User user = dataTestUtils.createUser("TestUser");
+        Role role = dataTestUtils.createRole("TestRole", creator);
+        user.setGroupRoles(new HashSet<GroupRole>());
+        user.getGroupRoles().add(dataTestUtils.createGroupRole(user,parentGroup,role, creator));
+        userRepository.save(user);
+
+        BigInteger count = joinRequestRepository.countByParentUser(user);
+
+        Assert.assertTrue("The is one join request", count == BigInteger.ONE);
+
+    }
+
+    /**
+     * Test: Create a parent and child relationship. Add a join request to the child and a user to the parent
+     * Fail: The join request is not found
+     * @throws Exception
+     */
+    @Test
+    public void testCountByUser() throws Exception {
+
+        Group group = dataTestUtils.createGroup("parentGroup", creator);
+
+        JoinRequest joinRequest = TestUtils.createJoinRequest(group);
+        joinRequestRepository.save(joinRequest);
+
+        User user = dataTestUtils.createUser("TestUser");
+        Role role = dataTestUtils.createRole("TestRole", creator);
+        user.setGroupRoles(new HashSet<GroupRole>());
+        user.getGroupRoles().add(dataTestUtils.createGroupRole(user,group,role, creator));
+        userRepository.save(user);
+
+        BigInteger count = joinRequestRepository.countByUser(user);
+
+        Assert.assertTrue("The is one join request", count == BigInteger.ONE);
 
     }
 }

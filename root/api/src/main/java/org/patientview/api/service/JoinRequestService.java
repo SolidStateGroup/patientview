@@ -6,6 +6,7 @@ import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -14,6 +15,9 @@ import java.util.List;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface JoinRequestService {
+
+    BigInteger getCount(Long userId)
+            throws ResourceNotFoundException;
 
     JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException;
 

@@ -45,13 +45,12 @@
                 <div accordion-heading class="accordion-heading">
                     <div class="faux-row" ng-click="opened(joinRequest, $event, status)">
                         <div class="row-item hidden">{{joinRequest.id}}</div>
-                        <div class="row-item accordion-heading-text">{{joinRequest.forename}} {{joinRequest.surname}}
-                        </div>
-                        <div class="row-item accordion-heading-text">{{joinRequest.dateOfBirth}}</div>
+                        <div class="row-item accordion-heading-text">{{joinRequest.forename}} {{joinRequest.surname}}</div>
+                        <div class="row-item accordion-heading-text">{{joinRequest.dateOfBirth  | date:'dd-MMM-yyyy'}}</div>
                         <div class="row-item accordion-heading-text">{{joinRequest.nhsNumber}}</div>
                         <div class="row-item accordion-heading-text">{{joinRequest.email}}</div>
                         <div class="row-item accordion-heading-text">{{joinRequest.group.name}}</div>
-                        <div class="row-item accordion-heading-text">{{joinRequest.created}}</div>
+                        <div class="row-item accordion-heading-text">{{joinRequest.created  | date:'dd-MMM-yyyy'}}</div>
                         <div class="row-item accordion-heading-text">{{joinRequest.status}}</div>
                         <div class="button-dropdown-group">
                             <button type="button" class="btn blue pull-left">

@@ -11,10 +11,10 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.JoinRequestRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -32,7 +32,6 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
     @Inject
     private JoinRequestRepository joinRequestRepository;
-
 
     @Override
     public JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException {
@@ -54,6 +53,22 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             return Util.iterableToList(joinRequestRepository.findAll());
         }
         throw new SecurityException("Invalid role for join requests");
+    }
+
+    @Override
+    public BigInteger getCount(Long userId)
+            throws ResourceNotFoundException {
+        User user = findUser(userId);
+
+        if (Util.doesContainRole(getRoles(), RoleName.SPECIALTY_ADMIN)) {
+            return joinRequestRepository.countByParentUser(user);
+        } else if (Util.doesContainRole(getRoles(), RoleName.UNIT_ADMIN)) {
+            return joinRequestRepository.countByUser(user);
+        } else if (Util.doesContainRole(getRoles(), RoleName.GLOBAL_ADMIN)) {
+            return BigInteger.valueOf(joinRequestRepository.count());
+        }
+
+        throw new SecurityException("Invalid role join requests");
     }
 
     @Override
@@ -99,6 +114,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
      * @return
      * @throws ResourceNotFoundException
      */
+    @Override
     public JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException {
         JoinRequest entityJoinRequest = joinRequestRepository.findOne(joinRequest.getId());
 
@@ -107,12 +123,12 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         }
 
         if (joinRequest.getStatus() == JoinRequestStatus.COMPLETED) {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User user = getUser();
             entityJoinRequest.setCompletedBy(userRepository.findOne(user.getId()));
         }
+
         entityJoinRequest.setStatus(joinRequest.getStatus());
         entityJoinRequest.setNotes(joinRequest.getNotes());
-
         return joinRequestRepository.save(entityJoinRequest);
     }
 }
