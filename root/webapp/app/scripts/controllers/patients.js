@@ -87,10 +87,13 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         // check if user can be removed from groups associated with logged in user
         $scope.user.canRemoveFromMyGroups = false;
 
-        // check if user in other groups but mine (not including Generic)
+        // check if user in other units (not specialties) but mine (not including Generic)
         for (i=0;i<allGroups.length;i++) {
             for (j=0;j<user.groupRoles.length;j++) {
-                if (user.groupRoles[j].group.code != 'Generic') {
+                var groupRoleGroupCode = user.groupRoles[j].group.code;
+                var groupRoleGroupType = user.groupRoles[j].group.groupType.value;
+
+                if (groupRoleGroupCode != 'Generic' && groupRoleGroupType != 'SPECIALTY') {
                     if (allGroups[i].id === user.groupRoles[j].group.id) {
                         inMyGroups = true;
                     } else {
@@ -297,9 +300,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             // A unit admin cannot remove patient from groups to which the unit admin is not assigned.
             $scope.permissions.allGroupsIds = [];
 
-            // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
+            // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN or UNIT_ADMIN, todo: awaiting better security on users
             $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
             $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+            $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
 
             // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN ...
             if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
@@ -307,6 +311,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 $scope.permissions.canDeleteGroupRolesDuringEdit = true;
                 // to see the option to permanently delete patients
                 $scope.permissions.canDeleteUsers = true;
+            }
+
+            // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN or UNIT_ADMIN ...
+            if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
+                // to see the option to delete patients in menu
+                $scope.permissions.showDeleteMenuOption = true;
             }
 
             // get patient type roles

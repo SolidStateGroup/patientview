@@ -43,7 +43,6 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngRoute'
 ]);
 
-
 patientviewApp.filter('startFrom', function() {
     return function(input, start) {
         if(input) {
@@ -65,16 +64,13 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
         $httpProvider.interceptors.push('HttpResponseInterceptor');
         RestangularProvider.setBaseUrl(ENV.apiEndpoint);
         RestangularProvider.setDefaultHeaders({ 'Content-Type': 'application/json' });
-        //RestangularProvider.setDefaultHeaders({ 'Accept': 'application/json' });
-        //RestangularProvider.setBaseUrl('/api');
         $routeProviderReference = $routeProvider;
     }]);
 
-patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'localStorageService', 'Restangular', '$route', 'RouteService','ENV',
-    function($rootScope, $location, $cookieStore, $cookies, localStorageService, Restangular, $route, RouteService, ENV) {
+patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular', '$route', 'RouteService', 'ENV', 'ConversationService',
+    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route, RouteService, ENV, ConversationService) {
 
     $rootScope.ieTestMode = false;
-
 
     // rebuild routes from cookie, allow refresh of page
     var buildRoute = function() {
@@ -134,22 +130,55 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
         }
     };
 
+    // global function to retrieve number of unread messages
+    $rootScope.setUnreadConversationCount = function() {
+        if ($rootScope.loggedInUser) {
+            ConversationService.getUnreadConversationCount($rootScope.loggedInUser.id).then(function(unreadCount) {
+                $rootScope.unreadConversationCount = unreadCount.toString();
+            }, function() {
+
+            });
+        }
+    };
+
+    // global function to parse HTML (used in messaging, news)
+    $rootScope.parseHTMLText = function (text) {
+        if (text) {
+            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
+        }
+    };
+
+    // global function to order groups by type
+    $rootScope.orderGroups = function (group) {
+        if (group.groupType) {
+            var groupTypes = [];
+            groupTypes.SPECIALTY = 1;
+            groupTypes.UNIT = 2;
+            groupTypes.DISEASE_GROUP = 3;
+
+            if (groupTypes[group.groupType.value]) {
+                return groupTypes[group.groupType.value];
+            }
+        }
+        return 0;
+    };
+
     $rootScope.$on('$locationChangeStart', function() {
         buildRoute();
     });
 
-    //$rootScope.$on('$routeChangeSuccess', function(event, currentRoute, previousRoute) {
     $rootScope.$on('$routeChangeSuccess', function(event, currentRoute) {
         $rootScope.title = currentRoute.title;
+    });
+
+    $rootScope.$on('$viewContentLoaded', function(){
+        $rootScope.setUnreadConversationCount();
     });
 
     $rootScope.logout = function() {
         delete $rootScope.routes;
         delete $rootScope.loggedInUser;
         delete $rootScope.authToken;
-        //$cookieStore.remove('routes');
-        //$cookieStore.remove('loggedInUser');
-        //$cookieStore.remove('authToken');
         localStorageService.clearAll();
         $location.path('/');
     };
@@ -181,6 +210,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
 
     $rootScope.initialised = true;
     $rootScope.endPoint = ENV.apiEndpoint;
+
 }]);
 
 $('html').click(function(e){

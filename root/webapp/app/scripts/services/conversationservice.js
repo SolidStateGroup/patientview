@@ -11,6 +11,16 @@ angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangu
             });
             return deferred.promise;
         },
+        getUnreadConversationCount: function (userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/conversations/unreadcount
+            Restangular.one('user', userId).one('conversations/unreadcount').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getAll: function (user, page, size) {
             var deferred = $q.defer();
             // GET /user/{userId}/conversations?page=0&size=5

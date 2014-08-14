@@ -27,7 +27,7 @@
                     </span>
                 </h2>
                 <div class="last-message">
-                    <p class="message-content" ng-bind-html="parseStoryPreview(editNews.story)"></p>
+                    <p class="message-content" ng-bind-html="parseHTMLText(editNews.story)"></p>
                 </div>
             </div>
         </div>
@@ -61,4 +61,10 @@
             <div class=""><button type="button" class="btn btn-primary group-add-button" ng-click="addNewsLink(newsForm, editNews, groupToAdd, roleToAdd)" ng-disabled="!roleToAdd">Add</button></div>
         </div>
     </div>
+</div>
+
+<div class="row form-edit-row">
+    <span ng-show="editNews.lastUpdate && editNews.lastUpdater" class="pull-right">
+        Updated {{editNews.lastUpdate | date:'dd-MMM-yyyy HH:mm'}} by {{editNews.lastUpdater.forename}} {{editNews.lastUpdater.surname}}
+    </span>
 </div>

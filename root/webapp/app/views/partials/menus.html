@@ -37,6 +37,9 @@
                         <i class="icon-messages"></i>
                         {{menuitem.title}}
                     </a>
+                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Messages' && unreadConversationCount > 0">
+                        <span class="label label-warning">{{unreadConversationCount}}</span>
+                    </a>
                 </li>
             </ul>
         </div>
@@ -46,7 +49,9 @@
         <div class="content-panel clearfix">
             <div ng-hide="!authToken" ng-cloak>
                 <ul class="secondary-nav nav nav-pills pull-left">
-                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
+                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" >
+                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a>
+                    </li>
                 </ul>
             </div>
         </div>

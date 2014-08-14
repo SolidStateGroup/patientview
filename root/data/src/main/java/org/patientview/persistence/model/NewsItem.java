@@ -80,7 +80,6 @@ public class NewsItem extends BaseModel implements Editable {
         this.newsLinks = newsLinks;
     }
 
-    @JsonIgnore
     public Date getLastUpdate() {
         return lastUpdate;
     }
@@ -89,7 +88,6 @@ public class NewsItem extends BaseModel implements Editable {
         this.lastUpdate = lastUpdate;
     }
 
-    @JsonIgnore
     public User getLastUpdater() {
         return lastUpdater;
     }

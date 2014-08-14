@@ -42,7 +42,7 @@
                 <div class="col-sm-10">
                     Role: <br/><div buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userFormExisting, editUser, $event)"></div>
                     <br/>Group:
-                    <select class="form-control group-select" ng-model="editUser.groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
+                    <select class="form-control group-select" ng-model="editUser.groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editUser.availableGroups | orderBy:[orderGroups,'name']"></select>
                 </div>
                 <div class="col-sm-2"><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userFormExisting, editUser, editUser.groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button></div>
             </div>
