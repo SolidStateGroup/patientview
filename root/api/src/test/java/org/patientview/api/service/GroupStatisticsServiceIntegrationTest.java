@@ -15,7 +15,7 @@ import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
-import org.patientview.persistence.model.enums.StatisticTypes;
+import org.patientview.persistence.model.enums.StatisticType;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.test.util.DataTestUtils;
@@ -100,13 +100,13 @@ public class GroupStatisticsServiceIntegrationTest {
         lookupTypeRepository.save(lookupType);
 
         Lookup lookup = new Lookup();
-        lookup.setValue(StatisticTypes.PATIENT_COUNT.name());
+        lookup.setValue(StatisticType.PATIENT_COUNT.name());
         lookup.setDescription("SELECT COUNT(1) FROM pv_user_group_role WHERE creation_date BETWEEN :startDate AND :endDate AND group_id = :groupId");
         lookup.setLookupType(lookupType);
         lookupRepository.save(lookup);
 
         lookup = new Lookup();
-        lookup.setValue(StatisticTypes.LOGON_COUNT.name());
+        lookup.setValue(StatisticType.LOGON_COUNT.name());
         lookup.setDescription("SELECT COUNT(1) FROM pv_audit WHERE creation_date BETWEEN :startDate AND :endDate AND id > :groupId");
         lookup.setLookupType(lookupType);
         lookupRepository.save(lookup);

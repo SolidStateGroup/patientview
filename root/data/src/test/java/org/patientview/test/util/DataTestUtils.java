@@ -13,7 +13,7 @@ import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -89,7 +89,7 @@ public class DataTestUtils {
     }
 
     public Role createRole(String name, User creator) {
-        Role role = TestUtils.createRole(null, Roles.PATIENT, creator);
+        Role role = TestUtils.createRole(null, RoleName.PATIENT, creator);
 
         RoleType roleType = new RoleType();
         roleType.getValue();

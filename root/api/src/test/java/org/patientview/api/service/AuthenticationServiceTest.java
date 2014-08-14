@@ -11,7 +11,7 @@ import org.patientview.api.service.impl.AuthenticationServiceImpl;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -149,7 +149,7 @@ public class AuthenticationServiceTest {
         userToken.setExpiration(new Date());
         userToken.setCreated(new Date());
 
-        Role authority = TestUtils.createRole(1l, Roles.GLOBAL_ADMIN, TestUtils.createUser(2L, "creator"));
+        Role authority = TestUtils.createRole(1l, RoleName.GLOBAL_ADMIN, TestUtils.createUser(2L, "creator"));
         List<Role> authorities = new ArrayList<Role>();
         authorities.add(authority);
 

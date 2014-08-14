@@ -9,19 +9,27 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
     });
 
     JoinRequestService.getByUser($rootScope.loggedInUser.id).then(function(data) {
-        $scope.joinRequests = data;
+        $scope.joinRequests = $scope.initRequests(data);
 
     });
 
     $scope.filter = function (status) {
         JoinRequestService.getByType($rootScope.loggedInUser.id, status).then(function(data) {
-            $scope.joinRequests = data;
+            $scope.joinRequests = $scope.initRequests(data);
         });
-    };
+    },
 
     $scope.save = function(form, joinRequest) {
+        joinRequest.status = joinRequest.newStatus;
         JoinRequestService.save(joinRequest);
         $scope.saved = true;
+    },
+
+    $scope.initRequests = function(requests) {
+        requests.forEach(function(request) {
+            request.newStatus = request.status;
+        });
+        return requests;
     };
 
 }]);

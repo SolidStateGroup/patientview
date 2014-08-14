@@ -55,6 +55,8 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
         // save an existing join request
         save: function (joinRequest) {
             // PUT /group
+            joinRequest = UtilService.cleanObject(joinRequest, 'joinRequest');
+
             var deferred = $q.defer();
             Restangular.all('joinrequest').customPUT(joinRequest).then(function(successResult) {
                 deferred.resolve(successResult);

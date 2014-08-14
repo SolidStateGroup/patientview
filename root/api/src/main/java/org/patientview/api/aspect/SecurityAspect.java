@@ -9,7 +9,7 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +91,7 @@ public class SecurityAspect {
             return;
         }
 
-        Roles[] roles = Util.getRoles(joinPoint);
+        RoleName[] roles = Util.getRoles(joinPoint);
 
         // Now the check for a user being in a group.
         if (doesUserHaveRoles(roles, SecurityContextHolder.getContext().getAuthentication().getAuthorities())) {
@@ -108,12 +108,12 @@ public class SecurityAspect {
         LOG.info("PointCut");
     }
 
-    private boolean doesUserHaveRoles(Roles[] annotatedRoles,
+    private boolean doesUserHaveRoles(RoleName[] annotatedRoles,
                                       Collection<? extends GrantedAuthority> grantedAuthorities) {
-        for (Roles roles : annotatedRoles) {
+        for (RoleName roleName : annotatedRoles) {
             for (GrantedAuthority grantedAuthority : grantedAuthorities) {
                 Role role = (Role) grantedAuthority;
-                if (role.getName().equals(roles)) {
+                if (role.getName().equals(roleName)) {
                     return true;
                 }
             }

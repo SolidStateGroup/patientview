@@ -65,10 +65,10 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (44, now(), 'DELETE_PATIENT_COUNT', 'SELECT  COUNT(DISTINCT source_object_id) FROM    patientview.pv_audit adt,       patientview.pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 
 
-INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By) VALUES (1, 'Generic', 'Generic', null, 2, false, now(),1 );
-INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By) VALUES (2, 'Renal', 'Renal', null, 2, true, now(),1 );
-INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By) VALUES (3, 'Diabetes', 'Diabetes', null, 2, true, now(), 1);
-INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By) VALUES (4, 'IBD', 'IBD', null, 2, true, now(), 1);
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (1, 'Generic', 'Generic', null, 2, false, now(),1, false );
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (2, 'Renal', 'Renal', null, 2, true, now(),1 , true);
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (3, 'Diabetes', 'Diabetes', null, 2, true, now(), 1, true);
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (4, 'IBD', 'IBD', null, 2, true, now(), 1, true);
 
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '2', true, 'Patient', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '4', true, 'Unit Admin', now(), '1');
@@ -126,7 +126,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (16, 4, 12,  '/patients', 'views/patients.html','PatientsCtrl', 'Patients', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (17, 4, 13,  '/joinrequestadmin', 'views/joinrequestadmin.html','JoinRequestAdminCtrl', 'Join Request Admin', now(), 1 );
+  (17, 4, 13,  '/joinrequestadmin', 'views/joinrequestadmin.html','JoinRequestAdminCtrl', 'Join Requests', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (18, 4, 15,  '/news', 'views/news.html','NewsCtrl', 'News', now(), 1 );
 
@@ -171,6 +171,11 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
   (19, 17, null, 2, null, now(), 1 );
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (20, 18, 1, null, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (21, 17, null, 4, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (22, 17, null, 5, null, now(), 1 );
+
 
 INSERT INTO PV_User_Token(Id, User_Id, Token, Creation_Date) VALUES
   (1, 2, 'pppppp', now())
