@@ -11,15 +11,19 @@ import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.JoinRequestServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.JoinRequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -68,7 +72,6 @@ public class JoinRequestServiceTest {
         joinRequest.setSurname("User");
         joinRequest.setDateOfBirth(new Date());
 
-
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(joinRequestRepository.save(any(JoinRequest.class))).thenReturn(joinRequest);
 
@@ -111,9 +114,14 @@ public class JoinRequestServiceTest {
      * Fail: Appropriate service method not called
      */
     @Test
-    public void testGetJoinRequest_validGroup() throws ResourceNotFoundException {
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+    public void testGetJoinRequestUnitAdmin_validGroup() throws ResourceNotFoundException {
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(3l, RoleName.UNIT_ADMIN, creator));
         User user = TestUtils.createUser(2L, "testUser");
+        TestUtils.authenticateTest(user, roles);
+
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
@@ -127,6 +135,61 @@ public class JoinRequestServiceTest {
         verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(joinRequestRepository, Mockito.times(1)).findByUser(eq(user));
     }
+
+    /**
+     * Test: Attempt to retrieve the join request that are related to a user
+     * Fail: Appropriate service method not called
+     */
+    @Test
+    public void testGetJoinRequestUnitAdminByStatus_validGroup() throws ResourceNotFoundException {
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(3l, RoleName.UNIT_ADMIN, creator));
+        User user = TestUtils.createUser(2L, "testUser");
+        TestUtils.authenticateTest(user, roles);
+
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setForename("Test");
+        joinRequest.setSurname("User");
+        joinRequest.setDateOfBirth(new Date());
+        joinRequest.setGroup(group);
+
+        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+
+        joinRequestService.getByStatus(group.getId(), JoinRequestStatus.COMPLETED);
+
+        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(joinRequestRepository, Mockito.times(1)).findByUserAndStatus(eq(user), eq(JoinRequestStatus.COMPLETED));
+    }
+
+    /**
+     * Test: Attempt to retrieve the join request that are related to a user
+     * Fail: Appropriate service method not called
+     */
+    @Test
+    public void testGetJoinRequestSpecialtyAdmin_validGroup() throws ResourceNotFoundException {
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(3l, RoleName.SPECIALTY_ADMIN, creator));
+        User user = TestUtils.createUser(2L, "testUser");
+        TestUtils.authenticateTest(user, roles);
+
+        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setForename("Test");
+        joinRequest.setSurname("User");
+        joinRequest.setDateOfBirth(new Date());
+        joinRequest.setGroup(group);
+
+        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+
+        joinRequestService.get(group.getId());
+
+        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(joinRequestRepository, Mockito.times(1)).findByParentUser(eq(user));
+    }
+
 
     /**
      * Test: Attempt to retrieve the join request that are related to a user

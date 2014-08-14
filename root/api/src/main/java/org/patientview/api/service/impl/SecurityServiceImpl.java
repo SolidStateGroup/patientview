@@ -7,7 +7,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
@@ -65,9 +65,9 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
 
     public List<Group> getUserGroups(Long userId) {
         User user = userRepository.findOne(userId);
-        if (doesListContainRole(roleRepository.findByUser(user), Roles.GLOBAL_ADMIN)) {
+        if (doesListContainRole(roleRepository.findByUser(user), RoleName.GLOBAL_ADMIN)) {
             return Util.iterableToList(groupService.findAll());
-        } else if (doesListContainRole(roleRepository.findByUser(user), Roles.SPECIALTY_ADMIN)) {
+        } else if (doesListContainRole(roleRepository.findByUser(user), RoleName.SPECIALTY_ADMIN)) {
             // if specialty admin get specialty group and all child groups
             return Util.iterableToList(groupService.findGroupAndChildGroupsByUser(user));
         }
@@ -76,7 +76,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         }
     }
 
-    private boolean doesListContainRole(List<Role> roles, Roles roleName) {
+    private boolean doesListContainRole(List<Role> roles, RoleName roleName) {
         for (Role role : roles) {
             if (role.getName().equals(roleName)) {
                 return true;

@@ -5,7 +5,7 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.RoleTypes;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -61,7 +61,7 @@ public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> impl
         return Util.iterableToList(roleRepository.findAll());
     }
 
-    public List<Role> getRolesByType(RoleTypes type) {
+    public List<Role> getRolesByType(RoleType type) {
 
         return Util.iterableToList(roleRepository.findByRoleType(type));
 

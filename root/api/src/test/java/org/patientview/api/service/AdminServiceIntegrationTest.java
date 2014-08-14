@@ -10,7 +10,7 @@ import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -109,7 +109,7 @@ public class AdminServiceIntegrationTest {
 
     private Role createRole(String name) {
         Role role = new Role();
-        role.setName(Roles.STAFF_ADMIN);
+        role.setName(RoleName.STAFF_ADMIN);
         role.setCreated(new Date());
         role.setCreator(systemUser);
         roleRepository.save(role);

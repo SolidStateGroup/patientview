@@ -8,8 +8,8 @@ import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.RoleTypes;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -103,8 +103,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     private boolean userIsGlobalSpecialtyAdmin(User user) {
         boolean specialtyOrGlobalAdmin = false;
         for (GroupRole groupRole : user.getGroupRoles()) {
-            Roles groupRoleName = groupRole.getRole().getName();
-            if (groupRoleName.equals(Roles.GLOBAL_ADMIN) || groupRoleName.equals(Roles.SPECIALTY_ADMIN)) {
+            RoleName groupRoleName = groupRole.getRole().getName();
+            if (groupRoleName.equals(RoleName.GLOBAL_ADMIN) || groupRoleName.equals(RoleName.SPECIALTY_ADMIN)) {
                 specialtyOrGlobalAdmin = true;
             }
         }
@@ -113,13 +113,13 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     private boolean userIsUnitAdminForNewsLink(final NewsLink newsLink, final User user) {
         for (GroupRole groupRole : user.getGroupRoles()) {
-            RoleTypes groupRoleRoleType = groupRole.getRole().getRoleType().getValue();
-            Roles groupRoleRoleName = groupRole.getRole().getName();
+            RoleType groupRoleRoleType = groupRole.getRole().getRoleType().getValue();
+            RoleName groupRoleRoleName = groupRole.getRole().getName();
             Group groupRoleGroup = groupRole.getGroup();
 
             // only STAFF role types can edit/delete, allow edit/delete if newsLink linked to your group and UNIT_ADMIN
-            if (groupRoleRoleType.equals(RoleTypes.STAFF) &&
-                    (groupRoleGroup.equals(newsLink.getGroup()) && groupRoleRoleName.equals(Roles.UNIT_ADMIN))) {
+            if (groupRoleRoleType.equals(RoleType.STAFF) &&
+                    (groupRoleGroup.equals(newsLink.getGroup()) && groupRoleRoleName.equals(RoleName.UNIT_ADMIN))) {
                 return true;
             }
         }
@@ -133,7 +133,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             Role newsLinkRole = newsLink.getRole();
 
             // ignore newsLink where global admin role and no group (added by default during creation)
-            if (!(newsLinkRole != null && newsLinkRole.equals(Roles.GLOBAL_ADMIN)) && newsLinkGroup != null) {
+            if (!(newsLinkRole != null && newsLinkRole.equals(RoleName.GLOBAL_ADMIN)) && newsLinkGroup != null) {
                 if(userIsUnitAdminForNewsLink(newsLink, user)) {
                     canEditDeleteNewsItem = true;
                 }

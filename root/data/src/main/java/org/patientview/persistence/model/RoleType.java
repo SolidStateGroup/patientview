@@ -1,7 +1,5 @@
 package org.patientview.persistence.model;
 
-import org.patientview.persistence.model.enums.RoleTypes;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,13 +16,13 @@ public class RoleType extends GenericLookup {
 
     @Column(name = "value")
     @Enumerated(EnumType.STRING)
-    private RoleTypes value;
+    private org.patientview.persistence.model.enums.RoleType value;
 
-    public RoleTypes getValue() {
+    public org.patientview.persistence.model.enums.RoleType getValue() {
         return value;
     }
 
-    public void setValue(final RoleTypes value) {
+    public void setValue(final org.patientview.persistence.model.enums.RoleType value) {
         this.value = value;
     }
 }

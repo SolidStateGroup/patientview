@@ -29,9 +29,10 @@ public class JoinRequest extends BaseModel {
     @Column(name = "surname")
     private String surname;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
+
     @Column(name = "date_of_birth")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private Date dateOfBirth;
 
     @Column(name = "nhs_number")
@@ -46,7 +47,7 @@ public class JoinRequest extends BaseModel {
 
     @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
+
     private Date created = new Date();
 
     @Column(name = "status")

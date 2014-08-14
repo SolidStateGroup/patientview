@@ -7,10 +7,14 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
-import org.patientview.persistence.model.enums.StatisticTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.StatisticType;
 import org.patientview.test.util.TestUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -109,7 +113,7 @@ public class UtilTest {
         LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.STATISTIC_TYPE, creator);
 
         int i = 0;
-        for (StatisticTypes statisticType : StatisticTypes.values()) {
+        for (StatisticType statisticType : StatisticType.values()) {
             Lookup lookup = TestUtils.createLookup(Long.valueOf(i),lookupType, statisticType.name(), creator);
             GroupStatistic groupStatistic = TestUtils.createGroupStatistics(group, BigInteger.TEN, lookup);
             groupStatistics.add(groupStatistic);
@@ -117,6 +121,36 @@ public class UtilTest {
         }
 
         return groupStatistics;
+
+    }
+
+    /**
+     * Test: The conversion of roles to GrantedAuthorities
+     * Fail: Anything but a list of roles from a list of GrantAuthorities
+     */
+    @Test
+    public void testConvertAuthorities() {
+        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        grantedAuthorities.add(TestUtils.createRole(1L, RoleName.GLOBAL_ADMIN, creator));
+        grantedAuthorities.add(TestUtils.createRole(1L, RoleName.UNIT_ADMIN, creator));
+        grantedAuthorities.add(TestUtils.createRole(1L, RoleName.SPECIALTY_ADMIN, creator));
+
+        List<Role> roles = Util.convertAuthorities(grantedAuthorities);
+
+        Assert.assertTrue("The list is not empty", !CollectionUtils.isEmpty(roles));
+
+    }
+
+    /**
+     * Test: Does the List of Roles contain the role
+     */
+    public void testDoesRoleContain() {
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(1L, RoleName.PATIENT, creator));
+        roles.add(TestUtils.createRole(1L, RoleName.UNIT_ADMIN, creator));
+
+        Assert.assertFalse("The list does not contain the following role", Util.doesContainRole(roles, RoleName.SPECIALTY_ADMIN));
+        Assert.assertTrue("The list does not contain the following role", Util.doesContainRole(roles, RoleName.PATIENT));
 
     }
 }

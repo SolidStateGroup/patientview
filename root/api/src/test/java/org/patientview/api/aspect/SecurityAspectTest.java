@@ -23,7 +23,7 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.util.TestUtils;
 import org.powermock.api.mockito.PowerMockito;
@@ -115,7 +115,7 @@ public class SecurityAspectTest {
         User testUser = TestUtils.createUser(1L, "testUser");
         // Group for the user to access but also be a member of
         Group testGroup = TestUtils.createGroup(2L, "testGroup", creator);
-        Role testRole = TestUtils.createRole(3L, Roles.UNIT_ADMIN, creator);
+        Role testRole = TestUtils.createRole(3L, RoleName.UNIT_ADMIN, creator);
         // Roles for the user to be authenticated against
         Set<Role> roles = new HashSet<Role>();
         roles.add(testRole);
@@ -137,7 +137,7 @@ public class SecurityAspectTest {
         when(methodSignature.getMethod()).thenReturn(method);
         when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
         when(groupService.findGroupByUser(any(User.class))).thenReturn(groups);
-        Roles[] rolesNames = new Roles[] {Roles.STAFF_ADMIN, Roles.UNIT_ADMIN};
+        RoleName[] rolesNames = new RoleName[] {RoleName.STAFF_ADMIN, RoleName.UNIT_ADMIN};
         when(Util.getRoles(joinPoint)).thenReturn(rolesNames);
 
         // FIX ME groupService.findGroupByUser does not seem to want to return this
@@ -166,7 +166,7 @@ public class SecurityAspectTest {
         User testUser = TestUtils.createUser(1L, "testUser");
         // Group for the user to access but also be a member of
         Group testGroup = TestUtils.createGroup(2L, "testGroup", creator);
-        Role testRole = TestUtils.createRole(3L, Roles.UNIT_ADMIN, creator);
+        Role testRole = TestUtils.createRole(3L, RoleName.UNIT_ADMIN, creator);
         // Roles for the user to be authenticated against
         Set<Role> roles = new HashSet<Role>();
         roles.add(testRole);
@@ -188,7 +188,7 @@ public class SecurityAspectTest {
         when(methodSignature.getMethod()).thenReturn(method);
         when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
         when(groupService.findGroupByUser(any(User.class))).thenReturn(groups);
-        Roles[] rolesNames = new Roles[] {Roles.STAFF_ADMIN, Roles.UNIT_ADMIN};
+        RoleName[] rolesNames = new RoleName[] {RoleName.STAFF_ADMIN, RoleName.UNIT_ADMIN};
         when(Util.getRoles(joinPoint)).thenReturn(rolesNames);
 
         // FIX ME groupService.findGroupByUser does not seem to want to return this
@@ -218,7 +218,7 @@ public class SecurityAspectTest {
         // Group for the user to access but also be a member of
         Group testGroup = TestUtils.createGroup(2L, "testGroup", creator);
         Group otherTestGroup = TestUtils.createGroup(3L, "testOtherGroup", creator);
-        Role testRole = TestUtils.createRole(3L, Roles.UNIT_ADMIN, creator);
+        Role testRole = TestUtils.createRole(3L, RoleName.UNIT_ADMIN, creator);
         // Roles for the user to be authenticated against
         Set<Role> roles = new HashSet<Role>();
         roles.add(testRole);
@@ -240,7 +240,7 @@ public class SecurityAspectTest {
         when(methodSignature.getMethod()).thenReturn(method);
         when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
         when(groupService.findGroupByUser(any(User.class))).thenReturn(groups);
-        Roles[] rolesNames = new Roles[] {Roles.STAFF_ADMIN, Roles.UNIT_ADMIN};
+        RoleName[] rolesNames = new RoleName[] {RoleName.STAFF_ADMIN, RoleName.UNIT_ADMIN};
         when(Util.getRoles(joinPoint)).thenReturn(rolesNames);
 
         // FIX ME groupService.findGroupByUser does not seem to want to return this
@@ -270,7 +270,7 @@ public class SecurityAspectTest {
         // Group for the user to access but also be a member of
         Group testGroup = TestUtils.createGroup(2L, "testGroup", creator);
         Group otherTestGroup = TestUtils.createGroup(3L, "testOtherGroup", creator);
-        Role testRole = TestUtils.createRole(3L, Roles.UNIT_ADMIN, creator);
+        Role testRole = TestUtils.createRole(3L, RoleName.UNIT_ADMIN, creator);
         // Roles for the user to be authenticated against
         Set<Role> roles = new HashSet<Role>();
         roles.add(testRole);
@@ -292,7 +292,7 @@ public class SecurityAspectTest {
         when(methodSignature.getMethod()).thenReturn(method);
         when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
         when(groupService.findGroupByUser(any(User.class))).thenReturn(groups);
-        Roles[] rolesNames = new Roles[] {Roles.STAFF_ADMIN, Roles.UNIT_ADMIN};
+        RoleName[] rolesNames = new RoleName[] {RoleName.STAFF_ADMIN, RoleName.UNIT_ADMIN};
         when(Util.getRoles(joinPoint)).thenReturn(rolesNames);
 
         // FIX ME groupService.findGroupByUser does not seem to want to return this

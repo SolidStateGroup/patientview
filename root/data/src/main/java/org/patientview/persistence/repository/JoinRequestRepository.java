@@ -1,5 +1,6 @@
 package org.patientview.persistence.repository;
 
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long> {
 
+    Iterable<JoinRequest> findByStatus(JoinRequestStatus status);
+
     @Query("SELECT jr " +
            "FROM   JoinRequest jr " +
            "JOIN   jr.group.groupRoles gr " +
@@ -29,6 +32,27 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
             "JOIN   jr.group.groupRoles gr " +
             "WHERE  gr.user = :user " +
             "AND    jr.status = :status")
-    Iterable<JoinRequest> findByUserAndType(@Param("user") User user,
-                                            @Param("status")JoinRequestStatus joinRequestStatus);
+    Iterable<JoinRequest> findByUserAndStatus(@Param("user") User user,
+                                              @Param("status") JoinRequestStatus joinRequestStatus);
+
+
+    @Query("SELECT jr " +
+            "FROM   JoinRequest jr " +
+            "JOIN   jr.group jgr " +
+            "JOIN   jgr.groupRelationships grs " +
+            "JOIN   grs.objectGroup.groupRoles gr " +
+            "WHERE  gr.user = :user " +
+            "AND    grs.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.PARENT")
+    Iterable<JoinRequest> findByParentUser(@Param("user") User user);
+
+    @Query("SELECT jr " +
+           "FROM   JoinRequest jr " +
+           "JOIN   jr.group jgr " +
+           "JOIN   jgr.groupRelationships grs " +
+           "JOIN   grs.objectGroup.groupRoles gr " +
+           "WHERE  gr.user = :user " +
+           "AND    jr.status = :status " +
+           "AND    grs.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.PARENT")
+    Iterable<JoinRequest> findByParentUserAndStatus(@Param("user") User user,
+                                                    @Param("status") JoinRequestStatus joinRequestStatus);
 }

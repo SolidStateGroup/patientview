@@ -12,9 +12,8 @@ import org.patientview.api.service.impl.SecurityServiceImpl;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -96,7 +95,7 @@ public class SecurityServiceTest {
         User testUser = TestUtils.createUser(23L, "testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, Roles.GLOBAL_ADMIN, creator));
+        roles.add(TestUtils.createRole(1L, RoleName.GLOBAL_ADMIN, creator));
         when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
@@ -116,7 +115,7 @@ public class SecurityServiceTest {
         User testUser = TestUtils.createUser(23L, "testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, Roles.UNIT_ADMIN, creator));
+        roles.add(TestUtils.createRole(1L, RoleName.UNIT_ADMIN, creator));
         when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());

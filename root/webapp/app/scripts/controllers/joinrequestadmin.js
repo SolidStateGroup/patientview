@@ -20,6 +20,7 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
     };
 
     $scope.save = function(form, joinRequest) {
+        $scope.joinRequest.status = form.joinRequest.newStatus;
         JoinRequestService.save(joinRequest);
         $scope.saved = true;
     };
