@@ -17,21 +17,6 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$sce', '$modalInstance'
             }
         }
 
-        // simple sorting
-        $scope.orderGroups = function (group) {
-            if (group.groupType) {
-                var groupTypes = [];
-                groupTypes.SPECIALTY = 1;
-                groupTypes.UNIT = 2;
-                groupTypes.DISEASE_GROUP = 3;
-
-                if (groupTypes[group.groupType.value]) {
-                    return groupTypes[group.groupType.value];
-                }
-            }
-            return 0;
-        };
-
         $scope.parseStoryPreview = function (text) {
             if (text) {
                 return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
@@ -84,21 +69,6 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         }
 
         $scope.permissions = permissions;
-    };
-
-    // simple sorting
-    $scope.orderGroups = function (group) {
-        if (group.groupType) {
-            var groupTypes = [];
-            groupTypes.SPECIALTY = 1;
-            groupTypes.UNIT = 2;
-            groupTypes.DISEASE_GROUP = 3;
-
-            if (groupTypes[group.groupType.value]) {
-                return groupTypes[group.groupType.value];
-            }
-        }
-        return 0;
     };
 
     $scope.parseStoryPreview = function (text) {

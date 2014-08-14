@@ -67,11 +67,10 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
         $routeProviderReference = $routeProvider;
     }]);
 
-patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'localStorageService', 'Restangular', '$route', 'RouteService', 'ENV', 'ConversationService',
-    function($rootScope, $location, $cookieStore, $cookies, localStorageService, Restangular, $route, RouteService, ENV, ConversationService) {
+patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular', '$route', 'RouteService', 'ENV', 'ConversationService',
+    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route, RouteService, ENV, ConversationService) {
 
     $rootScope.ieTestMode = false;
-
 
     // rebuild routes from cookie, allow refresh of page
     var buildRoute = function() {
@@ -140,6 +139,28 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', 'loca
 
             });
         }
+    };
+
+    // global function to parse HTML (used in messaging, news)
+    $rootScope.parseHTMLText = function (text) {
+        if (text) {
+            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
+        }
+    };
+
+    // global function to order groups by type
+    $rootScope.orderGroups = function (group) {
+        if (group.groupType) {
+            var groupTypes = [];
+            groupTypes.SPECIALTY = 1;
+            groupTypes.UNIT = 2;
+            groupTypes.DISEASE_GROUP = 3;
+
+            if (groupTypes[group.groupType.value]) {
+                return groupTypes[group.groupType.value];
+            }
+        }
+        return 0;
     };
 
     $rootScope.$on('$locationChangeStart', function() {

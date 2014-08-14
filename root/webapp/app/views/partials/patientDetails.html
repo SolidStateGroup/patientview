@@ -28,7 +28,7 @@
         </div>
         <div class="col-md-3 visible-for-col">
             <h5 for="user-dummy pull-left" class="control-label">Dummy Patient</h5>
-            <input type="checkbox" class="form-control" id="user-dummy" name="user-dummy" ng-model="editUser.dummy"/>
+            <input type="checkbox" class="form-control" id="user-dummy" name="user-dummy" ng-model="editUser.dummy" ng-disabled="true"/>
         </div>
     </div>
 </div>
@@ -46,7 +46,7 @@
         </ul>
         <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
             <div class="select-add-group">
-                <select class="form-control" ng-model="editUser.groupToAdd" ng-options="group.id as group.name for group in editUser.availableGroups"></select>
+                <select class="form-control" ng-model="editUser.groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editUser.availableGroups | orderBy:[orderGroups,'name']"></select>
                 <div class="group-list-item">
                     <button buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userForm, editUser, $event)"></button>
                 </div>
