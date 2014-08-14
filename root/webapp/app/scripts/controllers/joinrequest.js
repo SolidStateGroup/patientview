@@ -13,13 +13,16 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
 
     StaticDataService.getLookupByTypeAndValue('GROUP', 'SPECIALTY').then(function(lookup){
         GroupService.getAllByType(lookup.id).then(function(specialties) {
-            $scope.specialties = specialties;
+            $scope.specialties = [];
             specialties.forEach(function(entry) {
 
-                // Lets default to Renal and requery the units
-                if (entry.name === 'Renal') {
-                    $scope.joinRequest.specialty = entry.id;
-                    $scope.refreshUnits();
+                if (entry.visibleToJoin === true) {
+                    $scope.specialties.push(entry);
+                    // Lets default to Renal and requery the units
+                    if (entry.name === 'Renal') {
+                        $scope.joinRequest.specialty = entry.id;
+                        $scope.refreshUnits();
+                    }
                 }
             });
         });
@@ -81,8 +84,11 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
     $scope.refreshUnits = function() {
         if (typeof $scope.joinRequest.specialty !== 'undefined') {
             GroupService.getChildren($scope.joinRequest.specialty).then(function (units) {
-                $scope.units = units;
+                $scope.units = [];
                 units.forEach(function(entry) {
+                    if (entry.visibleToJoin === true) {
+                        $scope.units.push(entry);
+                    }
                     $scope.joinRequest.unit = entry.id;
                 });
 
