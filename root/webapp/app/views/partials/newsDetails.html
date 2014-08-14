@@ -62,3 +62,9 @@
         </div>
     </div>
 </div>
+
+<div class="row form-edit-row">
+    <span ng-show="editNews.lastUpdate && editNews.lastUpdater" class="pull-right">
+        Updated {{editNews.lastUpdate | date:'dd-MMM-yyyy HH:mm'}} by {{editNews.lastUpdater.forename}} {{editNews.lastUpdater.surname}}
+    </span>
+</div>
