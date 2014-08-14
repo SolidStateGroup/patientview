@@ -75,8 +75,10 @@
         <div class="quick-reply content-panel" ng-show="conversation.showMessages">
             <div class="message-summary" ng-repeat="message in conversation.messages | orderBy:'created'">
                 <div class="last-message">
-                    <span ng-show="message.unread" class="alert-success"> New </span>
-                    <h4>{{message.user.forename}} {{message.user.surname}}</h4>
+                    <h4>
+                        <span ng-show="message.unread" class="label label-success">New</span>
+                        {{message.user.forename}} {{message.user.surname}}
+                    </h4>
                     <p class="message-content" ng-bind-html="parseMessage(message.message)"></p>
                     <p class="date-stamp"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                 </div>

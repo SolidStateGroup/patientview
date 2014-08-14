@@ -11,6 +11,7 @@ import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -173,5 +174,37 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             entityMessage.getReadReceipts().add(new MessageReadReceipt(entityMessage, entityUser));
             messageRepository.save(entityMessage);
         }
+    }
+
+    // todo: convert to native query, performance improvements etc
+    public int getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
+        User entityUser = findEntityUser(userId);
+        Page<Conversation> conversationPage = findByUserId(userId, new PageRequest(0, Integer.MAX_VALUE));
+
+        if (conversationPage.getContent().size() == 0) {
+            return 0;
+        }
+
+        int unreadConversations = 0;
+
+        for (Conversation conversation : conversationPage.getContent()) {
+            int unreadMessages = 0;
+            for (Message message : conversation.getMessages()) {
+                boolean unread = true;
+                for (MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
+                    if (messageReadReceipt.getUser().equals(entityUser)) {
+                        unread = false;
+                    }
+                }
+                if (unread) {
+                    unreadMessages++;
+                }
+            }
+            if (unreadMessages > 0) {
+                unreadConversations++;
+            }
+        }
+
+        return unreadConversations;
     }
 }

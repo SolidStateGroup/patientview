@@ -199,6 +199,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
             $q.all(promises).then(function () {
                 conversation.unread = false;
                 conversation.showMessages = true;
+                $scope.setUnreadConversationCount();
             }, function() {
                 alert('Error adding read receipt for new messages');
             });
