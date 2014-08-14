@@ -11,7 +11,6 @@
         </div>
         <div class="col-md-3">
             <label for="group-groupType" class="ccontrol-label">Group Type <span class="error" ng-show="!editGroup.groupTypeId"> *required</span></label>
-            <!--<div class="col-sm-7" ng-show="(!permissions.isSuperAdmin && editMode)">{{editGroup.groupType.value}}</div>-->
             <div class=""><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
         </div>
         <div class="col-md-3">
@@ -67,7 +66,6 @@
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" ng-model="location.address" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" ng-model="location.web" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" ng-model="location.email" ></div>
-        <!--<div><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>-->
         <div class="btn-group">
             <button type="button" class="btn blue location-update-button" ng-click="updateLocation($event, groupForm, editGroup, location)">Update</button>
             <button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupForm, editGroup, location)">Delete</button>
@@ -95,7 +93,6 @@
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
         <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointType.id" ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" ng-model="contactPoint.content" required></div>
-        <!--<div><button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>-->
         <div class="btn-group">
             <button type="button" class="btn blue contactPoint-update-button" ng-click="updateContactPoint($event, groupForm, editGroup, contactPoint)">Update</button>
             <button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupForm, editGroup, contactPoint)">Delete</button>
@@ -129,7 +126,6 @@
                 <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)">Delete</button>
             </div>
             <span class="saved-notification" ng-show="link.saved">&nbsp; Saved Successfully!</span>
-            <!--<button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupForm, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>-->
         </div>
         <div class="add-form" ng-model="newLink">
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" ng-model="newLink.link"></div>
@@ -173,12 +169,12 @@
     <!-- TODO: hardcoded, only show parents if UNIT or DISEASE_GROUP -->
     <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT'] || editGroup.groupTypeId==groupTypesArray['DISEASE_GROUP']">
         <label>Parent Groups</label>
-        <div ng-hide="editGroup.parentGroups.length > 0" class="no-items">No parent groups</div>
+        <div ng-hide="editGroup.parentGroups.length > 0" class="no-items">No parent groups, must have at least one</div>
 
         <ul class="feature-list">
             <li class="feature-list-item" ng-repeat="parentGroup in editGroup.parentGroups">
                 <div class="feature-list-name"><span class="feature-list-name">{{parentGroup.name}}</span></div>
-                <div class="feature-list-delete" ng-show="permissions.canEditParentGroups">
+                <div class="feature-list-delete" ng-show="permissions.canEditParentGroups && editGroup.parentGroups.length > 1">
                     <a id="remove-parent-group-modal-{{parentGroup.id}}" href="" ng-click="removeParentGroup(groupForm, editGroup, parentGroup)" ><i class="glyphicon glyphicon-remove"></i></a>
                 </div>
             </li>

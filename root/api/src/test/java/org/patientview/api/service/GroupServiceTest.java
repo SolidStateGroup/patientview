@@ -169,8 +169,8 @@ public class GroupServiceTest {
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
         Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
         Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
-        Set<Group> childGroups = new HashSet<Group>();
-        Set<Group> parentGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
+        List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
         parentGroups.add(parentGroup);
         testGroup.setChildGroups(childGroups);
@@ -209,8 +209,8 @@ public class GroupServiceTest {
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
         Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
         Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
-        Set<Group> childGroups = new HashSet<Group>();
-        Set<Group> parentGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
+        List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
         parentGroups.add(parentGroup);
         testGroup.setChildGroups(childGroups);
@@ -345,7 +345,7 @@ public class GroupServiceTest {
         Group parentGroup = TestUtils.createGroup(2L, "parentGroup", creator);
         Group childGroup1  = TestUtils.createGroup(3L, "childGroup1", creator);
         Group childGroup2  = TestUtils.createGroup(4L, "childGroup2", creator);
-        Set<Group> childGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
         childGroups.add(childGroup1);
         childGroups.add(childGroup2);
         parentGroup.setChildGroups(childGroups);
