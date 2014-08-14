@@ -176,6 +176,22 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
+    private boolean conversationHasUnreadMessages(Conversation conversation, User user) {
+        int unreadMessages = 0;
+        for (Message message : conversation.getMessages()) {
+            boolean unread = true;
+            for (MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
+                if (messageReadReceipt.getUser().equals(user)) {
+                    unread = false;
+                }
+            }
+            if (unread) {
+                unreadMessages++;
+            }
+        }
+        return unreadMessages > 0;
+    }
+
     // todo: convert to native query, performance improvements etc
     public int getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
         User entityUser = findEntityUser(userId);
@@ -188,19 +204,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         int unreadConversations = 0;
 
         for (Conversation conversation : conversationPage.getContent()) {
-            int unreadMessages = 0;
-            for (Message message : conversation.getMessages()) {
-                boolean unread = true;
-                for (MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
-                    if (messageReadReceipt.getUser().equals(entityUser)) {
-                        unread = false;
-                    }
-                }
-                if (unread) {
-                    unreadMessages++;
-                }
-            }
-            if (unreadMessages > 0) {
+            if (conversationHasUnreadMessages(conversation, entityUser)) {
                 unreadConversations++;
             }
         }
