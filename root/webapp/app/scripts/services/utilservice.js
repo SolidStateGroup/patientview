@@ -25,6 +25,16 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             return !re.test(email);
         },
 
+        validationDate: function (day, month, year) {
+            var valid = true;
+            if((month < 1) || (month > 12)) valid = false;
+            else if((day < 1) || (day > 31)) valid = false;
+            else if(((month == 4) || (month == 6) || (month == 9) || (month == 11)) && (day > 30)) valid = false;
+            else if((month == 2) && (((year % 400) == 0) || ((year % 4) == 0)) && ((year % 100) != 0) && (day > 29)) valid = false;
+            else if((month == 2) && ((year % 100) == 0) && (day > 29)) valid = false;
+            return valid;
+        },
+
         // Used when cleaning objects before they are passed to REST service, object fields to keep
         getFields: function (objectType) {
             var fields = [];

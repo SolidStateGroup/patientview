@@ -35,19 +35,11 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
 
         var formOk = true;
 
-        if (!$scope.joinRequest.selectedYear) {
-            $scope.errorMessage = '- Please select a year';
+        if (typeof $scope.joinRequest.unit == 'undefined') {
+            $scope.errorMessage = '- Please select a unit to join';
             formOk = false;
-        }
-
-        if (!$scope.joinRequest.selectedMonth) {
-            $scope.errorMessage = '- Please select a month';
-            formOk = false;
-        }
-
-        if (!$scope.joinRequest.selectedDay) {
-            $scope.errorMessage = '- Please select a day';
-            formOk = false;
+        } else {
+            groupId = $scope.joinRequest.unit;
         }
 
         if (UtilService.validateEmail($scope.joinRequest.email)) {
@@ -65,17 +57,16 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
         }
 
 
-        if (typeof $scope.joinRequest.unit === 'undefined') {
-            $scope.errorMessage = '- Please select a unit to join';
+        if (!UtilService.validationDate($scope.joinRequest.selectedDay,
+                                        $scope.joinRequest.selectedMonth,
+                                        $scope.joinRequest.selectedYear)) {
+            $scope.errorMessage = '- Please enter a valid date';
             formOk = false;
         } else {
-            groupId = $scope.joinRequest.unit;
+            $scope.joinRequest.dateOfBirth = $scope.joinRequest.selectedDay +
+                '-' + $scope.joinRequest.selectedMonth +
+                '-' +  $scope.joinRequest.selectedYear;
         }
-
-
-        $scope.joinRequest.dateOfBirth = $scope.joinRequest.selectedDay +
-            '-' + $scope.joinRequest.selectedMonth +
-            '-' +  $scope.joinRequest.selectedYear;
 
         if (formOk) {
             JoinRequestService.new(groupId, $scope.joinRequest).then(function () {
