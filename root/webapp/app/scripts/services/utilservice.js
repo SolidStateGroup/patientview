@@ -27,11 +27,21 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         validationDate: function (day, month, year) {
             var valid = true;
-            if((month < 1) || (month > 12)) valid = false;
-            else if((day < 1) || (day > 31)) valid = false;
-            else if(((month == 4) || (month == 6) || (month == 9) || (month == 11)) && (day > 30)) valid = false;
-            else if((month == 2) && (((year % 400) == 0) || ((year % 4) == 0)) && ((year % 100) != 0) && (day > 29)) valid = false;
-            else if((month == 2) && ((year % 100) == 0) && (day > 29)) valid = false;
+            if ((month < 1) || (month > 12)) {
+                valid = false;
+            }
+            else if ((day < 1) || (day > 31)) {
+                valid = false;
+            }
+            else if (((month === 4) || (month === 6) || (month === 9) || (month === 11)) && (day > 30)) {
+                valid = false;
+            }
+            else if ((month === 2) && (((year % 400) === 0) || ((year % 4) === 0)) && ((year % 100) !== 0) && (day > 29)) {
+                valid = false;
+            }
+            else if ((month === 2) && ((year % 100) === 0) && (day > 29)) {
+                valid = false;
+            }
             return valid;
         },
 
