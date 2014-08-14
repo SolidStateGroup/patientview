@@ -36,7 +36,7 @@
 <div class="row">
     <hr/>
     <div class="col-md-6 grey-right-border">
-        <label class="inner-title">Groups &amp; Roles </label>
+        <label class="inner-title">Groups &amp; Roles <span class="error" ng-show="(!editUser.groupRoles || editUser.groupRoles.length == 0) && !userFormNew.$pristine">Please add a group and role for this patient</span></label>
         <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
             <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
             <li class="group-list-role pull-left"><span class="group-list-role">{{groupRole.role.description}}</span></li>
@@ -73,7 +73,7 @@
 <div class="row" ng-show="identifierTypes">
     <hr/>
     <div class="col-sm-12">
-        <label class="inner-title">Identifiers</label>
+        <label class="inner-title">Identifiers <span class="error" ng-show="editUser.identifiers.length < 1 && !userFormNew.$pristine">Please add an identifier for this patient</span></label>
         <div class="identifier-list-item row" ng-repeat="identifier in editUser.identifiers">
             <div class="col-sm-5"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}" placeholder="NHS or CHI Number" name="identifier" ng-model="identifier.identifier" required></div>
             <div class="col-sm-3"><span class="identifier-identifier">{{identifier.identifierType.description}}</span></div>
