@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.patientview.persistence.model.NewsItem;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -32,6 +34,8 @@ import static org.mockito.Mockito.when;
  * Created on 08/08/2014
  */
 public class NewsControllerTest {
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Mock
     private NewsService newsService;
@@ -80,4 +84,19 @@ public class NewsControllerTest {
         }
     }
 
+    @Test
+    public void testUpdateNews() {
+        NewsItem testNews = new NewsItem();
+        testNews.setId(1L);
+
+        try {
+            when(newsService.save(eq(testNews))).thenReturn(testNews);
+            mockMvc.perform(MockMvcRequestBuilders.put("/news")
+                    .content(mapper.writeValueAsString(testNews)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+            verify(newsService, Mockito.times(1)).save(eq(testNews));
+        } catch (Exception e) {
+            Assert.fail("This call should not fail");
+        }
+    }
 }

@@ -69,7 +69,7 @@ public class User extends RangeModel implements UserDetails {
     @Transient
     private String name;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE})
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     //@SortNatural
     private Set<GroupRole> groupRoles;
 
