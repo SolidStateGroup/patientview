@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -29,6 +30,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "pv_user")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User extends RangeModel implements UserDetails {
 
     @Column(name = "username")
@@ -279,6 +281,7 @@ public class User extends RangeModel implements UserDetails {
         this.failedLogonAttempts = failedLogonAttempts;
     }
 
+    @JsonIgnore
     @PrePersist
     public void prePersist() {
         if (this.failedLogonAttempts == null) {

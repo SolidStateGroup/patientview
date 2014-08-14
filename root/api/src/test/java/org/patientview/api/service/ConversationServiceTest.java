@@ -12,15 +12,22 @@ import org.patientview.api.service.impl.ConversationServiceImpl;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
 import org.patientview.persistence.model.Message;
+import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.MessageTypes;
 import org.patientview.persistence.repository.ConversationRepository;
+import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.mockito.Matchers.eq;
@@ -36,6 +43,9 @@ public class ConversationServiceTest {
 
     @Mock
     ConversationRepository conversationRepository;
+
+    @Mock
+    MessageRepository messageRepository;
 
     @Mock
     UserRepository userRepository;
@@ -96,6 +106,67 @@ public class ConversationServiceTest {
 
         try {
             conversationService.addConversation(user1.getId(), conversation);
+        } catch (ResourceNotFoundException rnf) {
+            Assert.fail("resource not found exception");
+        }
+    }
+
+    @Test
+    public void testGetUnreadConversationCount() {
+
+        User user1 = TestUtils.createUser(1L, "newTestUser1");
+        User user2 = TestUtils.createUser(2L, "newTestUser2");
+
+        TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
+
+        Conversation conversation = new Conversation();
+        conversation.setId(3L);
+        conversation.setType(ConversationTypes.MESSAGE);
+
+        ConversationUser conversationUser1 = new ConversationUser();
+        conversationUser1.setId(4L);
+        conversationUser1.setUser(user1);
+        conversationUser1.setConversation(conversation);
+        conversationUser1.setAnonymous(false);
+
+        ConversationUser conversationUser2 = new ConversationUser();
+        conversationUser2.setId(5L);
+        conversationUser2.setUser(user2);
+        conversationUser2.setConversation(conversation);
+        conversationUser2.setAnonymous(false);
+
+        Set<ConversationUser> conversationUserSet = new HashSet<>();
+        conversationUserSet.add(conversationUser1);
+        conversationUserSet.add(conversationUser2);
+        conversation.setConversationUsers(conversationUserSet);
+
+        Message message = new Message();
+        message.setId(6L);
+        message.setConversation(conversation);
+        message.setUser(user1);
+        message.setType(MessageTypes.MESSAGE);
+        message.setReadReceipts(new HashSet<MessageReadReceipt>());
+
+        Set<Message> messageSet = new HashSet<>();
+        messageSet.add(message);
+        conversation.setMessages(messageSet);
+
+        List<Conversation> conversationList = new ArrayList<>();
+        conversationList.add(conversation);
+        PageRequest pageRequestAll = new PageRequest(0, Integer.MAX_VALUE);
+        Page<Conversation> conversationPage = new PageImpl<>(conversationList, pageRequestAll, conversationList.size());
+
+        when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
+        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
+        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+
+        when(conversationRepository.findByUser(eq(user1), eq(pageRequestAll))).thenReturn(conversationPage);
+
+        TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
+
+        try {
+            Assert.assertEquals("Should get 1 unread conversation", 1,
+                    conversationService.getUnreadConversationCount(user1.getId()));
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("resource not found exception");
         }

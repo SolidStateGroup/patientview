@@ -11,6 +11,7 @@ import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -60,11 +61,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     public Page<Conversation> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
-        }
-
+        User entityUser = findEntityUser(userId);
         return conversationRepository.findByUser(entityUser, pageable);
     }
 
@@ -74,10 +71,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversationId));
         }
 
-        User entityUser = userRepository.findOne(message.getUser().getId());
-        if (entityUser == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user %s", message.getUser().getId()));
-        }
+        User entityUser = findEntityUser(message.getUser().getId());
 
         Message newMessage = new Message();
         newMessage.setUser(entityUser);
@@ -162,10 +156,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     public void addMessageReadReceipt(Long messageId, Long userId) throws ResourceNotFoundException {
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
-        }
+        User entityUser = findEntityUser(userId);
 
         Message entityMessage = messageRepository.findOne(messageId);
         if (entityMessage == null) {
@@ -183,5 +174,41 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             entityMessage.getReadReceipts().add(new MessageReadReceipt(entityMessage, entityUser));
             messageRepository.save(entityMessage);
         }
+    }
+
+    private boolean conversationHasUnreadMessages(Conversation conversation, User user) {
+        int unreadMessages = 0;
+        for (Message message : conversation.getMessages()) {
+            boolean unread = true;
+            for (MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
+                if (messageReadReceipt.getUser().equals(user)) {
+                    unread = false;
+                }
+            }
+            if (unread) {
+                unreadMessages++;
+            }
+        }
+        return unreadMessages > 0;
+    }
+
+    // todo: convert to native query, performance improvements etc
+    public int getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
+        User entityUser = findEntityUser(userId);
+        Page<Conversation> conversationPage = findByUserId(userId, new PageRequest(0, Integer.MAX_VALUE));
+
+        if (conversationPage.getContent().size() == 0) {
+            return 0;
+        }
+
+        int unreadConversations = 0;
+
+        for (Conversation conversation : conversationPage.getContent()) {
+            if (conversationHasUnreadMessages(conversation, entityUser)) {
+                unreadConversations++;
+            }
+        }
+
+        return unreadConversations;
     }
 }
