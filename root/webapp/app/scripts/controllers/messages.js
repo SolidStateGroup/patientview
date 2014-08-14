@@ -69,12 +69,6 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
 
-    $scope.parseMessage = function (text) {
-        if (text) {
-            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
-        }
-    };
-
     $scope.range = function() {
         var rangeSize = 5;
         var ret = [];

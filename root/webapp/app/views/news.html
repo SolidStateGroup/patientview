@@ -70,7 +70,7 @@
                 <div class="last-message">
                     <p class="date-stamp"><strong>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                     <p class="message-content">
-                        <div class="showHideText" ng-class="{show: show}" ng-bind-html="parseStoryPreview(news.story)"></div>
+                        <div class="showHideText" ng-class="{show: show}" ng-bind-html="parseHTMLText(news.story)"></div>
                         <a href="" class="showHideLink" ng-click="show = true" ng-show="!show">show more</a><a href="" class="showHideLink" ng-click="show = false" ng-show="show">show less</a>
                     </p>
                 </div>
