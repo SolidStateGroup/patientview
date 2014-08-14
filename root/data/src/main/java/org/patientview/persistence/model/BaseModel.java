@@ -11,7 +11,7 @@ import java.io.Serializable;
  * Created on 03/06/2014
  */
 @MappedSuperclass
-public class BaseModel implements Serializable, Comparable {
+public abstract class BaseModel implements Serializable, Comparable {
 
     protected BaseModel() {
 

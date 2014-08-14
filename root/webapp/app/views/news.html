@@ -18,7 +18,9 @@
     <div class="hider" ng-show="status.open"></div>
 
 <div class="" ng-show="!loading" ng-cloak>
-    <h1>News <button class="btn blue" ng-click="openModalNewNews('lg')">Create New</button></h1>
+    <h1>News
+        <button class="btn blue" ng-click="openModalNewNews('lg')" ng-show="permissions.canAddNews">Create New</button>
+    </h1>
 
     <!-- new news modal template -->
     <script type="text/ng-template" id="newNewsModal.html">
@@ -54,8 +56,8 @@
     <div class="message-item" ng-repeat="news in pagedItems">
         <div class="content-panel">
             <ul class="pull-right aside-actions unstyled">
-                <li><a href="" class="aside-link active" ng-click="edit(news)">Edit</a></li>
-                <li><a href="" class="aside-link" ng-click="delete(news)" ng-confirm-click="Are you sure you want to delete this news item?">Delete</a></li>
+                <li><a href="" class="aside-link active" ng-click="edit(news)" ng-show="news.edit">Edit</a></li>
+                <li><a href="" class="aside-link" ng-click="delete(news)" ng-confirm-click="Are you sure you want to delete this news item?" ng-show="news.delete">Delete</a></li>
             </ul>
             <div class="message-summary">
                 <h2 class="message-title">{{news.heading}}

@@ -3,10 +3,13 @@ package org.patientview.api.service.impl;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.NewsService;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleTypes;
+import org.patientview.persistence.model.enums.Roles;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -97,24 +100,83 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         newsItemRepository.delete(newsItemId);
     }
 
+    private boolean userIsGlobalSpecialtyAdmin(User user) {
+        boolean specialtyOrGlobalAdmin = false;
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            Roles groupRoleName = groupRole.getRole().getName();
+            if (groupRoleName.equals(Roles.GLOBAL_ADMIN) || groupRoleName.equals(Roles.SPECIALTY_ADMIN)) {
+                specialtyOrGlobalAdmin = true;
+            }
+        }
+        return specialtyOrGlobalAdmin;
+    }
+
+    private boolean userIsUnitAdminForNewsLink(final NewsLink newsLink, final User user) {
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            RoleTypes groupRoleRoleType = groupRole.getRole().getRoleType().getValue();
+            Roles groupRoleRoleName = groupRole.getRole().getName();
+            Group groupRoleGroup = groupRole.getGroup();
+
+            // only STAFF role types can edit/delete, allow edit/delete if newsLink linked to your group and UNIT_ADMIN
+            if (groupRoleRoleType.equals(RoleTypes.STAFF) &&
+                    (groupRoleGroup.equals(newsLink.getGroup()) && groupRoleRoleName.equals(Roles.UNIT_ADMIN))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean userCanEditDeleteNewsItem(final NewsItem newsItem, final User user) {
+        boolean canEditDeleteNewsItem = false;
+        for (NewsLink newsLink : newsItem.getNewsLinks()) {
+            Group newsLinkGroup = newsLink.getGroup();
+            Role newsLinkRole = newsLink.getRole();
+
+            // ignore newsLink where global admin role and no group (added by default during creation)
+            if (!(newsLinkRole != null && newsLinkRole.equals(Roles.GLOBAL_ADMIN)) && newsLinkGroup != null) {
+                if(userIsUnitAdminForNewsLink(newsLink, user)) {
+                    canEditDeleteNewsItem = true;
+                }
+            }
+        }
+
+        return canEditDeleteNewsItem;
+    }
+
+    private NewsItem setEditable(final NewsItem newsItem, final User user) {
+        // todo: single group check, required?
+        // specialty and global admins can always edit/delete
+        // (assume no users are specialty admin in one specialty and unit admin/patient in another)
+        boolean editDelete = userIsGlobalSpecialtyAdmin(user) || userCanEditDeleteNewsItem(newsItem, user);
+        newsItem.setEdit(editDelete);
+        newsItem.setDelete(editDelete);
+        return newsItem;
+    }
+
     public Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
         }
 
-        // get both role and group news
+        // get both role and group news (directly accessed through newsLink)
         PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         Page<NewsItem> roleNews = newsItemRepository.findRoleNewsByUser(entityUser, pageableAll);
         Page<NewsItem> groupNews = newsItemRepository.findGroupNewsByUser(entityUser, pageableAll);
 
+        // get specialty news (accessed by parent/child relationships from groups in newsLink)
+        Page<NewsItem> specialtyNews = newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll);
+
         // combine results
         Set<NewsItem> newsItemSet = new HashSet<>();
-        if (roleNews.getNumberOfElements() > 0) {
+        if (roleNews != null && roleNews.getNumberOfElements() > 0) {
             newsItemSet.addAll(roleNews.getContent());
         }
-        if (groupNews.getNumberOfElements() > 0) {
+        if (groupNews != null && groupNews.getNumberOfElements() > 0) {
             newsItemSet.addAll(groupNews.getContent());
+        }
+        if (specialtyNews != null && specialtyNews.getNumberOfElements() > 0) {
+            newsItemSet.addAll(specialtyNews.getContent());
         }
         List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
 
@@ -135,6 +197,11 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         if (!newsItems.isEmpty()) {
             pagedNewsItems = newsItems.subList(startIndex, endIndex);
+        }
+
+        // set if user can edit or delete (used for UNIT_ADMIN)
+        for (NewsItem newsItem : pagedNewsItems) {
+            newsItem = setEditable(newsItem, entityUser);
         }
 
         return new PageImpl<>(pagedNewsItems, pageable, newsItems.size());

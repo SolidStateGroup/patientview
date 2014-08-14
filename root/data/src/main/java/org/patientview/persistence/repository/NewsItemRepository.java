@@ -28,7 +28,12 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
     @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.role.groupRoles gr WHERE gr.user = :user")
     public Page<NewsItem> findRoleNewsByUser(@Param("user") User user, Pageable pageable);
 
-    //@Query("SELECT DISTINCT n FROM NewsItem n, NewsLink l, GroupRole gr WHERE l IN (n.newsLinks) AND gr.user = :user AND gr IN (l.group.groupRoles)")
-    //@Query("SELECT DISTINCT n FROM NewsItem n, User u WHERE u = :user")
-    //public Page<NewsItem> findGroupAndRoleNewsByUser(@Param("user") User user, Pageable pageable);
+    @Query("SELECT DISTINCT n FROM NewsItem n " +
+            "JOIN n.newsLinks l " +
+            "JOIN l.group g " +
+            "JOIN g.groupRelationships grl " +
+            "JOIN grl.objectGroup pg " +
+            "JOIN pg.groupRoles pgr " +
+            "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT'")
+    public Page<NewsItem> findSpecialtyNewsByUser(@Param("user") User user, Pageable pageable);
 }
