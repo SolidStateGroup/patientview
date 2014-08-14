@@ -64,6 +64,7 @@
             <form class="form-quick-reply">
                 <label for="quick-reply-input">Quick Reply</label>
                 <textarea id="quick-reply-input" ng-model="conversation.quickReplyContent"></textarea>
+                <div ng-include src="'views/partials/htmlHelp.html'"></div>
                 <fieldset>
                     <div class="btn-group pull-right">
                         <button class="btn btn-grey" ng-click="conversation.quickReplyOpen = false">Close</button>
@@ -88,6 +89,7 @@
             <form class="form-quick-reply">
                 <label for="add-message-input">Add Message</label>
                 <textarea id="add-message-input" ng-model="conversation.addMessageContent"></textarea>
+                <div ng-include src="'views/partials/htmlHelp.html'"></div>
                 <fieldset>
                     <div class="btn-group pull-right">
                         <button class="btn btn-grey" ng-click="viewMessages(conversation)">Close</button>
