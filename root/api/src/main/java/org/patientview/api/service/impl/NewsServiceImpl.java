@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -85,6 +86,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     }
 
     public NewsItem save(final NewsItem newsItem) throws ResourceNotFoundException {
+        User updater = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItem.getId());
         if (entityNewsItem == null) {
@@ -93,6 +95,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         entityNewsItem.setHeading(newsItem.getHeading());
         entityNewsItem.setStory(newsItem.getStory());
+        entityNewsItem.setLastUpdate(new Date());
+        entityNewsItem.setLastUpdater(updater);
         return newsItemRepository.save(entityNewsItem);
     }
 

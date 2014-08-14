@@ -17,21 +17,6 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$sce', '$modalInstance'
             }
         }
 
-        // simple sorting
-        $scope.orderGroups = function (group) {
-            if (group.groupType) {
-                var groupTypes = [];
-                groupTypes.SPECIALTY = 1;
-                groupTypes.UNIT = 2;
-                groupTypes.DISEASE_GROUP = 3;
-
-                if (groupTypes[group.groupType.value]) {
-                    return groupTypes[group.groupType.value];
-                }
-            }
-            return 0;
-        };
-
         $scope.parseStoryPreview = function (text) {
             if (text) {
                 return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
@@ -84,21 +69,6 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         }
 
         $scope.permissions = permissions;
-    };
-
-    // simple sorting
-    $scope.orderGroups = function (group) {
-        if (group.groupType) {
-            var groupTypes = [];
-            groupTypes.SPECIALTY = 1;
-            groupTypes.UNIT = 2;
-            groupTypes.DISEASE_GROUP = 3;
-
-            if (groupTypes[group.groupType.value]) {
-                return groupTypes[group.groupType.value];
-            }
-        }
-        return 0;
     };
 
     $scope.parseStoryPreview = function (text) {
@@ -332,7 +302,7 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
             editNewsForm.$setPristine(true);
             $scope.saved = true;
 
-            // update header for news with data from GET
+            // update news with data from GET
             NewsService.get(news.id).then(function (entityNews) {
                 for (var i=0;i<$scope.pagedItems.length;i++) {
                     if ($scope.pagedItems[i].id == entityNews.id) {
@@ -340,10 +310,13 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                         newsItemToUpdate.heading = entityNews.heading;
                         newsItemToUpdate.story = entityNews.story;
                         newsItemToUpdate.newsLinks = entityNews.newsLinks;
+                        newsItemToUpdate.lastUpdate = entityNews.lastUpdated;
+                        newsItemToUpdate.lastUpdater = entityNews.lastUpdater;
+                        news.lastUpdate = entityNews.lastUpdate;
+                        news.lastUpdater = entityNews.lastUpdater;
                     }
                 }
             }, function () {
-                // failure
                 alert('Error updating header (saved successfully)');
             });
 

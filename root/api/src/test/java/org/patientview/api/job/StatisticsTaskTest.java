@@ -4,15 +4,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.Timer;
+import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class StatisticsTaskTest {
@@ -79,6 +83,7 @@ public class StatisticsTaskTest {
         when(timer.getCurrentDate()).thenReturn(calendar);
 
         statisticsTask.executeDaily();
+
         //TODO cannot verify with dates due to milliseconds
         //verify(groupStatisticService, Mockito.times(1)).generateGroupStatistic(eq(startDate), eq(endDate), eq(StatisticPeriod.MONTH));
     }

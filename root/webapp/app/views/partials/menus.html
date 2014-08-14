@@ -8,12 +8,19 @@
                 <i class="icon-account pull-left"></i>
                 <h4></h4>
                 <ul class="nav navbar-nav navbar-right inline account pull-left" ng-hide="!authToken" ng-cloak>
-                    <li ng-repeat="menuitem in routes | menuFilter:'NAV'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
+                    <li ng-repeat="menuitem in routes | menuFilter:'NAV'" >
+                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a>
+                        <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Messages' && unreadConversationCount > 0">
+                            <span class="label label-warning">{{unreadConversationCount}}</span>
+                        </a>
+                    </li>
                     <li><a ng-href="#/settings">Account Settings</a></li>
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right inline account pull-left" ng-hide="!authToken" ng-cloak>
-                    <li ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
+                    <li ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" >
+                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a>
+                    </li>
                     <li><a ng-href="#/logout" ng-hide="!authToken">Log Out</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right account pull-left" ng-hide="authToken" ng-cloak>
@@ -27,7 +34,9 @@
         <div class="content-panel clearfix">
             <div ng-hide="!authToken" ng-cloak>
                 <ul class="secondary-nav nav nav-pills pull-left">
-                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
+                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" >
+                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a>
+                    </li>
                 </ul>
             </div>
         </div>

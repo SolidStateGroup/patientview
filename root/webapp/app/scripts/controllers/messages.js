@@ -69,12 +69,6 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
 
-    $scope.parseMessage = function (text) {
-        if (text) {
-            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
-        }
-    };
-
     $scope.range = function() {
         var rangeSize = 5;
         var ret = [];
@@ -128,7 +122,6 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     $scope.$watch("currentPage", function(newValue, oldValue) {
         $scope.loading = true;
         ConversationService.getAll($scope.loggedInUser, newValue, $scope.itemsPerPage).then(function(page) {
-            page.content = $scope.addReadReceiptNotifications(page.content);
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
@@ -139,68 +132,73 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
         });
     });
 
-    // add unread notification to parent conversation and messages based on read receipts for current user
-    $scope.addReadReceiptNotifications = function(conversations) {
-        var i, j, k;
-
-        for (i=0;i<conversations.length;i++) {
-            var conversation = conversations[i];
-            conversation.unread = true;
-
-            for (j=0;j<conversation.messages.length;j++) {
-                var message = conversation.messages[j];
-                message.unread = true;
-
-                for (k=0;k<message.readReceipts.length;k++) {
-                    if (message.readReceipts[k].user.id === $scope.loggedInUser.id) {
-                        message.unread = false;
-                        conversation.unread = false;
-                    }
+    $scope.hasUnreadMessages = function(conversation) {
+        var i, j, unread, unreadMessages = 0;
+        for (i=0;i<conversation.messages.length;i++) {
+            unread = true;
+            for (j=0;j<conversation.messages[i].readReceipts.length;j++) {
+                var readReceipt = conversation.messages[i].readReceipts[j];
+                if (readReceipt.user.id === $scope.loggedInUser.id) {
+                    unread = false;
                 }
+            }
+            if (unread) {
+                unreadMessages++;
             }
         }
 
-        return conversations;
+        return unreadMessages > 0;
     };
 
     $scope.viewMessages = function(conversation) {
         if (conversation.showMessages) {
-            for (i=0;i<conversation.messages.length;i++) {
-                conversation.messages[i].unread = false;
-            }
+            ConversationService.get(conversation.id).then(function(successResult) {
+                conversation.messages = successResult.messages;
+            }, function() {
+                alert('Error getting conversation');
+            });
             conversation.showMessages = false;
         } else {
             conversation.quickReplyOpen = false;
             var i, j;
             var unreadMessages = [], promises = [];
 
-            // add read receipt for all messages not currently read
-            for (i = 0; i < conversation.messages.length; i++) {
-                var message = conversation.messages[i];
-                var receiptFound = false;
+            ConversationService.get(conversation.id).then(function(successResult) {
+                conversation.messages = successResult.messages;
 
-                for (j = 0; j < message.readReceipts.length; j++) {
-                    var readReceipt = message.readReceipts[j];
-                    if (readReceipt.user.id === $scope.loggedInUser.id) {
-                        receiptFound = true;
+                // add read receipt for all messages not currently read
+                for (i = 0; i < conversation.messages.length; i++) {
+                    var message = conversation.messages[i];
+                    var receiptFound = false;
+                    message.unread = true;
+
+                    for (j = 0; j < message.readReceipts.length; j++) {
+                        var readReceipt = message.readReceipts[j];
+                        if (readReceipt.user.id === $scope.loggedInUser.id) {
+                            receiptFound = true;
+                            message.unread = false;
+                        }
+                    }
+
+                    if (!receiptFound) {
+                        unreadMessages.push(message.id);
                     }
                 }
 
-                if (!receiptFound) {
-                    unreadMessages.push(message.id);
+                // mark messages as read then get conversation fresh from GET, hides new notification
+                for (i=0;i<unreadMessages.length;i++) {
+                    promises.push(ConversationService.addMessageReadReceipt(unreadMessages[i], $scope.loggedInUser.id));
                 }
-            }
 
-            // mark messages as read then get conversation fresh from GET, hides new notification
-            for (i=0;i<unreadMessages.length;i++) {
-                promises.push(ConversationService.addMessageReadReceipt(unreadMessages[i], $scope.loggedInUser.id));
-            }
-
-            $q.all(promises).then(function () {
-                conversation.unread = false;
-                conversation.showMessages = true;
+                $q.all(promises).then(function () {
+                    //conversation.unread = false;
+                    conversation.showMessages = true;
+                    $scope.setUnreadConversationCount();
+                }, function() {
+                    alert('Error adding read receipt for new messages');
+                });
             }, function() {
-                alert('Error adding read receipt for new messages');
+                alert('Error getting conversation');
             });
         }
     };
@@ -294,7 +292,6 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
                     modalInstance.result.then(function () {
                         $scope.loading = true;
                         ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
-                            page.content = $scope.addReadReceiptNotifications(page.content);
                             $scope.pagedItems = page.content;
                             $scope.total = page.totalElements;
                             $scope.totalPages = page.totalPages;

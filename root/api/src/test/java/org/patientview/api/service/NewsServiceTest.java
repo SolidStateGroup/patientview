@@ -246,4 +246,37 @@ public class NewsServiceTest {
         newsService.add(newsItem);
         verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
     }
+
+    @Test
+    public void testUpdateNewsItem() {
+        User user = TestUtils.createUser(1L, "testUser");
+
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(3L);
+        newsItem.setCreator(user);
+        newsItem.setHeading("HEADING TEXT");
+        newsItem.setStory("NEWS STORY TEXT");
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+
+        NewsLink newsLink = new NewsLink();
+        newsLink.setId(4L);
+        newsLink.setNewsItem(newsItem);
+        newsLink.setGroup(TestUtils.createGroup(5L, "testGroup", creator));
+
+        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
+
+        when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
+        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
+
+        newsService.add(newsItem);
+
+        try {
+            newsItem.setHeading("HEADING TEXT UPDATED");
+            newsService.save(newsItem);
+        } catch (ResourceNotFoundException rnf) {
+            Assert.fail("ResourceNotFoundException");
+        }
+
+        verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
+    }
 }

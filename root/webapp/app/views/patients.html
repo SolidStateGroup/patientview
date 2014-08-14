@@ -24,7 +24,7 @@
                 <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0) || (!editUser.identifiers || editUser.identifiers.length == 0)">Create New</button>
                 <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userFormExisting.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
@@ -134,8 +134,8 @@
                 <div class="head-item accordion-title-text ">NHS Number&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title"><i class="icon-sort pull-right"></i>Date Of Birth</a></div>
                 <div class="head-item accordion-title-text ">Groups</div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
                 <div class="head-item accordion-title-text ">Treatment</div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
                 <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
             </div>
             <!-- body -->
@@ -170,7 +170,7 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
                                             <li><a ng-click="viewUser(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">View Patient</a></li>
-                                            <li><a ng-click="deleteUser(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Delete</a></li>
+                                            <li ng-show="permissions.showDeleteMenuOption"><a ng-click="deleteUser(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Delete</a></li>
                                             <li><a ng-click="resetUserPassword(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Reset Password</a></li>
                                             <li ng-hide="user.emailVerified" id="li-email-verified-{{user.id}}"><a ng-click="sendVerificationEmail(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Send Verification Email</a></li>
                                         </ul>
