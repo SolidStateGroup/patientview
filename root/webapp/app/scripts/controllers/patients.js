@@ -87,10 +87,13 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         // check if user can be removed from groups associated with logged in user
         $scope.user.canRemoveFromMyGroups = false;
 
-        // check if user in other groups but mine (not including Generic)
+        // check if user in other units (not specialties) but mine (not including Generic)
         for (i=0;i<allGroups.length;i++) {
             for (j=0;j<user.groupRoles.length;j++) {
-                if (user.groupRoles[j].group.code != 'Generic') {
+                var groupRoleGroupCode = user.groupRoles[j].group.code;
+                var groupRoleGroupType = user.groupRoles[j].group.groupType.value;
+
+                if (groupRoleGroupCode != 'Generic' && groupRoleGroupType != 'SPECIALTY') {
                     if (allGroups[i].id === user.groupRoles[j].group.id) {
                         inMyGroups = true;
                     } else {
