@@ -11,6 +11,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,10 +61,10 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<GroupFeature> groupFeatures;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<RouteLink> routeLinks;
 
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
@@ -75,10 +77,10 @@ public class Group extends AuditModel {
     private Set<ContactPoint> contactPoints;
 
     @Transient
-    private Set<Group> parentGroups;
+    private List<Group> parentGroups = new ArrayList<Group>();
 
     @Transient
-    private Set<Group> childGroups;
+    private List<Group> childGroups = new ArrayList<Group>();
 
     @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<GroupRelationship> groupRelationships;
@@ -173,19 +175,19 @@ public class Group extends AuditModel {
         this.groupRoles = groupRoles;
     }
 
-    public Set<Group> getParentGroups() {
+    public List<Group> getParentGroups() {
         return parentGroups;
     }
 
-    public void setParentGroups(Set<Group> parentGroups) {
+    public void setParentGroups(List<Group> parentGroups) {
         this.parentGroups = parentGroups;
     }
 
-    public Set<Group> getChildGroups() {
+    public List<Group> getChildGroups() {
         return childGroups;
     }
 
-    public void setChildGroups(Set<Group> childGroups) {
+    public void setChildGroups(List<Group> childGroups) {
         this.childGroups = childGroups;
     }
 
