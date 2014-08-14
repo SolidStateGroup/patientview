@@ -11,15 +11,17 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
     $scope.joinRequest.selectedMonth = 1;
     $scope.joinRequest.selectedDay = 1;
 
-    StaticDataService.getLookupByTypeAndValue('GROUP', 'UNIT').then(function(lookup){
-        GroupService.getAllByType(lookup.id).then(function(units) {
-            $scope.units = units;
-        });
-    });
-
     StaticDataService.getLookupByTypeAndValue('GROUP', 'SPECIALTY').then(function(lookup){
         GroupService.getAllByType(lookup.id).then(function(specialties) {
             $scope.specialties = specialties;
+            specialties.forEach(function(entry) {
+
+                // Lets default to Renal and requery the units
+                if (entry.name === 'Renal') {
+                    $scope.joinRequest.specialty = entry.id;
+                    $scope.refreshUnits();
+                }
+            });
         });
     });
 
@@ -53,7 +55,6 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
             formOk = false;
         }
 
-        // FIX ME - get the object from the select list.
         if (typeof $scope.joinRequest.specialty !== 'undefined') {
             for (var i = 0; i < $scope.specialties.length; i++) {
                 if ($scope.specialties[i].id === $scope.joinRequest.specialty) {
@@ -90,6 +91,10 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
         if (typeof $scope.joinRequest.specialty !== 'undefined') {
             GroupService.getChildren($scope.joinRequest.specialty).then(function (units) {
                 $scope.units = units;
+                units.forEach(function(entry) {
+                    $scope.joinRequest.unit = entry.id;
+                });
+
             });
         }
     };
