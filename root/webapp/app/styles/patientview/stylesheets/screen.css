@@ -425,59 +425,125 @@ i.icon-sort {
   width: 20px;
 }
 
+/* line 285, ../sass/_base.scss */
+i.icon-join-large {
+  background: url("../../../images/icons/join-large.png") 0 0 no-repeat;
+  height: 37px;
+  width: 33px;
+  display: block;
+}
+
+/* line 292, ../sass/_base.scss */
+i.icon-login-large {
+  background: url("../../../images/icons/login-large.png") 0 0 no-repeat;
+  height: 37px;
+  width: 33px;
+  display: block;
+}
+
+/* line 299, ../sass/_base.scss */
+i.icon-help {
+  background: url("../../../images/icons/help.png") 0 0 no-repeat;
+  height: 22px;
+  width: 24px;
+}
+
+/* line 305, ../sass/_base.scss */
+i.icon-issues {
+  background: url("../../../images/icons/issues.png") 0 0 no-repeat;
+  height: 22px;
+  width: 24px;
+}
+
+/* line 311, ../sass/_base.scss */
+i.icon-messages {
+  background: url("../../../images/icons/messages.png") 0 0 no-repeat;
+  height: 22px;
+  width: 37px;
+}
+
 /* line 1, ../sass/_nav.scss */
 .navbar-default {
   border: none;
   height: 70px;
 }
 /* line 5, ../sass/_nav.scss */
+.navbar-default .nav-public {
+  height: 70px;
+}
+/* line 8, ../sass/_nav.scss */
+.navbar-default .nav-public .public {
+  height: 100%;
+}
+/* line 10, ../sass/_nav.scss */
+.navbar-default .nav-public .public li {
+  height: 100%;
+}
+/* line 12, ../sass/_nav.scss */
+.navbar-default .nav-public .public li a {
+  line-height: 37px;
+  color: white;
+}
+/* line 15, ../sass/_nav.scss */
+.navbar-default .nav-public .public li a i {
+  margin-right: 10px;
+}
+/* line 20, ../sass/_nav.scss */
+.navbar-default .nav-public .public li.join {
+  background: #00adc6;
+}
+/* line 24, ../sass/_nav.scss */
+.navbar-default .nav-public .public li.login {
+  background: #368de8;
+}
+/* line 31, ../sass/_nav.scss */
 .navbar-default .nav-account {
   height: 70px;
   background: #00adc6;
   margin-right: -15px;
   padding: 16px 10px 10px;
 }
-/* line 11, ../sass/_nav.scss */
+/* line 37, ../sass/_nav.scss */
 .navbar-default .nav-account i {
-  margin-right: 20px;
+  margin-right: 5px;
 }
-/* line 15, ../sass/_nav.scss */
+/* line 41, ../sass/_nav.scss */
 .navbar-default .nav-account h4 {
   color: white;
   font-weight: normal;
   margin: 0;
   width: 220px;
 }
-/* line 24, ../sass/_nav.scss */
+/* line 50, ../sass/_nav.scss */
 .navbar-default .nav-account .navbar-nav li a {
   text-decoration: underline;
   color: #deebed;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: normal;
   padding: 0 5px;
 }
-/* line 31, ../sass/_nav.scss */
+/* line 57, ../sass/_nav.scss */
 .navbar-default .nav-account .navbar-nav li a:hover, .navbar-default .nav-account .navbar-nav li a:active {
   color: white;
 }
-/* line 35, ../sass/_nav.scss */
+/* line 61, ../sass/_nav.scss */
 .navbar-default .nav-account .navbar-nav li a:first-child {
   padding-left: 0;
 }
-/* line 43, ../sass/_nav.scss */
+/* line 69, ../sass/_nav.scss */
 .navbar-default .sub-brand {
   margin: 7px 0 0 20px;
 }
 
-/* line 49, ../sass/_nav.scss */
+/* line 75, ../sass/_nav.scss */
 .secondary-nav li {
   margin-left: 0;
 }
-/* line 53, ../sass/_nav.scss */
+/* line 79, ../sass/_nav.scss */
 .secondary-nav li:first-child a {
   border-left: none;
 }
-/* line 58, ../sass/_nav.scss */
+/* line 84, ../sass/_nav.scss */
 .secondary-nav li a {
   border-left: 1px solid #e4e9f0;
   color: #959595;
@@ -486,24 +552,24 @@ i.icon-sort {
   -moz-border-radius: 0;
   border-radius: 0;
 }
-/* line 64, ../sass/_nav.scss */
+/* line 90, ../sass/_nav.scss */
 .secondary-nav li a:hover {
   background: #f8f8f8;
   color: #368de8;
 }
 
-/* line 72, ../sass/_nav.scss */
+/* line 98, ../sass/_nav.scss */
 .nav-pills.secondary-nav li {
   margin-left: 0;
 }
 
-/* line 77, ../sass/_nav.scss */
+/* line 103, ../sass/_nav.scss */
 .footer {
   background: white;
   height: 50px;
   position: relative;
 }
-/* line 82, ../sass/_nav.scss */
+/* line 108, ../sass/_nav.scss */
 .footer .brand {
   opacity: 0.5;
   filter: alpha(opacity=50);
@@ -511,34 +577,61 @@ i.icon-sort {
   width: 300px;
   line-height: 40px;
 }
-/* line 88, ../sass/_nav.scss */
+/* line 114, ../sass/_nav.scss */
 .footer .brand img {
   height: 50%;
   width: 50%;
 }
-/* line 95, ../sass/_nav.scss */
+/* line 121, ../sass/_nav.scss */
 .footer .legal-links li {
   line-height: 40px;
   padding: 0 10px;
   font-size: 1.75rem;
   color: #959595;
 }
-/* line 101, ../sass/_nav.scss */
+/* line 127, ../sass/_nav.scss */
 .footer .legal-links li a {
   font-size: 1.75rem;
   color: #959595;
 }
-/* line 105, ../sass/_nav.scss */
+/* line 131, ../sass/_nav.scss */
 .footer .legal-links li a:hover {
   color: #368de8;
 }
-/* line 113, ../sass/_nav.scss */
+/* line 139, ../sass/_nav.scss */
 .footer p {
   font-size: 1.75rem;
   color: #959595;
   position: absolute;
   left: 25%;
   top: 25%;
+}
+
+/* line 148, ../sass/_nav.scss */
+.nav-utils {
+  height: 70px;
+}
+/* line 150, ../sass/_nav.scss */
+.nav-utils li {
+  width: 70px;
+  margin-left: -2px;
+  height: 100%;
+  background: #f8f8f8;
+  border-left: 1px solid #e4e9f0;
+}
+/* line 156, ../sass/_nav.scss */
+.nav-utils li a {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  font-size: 1rem;
+  color: #959595;
+  text-decoration: none;
+}
+/* line 164, ../sass/_nav.scss */
+.nav-utils li a i {
+  display: block;
+  margin: 20px auto 0;
 }
 
 /** Tables **/
@@ -1091,32 +1184,4 @@ label {
 .message-summary .last-message .date-stamp {
   color: #909090;
   font-size: 1.5rem;
-}
-
-/** James E's contribute to the CSS world **/
-input.ng-pristine + ul#strength {
-    display:none;
-}
-ul#strength {
-    display:inline;
-    list-style:none;
-    margin:0;
-    margin-left:15px;
-    padding:0;
-    vertical-align:2px;
-}
-.point:last {
-    margin:0 !important;
-}
-.point {
-    background:#DDD;
-    border-radius:2px;
-    display:inline-block;
-    height:5px;
-    margin-right:1px;
-    width:20px;
-}
-#footer {
-    position:fixed;
-    bottom:5px;
 }
