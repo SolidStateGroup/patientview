@@ -54,6 +54,7 @@ public class JoinRequest extends BaseModel {
 
     @Column(name = "completion_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private Date completionDate;
 
     @OneToOne(fetch = FetchType.EAGER)
