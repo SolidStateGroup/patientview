@@ -1,4 +1,6 @@
 <h1>Dashboard</h1>
 <p>This is the dashboard view.</p>
 
-<p>{{userdetails.username}}</p>
+<select class="form-control" ng-model="graphGroupId" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']" ng-show="graphGroups.length > 0"></select>
+
+<div google-chart chart="chart" style="{{chart.cssStyle}}"/>
