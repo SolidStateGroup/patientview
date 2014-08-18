@@ -87,7 +87,7 @@ public class User extends RangeModel implements UserDetails {
 
     @Column(name = "last_login")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
+    //@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private Date lastLogin;
 
     @Column(name = "contact_number")

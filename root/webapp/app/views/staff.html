@@ -126,7 +126,7 @@
 
                             </div>
                             <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
-                            <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
+                            <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
 
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
@@ -153,7 +153,7 @@
                         <div ng-include src="'views/partials/staffDetails.html'" ng-controller="UserDetailsCtrl"></div>
                     </form>
                     <hr>
-                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin}}</div>
+                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                     <div class="user-save-cancel pull-right">
                         <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
                     </div>
