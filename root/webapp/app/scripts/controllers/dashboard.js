@@ -4,7 +4,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$sc
 function (UserService, $scope, GroupService) {
 
     // get graph every time group is changed
-    $scope.$watch("graphGroupId", function(newValue, oldValue) {
+    $scope.$watch('graphGroupId', function(newValue, oldValue) {
         var i;
 
         if(newValue !== undefined) {
@@ -12,12 +12,12 @@ function (UserService, $scope, GroupService) {
                 $scope.statistics = data;
 
                 var chart1 = {};
-                chart1.type = "LineChart";
+                chart1.type = 'LineChart';
                 chart1.data = [['date', 'Patients', 'Unique Logons', 'Logons']];
 
                 for(i=0;i<data.length;i++) {
                     var row = [];
-                    row[0] = data[i].startDate + " to " + data[i].endDate;
+                    row[0] = data[i].startDate + ' to ' + data[i].endDate;
                     row[1] = data[i].countOfPatients;
                     row[2] = data[i].countOfUniqueLogons;
                     row[3] = data[i].countOfLogons;
@@ -27,18 +27,19 @@ function (UserService, $scope, GroupService) {
                 chart1.data = new google.visualization.arrayToDataTable(chart1.data);
 
                 chart1.options = {
-                    "title": null,
-                    "isStacked": "true",
-                    "fill": 20,
-                    "displayExactValues": true,
-                    "vAxis": {
-                        "title": null,
-                        "gridlines": {
-                            "count": 10
+                    'title': null,
+                    'isStacked': 'true',
+                    'fill': 20,
+                    'displayExactValues': true,
+                    'vAxis': {
+                        'title': null,
+                        //'format': '0', // whole numbers only
+                        'gridlines': {
+                            'count': 10
                         }
                     },
-                    "hAxis": {
-                        "title": null
+                    'hAxis': {
+                        'title': null
                     }
                 };
 
