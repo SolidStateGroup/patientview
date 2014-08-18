@@ -29,7 +29,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Inject
     private UserRepository userRepository;
 
-    public List<Code> getAllCodes() { return Util.iterableToList(codeRepository.findAll()); }
+    public List<Code> getAllCodes() { return Util.convertIterable(codeRepository.findAll()); }
 
     public Code add(final Code code) {
         return codeRepository.save(code);

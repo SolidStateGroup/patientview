@@ -10,7 +10,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
-import org.patientview.persistence.model.User;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,7 +46,7 @@ public class CodeControllerTest {
     @Test
     public void testCreateCode() {
 
-        Code testCode = TestUtils.createCode(1L, "TestCode", new User());
+        Code testCode = TestUtils.createCode("TestCode");
 
         try {
             when(codeService.add(eq(testCode))).thenReturn(testCode);

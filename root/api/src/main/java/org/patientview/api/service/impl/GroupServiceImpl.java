@@ -90,7 +90,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
      */
     public List<Group> findAll() {
 
-        List<Group> groups = Util.iterableToList(groupRepository.findAll());
+        List<Group> groups = Util.convertIterable(groupRepository.findAll());
 
         return addParentAndChildGroups(groups);
 
@@ -101,7 +101,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public List<Group> findGroupByUser(User user) {
-        List<Group> groups = Util.iterableToList(groupRepository.findGroupByUser(user));
+        List<Group> groups = Util.convertIterable(groupRepository.findGroupByUser(user));
         return addParentAndChildGroups(groups);
     }
 
@@ -110,7 +110,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
         Set<Group> groups = new HashSet<Group>();
         // get list of groups associated with user directly (user is member of group)
-        groups.addAll(Util.iterableToList(groupRepository.findGroupByUser(user)));
+        groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(user)));
         // for each group get list of children if present
         for (Group group : groups) {
             for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
@@ -125,7 +125,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     public List<Group> findGroupByType(Long lookupId) {
         Lookup groupType = lookupRepository.findOne(lookupId);
-        List<Group> groups = Util.iterableToList(groupRepository.findGroupByType(groupType));
+        List<Group> groups = Util.convertIterable(groupRepository.findGroupByType(groupType));
         return addParentAndChildGroups(groups);
     }
 
@@ -416,7 +416,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             throw new ResourceNotFoundException(String.format("The group id %d is not valid", groupId));
         }
 
-        return Util.iterableToList(groupRepository.findChildren(group));
+        return Util.convertIterable(groupRepository.findChildren(group));
 
     }
 

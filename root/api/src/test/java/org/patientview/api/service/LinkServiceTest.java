@@ -50,7 +50,7 @@ public class LinkServiceTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
     }
 
 
@@ -61,10 +61,10 @@ public class LinkServiceTest {
     @Test
     public void testCreateLink() {
 
-        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.CODE_TYPE, creator);
-        Lookup linkType = TestUtils.createLookup(3L, lookupType, "LinkType", creator);
-        Code code = TestUtils.createCode(4L, "testGroup", creator);
-        Link link = TestUtils.createLink(5L, code, "TestLink", linkType, creator);
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.CODE_TYPE);
+        Lookup linkType = TestUtils.createLookup(lookupType, "LinkType");
+        Code code = TestUtils.createCode("testGroup");
+        Link link = TestUtils.createLink(code, "TestLink", linkType);
 
         when(linkRepository.save(eq(link))).thenReturn(link);
         when(codeRepository.findOne(eq(code.getId()))).thenReturn(code);

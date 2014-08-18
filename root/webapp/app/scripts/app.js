@@ -141,6 +141,17 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
         }
     };
 
+    // global function to retrieve number of submitted join requests
+    $rootScope.setSubmittedJoinRequestCount = function() {
+        if ($rootScope.loggedInUser) {
+            JoinRequestService.getSubmittedJoinRequestCount($rootScope.loggedInUser.id).then(function(unreadCount) {
+                $rootScope.submittedJoinRequestCount  = unreadCount.toString();
+            }, function() {
+
+            });
+        }
+    };
+
     // global function to parse HTML (used in messaging, news)
     $rootScope.parseHTMLText = function (text) {
         if (text) {
@@ -173,6 +184,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
 
     $rootScope.$on('$viewContentLoaded', function(){
         $rootScope.setUnreadConversationCount();
+        $rootScope.setSubmittedJoinRequestCount();
     });
 
     $rootScope.logout = function() {

@@ -2,7 +2,6 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.JoinRequestService;
-import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
@@ -45,14 +44,19 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     @Override
     public List<JoinRequest> get(Long userId) throws ResourceNotFoundException {
         User user = findUser(userId);
-        if (Util.doesContainRole(getRoles(), RoleName.SPECIALTY_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByParentUser(user));
-        } else if (Util.doesContainRole(getRoles(), RoleName.UNIT_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByUser(user));
-        } else if (Util.doesContainRole(getRoles(), RoleName.GLOBAL_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findAll());
+        Iterable<JoinRequest> joinRequests;
+
+        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+            joinRequests = joinRequestRepository.findByParentUser(user);
+        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+            joinRequests = joinRequestRepository.findByUser(user);
+        } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            joinRequests = joinRequestRepository.findAll();
+        } else {
+            throw new SecurityException("Invalid role for join requests");
         }
-        throw new SecurityException("Invalid role for join requests");
+
+        return convertIterable(joinRequests);
     }
 
     @Override
@@ -60,15 +64,15 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             throws ResourceNotFoundException {
         User user = findUser(userId);
 
-        if (Util.doesContainRole(getRoles(), RoleName.SPECIALTY_ADMIN)) {
+        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
             return joinRequestRepository.countByParentUser(user);
-        } else if (Util.doesContainRole(getRoles(), RoleName.UNIT_ADMIN)) {
+        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
             return joinRequestRepository.countByUser(user);
-        } else if (Util.doesContainRole(getRoles(), RoleName.GLOBAL_ADMIN)) {
+        } else if (doesContainRoles( RoleName.GLOBAL_ADMIN)) {
             return BigInteger.valueOf(joinRequestRepository.count());
         }
 
-        throw new SecurityException("Invalid role join requests");
+        throw new SecurityException("Invalid role for join requests count");
     }
 
     @Override
@@ -76,15 +80,19 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             throws ResourceNotFoundException {
         User user = findUser(userId);
 
-        if (Util.doesContainRole(getRoles(), RoleName.SPECIALTY_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByParentUserAndStatus(user, status));
-        } else if (Util.doesContainRole(getRoles(), RoleName.UNIT_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByUserAndStatus(user, status));
-        } else if (Util.doesContainRole(getRoles(), RoleName.GLOBAL_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByStatus(status));
+        Iterable<JoinRequest> joinRequests;
+
+        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+            joinRequests = joinRequestRepository.findByParentUserAndStatus(user, status);
+        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+            joinRequests = joinRequestRepository.findByUserAndStatus(user, status);
+        } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            joinRequests = joinRequestRepository.findByStatus(status);
+        } else {
+            throw new SecurityException("Invalid role join requests");
         }
 
-        throw new SecurityException("Invalid role join requests");
+        return convertIterable(joinRequests);
     }
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {
