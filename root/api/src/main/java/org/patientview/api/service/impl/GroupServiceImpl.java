@@ -26,6 +26,7 @@ import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -34,7 +35,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -89,11 +89,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
      * @return
      */
     public List<Group> findAll() {
-
         List<Group> groups = Util.iterableToList(groupRepository.findAll());
-
         return addParentAndChildGroups(groups);
-
     }
 
     public Group get(Long id) {
@@ -302,26 +299,22 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     private Group addSingleParentAndChildGroup(Group group) {
         // TODO Move this to PostConstruct sort out Transaction scope;
 
-        Set<Group> parentGroups = new HashSet<Group>();
-        Set<Group> childGroups = new HashSet<Group>();
+        List<Group> parentGroups = new ArrayList<>();
+        List<Group> childGroups = new ArrayList<>();
 
         if (!CollectionUtils.isEmpty(group.getGroupRelationships())) {
             for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
 
                 if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
-                    Group detachedParentGroup = groupRelationship.getObjectGroup();
-                    entityManager.detach(detachedParentGroup);
-                    detachedParentGroup.setParentGroups(Collections.EMPTY_SET);
-                    detachedParentGroup.setChildGroups(Collections.EMPTY_SET);
-                    parentGroups.add(detachedParentGroup);
+                    Group parentGroup = new Group();
+                    BeanUtils.copyProperties(groupRelationship.getObjectGroup(), parentGroup);
+                    parentGroups.add(parentGroup);
                 }
 
                 if (groupRelationship.getRelationshipType() == RelationshipTypes.CHILD) {
-                    Group detachedChildGroup = groupRelationship.getObjectGroup();
-                    entityManager.detach(detachedChildGroup);
-                    detachedChildGroup.setParentGroups(Collections.EMPTY_SET);
-                    detachedChildGroup.setChildGroups(Collections.EMPTY_SET);
-                    childGroups.add(detachedChildGroup);
+                    Group childGroup = new Group();
+                    BeanUtils.copyProperties(groupRelationship.getObjectGroup(), childGroup);
+                    childGroups.add(childGroup);
                 }
             }
         }
@@ -333,13 +326,11 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     // Attached the relationship of children groups and parents groups onto Transient objects
     private List<Group> addParentAndChildGroups(List<Group> groups) {
-
         for (Group group : groups) {
             addSingleParentAndChildGroup(group);
         }
 
         return groups;
-
     }
 
     public void addParentGroup(Long groupId, Long parentGroupId) {

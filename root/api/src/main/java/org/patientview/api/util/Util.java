@@ -5,8 +5,11 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.controller.model.GroupStatisticTO;
 import org.patientview.persistence.model.GroupStatistic;
-import org.patientview.persistence.model.enums.Roles;
-import org.patientview.persistence.model.enums.StatisticTypes;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.StatisticType;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -52,7 +55,7 @@ public class Util {
     }
 
     // Retrieve the list of Roles from the annotation.
-    public static Roles[] getRoles(JoinPoint joinPoint) {
+    public static RoleName[] getRoles(JoinPoint joinPoint) {
         final org.aspectj.lang.Signature signature = joinPoint.getStaticPart().getSignature();
         if (signature instanceof MethodSignature) {
             final MethodSignature ms = (MethodSignature) signature;
@@ -65,17 +68,17 @@ public class Util {
         return null;
     }
 
-    public static Roles[] getRolesFromAnnotation(Annotation annotation) {
+    public static RoleName[] getRolesFromAnnotation(Annotation annotation) {
         Method[] methods = annotation.annotationType().getMethods();
         for (Method method : methods) {
             String name = method.getName();
             Class<?> returnType = method.getReturnType();
             Class<?> componentType = returnType.getComponentType();
             if (name.equals("roles") && returnType.isArray()
-                    && Roles.class.isAssignableFrom(componentType)) {
-                Roles[] features;
+                    && RoleName.class.isAssignableFrom(componentType)) {
+                RoleName[] features;
                 try {
-                    features = (Roles[]) (method.invoke(annotation, new Object[] {}));
+                    features = (RoleName[]) (method.invoke(annotation, new Object[] {}));
                 } catch (Exception e) {
                     throw new RuntimeException(
                             "Error executing value() method in annotation.getClass().getCanonicalName()", e);
@@ -93,7 +96,7 @@ public class Util {
         Map<Date, GroupStatisticTO> groupStatisticTOs = new TreeMap<>();
 
         for (GroupStatistic groupStatistic : groupStatistics) {
-            StatisticTypes statisticType = StatisticTypes.valueOf(groupStatistic.getStatisticType().getValue());
+            StatisticType statisticType = StatisticType.valueOf(groupStatistic.getStatisticType().getValue());
             GroupStatisticTO groupStatisticTO = getGroupStatisticTO(groupStatisticTOs, groupStatistic.getStartDate());
             groupStatisticTO.setStartDate(groupStatistic.getStartDate());
             groupStatisticTO.setEndDate(groupStatistic.getEndDate());
@@ -142,6 +145,31 @@ public class Util {
         }
         return groupStatisticTOMap.get(startDate);
     }
+
+    public static <T> List<T> convertAuthorities(Collection<? extends GrantedAuthority>  grantedAuthorities) {
+        List<T> list = new ArrayList<>();
+        for (GrantedAuthority grantedAuthority : grantedAuthorities) {
+            list.add((T) grantedAuthority);
+        }
+        return list;
+    }
+
+    public static boolean doesContainRole(List<Role> roles, RoleName... roleNames) {
+        if (CollectionUtils.isEmpty(roles)) {
+            return false;
+        }
+        for (Role role : roles) {
+            for (RoleName roleNameArg : roleNames) {
+                if (role.getName().equals(roleNameArg)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
+    }
+
 
 }
 

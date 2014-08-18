@@ -24,7 +24,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
@@ -169,8 +169,8 @@ public class GroupServiceTest {
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
         Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
         Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
-        Set<Group> childGroups = new HashSet<Group>();
-        Set<Group> parentGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
+        List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
         parentGroups.add(parentGroup);
         testGroup.setChildGroups(childGroups);
@@ -209,8 +209,8 @@ public class GroupServiceTest {
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
         Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
         Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
-        Set<Group> childGroups = new HashSet<Group>();
-        Set<Group> parentGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
+        List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
         parentGroups.add(parentGroup);
         testGroup.setChildGroups(childGroups);
@@ -246,7 +246,7 @@ public class GroupServiceTest {
     public void testAddGroupRole() {
         User testUser = TestUtils.createUser(2L, "testUser");
         Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Role testRole = TestUtils.createRole(3L, Roles.PATIENT, creator);
+        Role testRole = TestUtils.createRole(3L, RoleName.PATIENT, creator);
 
         GroupRole groupRole = TestUtils.createGroupRole(4L,testRole, testGroup, testUser, creator);
 
@@ -345,7 +345,7 @@ public class GroupServiceTest {
         Group parentGroup = TestUtils.createGroup(2L, "parentGroup", creator);
         Group childGroup1  = TestUtils.createGroup(3L, "childGroup1", creator);
         Group childGroup2  = TestUtils.createGroup(4L, "childGroup2", creator);
-        Set<Group> childGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
         childGroups.add(childGroup1);
         childGroups.add(childGroup2);
         parentGroup.setChildGroups(childGroups);
@@ -353,7 +353,7 @@ public class GroupServiceTest {
         allGroups.add(parentGroup);
 
         // add user as specialty admin to group
-        Role role = TestUtils.createRole(5L, Roles.SPECIALTY_ADMIN, creator);
+        Role role = TestUtils.createRole(5L, RoleName.SPECIALTY_ADMIN, creator);
         GroupRole groupRole = TestUtils.createGroupRole(6L, role, parentGroup, testUser, creator);
         testUser.setGroupRoles(new TreeSet<GroupRole>());
         testUser.getGroupRoles().add(groupRole);

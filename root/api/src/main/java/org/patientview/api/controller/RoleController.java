@@ -2,7 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.enums.RoleTypes;
+import org.patientview.persistence.model.enums.RoleType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,13 +33,13 @@ public class RoleController extends BaseController<RoleController> {
         if (!request.getParameterMap().containsKey("type")) {
             return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
         }
-        RoleTypes roleTypes;
+        RoleType roleType;
 
-        roleTypes = RoleTypes.valueOf(type);
-        if (roleTypes == null) {
+        roleType = RoleType.valueOf(type);
+        if (roleType == null) {
             return new ResponseEntity<List<Role>>(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<List<Role>>(adminService.getRolesByType(roleTypes), HttpStatus.OK);
+        return new ResponseEntity<List<Role>>(adminService.getRolesByType(roleType), HttpStatus.OK);
     }
 }

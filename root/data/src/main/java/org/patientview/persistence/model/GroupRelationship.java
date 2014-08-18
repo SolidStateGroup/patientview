@@ -2,6 +2,7 @@ package org.patientview.persistence.model;
 
 import org.patientview.persistence.model.enums.RelationshipTypes;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,11 +21,11 @@ import javax.persistence.Table;
 @Table(name = "pv_group_relationship")
 public class GroupRelationship extends RangeModel {
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "source_group_id")
     private Group sourceGroup;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "object_group_id")
     private Group objectGroup;
 

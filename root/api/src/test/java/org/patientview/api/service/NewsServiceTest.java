@@ -15,9 +15,8 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.RoleType;
-import org.patientview.persistence.model.enums.RoleTypes;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
@@ -144,9 +143,9 @@ public class NewsServiceTest {
         User testUser = TestUtils.createUser(1L, "testUser");
         Group testGroup = TestUtils.createGroup(2L, "testGroup", creator);
         Group testGroup2 = TestUtils.createGroup(3L, "testGroup2", creator);
-        Role unitAdminRole = TestUtils.createRole(4L, Roles.UNIT_ADMIN, creator);
-        RoleType roleType = new RoleType();
-        roleType.setValue(RoleTypes.STAFF);
+        Role unitAdminRole = TestUtils.createRole(4L, RoleName.UNIT_ADMIN, creator);
+        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
+        roleType.setValue(RoleType.STAFF);
         unitAdminRole.setRoleType(roleType);
         GroupRole groupRole = TestUtils.createGroupRole(5L, unitAdminRole, testGroup, testUser, creator);
         testUser.getGroupRoles().add(groupRole);
@@ -198,7 +197,7 @@ public class NewsServiceTest {
     public void testAddGroupAndRole() {
         User user = TestUtils.createUser(1L, "testUser");
         Group group = TestUtils.createGroup(5L, "testGroup", creator);
-        Role role = TestUtils.createRole(6L, Roles.PATIENT, creator);
+        Role role = TestUtils.createRole(6L, RoleName.PATIENT, creator);
 
         NewsItem newsItem = new NewsItem();
         newsItem.setId(3L);

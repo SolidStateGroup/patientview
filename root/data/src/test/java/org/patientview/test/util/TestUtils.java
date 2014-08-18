@@ -8,6 +8,7 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
@@ -18,9 +19,10 @@ import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -46,10 +48,13 @@ import java.util.List;
 public final class TestUtils {
 
     //TODO Sprint 3 factor this into the methods to reduce parameters
-    User creator;
+   final static User creator;
+
+    static {creator = createUser(1897987L, "testCreator");}
+
 
     private TestUtils() {
-        creator = createUser(1897987L, "testCreator");
+
     }
 
     public static User createUser(Long id, String name) {
@@ -68,7 +73,7 @@ public final class TestUtils {
         return user;
     }
 
-    public static Role createRole(Long id, Roles name, User creator) {
+    public static Role createRole(Long id, RoleName name, User creator) {
         Role role = new Role();
         role.setId(id);
         role.setName(name);
@@ -276,5 +281,17 @@ public final class TestUtils {
         newsLink.setRole(role);
         newsLink.setCreator(creator);
         return newsLink;
+    }
+
+    public static JoinRequest createJoinRequest(Group group) {
+
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setCreated(new Date());
+        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
+        joinRequest.setGroup(group);
+        joinRequest.setNhsNumber("234234234");
+        joinRequest.setDateOfBirth(new Date());
+        return joinRequest;
+
     }
 }
