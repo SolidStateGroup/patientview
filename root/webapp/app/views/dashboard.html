@@ -1,6 +1,34 @@
 <h1>Dashboard</h1>
 <p>This is the dashboard view.</p>
 
-<select class="form-control" ng-model="graphGroupId" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']" ng-show="graphGroups.length > 0"></select>
+<p>
+    name: {{loggedInUser.forename}} {{loggedInUser.surname}} <br/>
+    last login: {{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm' }} <br/>
+    last login IP: {{loggedInUser.lastLoginIpAddress}} <br/>
+    email: {{loggedInUser.email}} <br/>
+    contact: {{loggedInUser.contactNumber}} <br/>
+    <a href="/#/settings">Update your settings</a> <br/>
+    groups: <br/>
+    <ul>
+        <li ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']">
+            <span ng-if="groupRole.role.name !== 'MEMBER'">
+                {{groupRole.group.name}} ({{groupRole.role.description}})
+            </span>
+        </li>
+    </ul>
+        <br/>
+    unread messages: {{unreadConversationCount}} <br/>
 
-<div google-chart chart="chart" style="{{chart.cssStyle}}"/>
+</p>
+<p ng-hide="loading">
+    <select class="form-control" ng-model="graphGroupId"
+        ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
+        ng-show="graphGroups.length > 2" ng-cloak></select>
+    <br/>
+    <h2 ng-hide="graphGroups.length > 2" ng-cloak>{{graphGroups[0].name}} ({{graphGroups[0].groupType.description}})</h2>
+
+    <div google-chart chart="chart" style="{{chart.cssStyle}}"/>
+</p>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>

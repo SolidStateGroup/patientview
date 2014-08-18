@@ -6,6 +6,7 @@ function (UserService, $scope, GroupService) {
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue, oldValue) {
         var i;
+        $scope.loading = true;
 
         if(newValue !== undefined) {
             GroupService.getStatistics(newValue).then(function (data) {
@@ -46,12 +47,13 @@ function (UserService, $scope, GroupService) {
                 chart1.formatters = {};
 
                 $scope.chart = chart1;
-
+                $scope.loading = false;
             });
         }
     });
 
     $scope.init = function() {
+        $scope.loading = true;
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
             // set the list of groups to show in the data grid
             $scope.graphGroups = groups;
