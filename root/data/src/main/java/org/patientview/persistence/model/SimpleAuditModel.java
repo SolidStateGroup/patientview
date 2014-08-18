@@ -29,7 +29,6 @@ public abstract class SimpleAuditModel extends BaseModel {
     protected SimpleAuditModel() {
     }
 
-    @JsonIgnore
     public Date getCreated() {
         return created;
     }
