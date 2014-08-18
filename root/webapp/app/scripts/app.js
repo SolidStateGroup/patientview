@@ -163,6 +163,21 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
         return 0;
     };
 
+    // global function to order group roles by group type
+    $rootScope.orderGroupRoles = function (groupRole) {
+        if (groupRole.group.groupType) {
+            var groupTypes = [];
+            groupTypes.SPECIALTY = 1;
+            groupTypes.UNIT = 2;
+            groupTypes.DISEASE_GROUP = 3;
+
+            if (groupTypes[groupRole.group.groupType.value]) {
+                return groupTypes[groupRole.group.groupType.value];
+            }
+        }
+        return 0;
+    };
+
     $rootScope.$on('$locationChangeStart', function() {
         buildRoute();
     });
