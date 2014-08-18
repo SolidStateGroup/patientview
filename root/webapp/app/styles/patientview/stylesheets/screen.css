@@ -347,49 +347,60 @@ ul .news-item {
   background-color: #ef2643;
 }
 
-/** temporary icons stuff **/
+/* text classes */
 /* line 219, ../sass/_base.scss */
+.light-text {
+  color: #768696;
+}
+
+/* line 222, ../sass/_base.scss */
+.sub-text {
+  font-size: 0.85rem;
+}
+
+/** temporary icons stuff **/
+/* line 228, ../sass/_base.scss */
 .hero-icon {
   display: block;
   margin: 0 auto;
 }
 
-/* line 224, ../sass/_base.scss */
+/* line 233, ../sass/_base.scss */
 i.icon-hero-manage {
   background: url("../../../images/icons/hero-manage.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 230, ../sass/_base.scss */
+/* line 239, ../sass/_base.scss */
 i.icon-hero-monitor {
   background: url("../../../images/icons/hero-monitor.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 236, ../sass/_base.scss */
+/* line 245, ../sass/_base.scss */
 i.icon-hero-make {
   background: url("../../../images/icons/hero-make.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 242, ../sass/_base.scss */
+/* line 251, ../sass/_base.scss */
 i.icon-search-black {
   background: url("../../../images/icons/search-black.png") 0 0 no-repeat;
   height: 36px;
   width: 36px;
 }
 
-/* line 248, ../sass/_base.scss */
+/* line 257, ../sass/_base.scss */
 i.icon-account {
   background: url("../../../images/icons/account.png") 0 0 no-repeat;
   height: 32px;
   width: 32px;
 }
 
-/* line 254, ../sass/_base.scss */
+/* line 263, ../sass/_base.scss */
 i.icon-organisations {
   background: url("../../../images/icons/organisations.png") 0 0 no-repeat;
   height: 22px;
@@ -397,35 +408,35 @@ i.icon-organisations {
   margin-top: 7px;
 }
 
-/* line 261, ../sass/_base.scss */
+/* line 270, ../sass/_base.scss */
 i.icon-patients {
   background: url("../../../images/icons/patients.png") 0 0 no-repeat;
   height: 27px;
   width: 17px;
 }
 
-/* line 267, ../sass/_base.scss */
+/* line 276, ../sass/_base.scss */
 i.icon-join {
   background: url("../../../images/icons/join.png") 0 0 no-repeat;
   height: 24px;
   width: 22px;
 }
 
-/* line 273, ../sass/_base.scss */
+/* line 282, ../sass/_base.scss */
 i.icon-reply {
   background: url("../../../images/icons/reply-icon.png") 0 0 no-repeat;
   height: 15px;
   width: 16px;
 }
 
-/* line 279, ../sass/_base.scss */
+/* line 288, ../sass/_base.scss */
 i.icon-sort {
   background: url("../../../images/icons/sort.png") 0 0 no-repeat;
   height: 25px;
   width: 20px;
 }
 
-/* line 285, ../sass/_base.scss */
+/* line 294, ../sass/_base.scss */
 i.icon-join-large {
   background: url("../../../images/icons/join-large.png") 0 0 no-repeat;
   height: 37px;
@@ -433,7 +444,7 @@ i.icon-join-large {
   display: block;
 }
 
-/* line 292, ../sass/_base.scss */
+/* line 301, ../sass/_base.scss */
 i.icon-login-large {
   background: url("../../../images/icons/login-large.png") 0 0 no-repeat;
   height: 37px;
@@ -441,21 +452,21 @@ i.icon-login-large {
   display: block;
 }
 
-/* line 299, ../sass/_base.scss */
+/* line 308, ../sass/_base.scss */
 i.icon-help {
   background: url("../../../images/icons/help.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 305, ../sass/_base.scss */
+/* line 314, ../sass/_base.scss */
 i.icon-issues {
   background: url("../../../images/icons/issues.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 311, ../sass/_base.scss */
+/* line 320, ../sass/_base.scss */
 i.icon-messages {
   background: url("../../../images/icons/messages.png") 0 0 no-repeat;
   height: 22px;
@@ -1117,17 +1128,27 @@ label {
   display: block;
 }
 
+/* line 38, ../sass/_lists.scss */
+.groups-list li {
+  color: #585858;
+  margin-right: 5px;
+}
+/* line 42, ../sass/_lists.scss */
+.groups-list li .light-text {
+  font-size: 1rem;
+}
+
 /* line 1, ../sass/_messages.scss */
-.message-item {
+.message-item, .tab-panel-item {
   margin-bottom: 20px;
 }
 /* line 4, ../sass/_messages.scss */
-.message-item .content-panel {
+.message-item .content-panel, .tab-panel-item .content-panel {
   position: relative;
   z-index: 1;
 }
 /* line 9, ../sass/_messages.scss */
-.message-item .quick-reply {
+.message-item .quick-reply, .tab-panel-item .quick-reply {
   width: 96%;
   margin: -15px auto 15px;
   padding: 30px 20px 20px 20px;
@@ -1135,11 +1156,11 @@ label {
   z-index: 0;
 }
 /* line 16, ../sass/_messages.scss */
-.message-item .quick-reply label {
+.message-item .quick-reply label, .tab-panel-item .quick-reply label {
   color: #909090;
 }
 /* line 20, ../sass/_messages.scss */
-.message-item .quick-reply textarea {
+.message-item .quick-reply textarea, .tab-panel-item .quick-reply textarea {
   width: 100%;
   color: #909090;
   background: #f8f8f8;
@@ -1147,7 +1168,7 @@ label {
   height: 80px;
 }
 /* line 28, ../sass/_messages.scss */
-.message-item .quick-reply fieldset {
+.message-item .quick-reply fieldset, .tab-panel-item .quick-reply fieldset {
   margin-top: 10px;
 }
 
@@ -1184,4 +1205,50 @@ label {
 .message-summary .last-message .date-stamp {
   color: #909090;
   font-size: 1.5rem;
+}
+
+/* line 2, ../sass/_components.scss */
+.tab-panel-item .aside-actions {
+  height: 180px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+/* line 9, ../sass/_components.scss */
+.tab-panel-item .aside-actions li {
+  height: 85px;
+}
+/* line 12, ../sass/_components.scss */
+.tab-panel-item .aside-actions li a {
+  height: 100%;
+  line-height: 20px;
+  padding-top: 20px;
+}
+/* line 20, ../sass/_components.scss */
+.tab-panel-item .item-detail {
+  padding: 20px;
+}
+/* line 23, ../sass/_components.scss */
+.tab-panel-item .item-detail dl {
+  margin-bottom: 10px;
+}
+/* line 28, ../sass/_components.scss */
+.tab-panel-item .item-detail dl dd {
+  color: #768696;
+}
+
+/* line 35, ../sass/_components.scss */
+.user-details {
+  margin-bottom: 20px;
+  padding: 20px;
+  min-height: 170px;
+}
+/* line 40, ../sass/_components.scss */
+.user-details h3 {
+  margin-top: 0;
+}
+/* line 44, ../sass/_components.scss */
+.user-details h4 {
+  margin-bottom: 5px;
 }
