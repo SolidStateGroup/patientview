@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Id can be passed when not using any persistence to test against.
@@ -242,10 +243,10 @@ public final class TestUtils {
 
     }
 
-    public static void authenticateTest(User user, Collection<Role> roles) {
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        for (Role role : roles) {
-            authorities.add(role);
+    public static void authenticateTest(User user, Collection<GroupRole> groupRoles) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        for (GroupRole groupRole : groupRoles) {
+            authorities.add(groupRole);
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);

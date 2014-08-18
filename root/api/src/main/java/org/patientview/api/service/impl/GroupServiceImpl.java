@@ -413,7 +413,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         Group group = groupRepository.findOne(groupId);
 
         if (group == null) {
-            throw new ResourceNotFoundException(String.format("The group id %s is not valid", groupId));
+            throw new ResourceNotFoundException(String.format("The group id %d is not valid", groupId));
         }
 
         return Util.iterableToList(groupRepository.findChildren(group));
