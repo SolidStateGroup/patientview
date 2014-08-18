@@ -108,7 +108,7 @@ public class GroupServiceTest {
     public void setUp() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser("creator");
+        creator = TestUtils.createUser(1L, "creator");
     }
 
 
@@ -120,19 +120,19 @@ public class GroupServiceTest {
     public void testFindAll(){
 
         // Set up groups
-        Group testGroup = TestUtils.createGroup("testGroup");
-        Group parentGroup = TestUtils.createGroup("parentGroup");
-        Group childGroup = TestUtils.createGroup("childGroup");
+        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group parentGroup = TestUtils.createGroup(2L, "parentGroup", creator);
+        Group childGroup = TestUtils.createGroup(3L, "childGroup", creator);
 
         // Create relationships
-        LookupType relationshipType = TestUtils.createLookupType(LookupTypes.RELATIONSHIP_TYPE);
-        Lookup parentRelationship = TestUtils.createLookup(relationshipType, "PARENT");
+        LookupType relationshipType = TestUtils.createLookupType(4L, LookupTypes.RELATIONSHIP_TYPE, creator);
+        Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
 
-        Lookup childRelationship = TestUtils.createLookup(relationshipType, "PARENT");
+        Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "PARENT", creator);
 
         Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship parent =  TestUtils.createGroupRelationship(testGroup, parentGroup, RelationshipTypes.PARENT);
-        GroupRelationship child =  TestUtils.createGroupRelationship(testGroup, childGroup, RelationshipTypes.CHILD);
+        GroupRelationship parent =  TestUtils.createGroupRelationship(7L, testGroup, parentGroup, RelationshipTypes.PARENT, creator);
+        GroupRelationship child =  TestUtils.createGroupRelationship(8L, testGroup, childGroup, RelationshipTypes.CHILD, creator);
         groupRelationships.add(parent);
         groupRelationships.add(child);
 
@@ -165,12 +165,12 @@ public class GroupServiceTest {
     public void testAddGroupChildAndParent() {
         User testUser = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
-
+;
         Group testGroup = TestUtils.createGroup("testGroup");
         Group parentGroup = TestUtils.createGroup("parentGroup");
         Group childGroup  = TestUtils.createGroup("childGroup");
-        Set<Group> childGroups = new HashSet<Group>();
-        Set<Group> parentGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
+        List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
         parentGroups.add(parentGroup);
         testGroup.setChildGroups(childGroups);
@@ -209,8 +209,8 @@ public class GroupServiceTest {
         Group testGroup = TestUtils.createGroup("testGroup");
         Group parentGroup = TestUtils.createGroup("parentGroup");
         Group childGroup  = TestUtils.createGroup("childGroup");
-        Set<Group> childGroups = new HashSet<Group>();
-        Set<Group> parentGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
+        List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
         parentGroups.add(parentGroup);
         testGroup.setChildGroups(childGroups);
@@ -334,13 +334,13 @@ public class GroupServiceTest {
     public void testFindGroupAndChildGroupsByUser() {
 
         // create user
-        User testUser = TestUtils.createUser("testUser");
+        User testUser = TestUtils.createUser(1L, "testUser");
 
         // create groups
         Group parentGroup = TestUtils.createGroup("parentGroup");
         Group childGroup1  = TestUtils.createGroup("childGroup1");
         Group childGroup2  = TestUtils.createGroup("childGroup2");
-        Set<Group> childGroups = new HashSet<Group>();
+        List<Group> childGroups = new ArrayList<>();
         childGroups.add(childGroup1);
         childGroups.add(childGroup2);
         parentGroup.setChildGroups(childGroups);

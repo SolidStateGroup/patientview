@@ -118,7 +118,7 @@
                             <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div class="row-item accordion-heading-text">
 
-                                    <ul ng-repeat="groupRole in user.groupRoles" class="unstyled">
+                                    <ul ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled">
                                         <div ng-if="groupRole.role.name !== 'MEMBER'">
                                             <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
                                         </div>

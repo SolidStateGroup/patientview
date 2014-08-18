@@ -33,3 +33,15 @@
         }
     }
 }
+
+.groups-list{
+    li{
+        color:$textdefault;
+        margin-right:5px;
+
+        .light-text{
+            font-size:1rem;
+        }
+
+    }
+}

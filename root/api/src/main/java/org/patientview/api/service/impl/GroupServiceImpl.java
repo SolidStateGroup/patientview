@@ -26,6 +26,7 @@ import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -93,7 +94,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         List<Group> groups = Util.convertIterable(groupRepository.findAll());
 
         return addParentAndChildGroups(groups);
-
     }
 
     public Group get(Long id) {
@@ -302,26 +302,22 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     private Group addSingleParentAndChildGroup(Group group) {
         // TODO Move this to PostConstruct sort out Transaction scope;
 
-        Set<Group> parentGroups = new HashSet<Group>();
-        Set<Group> childGroups = new HashSet<Group>();
+        List<Group> parentGroups = new ArrayList<>();
+        List<Group> childGroups = new ArrayList<>();
 
         if (!CollectionUtils.isEmpty(group.getGroupRelationships())) {
             for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
 
                 if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
-                    Group detachedParentGroup = groupRelationship.getObjectGroup();
-                    entityManager.detach(detachedParentGroup);
-                    detachedParentGroup.setParentGroups(Collections.EMPTY_SET);
-                    detachedParentGroup.setChildGroups(Collections.EMPTY_SET);
-                    parentGroups.add(detachedParentGroup);
+                    Group parentGroup = new Group();
+                    BeanUtils.copyProperties(groupRelationship.getObjectGroup(), parentGroup);
+                    parentGroups.add(parentGroup);
                 }
 
                 if (groupRelationship.getRelationshipType() == RelationshipTypes.CHILD) {
-                    Group detachedChildGroup = groupRelationship.getObjectGroup();
-                    entityManager.detach(detachedChildGroup);
-                    detachedChildGroup.setParentGroups(Collections.EMPTY_SET);
-                    detachedChildGroup.setChildGroups(Collections.EMPTY_SET);
-                    childGroups.add(detachedChildGroup);
+                    Group childGroup = new Group();
+                    BeanUtils.copyProperties(groupRelationship.getObjectGroup(), childGroup);
+                    childGroups.add(childGroup);
                 }
             }
         }

@@ -2,6 +2,32 @@
     border: none;
     height:70px;
 
+    .nav-public{
+        height:70px;
+
+        .public{
+            height:100%;
+            li{
+                height:100%;
+                a{
+                    line-height:37px;
+                    color:$white;
+                    i{
+                        margin-right:10px;
+                    }
+                }
+
+                &.join{
+                    background:$aqua;
+                }
+
+                &.login{
+                    background:$primary;
+                }
+            }
+        }
+    }
+
     .nav-account{
         height:70px;
         background:$aqua;
@@ -9,7 +35,7 @@
         padding:16px 10px 10px;
 
         i{
-            margin-right:20px;
+            margin-right:5px;
         }
 
         h4{
@@ -24,7 +50,7 @@
                 a {
                     text-decoration: underline;
                     color:$textsecondary;
-                    font-size: 1.5rem;
+                    font-size: 1.25rem;
                     font-weight: normal;
                     padding:0 5px;
 
@@ -116,5 +142,29 @@
         position:absolute;
         left:25%;
         top:25%;
+    }
+}
+
+.nav-utils{
+    height:70px;
+    li{
+        width:70px;
+        margin-left:-2px;
+        height:100%;
+        background:$highlight-nav;
+        border-left:1px solid $border-default;
+        a{
+            height:100%;
+            width:100%;
+            text-align:center;
+            font-size:1rem;
+            color:$light-grey;
+            text-decoration:none;
+
+            i{
+                display:block;
+                margin:20px auto 0;
+            }
+        }
     }
 }
