@@ -64,6 +64,18 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+
+        getSubmittedJoinRequestCount: function (userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/conversations/unreadcount
+            Restangular.one('user', userId).one('joinrequests/count').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
+
 }]);
