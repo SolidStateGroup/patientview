@@ -5,17 +5,15 @@
     <!-- Filter -->
     <div class="select-container pull-left">
         <!-- filter by status -->
-        <div class="btn-group filter-select" id="filter-role" data-ng-class="{open: open2}">
-            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Status <span
-                    class="caret-container"><span class="caret"></span></span></button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                <li><a data-ng-click="statuses=[];" data-ng-model="statuses" class="a-filter-status"><i class="glyphicon glyphicon-remove"></i>
-                    Uncheck All</a></li>
-                <li class="divider"></li>
-                <li data-ng-repeat="status in statuses"><a data-ng-click="filter(status)"
-                                                           class="a-filter-status clearfix"><span class="pull-left">{{status}}</span><span></span></a>
-                </li>
-            </ul>
+            <div class="btn-group filter-select" id="filter-role2" data-ng-class="{open: open2}">
+                <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Status <span class="caret-container"><span class="caret"></span></span></button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                    <li><a data-ng-click="selectedStatus=[];" class="a-filter-status"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                    <li class="divider"></li>
+                    <li data-ng-repeat="status in statuses"> <a data-ng-click="setSelectStatus(status)" class="a-filter-role clearfix"><span class="pull-left">{{status}}</span><span data-ng-class="isStatusChecked(status)"></span></a></li>
+                </ul>
+            </div>
+
         </div>
     </div>
 

@@ -77,18 +77,18 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     }
 
     @Override
-    public List<JoinRequest> getByStatus(Long userId, JoinRequestStatus status)
-            throws ResourceNotFoundException {
+    public List<JoinRequest> getByStatuses(Long userId, List<JoinRequestStatus> statuses)
+            throws ResourceNotFoundException{
         User user = findUser(userId);
 
         Iterable<JoinRequest> joinRequests;
 
         if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            joinRequests = joinRequestRepository.findByParentUserAndStatus(user, status);
+            joinRequests = joinRequestRepository.findByParentUserAndStatuses(user, statuses);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
-            joinRequests = joinRequestRepository.findByUserAndStatus(user, status);
+            joinRequests = joinRequestRepository.findByUserAndStatuses(user, statuses);
         } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            joinRequests = joinRequestRepository.findByStatus(status);
+            joinRequests = joinRequestRepository.findByStatuses(statuses);
         } else {
             throw new SecurityException("Invalid role join requests");
         }

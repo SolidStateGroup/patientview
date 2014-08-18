@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -20,8 +21,10 @@ import java.math.BigInteger;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long> {
-
-    Iterable<JoinRequest> findByStatus(JoinRequestStatus status);
+    @Query("SELECT  jr " +
+            "FROM   JoinRequest jr " +
+            "WHERE    jr.status IN :statuses")
+    Iterable<JoinRequest> findByStatuses(@Param("statuses") List<JoinRequestStatus> joinRequestStatuses);
 
     @Query("SELECT  COUNT(1)  " +
             "FROM   JoinRequest jr " +
@@ -56,9 +59,9 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
             "FROM   JoinRequest jr " +
             "JOIN   jr.group.groupRoles gr " +
             "WHERE  gr.user = :user " +
-            "AND    jr.status = :status")
-    Iterable<JoinRequest> findByUserAndStatus(@Param("user") User user,
-                                              @Param("status") JoinRequestStatus joinRequestStatus);
+            "AND    jr.status = :statuses")
+    Iterable<JoinRequest> findByUserAndStatuses(@Param("user") User user,
+                                              @Param("statuses") List<JoinRequestStatus> joinRequestStatuses);
 
 
     @Query("SELECT jr " +
@@ -76,8 +79,8 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
            "JOIN   jgr.groupRelationships grs " +
            "JOIN   grs.objectGroup.groupRoles gr " +
            "WHERE  gr.user = :user " +
-           "AND    jr.status = :status " +
+           "AND    jr.status = :statuses " +
            "AND    grs.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.PARENT")
-    Iterable<JoinRequest> findByParentUserAndStatus(@Param("user") User user,
-                                                    @Param("status") JoinRequestStatus joinRequestStatus);
+    Iterable<JoinRequest> findByParentUserAndStatuses(@Param("user") User user,
+                                                    @Param("statuses") List<JoinRequestStatus> joinRequestStatuses);
 }

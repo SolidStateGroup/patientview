@@ -19,8 +19,10 @@ import org.patientview.persistence.repository.JoinRequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -45,12 +47,9 @@ public class JoinRequestServiceTest {
     @InjectMocks
     JoinRequestService joinRequestService = new JoinRequestServiceImpl();
 
-    private User creator;
-
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser("creator");
     }
 
 
@@ -150,10 +149,13 @@ public class JoinRequestServiceTest {
 
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
-        joinRequestService.getByStatus(group.getId(), JoinRequestStatus.COMPLETED);
+        List<JoinRequestStatus> statuses = new ArrayList<>();
+        statuses.add(JoinRequestStatus.COMPLETED);
+
+        joinRequestService.getByStatuses(group.getId(), statuses);
 
         verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(1)).findByUserAndStatus(eq(user), eq(JoinRequestStatus.COMPLETED));
+        verify(joinRequestRepository, Mockito.times(1)).findByUserAndStatuses(eq(user), eq(statuses));
     }
 
     /**
@@ -260,7 +262,6 @@ public class JoinRequestServiceTest {
      */
     @Test
     public void testGetJoinRequestCountSpecialtyAdmin_validGroup() throws ResourceNotFoundException {
-
 
         User user = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(user, RoleName.SPECIALTY_ADMIN);
