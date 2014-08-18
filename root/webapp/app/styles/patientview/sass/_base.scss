@@ -42,6 +42,15 @@ body {
         background: $lowlight;
     }
 
+    &.user-settings{
+        margin-bottom:20px;
+
+        label.control-label{
+            text-align:left;
+            width:200px;
+        }
+    }
+
     .content-inner {
         padding: 10px;
     }
