@@ -1,12 +1,12 @@
 'use strict';
 
-angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService',
-function (UserService, $scope, GroupService) {
+angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService',
+function (UserService, $scope, GroupService, NewsService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue, oldValue) {
         var i;
-        $scope.loading = true;
+        $scope.chartLoading = true;
 
         if(newValue !== undefined) {
             GroupService.getStatistics(newValue).then(function (data) {
@@ -47,7 +47,7 @@ function (UserService, $scope, GroupService) {
                 chart1.formatters = {};
 
                 $scope.chart = chart1;
-                $scope.loading = false;
+                $scope.chartLoading = false;
             });
         }
     });
@@ -64,6 +64,13 @@ function (UserService, $scope, GroupService) {
             }
         }, function () {
             alert('Error retrieving groups');
+        });
+
+        NewsService.getByUser($scope.loggedInUser.id, 0, 5).then(function(page) {
+            $scope.newsItems = page.content;
+            $scope.loading = false;
+        }, function() {
+            $scope.loading = false;
         });
     };
 
