@@ -1,7 +1,6 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.AuditTrail;
-import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
@@ -10,7 +9,6 @@ import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
-import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +21,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupService {
 
-    @GroupMemberOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
+    //@GroupMemberOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
     Group get(Long id);
 
     List<Group> findAll();
@@ -34,7 +32,7 @@ public interface GroupService {
 
     List<Group> findGroupByType(Long lookupId);
 
-    @GroupMemberOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
+    //@GroupMemberOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
     Group save(Group group) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.CREATE, objectType = Group.class)
