@@ -20,6 +20,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -91,6 +93,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         user.setFailedLogonAttempts(0);
         user.setLastLogin(new Date());
+        user.setLastLoginIpAddress(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                .getRequest().getRemoteAddr());
         userRepository.save(user);
 
         return userToken;
