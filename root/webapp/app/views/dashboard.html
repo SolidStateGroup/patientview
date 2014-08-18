@@ -1,7 +1,7 @@
 <h1>Dashboard</h1>
 <p>This is the dashboard view.</p>
 
-<p>
+<div>
     name: {{loggedInUser.forename}} {{loggedInUser.surname}} <br/>
     last login: {{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm' }} <br/>
     last login IP: {{loggedInUser.lastLoginIpAddress}} <br/>
@@ -19,16 +19,16 @@
         <br/>
     unread messages: {{unreadConversationCount}} <br/>
 
-</p>
-<p ng-hide="loading">
+</div>
+<div ng-hide="loading">
     <select class="form-control" ng-model="graphGroupId"
         ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
         ng-show="graphGroups.length > 2" ng-cloak></select>
     <br/>
     <h2 ng-hide="graphGroups.length > 2" ng-cloak>{{graphGroups[0].name}} ({{graphGroups[0].groupType.description}})</h2>
 
-    <div google-chart chart="chart" style="{{chart.cssStyle}}"/>
-</p>
+    <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
+</div>
 
 <div ng-show="loading" class="container"><br/><br/>
     <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
