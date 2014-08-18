@@ -67,8 +67,8 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
         $routeProviderReference = $routeProvider;
     }]);
 
-patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular', '$route', 'RouteService', 'ENV', 'ConversationService',
-    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route, RouteService, ENV, ConversationService) {
+patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular', '$route', 'RouteService', 'ENV', 'ConversationService', 'JoinRequestService',
+    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route, RouteService, ENV, ConversationService, JoinRequestService) {
 
     $rootScope.ieTestMode = false;
 
