@@ -214,6 +214,15 @@ ul {
     background-color: $error;
 }
 
+/* text classes */
+
+.light-text{
+    color:$bluegrey;
+}
+.sub-text{
+    font-size:0.85rem;
+}
+
 /** temporary icons stuff **/
 
 .hero-icon {
@@ -280,4 +289,36 @@ i.icon-sort{
     background: url('../../../images/icons/sort.png') 0 0 no-repeat;
     height: 25px;
     width: 20px;
+}
+
+i.icon-join-large{
+    background: url('../../../images/icons/join-large.png') 0 0 no-repeat;
+    height: 37px;
+    width: 33px;
+    display:block;
+}
+
+i.icon-login-large{
+    background: url('../../../images/icons/login-large.png') 0 0 no-repeat;
+    height: 37px;
+    width: 33px;
+    display:block;
+}
+
+i.icon-help{
+    background: url('../../../images/icons/help.png') 0 0 no-repeat;
+    height: 22px;
+    width: 24px;
+}
+
+i.icon-issues{
+    background: url('../../../images/icons/issues.png') 0 0 no-repeat;
+    height: 22px;
+    width: 24px;
+}
+
+i.icon-messages{
+    background: url('../../../images/icons/messages.png') 0 0 no-repeat;
+    height: 22px;
+    width: 37px;
 }
