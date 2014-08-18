@@ -69,7 +69,7 @@ public class GroupStatisticsServiceTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
     }
 
     /**
@@ -78,7 +78,7 @@ public class GroupStatisticsServiceTest {
      */
     @Test
     public void testGetMonthlyGroupStatistics() throws ResourceNotFoundException {
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group testGroup = TestUtils.createGroup("testGroup");
 
         when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
 
@@ -96,10 +96,10 @@ public class GroupStatisticsServiceTest {
     public void testGenerateGroupStatistics() {
         // Create statistical lookups
         Set<Lookup> lookups = new HashSet<>();
-        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.STATISTIC_TYPE, creator);
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.STATISTIC_TYPE);
         lookupType.setLookups(lookups);
-        lookupType.getLookups().add(TestUtils.createLookup(3L, lookupType, "TestStatistics1", creator));
-        lookupType.getLookups().add(TestUtils.createLookup(4L, lookupType, "TestStatistics2", creator));
+        lookupType.getLookups().add(TestUtils.createLookup(lookupType, "TestStatistics1"));
+        lookupType.getLookups().add(TestUtils.createLookup(lookupType, "TestStatistics2"));
 
         // Create dates
         Calendar calendar = Calendar.getInstance();
@@ -108,7 +108,7 @@ public class GroupStatisticsServiceTest {
         Date endDate = calendar.getTime();
 
         // Create groups
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group testGroup = TestUtils.createGroup( "testGroup");
         List<Group> groups = new ArrayList<>();
         groups.add(testGroup);
         when(groupRepository.findAll()).thenReturn(groups);
@@ -138,7 +138,7 @@ public class GroupStatisticsServiceTest {
      */
     @Test(expected = ResourceNotFoundException.class)
     public void testGetMonthlyGroupStatistics_UnknownGroup() throws ResourceNotFoundException {
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group testGroup = TestUtils.createGroup("testGroup");
 
         when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
 

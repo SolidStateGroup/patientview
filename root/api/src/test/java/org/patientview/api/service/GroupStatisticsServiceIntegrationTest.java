@@ -3,6 +3,7 @@ package org.patientview.api.service;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.api.config.TestPersistenceConfig;
@@ -40,6 +41,7 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 // ApplicationContext will be loaded from the static inner ContextConfiguration class
 @ContextConfiguration(loader=AnnotationConfigContextLoader.class)
+@Ignore
 public class GroupStatisticsServiceIntegrationTest {
 
     User creator;
@@ -78,7 +80,7 @@ public class GroupStatisticsServiceIntegrationTest {
     @Test
     public void testGenerateGroupStatistic() throws ResourceNotFoundException {
 
-        Group testGroup = dataTestUtils.createGroup("TestStatisticGroup", creator);
+        Group testGroup = dataTestUtils.createGroup("TestStatisticGroup");
 
         createStatisticLookups();
 
@@ -96,19 +98,23 @@ public class GroupStatisticsServiceIntegrationTest {
     }
 
     private void createStatisticLookups() {
-        LookupType lookupType = TestUtils.createLookupType(null, LookupTypes.STATISTIC_TYPE, creator);
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.STATISTIC_TYPE);
         lookupTypeRepository.save(lookupType);
 
         Lookup lookup = new Lookup();
         lookup.setValue(StatisticType.PATIENT_COUNT.name());
         lookup.setDescription("SELECT COUNT(1) FROM pv_user_group_role WHERE creation_date BETWEEN :startDate AND :endDate AND group_id = :groupId");
         lookup.setLookupType(lookupType);
+        lookup.setId(null);
+        lookup.setCreator(creator);
         lookupRepository.save(lookup);
 
         lookup = new Lookup();
         lookup.setValue(StatisticType.LOGON_COUNT.name());
         lookup.setDescription("SELECT COUNT(1) FROM pv_audit WHERE creation_date BETWEEN :startDate AND :endDate AND id > :groupId");
         lookup.setLookupType(lookupType);
+        lookup.setId(null);
+        lookup.setCreator(creator);
         lookupRepository.save(lookup);
 
     }

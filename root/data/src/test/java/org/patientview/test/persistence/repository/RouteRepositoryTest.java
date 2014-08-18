@@ -13,6 +13,8 @@ import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
@@ -55,7 +57,7 @@ public class RouteRepositoryTest {
     @Before
     public void setup () {
         creator = dataTestUtils.createUser("testCreator");
-        lookup = dataTestUtils.createLookup("TOP", LookupTypes.MENU, creator);
+        lookup = dataTestUtils.createLookup("TOP", LookupTypes.MENU);
 
     }
 
@@ -69,18 +71,20 @@ public class RouteRepositoryTest {
     public void testGetFeatureRoutes() {
 
         // Create the feature for the user and the route to link to
-        Feature feature = dataTestUtils.createFeature("TEST_FEATURE", creator);
+        Feature feature = dataTestUtils.createFeature("TEST_FEATURE");
 
         // Create route with the feature attached
-        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup, creator);
-        route = dataTestUtils.createRouteLink(route, null, feature , null, creator);
+        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup);
+        route = dataTestUtils.createRouteLink(route, null, feature , null);
 
 
         // Create the user that should have the route
         User routeUser = dataTestUtils.createUser("testRouter");
 
         // Create the link to the feature for the user
-        UserFeature userFeature = TestUtils.createUserFeature(null, feature, routeUser, creator);
+        UserFeature userFeature = TestUtils.createUserFeature(feature, routeUser);
+        userFeature.setId(null);
+        userFeature.setCreator(creator);
         userFeatureRepository.save(userFeature);
 
         Iterable<Route> routes = routeRepository.findFeatureRoutesByUser(routeUser);
@@ -101,18 +105,18 @@ public class RouteRepositoryTest {
     public void testGetRoleRoutes() {
 
         // Create the role for the user and the route to link to
-        Role role = dataTestUtils.createRole("TEST_FEATURE", creator);
+        Role role = dataTestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF);
 
 
         // Create route with the role attached
-        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup, creator);
-        route = dataTestUtils.createRouteLink(route, role, null , null, creator);
+        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup);
+        route = dataTestUtils.createRouteLink(route, role, null , null);
 
         // Create the user that should have the route
         User routeUser = dataTestUtils.createUser("testRouter");
 
         // Create the link to the role for the user
-        Group group = dataTestUtils.createGroup("TEST_GROUP", creator);
+        Group group = dataTestUtils.createGroup("TEST_GROUP");
 
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(routeUser);
@@ -141,18 +145,18 @@ public class RouteRepositoryTest {
     public void testGetGroupRoutes() {
 
         // Create the group for the user and the route to link to
-        Group group = dataTestUtils.createGroup("TEST_GROUP", creator);
+        Group group = dataTestUtils.createGroup("TEST_GROUP");
 
 
         // Create route with the role attached
-        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup, creator);
-        route = dataTestUtils.createRouteLink(route, null, null , group, creator);
+        Route route = dataTestUtils.createRoute("testRoute", "testController", lookup);
+        route = dataTestUtils.createRouteLink(route, null, null , group);
 
         // Create the user that should have the route
         User routeUser = dataTestUtils.createUser("testRouter");
 
         // Create the link to the group for the user
-        Role role = dataTestUtils.createRole("TEST_FEATURE", creator);
+        Role role = dataTestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF);
 
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(routeUser);

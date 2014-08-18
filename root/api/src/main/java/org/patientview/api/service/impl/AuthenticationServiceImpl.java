@@ -4,7 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Audit;
-import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
@@ -23,10 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  *
@@ -102,10 +102,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         if (userToken != null) {
 
-            List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+            Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
-            for (Role role : roleRepository.findByUser(userToken.getUser())) {
-                grantedAuthorities.add(role);
+            for (GroupRole groupRole : userToken.getUser().getGroupRoles()) {
+                grantedAuthorities.add(groupRole);
             }
             return new UsernamePasswordAuthenticationToken(userToken.getUser(), userToken.getUser().getId(),
                     grantedAuthorities);

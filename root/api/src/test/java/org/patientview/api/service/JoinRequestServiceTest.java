@@ -11,7 +11,6 @@ import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.JoinRequestServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.RoleName;
@@ -20,10 +19,8 @@ import org.patientview.persistence.repository.JoinRequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -53,7 +50,7 @@ public class JoinRequestServiceTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
     }
 
 
@@ -65,7 +62,7 @@ public class JoinRequestServiceTest {
     @Test
     public void testAddJoinRequest() throws ResourceNotFoundException {
 
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        Group group = TestUtils.createGroup("TestGroup");
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
@@ -93,7 +90,7 @@ public class JoinRequestServiceTest {
      */
     @Test(expected = ResourceNotFoundException.class)
     public void testAddJoinRequest_invalidGroup() throws ResourceNotFoundException {
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        Group group = TestUtils.createGroup( "TestGroup");
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
@@ -116,12 +113,10 @@ public class JoinRequestServiceTest {
     @Test
     public void testGetJoinRequestUnitAdmin_validGroup() throws ResourceNotFoundException {
 
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(3l, RoleName.UNIT_ADMIN, creator));
-        User user = TestUtils.createUser(2L, "testUser");
-        TestUtils.authenticateTest(user, roles);
+        User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(user, RoleName.UNIT_ADMIN);
 
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        Group group = TestUtils.createGroup("TestGroup");
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
@@ -143,12 +138,10 @@ public class JoinRequestServiceTest {
     @Test
     public void testGetJoinRequestUnitAdminByStatus_validGroup() throws ResourceNotFoundException {
 
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(3l, RoleName.UNIT_ADMIN, creator));
-        User user = TestUtils.createUser(2L, "testUser");
-        TestUtils.authenticateTest(user, roles);
+        User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(user, RoleName.UNIT_ADMIN);
 
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        Group group = TestUtils.createGroup("TestGroup");
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
@@ -170,12 +163,10 @@ public class JoinRequestServiceTest {
     @Test
     public void testGetJoinRequestSpecialtyAdmin_validGroup() throws ResourceNotFoundException {
 
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(3l, RoleName.SPECIALTY_ADMIN, creator));
-        User user = TestUtils.createUser(2L, "testUser");
-        TestUtils.authenticateTest(user, roles);
+        User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(user, RoleName.SPECIALTY_ADMIN);
 
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        Group group = TestUtils.createGroup( "TestGroup");
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
@@ -198,8 +189,8 @@ public class JoinRequestServiceTest {
     @Test(expected = ResourceNotFoundException.class)
     public void testGetJoinRequest_invalidGroup() throws ResourceNotFoundException {
 
-        User user = TestUtils.createUser(2L, "testUser");
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        User user = TestUtils.createUser("testUser");
+        Group group = TestUtils.createGroup("TestGroup");
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
@@ -222,7 +213,7 @@ public class JoinRequestServiceTest {
      */
     @Test
     public void testSaveJoinRequest() throws ResourceNotFoundException, SecurityException {
-        User user = TestUtils.createUser(2L, "testUser");
+        User user = TestUtils.createUser("testUser");
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setId(10L);
@@ -249,12 +240,10 @@ public class JoinRequestServiceTest {
     @Test
     public void testGetJoinRequestCountUnitAdmin_validGroup() throws ResourceNotFoundException {
 
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(3l, RoleName.UNIT_ADMIN, creator));
-        User user = TestUtils.createUser(2L, "testUser");
-        TestUtils.authenticateTest(user, roles);
+        User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(user, RoleName.UNIT_ADMIN);
 
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
+        Group group = TestUtils.createGroup( "TestGroup");
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
         joinRequestService.getCount(group.getId());
@@ -272,12 +261,10 @@ public class JoinRequestServiceTest {
     @Test
     public void testGetJoinRequestCountSpecialtyAdmin_validGroup() throws ResourceNotFoundException {
 
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(3l, RoleName.SPECIALTY_ADMIN, creator));
-        User user = TestUtils.createUser(2L, "testUser");
-        TestUtils.authenticateTest(user, roles);
+        Group group = TestUtils.createGroup("TestGroup");
+        User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(user, RoleName.SPECIALTY_ADMIN);
 
-        Group group = TestUtils.createGroup(1L, "TestGroup", creator);
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
         joinRequestService.getCount(group.getId());

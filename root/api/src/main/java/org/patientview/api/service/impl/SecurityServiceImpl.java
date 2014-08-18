@@ -45,14 +45,14 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
     private UserRepository userRepository;
 
     public List<Role> getUserRoles(Long userId) {
-        return Util.iterableToList(roleRepository.findValidRolesByUser(userId));
+        return Util.convertIterable(roleRepository.findValidRolesByUser(userId));
     }
 
     public Set<Route> getUserRoutes(Long userId) {
         User user = userRepository.findOne(userId);
-        Set<Route> routes = new TreeSet<Route>(Util.iterableToList(routeRepository.findFeatureRoutesByUser(user)));
-        routes.addAll(Util.iterableToList(routeRepository.findGroupRoutesByUser(user)));
-        routes.addAll(Util.iterableToList(routeRepository.findRoleRoutesByUser(user)));
+        Set<Route> routes = new TreeSet<Route>(Util.convertIterable(routeRepository.findFeatureRoutesByUser(user)));
+        routes.addAll(Util.convertIterable(routeRepository.findGroupRoutesByUser(user)));
+        routes.addAll(Util.convertIterable(routeRepository.findRoleRoutesByUser(user)));
         return routes;
 
     }
@@ -60,19 +60,19 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
     public List<Group> getGroupByUserAndRole(Long userId, Long roleId) {
         User user = userRepository.findOne(userId);
         Role role = roleRepository.findOne(roleId);
-        return Util.iterableToList(groupRepository.findGroupByUserAndRole(user, role));
+        return Util.convertIterable(groupRepository.findGroupByUserAndRole(user, role));
     }
 
     public List<Group> getUserGroups(Long userId) {
         User user = userRepository.findOne(userId);
         if (doesListContainRole(roleRepository.findByUser(user), RoleName.GLOBAL_ADMIN)) {
-            return Util.iterableToList(groupService.findAll());
+            return Util.convertIterable(groupService.findAll());
         } else if (doesListContainRole(roleRepository.findByUser(user), RoleName.SPECIALTY_ADMIN)) {
             // if specialty admin get specialty group and all child groups
-            return Util.iterableToList(groupService.findGroupAndChildGroupsByUser(user));
+            return Util.convertIterable(groupService.findGroupAndChildGroupsByUser(user));
         }
         else {
-            return Util.iterableToList(groupService.findGroupByUser(user));
+            return Util.convertIterable(groupService.findGroupByUser(user));
         }
     }
 

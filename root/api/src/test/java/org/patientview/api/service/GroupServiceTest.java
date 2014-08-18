@@ -163,12 +163,12 @@ public class GroupServiceTest {
     @Test
 
     public void testAddGroupChildAndParent() {
-        User testUser = TestUtils.createUser(2L, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
-
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
-        Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
+;
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Group parentGroup = TestUtils.createGroup("parentGroup");
+        Group childGroup  = TestUtils.createGroup("childGroup");
         List<Group> childGroups = new ArrayList<>();
         List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
@@ -177,9 +177,9 @@ public class GroupServiceTest {
         testGroup.setParentGroups(parentGroups);
 
         // Create relationships lookups
-        LookupType relationshipType = TestUtils.createLookupType(4L, LookupTypes.RELATIONSHIP_TYPE, creator);
-        Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
-        Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
+        LookupType relationshipType = TestUtils.createLookupType(LookupTypes.RELATIONSHIP_TYPE);
+        Lookup parentRelationship = TestUtils.createLookup(relationshipType, "PARENT");
+        Lookup childRelationship = TestUtils.createLookup(relationshipType, "CHILD");
 
         when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
         when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("CHILD"))).thenReturn(childRelationship);
@@ -205,21 +205,16 @@ public class GroupServiceTest {
      */
     @Test
     public void testAddGroupChildAndParentOnCreate() {
-        User testUser = TestUtils.createUser(2L, "testUser");
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Group parentGroup = TestUtils.createGroup(5L, "parentGroup", creator);
-        Group childGroup  = TestUtils.createGroup(6L, "childGroup", creator);
+        User testUser = TestUtils.createUser("testUser");
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Group parentGroup = TestUtils.createGroup("parentGroup");
+        Group childGroup  = TestUtils.createGroup("childGroup");
         List<Group> childGroups = new ArrayList<>();
         List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
         parentGroups.add(parentGroup);
         testGroup.setChildGroups(childGroups);
         testGroup.setParentGroups(parentGroups);
-
-        // Create relationships loopkups
-        LookupType relationshipType = TestUtils.createLookupType(4L, LookupTypes.RELATIONSHIP_TYPE, creator);
-        Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
-        Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "CHILD", creator);
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
@@ -244,11 +239,11 @@ public class GroupServiceTest {
      */
     @Test
     public void testAddGroupRole() {
-        User testUser = TestUtils.createUser(2L, "testUser");
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Role testRole = TestUtils.createRole(3L, RoleName.PATIENT, creator);
+        User testUser = TestUtils.createUser("testUser");
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Role testRole = TestUtils.createRole(RoleName.PATIENT);
 
-        GroupRole groupRole = TestUtils.createGroupRole(4L,testRole, testGroup, testUser, creator);
+        GroupRole groupRole = TestUtils.createGroupRole(testRole, testGroup, testUser);
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
@@ -266,9 +261,9 @@ public class GroupServiceTest {
 
     @Test
     public void testAddGroupFeature() {
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Feature testFeature = TestUtils.createFeature(2L, FeatureType.MESSAGING.getName(), creator);
-        GroupFeature groupFeature = TestUtils.createGroupFeature(3L, testFeature, testGroup, creator);
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Feature testFeature = TestUtils.createFeature(FeatureType.MESSAGING.getName());
+        GroupFeature groupFeature = TestUtils.createGroupFeature(testFeature, testGroup);
 
         testGroup.setGroupFeatures(new HashSet<GroupFeature>());
         testGroup.getGroupFeatures().add(groupFeature);
@@ -286,9 +281,9 @@ public class GroupServiceTest {
 
     @Test
     public void testRemoveGroupFeature() {
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Feature testFeature = TestUtils.createFeature(2L, FeatureType.MESSAGING.getName(), creator);
-        GroupFeature groupFeature = TestUtils.createGroupFeature(3L, testFeature, testGroup, creator);
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Feature testFeature = TestUtils.createFeature(FeatureType.MESSAGING.getName());
+        GroupFeature groupFeature = TestUtils.createGroupFeature(testFeature, testGroup);
 
         testGroup.setGroupFeatures(new HashSet<GroupFeature>());
         testGroup.getGroupFeatures().add(groupFeature);
@@ -312,9 +307,9 @@ public class GroupServiceTest {
      */
     @Test
     public void testAddParentGroup() {
-        User testUser = TestUtils.createUser(2L, "testUser");
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Group testParentGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        User testUser = TestUtils.createUser("testUser");
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Group testParentGroup = TestUtils.createGroup("testGroup");
 
         when(userRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
@@ -342,9 +337,9 @@ public class GroupServiceTest {
         User testUser = TestUtils.createUser(1L, "testUser");
 
         // create groups
-        Group parentGroup = TestUtils.createGroup(2L, "parentGroup", creator);
-        Group childGroup1  = TestUtils.createGroup(3L, "childGroup1", creator);
-        Group childGroup2  = TestUtils.createGroup(4L, "childGroup2", creator);
+        Group parentGroup = TestUtils.createGroup("parentGroup");
+        Group childGroup1  = TestUtils.createGroup("childGroup1");
+        Group childGroup2  = TestUtils.createGroup("childGroup2");
         List<Group> childGroups = new ArrayList<>();
         childGroups.add(childGroup1);
         childGroups.add(childGroup2);
@@ -353,29 +348,23 @@ public class GroupServiceTest {
         allGroups.add(parentGroup);
 
         // add user as specialty admin to group
-        Role role = TestUtils.createRole(5L, RoleName.SPECIALTY_ADMIN, creator);
-        GroupRole groupRole = TestUtils.createGroupRole(6L, role, parentGroup, testUser, creator);
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole(role, parentGroup, testUser);
         testUser.setGroupRoles(new TreeSet<GroupRole>());
         testUser.getGroupRoles().add(groupRole);
         List<Role> roles = new ArrayList<Role>();
         roles.add(role);
 
-        // Create relationships lookups
-        LookupType relationshipType = TestUtils.createLookupType(5L, LookupTypes.RELATIONSHIP_TYPE, creator);
-        Lookup parentRelationship = TestUtils.createLookup(6L, relationshipType, "PARENT", creator);
-        Lookup childRelationship = TestUtils.createLookup(7L, relationshipType, "CHILD", creator);
 
         // create group relationships
         Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship child1 =  TestUtils.createGroupRelationship(8L, parentGroup, childGroup1, RelationshipTypes.CHILD, creator);
-        GroupRelationship child2 =  TestUtils.createGroupRelationship(9L, parentGroup, childGroup2, RelationshipTypes.CHILD, creator);
+        GroupRelationship child1 =  TestUtils.createGroupRelationship(parentGroup, childGroup1, RelationshipTypes.CHILD);
+        GroupRelationship child2 =  TestUtils.createGroupRelationship(parentGroup, childGroup2, RelationshipTypes.CHILD);
         groupRelationships.add(child1);
         groupRelationships.add(child2);
         parentGroup.setGroupRelationships(groupRelationships);
 
         // setup stubbing
-        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
-        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("CHILD"))).thenReturn(childRelationship);
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
         when(groupRepository.findOne(Matchers.eq(parentGroup.getId()))).thenReturn(parentGroup);
@@ -400,8 +389,8 @@ public class GroupServiceTest {
     public void testFindChildGroups() throws ResourceNotFoundException {
 
         // Set up groups
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Group childGroup = TestUtils.createGroup(2L, "childGroup", creator);
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Group childGroup = TestUtils.createGroup("childGroup");
 
         List<Group> childGroups = new ArrayList<>();
 
@@ -422,8 +411,8 @@ public class GroupServiceTest {
     public void testFindChildGroups_Exception() throws ResourceNotFoundException {
 
         // Set up groups
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Group childGroup = TestUtils.createGroup(2L, "childGroup", creator);
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Group childGroup = TestUtils.createGroup("childGroup");
 
         List<Group> childGroups = new ArrayList<>();
 

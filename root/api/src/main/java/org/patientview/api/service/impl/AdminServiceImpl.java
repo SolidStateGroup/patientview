@@ -58,12 +58,12 @@ public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> impl
 
 
     public List<Role> getAllRoles() {
-        return Util.iterableToList(roleRepository.findAll());
+        return Util.convertIterable(roleRepository.findAll());
     }
 
     public List<Role> getRolesByType(RoleType type) {
 
-        return Util.iterableToList(roleRepository.findByRoleType(type));
+        return Util.convertIterable(roleRepository.findByRoleType(type));
 
     }
 
@@ -82,10 +82,10 @@ public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> impl
     }
 
     public List<User> getGroupUserByRoleStaff(Long groupId) {
-        return Util.iterableToList(groupRepository.findGroupStaffByRole(groupId, "STAFF"));
+        return Util.convertIterable(groupRepository.findGroupStaffByRole(groupId, "STAFF"));
     }
 
     public List<User> getGroupUserByRolePatient(Long groupId) {
-        return Util.iterableToList(groupRepository.findGroupStaffByRole(groupId, "PATIENT"));
+        return Util.convertIterable(groupRepository.findGroupStaffByRole(groupId, "PATIENT"));
     }
 }

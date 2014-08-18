@@ -1,6 +1,5 @@
 package org.patientview.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,8 +22,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,7 +56,7 @@ public class ConversationControllerTest {
 
     @Test
     public void testGetUserConversations() {
-        User testUser = TestUtils.createUser(1L, "testPost");
+        User testUser = TestUtils.createUser("testPost");
         Conversation conversation = new Conversation();
         conversation.setId(2L);
         List<Conversation> conversationList = new ArrayList<>();

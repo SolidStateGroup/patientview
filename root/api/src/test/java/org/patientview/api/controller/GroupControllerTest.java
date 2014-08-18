@@ -20,7 +20,6 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
@@ -34,7 +33,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Collections;
 import java.util.Date;
 
 import static org.mockito.Matchers.eq;
@@ -78,7 +76,7 @@ public class GroupControllerTest {
 
     @Before
     public void setup() {
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
     }
@@ -299,8 +297,8 @@ public class GroupControllerTest {
     @Test
     public void testGroupStatistics() throws ResourceNotFoundException {
 
-        Group group = TestUtils.createGroup(1L,"testGroup", creator);
-        TestUtils.authenticateTest(TestUtils.createUser(2L, "testUser"), Collections.<Role>emptyList());
+        Group group = TestUtils.createGroup("testGroup");
+        TestUtils.authenticateTest(TestUtils.createUser("testUser"));
 
         when(groupRepository.findOne(group.getId())).thenReturn(group);
 

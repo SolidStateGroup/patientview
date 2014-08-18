@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -45,13 +46,15 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
     }
 
     protected User getUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return Util.getUser();
+    }
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Session is not authenticated");
-        }
+    protected boolean doesContainRoles(RoleName... roleNames) {
+        return Util.doesContainRoles(roleNames);
+    }
 
-        return (User) authentication.getPrincipal();
+    protected static <T> List<T> convertIterable(Iterable<T> iterable) {
+        return Util.convertIterable(iterable);
     }
 
 

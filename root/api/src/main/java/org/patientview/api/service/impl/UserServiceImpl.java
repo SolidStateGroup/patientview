@@ -197,7 +197,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * @return
      */
     public List<User> getUsersByGroupsAndRoles(List<Long> groupIds, List<Long> roleIds) {
-        return Util.iterableToList(userRepository.findByGroupsAndRoles(groupIds, roleIds));
+        return Util.convertIterable(userRepository.findByGroupsAndRoles(groupIds, roleIds));
     }
 
     public void delete(Long userId) {
@@ -206,7 +206,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException {
         User user = findUser(userId);
-        return Util.iterableToList(Util.iterableToList(featureRepository.findByUser(user)));
+        return Util.convertIterable(Util.convertIterable(featureRepository.findByUser(user)));
     }
 
     /**

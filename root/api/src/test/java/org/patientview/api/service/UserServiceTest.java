@@ -33,7 +33,6 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
 import javax.persistence.EntityManager;
-import java.util.Collections;
 import java.util.HashSet;
 
 import static org.mockito.Matchers.eq;
@@ -99,27 +98,27 @@ public class UserServiceTest {
     @Test
     public void testCreateUser() {
 
-        User creator = TestUtils.createUser(1L, "testCreateUser");
-        User newUser = TestUtils.createUser(2L, "newTestUser");
-        TestUtils.authenticateTest(newUser, Collections.<Role>emptyList());
-        Feature feature = TestUtils.createFeature(3L, "TEST_FEATURE", creator);
+        User creator = TestUtils.createUser("testCreateUser");
+        User newUser = TestUtils.createUser("newTestUser");
+        TestUtils.authenticateTest(newUser);
+        Feature feature = TestUtils.createFeature("TEST_FEATURE");
 
         // Add test feature
-        UserFeature userFeature = TestUtils.createUserFeature(4L, feature, newUser, creator);
+        UserFeature userFeature = TestUtils.createUserFeature(feature, newUser);
         newUser.setUserFeatures(new HashSet<UserFeature>());
         newUser.getUserFeatures().add(userFeature);
 
         // Add test role group
-        Role role = TestUtils.createRole(5L, RoleName.PATIENT, creator);
-        Group group = TestUtils.createGroup(6L, "TEST_GROUP", creator);
-        GroupRole groupRole = TestUtils.createGroupRole(7L, role, group, newUser, creator);
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        Group group = TestUtils.createGroup("TEST_GROUP");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, newUser);
         newUser.setGroupRoles(new HashSet<GroupRole>());
         newUser.getGroupRoles().add(groupRole);
 
         // Add test identifier, with lookup type IDENTIFIER, value NHS_NUMBER
-        LookupType lookupType = TestUtils.createLookupType(8L, LookupTypes.IDENTIFIER, creator);
-        Lookup lookup = TestUtils.createLookup(9L, lookupType, "NHS_NUMBER", creator);
-        Identifier identifier = TestUtils.createIdentifier(10L, lookup, newUser, creator);
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, "NHS_NUMBER");
+        Identifier identifier = TestUtils.createIdentifier(lookup, newUser);
         newUser.setIdentifiers(new HashSet<Identifier>());
         newUser.getIdentifiers().add(identifier);
 
@@ -140,7 +139,7 @@ public class UserServiceTest {
     @Test
     public void testAddIdentifier() throws ResourceNotFoundException {
         Long userId = 1L;
-        User user = TestUtils.createUser(2L, "testUser");
+        User user = TestUtils.createUser("testUser");
         user.setIdentifiers(new HashSet<Identifier>());
         Identifier identifier = new Identifier();
         identifier.setId(3L);
@@ -158,7 +157,7 @@ public class UserServiceTest {
     @Test
     public void testPasswordReset() throws ResourceNotFoundException {
         String password = "newPassword";
-        User user = TestUtils.createUser(2L, "testPasswordUser");
+        User user = TestUtils.createUser("testPasswordUser");
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         userService.resetPassword(user.getId(), password);
         verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
@@ -173,7 +172,7 @@ public class UserServiceTest {
     @Test
     public void testPasswordChange() throws ResourceNotFoundException {
         String password = "newPassword";
-        User user = TestUtils.createUser(2L, "testPasswordUser");
+        User user = TestUtils.createUser("testPasswordUser");
         user.setChangePassword(Boolean.TRUE);
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         userService.changePassword(user.getId(), password);

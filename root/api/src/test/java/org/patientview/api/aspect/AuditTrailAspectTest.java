@@ -17,8 +17,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-import java.util.Collections;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -45,7 +43,7 @@ public class AuditTrailAspectTest {
 
     @Before
     public void setUp() throws Exception {
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
 
         MockitoAnnotations.initMocks(this);
     }
@@ -68,8 +66,8 @@ public class AuditTrailAspectTest {
     @Test
     public void testAuditChangePassword() {
 
-        User user = TestUtils.createUser(2L, "testUser");
-        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
+        User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(user);
 
         annotatedObjectMethod(user);
         // when create a user and then hit our test method
@@ -85,8 +83,8 @@ public class AuditTrailAspectTest {
      **/
     @Test
     public void testAuditWithAnId() {
-        User user = TestUtils.createUser(3L, "testUser");
-        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
+        User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(user);
 
         annotatedIdMethod(user.getId());
         verify(auditService, Mockito.times(2)).save(any(org.patientview.persistence.model.Audit.class));

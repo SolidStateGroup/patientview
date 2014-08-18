@@ -4,11 +4,15 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.controller.model.GroupStatisticTO;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
-import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -38,7 +42,7 @@ public class Util {
      * @param <T>
      * @return
      */
-    public static <T> List<T> iterableToList(Iterable<T> iterable) {
+    public static <T> List<T> convertIterable(Iterable<T> iterable) {
 
         if (iterable == null) {
             return Collections.emptyList();
@@ -154,22 +158,58 @@ public class Util {
         return list;
     }
 
-    public static boolean doesContainRole(List<Role> roles, RoleName... roleNames) {
-        if (CollectionUtils.isEmpty(roles)) {
+    public static boolean doesContainGroupAndRole(Group group, RoleName... roleNames) {
+        if (CollectionUtils.isEmpty(getGroupRoles())) {
             return false;
         }
-        for (Role role : roles) {
-            for (RoleName roleNameArg : roleNames) {
-                if (role.getName().equals(roleNameArg)) {
-                    return true;
+
+        for (GroupRole groupRole : getGroupRoles()) {
+            if (groupRole.getGroup().equals(group)) {
+                for (RoleName roleNameArg : roleNames) {
+                    if (groupRole.getRole().getName().equals(roleNameArg)) {
+                        return true;
+                    }
                 }
             }
         }
 
         return false;
+    }
+
+    public static boolean doesContainRoles(RoleName... roleNames) throws SecurityException {
+
+        if (CollectionUtils.isEmpty(getGroupRoles())) {
+            return false;
+        }
+        for (GroupRole groupRole : getGroupRoles()) {
+            for (RoleName roleNameArg : roleNames) {
+                if (groupRole.getRole().getName().equals(roleNameArg)) {
+                    return true;
+                }
+            }
+        }
+        return false;
 
     }
 
+    public static List<GroupRole> getGroupRoles() {
+        if (SecurityContextHolder.getContext() == null
+                || SecurityContextHolder.getContext().getAuthentication() == null) {
+            throw new SecurityException("Session is not authenticated");
+        }
+        List<GroupRole> groupRoles = convertAuthorities(
+                SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        return groupRoles;
+    }
 
+    public static User getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("Session is not authenticated");
+        }
+
+        return (User) authentication.getPrincipal();
+    }
 }
 

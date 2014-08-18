@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.patientview.api.controller.model.GroupStatisticTO;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
@@ -29,7 +30,7 @@ public class UtilTest {
 
     @org.junit.Before
     public void init() {
-        creator = TestUtils.createUser(1L, "testCreator");
+        creator = TestUtils.createUser("testCreator");
     }
 
 
@@ -42,7 +43,7 @@ public class UtilTest {
     @Test
     public void testIterableToList_emptyResult() throws Exception {
         Iterable<Group> groups = new HashSet<>();
-        List<Group> groupList = Util.iterableToList(groups);
+        List<Group> groupList = Util.convertIterable(groups);
         Assert.assertTrue("We now have an array list", groupList instanceof ArrayList);
     }
 
@@ -59,22 +60,15 @@ public class UtilTest {
         long sizeOfList = 10;
 
         for (long l = 1; l <= sizeOfList; l++) {
-            Group group = TestUtils.createGroup(l, "testGroup", creator);
+            Group group = TestUtils.createGroup("testGroup");
             ((Set<Group>) groups).add(group);
         }
 
-        List<Group> groupList = Util.iterableToList(groups);
+        List<Group> groupList = Util.convertIterable(groups);
         Assert.assertTrue("We now have an array list", groupList instanceof ArrayList);
         Assert.assertTrue("We have 10 results in our list", groupList.size() == sizeOfList);
     }
 
-    public void testGetRoles() throws Exception {
-
-    }
-
-    public void testGetRolesFromAnnotation() throws Exception {
-
-    }
 
     /**
      * Test: Convert the statistics into viewed bean
@@ -83,7 +77,7 @@ public class UtilTest {
      */
     @Test
     public void convertStatisticListToModelObject() {
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
+        Group testGroup = TestUtils.createGroup("testGroup");
         List<GroupStatistic> groupStatistics = createGroupStatistics(testGroup);
         Collection<GroupStatisticTO> groupStatisticTOs = Util.convertGroupStatistics(groupStatistics);
 
@@ -110,14 +104,14 @@ public class UtilTest {
     private List<GroupStatistic> createGroupStatistics(Group group) {
         List<GroupStatistic> groupStatistics = new ArrayList<>();
 
-        LookupType lookupType = TestUtils.createLookupType(2L, LookupTypes.STATISTIC_TYPE, creator);
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.STATISTIC_TYPE);
 
-        int i = 0;
+
         for (StatisticType statisticType : StatisticType.values()) {
-            Lookup lookup = TestUtils.createLookup(Long.valueOf(i),lookupType, statisticType.name(), creator);
+            Lookup lookup = TestUtils.createLookup(lookupType, statisticType.name());
             GroupStatistic groupStatistic = TestUtils.createGroupStatistics(group, BigInteger.TEN, lookup);
             groupStatistics.add(groupStatistic);
-            i++;
+
         }
 
         return groupStatistics;
@@ -131,9 +125,23 @@ public class UtilTest {
     @Test
     public void testConvertAuthorities() {
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(TestUtils.createRole(1L, RoleName.GLOBAL_ADMIN, creator));
-        grantedAuthorities.add(TestUtils.createRole(1L, RoleName.UNIT_ADMIN, creator));
-        grantedAuthorities.add(TestUtils.createRole(1L, RoleName.SPECIALTY_ADMIN, creator));
+        Group group = TestUtils.createGroup("testGroup");
+        User user = TestUtils.createUser("testUser");
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole( role, group, user);
+        grantedAuthorities.add(groupRole);
+
+        role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        groupRole = TestUtils.createGroupRole(role, group, user);
+        grantedAuthorities.add(groupRole);
+
+        role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        groupRole = TestUtils.createGroupRole(role, group, user);
+        grantedAuthorities.add(groupRole);
+
+        role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        groupRole = TestUtils.createGroupRole(role, group, user);
+        grantedAuthorities.add(groupRole);
 
         List<Role> roles = Util.convertAuthorities(grantedAuthorities);
 
@@ -144,13 +152,16 @@ public class UtilTest {
     /**
      * Test: Does the List of Roles contain the role
      */
+    @Test
     public void testDoesRoleContain() {
         List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(1L, RoleName.PATIENT, creator));
-        roles.add(TestUtils.createRole(1L, RoleName.UNIT_ADMIN, creator));
+        roles.add(TestUtils.createRole(RoleName.PATIENT));
+        roles.add(TestUtils.createRole(RoleName.UNIT_ADMIN));
 
-        Assert.assertFalse("The list does not contain the following role", Util.doesContainRole(roles, RoleName.SPECIALTY_ADMIN));
-        Assert.assertTrue("The list does not contain the following role", Util.doesContainRole(roles, RoleName.PATIENT));
+        TestUtils.authenticateTest(TestUtils.createUser("testUser"), RoleName.PATIENT, RoleName.UNIT_ADMIN);
+
+        Assert.assertFalse("The list does not contain the following role", Util.doesContainRoles(RoleName.SPECIALTY_ADMIN));
+        Assert.assertTrue("The list does not contain the following role", Util.doesContainRoles(RoleName.PATIENT));
 
     }
 }

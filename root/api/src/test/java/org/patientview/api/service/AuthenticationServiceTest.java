@@ -88,7 +88,7 @@ public class AuthenticationServiceTest {
     public void testAuthenticatePreAuthenticationToken() {
         String testToken = "XXX-XXX-XXX";
 
-        User tokenUser = TestUtils.createUser(1L, "TokenUser");
+        User tokenUser = TestUtils.createUser("TokenUser");
 
         UserToken userToken = new UserToken();
         userToken.setUser(tokenUser);
@@ -121,7 +121,7 @@ public class AuthenticationServiceTest {
     public void testAuthenticatePreAuthenticationToken_Failure() throws AuthenticationServiceException{
         String testToken = "XXX-XXX-ZZZ";
 
-        User tokenUser = TestUtils.createUser(1L, "TokenUser");
+        User tokenUser = TestUtils.createUser("TokenUser");
 
         Authentication authenticationToken = new PreAuthenticatedAuthenticationToken(testToken, testToken);
 
@@ -141,7 +141,7 @@ public class AuthenticationServiceTest {
     public void testAuthenticatePreAuthenticationToken_Authorities() {
         String testToken = "XXX-XXX-KKK";
 
-        User tokenUser = TestUtils.createUser(1L, "TokenUser");
+        User tokenUser = TestUtils.createUser("TokenUser");
 
         UserToken userToken = new UserToken();
         userToken.setUser(tokenUser);
@@ -149,7 +149,7 @@ public class AuthenticationServiceTest {
         userToken.setExpiration(new Date());
         userToken.setCreated(new Date());
 
-        Role authority = TestUtils.createRole(1l, RoleName.GLOBAL_ADMIN, TestUtils.createUser(2L, "creator"));
+        Role authority = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
         List<Role> authorities = new ArrayList<Role>();
         authorities.add(authority);
 

@@ -60,7 +60,7 @@ public class SecurityServiceTest {
     public void setUp() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
     }
 
     /**
@@ -69,7 +69,7 @@ public class SecurityServiceTest {
      */
     @Test
     public void testGetNoneDuplicateRoutes() {
-        User testUser = TestUtils.createUser(23L, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         when(routeRepository.findFeatureRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.findGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
@@ -92,10 +92,10 @@ public class SecurityServiceTest {
      */
     @Test
     public void testGetUserGroupsWithSuperAdmin() {
-        User testUser = TestUtils.createUser(23L, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-        List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, RoleName.GLOBAL_ADMIN, creator));
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(RoleName.GLOBAL_ADMIN));
         when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
@@ -112,10 +112,10 @@ public class SecurityServiceTest {
      */
     @Test
     public void testGetUserGroups() {
-        User testUser = TestUtils.createUser(23L, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, RoleName.UNIT_ADMIN, creator));
+        roles.add(TestUtils.createRole(RoleName.UNIT_ADMIN));
         when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
