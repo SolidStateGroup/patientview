@@ -59,14 +59,33 @@ function (UserService, $scope, GroupService, NewsService) {
                 $scope.chart = chart1;
                 $scope.chartLoading = false;
             });
+
+            UserService.countLockedUsersByGroup(newValue).then(function(lockedUsers) {
+                $scope.lockedUsers = lockedUsers;
+            }, function () {
+                alert('Error retrieving locked user count');
+            });
+
+            UserService.countInactiveUsersByGroup(newValue).then(function(inactiveUsers) {
+                $scope.inactiveUsers = inactiveUsers;
+            }, function () {
+                alert('Error retrieving inactive user count');
+            });
         }
     });
 
     $scope.init = function() {
         $scope.loading = true;
+        $scope.allGroups = [];
+        var i;
+
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
             // set the list of groups to show in the data grid
             $scope.graphGroups = groups;
+
+            for(i=0;i<groups.length;i++) {
+                $scope.allGroups[groups[i].id] = groups[i];
+            }
 
             // set feature (avoid blank option)
             if ($scope.graphGroups && $scope.graphGroups.length > 0) {
@@ -82,6 +101,7 @@ function (UserService, $scope, GroupService, NewsService) {
         }, function() {
             $scope.loading = false;
         });
+
     };
 
     $scope.init();

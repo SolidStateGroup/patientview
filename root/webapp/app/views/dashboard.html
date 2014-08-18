@@ -52,6 +52,7 @@
                 </ul>
             </div>
         </aside>
+
         <div class="col-md-8">
             <div class="content-panel" ng-show="!chartLoading">
                 <div>
@@ -85,6 +86,26 @@
                 </li>
             </ul>
         </aside>
+    </div>
+
+    <div class="row" ng-show="!chartLoading">
+        <div class="col-md-8">
+            <div class="tab-panel-item">
+                <div class="content-panel user-details">
+                    <h3>{{allGroups[graphGroupId].name}} Information</h3>
+                    <div class="row">
+                        <dl class="col-md-4">
+                            <dt>Locked Users</dt>
+                            <dd>{{lockedUsers}}</dd>
+                        </dl>
+                        <dl class="col-md-6">
+                            <dt>Inactive Users (no login in 1 month)</dt>
+                            <dd>{{inactiveUsers}}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <br/>

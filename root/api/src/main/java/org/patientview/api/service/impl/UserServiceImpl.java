@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
@@ -290,6 +291,25 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public void deleteFeature(Long userId, Long featureId) {
         userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(
                 userRepository.findOne(userId), featureRepository.findOne(featureId)));
+    }
+
+    public Long countLockedUsersByGroup(Long groupId) throws ResourceNotFoundException {
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
+        }
+
+        return userRepository.countLockedUsersByGroup(group);
+    }
+
+    public Long countInactiveUsersByGroup(Long groupId) throws ResourceNotFoundException {
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
+        }
+
+        return userRepository.countInactiveUsersByGroup(group, DateUtils.addMonths(new Date(), -1), new Date()) +
+                userRepository.countNeverLoggedInUsersByGroup(group) ;
     }
 
     private User findUser(Long userId) throws ResourceNotFoundException {
