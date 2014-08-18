@@ -34,13 +34,23 @@ function (UserService, $scope, GroupService, NewsService) {
                     'displayExactValues': true,
                     'vAxis': {
                         'title': null,
-                        //'format': '0', // whole numbers only
+                        'pointSize': 5,
                         'gridlines': {
-                            'count': 10
+                            'count': 10,
+                            'color': '#ffffff'
+                        },
+                        'viewWindow': {
+                            'min': 0
                         }
                     },
                     'hAxis': {
                         'title': null
+                    },
+                    'chartArea': {
+                        left: '7%',
+                        top: '7%',
+                        width: '80%',
+                        height: '85%'
                     }
                 };
 

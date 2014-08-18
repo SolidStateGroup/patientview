@@ -54,10 +54,14 @@
         </aside>
         <div class="col-md-8">
             <div class="content-panel" ng-show="!chartLoading">
-                <select class="form-control" ng-model="graphGroupId"
+                <div>
+                    <div><label class="sr-only" for="graph-select">Statistics</label>
+                        <select class="form-control" id="graph-select" ng-model="graphGroupId"
                         ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
                         ng-show="graphGroups.length > 2" ng-cloak></select>
-                <h2 ng-hide="graphGroups.length > 2" ng-cloak>{{graphGroups[0].name}} ({{graphGroups[0].groupType.description}})</h2>
+                    </div>
+                    <h2 ng-hide="graphGroups.length > 2" ng-cloak>{{graphGroups[0].name}} ({{graphGroups[0].groupType.description}})</h2>
+                </div>
                 <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
             </div>
             <div class="content-panel" ng-show="chartLoading">
@@ -75,7 +79,7 @@
                                 <span class="label label-success" ng-show="newsLink.role != null && newsLink.group == null && newsLink.role.name != 'GLOBAL_ADMIN'">{{newsLink.role.description}}</span>
                             </li>
                         </ul>
-                        <p><strong>{{news.heading}}</strong></p>
+                        <h4>{{news.heading}}</h4>
                         <p>{{news.story}}</p>
                     </div>
                 </li>
