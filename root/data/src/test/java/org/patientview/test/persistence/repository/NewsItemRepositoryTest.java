@@ -102,7 +102,7 @@ public class NewsItemRepositoryTest {
         User newsUser = dataTestUtils.createUser("NewsUser");
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(newsUser);
-        groupRole.setRole(dataTestUtils.createRole("TestRole", creator));
+        groupRole.setRole(null);
         groupRole.setGroup(group);
         groupRole.setCreator(creator);
         groupRole.setStartDate(new Date());
@@ -118,7 +118,7 @@ public class NewsItemRepositoryTest {
     }
 
     /**
-     * Test: Create a news item link it to a group, link a user to the group and then retrieve the news
+     * Test: Create a news item link it to a role, link a user to the role and then retrieve the news
      * Fail: The correct news it not retrieved
      *
      */
@@ -145,7 +145,7 @@ public class NewsItemRepositoryTest {
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(newsUser);
         groupRole.setRole(role);
-        groupRole.setGroup(dataTestUtils.createGroup("TEST_GROUP", creator));
+        groupRole.setGroup(null);
         groupRole.setCreator(creator);
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
@@ -157,6 +157,59 @@ public class NewsItemRepositoryTest {
         // Which should get 1 route back and it should be the one that was created
         Assert.assertTrue("There should be 1 news item available", newsItems.getContent().size() == 1);
         Assert.assertTrue("The news item should be the one created", newsItems.getContent().get(0).equals(newsItem));
+    }
+
+    /**
+     * Test: Create a news item link it to a group and role, link a user to the grouprole and then retrieve the news
+     * Fail: The correct news it not retrieved
+     *
+     */
+    @Test
+    public void testGetGroupRoleNewsByUser() {
+
+        // Create a news item
+        NewsItem newsItem = new NewsItem();
+        newsItem.setCreator(creator);
+        newsItem.setCreated(new Date());
+        newsItemRepository.save(newsItem);
+
+        // Create group and role for the news to be linked too
+        Role role = dataTestUtils.createRole("TestRole", creator);
+        Group group = dataTestUtils.createGroup("TEST_GROUP", creator);
+
+        NewsLink newsLink = new NewsLink();
+        newsLink.setCreator(creator);
+        newsLink.setCreated(new Date());
+        newsLink.setRole(role);
+        newsLink.setGroup(group);
+        newsLink.setNewsItem(newsItem);
+        NewsLink entityNewsLink = newsLinkRepository.save(newsLink);
+
+        // Create the user and link the group to the user
+        User newsUser = dataTestUtils.createUser("NewsUser");
+        GroupRole groupRole = new GroupRole();
+        groupRole.setUser(newsUser);
+        groupRole.setRole(role);
+        groupRole.setGroup(group);
+        groupRole.setCreator(creator);
+        groupRole.setStartDate(new Date());
+        groupRoleRepository.save(groupRole);
+
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        Page<NewsItem> newsItems = newsItemRepository.findGroupRoleNewsByUser(newsUser, pageable);
+
+        // Should get 1 route back and it should be the one that was created
+        Assert.assertEquals("There should be 1 news item available", 1, newsItems.getContent().size());
+        Assert.assertTrue("The news item should be the one created", newsItems.getContent().get(0).equals(newsItem));
+
+        // set newsItem without group and test
+        entityNewsLink.setGroup(null);
+        newsLinkRepository.save(entityNewsLink);
+
+        newsItems = newsItemRepository.findGroupRoleNewsByUser(newsUser, pageable);
+
+        // Which should get 1 route back and it should be the one that was created
+        Assert.assertEquals("There should be 0 news item available", 0, newsItems.getContent().size());
     }
 
     /**

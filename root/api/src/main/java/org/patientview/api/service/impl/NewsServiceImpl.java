@@ -157,34 +157,33 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return newsItem;
     }
 
+    private List<NewsItem> extractNewsItems(Page<NewsItem> newsItemPage) {
+        if (newsItemPage != null && newsItemPage.getNumberOfElements() > 0) {
+             return newsItemPage.getContent();
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     public Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
         }
 
-        // get both role and group news (directly accessed through newsLink)
+        // get role, group and grouprole specific news (directly accessed through newsLink)
         PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
-        Page<NewsItem> roleNews = newsItemRepository.findRoleNewsByUser(entityUser, pageableAll);
-        Page<NewsItem> groupNews = newsItemRepository.findGroupNewsByUser(entityUser, pageableAll);
+        Set<NewsItem> newsItemSet = new HashSet<>();
+
+        newsItemSet.addAll(extractNewsItems(newsItemRepository.findRoleNewsByUser(entityUser, pageableAll)));
+        newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupNewsByUser(entityUser, pageableAll)));
+        newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupRoleNewsByUser(entityUser, pageableAll)));
 
         // get specialty news (accessed by parent/child relationships from groups in newsLink)
-        Page<NewsItem> specialtyNews = newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll);
-
-        // combine results
-        Set<NewsItem> newsItemSet = new HashSet<>();
-        if (roleNews != null && roleNews.getNumberOfElements() > 0) {
-            newsItemSet.addAll(roleNews.getContent());
-        }
-        if (groupNews != null && groupNews.getNumberOfElements() > 0) {
-            newsItemSet.addAll(groupNews.getContent());
-        }
-        if (specialtyNews != null && specialtyNews.getNumberOfElements() > 0) {
-            newsItemSet.addAll(specialtyNews.getContent());
-        }
-        List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
+        newsItemSet.addAll(extractNewsItems(newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll)));
 
         // sort combined list
+        List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
         Collections.sort(newsItems);
 
         // manually do pagination

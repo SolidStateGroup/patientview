@@ -22,11 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
 
-    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles gr WHERE gr.user = :user")
+    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles gr WHERE gr.user = :user AND l.role IS NULL")
     public Page<NewsItem> findGroupNewsByUser(@Param("user") User user, Pageable pageable);
 
-    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.role.groupRoles gr WHERE gr.user = :user")
+    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.role.groupRoles gr WHERE gr.user = :user AND l.group IS NULL")
     public Page<NewsItem> findRoleNewsByUser(@Param("user") User user, Pageable pageable);
+
+    @Query("SELECT DISTINCT n FROM NewsItem n JOIN n.newsLinks l JOIN l.group.groupRoles ggr JOIN l.role.groupRoles rgr WHERE ggr.user = :user AND rgr.user = :user")
+    public Page<NewsItem> findGroupRoleNewsByUser(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT DISTINCT n FROM NewsItem n " +
             "JOIN n.newsLinks l " +
