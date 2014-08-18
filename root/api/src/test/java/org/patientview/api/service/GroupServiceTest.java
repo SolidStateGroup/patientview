@@ -17,12 +17,9 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
-import org.patientview.persistence.model.Lookup;
-import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.FeatureType;
-import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -108,7 +105,7 @@ public class GroupServiceTest {
     public void setUp() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
     }
 
 
@@ -120,19 +117,13 @@ public class GroupServiceTest {
     public void testFindAll(){
 
         // Set up groups
-        Group testGroup = TestUtils.createGroup(1L, "testGroup", creator);
-        Group parentGroup = TestUtils.createGroup(2L, "parentGroup", creator);
-        Group childGroup = TestUtils.createGroup(3L, "childGroup", creator);
-
-        // Create relationships
-        LookupType relationshipType = TestUtils.createLookupType(4L, LookupTypes.RELATIONSHIP_TYPE, creator);
-        Lookup parentRelationship = TestUtils.createLookup(5L, relationshipType, "PARENT", creator);
-
-        Lookup childRelationship = TestUtils.createLookup(6L, relationshipType, "PARENT", creator);
+        Group testGroup = TestUtils.createGroup( "testGroup");
+        Group parentGroup = TestUtils.createGroup("parentGroup");
+        Group childGroup = TestUtils.createGroup("childGroup");
 
         Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship parent =  TestUtils.createGroupRelationship(7L, testGroup, parentGroup, RelationshipTypes.PARENT, creator);
-        GroupRelationship child =  TestUtils.createGroupRelationship(8L, testGroup, childGroup, RelationshipTypes.CHILD, creator);
+        GroupRelationship parent =  TestUtils.createGroupRelationship(testGroup, parentGroup, RelationshipTypes.PARENT);
+        GroupRelationship child =  TestUtils.createGroupRelationship(testGroup, childGroup, RelationshipTypes.CHILD);
         groupRelationships.add(parent);
         groupRelationships.add(child);
 
@@ -142,16 +133,10 @@ public class GroupServiceTest {
         groups.add(testGroup);
 
         when(groupRepository.findAll()).thenReturn(groups);
-        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
-        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("CHILD"))).thenReturn(childRelationship);
-
         groups = groupService.findAll();
 
         Assert.assertFalse("There should be parent objects", CollectionUtils.isEmpty(groups.get(0).getParentGroups()));
         Assert.assertFalse("There should be child objects", CollectionUtils.isEmpty(groups.get(0).getChildGroups()));
-
-        //Assert.assertTrue("There should be the correct child objects", groups.get(0).getParentGroups().getId().equals(childGroup.getId()));
-        //Assert.assertTrue("There should be the correct parent objects", groups.get(0).getId().equals(parentGroup.getId()));
     }
 
 
@@ -175,14 +160,6 @@ public class GroupServiceTest {
         parentGroups.add(parentGroup);
         testGroup.setChildGroups(childGroups);
         testGroup.setParentGroups(parentGroups);
-
-        // Create relationships lookups
-        LookupType relationshipType = TestUtils.createLookupType(LookupTypes.RELATIONSHIP_TYPE);
-        Lookup parentRelationship = TestUtils.createLookup(relationshipType, "PARENT");
-        Lookup childRelationship = TestUtils.createLookup(relationshipType, "CHILD");
-
-        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("PARENT"))).thenReturn(parentRelationship);
-        when(lookupRepository.findByTypeAndValue(Matchers.eq(LookupTypes.RELATIONSHIP_TYPE), Matchers.eq("CHILD"))).thenReturn(childRelationship);
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
@@ -334,7 +311,7 @@ public class GroupServiceTest {
     public void testFindGroupAndChildGroupsByUser() {
 
         // create user
-        User testUser = TestUtils.createUser(1L, "testUser");
+        User testUser = TestUtils.createUser("testUser");
 
         // create groups
         Group parentGroup = TestUtils.createGroup("parentGroup");

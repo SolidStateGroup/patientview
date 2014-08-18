@@ -177,7 +177,7 @@ public class NewsItemRepositoryTest {
 
         // Create group and role for the news to be linked too
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.PATIENT);
-        Group group = dataTestUtils.createGroup("TEST_GROUP);
+        Group group = dataTestUtils.createGroup("TEST_GROUP");
 
         NewsLink newsLink = new NewsLink();
         newsLink.setCreator(creator);
