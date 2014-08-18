@@ -4,29 +4,44 @@
             <a class="navbar-brand" href="#"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
         </div>
         <div class="navbar-collapse collapse">
-            <div class="nav-account pull-right">
-                <i class="icon-account pull-left"></i>
-                <h4></h4>
-                <ul class="nav navbar-nav navbar-right inline account pull-left" ng-hide="!authToken" ng-cloak>
-                    <li ng-repeat="menuitem in routes | menuFilter:'NAV'" >
-                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a>
-                        <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Messages' && unreadConversationCount > 0">
-                            <span class="label label-warning">{{unreadConversationCount}}</span>
-                        </a>
-                    </li>
-                    <li><a ng-href="#/settings">Account Settings</a></li>
-                </ul>
-
-                <ul class="nav navbar-nav navbar-right inline account pull-left" ng-hide="!authToken" ng-cloak>
-                    <li ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" >
-                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a>
-                    </li>
-                    <li><a ng-href="#/logout" ng-hide="!authToken">Log Out</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right account pull-left" ng-hide="authToken" ng-cloak>
-                    <li><a ng-href="#/login" ng-hide="authToken">Log In</a></li>
+            <div class="nav-public pull-right" ng-hide="authToken">
+                <ul class="nav navbar-nav navbar-right public pull-left" ng-hide="authToken" ng-cloak>
+                    <li class="login"><a ng-href="#/login" ng-hide="authToken"><i class="icon-login-large pull-left"></i> Sign In</a></li>
+                    <li class="join"><a ng-href="#/joinrequest" ng-hide="authToken"><i class="icon-join-large pull-left"></i> I want to Join</a></li>
                 </ul>
             </div>
+            <div class="nav-account pull-right" ng-hide="!authToken">
+                <i class="icon-account pull-left"></i>
+                <h4>{{ loggedInUser.forename }} {{ loggedInUser.surname }}</h4>
+                <ul class="nav navbar-nav navbar-right inline account pull-left" ng-hide="!authToken" ng-cloak>
+                    <li ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
+                    <li><a ng-href="#/settings">Settings</a></li>
+                    <li><a ng-href="#/logout" ng-hide="!authToken">Log Out</a></li>
+                </ul>
+            </div>
+            <ul class="nav-utils pull-right inline" ng-hide="!authToken" ng-cloak>
+                <li>
+                    <a href="/issues">
+                        <i class="icon-issues"></i>
+                        issues
+                    </a>
+                </li>
+                <li>
+                    <a href="/help">
+                        <i class="icon-help"></i>
+                        Help
+                    </a>
+                </li>
+                <li ng-repeat="menuitem in routes | menuFilter:'NAV'" >
+                    <a ng-href="#{{menuitem.url}}">
+                        <i class="icon-messages"></i>
+                        {{menuitem.title}}
+                    </a>
+                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Messages' && unreadConversationCount > 0">
+                        <span class="label label-warning">{{unreadConversationCount}}</span>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 

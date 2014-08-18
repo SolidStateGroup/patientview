@@ -1,0 +1,47 @@
+.tab-panel-item{
+    .aside-actions{
+        height:180px;
+        position:absolute;
+        top:0;
+        right:0;
+        bottom:0;
+
+        li{
+            height:85px;
+
+            a{
+                height:100%;
+                line-height:20px;
+                padding-top:20px;
+            }
+        }
+    }
+
+    .item-detail{
+        padding:20px;
+
+        dl{
+            margin-bottom:10px;
+            dt{
+
+            }
+            dd{
+                color:$bluegrey;
+            }
+        }
+    }
+}
+
+.user-details{
+    margin-bottom:20px;
+    padding:20px;
+    min-height:170px;
+
+    h3{
+        margin-top:0;
+    }
+
+    h4{
+        margin-bottom:5px;
+    }
+}
