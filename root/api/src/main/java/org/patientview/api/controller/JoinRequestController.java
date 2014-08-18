@@ -5,6 +5,7 @@ import org.patientview.api.service.JoinRequestService;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -56,5 +58,18 @@ public class JoinRequestController extends BaseController<JoinRequestController>
         joinRequestService.save(joinRequest);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/user/{userId}/joinrequests/count", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<BigInteger> getUnreadConversationCount(@PathVariable("userId") Long userId) {
+        try {
+            LOG.debug("Request has been received for conversations of userId : {}", userId);
+            return new ResponseEntity<>(joinRequestService.getCount(userId), HttpStatus.OK);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 }

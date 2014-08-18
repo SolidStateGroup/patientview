@@ -139,5 +139,24 @@ public class JoinRequestControllerTest {
 
     }
 
+    /**
+     * Test: The request of the count of join request
+     */
+    @Test
+    public void testCountOfJoinRequest() throws ResourceNotFoundException {
+        Long groupId = 1L;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + groupId + "/joinrequests/count"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(joinRequestService, Mockito.times(1)).getCount(eq(groupId));
+    }
+
+
+
 
 }

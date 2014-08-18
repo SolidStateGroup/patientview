@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,11 +66,11 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         User user = findUser(userId);
 
         if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            return joinRequestRepository.countByParentUser(user);
+            return joinRequestRepository.countSubmittedByParentUser(user);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
-            return joinRequestRepository.countByUser(user);
+            return joinRequestRepository.countSubmittedByUser(user);
         } else if (doesContainRoles( RoleName.GLOBAL_ADMIN)) {
-            return BigInteger.valueOf(joinRequestRepository.count());
+            return joinRequestRepository.countSubmitted();
         }
 
         throw new SecurityException("Invalid role for join requests count");
@@ -133,6 +134,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         if (joinRequest.getStatus() == JoinRequestStatus.COMPLETED) {
             User user = getUser();
             entityJoinRequest.setCompletedBy(userRepository.findOne(user.getId()));
+            entityJoinRequest.setCompletionDate(new Date());
         }
 
         entityJoinRequest.setStatus(joinRequest.getStatus());

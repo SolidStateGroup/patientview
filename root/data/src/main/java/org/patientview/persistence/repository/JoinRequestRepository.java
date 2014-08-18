@@ -25,9 +25,15 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
 
     @Query("SELECT  COUNT(1)  " +
             "FROM   JoinRequest jr " +
+            "WHERE    jr.status = org.patientview.persistence.model.enums.JoinRequestStatus.SUBMITTED")
+    BigInteger countSubmitted();
+
+    @Query("SELECT  COUNT(1)  " +
+            "FROM   JoinRequest jr " +
             "JOIN   jr.group.groupRoles gr " +
-            "WHERE  gr.user = :user")
-    BigInteger countByUser(@Param("user") User user);
+            "WHERE  gr.user = :user " +
+            "AND    jr.status = org.patientview.persistence.model.enums.JoinRequestStatus.SUBMITTED")
+    BigInteger countSubmittedByUser(@Param("user") User user);
 
     @Query("SELECT COUNT(1) " +
             "FROM   JoinRequest jr " +
@@ -35,8 +41,9 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
             "JOIN   jgr.groupRelationships grs " +
             "JOIN   grs.objectGroup.groupRoles gr " +
             "WHERE  gr.user = :user " +
-            "AND    grs.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.PARENT")
-    BigInteger countByParentUser(@Param("user") User user);
+            "AND    grs.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.PARENT " +
+            "AND    jr.status = org.patientview.persistence.model.enums.JoinRequestStatus.SUBMITTED")
+    BigInteger countSubmittedByParentUser(@Param("user") User user);
 
 
     @Query("SELECT jr " +

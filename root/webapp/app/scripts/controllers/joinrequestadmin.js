@@ -10,7 +10,6 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
 
     JoinRequestService.getByUser($rootScope.loggedInUser.id).then(function(data) {
         $scope.joinRequests = $scope.initRequests(data);
-
     });
 
     $scope.filter = function (status) {
@@ -24,6 +23,10 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
         JoinRequestService.save(joinRequest);
         $scope.saved = true;
         $rootScope.setSubmittedJoinRequestCount();
+        // once saved requery the join requests
+        JoinRequestService.getByUser($rootScope.loggedInUser.id).then(function(data) {
+            $scope.joinRequests = $scope.initRequests(data);
+        });
     },
 
     $scope.initRequests = function(requests) {
