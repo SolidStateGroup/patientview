@@ -1,6 +1,7 @@
 package org.patientview.test.persistence.repository;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.UserRepository;
@@ -34,4 +35,8 @@ public class UserRepositoryTest {
         creator = dataTestUtils.createUser("testCreator");
     }
 
+    @Test
+    public void testBlank() {
+
+    }
 }
