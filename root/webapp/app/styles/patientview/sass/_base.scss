@@ -67,6 +67,12 @@ body {
     }
 }
 
+.row aside{
+    &>h3{
+        margin-top:0;
+    }
+}
+
 .user-info{
     .panel-footer{
         text-align: center;
@@ -159,6 +165,12 @@ ul {
 
     &.warning{
         background-color:#ffbc3c;
+    }
+    &.completed{
+        background-color:#3dcd4e;
+    }
+    &.ignored{
+        background-color:$error;
     }
 }
 
