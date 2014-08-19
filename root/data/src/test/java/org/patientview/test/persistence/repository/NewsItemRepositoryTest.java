@@ -14,6 +14,8 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -72,7 +74,7 @@ public class NewsItemRepositoryTest {
     @Before
     public void setup () {
         creator = dataTestUtils.createUser("testCreator");
-        lookup = dataTestUtils.createLookup("TOP", LookupTypes.MENU, creator);
+        lookup = dataTestUtils.createLookup("TOP", LookupTypes.MENU);
     }
 
     /**
@@ -90,7 +92,7 @@ public class NewsItemRepositoryTest {
         newsItemRepository.save(newsItem);
 
         // Create a group for the news to be linked too
-        Group group = dataTestUtils.createGroup("TEST_GROUP", creator);
+        Group group = dataTestUtils.createGroup("TEST_GROUP");
         NewsLink newsLink = new NewsLink();
         newsLink.setCreator(creator);
         newsLink.setCreated(new Date());
@@ -102,7 +104,7 @@ public class NewsItemRepositoryTest {
         User newsUser = dataTestUtils.createUser("NewsUser");
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(newsUser);
-        groupRole.setRole(null);
+        Role role = dataTestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF);
         groupRole.setGroup(group);
         groupRole.setCreator(creator);
         groupRole.setStartDate(new Date());
@@ -132,7 +134,7 @@ public class NewsItemRepositoryTest {
         newsItemRepository.save(newsItem);
 
         // Create a role for the news to be linked too
-        Role role = dataTestUtils.createRole("TestRole", creator);
+        Role role = dataTestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF);
         NewsLink newsLink = new NewsLink();
         newsLink.setCreator(creator);
         newsLink.setCreated(new Date());
@@ -145,7 +147,7 @@ public class NewsItemRepositoryTest {
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(newsUser);
         groupRole.setRole(role);
-        groupRole.setGroup(null);
+        groupRole.setGroup(dataTestUtils.createGroup("TEST_GROUP"));
         groupRole.setCreator(creator);
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
@@ -174,8 +176,8 @@ public class NewsItemRepositoryTest {
         newsItemRepository.save(newsItem);
 
         // Create group and role for the news to be linked too
-        Role role = dataTestUtils.createRole("TestRole", creator);
-        Group group = dataTestUtils.createGroup("TEST_GROUP", creator);
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.PATIENT);
+        Group group = dataTestUtils.createGroup("TEST_GROUP");
 
         NewsLink newsLink = new NewsLink();
         newsLink.setCreator(creator);
@@ -227,7 +229,7 @@ public class NewsItemRepositoryTest {
         newsItemRepository.save(newsItem);
 
         // Create a role for the news to be linked too
-        Role role = dataTestUtils.createRole("TestRole", creator);
+        Role role = dataTestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF);
         NewsLink newsLink = new NewsLink();
         newsLink.setCreator(creator);
         newsLink.setCreated(new Date());
@@ -262,7 +264,7 @@ public class NewsItemRepositoryTest {
         newsItemRepository.save(newsItem);
 
         // Create a role for the news to be linked too
-        Role role = dataTestUtils.createRole("TestRole", creator);
+        Role role = dataTestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF);
         NewsLink newsLink = new NewsLink();
         newsLink.setCreator(creator);
         newsLink.setCreated(new Date());
@@ -271,7 +273,7 @@ public class NewsItemRepositoryTest {
         newsLinkRepository.save(newsLink);
 
         // Create a group for the news to be linked too
-        Group group = dataTestUtils.createGroup("TEST_GROUP", creator);
+        Group group = dataTestUtils.createGroup("TEST_GROUP");
         newsLink = new NewsLink();
         newsLink.setCreator(creator);
         newsLink.setCreated(new Date());
@@ -280,7 +282,7 @@ public class NewsItemRepositoryTest {
         newsLinkRepository.save(newsLink);
 
         // Create a second group for the news to be linked too
-        Group group2 = dataTestUtils.createGroup("TEST_GROUP_2", creator);
+        Group group2 = dataTestUtils.createGroup("TEST_GROUP_2");
         NewsLink newsLink2 = new NewsLink();
         newsLink2.setCreator(creator);
         newsLink2.setCreated(new Date());
@@ -326,7 +328,7 @@ public class NewsItemRepositoryTest {
         newsItem.setStory("STORY");
 
         // Create a group for the news to be linked too
-        Group group = dataTestUtils.createGroup("TEST_GROUP", creator);
+        Group group = dataTestUtils.createGroup("TEST_GROUP");
         NewsLink newsLink = new NewsLink();
         newsLink.setCreator(creator);
         newsLink.setCreated(new Date());
@@ -334,7 +336,7 @@ public class NewsItemRepositoryTest {
         newsLink.setNewsItem(newsItem);
 
         // Create a second group for the news to be linked too
-        Group group2 = dataTestUtils.createGroup("TEST_GROUP_2", creator);
+        Group group2 = dataTestUtils.createGroup("TEST_GROUP_2");
         NewsLink newsLink2 = new NewsLink();
         newsLink2.setCreator(creator);
         newsLink2.setCreated(new Date());
@@ -347,14 +349,23 @@ public class NewsItemRepositoryTest {
         newsItemRepository.save(newsItem);
 
         // Create a specialty
-        Group specialty = dataTestUtils.createGroup("SPECIALTY", creator);
-        specialty.setGroupType(dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP, creator));
+        Group specialty = dataTestUtils.createGroup("SPECIALTY");
+        specialty.setGroupType(dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP));
 
         // Create parent relationship to TEST_GROUP
         group.setGroupRelationships(new HashSet<GroupRelationship>());
         specialty.setGroupRelationships(new HashSet<GroupRelationship>());
-        group.getGroupRelationships().add(TestUtils.createGroupRelationship(null, group, specialty, RelationshipTypes.PARENT, creator));
-        specialty.getGroupRelationships().add(TestUtils.createGroupRelationship(null, specialty, group, RelationshipTypes.CHILD, creator));
+
+        GroupRelationship groupRelationship =  TestUtils.createGroupRelationship(group, specialty, RelationshipTypes.PARENT);
+        groupRelationship.setId(null);
+        groupRelationship.setCreator(creator);
+        group.getGroupRelationships().add(groupRelationship);
+
+        groupRelationship = TestUtils.createGroupRelationship(specialty, group, RelationshipTypes.CHILD);
+        groupRelationship.setId(null);
+        groupRelationship.setCreator(creator);
+        specialty.getGroupRelationships().add(groupRelationship);
+
         groupRepository.save(group);
         groupRepository.save(specialty);
 
@@ -368,7 +379,7 @@ public class NewsItemRepositoryTest {
         User specialtyUser = dataTestUtils.createUser("NewsUser");
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(specialtyUser);
-        groupRole.setRole(dataTestUtils.createRole("TEST_ROLE", creator));
+        groupRole.setRole(dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF));
         groupRole.setGroup(specialty);
         groupRole.setCreator(creator);
         groupRole.setStartDate(new Date());

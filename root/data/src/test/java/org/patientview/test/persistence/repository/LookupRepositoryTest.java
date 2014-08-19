@@ -51,7 +51,7 @@ public class LookupRepositoryTest {
     public void testCreateLookupTypeAndValue() {
 
         // Create a lookup type item
-        dataTestUtils.createLookup("STAFF", LookupTypes.FEATURE_TYPE, creator);
+        dataTestUtils.createLookup("STAFF", LookupTypes.FEATURE_TYPE);
         LookupType getLookupType = lookupTypeRepository.findByType(LookupTypes.GROUP);
 
         Assert.assertTrue("LookupType should be created", getLookupType.getType().equals("FEATURE_TYPE"));

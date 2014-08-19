@@ -7,7 +7,6 @@ import org.patientview.api.exception.ResourceForbiddenException;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
@@ -15,13 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -93,32 +89,22 @@ public class SecurityAspect {
 
         RoleName[] roles = Util.getRoles(joinPoint);
 
-        // Now the check for a user being in a group.
-        if (doesUserHaveRoles(roles, SecurityContextHolder.getContext().getAuthentication().getAuthorities())) {
-            List<Group> groups = Util.iterableToList(groupService.findGroupByUser(user));
-            if (groups.contains(group)) {
-                LOG.debug("User has passed group validation");
-            } else {
-                throw new ResourceForbiddenException("The user does not belong to this group");
-            }
-
+        if (doesUserHavePermissions(roles)) {
+            LOG.debug("User has passed group validation");
+        } else {
+            throw new ResourceForbiddenException("The user does not belong to this group");
         }
 
 
         LOG.info("PointCut");
     }
 
-    private boolean doesUserHaveRoles(RoleName[] annotatedRoles,
-                                      Collection<? extends GrantedAuthority> grantedAuthorities) {
-        for (RoleName roleName : annotatedRoles) {
-            for (GrantedAuthority grantedAuthority : grantedAuthorities) {
-                Role role = (Role) grantedAuthority;
-                if (role.getName().equals(roleName)) {
-                    return true;
-                }
+    private boolean doesUserHavePermissions(RoleName[] roles) {
+        for (Group group : Util.convertIterable(groupService.findGroupByUser(Util.getUser()))) {
+            if (Util.doesContainGroupAndRole(group, roles)) {
+                return true;
             }
         }
-
         return false;
     }
 

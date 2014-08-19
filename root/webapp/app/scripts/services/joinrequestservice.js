@@ -40,11 +40,11 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
         },
 
         // filter results by the type
-        getByType: function (userId, status) {
+        getByStatus: function (userId, status) {
             var deferred = $q.defer();
             var statuses = [];
             statuses.push(status);
-            Restangular.one('user', userId).all('joinrequests').getList({'status': statuses}).then(function(successResult) {
+            Restangular.one('user', userId).all('joinrequests').getList({'statuses': statuses}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);
@@ -64,6 +64,18 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+
+        getSubmittedJoinRequestCount: function (userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/conversations/unreadcount
+            Restangular.one('user', userId).one('joinrequests/count').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
+
 }]);

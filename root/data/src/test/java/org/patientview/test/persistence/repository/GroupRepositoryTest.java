@@ -15,6 +15,8 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -55,8 +57,10 @@ public class GroupRepositoryTest {
     public void testCreateGroup() {
 
         // Create a group
-        Group childGroup = TestUtils.createGroup(1L, "CHILD_GROUP", creator);
-        Group parentGroup = TestUtils.createGroup(2L, "PARENT_GROUP", creator);
+        Group childGroup = TestUtils.createGroup("CHILD_GROUP");
+        Group parentGroup = TestUtils.createGroup("PARENT_GROUP");
+        childGroup.setId(null);
+        parentGroup.setId(null);
         groupRepository.save(childGroup);
         groupRepository.save(parentGroup);
 
@@ -77,9 +81,9 @@ public class GroupRepositoryTest {
     @Test
     public void testFindGroupByUser() {
         User user = dataTestUtils.createUser("testUser");
-        Group group = dataTestUtils.createGroup("testGroup", creator);
-        Role role = dataTestUtils.createRole("testRole", creator);
-        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role, creator);
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role);
 
         Iterable<Group> groups = groupRepository.findGroupByUser(user);
 
@@ -94,8 +98,8 @@ public class GroupRepositoryTest {
     @Test
     public void testFindGroupByType() {
 
-        Group group = dataTestUtils.createGroup("testGroup", creator);
-        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP, creator);
+        Group group = dataTestUtils.createGroup("testGroup");
+        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP);
         group.setGroupType(lookup);
         groupRepository.save(group);
 
@@ -108,8 +112,8 @@ public class GroupRepositoryTest {
     @Test
     public void testGroupContactPoints() {
 
-        Group group = dataTestUtils.createGroup("testGroup", creator);
-        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP, creator);
+        Group group = dataTestUtils.createGroup("testGroup");
+        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP);
         group.setGroupType(lookup);
         group.setContactPoints(new HashSet<ContactPoint>());
 

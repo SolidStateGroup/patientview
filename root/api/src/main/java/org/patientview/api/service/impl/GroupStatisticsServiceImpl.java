@@ -56,7 +56,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         }
 
         List<GroupStatistic> groupStatistics =
-                Util.iterableToList(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
+                Util.convertIterable(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
                         StatisticPeriod.MONTH));
 
         return groupStatistics;

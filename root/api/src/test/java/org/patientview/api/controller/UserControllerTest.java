@@ -18,7 +18,6 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -104,12 +103,12 @@ public class UserControllerTest {
     @Test
     @Ignore("Needs refactoring sprint 3")
     public void testCreateUser() throws ResourceNotFoundException {
-        User postUser = TestUtils.createUser(null, "testPost");
-        User persistedUser = TestUtils.createUser(2L, "testPost");
+        User postUser = TestUtils.createUser("testPost");
+        User persistedUser = TestUtils.createUser("testPost");
 
-        TestUtils.authenticateTest(postUser, Collections.<Role>emptyList());
+        TestUtils.authenticateTest(postUser);
 
-        when(userService.get(anyLong())).thenReturn(TestUtils.createUser(1L, "creator"));
+        when(userService.get(anyLong())).thenReturn(TestUtils.createUser( "creator"));
 
         when(userService.createUserWithPasswordEncryption(any(User.class))).thenReturn(persistedUser);
         try {
@@ -158,15 +157,14 @@ public class UserControllerTest {
      */
     @Test
     public void testAddIdentifier() throws ResourceNotFoundException {
-        Long userId = 1L;
-        User testUser = TestUtils.createUser(userId, "testUser");
+        User testUser = TestUtils.createUser("testUser");
 
-        String url = "/user/" + userId + "/identifiers";
+        String url = "/user/" + testUser.getId() + "/identifiers";
         Identifier identifier = new Identifier();
         identifier.setId(2L);
 
-        when(userService.addIdentifier(Matchers.eq(userId), Matchers.eq(identifier))).thenReturn(identifier);
-        when(userRepository.findOne(Matchers.eq(userId))).thenReturn(testUser);
+        when(userService.addIdentifier(Matchers.eq(testUser.getId()), Matchers.eq(identifier))).thenReturn(identifier);
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -187,11 +185,10 @@ public class UserControllerTest {
     @Test
     public void testResetPassword() throws ResourceNotFoundException {
 
-        Long userId = 1L;
-        User testUser = TestUtils.createUser(userId, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
 
-        String url = "/user/" + userId + "/resetPassword";
+        String url = "/user/" + testUser.getId() + "/resetPassword";
         Credentials credentials = new Credentials();
         credentials.setPassword("newPassword");
         credentials.setUsername(testUser.getUsername());
@@ -217,11 +214,10 @@ public class UserControllerTest {
     @Test
     public void testUpdatePassword() throws ResourceNotFoundException {
 
-        Long userId = 1L;
-        User testUser = TestUtils.createUser(userId, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
 
-        String url = "/user/" + userId + "/changePassword";
+        String url = "/user/" + testUser.getId() + "/changePassword";
         Credentials credentials = new Credentials();
         credentials.setPassword("newPassword");
         credentials.setUsername(testUser.getUsername());

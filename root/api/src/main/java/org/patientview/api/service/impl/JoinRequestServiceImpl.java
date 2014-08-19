@@ -2,7 +2,6 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.JoinRequestService;
-import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,14 +45,19 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     @Override
     public List<JoinRequest> get(Long userId) throws ResourceNotFoundException {
         User user = findUser(userId);
-        if (Util.doesContainRole(getRoles(), RoleName.SPECIALTY_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByParentUser(user));
-        } else if (Util.doesContainRole(getRoles(), RoleName.UNIT_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByUser(user));
-        } else if (Util.doesContainRole(getRoles(), RoleName.GLOBAL_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findAll());
+        Iterable<JoinRequest> joinRequests;
+
+        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+            joinRequests = joinRequestRepository.findByParentUser(user);
+        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+            joinRequests = joinRequestRepository.findByUser(user);
+        } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            joinRequests = joinRequestRepository.findAll();
+        } else {
+            throw new SecurityException("Invalid role for join requests");
         }
-        throw new SecurityException("Invalid role for join requests");
+
+        return convertIterable(joinRequests);
     }
 
     @Override
@@ -60,31 +65,35 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             throws ResourceNotFoundException {
         User user = findUser(userId);
 
-        if (Util.doesContainRole(getRoles(), RoleName.SPECIALTY_ADMIN)) {
-            return joinRequestRepository.countByParentUser(user);
-        } else if (Util.doesContainRole(getRoles(), RoleName.UNIT_ADMIN)) {
-            return joinRequestRepository.countByUser(user);
-        } else if (Util.doesContainRole(getRoles(), RoleName.GLOBAL_ADMIN)) {
-            return BigInteger.valueOf(joinRequestRepository.count());
+        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+            return joinRequestRepository.countSubmittedByParentUser(user);
+        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+            return joinRequestRepository.countSubmittedByUser(user);
+        } else if (doesContainRoles( RoleName.GLOBAL_ADMIN)) {
+            return joinRequestRepository.countSubmitted();
         }
 
-        throw new SecurityException("Invalid role join requests");
+        throw new SecurityException("Invalid role for join requests count");
     }
 
     @Override
-    public List<JoinRequest> getByStatus(Long userId, JoinRequestStatus status)
-            throws ResourceNotFoundException {
+    public List<JoinRequest> getByStatuses(Long userId, List<JoinRequestStatus> statuses)
+            throws ResourceNotFoundException{
         User user = findUser(userId);
 
-        if (Util.doesContainRole(getRoles(), RoleName.SPECIALTY_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByParentUserAndStatus(user, status));
-        } else if (Util.doesContainRole(getRoles(), RoleName.UNIT_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByUserAndStatus(user, status));
-        } else if (Util.doesContainRole(getRoles(), RoleName.GLOBAL_ADMIN)) {
-            return Util.iterableToList(joinRequestRepository.findByStatus(status));
+        Iterable<JoinRequest> joinRequests;
+
+        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+            joinRequests = joinRequestRepository.findByParentUserAndStatuses(user, statuses);
+        } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
+            joinRequests = joinRequestRepository.findByUserAndStatuses(user, statuses);
+        } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            joinRequests = joinRequestRepository.findByStatuses(statuses);
+        } else {
+            throw new SecurityException("Invalid role join requests");
         }
 
-        throw new SecurityException("Invalid role join requests");
+        return convertIterable(joinRequests);
     }
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {
@@ -125,6 +134,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         if (joinRequest.getStatus() == JoinRequestStatus.COMPLETED) {
             User user = getUser();
             entityJoinRequest.setCompletedBy(userRepository.findOne(user.getId()));
+            entityJoinRequest.setCompletionDate(new Date());
         }
 
         entityJoinRequest.setStatus(joinRequest.getStatus());

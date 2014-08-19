@@ -68,7 +68,7 @@ public class AdminServiceTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
     }
 
     /**

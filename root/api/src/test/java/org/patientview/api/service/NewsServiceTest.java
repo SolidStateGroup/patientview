@@ -63,7 +63,7 @@ public class NewsServiceTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
     }
 
     /**
@@ -73,8 +73,8 @@ public class NewsServiceTest {
     @Test
     public void testGetNewsByUser() {
         Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
-        User testUser = TestUtils.createUser(1L, "testUser");
-        Group testGroup = TestUtils.createGroup(2L, "testGroup", creator);
+        User testUser = TestUtils.createUser("testUser");
+        Group testGroup = TestUtils.createGroup("testGroup");
 
         List<NewsItem> roleNews = new ArrayList<>();
 
@@ -140,25 +140,25 @@ public class NewsServiceTest {
         Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
 
         // create UNIT_ADMIN of testGroup
-        User testUser = TestUtils.createUser(1L, "testUser");
-        Group testGroup = TestUtils.createGroup(2L, "testGroup", creator);
-        Group testGroup2 = TestUtils.createGroup(3L, "testGroup2", creator);
-        Role unitAdminRole = TestUtils.createRole(4L, RoleName.UNIT_ADMIN, creator);
+        User testUser = TestUtils.createUser("testUser");
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Group testGroup2 = TestUtils.createGroup("testGroup2");
+        Role unitAdminRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
         org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
         roleType.setValue(RoleType.STAFF);
         unitAdminRole.setRoleType(roleType);
-        GroupRole groupRole = TestUtils.createGroupRole(5L, unitAdminRole, testGroup, testUser, creator);
+        GroupRole groupRole = TestUtils.createGroupRole(unitAdminRole, testGroup, testUser);
         testUser.getGroupRoles().add(groupRole);
 
         // create 2 news items, one with link to testUser group exclusively, the other with other newsLinks
-        NewsItem newsItem1 = TestUtils.createNewsItem(6L, "HEADING1", "STORY1", creator);
-        NewsLink newsLink1 = TestUtils.createNewsLink(7L, newsItem1, testGroup, null, creator);
+        NewsItem newsItem1 = TestUtils.createNewsItem("HEADING1", "STORY1");
+        NewsLink newsLink1 = TestUtils.createNewsLink(newsItem1, testGroup, null);
         newsItem1.getNewsLinks().add(newsLink1);
         newsItem1.setCreated(new Date(System.currentTimeMillis() + 1));
 
-        NewsItem newsItem2 = TestUtils.createNewsItem(8L, "HEADING2", "STORY2", creator);
-        NewsLink newsLink2 = TestUtils.createNewsLink(9L, newsItem2, testGroup, null, creator);
-        NewsLink newsLink3 = TestUtils.createNewsLink(10L, newsItem2, testGroup2, null, creator);
+        NewsItem newsItem2 = TestUtils.createNewsItem("HEADING2", "STORY2");
+        NewsLink newsLink2 = TestUtils.createNewsLink(newsItem2, testGroup, null);
+        NewsLink newsLink3 = TestUtils.createNewsLink(newsItem2, testGroup2, null);
         newsItem2.getNewsLinks().add(newsLink2);
         newsItem2.getNewsLinks().add(newsLink3);
         newsItem2.setCreated(new Date(System.currentTimeMillis() + 2));
@@ -195,9 +195,9 @@ public class NewsServiceTest {
 
     @Test
     public void testAddGroupAndRole() {
-        User user = TestUtils.createUser(1L, "testUser");
-        Group group = TestUtils.createGroup(5L, "testGroup", creator);
-        Role role = TestUtils.createRole(6L, RoleName.PATIENT, creator);
+        User user = TestUtils.createUser("testUser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
 
         NewsItem newsItem = new NewsItem();
         newsItem.setId(3L);
@@ -226,7 +226,7 @@ public class NewsServiceTest {
 
     @Test
     public void testCreateNewsItem() {
-        User user = TestUtils.createUser(1L, "testUser");
+        User user = TestUtils.createUser("testUser");
 
         NewsItem newsItem = new NewsItem();
         newsItem.setId(3L);
@@ -238,7 +238,7 @@ public class NewsServiceTest {
         NewsLink newsLink = new NewsLink();
         newsLink.setId(4L);
         newsLink.setNewsItem(newsItem);
-        newsLink.setGroup(TestUtils.createGroup(5L, "testGroup", creator));
+        newsLink.setGroup(TestUtils.createGroup("testGroup"));
 
         TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
 
@@ -249,7 +249,7 @@ public class NewsServiceTest {
 
     @Test
     public void testUpdateNewsItem() {
-        User user = TestUtils.createUser(1L, "testUser");
+        User user = TestUtils.createUser("testUser");
 
         NewsItem newsItem = new NewsItem();
         newsItem.setId(3L);
@@ -261,7 +261,7 @@ public class NewsServiceTest {
         NewsLink newsLink = new NewsLink();
         newsLink.setId(4L);
         newsLink.setNewsItem(newsItem);
-        newsLink.setGroup(TestUtils.createGroup(5L, "testGroup", creator));
+        newsLink.setGroup(TestUtils.createGroup("testGroup"));
 
         TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
 

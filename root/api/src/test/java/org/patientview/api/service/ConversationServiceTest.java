@@ -56,14 +56,14 @@ public class ConversationServiceTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
+        creator = TestUtils.createUser("creator");
     }
 
     @Test
     public void testCreateConversation() {
 
-        User user1 = TestUtils.createUser(1L, "newTestUser1");
-        User user2 = TestUtils.createUser(2L, "newTestUser2");
+        User user1 = TestUtils.createUser("newTestUser1");
+        User user2 = TestUtils.createUser("newTestUser2");
 
         TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
 
@@ -114,8 +114,8 @@ public class ConversationServiceTest {
     @Test
     public void testGetUnreadConversationCount() {
 
-        User user1 = TestUtils.createUser(1L, "newTestUser1");
-        User user2 = TestUtils.createUser(2L, "newTestUser2");
+        User user1 = TestUtils.createUser("newTestUser1");
+        User user2 = TestUtils.createUser("newTestUser2");
 
         TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
 

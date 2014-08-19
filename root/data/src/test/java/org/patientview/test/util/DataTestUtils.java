@@ -10,6 +10,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.RoleType;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
+import org.patientview.persistence.model.SimpleAuditModel;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
@@ -26,6 +27,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.HashSet;
 
@@ -65,63 +67,85 @@ public class DataTestUtils {
     @Inject
     RouteRepository routeRepository;
 
-    public Lookup createLookup(String lookupName, LookupTypes lookupTypeName, User creator) {
+    User creator;
 
-        LookupType lookupType = TestUtils.createLookupType(null, lookupTypeName, creator);
-        lookupType.setCreator(creator);
+    @PostConstruct
+    public void init() {
+        User user = TestUtils.createUser("testCreator");
+        user.setId(null);
+        creator = userRepository.save(user);
+    }
+
+    private void setupBaseObject(SimpleAuditModel simpleAuditModel) {
+        simpleAuditModel.setCreator(creator);
+        simpleAuditModel.setId(null);
+    }
+
+    public Lookup createLookup(String lookupName, LookupTypes lookupTypeName) {
+
+        LookupType lookupType = TestUtils.createLookupType(lookupTypeName);
+        setupBaseObject(lookupType);
         lookupTypeRepository.save(lookupType);
 
-        Lookup lookupValue = TestUtils.createLookup(null,lookupType, lookupName,  creator);
-        lookupValue.setCreator(creator);
+        Lookup lookupValue = TestUtils.createLookup(lookupType, lookupName);
+        setupBaseObject(lookupValue);
         return lookupRepository.save(lookupValue);
 
     }
 
     public User createUser(String username) {
-        User user = TestUtils.createUser(null, username);
+        User user = TestUtils.createUser(username);
+        setupBaseObject(user);
         return userRepository.save(user);
     }
 
-    public Feature createFeature(String name, User creator) {
 
-        Feature feature = TestUtils.createFeature(null, name, creator);
+    public Feature createFeature(String name) {
+        Feature feature = TestUtils.createFeature(name);
+        setupBaseObject(feature);
         return featureRepository.save(feature);
     }
 
-    public Role createRole(String name, User creator) {
-        Role role = TestUtils.createRole(null, RoleName.PATIENT, creator);
-
+    public Role createRole(RoleName name, org.patientview.persistence.model.enums.RoleType roleTypeEnum) {
+        Role role = TestUtils.createRole(name);
+        setupBaseObject(role);
         RoleType roleType = new RoleType();
-        roleType.getValue();
+        roleType.setValue(roleTypeEnum);
+        role.setRoleType(roleType);
+
         return roleRepository.save(role);
     }
 
 
-    public Group createGroup(String name, User creator) {
-        Group group = TestUtils.createGroup(null, name, creator);
+    public Group createGroup(String name) {
+        Group group = TestUtils.createGroup(name);
+        setupBaseObject(group);
         return groupRepository.save(group);
     }
 
 
-    public GroupRole createGroupRole(User user, Group group, Role role, User creator) {
-        GroupRole groupRole = TestUtils.createGroupRole(null, role, group, user, creator);
+    public GroupRole createGroupRole(User user, Group group, Role role) {
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        setupBaseObject(groupRole);
         return groupRoleRepository.save(groupRole);
     }
 
-    public GroupRelationship createGroupRelationship(Group source, Group object, RelationshipTypes relationshipType, User creator) {
-        GroupRelationship groupRelationship = TestUtils.createGroupRelationship(null, source, object, relationshipType, creator);
+    public GroupRelationship createGroupRelationship(Group source, Group object, RelationshipTypes relationshipType) {
+        GroupRelationship groupRelationship = TestUtils.createGroupRelationship(source, object, relationshipType);
+        setupBaseObject(groupRelationship);
         return groupRelationshipRepository.save(groupRelationship);
     }
 
-    public Route createRoute(String title, String controller, Lookup lookup, User creator) {
-        Route route = TestUtils.createRoute(null, title, controller, lookup);
+    public Route createRoute(String title, String controller, Lookup lookup) {
+        Route route = TestUtils.createRoute(title, controller, lookup);
+        setupBaseObject(route);
         return routeRepository.save(route);
 
     }
 
-    public Route createRouteLink(Route route, Role role, Feature feature, Group group, User creator) {
-        RouteLink routeLink = TestUtils.createRouteLink(null, route, role, group, feature, creator);
-
+    public Route createRouteLink(Route route, Role role, Feature feature, Group group) {
+        RouteLink routeLink = TestUtils.createRouteLink(route, role, group, feature);
+        setupBaseObject(routeLink);
         if (CollectionUtils.isEmpty(route.getRouteLinks())) {
             route.setRouteLinks(new HashSet<RouteLink>());
         }

@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -89,7 +90,9 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
      * @return
      */
     public List<Group> findAll() {
-        List<Group> groups = Util.iterableToList(groupRepository.findAll());
+
+        List<Group> groups = Util.convertIterable(groupRepository.findAll());
+
         return addParentAndChildGroups(groups);
     }
 
@@ -98,7 +101,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public List<Group> findGroupByUser(User user) {
-        List<Group> groups = Util.iterableToList(groupRepository.findGroupByUser(user));
+        List<Group> groups = Util.convertIterable(groupRepository.findGroupByUser(user));
         return addParentAndChildGroups(groups);
     }
 
@@ -107,7 +110,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
         Set<Group> groups = new HashSet<Group>();
         // get list of groups associated with user directly (user is member of group)
-        groups.addAll(Util.iterableToList(groupRepository.findGroupByUser(user)));
+        groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(user)));
         // for each group get list of children if present
         for (Group group : groups) {
             for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
@@ -122,7 +125,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     public List<Group> findGroupByType(Long lookupId) {
         Lookup groupType = lookupRepository.findOne(lookupId);
-        List<Group> groups = Util.iterableToList(groupRepository.findGroupByType(groupType));
+        List<Group> groups = Util.convertIterable(groupRepository.findGroupByType(groupType));
         return addParentAndChildGroups(groups);
     }
 
@@ -326,11 +329,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     // Attached the relationship of children groups and parents groups onto Transient objects
     private List<Group> addParentAndChildGroups(List<Group> groups) {
+
         for (Group group : groups) {
             addSingleParentAndChildGroup(group);
         }
 
         return groups;
+
     }
 
     public void addParentGroup(Long groupId, Long parentGroupId) {
@@ -404,10 +409,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         Group group = groupRepository.findOne(groupId);
 
         if (group == null) {
-            throw new ResourceNotFoundException(String.format("The group id %s is not valid", groupId));
+            throw new ResourceNotFoundException(String.format("The group id %d is not valid", groupId));
         }
 
-        return Util.iterableToList(groupRepository.findChildren(group));
+        return Util.convertIterable(groupRepository.findChildren(group));
 
     }
 

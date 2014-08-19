@@ -2,7 +2,6 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.RoleName;
-import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,7 +20,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "pv_role")
-public class Role extends AuditModel implements GrantedAuthority {
+public class Role extends AuditModel {
 
     @Column(name = "role_name")
     @Enumerated(EnumType.STRING)
@@ -95,9 +94,4 @@ public class Role extends AuditModel implements GrantedAuthority {
         this.visible = visible;
     }
 
-    @Override
-    @JsonIgnore
-    public String getAuthority() {
-        return getName().toString();
-    }
 }

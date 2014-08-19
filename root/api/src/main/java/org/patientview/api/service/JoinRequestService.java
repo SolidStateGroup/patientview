@@ -23,7 +23,7 @@ public interface JoinRequestService {
 
     List<JoinRequest> get(Long userId) throws ResourceNotFoundException;
 
-    List<JoinRequest> getByStatus(Long userId, JoinRequestStatus joinRequestStatuses)
+    List<JoinRequest> getByStatuses(Long userId, List<JoinRequestStatus> statuses)
             throws ResourceNotFoundException;
 
     JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException ;
