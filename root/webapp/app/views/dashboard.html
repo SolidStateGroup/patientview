@@ -1,3 +1,20 @@
+<!-- TODO: put in style -->
+<style>
+    .showHideText {
+        font-size: 16px;
+        line-height: 16px;
+        height: 35px;
+        overflow: hidden;
+    }
+    .show {
+        overflow: visible;
+        height: auto;
+        min-height: 35px;
+    }
+    .showHideLink {
+        font-size: 16px;
+    }
+</style>
 <div class="hider" ng-show="status.open"></div>
 
 <div ng-show="loading" class="container"><br/><br/>
@@ -84,7 +101,11 @@
                         </ul>
                         <h4>{{news.heading}}</h4>
                         <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
-                        <p>{{news.story}}</p>
+                        <div>
+                            <div class="showHideText" ng-class="{show: show}" ng-bind-html="parseHTMLText(news.story)"></div>
+                            <a href="" class="showHideLink" ng-click="show = true" ng-show="!show">show more</a>
+                            <a href="" class="showHideLink" ng-click="show = false" ng-show="show">show less</a>
+                        </div>
                     </div>
                 </li>
             </ul>
