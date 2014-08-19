@@ -1,5 +1,7 @@
 package org.patientview.api.controller.model;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import java.math.BigInteger;
 import java.util.Date;
 
@@ -160,5 +162,9 @@ public class GroupStatisticTO implements Comparable {
             }
         }
         return -1;
+    }
+
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }
