@@ -115,8 +115,8 @@
         </div>
         <div class="link-list-item" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
             <div class="col-md-3"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="URL" name="link" ng-model="link.link" required></div>
-            <div class="col-md-3"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="Description" name="name" ng-model="link.name" required></div>
-            <div class="col-md-3">
+            <div class="col-md-5"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="Description" name="name" ng-model="link.name" required></div>
+            <div class="col-md-1">
                 <select id="group-link-displayOrder-{{link.id}}" class="form-control" ng-model="link.displayOrder">
                     <option ng-repeat="link in editGroup.links">{{$index + 1}}</option>
                 </select>
@@ -129,8 +129,8 @@
         </div>
         <div class="add-form" ng-model="newLink">
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" ng-model="newLink.link"></div>
-            <div class="col-md-2"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" ng-model="newLink.name"></div>
-            <div class="col-md-2 hidden">
+            <div class="col-md-5"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" ng-model="newLink.name"></div>
+            <div class="col-md-1 hidden">
                 <select id="group-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
                     <option ng-show="newLink.displayOrder" ng-repeat="link in editGroup.links">{{$index + 1}}</option>
                     <option >{{editGroup.links.length + 1}}</option>
