@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 'JoinRequestService', 'StaticDataService', '$scope', '$rootScope', 'UtilService', function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,UtilService) {
+angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 'StaticDataService', '$scope', '$rootScope', 'UtilService', function (GroupService,StaticDataService,$scope,$rootScope,UtilService) {
 
     $scope.joinRequest = {};
     $scope.pw = '';
@@ -72,10 +72,10 @@ angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 
         }
 
         if (formOk) {
-            JoinRequestService.new(groupId, $scope.joinRequest).then(function () {
+            GroupService.contactUnit(groupId, $scope.joinRequest).then(function () {
                 $scope.successMessage = 'The password request has been sent';
             }, function (result) {
-                $scope.errorMessage = '- The passwor request has not been submitted ' + result;
+                $scope.errorMessage = '- The password request has not been submitted ' + result.data;
             });
         }
 
