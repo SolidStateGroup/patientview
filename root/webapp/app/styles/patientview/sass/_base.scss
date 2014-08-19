@@ -67,6 +67,27 @@ body {
     }
 }
 
+.notification-dialog{
+    position:absolute;
+    width:300px;
+    height:auto;
+    bottom:10%;
+    right:25%;
+    left:50%;
+    margin-left:-150px;
+    border:1px solid #9dd487;
+    padding:10px;
+    @include bootstrap-border-radius(8px);
+
+    h3{
+        margin-top:0;
+    }
+}
+
+.help-text{
+    margin-top:20px;
+}
+
 .row aside{
     &>h3{
         margin-top:0;
@@ -210,6 +231,10 @@ ul {
 
 .button-dropdown-group .dropdown > button {
     height:34px;
+}
+
+.btn-grey{
+    background-color: $textlight;
 }
 
 /** generic color styles **/
