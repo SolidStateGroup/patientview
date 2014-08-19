@@ -43,6 +43,6 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
     @Query("SELECT DISTINCT n FROM NewsItem n " +
             "JOIN n.newsLinks l " +
             "JOIN l.role r " +
-            "WHERE r.name = 'PUBLIC'")
+            "WHERE r.name = org.patientview.persistence.model.enums.RoleName.PUBLIC")
     Page<NewsItem> getPublicNews(Pageable pageable);
 }
