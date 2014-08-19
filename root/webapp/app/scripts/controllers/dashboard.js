@@ -91,7 +91,6 @@ function (UserService, $scope, GroupService, NewsService) {
         }, function() {
             $scope.loading = false;
         });
-
     };
 
     $scope.init();
