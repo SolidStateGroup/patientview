@@ -392,49 +392,70 @@ ul .news-item {
   font-size: 0.85rem;
 }
 
-/** temporary icons stuff **/
+/** TODO add this in more appropriate place **/
 /* line 263, ../sass/_base.scss */
+.showHideText {
+  font-size: 16px;
+  line-height: 16px;
+  height: 35px;
+  overflow: hidden;
+}
+
+/* line 269, ../sass/_base.scss */
+.show {
+  overflow: visible;
+  height: auto;
+  min-height: 35px;
+}
+
+/* line 275, ../sass/_base.scss */
+.showHideLink {
+  font-size: 16px;
+}
+
+/** temporary icons stuff **/
+/* line 281, ../sass/_base.scss */
 .hero-icon {
   display: block;
   margin: 0 auto;
 }
 
-/* line 268, ../sass/_base.scss */
+/* line 286, ../sass/_base.scss */
 i.icon-hero-manage {
   background: url("../../../images/icons/hero-manage.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 274, ../sass/_base.scss */
+/* line 292, ../sass/_base.scss */
 i.icon-hero-monitor {
   background: url("../../../images/icons/hero-monitor.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 280, ../sass/_base.scss */
+/* line 298, ../sass/_base.scss */
 i.icon-hero-make {
   background: url("../../../images/icons/hero-make.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 286, ../sass/_base.scss */
+/* line 304, ../sass/_base.scss */
 i.icon-search-black {
   background: url("../../../images/icons/search-black.png") 0 0 no-repeat;
   height: 36px;
   width: 36px;
 }
 
-/* line 292, ../sass/_base.scss */
+/* line 310, ../sass/_base.scss */
 i.icon-account {
   background: url("../../../images/icons/account.png") 0 0 no-repeat;
   height: 32px;
   width: 32px;
 }
 
-/* line 298, ../sass/_base.scss */
+/* line 316, ../sass/_base.scss */
 i.icon-organisations {
   background: url("../../../images/icons/organisations.png") 0 0 no-repeat;
   height: 22px;
@@ -442,7 +463,7 @@ i.icon-organisations {
   margin-top: 7px;
 }
 
-/* line 305, ../sass/_base.scss */
+/* line 323, ../sass/_base.scss */
 i.icon-news {
   background: url("../../../images/icons/news.png") 0 0 no-repeat;
   height: 22px;
@@ -450,35 +471,35 @@ i.icon-news {
   margin-top: 7px;
 }
 
-/* line 312, ../sass/_base.scss */
+/* line 330, ../sass/_base.scss */
 i.icon-patients {
   background: url("../../../images/icons/patients.png") 0 0 no-repeat;
   height: 27px;
   width: 17px;
 }
 
-/* line 318, ../sass/_base.scss */
+/* line 336, ../sass/_base.scss */
 i.icon-join {
   background: url("../../../images/icons/join.png") 0 0 no-repeat;
   height: 24px;
   width: 22px;
 }
 
-/* line 324, ../sass/_base.scss */
+/* line 342, ../sass/_base.scss */
 i.icon-reply {
   background: url("../../../images/icons/reply-icon.png") 0 0 no-repeat;
   height: 15px;
   width: 16px;
 }
 
-/* line 330, ../sass/_base.scss */
+/* line 348, ../sass/_base.scss */
 i.icon-sort {
   background: url("../../../images/icons/sort.png") 0 0 no-repeat;
   height: 25px;
   width: 20px;
 }
 
-/* line 336, ../sass/_base.scss */
+/* line 354, ../sass/_base.scss */
 i.icon-join-large {
   background: url("../../../images/icons/join-large.png") 0 0 no-repeat;
   height: 37px;
@@ -486,7 +507,7 @@ i.icon-join-large {
   display: block;
 }
 
-/* line 343, ../sass/_base.scss */
+/* line 361, ../sass/_base.scss */
 i.icon-login-large {
   background: url("../../../images/icons/login-large.png") 0 0 no-repeat;
   height: 37px;
@@ -494,21 +515,21 @@ i.icon-login-large {
   display: block;
 }
 
-/* line 350, ../sass/_base.scss */
+/* line 368, ../sass/_base.scss */
 i.icon-help {
   background: url("../../../images/icons/help.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 356, ../sass/_base.scss */
+/* line 374, ../sass/_base.scss */
 i.icon-issues {
   background: url("../../../images/icons/issues.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 362, ../sass/_base.scss */
+/* line 380, ../sass/_base.scss */
 i.icon-messages {
   background: url("../../../images/icons/messages.png") 0 0 no-repeat;
   height: 22px;
@@ -516,11 +537,11 @@ i.icon-messages {
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 371, ../sass/_base.scss */
+  /* line 389, ../sass/_base.scss */
   .content-panel {
     margin-bottom: 20px;
   }
-  /* line 374, ../sass/_base.scss */
+  /* line 392, ../sass/_base.scss */
   .content-panel.panel-header {
     margin-bottom: 5px;
   }

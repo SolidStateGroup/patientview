@@ -258,6 +258,24 @@ ul {
     font-size:0.85rem;
 }
 
+/** TODO add this in more appropriate place **/
+
+.showHideText {
+    font-size: 16px;
+    line-height: 16px;
+    height: 35px;
+    overflow: hidden;
+}
+.show {
+    overflow: visible;
+    height: auto;
+    min-height: 35px;
+}
+
+.showHideLink {
+    font-size: 16px;
+}
+
 /** temporary icons stuff **/
 
 .hero-icon {
