@@ -22,6 +22,17 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
+        getPublicNews: function (page, size) {
+            var deferred = $q.defer();
+            // GET /news/public?page=0&size=5
+            // returns page
+            Restangular.one('news').one('public').get({'page': page, 'size': size}).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getNewsLinksFromGroupsRoles: function (groups, roles) {
             var i, newsLink, newsLinks = [];
 

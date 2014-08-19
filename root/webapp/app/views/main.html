@@ -1,3 +1,18 @@
+<!-- TODO: put in style -->
+<style>
+    .showHideText {
+        font-size: 16px;
+        line-height: 16px;
+        height: 35px;
+        overflow: hidden;
+    }
+    .show {
+        overflow: visible;
+        height: auto;
+        min-height: 35px;
+    }
+</style>
+        
 <div class="hero-panel">
     <div class="hero-pane col-md-4 aquamarine">
         <div class="pane-content">
@@ -23,10 +38,13 @@
 </div>
 <div class="page-content">
     <div class="content-area">
-        <h2>About Patient View <a href="#/joinrequest"><button class="btn blue"><i class="icon-join pull-left"></i> I want to join</button></a></h2>
-        <p>Maecenas convallis augue vitae dui gravida, at scelerisque orci vestibulum. Integer nisl nulla, mattis vitae dolor lacinia, aliquam ullamcorper velit. Duis tempor nisi sit amet nisl pharetra, sed tempus mauris varius.
-            Fusce magna tellus, aliquet gravida purus nec, tincidunt tempor risus. Duis dictum aliquet dui et rhoncus. Duis dictum aliquet dui et rhoncus.
-            Curabitur eleifend erat arcu, eget euismod dolor ullamcorper a. Sed gravida est leo, at porttitor arcu convallis nec. </p>
+        <h2>About Patient View</h2>
+        <p>PatientView shows your latest test results, plus info about diagnosis and treatment. You can view it from
+            anywhere you want, and share your information with anyone you want.</p>
+        <p>Your local unit or health organisation must have joined.  PatientView started out as a service for kidney
+            patients in the UK, but can now work for others too.</p>
+        <p>Information comes directly from existing records, for example hospital and GP records, or may be entered
+            directly or via other apps. Secure messaging functionality is included.</p>
     </div>
     <div class="row">
         <div class="user-info col-md-4">
@@ -35,13 +53,12 @@
             </div>
             <div class="content-panel">
                 <div class="content-inner">
-                    <h4>Why should you join?</h4>
-                    <h5>subheading</h5>
+                    <h4>Joining PatientView</h4>
+                    <!--<h5>subheading</h5>-->
                     <ul>
-                        <li>something</li>
-                        <li>something</li>
-                        <li>something</li>
-                        <li>something</li>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to/where.php" target="_blank">Can I join?</a></li>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to.php" target="_blank">What can it do?</a></li>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to.php" target="_blank">How do I?</a></li>
                     </ul>
                 </div>
                 <div class="panel-footer">
@@ -56,16 +73,12 @@
             <div class="content-panel">
                 <div class="content-inner">
                     <h4>What do I need to know?</h4>
-                    <h5>subheading</h5>
+                    <!--<h5>subheading</h5>-->
                     <ul>
-                        <li>something</li>
-                        <li>something</li>
-                        <li>something</li>
-                        <li>something</li>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to/become-a-partner.php" target="_blank">Become a partner</a></li>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to/set-up-patientview.php" target="_blank">Add us to an existing specialty</a></li>
+                        <li><a href="http://www.rixg.org/patientview/pages/admin/links-policy.php" target="_blank">Our info link policy</a></li>
                     </ul>
-                </div>
-                <div class="panel-footer">
-                    <a href="#/joinrequest"><button class="btn blue"> <i class="icon-join pull-left"></i> I want to join</button></a>
                 </div>
             </div>
         </div>
@@ -73,23 +86,22 @@
             <div class="panel-header content-panel lowlight">
                 <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
             </div>
-            <ul class="unstyled">
-                <li class="news-item content-panel">
+            <ul class="unstyled" ng-show="newsItems">
+                <li class="news-item content-panel" ng-repeat="news in newsItems | orderBy: '-created'">
                     <div class="content-inner">
-                        <span class="badge aqua pull-right">PUB</span>
-                        <p>News item</p>
+                        <h4>{{news.heading}}</h4>
+                        <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                        <div>
+                            <div class="showHideText" ng-class="{show: show}" ng-bind-html="parseHTMLText(news.story)"></div>
+                            <a href="" class="showHideLink" ng-click="show = true" ng-show="!show">show more</a><a href="" class="showHideLink" ng-click="show = false" ng-show="show">show less</a>
+                        </div>
                     </div>
                 </li>
+            </ul>
+            <ul class="unstyled" ng-hide="newsItems">
                 <li class="news-item content-panel">
                     <div class="content-inner">
-                        <span class="badge blue pull-right">REN</span>
-                        <p>News item</p>
-                    </div>
-                </li>
-                <li class="news-item content-panel">
-                    <div class="content-inner">
-                        <span class="badge aqua pull-right">PUB</span>
-                        <p>News item</p>
+                        <h4>No Current News</h4>
                     </div>
                 </li>
             </ul>

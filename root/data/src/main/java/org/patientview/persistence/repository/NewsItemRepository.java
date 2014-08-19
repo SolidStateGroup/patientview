@@ -39,4 +39,10 @@ public interface NewsItemRepository extends CrudRepository<NewsItem, Long> {
             "JOIN pg.groupRoles pgr " +
             "WHERE pgr.user = :user AND grl.relationshipType = 'PARENT'")
     public Page<NewsItem> findSpecialtyNewsByUser(@Param("user") User user, Pageable pageable);
+
+    @Query("SELECT DISTINCT n FROM NewsItem n " +
+            "JOIN n.newsLinks l " +
+            "JOIN l.role r " +
+            "WHERE r.name = 'PUBLIC'")
+    Page<NewsItem> getPublicNews(Pageable pageable);
 }
