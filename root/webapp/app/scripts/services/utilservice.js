@@ -89,7 +89,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         generateMonths: function () {
             var months = [];
-            for (var i=1;i<=13;i++) {
+            for (var i=1;i<=12;i++) {
                 months.push(i);
             }
             return months;
