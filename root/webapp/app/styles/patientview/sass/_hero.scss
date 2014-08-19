@@ -1,0 +1,51 @@
+/** hero pane **/
+
+.hero-panel {
+    background: url('../../../images/hero-bg.png') 0 0 no-repeat;
+    background-size: cover;
+    width: 100%;
+    height: 430px;
+    margin-top: 20px;
+
+    .hero-pane {
+        height: 100%;
+        color: $white;
+
+        &.aquamarine {
+            @include bootstrap-color-opacity($aquamarine, 70);
+        }
+
+        &.aqua {
+            @include bootstrap-color-opacity($aqua, 70);
+        }
+
+        &.blue {
+            @include bootstrap-color-opacity($primary, 70);
+        }
+
+        .pane-content{
+            text-align: center;
+            margin:25% 0;
+            font-weight:100;
+            font-size:2.5rem;
+
+            h2{
+                font-size:7rem;
+            }
+        }
+    }
+}
+
+/** todo BELOW SMALL DESKTOP - review potential need for mobile design **/
+@media only screen
+and (max-width : 1024px) {
+    .hero-panel{
+        height:auto;
+
+        .hero-pane{
+            .pane-content{
+                margin:0;
+            }
+        }
+    }
+}
