@@ -125,6 +125,40 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                 }
             };
         },
+        getForgottenPasswordRoute: function() {
+            return {
+                'url': '/forgottenpassword',
+                'templateUrl': 'views/forgottenpassword.html',
+                'controller': 'ForgottenPasswordCtrl',
+                'title': 'Forgotten Password',
+                'lookup': {
+                    'id': 101,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
+        getContactUnitRoute: function() {
+            return {
+                'url': '/contactunit',
+                'templateUrl': 'views/contactunit.html',
+                'controller': 'ContactUnitCtrl',
+                'title': 'Contact Unit',
+                'lookup': {
+                    'id': 102,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
         getRoutes: function (uuid) {
             var deferred = $q.defer();
             Restangular.all('security').one('user', uuid).customGET('routes').then(function (res) {

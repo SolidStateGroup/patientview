@@ -53,4 +53,6 @@ public interface UserService extends CrudService<User> {
     void addFeature(Long userId, Long featureId);
 
     void deleteFeature(Long userId, Long featureId);
+
+    void resetPasswordByUsernameAndEmail(String username, String email) throws ResourceNotFoundException;
 }

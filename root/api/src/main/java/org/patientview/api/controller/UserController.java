@@ -271,4 +271,5 @@ public class UserController extends BaseController<UserController> {
         userService.deleteFeature(userId, featureId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 }

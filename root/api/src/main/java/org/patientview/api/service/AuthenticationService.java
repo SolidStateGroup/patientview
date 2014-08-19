@@ -22,4 +22,5 @@ public interface AuthenticationService extends UserDetailsService {
     UserToken getToken(String token);
 
     void logout(String token) throws AuthenticationServiceException;
+
 }

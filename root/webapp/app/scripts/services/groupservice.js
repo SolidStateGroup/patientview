@@ -66,10 +66,8 @@ function ($q, Restangular, UtilService) {
             var group = UtilService.cleanObject(inputGroup, 'group');
 
             // PUT /group
-            Restangular.all('group').customPUT(group).then(function(successResult) {
+            Restangular.all('group').put(group).then(function(successResult) {
                 deferred.resolve(successResult);
-                successResult.parentGroups = successResult.parents;
-                successResult.childGroups = successResult.children;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
@@ -262,6 +260,19 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },        // save join request
+        contactUnit: function (groupId, unitRequest) {
+
+            unitRequest = UtilService.cleanObject(unitRequest, 'unitRequest');
+
+            var deferred = $q.defer();
+            Restangular.all('group/' + groupId + '/contactunit').customPOST(unitRequest).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
+
     };
 }]);

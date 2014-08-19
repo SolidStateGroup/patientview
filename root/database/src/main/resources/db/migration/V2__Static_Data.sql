@@ -99,13 +99,13 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (9, 4, 14);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 4, 1,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (2, 22, 14,  '/messages', 'views/messages.html','MessagesCtrl', 'Messages', now(), 1 );
+  (2, 22, 19,  '/messages', 'views/messages.html','MessagesCtrl', 'Messages', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (3, 3, 1,  '/settings', 'views/settings.html','SettingsCtrl', 'Settings', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (4, 3, 1,  '/feedback', 'views/feedback.html','FeedbackCtrl', 'Feedback', now(), 1 );
+  (4, 3, 17,  '/feedback', 'views/feedback.html','FeedbackCtrl', 'Feedback', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (5, 3, 1,  '/help', 'views/help.html','HelpCtrl', 'Help', now(), 1 );
+  (5, 22, 18,  '/help', 'views/help.html','HelpCtrl', 'Help', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (6, 4, 2,  '/mydetails', 'views/mydetails.html','MydetailsCtrl', 'My Details', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
@@ -178,6 +178,10 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
   (21, 17, null, 4, null, now(), 1 );
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (22, 17, null, 5, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (23, 5, 1, null, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (24, 4, 1, null, null, now(), 1 );
 
 
 INSERT INTO PV_User_Token(Id, User_Id, Token, Creation_Date) VALUES

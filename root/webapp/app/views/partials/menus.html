@@ -32,22 +32,18 @@
                 </ul>
             </div>
             <ul class="nav-utils pull-right inline hidden-xs" ng-hide="!authToken" ng-cloak>
-                <li>
-                    <a href="/issues">
+                <li ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'" >
+                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Feedback'">
                         <i class="icon-issues"></i>
-                        issues
+                        Issues
                     </a>
-                </li>
-                <li>
-                    <a href="/help">
+                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Help'">
                         <i class="icon-help"></i>
-                        Help
+                        {{menuitem.title}}
                     </a>
-                </li>
-                <li ng-repeat="menuitem in routes | menuFilter:'NAV'" >
-                    <a ng-href="#{{menuitem.url}}">
+                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Messages'">
                         <i class="icon-messages"></i>
-                        {{menuitem.title}} <span ng-show="menuitem.title === 'Messages' && unreadConversationCount > 0" class="badge badge-tiny warning">{{unreadConversationCount}}</span>
+                        {{menuitem.title}} <span ng-show="unreadConversationCount > 0" class="badge badge-tiny warning">{{unreadConversationCount}}</span>
                     </a>
                 </li>
             </ul>
@@ -59,9 +55,10 @@
             <div ng-hide="!authToken" ng-cloak>
                 <ul class="secondary-nav nav nav-pills pull-left">
                     <li ng-repeat="menuitem in routes | menuFilter:'TOP'" >
-                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}
-                            <span ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="badge badge-small warning">{{submittedJoinRequestCount}}</span>
-                        </a>
+                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a>
+                        <div ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0">
+                            <span class="label label-warning">{{submittedJoinRequestCount}}</span>
+                        </div>
                     </li>
                 </ul>
             </div>

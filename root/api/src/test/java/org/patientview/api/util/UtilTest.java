@@ -85,17 +85,17 @@ public class UtilTest {
         GroupStatisticTO groupStatisticTO = (GroupStatisticTO) groupStatisticTOs.toArray()[0];
 
         // Make sure the count is set to ten for all the properties
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatients() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfUniqueLogons() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfImportFails() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfImportLoads() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfLogons() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfUniqueLogons() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPasswordChanges() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfAccountLocks() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientViews() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientRemoves() == BigInteger.TEN);
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientDeletes() == BigInteger.TEN);
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatients().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfUniqueLogons().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfImportFails().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfImportLoads().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfLogons().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfUniqueLogons().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPasswordChanges().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfAccountLocks().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientViews().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientRemoves().equals(BigInteger.TEN));
+        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientDeletes().equals(BigInteger.TEN));
 
 
     }
