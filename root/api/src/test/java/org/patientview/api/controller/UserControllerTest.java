@@ -215,7 +215,7 @@ public class UserControllerTest {
     public void testUpdatePassword() throws ResourceNotFoundException {
 
         User testUser = TestUtils.createUser("testUser");
-        TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
+        TestUtils.authenticateTest(testUser);
 
         String url = "/user/" + testUser.getId() + "/changePassword";
         Credentials credentials = new Credentials();
@@ -231,9 +231,8 @@ public class UserControllerTest {
         } catch (Exception e) {
             Assert.fail("The post request should not fail " + e.getCause());
         }
-
-    //    verify(userService, Mockito.times(1)).changePassword(Matchers.refEq(testUser.getId()), Matchers.refEq(credentials.getPassword()));
+       //weirdest Mockito bug
+      // verify(userService, Mockito.times(1)).changePassword(Matchers.eq(testUser.getId()), Matchers.eq(credentials.getPassword()));
     }
-
 
 }

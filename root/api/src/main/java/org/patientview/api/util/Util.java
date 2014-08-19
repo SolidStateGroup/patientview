@@ -217,5 +217,6 @@ public class Util {
 
         return (User) authentication.getPrincipal();
     }
+
 }
 
