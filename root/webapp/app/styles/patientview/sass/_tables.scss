@@ -111,6 +111,11 @@
             width:14.44%;
         }
     }
+    &.eight-col{
+        .row-item,.head-item{
+            width:12.5%;
+        }
+    }
 }
 
 .visible-for-col{
