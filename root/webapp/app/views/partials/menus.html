@@ -32,13 +32,11 @@
                 </ul>
             </div>
             <ul class="nav-utils pull-right inline hidden-xs" ng-hide="!authToken" ng-cloak>
-                <li>
-                    <a href="/issues">
+                <li ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'" >
+                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Feedback'">
                         <i class="icon-issues"></i>
-                        issues
+                        Issues
                     </a>
-                </li>
-                <li ng-repeat="menuitem in routes | menuFilter:'NAV'" >
                     <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Help'">
                         <i class="icon-help"></i>
                         {{menuitem.title}}
