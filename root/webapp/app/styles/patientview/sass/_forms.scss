@@ -1,6 +1,9 @@
 /** form styles **/
 
-input[type="text"], input[type="password"], .group-select{
+input[type="text"],
+input[type="password"],
+select,
+.group-select{
     background:$inputbg;
     border:1px solid $border-default;
     @include bootstrap-box-shadow(none);
@@ -20,7 +23,7 @@ input[type="text"], input[type="password"], .group-select{
 }
 
 select.form-control{
-    height:40px;
+    height:35px;
 }
 
 label{
@@ -93,7 +96,7 @@ label{
 
         button{
             background:transparent;
-            color:$light-grey;
+            color:$textlight;
             position:relative;
             height:34px;
             padding:0 50px 0 10px;
