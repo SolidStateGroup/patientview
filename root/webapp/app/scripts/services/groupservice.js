@@ -260,6 +260,19 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },        // save join request
+        contactUnit: function (groupId, unitRequest) {
+
+            unitRequest = UtilService.cleanObject(unitRequest, 'unitRequest');
+
+            var deferred = $q.defer();
+            Restangular.all('group/' + groupId + '/contactunit').customPOST(unitRequest).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
+
     };
 }]);

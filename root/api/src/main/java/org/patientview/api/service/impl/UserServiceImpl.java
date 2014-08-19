@@ -7,6 +7,7 @@ import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -293,6 +294,29 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 userRepository.findOne(userId), featureRepository.findOne(featureId)));
     }
 
+    // Forgotten Password
+    public void resetPasswordByUsernameAndEmail(String username, String email) throws ResourceNotFoundException {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find account");
+        }
+
+        if (user.getEmail().equalsIgnoreCase(email)) {
+            user.setChangePassword(Boolean.TRUE);
+
+            // Set the new password
+            user.setPassword(CommonUtils.getAuthtoken());
+            emailService.sendEmail(getForgottenPassword(user));
+            // Hash the password
+            user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+
+            userRepository.save(user);
+        } else {
+            throw new ResourceNotFoundException("Could not find account");
+        }
+
+    }
+
     private User findUser(Long userId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -300,4 +324,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         return user;
     }
+
+    private Email getForgottenPassword(User user) {
+        Email email = new Email();
+        email.setRecipients(new String[]{user.getEmail()});
+
+        StringBuilder body = new StringBuilder();
+        body.append("Your password has been reset\n");
+        body.append("Your new password is :").append(user.getPassword()).append("\n");
+        email.setBody(body.toString());
+        email.setSubject("PatientView - Password Reset");
+        return email;
+    }
+
 }

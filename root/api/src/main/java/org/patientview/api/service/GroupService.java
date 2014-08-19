@@ -1,6 +1,8 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.AuditTrail;
+import org.patientview.api.controller.model.UnitRequest;
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
@@ -62,4 +64,5 @@ public interface GroupService {
 
     void deleteFeature(Long groupId, Long featureId);
 
+    void contactUnit(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException, ResourceInvalidException;
 }
