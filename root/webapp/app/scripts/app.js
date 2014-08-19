@@ -153,9 +153,32 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
         }
     };
 
+    var stripScripts = function (s) {
+        var div = document.createElement('div');
+        div.innerHTML = s;
+        var scripts = div.getElementsByTagName('script');
+        var i = scripts.length;
+        while (i--) {
+            scripts[i].parentNode.removeChild(scripts[i]);
+        }
+        return div.innerHTML;
+    };
+
     // global function to parse HTML (used in messaging, news)
     $rootScope.parseHTMLText = function (text) {
         if (text) {
+            // strip <script> (otherwise htmlClean crashes)
+            text = stripScripts(text);
+
+            // https://github.com/components/jquery-htmlclean
+            // clean html to remove all but certain tags
+            var htmlCleanOptions = {
+                allowedTags: ['strong','a','h1','h2','h3','h4','h5']
+            };
+
+            text = $.htmlClean(text, htmlCleanOptions);
+
+            // trust as html
             return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
         }
     };
