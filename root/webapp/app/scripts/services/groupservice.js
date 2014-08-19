@@ -66,10 +66,8 @@ function ($q, Restangular, UtilService) {
             var group = UtilService.cleanObject(inputGroup, 'group');
 
             // PUT /group
-            Restangular.all('group').customPUT(group).then(function(successResult) {
+            Restangular.all('group').put(group).then(function(successResult) {
                 deferred.resolve(successResult);
-                successResult.parentGroups = successResult.parents;
-                successResult.childGroups = successResult.children;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });

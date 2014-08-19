@@ -83,6 +83,33 @@ public class NewsItemRepositoryTest {
      *
      */
     @Test
+    public void testGetPublicNews() {
+
+        // Create a news item
+        NewsItem newsItem = new NewsItem();
+        newsItem.setCreator(creator);
+        newsItem.setCreated(new Date());
+
+        NewsLink newsLink = new NewsLink();
+        newsLink.setCreator(creator);
+        newsLink.setCreated(new Date());
+        newsLink.setRole(dataTestUtils.createRole(RoleName.PUBLIC, RoleType.STAFF));
+        newsLink.setNewsItem(newsItem);
+
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+        newsItem.getNewsLinks().add(newsLink);
+
+        newsItemRepository.save(newsItem);
+
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        Page<NewsItem> newsItems = newsItemRepository.getPublicNews(pageable);
+
+        // Which should get 1 route back and it should be the one that was created
+        Assert.assertEquals("There should be 1 news item available", 1, newsItems.getContent().size());
+        Assert.assertTrue("The news item should be the one created", newsItems.getContent().get(0).equals(newsItem));
+    }
+
+    @Test
     public void testGetGroupNewsByUser() {
 
         // Create a news item

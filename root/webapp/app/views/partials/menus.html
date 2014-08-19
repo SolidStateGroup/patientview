@@ -26,19 +26,14 @@
                         issues
                     </a>
                 </li>
-                <li>
-                    <a href="/help">
-                        <i class="icon-help"></i>
-                        Help
-                    </a>
-                </li>
                 <li ng-repeat="menuitem in routes | menuFilter:'NAV'" >
-                    <a ng-href="#{{menuitem.url}}">
-                        <i class="icon-messages"></i>
+                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Help'">
+                        <i class="icon-help"></i>
                         {{menuitem.title}}
                     </a>
-                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Messages' && unreadConversationCount > 0">
-                        <span class="label label-warning">{{unreadConversationCount}}</span>
+                    <a ng-href="#{{menuitem.url}}" ng-show="menuitem.title === 'Messages'">
+                        <i class="icon-messages"></i>
+                        {{menuitem.title}} <span ng-show="unreadConversationCount > 0" class="label label-warning">{{unreadConversationCount}}</span>
                     </a>
                 </li>
             </ul>

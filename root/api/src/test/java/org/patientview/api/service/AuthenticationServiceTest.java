@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +18,12 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +58,16 @@ public class AuthenticationServiceTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        // mock request, used when authenticating and getting request remote IP address
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        ServletRequestAttributes attributes = new ServletRequestAttributes(request);
+        RequestContextHolder.setRequestAttributes(attributes);
+    }
+
+    @After
+    public void cleanUp() {
+        RequestContextHolder.resetRequestAttributes();
     }
 
     /**
@@ -70,14 +84,14 @@ public class AuthenticationServiceTest {
         user.setPassword(DigestUtils.sha256Hex(password));
         user.setEmailVerified(true);
         user.setLocked(Boolean.FALSE);
+
         try {
             when(userRepository.findByUsername(any(String.class))).thenReturn(user);
             authenticationService.authenticate(user.getUsername(), password);
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            Assert.fail("This call should not fail: " + e.getMessage());
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -96,7 +110,6 @@ public class AuthenticationServiceTest {
         userToken.setExpiration(new Date());
         userToken.setCreated(new Date());
 
-
         Authentication authenticationToken = new PreAuthenticatedAuthenticationToken(testToken, testToken);
 
         when(userTokenRepository.findByToken(eq(testToken))).thenReturn(userToken);
@@ -110,7 +123,6 @@ public class AuthenticationServiceTest {
 
         Assert.assertTrue("The authentication objects should now be authenticated", authentication.isAuthenticated());
         Assert.assertNotNull("The principal should not be null", authentication.getPrincipal());
-
     }
 
     /**
@@ -130,7 +142,6 @@ public class AuthenticationServiceTest {
 
         authenticationService.authenticate(authenticationToken);
         Assert.fail("An service exception should  been raised");
-
     }
 
     /**
@@ -186,7 +197,6 @@ public class AuthenticationServiceTest {
 
         when(userRepository.findByUsername(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), password);
-
     }
 
     /**
@@ -207,5 +217,4 @@ public class AuthenticationServiceTest {
         when(userRepository.findByUsername(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), "NotThePasswordWanted");
     }
-
 }
