@@ -77,6 +77,11 @@
             word-break: break-word;
             font-family: 'Lato', sans-serif;
 
+            span{
+                display:block;
+                float:right;
+            }
+
 
             &.actions{
                 text-align:center;
@@ -109,6 +114,11 @@
     &.seven-col{
         .row-item,.head-item{
             width:14.44%;
+        }
+    }
+    &.eight-col{
+        .row-item,.head-item{
+            width:12.5%;
         }
     }
 }

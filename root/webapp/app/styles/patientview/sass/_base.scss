@@ -55,11 +55,21 @@ body {
         padding: 10px;
     }
 
+    .intro-block{
+        padding:15px;
+    }
+
     .panel-footer {
         background: $lowlight;
         border-top: 1px solid $border-default;
         width: 100%;
         padding: 0 0 15px 0;
+    }
+}
+
+.row aside{
+    &>h3{
+        margin-top:0;
     }
 }
 
@@ -152,6 +162,31 @@ ul {
         display:block;
         margin:5px auto;
     }
+
+    &.warning{
+        background-color:#ffbc3c;
+    }
+    &.completed{
+        background-color:#3dcd4e;
+    }
+    &.ignored{
+        background-color:$error;
+    }
+}
+
+.badge-small{
+    height: 18px;
+    width: 18px;
+    line-height: 12px;
+    padding: 3px;
+}
+
+.badge-tiny{
+    height: 12px;
+    width: 12px;
+    line-height: 8px;
+    padding: 3px;
+    font-size: 0.75rem;
 }
 
 /** buttons **/
@@ -171,6 +206,10 @@ ul {
     i{
 //        margin-right:10px;
     }
+}
+
+.button-dropdown-group .dropdown > button {
+    height:34px;
 }
 
 /** generic color styles **/
@@ -311,4 +350,6 @@ and (max-width : 1024px) {
             margin-bottom:5px;
         }
     }
+
+
 }
