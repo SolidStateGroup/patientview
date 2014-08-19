@@ -55,10 +55,9 @@
             <div ng-hide="!authToken" ng-cloak>
                 <ul class="secondary-nav nav nav-pills pull-left">
                     <li ng-repeat="menuitem in routes | menuFilter:'TOP'" >
-                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}</a>
-                        <div ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0">
-                            <span class="label label-warning">{{submittedJoinRequestCount}}</span>
-                        </div>
+                        <a ng-href="#{{menuitem.url}}">{{menuitem.title}}
+                            <span ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="badge badge-small warning">{{submittedJoinRequestCount}}</span>
+                        </a>
                     </li>
                 </ul>
             </div>
