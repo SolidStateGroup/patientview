@@ -37,6 +37,7 @@ var patientviewApp = angular.module('patientviewApp', [
     'restangular',          // restangular rest
     'ui.bootstrap',         // angular ui boostrap
     'ngSanitize',           // angular sanitize for more html parsing
+    'googlechart',          // angular-google-chart https://github.com/bouil/angular-google-chart
     'ngCookies',
     'ngResource',
     'ngSanitize',

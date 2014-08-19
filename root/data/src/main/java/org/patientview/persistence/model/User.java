@@ -87,11 +87,14 @@ public class User extends RangeModel implements UserDetails {
 
     @Column(name = "last_login")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
+    //@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private Date lastLogin;
 
     @Column(name = "contact_number")
     private String contactNumber;
+
+    @Column(name = "last_login_ip_address")
+    private String lastLoginIpAddress;
 
     public String getUsername() {
         return username;
@@ -279,6 +282,14 @@ public class User extends RangeModel implements UserDetails {
 
     public void setFailedLogonAttempts(final Integer failedLogonAttempts) {
         this.failedLogonAttempts = failedLogonAttempts;
+    }
+
+    public String getLastLoginIpAddress() {
+        return lastLoginIpAddress;
+    }
+
+    public void setLastLoginIpAddress(String lastLoginIpAddress) {
+        this.lastLoginIpAddress = lastLoginIpAddress;
     }
 
     @JsonIgnore
