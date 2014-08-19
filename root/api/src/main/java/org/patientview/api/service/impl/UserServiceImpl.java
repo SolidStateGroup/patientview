@@ -293,25 +293,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 userRepository.findOne(userId), featureRepository.findOne(featureId)));
     }
 
-    public Long countLockedUsersByGroup(Long groupId) throws ResourceNotFoundException {
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
-        }
-
-        return userRepository.countLockedUsersByGroup(group);
-    }
-
-    public Long countInactiveUsersByGroup(Long groupId) throws ResourceNotFoundException {
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
-        }
-
-        return userRepository.countInactiveUsersByGroup(group, DateUtils.addMonths(new Date(), -1), new Date()) +
-                userRepository.countNeverLoggedInUsersByGroup(group) ;
-    }
-
     private User findUser(Long userId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {

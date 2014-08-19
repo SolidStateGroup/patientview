@@ -10,8 +10,6 @@ function (UserService, $scope, GroupService, NewsService) {
 
         if(newValue !== undefined) {
             GroupService.getStatistics(newValue).then(function (data) {
-                $scope.statistics = data;
-
                 var chart1 = {};
                 chart1.type = 'LineChart';
                 chart1.data = [['date', 'Patients', 'Unique Logons', 'Logons']];
@@ -24,6 +22,11 @@ function (UserService, $scope, GroupService, NewsService) {
                     row[3] = data[i].countOfLogons;
                     chart1.data.push(row);
                 }
+
+                // get most recent statistics of user locked and inactive
+                $scope.statisticsDate = data[0].endDate;
+                $scope.lockedUsers = data[0].countOfUserLocked;
+                $scope.inactiveUsers = data[0].countOfUserInactive;
 
                 chart1.data = new google.visualization.arrayToDataTable(chart1.data);
 
@@ -55,21 +58,8 @@ function (UserService, $scope, GroupService, NewsService) {
                 };
 
                 chart1.formatters = {};
-
                 $scope.chart = chart1;
                 $scope.chartLoading = false;
-            });
-
-            UserService.countLockedUsersByGroup(newValue).then(function(lockedUsers) {
-                $scope.lockedUsers = lockedUsers;
-            }, function () {
-                alert('Error retrieving locked user count');
-            });
-
-            UserService.countInactiveUsersByGroup(newValue).then(function(inactiveUsers) {
-                $scope.inactiveUsers = inactiveUsers;
-            }, function () {
-                alert('Error retrieving inactive user count');
             });
         }
     });

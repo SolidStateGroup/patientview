@@ -38,27 +38,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "JOIN u.groupRoles gr " +
            "WHERE gr.role.id IN :roleIds AND gr.group.id IN :groupIds ")
     Iterable<User> findByGroupsAndRoles(@Param("groupIds") List<Long> groupIds, @Param("roleIds") List<Long> roleIds);
-
-    @Query("SELECT count(u) " +
-           "FROM User u " +
-           "JOIN u.groupRoles gr " +
-           "WHERE gr.group = :group " +
-           "AND u.locked = true")
-    Long countLockedUsersByGroup(@Param("group") Group group);
-
-    @Query("SELECT count(u) " +
-           "FROM User u " +
-           "JOIN u.groupRoles gr " +
-           "WHERE gr.group = :group " +
-           "AND NOT (u.lastLogin BETWEEN :leftDate AND :rightDate) " +
-           "AND u.lastLogin IS NOT NULL")
-    Long countInactiveUsersByGroup(@Param("group") Group group, @Param("leftDate") Date leftDate,
-                                   @Param("rightDate") Date rightDate);
-
-    @Query("SELECT count(u) " +
-           "FROM User u " +
-           "JOIN u.groupRoles gr " +
-           "WHERE gr.group = :group " +
-           "AND u.lastLogin IS NULL")
-    Long countNeverLoggedInUsersByGroup(@Param("group") Group group);
 }

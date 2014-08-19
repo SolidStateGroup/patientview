@@ -271,18 +271,4 @@ public class UserController extends BaseController<UserController> {
         userService.deleteFeature(userId, featureId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/group/{groupId}/lockedusers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Long> getLockedUsers(@PathVariable("groupId") Long groupId)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(userService.countLockedUsersByGroup(groupId), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/inactiveusers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Long> getInactiveUsers(@PathVariable("groupId") Long groupId)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(userService.countInactiveUsersByGroup(groupId), HttpStatus.OK);
-    }
 }

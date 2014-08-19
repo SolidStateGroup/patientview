@@ -53,8 +53,4 @@ public interface UserService extends CrudService<User> {
     void addFeature(Long userId, Long featureId);
 
     void deleteFeature(Long userId, Long featureId);
-
-    Long countLockedUsersByGroup(Long groupId) throws ResourceNotFoundException;
-
-    Long countInactiveUsersByGroup(Long groupId) throws ResourceNotFoundException;
 }

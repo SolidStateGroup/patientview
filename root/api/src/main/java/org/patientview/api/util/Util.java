@@ -134,6 +134,12 @@ public class Util {
                 case REMOVE_PATIENT_COUNT:
                     groupStatisticTO.setCountOfPatientRemoves(groupStatistic.getValue());
                     break;
+                case INACTIVE_USER_COUNT:
+                    groupStatisticTO.setCountOfUserInactive(groupStatistic.getValue());
+                    break;
+                case LOCKED_USER_COUNT:
+                    groupStatisticTO.setCountOfUserLocked(groupStatistic.getValue());
+                    break;
             }
         }
         return groupStatisticTOs.values();
