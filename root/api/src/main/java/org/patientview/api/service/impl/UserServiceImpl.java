@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;

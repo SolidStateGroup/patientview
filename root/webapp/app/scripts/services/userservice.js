@@ -226,6 +226,28 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Count the number of locked users in a group
+        countLockedUsersByGroup: function (groupId) {
+            var deferred = $q.defer();
+            // GET /group/{groupId}/lockedusers
+            Restangular.one('group', groupId).one('lockedusers').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Count the number of inactive users in a group
+        countInactiveUsersByGroup: function (groupId) {
+            var deferred = $q.defer();
+            // GET /group/{groupId}/inactiveusers
+            Restangular.one('group', groupId).one('inactiveusers').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);
