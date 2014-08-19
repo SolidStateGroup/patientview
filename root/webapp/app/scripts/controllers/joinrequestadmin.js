@@ -10,11 +10,15 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
 
     JoinRequestService.getByUser($rootScope.loggedInUser.id).then(function(data) {
         $scope.joinRequests = $scope.initRequests(data);
-
     });
 
     $scope.filter = function (status) {
-        JoinRequestService.getByType($rootScope.loggedInUser.id, status).then(function(data) {
+
+        if (status === 'All') {
+            $scope.refresh();
+        }
+
+        JoinRequestService.getByStatus($rootScope.loggedInUser.id, selectedStatus).then(function(data) {
             $scope.joinRequests = $scope.initRequests(data);
         });
     },
@@ -24,6 +28,14 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
         JoinRequestService.save(joinRequest);
         $scope.saved = true;
         $rootScope.setSubmittedJoinRequestCount();
+        // once saved requery the join requests
+
+    },
+
+    $scope.refresh = function() {
+        JoinRequestService.getByUser($rootScope.loggedInUser.id).then(function(data) {
+            $scope.joinRequests = $scope.initRequests(data);
+        });
     },
 
     $scope.initRequests = function(requests) {
@@ -31,6 +43,23 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
             request.newStatus = request.status;
         });
         return requests;
+    };
+
+    // filter join request by status
+    $scope.selectedStatus = [];
+    $scope.setSelectStatus = function (status) {
+        $scope.selectedStatus.push(status);
+        JoinRequestService.getByStatus($rootScope.loggedInUser.id, $scope.selectedStatus).then(function(data) {
+            $scope.joinRequests = $scope.initRequests(data);
+        });
+
+        return false;
+    };
+    $scope.isStatusChecked = function (status) {
+        if (_.contains($scope.selectedStatus, status)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
     };
 
 }]);
