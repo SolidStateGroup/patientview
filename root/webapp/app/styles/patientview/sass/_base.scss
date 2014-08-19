@@ -152,6 +152,17 @@ ul {
         display:block;
         margin:5px auto;
     }
+
+    &.warning{
+        background-color:#ffbc3c;
+    }
+}
+
+.badge-small{
+    height: 18px;
+    width: 18px;
+    line-height: 12px;
+    padding: 3px;
 }
 
 /** buttons **/
@@ -311,4 +322,6 @@ and (max-width : 1024px) {
             margin-bottom:5px;
         }
     }
+
+
 }
