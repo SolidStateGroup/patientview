@@ -147,7 +147,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         entityGroup.setCode(group.getCode());
         entityGroup.setName(group.getName());
-        entityGroup.setGroupType(group.getGroupType());
+        entityGroup.setGroupType(lookupRepository.findOne(group.getGroupType().getId()));
         entityGroup.setSftpUser(group.getSftpUser());
         entityGroup.setAddress1(group.getAddress1());
         entityGroup.setAddress2(group.getAddress2());
