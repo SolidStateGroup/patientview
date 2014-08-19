@@ -1,6 +1,10 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.controller.model.Email;
+import org.patientview.api.controller.model.UnitRequest;
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.ContactPoint;
@@ -13,7 +17,7 @@ import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.repository.ContactPointRepository;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -35,7 +39,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,6 +85,9 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     private GroupRoleRepository groupRoleRepository;
 
     @Inject
+    private EmailService emailService;
+
+    @Inject
     private EntityManager entityManager;
 
 
@@ -106,8 +113,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public List<Group> findGroupAndChildGroupsByUser(User user) {
-
-        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
         Set<Group> groups = new HashSet<Group>();
         // get list of groups associated with user directly (user is member of group)
         groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(user)));
@@ -363,8 +368,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public void deleteChildGroup(Long groupId, Long childGroupId) {
-        Lookup parentRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "PARENT");
-        Lookup childRelationshipType = lookupRepository.findByTypeAndValue(LookupTypes.RELATIONSHIP_TYPE, "CHILD");
         Group sourceGroup = groupRepository.findOne(groupId);
         Group objectGroup = groupRepository.findOne(childGroupId);
 
@@ -416,7 +419,59 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     }
 
+    public void contactUnit(Long groupId, UnitRequest unitRequest)
+            throws ResourceNotFoundException, ResourceInvalidException {
+        Group group = findGroup(groupId);
+
+        Email email = createPasswordResetEmail(unitRequest, group);
+        ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
+
+        if (contactPoint == null) {
+            throw new ResourceInvalidException("Unable to find contact email for unit");
+        } else {
+            email.setRecipients(new String[]{contactPoint.getContent()});
+        }
+        emailService.sendEmail(email);
+
+    }
+
     public void delete(Long id){
         LOG.info("Not Implemented");
     }
+
+    private Group findGroup(Long groupId) throws ResourceNotFoundException {
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
+        }
+        return group;
+    }
+
+    //Sprint 3 - velocity templates
+    private Email createPasswordResetEmail(UnitRequest unitRequest, Group group) {
+        Email email = new Email();
+        email.setSubject("PatientView - Request for password reset");
+
+        StringBuilder body = new StringBuilder();
+        body.append("The following user would like to request a password rest");
+        body.append("Forename: ").append(unitRequest.getForename());
+        body.append("Surname: ").append(unitRequest.getSurname());
+        body.append("DOB: ").append(unitRequest.getDateOfBirth());
+        body.append("NHS Number: ").append(unitRequest.getNhsNumber());
+        body.append("Associated Unit: ").append(group.getName());
+
+        email.setBody(body.toString());
+
+        return email;
+    }
+
+    private static ContactPoint getContactPoint(Collection<ContactPoint> contactPoints, ContactPointTypes contactPointTypes) {
+        for (ContactPoint contactPoint: contactPoints) {
+            if (contactPoint.getContactPointType().getValue().equals(contactPointTypes)) {
+                return contactPoint;
+            }
+        }
+        return null;
+    }
 }
+

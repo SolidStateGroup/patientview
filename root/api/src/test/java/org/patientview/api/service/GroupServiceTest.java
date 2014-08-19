@@ -10,8 +10,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
+import org.patientview.api.controller.model.Email;
+import org.patientview.api.controller.model.UnitRequest;
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupServiceImpl;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
@@ -19,6 +23,7 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -38,11 +43,13 @@ import org.springframework.util.CollectionUtils;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,6 +59,9 @@ import static org.mockito.Mockito.when;
  * Created on 09/07/2014
  */
 public class GroupServiceTest {
+
+    @Mock
+    EmailService emailService;
 
     @Mock
     private UserRepository userRepository;
@@ -403,5 +413,69 @@ public class GroupServiceTest {
         verify(groupRepository, Mockito.times(1)).findChildren(eq(testGroup));
         Assert.assertFalse("There should be child objects", CollectionUtils.isEmpty(childGroups));
 
+    }
+
+    /**
+     * Test: Contact Unit functionality.
+     * Fail: Doesnt send an email of any type
+     */
+    @Test
+    public void testContactUnit() throws Exception {
+        UnitRequest unitRequest = new UnitRequest();
+        unitRequest.setNhsNumber("234234234");
+        unitRequest.setDateOfBirth(new Date());
+        unitRequest.setForename("forename");
+        unitRequest.setSurname("surname");
+
+        Group group = TestUtils.createGroup("TestGroup");
+        group.setContactPoints(new HashSet<ContactPoint>());
+        group.getContactPoints().add(TestUtils.createContactPoint("83", ContactPointTypes.PV_ADMIN_EMAIL));
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        groupService.contactUnit(group.getId(), unitRequest);
+
+        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+    }
+
+    /**
+     * Test: Contact Unit functionality with no email address
+     * Fail: Doesnt raise an exception
+     */
+    @Test(expected = ResourceInvalidException.class)
+    public void testContactUnit_NotContactEmail() throws Exception {
+        UnitRequest unitRequest = new UnitRequest();
+        unitRequest.setNhsNumber("234234234");
+        unitRequest.setDateOfBirth(new Date());
+        unitRequest.setForename("forename");
+        unitRequest.setSurname("surname");
+
+        Group group = TestUtils.createGroup("TestGroup");
+        group.setContactPoints(new HashSet<ContactPoint>());
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        groupService.contactUnit(group.getId(), unitRequest);
+
+        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
+    }
+
+    /**
+     * Test: Contact Unit functionality with a valid unit
+     * Fail: Doesnt raise an exception
+     */
+    @Test(expected = ResourceNotFoundException.class)
+    public void testContactUnit_NoGroupExists() throws Exception {
+        UnitRequest unitRequest = new UnitRequest();
+        unitRequest.setNhsNumber("234234234");
+        unitRequest.setDateOfBirth(new Date());
+        unitRequest.setForename("forename");
+        unitRequest.setSurname("surname");
+
+        Group group = TestUtils.createGroup("TestGroup");
+        group.setContactPoints(new HashSet<ContactPoint>());
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
+        groupService.contactUnit(group.getId(), unitRequest);
+
+        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
     }
 }

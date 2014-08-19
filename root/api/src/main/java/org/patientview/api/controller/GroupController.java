@@ -1,6 +1,8 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.controller.model.GroupStatisticTO;
+import org.patientview.api.controller.model.UnitRequest;
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
@@ -258,4 +260,15 @@ public class GroupController extends BaseController<GroupController> {
         Collection<GroupStatisticTO> groupStatisticTO = Util.convertGroupStatistics(groupStatisticService.getMonthlyGroupStatistics(groupId));
         return new ResponseEntity<>(groupStatisticTO, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/group/{groupId}/contactunit", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Void> contactUnit(@PathVariable("groupId") Long groupId,
+                                            @RequestBody UnitRequest unitRequest)
+            throws ResourceNotFoundException, ResourceInvalidException {
+        groupService.contactUnit(groupId, unitRequest);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
 }

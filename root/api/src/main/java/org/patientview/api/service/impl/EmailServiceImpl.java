@@ -27,14 +27,11 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
         msg.setSubject(email.getSubject());
         msg.setText(email.getBody());
 
-        // send
-        try{
+        try {
             javaMailSender.send(msg);
             return true;
-        }
-        catch (MailException ex) {
+        } catch (MailException ex) {
             // todo: temporarily return true even if email failed
-            // (requires git submodule setup for smtp.password from external file
             return true;
         }
     }

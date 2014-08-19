@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
+import org.patientview.api.controller.model.Email;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.persistence.model.Feature;
@@ -35,6 +36,7 @@ import org.patientview.test.util.TestUtils;
 import javax.persistence.EntityManager;
 import java.util.HashSet;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,6 +73,9 @@ public class UserServiceTest {
 
     @Mock
     private IdentifierRepository identifierRepository;
+
+    @Mock
+    private EmailService emailService;
 
     @Mock
     private EntityManager entityManager;
@@ -178,6 +183,60 @@ public class UserServiceTest {
         userService.changePassword(user.getId(), password);
         verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
         Assert.assertTrue("The user now has the change password flag set", !user.getChangePassword());
+    }
+
+    /**
+     * Test: Update a user with a new password and set the change flag.
+     * Fail: Does not find the Resource
+     * @throws ResourceNotFoundException
+     */
+    @Test
+    public void testGetUserByUsernameAndPassword() throws ResourceNotFoundException {
+        String email = "forgotten@email.co.uk";
+        User user = TestUtils.createUser("testForgottenPassword");
+        user.setEmail(email);
+        when(userRepository.findByUsername(eq(user.getUsername()))).thenReturn(user);
+        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail());
+
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+        verify(userRepository, Mockito.times(1)).save(eq(user));
+        Assert.assertTrue("The set change password is set", user.getChangePassword() == Boolean.TRUE);
+    }
+
+    /**
+     * Test: Update a user with a new password but the user's email is wrong
+     * Fail: Does not throw an exception
+     */
+    @Test(expected = ResourceNotFoundException.class)
+    public void testGetUserByUsernameAndPassword_WrongEmail() throws ResourceNotFoundException {
+        String email = "forgotten@email.co.uk";
+        User user = TestUtils.createUser("testForgottenPassword");
+        user.setEmail(email);
+        when(userRepository.findByUsername(eq(user.getUsername()))).thenReturn(user);
+
+        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail");
+
+        verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
+        verify(userRepository, Mockito.times(0)).save(eq(user));
+        Assert.assertTrue("The set change password is set", user.getChangePassword() == Boolean.TRUE);
+    }
+
+    /**
+     * Test: Update a user with a new password but the username does not exist
+     * Fail: Does not throw an exception
+     */
+    @Test(expected = ResourceNotFoundException.class)
+    public void testGetUserByUsernameAndPassword_WrongUsername() throws ResourceNotFoundException {
+        String email = "forgotten@email.co.uk";
+        User user = TestUtils.createUser("testForgottenPassword");
+        user.setEmail(email);
+        when(userRepository.findByUsername(eq(user.getUsername()))).thenReturn(null);
+
+        userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail");
+
+        verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
+        verify(userRepository, Mockito.times(0)).save(eq(user));
+        Assert.assertTrue("The set change password is set", user.getChangePassword() == Boolean.TRUE);
     }
 
 }

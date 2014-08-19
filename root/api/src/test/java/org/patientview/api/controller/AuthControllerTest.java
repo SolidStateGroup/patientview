@@ -5,11 +5,15 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.controller.model.Credentials;
+import org.patientview.api.controller.model.ForgottenCredentials;
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AuthenticationService;
+import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.UserToken;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,6 +35,9 @@ public class AuthControllerTest {
 
     @Mock
     private AuthenticationService authenticationService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private AuthController authController;
@@ -72,6 +79,33 @@ public class AuthControllerTest {
     }
 
 
+    /**
+     * Test: The url for resetting a password from a Username and Email
+     * Fail: The service method is not called
+     *
+     */
+    @Test
+    public void testForgottenPassword() throws ResourceNotFoundException {
+
+        ForgottenCredentials forgottenCredentials = new ForgottenCredentials();
+        forgottenCredentials.setEmail("rememberedEmail");
+        forgottenCredentials.setUsername("rememberedUsername");
+
+        String url = "/auth/forgottenpassword";
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post(url)
+                    .content(mapper.writeValueAsString(forgottenCredentials)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("The post request should not fail " + e.getCause());
+        }
+
+        verify(userService, Mockito.times(1))
+                .resetPasswordByUsernameAndEmail(
+                        Matchers.eq(forgottenCredentials.getUsername()), Matchers.eq(forgottenCredentials.getEmail()));
+
+    }
 
 
 }

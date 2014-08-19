@@ -1,6 +1,8 @@
 package org.patientview.test.util;
 
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
@@ -19,6 +21,7 @@ import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
@@ -49,7 +52,6 @@ import java.util.Set;
  */
 public final class TestUtils {
 
-    //TODO Sprint 3 factor this into the methods to reduce parameters
     final static User creator;
 
     static {creator = createUser("testCreator");}
@@ -250,7 +252,7 @@ public final class TestUtils {
     }
 
     public static void authenticateTest(User user, RoleName... roleNames) {
-        Set<GrantedAuthority> authorities = new HashSet<>();
+        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
 
         Group group = createGroup("AuthenticationGroup");
         for (RoleName roleName : roleNames) {
@@ -261,7 +263,7 @@ public final class TestUtils {
     }
 
     public static void authenticateTest(User user, Collection<GroupRole> groupRoles) {
-        Set<GrantedAuthority> authorities = new HashSet<>();
+        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
         for (GroupRole groupRole : groupRoles) {
             authorities.add(groupRole);
         }
@@ -316,6 +318,22 @@ public final class TestUtils {
         joinRequest.setNhsNumber("234234234");
         joinRequest.setDateOfBirth(new Date());
         return joinRequest;
-
     }
+
+    public static ContactPoint createContactPoint(String value, ContactPointTypes contactPointTypes) {
+        ContactPointType contactPointType = new ContactPointType();
+        contactPointType.setId(getId());
+        contactPointType.setLookupType(createLookupType(LookupTypes.CONTACT_POINT_TYPE));
+        contactPointType.setValue(contactPointTypes);
+
+        ContactPoint contactPoint = new ContactPoint();
+        contactPoint.setContent(value);
+        contactPoint.setContactPointType(contactPointType);
+        contactPoint.setId(getId());
+        contactPoint.setCreated(new Date());
+        contactPoint.setCreator(creator);
+
+        return contactPoint;
+    }
+
 }

@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.SecurityAspect;
+import org.patientview.api.controller.model.UnitRequest;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
@@ -35,6 +36,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Date;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -310,6 +312,31 @@ public class GroupControllerTest {
         }
 
         verify(groupStatisticService, Mockito.times(1)).getMonthlyGroupStatistics(eq(group.getId()));
+
+    }
+
+    /**
+     * Test: The submission of a password reset object to the controller
+     * Fail: The password reset object is not passed to the service
+     */
+    @Test
+    public void testContactUnit() {
+
+        UnitRequest unitRequest = new UnitRequest();
+        unitRequest.setForename("Test");
+        unitRequest.setSurname("User");
+        unitRequest.setDateOfBirth(new Date());
+        unitRequest.setNhsNumber("ASDASDA");
+        Long groupId = 2L;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/contactunit")
+                    .content(mapper.writeValueAsString(unitRequest)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+            verify(groupService, Mockito.times(1)).contactUnit(eq(groupId), any(UnitRequest.class));
+        } catch (Exception e) {
+            Assert.fail("This call should not fail");
+        }
 
     }
 
