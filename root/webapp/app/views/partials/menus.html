@@ -47,7 +47,7 @@
                 <li ng-repeat="menuitem in routes | menuFilter:'NAV'" >
                     <a ng-href="#{{menuitem.url}}">
                         <i class="icon-messages"></i>
-                        {{menuitem.title}} <span ng-show="menuitem.title === 'Messages' && unreadConversationCount > 0" class="label label-warning">{{unreadConversationCount}}</span>
+                        {{menuitem.title}} <span ng-show="menuitem.title === 'Messages' && unreadConversationCount > 0" class="badge badge-tiny warning">{{unreadConversationCount}}</span>
                     </a>
                 </li>
             </ul>

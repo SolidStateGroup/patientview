@@ -287,8 +287,17 @@ ul .news-item {
   padding: 3px;
 }
 
+/* line 168, ../sass/_base.scss */
+.badge-tiny {
+  height: 12px;
+  width: 12px;
+  line-height: 8px;
+  padding: 3px;
+  font-size: 0.75rem;
+}
+
 /** buttons **/
-/* line 170, ../sass/_base.scss */
+/* line 178, ../sass/_base.scss */
 .btn {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -299,81 +308,81 @@ ul .news-item {
   min-width: 34px;
   line-height: 20px;
 }
-/* line 178, ../sass/_base.scss */
+/* line 186, ../sass/_base.scss */
 .btn:hover {
   color: white;
 }
 
 /** generic color styles **/
-/* line 189, ../sass/_base.scss */
+/* line 197, ../sass/_base.scss */
 .blue {
   background-color: #368de8;
 }
 
-/* line 192, ../sass/_base.scss */
+/* line 200, ../sass/_base.scss */
 .aquamarine {
   background-color: #00aa9e;
 }
 
-/* line 195, ../sass/_base.scss */
+/* line 203, ../sass/_base.scss */
 .negative {
   background-color: #ef2643;
 }
 
 /* text classes */
-/* line 201, ../sass/_base.scss */
+/* line 209, ../sass/_base.scss */
 .light-text {
   color: #768696;
 }
 
-/* line 204, ../sass/_base.scss */
+/* line 212, ../sass/_base.scss */
 .sub-text {
   font-size: 0.85rem;
 }
 
 /** temporary icons stuff **/
-/* line 210, ../sass/_base.scss */
+/* line 218, ../sass/_base.scss */
 .hero-icon {
   display: block;
   margin: 0 auto;
 }
 
-/* line 215, ../sass/_base.scss */
+/* line 223, ../sass/_base.scss */
 i.icon-hero-manage {
   background: url("../../../images/icons/hero-manage.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 221, ../sass/_base.scss */
+/* line 229, ../sass/_base.scss */
 i.icon-hero-monitor {
   background: url("../../../images/icons/hero-monitor.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 227, ../sass/_base.scss */
+/* line 235, ../sass/_base.scss */
 i.icon-hero-make {
   background: url("../../../images/icons/hero-make.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 233, ../sass/_base.scss */
+/* line 241, ../sass/_base.scss */
 i.icon-search-black {
   background: url("../../../images/icons/search-black.png") 0 0 no-repeat;
   height: 36px;
   width: 36px;
 }
 
-/* line 239, ../sass/_base.scss */
+/* line 247, ../sass/_base.scss */
 i.icon-account {
   background: url("../../../images/icons/account.png") 0 0 no-repeat;
   height: 32px;
   width: 32px;
 }
 
-/* line 245, ../sass/_base.scss */
+/* line 253, ../sass/_base.scss */
 i.icon-organisations {
   background: url("../../../images/icons/organisations.png") 0 0 no-repeat;
   height: 22px;
@@ -381,7 +390,7 @@ i.icon-organisations {
   margin-top: 7px;
 }
 
-/* line 252, ../sass/_base.scss */
+/* line 260, ../sass/_base.scss */
 i.icon-news {
   background: url("../../../images/icons/news.png") 0 0 no-repeat;
   height: 22px;
@@ -389,35 +398,35 @@ i.icon-news {
   margin-top: 7px;
 }
 
-/* line 259, ../sass/_base.scss */
+/* line 267, ../sass/_base.scss */
 i.icon-patients {
   background: url("../../../images/icons/patients.png") 0 0 no-repeat;
   height: 27px;
   width: 17px;
 }
 
-/* line 265, ../sass/_base.scss */
+/* line 273, ../sass/_base.scss */
 i.icon-join {
   background: url("../../../images/icons/join.png") 0 0 no-repeat;
   height: 24px;
   width: 22px;
 }
 
-/* line 271, ../sass/_base.scss */
+/* line 279, ../sass/_base.scss */
 i.icon-reply {
   background: url("../../../images/icons/reply-icon.png") 0 0 no-repeat;
   height: 15px;
   width: 16px;
 }
 
-/* line 277, ../sass/_base.scss */
+/* line 285, ../sass/_base.scss */
 i.icon-sort {
   background: url("../../../images/icons/sort.png") 0 0 no-repeat;
   height: 25px;
   width: 20px;
 }
 
-/* line 283, ../sass/_base.scss */
+/* line 291, ../sass/_base.scss */
 i.icon-join-large {
   background: url("../../../images/icons/join-large.png") 0 0 no-repeat;
   height: 37px;
@@ -425,7 +434,7 @@ i.icon-join-large {
   display: block;
 }
 
-/* line 290, ../sass/_base.scss */
+/* line 298, ../sass/_base.scss */
 i.icon-login-large {
   background: url("../../../images/icons/login-large.png") 0 0 no-repeat;
   height: 37px;
@@ -433,21 +442,21 @@ i.icon-login-large {
   display: block;
 }
 
-/* line 297, ../sass/_base.scss */
+/* line 305, ../sass/_base.scss */
 i.icon-help {
   background: url("../../../images/icons/help.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 303, ../sass/_base.scss */
+/* line 311, ../sass/_base.scss */
 i.icon-issues {
   background: url("../../../images/icons/issues.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 309, ../sass/_base.scss */
+/* line 317, ../sass/_base.scss */
 i.icon-messages {
   background: url("../../../images/icons/messages.png") 0 0 no-repeat;
   height: 22px;
@@ -455,11 +464,11 @@ i.icon-messages {
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 318, ../sass/_base.scss */
+  /* line 326, ../sass/_base.scss */
   .content-panel {
     margin-bottom: 20px;
   }
-  /* line 321, ../sass/_base.scss */
+  /* line 329, ../sass/_base.scss */
   .content-panel.panel-header {
     margin-bottom: 5px;
   }
@@ -564,20 +573,14 @@ i.icon-messages {
 .nav-pills.secondary-nav li {
   margin-left: 0;
 }
-/* line 101, ../sass/_nav.scss */
-.nav-pills.secondary-nav li .badge {
-  position: absolute;
-  top: 1px;
-  right: 1px;
-}
 
-/* line 109, ../sass/_nav.scss */
+/* line 103, ../sass/_nav.scss */
 .footer {
   background: white;
   height: 50px;
   position: relative;
 }
-/* line 114, ../sass/_nav.scss */
+/* line 108, ../sass/_nav.scss */
 .footer .brand {
   opacity: 0.5;
   filter: alpha(opacity=50);
@@ -585,28 +588,28 @@ i.icon-messages {
   width: 300px;
   line-height: 40px;
 }
-/* line 120, ../sass/_nav.scss */
+/* line 114, ../sass/_nav.scss */
 .footer .brand img {
   height: 50%;
   width: 50%;
 }
-/* line 127, ../sass/_nav.scss */
+/* line 121, ../sass/_nav.scss */
 .footer .legal-links li {
   line-height: 40px;
   padding: 0 10px;
   font-size: 1.25rem;
   color: #959595;
 }
-/* line 133, ../sass/_nav.scss */
+/* line 127, ../sass/_nav.scss */
 .footer .legal-links li a {
   font-size: 1.25rem;
   color: #959595;
 }
-/* line 137, ../sass/_nav.scss */
+/* line 131, ../sass/_nav.scss */
 .footer .legal-links li a:hover {
   color: #368de8;
 }
-/* line 145, ../sass/_nav.scss */
+/* line 139, ../sass/_nav.scss */
 .footer p {
   font-size: 1.75rem;
   color: #959595;
@@ -615,11 +618,11 @@ i.icon-messages {
   top: 25%;
 }
 
-/* line 154, ../sass/_nav.scss */
+/* line 148, ../sass/_nav.scss */
 .nav-utils {
   height: 70px;
 }
-/* line 156, ../sass/_nav.scss */
+/* line 150, ../sass/_nav.scss */
 .nav-utils li {
   width: 70px;
   margin-left: -2px;
@@ -627,7 +630,7 @@ i.icon-messages {
   background: #f8f8f8;
   border-left: 1px solid #e4e9f0;
 }
-/* line 162, ../sass/_nav.scss */
+/* line 156, ../sass/_nav.scss */
 .nav-utils li a {
   height: 100%;
   width: 100%;
@@ -636,40 +639,40 @@ i.icon-messages {
   color: #959595;
   text-decoration: none;
 }
-/* line 170, ../sass/_nav.scss */
+/* line 164, ../sass/_nav.scss */
 .nav-utils li a i {
   display: block;
   margin: 20px auto 0;
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 181, ../sass/_nav.scss */
+  /* line 175, ../sass/_nav.scss */
   .navbar-header {
     position: relative;
   }
-  /* line 184, ../sass/_nav.scss */
+  /* line 178, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav {
     position: absolute;
     top: 5px;
     right: 10px;
   }
-  /* line 191, ../sass/_nav.scss */
+  /* line 185, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li a {
     text-align: right;
   }
 
-  /* line 200, ../sass/_nav.scss */
+  /* line 194, ../sass/_nav.scss */
   .navbar-brand img {
     height: 50%;
     width: 50%;
   }
-  /* line 204, ../sass/_nav.scss */
+  /* line 198, ../sass/_nav.scss */
   .navbar-brand img.sub-brand {
     width: 15%;
     height: 15%;
   }
 
-  /* line 211, ../sass/_nav.scss */
+  /* line 205, ../sass/_nav.scss */
   .nav-account {
     display: none;
   }
