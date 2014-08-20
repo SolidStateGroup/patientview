@@ -114,6 +114,43 @@ ol.inline {
   text-align: center;
 }
 
+/** todo revise james' css **/
+/* line 101, ../sass/_utils.scss */
+input.ng-pristine + ul#strength {
+  display: none;
+}
+
+/* line 104, ../sass/_utils.scss */
+ul#strength {
+  display: inline;
+  list-style: none;
+  margin: 0;
+  margin-left: 15px;
+  padding: 0;
+  vertical-align: 2px;
+}
+
+/* line 112, ../sass/_utils.scss */
+.point:last {
+  margin: 0 !important;
+}
+
+/* line 115, ../sass/_utils.scss */
+.point {
+  background: #DDD;
+  border-radius: 2px;
+  display: inline-block;
+  height: 5px;
+  margin-right: 1px;
+  width: 20px;
+}
+
+/* line 123, ../sass/_utils.scss */
+#footer {
+  position: fixed;
+  bottom: 5px;
+}
+
 /* line 1, ../sass/_base.scss */
 html {
   font-family: 'Lato', sans-serif;
@@ -366,8 +403,8 @@ ul .news-item {
 }
 
 /* line 237, ../sass/_base.scss */
-.button-dropdown-group button span {
-  margin-left: 8px;
+.button-dropdown-group button span, .btn-group button span {
+  margin-left: 4px;
 }
 
 /* line 242, ../sass/_base.scss */
@@ -811,7 +848,7 @@ i.icon-messages {
   padding: 0;
 }
 /* line 48, ../sass/_tables.scss */
-.faux-table .accordion-group .panel-collapse .btn {
+.faux-table .accordion-group .panel-collapse button {
   line-height: 20px;
   min-height: 30px;
 }
@@ -1205,7 +1242,7 @@ label {
   padding-left: 10px;
 }
 /* line 236, ../sass/_forms.scss */
-.radio-button-list li {
+.radio-button-list .btn {
   background: #e0e0e0;
   color: #585858;
   -webkit-border-radius: 0;
@@ -1214,43 +1251,57 @@ label {
   border-left: 1px solid #c3c3c3;
   line-height: 15px;
   white-space: normal;
+  word-spacing: 999999px;
+  width: 58px;
+  font-size: 1.2rem;
 }
-/* line 244, ../sass/_forms.scss */
-.radio-button-list li:first-child {
+/* line 247, ../sass/_forms.scss */
+.radio-button-list .btn:first-child {
   border-left: 0;
 }
-/* line 248, ../sass/_forms.scss */
-.radio-button-list li .active, .radio-button-list li:hover {
+/* line 251, ../sass/_forms.scss */
+.radio-button-list .btn .active, .radio-button-list .btn:hover {
   background: #00adc6;
   border-left: 1px solid #039288;
   -webkit-box-shadow: 0;
   -moz-box-shadow: 0;
   box-shadow: 0;
 }
-/* line 254, ../sass/_forms.scss */
-.radio-button-list li.btn {
-  line-height: 15px;
-}
 
-/* line 261, ../sass/_forms.scss */
+/* line 260, ../sass/_forms.scss */
 .select-add-group select {
-  width: 50%;
+  width: 65%;
   float: left;
   height: 40px;
 }
-/* line 267, ../sass/_forms.scss */
+/* line 266, ../sass/_forms.scss */
 .select-add-group .group-list-item {
   width: auto;
   float: left;
+  clear: left;
+}
+/* line 271, ../sass/_forms.scss */
+.select-add-group .group-list-item .radio-button-list {
+  padding-left: 0;
+  margin-top: 10px;
+}
+/* line 275, ../sass/_forms.scss */
+.select-add-group .group-list-item .radio-button-list li.active {
+  background: #00adc6;
+}
+/* line 281, ../sass/_forms.scss */
+.select-add-group button {
+  float: left;
+  margin-top: 10px;
 }
 
-/* line 273, ../sass/_forms.scss */
+/* line 287, ../sass/_forms.scss */
 .group-add-button, .feature-add-button {
   height: 40px;
   margin-left: 10px;
 }
 
-/* line 279, ../sass/_forms.scss */
+/* line 293, ../sass/_forms.scss */
 .add-feature select {
   float: left;
   width: 80%;

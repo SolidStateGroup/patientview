@@ -1,6 +1,6 @@
 <ul class="radio-button-list" data-toggle="buttons">
     <!--<ul class="btn-group btn-group-sm btn-group-{{type}} btn-group-{{description}}" data-toggle="buttons">-->
-    <li class="btn btn-info"
+    <li class="btn btn-info role-{{option.id}}"
            ng-repeat="option in options"
            ng-class="{active:option.id==model.buttongroup_id}"
            ng-click="activate(option.id)" data-Id="{{option.id}}"><input type="radio"></input>{{option.description}}</li>
