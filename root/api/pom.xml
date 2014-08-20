@@ -7,12 +7,12 @@
     <parent>
         <artifactId>root</artifactId>
         <groupId>org.patientview</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1-RELEASE</version>
     </parent>
 
     <groupId>org.patientview.api</groupId>
     <artifactId>api</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1-RELEASE</version>
     <packaging>war</packaging>
     <name>api</name>
     <url>http://maven.apache.org</url>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>data</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.1-RELEASE</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>data</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.1-RELEASE</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
