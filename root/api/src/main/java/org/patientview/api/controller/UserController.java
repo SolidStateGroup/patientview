@@ -60,8 +60,8 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<Void> addUserGroupRole(@PathVariable("userId") Long userId,
-                                                      @PathVariable("groupId") Long groupId,
-                                                      @PathVariable("roleId") Long roleId) {
+                                                 @PathVariable("groupId") Long groupId,
+                                                 @PathVariable("roleId") Long roleId) {
         groupService.addGroupRole(userId, groupId, roleId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -69,8 +69,8 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Void> deleteUserGroupRole(@PathVariable("userId") Long userId,
-                                                      @PathVariable("groupId") Long groupId,
-                                                      @PathVariable("roleId") Long roleId) {
+                                                    @PathVariable("groupId") Long groupId,
+                                                    @PathVariable("roleId") Long roleId) {
         groupService.deleteGroupRole(userId, groupId, roleId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -103,7 +103,7 @@ public class UserController extends BaseController<UserController> {
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public  ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
+    public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
         userService.delete(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -114,7 +114,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user,
                                            @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword,
-                                                   UriComponentsBuilder uriComponentsBuilder) throws ResourceNotFoundException {
+                                           UriComponentsBuilder uriComponentsBuilder) throws ResourceNotFoundException {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.get(1L));
@@ -123,8 +123,7 @@ public class UserController extends BaseController<UserController> {
         if (encryptPassword != null && encryptPassword.equals(Boolean.FALSE)) {
             try {
                 user = userService.createUserNoEncryption(user);
-            }
-            catch (EntityExistsException eee) {
+            } catch (EntityExistsException eee) {
                 User foundUser = userService.getByUsername(user.getUsername());
                 if (foundUser != null) {
                     // found by username
@@ -201,7 +200,7 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> changePassword(@PathVariable("userId") Long userId,
-                                              @RequestBody Credentials credentials) throws ResourceNotFoundException {
+                                               @RequestBody Credentials credentials) throws ResourceNotFoundException {
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
             LOG.debug("A password must be supplied");
@@ -226,7 +225,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Boolean> verify(@PathVariable("userId") Long userId,
                                           @PathVariable("verificationCode") String verificationCode)
-    throws ResourceNotFoundException {
+            throws ResourceNotFoundException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, verificationCode);
         return new ResponseEntity<>(userService.verify(userId, verificationCode), HttpStatus.OK);
     }
@@ -250,7 +249,7 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Identifier> addIdentifier(@PathVariable("userId") Long userId,
-                                          @RequestBody Identifier identifier)
+                                                    @RequestBody Identifier identifier)
             throws ResourceNotFoundException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, identifier);
         return new ResponseEntity<>(userService.addIdentifier(userId, identifier), HttpStatus.CREATED);

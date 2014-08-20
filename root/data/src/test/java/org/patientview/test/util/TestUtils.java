@@ -272,7 +272,7 @@ public final class TestUtils {
     }
 
     public static void authenticateTest(User user) {
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), Collections.EMPTY_SET);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
