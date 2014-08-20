@@ -175,7 +175,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
             // https://github.com/components/jquery-htmlclean
             // clean html to remove all but certain tags
             var htmlCleanOptions = {
-                'allowedTags': ['strong','a','h1','h2','h3','h4','h5']
+                'allowedTags': ['strong','a','b','i','u','h1','h2','h3','h4','h5']
             };
 
             text = $.htmlClean(text, htmlCleanOptions);
