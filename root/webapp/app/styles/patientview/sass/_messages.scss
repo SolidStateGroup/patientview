@@ -33,6 +33,14 @@
             padding-top:0;
         }
     }
+
+    .delete-news{
+        a{
+            background:$error;
+            color:$white;
+            height:72px;
+        }
+    }
 }
 
 .message-summary{
