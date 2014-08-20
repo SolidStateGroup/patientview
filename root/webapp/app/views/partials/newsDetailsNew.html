@@ -9,12 +9,12 @@
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
-            <label for="news-story" class="control-label">Story <span class="error" ng-show="newsFormNew.story.$error.required && !newsFormNew.$pristine"> *required</span></label>
+            <label for="news-story" class="control-label">Article <span class="error" ng-show="newsFormNew.story.$error.required && !newsFormNew.$pristine"> *required</span></label>
             <div class=""><textarea class="form-control" id="news-story" placeholder="Story" name="story" ng-model="newNews.story" required /></div>
         </div>
     </div>
 </div>
-<div ng-include src="'views/partials/htmlHelp.html'"></div>
+<div ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">

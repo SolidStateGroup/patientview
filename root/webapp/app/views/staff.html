@@ -1,11 +1,11 @@
 <div class="hider" ng-show="status.open"></div>
 
-<div class="" ng-show="!loading" ng-cloak>
+<div>
     <h1>Staff <button class="btn blue" ng-click="openModalNewStaff('lg')">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
-    <div ng-show="!fatalErrorMessage" ng-cloak>
+    <div ng-show="!fatalErrorMessage && !loading" ng-cloak>
         <!-- new staff modal -->
         <script type="text/ng-template" id="newStaffModal.html">
             <div class="modal-header">

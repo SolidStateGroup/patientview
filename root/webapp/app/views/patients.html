@@ -1,11 +1,11 @@
 <div class="hider" ng-show="status.open"></div>
 
-<div class="" ng-show="!loading" ng-cloak>
+<div>
     <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
-    <div ng-show="!fatalErrorMessage" ng-cloak>
+    <div ng-show="!fatalErrorMessage && !loading" ng-cloak>
         <!-- new patient modal -->
         <script type="text/ng-template" id="newPatientModal.html">
             <div class="modal-header">
@@ -148,7 +148,7 @@
                             <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
                             <div class="row-item accordion-heading-text">DOB</div>
                             <div class="row-item accordion-heading-text">
-                                <ul class="unstyled">
+                                <ul class="unstyled patient-groups">
                                     <li ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']">
                                         <span ng-if="groupRole.role.name !== 'MEMBER'">
                                             {{groupRole.group.name}}

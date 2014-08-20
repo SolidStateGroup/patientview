@@ -16,6 +16,7 @@ import java.util.Properties;
 @Configuration
 public class CommonConfig {
 
+
     private static String environment;
 
     static {
@@ -23,6 +24,7 @@ public class CommonConfig {
         if (environment == null) {
             throw new RuntimeException("Please specify an environment by using -Denv=local");
         }
+        System.out.println("Using environment variables for " + environment);
     }
 
     @Bean(name = "properties")

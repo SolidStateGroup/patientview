@@ -73,7 +73,7 @@
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="Address" name="newLocationAddress" ng-model="editGroup.newLocation.address"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="Web" name="newLocationWeb" ng-model="editGroup.newLocation.web"></div>
         <div class="col-md-2"><input type="email" class="form-control" id="group-newLocation-email" placeholder="Email" name="newLocationEmail" ng-model="editGroup.newLocation.email"> <span ng-show="groupFormNew.newLocationEmail.$error.email"> Invalid</span></div>
-        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupFormNew, editGroup, editGroup.newLocation)" ng-disabled="!(editGroup.newLocation.label && editGroup.newLocation.name && !groupFormNew.newLocationEmail.$error.email)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupFormNew, editGroup, editGroup.newLocation)" ng-disabled="!(editGroup.newLocation.label && editGroup.newLocation.name && !groupFormNew.newLocationEmail.$error.email)">Add</button></div>
     </div>
 </div>
         
@@ -92,7 +92,7 @@
     <div class="add-form" ng-model="newContactPoint">
         <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" ng-model="newContactPoint.contactPointTypeId" ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" ng-model="newContactPoint.content"></div>
-        <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" ng-click="addContactPoint(groupFormNew, editGroup, newContactPoint)" ng-disabled="!(newContactPoint.content)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+        <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" ng-click="addContactPoint(groupFormNew, editGroup, newContactPoint)" ng-disabled="!(newContactPoint.content)">Add</button></div>
     </div>
 </div>    
         
@@ -122,7 +122,7 @@
                     <option >{{editGroup.links.length + 1}}</option>
                 </select>
             </div>
-            <button type="button" class="btn blue link-add-button" ng-click="addLink(groupFormNew, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)"><i class="glyphicon glyphicon-plus-sign"></i></button></div>
+            <button type="button" class="btn blue link-add-button" ng-click="addLink(groupFormNew, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
         </div>
     </div>
 </div>
@@ -145,7 +145,7 @@
                 <select class="form-control feature-select group-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editGroup.availableFeatures"></select>
                 <!--<span class="caret-container"><span class="caret"></span></span>-->
             </div>
-            <button type="button" class="btn blue feature-add-button pull-left" ng-click="addFeature(groupFormNew, editGroup, featureToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
+            <button type="button" class="btn blue feature-add-button pull-left" ng-click="addFeature(groupFormNew, editGroup, featureToAdd)">Add</button>
         </div>
     </div>
 </div>
@@ -170,7 +170,7 @@
                 <select class="form-control parent-group-select group-select" ng-model="parentGroupToAdd" ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select>
                 <!--<span class="caret-container"><span class="caret"></span></span>-->
             </div>
-            <button type="button" class="btn blue parent-group-add-button pull-left" ng-click="addParentGroup(groupFormNew, editGroup, parentGroupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
+            <button type="button" class="btn blue parent-group-add-button pull-left" ng-click="addParentGroup(groupFormNew, editGroup, parentGroupToAdd)">Add</button>
         </div>
     </div>
     <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['SPECIALTY']">
@@ -187,7 +187,7 @@
                 <select class="form-control child-group-select group-select" ng-model="childGroupToAdd" ng-options="childGroup.id as childGroup.name for childGroup in editGroup.availableChildGroups"></select>
                 <!--<span class="caret-container"><span class="caret"></span></span>-->
             </div>
-            <button type="button" class="btn blue child-group-add-button pull-left" ng-click="addChildGroup(groupFormNew, editGroup, childGroupToAdd)"><i class="glyphicon glyphicon-plus-sign"></i></button>
+            <button type="button" class="btn blue child-group-add-button pull-left" ng-click="addChildGroup(groupFormNew, editGroup, childGroupToAdd)">Add</button>
         </div>
     </div>
 </div>
