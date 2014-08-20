@@ -2,8 +2,8 @@
 
 
 // new news modal instance controller
-var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$sce', '$modalInstance', 'GroupService', 'RoleService', 'NewsService', 'permissions',
-    function ($scope, $rootScope, $sce, $modalInstance, GroupService, RoleService, NewsService, permissions) {
+var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'NewsService', 'permissions',
+    function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsService, permissions) {
         var i, group, newsLink = {};
 
         $scope.modalLoading = true;
@@ -59,12 +59,6 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$sce', '$modalInstance'
             alert('Error loading possible groups');
         });
 
-        $scope.parseStoryPreview = function (text) {
-            if (text) {
-                return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
-            }
-        };
-
         $scope.ok = function () {
             $scope.newNews.creator = {};
             $scope.newNews.creator.id = $scope.loggedInUser.id;
@@ -86,8 +80,8 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$sce', '$modalInstance'
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService', 'RoleService', 'UserService', '$sce',
-    function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService, $sce) {
+angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService', 'RoleService', 'UserService',
+    function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -111,12 +105,6 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         }
 
         $scope.permissions = permissions;
-    };
-
-    $scope.parseStoryPreview = function (text) {
-        if (text) {
-            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
-        }
     };
 
     // simple sorting
