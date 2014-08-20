@@ -2,7 +2,7 @@
 
 <div>
     <h1>News
-        <button class="btn blue" ng-click="openModalNewNews('lg')" ng-show="permissions.canAddNews">Create New</button>
+        <button class="btn blue" ng-click="openModalNewNews('lg')" ng-show="permissions.canAddNews && !loading">Create New</button>
     </h1>
 
     <!-- new news modal template -->

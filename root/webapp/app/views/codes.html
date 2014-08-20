@@ -4,7 +4,7 @@
     document.createElement('accordion-heading');
 </script>-->
 <div class="page-content">
-    <h1>Codes <button class="btn blue" ng-click="openModalNewCode('lg')">Create New</button></h1>
+    <h1>Codes <button class="btn blue" ng-click="openModalNewCode('lg')" ng-show="!loading">Create New</button></h1>
 
     <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 

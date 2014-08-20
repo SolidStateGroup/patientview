@@ -1,7 +1,7 @@
 <div class="hider" ng-show="status.open"></div>
 
 <div>
-    <h1>Conversations <button class="btn blue" ng-click="openModalNewConversation('lg')">Create New</button></h1>
+    <h1>Conversations <button class="btn blue" ng-click="openModalNewConversation('lg')" ng-show="!loading">Create New</button></h1>
     <!-- new conversation modal template -->
     <script type="text/ng-template" id="newConversationModal.html">
         <div class="modal-header">
