@@ -1353,6 +1353,16 @@ label {
   font-size: 1rem;
 }
 
+/* line 51, ../sass/_lists.scss */
+.faux-table .faux-row .row-item .patient-groups li {
+  width: 100%;
+  float: left;
+}
+/* line 55, ../sass/_lists.scss */
+.faux-table .faux-row .row-item .patient-groups li span {
+  float: left;
+}
+
 /** hero pane **/
 /* line 3, ../sass/_hero.scss */
 .hero-panel {
@@ -1503,13 +1513,13 @@ label {
 }
 /* line 9, ../sass/_components.scss */
 .tab-panel-item .aside-actions li {
-  height: 85px;
+  height: 75px;
 }
 /* line 12, ../sass/_components.scss */
 .tab-panel-item .aside-actions li a {
   height: 100%;
-  line-height: 20px;
-  padding-top: 20px;
+  line-height: 15px;
+  padding-top: 15px;
 }
 /* line 20, ../sass/_components.scss */
 .tab-panel-item .item-detail {
@@ -1543,4 +1553,15 @@ label {
 /* line 51, ../sass/_components.scss */
 .modal-dialog {
   width: 75%;
+}
+
+/** GRAPHS **/
+/* line 57, ../sass/_components.scss */
+.graph-selector {
+  margin-bottom: 10px;
+}
+/* line 60, ../sass/_components.scss */
+.graph-selector h3 {
+  margin: 0;
+  line-height: 35px;
 }
