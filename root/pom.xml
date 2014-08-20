@@ -63,7 +63,7 @@
         <snapshotRepository>
             <id>deployment</id>
             <name>Internal Releases</name>
-            <url>http://nexus.solidstategropu.com/nexus/content/repositories/snapshots/</url>
+            <url>http://nexus.solidstategroup.com/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
