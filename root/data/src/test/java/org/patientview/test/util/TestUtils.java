@@ -1,27 +1,47 @@
 package org.patientview.test.util;
 
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.NewsItem;
+import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * Id can be passed when not using any persistence to test against.
@@ -32,27 +52,39 @@ import java.util.List;
  */
 public final class TestUtils {
 
+    final static User creator;
+
+    static {creator = createUser("testCreator");}
+
+    private static Long getId() {
+        long range = 1234567L;
+        Random r = new Random();
+        return (long) (r.nextDouble()*range);
+    }
+
     private TestUtils() {
 
     }
 
-    public static User createUser(Long id, String name) {
+    public static User createUser(String name) {
         User user = new User();
-        user.setId(id);
+        user.setId(getId());
         user.setUsername(name);
         user.setChangePassword(Boolean.FALSE);
         user.setLocked(Boolean.FALSE);
+        user.setDummy(Boolean.FALSE);
         user.setStartDate(new Date());
         user.setName(name);
         user.setEmail("test@patientview.org");
-        user.setVerified(true);
+        user.setEmailVerified(true);
         user.setPassword("doNotShow");
+        user.setGroupRoles(new HashSet<GroupRole>());
         return user;
     }
 
-    public static Role createRole(Long id, Roles name, User creator) {
+    public static Role createRole(RoleName name) {
         Role role = new Role();
-        role.setId(id);
+        role.setId(getId());
         role.setName(name);
         role.setCreated(new Date());
         role.setCreator(creator);
@@ -60,29 +92,30 @@ public final class TestUtils {
     }
 
 
-    public static Feature createFeature(Long id, String name, User creator) {
+    public static Feature createFeature(String name) {
         Feature feature = new Feature();
-        feature.setId(id);
+        feature.setId(getId());
         feature.setName(name);
         feature.setCreated(new Date());
         feature.setCreator(creator);
         return feature;
     }
 
-    public static Group createGroup(Long id, String name, User creator) {
+    public static Group createGroup(String name) {
         Group group = new Group();
-        group.setId(id);
+        group.setId(getId());
         group.setName(name);
         group.setCreated(new Date());
         group.setCreator(creator);
         group.setVisible(true);
         group.setVisibleToJoin(true);
+        group.setGroupRelationships(new HashSet<GroupRelationship>());
         return group;
     }
 
-    public static GroupRole createGroupRole(Long id, Role role, Group group, User user, User creator) {
+    public static GroupRole createGroupRole(Role role, Group group, User user) {
         GroupRole groupRole = new GroupRole();
-        groupRole.setId(id);
+        groupRole.setId(getId());
         groupRole.setCreated(new Date());
         groupRole.setGroup(group);
         groupRole.setUser(user);
@@ -91,9 +124,20 @@ public final class TestUtils {
         return groupRole;
     }
 
-    public static UserFeature createUserFeature(Long id, Feature feature, User user, User creator) {
+    public static GroupFeature createGroupFeature(Feature feature, Group group) {
+        GroupFeature groupFeature = new GroupFeature();
+        groupFeature.setId(getId());
+        groupFeature.setCreated(new Date());
+        groupFeature.setFeature(feature);
+        groupFeature.setGroup(group);
+        groupFeature.setCreator(creator);
+        return groupFeature;
+
+    }
+
+    public static UserFeature createUserFeature( Feature feature, User user) {
         UserFeature userFeature = new UserFeature();
-        userFeature.setId(id);
+        userFeature.setId(getId());
         userFeature.setCreated(new Date());
         userFeature.setFeature(feature);
         userFeature.setUser(user);
@@ -102,11 +146,11 @@ public final class TestUtils {
 
     }
 
-    public static Route createRoute(Long id, String title, String controller, Lookup lookup) {
+    public static Route createRoute(String title, String controller, Lookup lookup) {
         Route route = new Route();
         route.setTitle(title);
         route.setController(controller);
-        route.setId(id);
+        route.setId(getId());
         route.setDisplayOrder(1);
         route.setUrl("/test/url");
         route.setTemplateUrl("/test/url");
@@ -115,9 +159,9 @@ public final class TestUtils {
         return route;
     }
 
-    public static RouteLink createRouteLink(Long id, Route route, Role role, Group group, Feature feature, User creator) {
+    public static RouteLink createRouteLink(Route route, Role role, Group group, Feature feature) {
         RouteLink routeLink = new RouteLink();
-        routeLink.setId(id);
+        routeLink.setId(getId());
         routeLink.setRoute(route);
         routeLink.setRole(role);
         routeLink.setCreator(creator);
@@ -127,10 +171,10 @@ public final class TestUtils {
 
     }
 
-    public static Lookup createLookup(Long id, LookupType lookupType, String lookupName, User creator) {
+    public static Lookup createLookup(LookupType lookupType, String lookupName) {
 
         Lookup lookup = new Lookup();
-        lookup.setId(id);
+        lookup.setId(getId());
         lookup.setLookupType(lookupType);
         lookup.setValue(lookupName);
         lookup.setCreated(new Date());
@@ -138,19 +182,19 @@ public final class TestUtils {
         return lookup;
     }
 
-    public static LookupType createLookupType(Long id, String type, User creator) {
+    public static LookupType createLookupType(LookupTypes type) {
 
         LookupType lookupType = new LookupType();
-        lookupType.setId(id);
-        lookupType.setType(LookupTypes.ROLE);
+        lookupType.setId(getId());
+        lookupType.setType(type);
         lookupType.setCreated(new Date());
         lookupType.setCreator(creator);
         return lookupType;
     }
 
-    public static Identifier createIdentifier(Long id, Lookup identifierType, User user, User creator) {
+    public static Identifier createIdentifier(Lookup identifierType, User user) {
         Identifier identifier = new Identifier();
-        identifier.setId(id);
+        identifier.setId(getId());
         identifier.setIdentifierType(identifierType);
         identifier.setUser(user);
         identifier.setCreated(new Date());
@@ -158,13 +202,13 @@ public final class TestUtils {
         return identifier;
     }
 
-    public static GroupRelationship createGroupRelationship(Long id, Group source, Group object
-            , Lookup relationshipType, User creator) {
+    public static GroupRelationship createGroupRelationship(Group source, Group object
+            , RelationshipTypes relationshipType) {
         GroupRelationship groupRelationship = new GroupRelationship();
-        groupRelationship.setId(id);
+        groupRelationship.setId(getId());
         groupRelationship.setStartDate(new Date());
         groupRelationship.setCreator(creator);
-        groupRelationship.setLookup(relationshipType);
+        groupRelationship.setRelationshipType(relationshipType);
         groupRelationship.setObjectGroup(object);
         groupRelationship.setSourceGroup(source);
 
@@ -172,18 +216,18 @@ public final class TestUtils {
 
     }
 
-    public static Code createCode(Long id, String description, User creator) {
+    public static Code createCode(String description) {
         Code code = new Code();
-        code.setId(id);
+        code.setId(getId());
         code.setDisplayOrder(1);
         code.setDescription(description);
         code.setCreator(creator);
         return code;
     }
 
-    public static Link createLink(Long id, Code code, String name, Lookup linkType, User creator) {
+    public static Link createLink(Code code, String name, Lookup linkType) {
         Link link = new Link();
-        link.setId(id);
+        link.setId(getId());
         link.setLinkType(linkType);
         link.setCode(code);
         link.setLink(name);
@@ -207,4 +251,90 @@ public final class TestUtils {
         return list;
 
     }
+
+    public static void authenticateTest(User user, RoleName... roleNames) {
+        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+
+        Group group = createGroup("AuthenticationGroup");
+        for (RoleName roleName : roleNames) {
+            authorities.add(createGroupRole( createRole(roleName), group, user));
+        }
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public static void authenticateTest(User user, Collection<GroupRole> groupRoles) {
+        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+        for (GroupRole groupRole : groupRoles) {
+            authorities.add(groupRole);
+        }
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public static void authenticateTest(User user) {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public static GroupStatistic createGroupStatistics(Group group, BigInteger value, Lookup lookup) {
+        GroupStatistic groupStatistic = new GroupStatistic();
+        groupStatistic.setGroup(group);
+        groupStatistic.setId(getId());
+        groupStatistic.setValue(value);
+        groupStatistic.setStatisticType(lookup);
+        groupStatistic.setEndDate(new Date());
+        groupStatistic.setStartDate(new Date());
+        groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
+        return groupStatistic;
+    }
+
+    public static NewsItem createNewsItem(String heading, String story) {
+        NewsItem newsItem = new NewsItem();
+        newsItem.setId(getId());
+        newsItem.setCreator(creator);
+        newsItem.setHeading(heading);
+        newsItem.setStory(story);
+        newsItem.setNewsLinks(new HashSet<NewsLink>());
+        newsItem.setCreated(new Date());
+        return newsItem;
+    }
+
+    public static NewsLink createNewsLink( NewsItem newsItem, Group group, Role role) {
+        NewsLink newsLink = new NewsLink();
+        newsLink.setId(getId());
+        newsLink.setNewsItem(newsItem);
+        newsLink.setGroup(group);
+        newsLink.setRole(role);
+        newsLink.setCreator(creator);
+        return newsLink;
+    }
+
+    public static JoinRequest createJoinRequest(Group group) {
+
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setCreated(new Date());
+        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
+        joinRequest.setGroup(group);
+        joinRequest.setNhsNumber("234234234");
+        joinRequest.setDateOfBirth(new Date());
+        return joinRequest;
+    }
+
+    public static ContactPoint createContactPoint(String value, ContactPointTypes contactPointTypes) {
+        ContactPointType contactPointType = new ContactPointType();
+        contactPointType.setId(getId());
+        contactPointType.setLookupType(createLookupType(LookupTypes.CONTACT_POINT_TYPE));
+        contactPointType.setValue(contactPointTypes);
+
+        ContactPoint contactPoint = new ContactPoint();
+        contactPoint.setContent(value);
+        contactPoint.setContactPointType(contactPointType);
+        contactPoint.setId(getId());
+        contactPoint.setCreated(new Date());
+        contactPoint.setCreator(creator);
+
+        return contactPoint;
+    }
+
 }

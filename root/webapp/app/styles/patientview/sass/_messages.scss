@@ -1,4 +1,4 @@
-.message-item{
+.message-item, .tab-panel-item{
     margin-bottom:20px;
 
     .content-panel{
@@ -28,6 +28,18 @@
         fieldset{
             margin-top:10px;
         }
+
+        .message-summary{
+            padding-top:0;
+        }
+    }
+
+    .delete-news{
+        a{
+            background:$error;
+            color:$white;
+            height:72px;
+        }
     }
 }
 
@@ -40,6 +52,12 @@
         margin:0;
         font-size:2rem;
         font-weight:bold;
+
+        span.new-message{
+            font-size:1.5rem;
+            font-weight:normal;
+            margin-right:20px;
+        }
 
         .recipient{
             color:$messagetab;

@@ -7,12 +7,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -25,8 +24,6 @@ import java.util.UUID;
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
-@Entity
-@Table(name = "pv_user")
 public class User extends RangeModel implements UserDetails {
 
     @Column(name = "username")
@@ -41,8 +38,11 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "locked")
     private Boolean locked;
 
-    @Column(name = "verified")
-    private Boolean verified;
+    @Column(name = "dummy")
+    private Boolean dummy;
+
+    @Column(name = "email_verified")
+    private Boolean emailVerified;
 
     @Column(name = "verification_code")
     private String verificationCode;
@@ -50,16 +50,26 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "fullname")
+    @Column(name = "forename")
+    private String forename;
+
+    @Column(name = "failed_logon_attempts")
+    private Integer failedLogonAttempts;
+
+    @Column(name = "surname")
+    private String surname;
+
+    @Transient
     private String name;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE})
+    //@SortNatural
     private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<UserFeature> userFeatures;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.EAGER)
     private Set<Identifier> identifiers;
 
     @Column(name = "fhir_resource_id")
@@ -105,12 +115,20 @@ public class User extends RangeModel implements UserDetails {
         this.locked = locked;
     }
 
-    public Boolean getVerified() {
-        return verified;
+    public Boolean getDummy() {
+        return dummy;
     }
 
-    public void setVerified(Boolean verified) {
-        this.verified = verified;
+    public void setDummy(Boolean dummy) {
+        this.dummy = dummy;
+    }
+
+    public Boolean getEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(Boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 
     public String getVerificationCode() {
@@ -129,12 +147,24 @@ public class User extends RangeModel implements UserDetails {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
+    public String getForename() {
+        return forename;
+    }
+
+    public void setForename(final String forename) {
+        this.forename = forename;
     }
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(final String surname) {
+        this.surname = surname;
     }
 
     public UUID getFhirResourceId() {
@@ -167,6 +197,10 @@ public class User extends RangeModel implements UserDetails {
 
     public void setIdentifiers(Set<Identifier> identifiers) {
         this.identifiers = identifiers;
+    }
+
+    public String getName() {
+        return forename + " " + surname;
     }
 
     //TODO User Detail fields need refactoring
@@ -218,5 +252,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setContactNumber(final String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public Integer getFailedLogonAttempts() {
+        return failedLogonAttempts;
+    }
+
+    public void setFailedLogonAttempts(final Integer failedLogonAttempts) {
+        this.failedLogonAttempts = failedLogonAttempts;
     }
 }

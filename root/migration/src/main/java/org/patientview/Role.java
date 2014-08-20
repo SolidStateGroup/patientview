@@ -2,21 +2,26 @@ package org.patientview;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.enums.Roles;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
  * Created on 03/06/2014
  */
-public class Role extends AuditModel {
+@Entity
+@Table(name = "pv_role")
+public class Role extends AuditModel implements GrantedAuthority {
 
     @Column(name = "role_name")
     @Enumerated(EnumType.STRING)
@@ -29,7 +34,7 @@ public class Role extends AuditModel {
     private String description;
 
     @OneToMany(mappedBy = "role")
-    private Set<Route> routes;
+    private Set<RouteLink> routeLinks;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "type_id")
@@ -57,12 +62,13 @@ public class Role extends AuditModel {
         this.description = description;
     }
 
-    public Set<Route> getRoutes() {
-        return routes;
+    @JsonIgnore
+    public Set<RouteLink> getRouteLinks() {
+        return routeLinks;
     }
 
-    public void setRoutes(final Set<Route> routes) {
-        this.routes = routes;
+    public void setRouteLinks(final Set<RouteLink> routeLinks) {
+        this.routeLinks = routeLinks;
     }
 
     public RoleType getRoleType() {
@@ -87,5 +93,10 @@ public class Role extends AuditModel {
 
     public void setVisible(final Boolean visible) {
         this.visible = visible;
+    }
+
+    @Override
+    public String getAuthority() {
+        return getName().toString();
     }
 }

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Created on 23/07/2014
  */
 @RestController
-public class ErrorController {
+public class ErrorController extends BaseController<ErrorController> {
 
     private final static Logger LOG = LoggerFactory.getLogger(ErrorController.class);
 

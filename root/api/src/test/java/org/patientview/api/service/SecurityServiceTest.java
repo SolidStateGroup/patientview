@@ -12,9 +12,8 @@ import org.patientview.api.service.impl.SecurityServiceImpl;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -51,9 +50,6 @@ public class SecurityServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private NewsItemRepository newsItemRepository;
-
     @InjectMocks
     private SecurityService securityService = new SecurityServiceImpl();
 
@@ -64,24 +60,7 @@ public class SecurityServiceTest {
     public void setUp() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        creator = TestUtils.createUser(1L, "creator");
-    }
-
-
-    /**
-     * Test: To see if the news is return by single group OR role
-     * Fail: The calls to the repository are not made
-     */
-    @Test
-    public void testGetNewsByUser() {
-
-        User testUser = TestUtils.createUser(23L, "testUser");
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-
-        securityService.getNewsByUser(testUser.getId());
-
-        verify(newsItemRepository, Mockito.times(1)).findGroupNewsByUser(Matchers.eq(testUser));
-        verify(newsItemRepository, Mockito.times(1)).findRoleNewsByUser(Matchers.eq(testUser));
+        creator = TestUtils.createUser("creator");
     }
 
     /**
@@ -90,7 +69,7 @@ public class SecurityServiceTest {
      */
     @Test
     public void testGetNoneDuplicateRoutes() {
-        User testUser = TestUtils.createUser(23L, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         when(routeRepository.findFeatureRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.findGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
@@ -113,10 +92,10 @@ public class SecurityServiceTest {
      */
     @Test
     public void testGetUserGroupsWithSuperAdmin() {
-        User testUser = TestUtils.createUser(23L, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-        List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, Roles.GLOBAL_ADMIN, creator));
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(RoleName.GLOBAL_ADMIN));
         when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());
@@ -124,7 +103,6 @@ public class SecurityServiceTest {
         verify(groupService, Mockito.times(1)).findAll();
 
     }
-
 
     /**
      * Test: Call the findGroupByUser method if a User does not have a globaladmin role
@@ -134,10 +112,10 @@ public class SecurityServiceTest {
      */
     @Test
     public void testGetUserGroups() {
-        User testUser = TestUtils.createUser(23L, "testUser");
+        User testUser = TestUtils.createUser("testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         List<Role> roles = new ArrayList<Role>();
-        roles.add(TestUtils.createRole(1L, Roles.UNIT_ADMIN, creator));
+        roles.add(TestUtils.createRole(RoleName.UNIT_ADMIN));
         when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
 
         securityService.getUserGroups(testUser.getId());

@@ -1,11 +1,11 @@
 <div class="hider" ng-show="status.open"></div>
 
-<div class="" ng-show="!loading" ng-cloak>
+<div>
     <h1>Staff <button class="btn blue" ng-click="openModalNewStaff('lg')">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
-    <div ng-show="!fatalErrorMessage" ng-cloak>
+    <div ng-show="!fatalErrorMessage && !loading" ng-cloak>
         <!-- new staff modal -->
         <script type="text/ng-template" id="newStaffModal.html">
             <div class="modal-header">
@@ -14,10 +14,10 @@
             </div>
             <div class="modal-body">
                 <form name="userFormNew" ng-show="!existingUser">
-                    <div ng-include src="'views/partials/staffDetailsNew.html'" ng-controller="StaffDetailsCtrl"></div>
+                    <div ng-include src="'views/partials/staffDetailsNew.html'" ng-controller="UserDetailsCtrl"></div>
                 </form>
                 <form name="userFormExisting" ng-show="existingUser">
-                    <div ng-include src="'views/partials/staffDetailsExisting.html'" ng-controller="StaffDetailsCtrl"></div>
+                    <div ng-include src="'views/partials/staffDetailsExisting.html'" ng-controller="UserDetailsCtrl"></div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -28,7 +28,6 @@
                 <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userFormExisting.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
-
 
         <!-- delete staff modal -->
         <script type="text/ng-template" id="deleteStaffModal.html">
@@ -69,7 +68,7 @@
                 <div class="form-horizontal" role="form">
                     <div class="select-container pull-left">
                         <!-- filter by role -->
-                        <div class="btn-group" id="filter-role" data-ng-class="{open: open2}">
+                        <div class="btn-group filter-select" id="filter-role" data-ng-class="{open: open2}">
                             <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Role <span class="caret-container"><span class="caret"></span></span></button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li><a data-ng-click="selectedRole=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
@@ -78,7 +77,7 @@
                             </ul>
                         </div>
                         <!-- filter by group -->
-                        <div class="btn-group" id="filter-group" data-ng-class="{open: open-group}">
+                        <div class="btn-group filter-select" id="filter-group" data-ng-class="{open: open-group}">
                             <button class="btn dropdown-toggle" data-ng-click="open=!open-group">Filter By Group <span class="caret-container"><span class="caret"></span></span></button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li><a data-ng-click="selectedGroup=[];" class="a-filter-group"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
@@ -102,12 +101,12 @@
             <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
             <div class="accordion-title-row table-head" ng-show="filtered.length > 0" ng-cloak>
                 <div class="hidden">ID</div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title">Name&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title">Email&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text " class="sort-title">Group (Role)&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text " class="sort-title">Features&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title">Last Login&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item"><a class="sort-title">Actions</a></div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title"><i class="icon-sort pull-right"></i>Email</a></div>
+                <div class="head-item accordion-title-text " class="sort-title">Group (Role)</div>
+                <div class="head-item accordion-title-text " class="sort-title">Features</div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
+                <div class="head-item"><a class="sort-title"> </a></div>
             </div>
             <!-- body -->
             <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
@@ -115,11 +114,11 @@
                     <div accordion-heading class="accordion-heading">
                         <div class="faux-row" ng-click="opened(user, $event)">
                             <div class="row-item hidden">{{user.id}}</div>
-                            <div class="row-item accordion-heading-text">{{user.name}}</div>
+                            <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
                             <div class="row-item accordion-heading-text">{{user.email}}</div>
                             <div class="row-item accordion-heading-text">
 
-                                    <ul ng-repeat="groupRole in user.groupRoles" class="unstyled">
+                                    <ul ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled">
                                         <div ng-if="groupRole.role.name !== 'MEMBER'">
                                             <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
                                         </div>
@@ -127,7 +126,7 @@
 
                             </div>
                             <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
-                            <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
+                            <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
 
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
@@ -151,20 +150,19 @@
                     </div accordion-heading>
                     <!-- edit pane -->
                     <form name="userForm">
-                        <div ng-include src="'views/partials/staffDetails.html'" ng-controller="StaffDetailsCtrl"></div>
+                        <div ng-include src="'views/partials/staffDetails.html'" ng-controller="UserDetailsCtrl"></div>
                     </form>
                     <hr>
-                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin}}</div>
+                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                     <div class="user-save-cancel pull-right">
-                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Cancel</button>
-                        <button type="button" class="btn btn-primary" ng-click="save(userForm, editUser, $index)" ng-disabled="userForm.$pristine || !userForm.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Save</button>
+                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
                     </div>
                 </div accordion-group>
             </div accordion>
         </div>
         <div class="col-md-12" data-ng-show="filtered.length == 0">
             <div class="col-md-12">
-                <h4>No users found</h4>
+                <h4>No staff found</h4>
             </div>
         </div>
 

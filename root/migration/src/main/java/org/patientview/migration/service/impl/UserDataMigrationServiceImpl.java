@@ -218,21 +218,25 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public User createUser(org.patientview.patientview.model.User user) {
         User newUser = new User();
-        newUser.setName(user.getFirstName() + " " + user.getLastName());
+        newUser.setForename(user.getFirstName());
+        newUser.setSurname(user.getLastName());
         newUser.setChangePassword(user.isFirstlogon());
         newUser.setPassword(user.getPassword());
         newUser.setLocked(user.isAccountlocked());
+        newUser.setDummy(user.isDummypatient());
+        newUser.setFailedLogonAttempts(user.getFailedlogons());
+
         if (StringUtils.isEmpty(user.getEmail())) {
             newUser.setEmail("Unknown@patientview.org");
         } else{
             newUser.setEmail(user.getEmail());
         }
         newUser.setUsername(user.getUsername());
-        newUser.setVerified(user.isEmailverified());
+        newUser.setEmailVerified(user.isEmailverified());
         return newUser;
     }
 
-    public List<Group> getUserSpecialty(org.patientview.patientview.model.User  oldUser) {
+    public List<Group> getUserSpecialty(org.patientview.patientview.model.User oldUser) {
 
         List<Group> groups = new ArrayList<Group>();
 

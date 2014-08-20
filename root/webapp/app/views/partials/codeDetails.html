@@ -22,7 +22,10 @@
         </div>
     </div>
 </div>
-
+<button type="button" class="btn blue pull-right" ng-click="save(codeForm, editCode)" ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
+<span class="saved-notification pull-right" ng-show="codeForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+<br/>
+<hr />
 <div class="row">
     <div class="links-container">
         <div class="col-md-12">
@@ -40,16 +43,20 @@
                     <option ng-repeat="link in editCode.links">{{$index + 1}}</option>
                 </select>
             </div>
-            <div class=""><button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeForm, editCode, link)">Delete</button></span></div>
+            <div class="btn-group">
+                <button type="button" class="btn blue link-update-button" ng-click="updateLink($event, codeForm, editCode, link)">Update</button>
+                <button type="button" class="btn negative link-delete-button" ng-click="removeLink(codeForm, editCode, link)">Delete</button>
+            </div>
+            <span class="saved-notification" ng-show="link.saved">&nbsp; Saved Successfully!</span>
         </div>
         <br/>
 
         <div class="add-link" ng-model="newLink">
             <div class="col-md-3">
-                <input type="text" class="form-control" id="code-newLink-link" placeholder="link" name="newLink" ng-model="newLink.link">
+                <input type="text" class="form-control" id="code-newLink-link" placeholder="URL" name="newLink" ng-model="newLink.link">
             </div>
             <div class="col-md-3">
-                <input type="text" class="form-control" id="code-newLink-name" placeholder="name" name="newLink" ng-model="newLink.name">
+                <input type="text" class="form-control" id="code-newLink-name" placeholder="Description" name="newLink" ng-model="newLink.name">
             </div>
             <div class="col-md-3 hidden">
                 <select id="code-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
@@ -57,7 +64,9 @@
                     <option >{{editCode.links.length + 1}}</option>
                 </select>
             </div>
-            <div class=""><button type="button" class="btn blue link-add-button" ng-click="addLink(codeForm, editCode, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
+            <div class="">
+                <button type="button" class="btn blue link-add-button" ng-click="addLink(codeForm, editCode, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button>
+            </div>
         </div>
     </div>
 </div>

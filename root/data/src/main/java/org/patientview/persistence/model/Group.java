@@ -11,6 +11,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,6 +42,18 @@ public class Group extends AuditModel {
     @Column(name = "visible_to_join")
     private Boolean visibleToJoin;
 
+    @Column(name = "address_1")
+    private String address1;
+
+    @Column(name = "address_2")
+    private String address2;
+
+    @Column(name = "address_3")
+    private String address3;
+
+    @Column(name = "postcode")
+    private String postcode;
+
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "type_id")
     private Lookup groupType;
@@ -47,10 +61,10 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<GroupFeature> groupFeatures;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<RouteLink> routeLinks;
 
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
@@ -59,13 +73,16 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
     private Set<Location> locations;
 
-    @Transient
-    private Set<Group> parentGroups;
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<ContactPoint> contactPoints;
 
     @Transient
-    private Set<Group> childGroups;
+    private List<Group> parentGroups = new ArrayList<Group>();
 
-    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER)
+    @Transient
+    private List<Group> childGroups = new ArrayList<Group>();
+
+    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<GroupRelationship> groupRelationships;
 
     public String getName() {
@@ -141,6 +158,14 @@ public class Group extends AuditModel {
         this.locations = locations;
     }
 
+    public Set<ContactPoint> getContactPoints() {
+        return contactPoints;
+    }
+
+    public void setContactPoints(Set<ContactPoint> contactPoints) {
+        this.contactPoints = contactPoints;
+    }
+
     @JsonIgnore
     public Set<GroupRole> getGroupRoles() {
         return groupRoles;
@@ -150,19 +175,19 @@ public class Group extends AuditModel {
         this.groupRoles = groupRoles;
     }
 
-    public Set<Group> getParentGroups() {
+    public List<Group> getParentGroups() {
         return parentGroups;
     }
 
-    public void setParentGroups(Set<Group> parentGroups) {
+    public void setParentGroups(List<Group> parentGroups) {
         this.parentGroups = parentGroups;
     }
 
-    public Set<Group> getChildGroups() {
+    public List<Group> getChildGroups() {
         return childGroups;
     }
 
-    public void setChildGroups(Set<Group> childGroups) {
+    public void setChildGroups(List<Group> childGroups) {
         this.childGroups = childGroups;
     }
 
@@ -191,4 +216,35 @@ public class Group extends AuditModel {
         this.visibleToJoin = visibleToJoin;
     }
 
+    public String getAddress1() {
+        return address1;
+    }
+
+    public void setAddress1(String address1) {
+        this.address1 = address1;
+    }
+
+    public String getAddress2() {
+        return address2;
+    }
+
+    public void setAddress2(String address2) {
+        this.address2 = address2;
+    }
+
+    public String getAddress3() {
+        return address3;
+    }
+
+    public void setAddress3(String address3) {
+        this.address3 = address3;
+    }
+
+    public String getPostcode() {
+        return postcode;
+    }
+
+    public void setPostcode(String postcode) {
+        this.postcode = postcode;
+    }
 }

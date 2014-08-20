@@ -21,10 +21,20 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
             localStorageService.set('loggedInUser', user);
 
             RouteService.getRoutes(user.id).then(function (data) {
-                $rootScope.routes = data;
-                localStorageService.set('routes', data);
-                $location.path('/dashboard');
+
+                if (user.changePassword) {
+                    $rootScope.routes = [];
+                    $rootScope.routes.push(RouteService.getChangePasswordRoute());
+                    $location.path('/changepassword');
+                    localStorageService.set('routes', $rootScope.routes);
+                } else {
+                    $rootScope.routes = data;
+                    localStorageService.set('routes', data);
+                    $location.path('/dashboard');
+                }
             });
+
+
         }, function(result) {
             if (result.data) {
                 $scope.errorMessage = ' - ' + result.data;

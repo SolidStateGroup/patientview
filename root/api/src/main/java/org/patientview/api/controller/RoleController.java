@@ -2,9 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.AdminService;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.enums.RoleTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.patientview.persistence.model.enums.RoleType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +20,7 @@ import java.util.List;
  * Created on 06/06/2014
  */
 @RestController
-public class RoleController extends BaseController {
-    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
+public class RoleController extends BaseController<RoleController> {
 
     @Inject
     private AdminService adminService;
@@ -36,13 +33,13 @@ public class RoleController extends BaseController {
         if (!request.getParameterMap().containsKey("type")) {
             return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
         }
-        RoleTypes roleTypes;
+        RoleType roleType;
 
-        roleTypes = RoleTypes.valueOf(type);
-        if (roleTypes == null) {
+        roleType = RoleType.valueOf(type);
+        if (roleType == null) {
             return new ResponseEntity<List<Role>>(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<List<Role>>(adminService.getRolesByType(roleTypes), HttpStatus.OK);
+        return new ResponseEntity<List<Role>>(adminService.getRolesByType(roleType), HttpStatus.OK);
     }
 }

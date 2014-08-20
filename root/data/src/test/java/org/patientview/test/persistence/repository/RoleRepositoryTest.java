@@ -7,11 +7,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.RoleType;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
-import org.patientview.persistence.model.enums.RoleTypes;
-import org.patientview.persistence.model.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
@@ -58,12 +57,12 @@ public class RoleRepositoryTest {
     @Test
     @Ignore
     public void testGetRole() {
-        Role role = dataTestUtils.createRole("PATIENT", creator);
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
         entityManager.setFlushMode(FlushModeType.COMMIT);
 
-        RoleType roleType = new RoleType();
+        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
         roleType.setLookupType(lookupType);
-        roleType.setValue(RoleTypes.PATIENT);
+        roleType.setValue(RoleType.PATIENT);
         entityManager.persist(lookupType);
         entityManager.persist(roleType);
 

@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -19,7 +20,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "pv_user_group_role")
-public class GroupRole extends RangeModel {
+public class GroupRole extends RangeModel implements GrantedAuthority {
 
     @OneToOne
     @JoinColumn(name = "user_id")
@@ -58,38 +59,10 @@ public class GroupRole extends RangeModel {
         this.user = user;
     }
 
-    //TODO - sort order just for the front end Enum sprint 2
     @Override
-    public int compareTo(Object g1) {
-
-      /*  if (g1 == null) {
-            return 0;
-        }
-
-        //TODO ENum Sprint 2
-        String thisType;
-        String objectType;
-
-        if (this.getGroup().getGroupType() != null && ((GroupRole) g1).getGroup() != null) {
-        //    thisType = this.getGroup().getGroupType().getValue();
-         //   objectType = ((GroupRole) g1).getGroup().getGroupType().getValue();
-        } else {
-            return 0;
-        }
-
-        if (objectType.equalsIgnoreCase("SPECIALTY")) {
-            return 1;
-        } else if (thisType.equalsIgnoreCase("SPECIALTY")) {
-            return -1;
-        } else if (thisType.equalsIgnoreCase("UNIT") && objectType.equalsIgnoreCase("DISEASE_GROUP")) {
-            return -1;
-        } else if (thisType.equalsIgnoreCase("DISEASE_GROUP") && objectType.equalsIgnoreCase("UNIT")) {
-            return 1;
-        } else {
-            return 0;
-        }*/
-        return 0;
-
+    @JsonIgnore
+    public String getAuthority() {
+        return role!=null?getRole().getName().toString():null;
     }
 
 }

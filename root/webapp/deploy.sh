@@ -11,11 +11,12 @@
 tomcatUrl=$1
 username=$2
 password=$3
+gruntTask=$4
 
-if test $# -ne 3
+if test $# -ne 4
 then
 	echo "Please supply all paramaters"
-	echo "command [tomcatUrl] [username] [password]"
+	echo "command [tomcatUrl] [username] [password] [gruntTask]"
 	exit 2
 else
     echo "Deploying to $tomcatUrl";
@@ -44,7 +45,8 @@ else
 	echo "Installed bower dependencies"
 fi
 
-/usr/local/bin/grunt minimallive
+#/usr/local/bin/grunt minimallive
+/usr/local/bin/grunt $gruntTask
 
 if [ $? -eq 0 ]; then
     curl -T "dist/webapp.war" "http://$username:$password@$tomcatUrl/manager/text/deploy?path=/&update=true"

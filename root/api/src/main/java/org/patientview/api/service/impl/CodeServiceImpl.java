@@ -9,11 +9,9 @@ import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Class to control the crud operations of Codes.
@@ -22,7 +20,7 @@ import java.util.Set;
  * Created on 25/06/2014
  */
 @Service
-public class CodeServiceImpl implements CodeService {
+public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implements CodeService {
 
     @Inject
     private CodeRepository codeRepository;
@@ -31,59 +29,50 @@ public class CodeServiceImpl implements CodeService {
     @Inject
     private UserRepository userRepository;
 
-    public List<Code> getAllCodes() { return Util.iterableToList(codeRepository.findAll()); }
+    public List<Code> getAllCodes() { return Util.convertIterable(codeRepository.findAll()); }
 
-    public Code createCode(final Code code) {
-        Code persistedCode = codeRepository.save(code);
-        Set<Link> links = code.getLinks();
-
-        if (!CollectionUtils.isEmpty(links)) {
-            for (Link link : links) {
-                if (link.getId() != null && link.getId() < 0) { link.setId(null); }
-                link.setCode(persistedCode);
-                link.setCreator(userRepository.findOne(1L));
-                linkRepository.save(link);
-            }
-        }
-
-        return persistedCode;
-    }
-
-    public Code getCode(final Long codeId) {
-        return codeRepository.findOne(codeId);
-    }
-
-    public Code saveCode(final Code code) {
-
-        // remove deleted code links
-        Code entityCode = codeRepository.findOne(code.getId());
-        entityCode.getLinks().removeAll(code.getLinks());
-        linkRepository.delete(entityCode.getLinks());
-
-        // set new code links and persist
-        if (!CollectionUtils.isEmpty(code.getLinks())) {
-            for (Link link : code.getLinks()) {
-                if (link.getId() < 0) { link.setId(null); }
-                link.setCode(entityCode);
-                link.setCreator(userRepository.findOne(1L));
-                linkRepository.save(link);
-            }
-        }
-
+    public Code add(final Code code) {
         return codeRepository.save(code);
     }
 
-    public Code cloneCode(Long codeId) {
+    public Code get(final Long codeId) {
+        return codeRepository.findOne(codeId);
+    }
 
-        // remove deleted code links
+    public Code save(final Code code) {
+        return codeRepository.save(code);
+    }
+
+    public Code cloneCode(final Long codeId) {
+        // clone original
         Code entityCode = codeRepository.findOne(codeId);
         Code newCode = (Code)SerializationUtils.clone(entityCode);
-        newCode.setId(null);
 
+        // set up links
+        newCode.setLinks(new HashSet<Link>());
+        for (Link link : entityCode.getLinks()) {
+            Link newLink = new Link();
+            newLink.setLink(link.getLink());
+            newLink.setName(link.getName());
+            newLink.setDisplayOrder(link.getDisplayOrder());
+            newLink.setCode(newCode);
+            newLink.setLinkType(link.getLinkType());
+            newLink.setCreator(userRepository.findOne(1L));
+            newCode.getLinks().add(newLink);
+        }
+        newCode.setId(null);
         return codeRepository.save(newCode);
     }
 
-    public void deleteCode(final Long codeId) {
+    public void delete(final Long codeId) {
         codeRepository.delete(codeId);
+    }
+
+    public Link addLink(final Long codeId, final Link link) {
+        Code entityCode = codeRepository.findOne(codeId);
+        link.setCode(entityCode);
+        link.setCreator(userRepository.findOne(1L));
+        Link persistedLink = linkRepository.save(link);
+        return persistedLink;
     }
 }

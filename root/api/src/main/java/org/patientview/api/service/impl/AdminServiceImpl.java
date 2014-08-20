@@ -5,15 +5,13 @@ import org.patientview.api.util.Util;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.RoleTypes;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -27,9 +25,7 @@ import java.util.List;
  * TODO name change and refactor
  */
 @Service
-public class AdminServiceImpl implements AdminService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AdminServiceImpl.class);
+public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> implements AdminService {
 
     @Inject
     private UserRepository userRepository;
@@ -62,12 +58,12 @@ public class AdminServiceImpl implements AdminService {
 
 
     public List<Role> getAllRoles() {
-        return Util.iterableToList(roleRepository.findAll());
+        return Util.convertIterable(roleRepository.findAll());
     }
 
-    public List<Role> getRolesByType(RoleTypes type) {
+    public List<Role> getRolesByType(RoleType type) {
 
-        return Util.iterableToList(roleRepository.findByRoleType(type));
+        return Util.convertIterable(roleRepository.findByRoleType(type));
 
     }
 
@@ -86,10 +82,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public List<User> getGroupUserByRoleStaff(Long groupId) {
-        return Util.iterableToList(groupRepository.findGroupStaffByRole(groupId, "STAFF"));
+        return Util.convertIterable(groupRepository.findGroupStaffByRole(groupId, "STAFF"));
     }
 
     public List<User> getGroupUserByRolePatient(Long groupId) {
-        return Util.iterableToList(groupRepository.findGroupStaffByRole(groupId, "PATIENT"));
+        return Util.convertIterable(groupRepository.findGroupStaffByRole(groupId, "PATIENT"));
     }
 }

@@ -25,7 +25,8 @@ import java.util.List;
  */
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public class StaticDataManagerImpl implements StaticDataManager {
+public class StaticDataManagerImpl extends AbstractServiceImpl<StaticDataManagerImpl>
+        implements StaticDataManager {
 
     @Inject
     private LookupRepository lookupRepository;
@@ -35,17 +36,17 @@ public class StaticDataManagerImpl implements StaticDataManager {
     private FeatureRepository featureRepository;
 
     public List<Lookup> getAllLookups() {
-        return Util.iterableToList(lookupRepository.findAll());
+        return Util.convertIterable(lookupRepository.findAll());
     }
 
     public List<Feature> getAllFeatures() {
-        return Util.iterableToList(featureRepository.findAll());
+        return Util.convertIterable(featureRepository.findAll());
     }
 
     public List<Lookup> getLookupsByType(LookupTypes type) {
         LookupType lookupType = lookupTypeRepository.findByType(type);
         if (lookupType != null) {
-            return Util.iterableToList(lookupRepository.findByType(lookupType));
+            return Util.convertIterable(lookupRepository.findByType(lookupType));
         }
         return Collections.<Lookup>emptyList();
     }
@@ -57,7 +58,7 @@ public class StaticDataManagerImpl implements StaticDataManager {
     public List<Feature> getFeaturesByType(String featureType) {
         Lookup lookup = lookupRepository.findByTypeAndValue(LookupTypes.FEATURE_TYPE, featureType);
         if (lookup != null) {
-            return Util.iterableToList(featureRepository.findByType(lookup));
+            return Util.convertIterable(featureRepository.findByType(lookup));
         }
         return Collections.<Feature>emptyList();
     }

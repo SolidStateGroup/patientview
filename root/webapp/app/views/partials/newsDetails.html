@@ -1,0 +1,70 @@
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="news-heading" class="control-label">Heading <span class="error" ng-show="newsForm.heading.$error.required && !newsForm.$pristine"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="news-heading" placeholder="Heading" name="heading" ng-model="editNews.heading" required></div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="news-story" class="control-label">Article <span class="error" ng-show="newsForm.story.$error.required && !newsForm.$pristine"> *required</span></label>
+            <div class=""><textarea class="form-control" id="news-story" placeholder="Story" name="story" ng-model="editNews.story" required /></div>
+        </div>
+    </div>
+</div>
+<div ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label class="control-label">Preview </label>
+            <div class="message-summary">
+                <h2 class="message-title">{{editNews.heading}}
+                    <span ng-repeat="newsLink in editNews.newsLinks" class="pull-right news-link-labels">
+                        <span class="label label-primary" ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
+                        <span class="label label-success" ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
+                    </span>
+                </h2>
+                <div class="last-message">
+                    <p class="message-content" ng-bind-html="parseHTMLText(editNews.story)"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br/>
+<button type="button" class="btn blue pull-right" ng-click="save(newsForm, editNews)" ng-disabled="newsForm.$pristine || !newsForm.$valid">Save</button>
+<span class="saved-notification pull-right" ng-show="newsForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+
+<div class="row form-edit-row">
+    <hr/>
+    <div class="col-md-6">
+        <label class="inner-title">Groups &amp; Roles </label>
+        <ul class="group-list-item unstyled inline clearfix" ng-repeat="newsLink in editNews.newsLinks" ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">
+            <li class="group-list-name pull-left">
+                <span class="group-list-name" ng-show="newsLink.group">{{newsLink.group.name}}</span>
+                <span class="group-list-name" ng-show="!newsLink.group.id">All Groups</span>
+            </li>
+            <li class="group-list-role  pull-left">
+                <span class="group-list-role" ng-show="newsLink.role">{{newsLink.role.description}}</span>
+                <span class="group-list-role" ng-show="!newsLink.role.id">All Roles</span>
+            </li>
+            <li class="group-list-delete negative pull-left"><span class="group-list-delete"><a id="remove-group-{{newsLink.group.id}}" href="" ng-click="removeNewsLink(newsForm, editNews, newsLink)" >Delete</a></span></li>
+        </ul>
+        <div class="group-add-container">
+            <div class="group-list-item">
+                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editNews.allGroups | orderBy:[orderGroups,'name']"></select>
+                <div buttongroup="" buttongroupname="role" model="roleToAdd" options="editNews.allRoles" ng-init="roleToAdd" ng-click="selectRole(userFormNew, editNews, $event)"></div>
+            </div>
+            <div class=""><button type="button" class="btn btn-primary group-add-button" ng-click="addNewsLink(newsForm, editNews, groupToAdd, roleToAdd)" ng-disabled="!roleToAdd">Add</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="row form-edit-row">
+    <span ng-show="editNews.lastUpdate && editNews.lastUpdater" class="pull-right">
+        Updated {{editNews.lastUpdate | date:'dd-MMM-yyyy HH:mm'}} by {{editNews.lastUpdater.forename}} {{editNews.lastUpdater.surname}}
+    </span>
+</div>

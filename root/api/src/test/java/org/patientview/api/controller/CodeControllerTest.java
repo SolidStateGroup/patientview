@@ -10,7 +10,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
-import org.patientview.persistence.model.User;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,14 +46,14 @@ public class CodeControllerTest {
     @Test
     public void testCreateCode() {
 
-        Code testCode = TestUtils.createCode(1L, "TestCode", new User());
+        Code testCode = TestUtils.createCode("TestCode");
 
         try {
-            when(codeService.createCode(eq(testCode))).thenReturn(testCode);
+            when(codeService.add(eq(testCode))).thenReturn(testCode);
             mockMvc.perform(MockMvcRequestBuilders.post("/code")
                     .content(mapper.writeValueAsString(testCode)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(codeService, Mockito.times(1)).createCode(eq(testCode));
+            verify(codeService, Mockito.times(1)).add(eq(testCode));
         } catch (Exception e) {
             Assert.fail("This call should not fail");
         }

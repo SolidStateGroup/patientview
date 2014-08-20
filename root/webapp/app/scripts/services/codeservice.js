@@ -31,6 +31,14 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             delete codeToPost.codeTypeId;
             delete codeToPost.standardTypeId;
 
+            // clean negative number IDs
+            for (var i=0;i<codeToPost.links.length;i++) {
+                var link = codeToPost.links[i];
+                if (link.id < 0) {
+                    delete link.id;
+                }
+            }
+
             Restangular.all('code').post(codeToPost).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
@@ -70,6 +78,17 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             var deferred = $q.defer();
             // GET then DELETE /user/{userId}
             Restangular.one('code', code.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new link to code
+        addLink: function (code, link) {
+            var deferred = $q.defer();
+            // POST /code/{codeId}/links
+            Restangular.one('code', code.id).all('links').post(link).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

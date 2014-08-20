@@ -2,3 +2,4 @@
 .idea/**/*
 webapp/dist/**/*
 **/node_modules
+webapp/dist

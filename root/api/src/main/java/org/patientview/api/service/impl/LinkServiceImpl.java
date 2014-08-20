@@ -3,7 +3,6 @@ package org.patientview.api.service.impl;
 import org.patientview.api.service.LinkService;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.repository.CodeRepository;
-import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.springframework.stereotype.Service;
@@ -21,16 +20,13 @@ public class LinkServiceImpl implements LinkService {
     private LinkRepository linkRepository;
 
     @Inject
-    private GroupRepository groupRepository;
-
-    @Inject
     private LookupRepository lookupRepository;
 
     @Inject
     private CodeRepository codeRepository;
 
     // TODO: Remove link creation
-    public Link create(final Link link) {
+    public Link add(final Link link) {
 
         if (link.getCode() != null) {
             link.setCode(codeRepository.findOne(link.getCode().getId()));
@@ -43,7 +39,19 @@ public class LinkServiceImpl implements LinkService {
         return linkRepository.save(link);
     }
 
-    public Link getLink(final Long linkId) {
+    public Link get(final Long linkId) {
         return linkRepository.findOne(linkId);
+    }
+
+    public void delete(final Long linkId) {
+        linkRepository.delete(linkId);
+    }
+
+    public Link save(final Link link) {
+        Link entityLink = linkRepository.findOne(link.getId());
+        entityLink.setLink(link.getLink());
+        entityLink.setName(link.getName());
+        entityLink.setDisplayOrder(link.getDisplayOrder());
+        return linkRepository.save(entityLink);
     }
 }

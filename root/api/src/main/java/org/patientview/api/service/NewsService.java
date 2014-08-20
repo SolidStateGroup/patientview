@@ -1,6 +1,9 @@
 package org.patientview.api.service;
 
+import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.NewsItem;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,20 +12,23 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 20/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface NewsService {
+public interface NewsService extends CrudService<NewsItem> {
 
-    /**
-     * Create and item of news but reattach the group/roles/user
-     * associated with the news
-     *
-     * @param newsItem
-     * @return
-     */
-    NewsItem createNewsItem(NewsItem newsItem);
+    public Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException;
 
-    NewsItem getNewsItem(Long newsItemId);
+    public Page<NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException;
 
-    NewsItem saveNewsItem(NewsItem newsItem);
+    NewsItem save(NewsItem newsItem) throws ResourceNotFoundException;
 
-    void deleteNewsItem(Long newsItemId);
+    public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException;
+    
+    public void removeGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException;
+
+    public void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
+    
+    public void removeRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
+
+    public void addGroupAndRole(Long newsItemId, Long groupId, Long roleId) throws ResourceNotFoundException;
+
+    public void removeNewsLink(Long newsItemId, Long newsLinkId) throws ResourceNotFoundException;
 }

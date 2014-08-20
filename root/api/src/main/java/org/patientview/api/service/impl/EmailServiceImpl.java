@@ -14,7 +14,7 @@ import javax.inject.Inject;
  * Created on 24/06/2014
  */
 @Service
-public class EmailServiceImpl implements EmailService {
+public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> implements EmailService {
 
     @Inject
     private JavaMailSenderImpl javaMailSender;
@@ -27,14 +27,11 @@ public class EmailServiceImpl implements EmailService {
         msg.setSubject(email.getSubject());
         msg.setText(email.getBody());
 
-        // send
-        try{
+        try {
             javaMailSender.send(msg);
             return true;
-        }
-        catch (MailException ex) {
+        } catch (MailException ex) {
             // todo: temporarily return true even if email failed
-            // (requires git submodule setup for smtp.password from external file
             return true;
         }
     }

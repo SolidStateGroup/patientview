@@ -4,14 +4,19 @@ CREATE TABLE PV_User
   Username         VARCHAR(50)  NOT NULL UNIQUE,
   Password         VARCHAR(100) NOT NULL,
   Change_Password  BOOL         NOT NULL,
+  Failed_Logon_Attempts INTEGER NOT NULL DEFAULT 0,
   Locked           BOOL         NOT NULL,
+  Dummy            BOOL         NOT NULL,
   Fhir_Resource_Id UUID UNIQUE,
   Email            VARCHAR(200) NOT NULL,
-  Fullname             VARCHAR(200) NOT NULL,
+  Forename         VARCHAR(500) NOT NULL,
+  Surname          VARCHAR(500) NOT NULL,
+  Date_Of_Birth    DATE,
   Verification_Code    VARCHAR(200),
-  Verified         BOOL         NOT NULL DEFAULT FALSE,
+  Email_Verified   BOOL         NOT NULL DEFAULT FALSE,
   Contact_Number   VARCHAR(50),
   Last_Login       TIMESTAMP,
+  Last_Login_Ip_Address    VARCHAR(50),
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,
@@ -37,6 +42,7 @@ CREATE TABLE PV_Lookup_Value (
   Id               BIGINT       NOT NULL,
   Lookup_Type_Id   BIGINT       NOT NULL REFERENCES PV_Lookup_Type (Id),
   Value            VARCHAR(100) NOT NULL,
+  Description      TEXT,
   Creation_Date    TIMESTAMP    NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
@@ -55,6 +61,24 @@ CREATE TABLE PV_Group
   Fhir_Resource_Id UUID,
   Visible          BOOLEAN,
   Visible_To_Join  BOOLEAN,
+  Address_1        TEXT,
+  Address_2        TEXT,
+  Address_3        TEXT,
+  Postcode         VARCHAR(255),
+  Creation_Date    TIMESTAMP NOT NULL,
+  Created_By       BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Contact_Point
+(
+  Id               BIGINT    NOT NULL,
+  User_Id          BIGINT    REFERENCES PV_User (Id),
+  Group_Id         BIGINT    REFERENCES PV_Group (Id),
+  Type_Id          BIGINT    REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Content          TEXT      NOT NULL,
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
@@ -67,7 +91,7 @@ CREATE TABLE PV_Group_Relationship
   Id               BIGINT    NOT NULL,
   Source_Group_Id         BIGINT    NOT NULL,
   Object_Group_Id  BIGINT    REFERENCES PV_Group (Id) NOT NULL,
-  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Relationship_Type VARCHAR(100) NOT NULL,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP NOT NULL,
@@ -196,7 +220,7 @@ CREATE TABLE PV_News_Link (
 
 CREATE TABLE PV_Conversation (
   Id               BIGINT       NOT NULL,
-  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id),
+  Type             VARCHAR(255) NOT NULL,
   Image_Data       TEXT,
   Rating           INTEGER,
   Status           INTEGER,
@@ -212,20 +236,25 @@ CREATE TABLE PV_Conversation (
 CREATE TABLE PV_Message (
   Id              BIGINT    NOT NULL,
   Conversation_Id BIGINT    NOT NULL  REFERENCES PV_Conversation (Id),
-  Type_Id         BIGINT REFERENCES PV_Lookup_Value (Id),
+  Type            VARCHAR(255) NOT NULL,
   Message         TEXT      NOT NULL,
+  User_Id         BIGINT    NOT NULL REFERENCES PV_User (Id),
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Conversation_Participant (
+CREATE TABLE PV_Conversation_User (
   Id              BIGINT    NOT NULL,
   Conversation_Id BIGINT    NOT NULL REFERENCES PV_Conversation (Id),
   User_Id         BIGINT    NOT NULL REFERENCES PV_User (Id),
   Anonymous       BOOL      NOT NULL,
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
@@ -260,17 +289,6 @@ CREATE TABLE PV_Code (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Join_Request (
-  Id            BIGINT       NOT NULL,
-  Forename      VARCHAR(200) NOT NULL,
-  Surname       VARCHAR(200) NOT NULL,
-  DOB           DATE         NOT NULL,
-  Nhs_Number    VARCHAR(10),
-  Join_Group_Id BIGINT       NOT NULL  REFERENCES PV_Group (Id),
-  Creation_Date TIMESTAMP    NOT NULL,
-  PRIMARY KEY (Id)
-);
-
 CREATE TABLE PV_Location (
   Id            BIGINT    NOT NULL,
   Group_Id      BIGINT    NOT NULL  REFERENCES PV_Group (Id),
@@ -300,12 +318,11 @@ CREATE TABLE PV_Log (
 CREATE TABLE PV_Audit (
   Id            BIGINT    NOT NULL,
   Action        VARCHAR(200),
-  Source        VARCHAR(50),
-  Object_id     BIGINT,
+  Source_Object_Type    VARCHAR(50),
+  Source_Object_Id      BIGINT,
   Pre_Value     VARCHAR(500),
   Post_Value    VARCHAR(500),
-  Action_Date   TIMESTAMP NOT NULL,
-  Actor_Id      BIGINT    NOT NULL REFERENCES PV_User (Id),
+  Actor_Id      BIGINT   REFERENCES PV_User (Id),
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
 );
@@ -409,21 +426,6 @@ CREATE TABLE PV_Shared_Thought (
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE PV_Shared_Thought_Audit (
-  Id                   BIGINT       NOT NULL,
-  Shared_Thought_Id    BIGINT       NOT NULL REFERENCES PV_Shared_Thought (Id),
-  User_Id              BIGINT       NOT NULL REFERENCES PV_User (Id),
-  Group_Id             BIGINT       NOT NULL REFERENCES PV_Group (Id),
-  Message_Id           BIGINT       REFERENCES PV_Message (Id),
-  Responder_Id         BIGINT       REFERENCES PV_User (Id),
-  Action               VARCHAR(255) NOT NULL,
-  Creation_Date        TIMESTAMP    NOT NULL,
-  Created_By           BIGINT       REFERENCES PV_User (Id),
-  Last_Update_Date     TIMESTAMP,
-  Last_Updated_By      BIGINT       REFERENCES PV_User (Id),
-  PRIMARY KEY (Id)
-);
-
 CREATE TABLE PV_Route (
   Id                   BIGINT        NOT NULL,
   Type_Id              BIGINT        NOT NULL  REFERENCES PV_Lookup_Value (Id),
@@ -462,6 +464,35 @@ CREATE TABLE PV_Identifier
   Created_By       BIGINT      NOT NULL REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+
+CREATE TABLE PV_Join_Request
+(
+  Id               BIGINT      NOT NULL,
+  Forename         VARCHAR(500)   NOT NULL,
+  Surname          VARCHAR(500) NOT NULL,
+  Date_Of_Birth    DATE NOT NULL,
+  Email            VARCHAR(500) NOT NULL,
+  Nhs_Number       VARCHAR(10),
+  Notes            TEXT,
+  Completion_Date  TIMESTAMP,
+  Completed_By     BIGINT REFERENCES PV_User (Id),
+  Status           VARCHAR(50),
+  Group_Id         BIGINT REFERENCES PV_Group (Id),
+  Creation_Date    TIMESTAMP   NOT NULL,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Group_Statistic (
+  Id               BIGINT NOT NULL,
+  Group_Id         BIGINT        REFERENCES PV_Group (Id),
+  Start_Date       DATE NOT NULL,
+  End_Date         DATE NOT NULL,
+  Collated_Period  VARCHAR(50),
+  Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
+  Value            NUMERIC(19, 2) DEFAULT 0,
   PRIMARY KEY (Id)
 );
 

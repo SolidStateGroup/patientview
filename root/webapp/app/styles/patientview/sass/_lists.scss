@@ -33,3 +33,28 @@
         }
     }
 }
+
+.groups-list{
+    li{
+        color:$textdefault;
+        margin-right:5px;
+
+        .light-text{
+            font-size:1rem;
+        }
+
+    }
+}
+
+.faux-table .faux-row .row-item{
+    .patient-groups{
+        li{
+            width:100%;
+            float:left;
+
+            span{
+                float:left;
+            }
+        }
+    }
+}

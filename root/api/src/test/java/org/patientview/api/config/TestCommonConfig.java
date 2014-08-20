@@ -35,13 +35,11 @@ public class TestCommonConfig {
         properties.setProperty("smtp.host", host);
         properties.setProperty("smtp.username", username);
         properties.setProperty("smtp.password", password);
-
-        javaMailProperties = new Properties();
-        javaMailProperties.setProperty("mail.debug","false");
-        javaMailProperties.setProperty("mail.smtp.auth","true");
-        javaMailProperties.setProperty("mail.smtp.ssl.enable","true");
-        javaMailProperties.setProperty("mail.smtp.starttls.enable","true");
-        javaMailProperties.setProperty("mail.smtp.port","465");
+        properties.setProperty("mail.debug","false");
+        properties.setProperty("mail.smtp.auth","true");
+        properties.setProperty("mail.smtp.ssl.enable","true");
+        properties.setProperty("mail.smtp.starttls.enable","true");
+        properties.setProperty("mail.smtp.port","465");
     }
 
     @Bean

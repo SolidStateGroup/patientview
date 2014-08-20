@@ -1,6 +1,9 @@
 /** form styles **/
 
-input[type="text"], .group-select{
+input[type="text"],
+input[type="password"],
+select,
+.group-select{
     background:$inputbg;
     border:1px solid $border-default;
     @include bootstrap-box-shadow(none);
@@ -10,10 +13,32 @@ input[type="text"], .group-select{
         @include bootstrap-box-shadow(none);
         @include bootstrap-border-radius(0);
     }
+
+    &:-moz-placeholder {
+        color: $textlight;
+    }
+    &::-webkit-input-placeholder {
+        color: $textlight;
+    }
+}
+
+select.form-control{
+    height:35px;
 }
 
 label{
-    color:$textlight;
+    color:$textdefault;
+}
+
+.disabled{
+    cursor:not-allowed;
+    background:$inputbg;
+    color:#989898;
+    width:auto;
+    font-weight:normal;
+    @include bootstrap-border-radius(0);
+    @include bootstrap-box-shadow(none);
+    border:1px solid #f3f3f3;
 }
 
 
@@ -60,7 +85,7 @@ label{
     margin-right:15px;
 
     .btn-group{
-        background:$inputbg;
+        background:$white;
         border:1px solid $border-default;
 
         &.open{
@@ -71,7 +96,7 @@ label{
 
         button{
             background:transparent;
-            color:$light-grey;
+            color:$textlight;
             position:relative;
             height:34px;
             padding:0 50px 0 10px;
@@ -123,7 +148,7 @@ label{
     .dropdown-menu{
         position:absolute;
         min-width:100px;
-        left:-65px;
+        left:-75px;
 
         > li a{
             text-align: left;
@@ -207,23 +232,67 @@ label{
 }
 
 .radio-button-list{
-    padding-left:0;
-    li{
+    padding-left:10px;
+    .btn{
         background:$inputaddon;
         color:$textdefault;
         @include bootstrap-border-radius(0);
         border-left:1px solid $inputaddonborder;
         line-height:15px;
         white-space: normal;
+        word-spacing: 999999px;
+        width: 58px;
+        font-size: 1.2rem;
 
         &:first-child{
             border-left:0;
         }
 
-        .active, &:hover{
+        &.active, &:hover{
             background:$aqua;
             border-left:1px solid $aquadark;
             @include bootstrap-box-shadow(0);
+            color:$white;
         }
+    }
+}
+
+.select-add-group{
+    select{
+        width:65%;
+        float:left;
+        height:40px;
+    }
+
+    .group-list-item{
+        width:auto;
+        float:left;
+        clear:left;
+
+        .radio-button-list{
+            padding-left:0;
+            margin-top:10px;
+
+            li.active{
+                background:#00adc6;
+            }
+        }
+    }
+
+    button{
+        float:left;
+        margin-top:10px;
+    }
+}
+
+.group-add-button, .feature-add-button{
+    height:40px;
+    margin-left:10px;
+}
+
+.add-feature{
+    select{
+        float:left;
+        width:80%;
     }
 }

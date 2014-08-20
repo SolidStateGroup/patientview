@@ -13,7 +13,8 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 25/06/2014
  */
-
+@Entity
+@Table(name = "pv_code")
 public class Code extends AuditModel {
 
     @Column(name = "code")
@@ -33,7 +34,7 @@ public class Code extends AuditModel {
     @JoinColumn(name = "standard_type_id")
     private Lookup standardType;
 
-    @OneToMany(mappedBy = "code", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "code", cascade = CascadeType.ALL)
     private Set<Link> links;
 
     public String getCode() {

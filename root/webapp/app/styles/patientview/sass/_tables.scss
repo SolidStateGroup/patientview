@@ -18,10 +18,12 @@
             vertical-align: middle;
             text-align: left;
             padding:0 10px;
+            font-weight:bold;
 
             a {
                 color: $textdefault;
                 text-decoration: none;
+                cursor:pointer;
             }
         }
     }
@@ -43,7 +45,7 @@
         }
 
         .panel-collapse{
-            .btn{
+            button{
                 line-height:20px;
                 min-height:30px;
             }
@@ -73,6 +75,13 @@
             text-decoration:none;
             vertical-align: middle;
             word-break: break-word;
+            font-family: 'Lato', sans-serif;
+
+            span{
+                display:block;
+                float:right;
+            }
+
 
             &.actions{
                 text-align:center;
@@ -105,6 +114,11 @@
     &.seven-col{
         .row-item,.head-item{
             width:14.44%;
+        }
+    }
+    &.eight-col{
+        .row-item,.head-item{
+            width:12.5%;
         }
     }
 }

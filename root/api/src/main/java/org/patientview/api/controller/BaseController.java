@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.persistence.EntityExistsException;
+import java.lang.reflect.ParameterizedType;
 
 /**
  * Base controller containing exception handling
@@ -16,16 +17,20 @@ import javax.persistence.EntityExistsException;
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
-public class BaseController {
+public abstract class BaseController<T extends BaseController> {
 
+    protected final Logger LOG = LoggerFactory.getLogger(getControllerClass());
 
-    private final static Logger LOG = LoggerFactory.getLogger(BaseController.class);
+    public Class<T> getControllerClass()  {
+        ParameterizedType superclass = (ParameterizedType) getClass().getGenericSuperclass();
+        return (Class<T>) superclass.getActualTypeArguments()[0];
+    }
 
     @ExceptionHandler(EntityExistsException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public String handleEntityException(EntityExistsException e) {
-        LOG.error("Handling Entity Exception {}", e);
+        LOG.info("Handling Entity Exception {}", e);
         return e.getMessage();
     }
 
@@ -34,7 +39,15 @@ public class BaseController {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public String handleEntityException(ResourceNotFoundException e) {
-        LOG.error("Could not find resource {}", e);
+        LOG.info("Could not find resource {}", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(SecurityException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public String handleSecurityException(SecurityException e) {
+        LOG.info("Authentication failed for this resource");
         return e.getMessage();
     }
 

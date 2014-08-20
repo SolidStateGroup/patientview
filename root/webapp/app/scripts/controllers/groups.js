@@ -10,16 +10,17 @@ var GroupStatisticsModalInstanceCtrl = ['$scope', '$modalInstance','statistics',
     }];
 
 // new group modal instance controller
-var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'groupTypes', 'editGroup', 'allFeatures', 'allParentGroups', 'allChildGroups', 'GroupService',
-function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup, allFeatures, allParentGroups, allChildGroups, GroupService) {
+var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'groupTypes', 'editGroup', 'allFeatures', 'contactPointTypes', 'allParentGroups', 'allChildGroups', 'GroupService',
+function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup, allFeatures, contactPointTypes, allParentGroups, allChildGroups, GroupService) {
     $scope.permissions = permissions;
     $scope.editGroup = editGroup;
     $scope.groupTypes = groupTypes;
     $scope.allFeatures = allFeatures;
+    $scope.contactPointTypes = contactPointTypes;
     $scope.editMode = false;
     var i;
 
-    // restrict all but SUPER_ADMIN from adding new SPECIALTY type groups by reducing groupTypes
+    // restrict all but GLOBAL_ADMIN from adding new SPECIALTY type groups by reducing groupTypes
     for (i = 0; i < $scope.groupTypes.length; i++) {
         if (!$scope.permissions.isSuperAdmin && $scope.groupTypes[i].value === 'SPECIALTY') {
             $scope.groupTypes.splice(i, 1);
@@ -76,7 +77,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.predicate = 'id';
 
             // allowed relationship groups are those that can be added as parents or children to existing groups
-            // SUPER_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
+            // GLOBAL_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
             // SPECIALTY_ADMIN can only edit their specialty and add relationships so allowedRelationshipGroups is just a
             // list of all available units found from getUnitGroups which is $scope.AllUnits
             // all other users cannot add parents/children so allowedRelationshipGroups is an empty array
@@ -122,17 +123,17 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.loading = true;
         $scope.allUnits = [];
 
-        // TODO: set permissions for ui, hard coded to check if user has SUPER_ADMIN, SPECIALTY_ADMIN role anywhere, if so can do:
+        // TODO: set permissions for ui, hard coded to check if user has GLOBAL_ADMIN, SPECIALTY_ADMIN role anywhere, if so can do:
         // add SPECIALTY groups
         // edit group code
-        // edit parents groups (SUPER_ADMIN only)
+        // edit parents groups (GLOBAL_ADMIN only)
         // edit child groups
         // edit features
         // create group
         $scope.permissions = {};
 
-        // check if user is SUPER_ADMIN or SPECIALTY_ADMIN
-        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('SUPER_ADMIN', $scope.loggedInUser);
+        // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
+        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
         $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
 
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
@@ -193,6 +194,11 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 $scope.allFeatures.push({'feature':allFeatures[i]});
             }
         });
+
+        // get list of contact point types
+        StaticDataService.getLookupsByType('CONTACT_POINT_TYPE').then(function(contactPointTypes) {
+            $scope.contactPointTypes = contactPointTypes;
+        });
     };
 
     // filter by group type
@@ -231,6 +237,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     $scope.opened = function (openedGroup, $event, status) {
 
         $scope.editMode = true;
+        $scope.saved = '';
 
         // do not load if already opened (status.open == true)
         if (!status || status.open === false) {
@@ -238,9 +245,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             GroupService.get(openedGroup.id).then(function (group) {
-
-                var i = 0, j = 0;
-                $scope.statistics = '';
+                var i, j;
                 $scope.successMessage = '';
                 group.groupTypeId = group.groupType.id;
 
@@ -308,6 +313,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                     group.groupFeatures = [];
                 }
 
+                // set default of new location label to Additional Location
+                group.newLocation = {};
+                group.newLocation.label = 'Additional Location';
+
                 $scope.editGroup = _.clone(group);
 
                 if ($scope.editGroup.availableFeatures[0]) {
@@ -349,6 +358,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
     // open modal for new group
     $scope.openModalNewGroup = function (size) {
+        // close any open edit panels
+        $('.panel-collapse.in').collapse('hide');
         $scope.errorMessage = '';
         $scope.successMessage = '';
         $scope.groupCreated = '';
@@ -357,12 +368,17 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.editGroup.locations = [];
         $scope.editGroup.groupFeatures = [];
         $scope.editGroup.availableFeatures = _.clone($scope.allFeatures);
+        $scope.editGroup.contactPoints = [];
 
         // set up parent/child groups
         $scope.editGroup.parentGroups = [];
         $scope.editGroup.childGroups = [];
         $scope.editGroup.availableParentGroups = _.clone($scope.allParentGroups);
         $scope.editGroup.availableChildGroups = _.clone($scope.allChildGroups);
+
+        // set default of new location label to Additional Location
+        $scope.editGroup.newLocation = {};
+        $scope.editGroup.newLocation.label = 'Additional Location';
 
         var modalInstance = $modal.open({
             templateUrl: 'newGroupModal.html',
@@ -377,6 +393,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 },
                 allFeatures: function(){
                     return $scope.allFeatures;
+                },
+                contactPointTypes: function(){
+                    return $scope.contactPointTypes;
                 },
                 allParentGroups: function(){
                     return $scope.allParentGroups;
@@ -407,16 +426,26 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
     // Save from edit
     $scope.save = function (editGroupForm, group) {
-        GroupService.save(group, $scope.groupTypes).then(function(successResult) {
+        GroupService.save(group, $scope.groupTypes).then(function() {
 
             // successfully saved, replace existing element in data grid with updated
             editGroupForm.$setPristine(true);
+            $scope.saved = true;
 
-            for(var i=0;i<$scope.list.length;i++) {
-                if($scope.list[i].id == group.id) {
-                    $scope.list[i] = _.clone(successResult);
+            // update accordion header for group with data from GET
+            GroupService.get(group.id).then(function (successResult) {
+                for(var i=0;i<$scope.list.length;i++) {
+                    if($scope.list[i].id == successResult.id) {
+                        var headerDetails = $scope.list[i];
+                        headerDetails.code = successResult.code;
+                        headerDetails.name = successResult.name;
+                        headerDetails.groupType = successResult.groupType;
+                    }
                 }
-            }
+            }, function () {
+                // failure
+                alert('Error updating header (saved successfully)');
+            });
 
             $scope.successMessage = 'Group saved';
         });

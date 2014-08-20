@@ -1,7 +1,12 @@
+html{
+    font-family: 'Lato', sans-serif;
+}
+
 body {
     background: $background;
     color: $textdefault;
     margin-top: 20px;
+    font-family: 'Lato', sans-serif;
 }
 
 .page-content {
@@ -37,8 +42,21 @@ body {
         background: $lowlight;
     }
 
+    &.user-settings{
+        margin-bottom:20px;
+
+        label.control-label{
+            text-align:left;
+            width:200px;
+        }
+    }
+
     .content-inner {
         padding: 10px;
+    }
+
+    .intro-block{
+        padding:15px;
     }
 
     .panel-footer {
@@ -46,6 +64,33 @@ body {
         border-top: 1px solid $border-default;
         width: 100%;
         padding: 0 0 15px 0;
+    }
+}
+
+.notification-dialog{
+    position:absolute;
+    width:300px;
+    height:auto;
+    bottom:10%;
+    right:25%;
+    left:50%;
+    margin-left:-150px;
+    border:1px solid #9dd487;
+    padding:10px;
+    @include bootstrap-border-radius(8px);
+
+    h3{
+        margin-top:0;
+    }
+}
+
+.help-text{
+    margin-top:20px;
+}
+
+.row aside{
+    &>h3{
+        margin-top:0;
     }
 }
 
@@ -138,44 +183,31 @@ ul {
         display:block;
         margin:5px auto;
     }
+
+    &.warning{
+        background-color:#ffbc3c;
+    }
+    &.completed{
+        background-color:#3dcd4e;
+    }
+    &.ignored{
+        background-color:$error;
+    }
 }
 
-/** hero pane **/
+.badge-small{
+    height: 18px;
+    width: 18px;
+    line-height: 12px;
+    padding: 3px;
+}
 
-.hero-panel {
-    background: url('../../../images/hero-bg.png') 0 0 no-repeat;
-    background-size: cover;
-    width: 100%;
-    height: 430px;
-    margin-top: 20px;
-
-    .hero-pane {
-        height: 100%;
-        color: $white;
-
-        &.aquamarine {
-            @include bootstrap-color-opacity($aquamarine, 70);
-        }
-
-        &.aqua {
-            @include bootstrap-color-opacity($aqua, 70);
-        }
-
-        &.blue {
-            @include bootstrap-color-opacity($primary, 70);
-        }
-
-        .pane-content{
-            text-align: center;
-            margin:25% 0;
-            font-weight:100;
-            font-size:2.5rem;
-
-            h2{
-                font-size:7rem;
-            }
-        }
-    }
+.badge-tiny{
+    height: 12px;
+    width: 12px;
+    line-height: 8px;
+    padding: 3px;
+    font-size: 0.75rem;
 }
 
 /** buttons **/
@@ -183,7 +215,7 @@ ul {
 .btn {
     @include bootstrap-border-radius(4px);
     color: $white;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     min-height:30px;
     min-width: 34px;
     line-height:20px;
@@ -193,8 +225,22 @@ ul {
     }
 
     i{
-        margin-right:10px;
+//        margin-right:10px;
     }
+}
+
+.button-dropdown-group .dropdown > button {
+    height:34px;
+}
+
+.button-dropdown-group button, .btn-group button{
+    span{
+        margin-left:4px;
+    }
+}
+
+.btn-grey{
+    background-color: $textlight;
 }
 
 /** generic color styles **/
@@ -207,6 +253,33 @@ ul {
 }
 .negative {
     background-color: $error;
+}
+
+/* text classes */
+
+.light-text{
+    color:$bluegrey;
+}
+.sub-text{
+    font-size:0.85rem;
+}
+
+/** TODO add this in more appropriate place **/
+
+.showHideText {
+    font-size: 16px;
+    line-height: 16px;
+    height: 35px;
+    overflow: hidden;
+}
+.show {
+    overflow: visible;
+    height: auto;
+    min-height: 35px;
+}
+
+.showHideLink {
+    font-size: 16px;
 }
 
 /** temporary icons stuff **/
@@ -253,6 +326,13 @@ i.icon-organisations{
     margin-top:7px;
 }
 
+i.icon-news{
+    background: url('../../../images/icons/news.png') 0 0 no-repeat;
+    height: 22px;
+    width: 24px;
+    margin-top:7px;
+}
+
 i.icon-patients{
     background: url('../../../images/icons/patients.png') 0 0 no-repeat;
     height: 27px;
@@ -269,4 +349,56 @@ i.icon-reply{
     background: url('../../../images/icons/reply-icon.png') 0 0 no-repeat;
     height: 15px;
     width: 16px;
+}
+
+i.icon-sort{
+    background: url('../../../images/icons/sort.png') 0 0 no-repeat;
+    height: 25px;
+    width: 20px;
+}
+
+i.icon-join-large{
+    background: url('../../../images/icons/join-large.png') 0 0 no-repeat;
+    height: 37px;
+    width: 33px;
+    display:block;
+}
+
+i.icon-login-large{
+    background: url('../../../images/icons/login-large.png') 0 0 no-repeat;
+    height: 37px;
+    width: 33px;
+    display:block;
+}
+
+i.icon-help{
+    background: url('../../../images/icons/help.png') 0 0 no-repeat;
+    height: 22px;
+    width: 24px;
+}
+
+i.icon-issues{
+    background: url('../../../images/icons/issues.png') 0 0 no-repeat;
+    height: 22px;
+    width: 24px;
+}
+
+i.icon-messages{
+    background: url('../../../images/icons/messages.png') 0 0 no-repeat;
+    height: 22px;
+    width: 37px;
+}
+
+
+@media only screen
+and (max-width : 1024px) {
+    .content-panel{
+        margin-bottom:20px;
+
+        &.panel-header{
+            margin-bottom:5px;
+        }
+    }
+
+
 }

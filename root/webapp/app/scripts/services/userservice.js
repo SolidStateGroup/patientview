@@ -49,14 +49,13 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        // Reset user's password
+        // Change user's password, sets the change flag to false
         changePassword: function (user) {
             var deferred = $q.defer();
             var newPasword = user.password;
-            // POST /user/{userId}/resetPassword
-            Restangular.one('user', user.id).post('resetPassword', {'password':newPasword}).then(function(successResult) {
+            // POST /user/{userId}/changePassword
+            Restangular.one('user').post('changePassword', {'password':newPasword}).then(function(successResult) {
                 deferred.resolve(successResult);
-                successResult.password = generatedPassword;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
@@ -86,38 +85,10 @@ function ($q, Restangular, UtilService) {
         },
         // Save existing user
         save: function (inputUser) {
-            var i;
             var deferred = $q.defer();
 
             // clean user object
-            var user = UtilService.cleanObject(inputUser, 'user');
-
-            // clean group roles (clean role and group then add to groupRoles)
-            user.groupRoles = [];
-            for (i=0;i<inputUser.groupRoles.length;i++) {
-                var inputGroupRole = inputUser.groupRoles[i];
-                var role = UtilService.cleanObject(inputGroupRole.role, 'role');
-                var group = UtilService.cleanObject(inputGroupRole.group, 'group');
-                user.groupRoles.push({'group':group,'role':role});
-            }
-
-            // clean user features
-            var cleanUserFeatures = [];
-            for (i=0;i<inputUser.userFeatures.length;i++) {
-                var userFeature = inputUser.userFeatures[i];
-                var feature = {'id':userFeature.feature.id,'name':userFeature.feature.name,'description':''};
-                cleanUserFeatures.push({'feature':feature});
-            }
-            user.userFeatures = cleanUserFeatures;
-
-            // clean identifiers
-            var cleanIdentifiers = [];
-            for (i=0;i<inputUser.identifiers.length;i++) {
-                var identifier = inputUser.identifiers[i];
-                identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
-                cleanIdentifiers.push(identifier);
-            }
-            user.identifiers = cleanIdentifiers;
+            var user = UtilService.cleanObject(inputUser, 'userDetails');
 
             // PUT /user
             Restangular.all('user').customPUT(user).then(function(successResult) {
@@ -154,6 +125,9 @@ function ($q, Restangular, UtilService) {
             for (i=0;i<inputUser.identifiers.length;i++) {
                 var identifier = inputUser.identifiers[i];
                 identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+                if (identifier.id < 0) {
+                    delete identifier.id;
+                }
                 cleanIdentifiers.push(identifier);
             }
 
@@ -171,7 +145,8 @@ function ($q, Restangular, UtilService) {
 
             // lock and generate verification code
             user.locked = 'false';
-            user.verified = 'false';
+            user.dummy = 'false';
+            user.emailVerified = 'false';
             user.verificationCode = UtilService.generateVerificationCode();
 
             // POST /user
@@ -195,6 +170,84 @@ function ($q, Restangular, UtilService) {
             } else {
                 return false;
             }
+        },
+        // Add new feature to user
+        addFeature: function (user, featureId) {
+            var deferred = $q.defer();
+            // PUT /user/{userId}/features/{featureId}
+            Restangular.one('user', user.id).one('features',featureId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete feature from user
+        deleteFeature: function (user, feature) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/features/{featureId}
+            Restangular.one('user', user.id).one('features',feature.id).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // add new grouprole
+        addGroupRole: function (user, groupId, roleId) {
+            var deferred = $q.defer();
+            // PUT /user/{userId}/group/{groupId}/role/{roleId}
+            Restangular.one('user', user.id).one('group',groupId).one('role',roleId).put().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Delete grouprole
+        deleteGroupRole: function (user, groupId, roleId) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/group/{groupId}/role/{roleId}
+            Restangular.one('user', user.id).one('group',groupId).one('role',roleId).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Add new identifier to user
+        addIdentifier: function (user, identifier) {
+            var deferred = $q.defer();
+            identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+            // POST /user/{userId}/identifiers
+            Restangular.one('user', user.id).all('identifiers').post(identifier).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Count the number of locked users in a group
+        countLockedUsersByGroup: function (groupId) {
+            var deferred = $q.defer();
+            // GET /group/{groupId}/lockedusers
+            Restangular.one('group', groupId).one('lockedusers').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // Count the number of inactive users in a group
+        countInactiveUsersByGroup: function (groupId) {
+            var deferred = $q.defer();
+            // GET /group/{groupId}/inactiveusers
+            Restangular.one('group', groupId).one('inactiveusers').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

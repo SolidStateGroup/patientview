@@ -5,11 +5,18 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -19,6 +26,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Created by james@solidstategroup.com
@@ -38,7 +47,7 @@ public class GroupRepositoryTest {
     User creator;
 
     @Before
-    public void setup () {
+    public void setup() {
         creator = dataTestUtils.createUser("testCreator");
     }
 
@@ -48,8 +57,10 @@ public class GroupRepositoryTest {
     public void testCreateGroup() {
 
         // Create a group
-        Group childGroup = TestUtils.createGroup(1L, "CHILD_GROUP", creator);
-        Group parentGroup = TestUtils.createGroup(2L, "PARENT_GROUP", creator);
+        Group childGroup = TestUtils.createGroup("CHILD_GROUP");
+        Group parentGroup = TestUtils.createGroup("PARENT_GROUP");
+        childGroup.setId(null);
+        parentGroup.setId(null);
         groupRepository.save(childGroup);
         groupRepository.save(parentGroup);
 
@@ -70,9 +81,9 @@ public class GroupRepositoryTest {
     @Test
     public void testFindGroupByUser() {
         User user = dataTestUtils.createUser("testUser");
-        Group group = dataTestUtils.createGroup("testGroup", creator);
-        Role role = dataTestUtils.createRole("testRole", creator);
-        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role, creator);
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role);
 
         Iterable<Group> groups = groupRepository.findGroupByUser(user);
 
@@ -87,8 +98,8 @@ public class GroupRepositoryTest {
     @Test
     public void testFindGroupByType() {
 
-        Group group = dataTestUtils.createGroup("testGroup", creator);
-        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", "GROUP_TYPE", creator);
+        Group group = dataTestUtils.createGroup("testGroup");
+        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP);
         group.setGroupType(lookup);
         groupRepository.save(group);
 
@@ -96,6 +107,39 @@ public class GroupRepositoryTest {
 
         Assert.assertTrue("There are no groups linked to the user", groups.iterator().hasNext());
 
+    }
+
+    @Test
+    public void testGroupContactPoints() {
+
+        Group group = dataTestUtils.createGroup("testGroup");
+        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP);
+        group.setGroupType(lookup);
+        group.setContactPoints(new HashSet<ContactPoint>());
+
+        LookupType lookupType = new LookupType();
+        lookupType.setType(LookupTypes.CONTACT_POINT_TYPE);
+
+        ContactPointType contactPointType = new ContactPointType();
+        contactPointType.setLookupType(lookupType);
+        contactPointType.setValue(ContactPointTypes.PV_ADMIN_NAME);
+
+        ContactPoint contactPoint = new ContactPoint();
+        contactPoint.setCreator(creator);
+        contactPoint.setContactPointType(contactPointType);
+        contactPoint.setContent("Dr PV Admin");
+
+        group.getContactPoints().add(contactPoint);
+
+        Group entityGroup = groupRepository.save(group);
+        Iterator iter = entityGroup.getContactPoints().iterator();
+
+        Assert.assertTrue("Group should have contact points", iter.hasNext());
+
+        ContactPoint firstContactPoint = (ContactPoint) iter.next();
+
+        Assert.assertTrue("Contact point type should be PV_ADMIN_NAME",
+                firstContactPoint.getContactPointType().getValue().equals(ContactPointTypes.PV_ADMIN_NAME));
     }
 
 }
