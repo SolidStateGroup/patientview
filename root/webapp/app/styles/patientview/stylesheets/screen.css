@@ -1266,42 +1266,43 @@ label {
   -webkit-box-shadow: 0;
   -moz-box-shadow: 0;
   box-shadow: 0;
+  color: white;
 }
 
-/* line 260, ../sass/_forms.scss */
+/* line 261, ../sass/_forms.scss */
 .select-add-group select {
   width: 65%;
   float: left;
   height: 40px;
 }
-/* line 266, ../sass/_forms.scss */
+/* line 267, ../sass/_forms.scss */
 .select-add-group .group-list-item {
   width: auto;
   float: left;
   clear: left;
 }
-/* line 271, ../sass/_forms.scss */
+/* line 272, ../sass/_forms.scss */
 .select-add-group .group-list-item .radio-button-list {
   padding-left: 0;
   margin-top: 10px;
 }
-/* line 275, ../sass/_forms.scss */
+/* line 276, ../sass/_forms.scss */
 .select-add-group .group-list-item .radio-button-list li.active {
   background: #00adc6;
 }
-/* line 281, ../sass/_forms.scss */
+/* line 282, ../sass/_forms.scss */
 .select-add-group button {
   float: left;
   margin-top: 10px;
 }
 
-/* line 287, ../sass/_forms.scss */
+/* line 288, ../sass/_forms.scss */
 .group-add-button, .feature-add-button {
   height: 40px;
   margin-left: 10px;
 }
 
-/* line 293, ../sass/_forms.scss */
+/* line 294, ../sass/_forms.scss */
 .add-feature select {
   float: left;
   width: 80%;
@@ -1444,43 +1445,49 @@ label {
 .message-item .quick-reply .message-summary, .tab-panel-item .quick-reply .message-summary {
   padding-top: 0;
 }
-
 /* line 38, ../sass/_messages.scss */
+.message-item .delete-news a, .tab-panel-item .delete-news a {
+  background: #f20d2e;
+  color: white;
+  height: 72px;
+}
+
+/* line 46, ../sass/_messages.scss */
 .message-summary {
   padding: 20px 20px 0;
   font-size: 1rem;
 }
-/* line 42, ../sass/_messages.scss */
+/* line 50, ../sass/_messages.scss */
 .message-summary .message-title {
   color: #353535;
   margin: 0;
   font-size: 2rem;
   font-weight: bold;
 }
-/* line 48, ../sass/_messages.scss */
+/* line 56, ../sass/_messages.scss */
 .message-summary .message-title span.new-message {
   font-size: 1.5rem;
   font-weight: normal;
   margin-right: 20px;
 }
-/* line 54, ../sass/_messages.scss */
+/* line 62, ../sass/_messages.scss */
 .message-summary .message-title .recipient {
   color: #909090;
   font-size: 1.5rem;
   font-weight: normal;
 }
-/* line 62, ../sass/_messages.scss */
+/* line 70, ../sass/_messages.scss */
 .message-summary .last-message h4 {
   color: #368de8;
   font-size: 1.5rem;
   margin-bottom: 0;
 }
-/* line 67, ../sass/_messages.scss */
+/* line 75, ../sass/_messages.scss */
 .message-summary .last-message .message-content {
   color: #353535;
   font-size: 1.5rem;
 }
-/* line 71, ../sass/_messages.scss */
+/* line 79, ../sass/_messages.scss */
 .message-summary .last-message .date-stamp {
   color: #909090;
   font-size: 1.5rem;

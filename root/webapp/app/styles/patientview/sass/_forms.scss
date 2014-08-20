@@ -252,6 +252,7 @@ label{
             background:$aqua;
             border-left:1px solid $aquadark;
             @include bootstrap-box-shadow(0);
+            color:$white;
         }
     }
 }
