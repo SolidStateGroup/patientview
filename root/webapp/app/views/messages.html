@@ -68,7 +68,7 @@
                 <fieldset>
                     <div class="btn-group pull-right">
                         <button class="btn btn-grey" ng-click="conversation.quickReplyOpen = false">Close</button>
-                        <button class="btn blue" ng-click="quickReply(conversation)"><i class="icon-reply"></i> Send</button>
+                        <button class="btn blue" ng-click="quickReply(conversation)" ng-disabled="!conversation.quickReplyContent.length"><i class="icon-reply"></i> Send</button>
                     </div>
                 </fieldset>
             </form>
@@ -93,7 +93,7 @@
                 <fieldset>
                     <div class="btn-group pull-right">
                         <button class="btn btn-grey" ng-click="viewMessages(conversation)">Close</button>
-                        <button class="btn blue" ng-click="addMessage(conversation)"><i class="icon-reply"></i> Send</button>
+                        <button class="btn blue" ng-click="addMessage(conversation)" ng-disabled="!conversation.addMessageContent.length"><i class="icon-reply"></i> Send</button>
                     </div>
                 </fieldset>
             </form>
