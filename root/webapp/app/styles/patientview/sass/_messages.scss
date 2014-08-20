@@ -45,6 +45,12 @@
         font-size:2rem;
         font-weight:bold;
 
+        span.new-message{
+            font-size:1.5rem;
+            font-weight:normal;
+            margin-right:20px;
+        }
+
         .recipient{
             color:$messagetab;
             font-size:1.5rem;
