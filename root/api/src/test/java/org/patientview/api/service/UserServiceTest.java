@@ -128,6 +128,8 @@ public class UserServiceTest {
         newUser.getIdentifiers().add(identifier);
 
         when(userRepository.save(Matchers.eq(newUser))).thenReturn(newUser);
+        when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
+        when(roleRepository.findOne(Matchers.eq(role.getId()))).thenReturn(role);
 
         userService.createUserWithPasswordEncryption(newUser);
 
