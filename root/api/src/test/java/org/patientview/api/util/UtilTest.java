@@ -14,6 +14,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticType;
 import org.patientview.test.util.TestUtils;
+import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.CollectionUtils;
 
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 public class UtilTest {
+
+    final static Logger LOG = org.slf4j.LoggerFactory.getLogger(UtilTest.class);
 
     User creator;
 
@@ -83,6 +86,8 @@ public class UtilTest {
 
         // Get the only statistic
         GroupStatisticTO groupStatisticTO = (GroupStatisticTO) groupStatisticTOs.toArray()[0];
+
+        LOG.info("GroupStatistics : {}", groupStatisticTO.toString());
 
         // Make sure the count is set to ten for all the properties
         Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatients().equals(BigInteger.TEN));

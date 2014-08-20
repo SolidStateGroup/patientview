@@ -1,5 +1,7 @@
 package org.patientview.api.controller.model;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import java.math.BigInteger;
 import java.util.Date;
 
@@ -25,6 +27,8 @@ public class GroupStatisticTO implements Comparable {
     private BigInteger countOfAccountLocks = BigInteger.ZERO;
     private BigInteger countOfPatientRemoves = BigInteger.ZERO;
     private BigInteger countOfPatientDeletes = BigInteger.ZERO;
+    private BigInteger countOfUserInactive = BigInteger.ZERO;
+    private BigInteger countOfUserLocked = BigInteger.ZERO;
 
     public BigInteger getCountOfPatients() {
         return countOfPatients;
@@ -114,6 +118,22 @@ public class GroupStatisticTO implements Comparable {
         this.countOfPatientDeletes = countOfPatientDeletes;
     }
 
+    public BigInteger getCountOfUserInactive() {
+        return countOfUserInactive;
+    }
+
+    public void setCountOfUserInactive(BigInteger countOfUserInactive) {
+        this.countOfUserInactive = countOfUserInactive;
+    }
+
+    public BigInteger getCountOfUserLocked() {
+        return countOfUserLocked;
+    }
+
+    public void setCountOfUserLocked(BigInteger countOfUserLocked) {
+        this.countOfUserLocked = countOfUserLocked;
+    }
+
     public Date getStartDate() {
         return startDate;
     }
@@ -142,5 +162,9 @@ public class GroupStatisticTO implements Comparable {
             }
         }
         return -1;
+    }
+
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

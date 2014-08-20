@@ -15,12 +15,13 @@
 </div>
 
 <div class="row">
-    <div class="form-horizontal" role="form">
+    <div class="form-horizontal" role="form" ng-show="!modalLoading">
         <div class="custom-select col-md-3">
             <select class="form-control recipient-select" id="conversation-add-recipient" ng-model="recipientToAdd" ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
         </div>
             <button type="button" class="btn blue recipient-add-button pull-left" ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)"><i class="glyphicon glyphicon-plus-sign"></i> Add Recipient</button>
     </div>
+    <div class="loading" ng-show="modalLoading"><img src="images/loading.gif" alt="Loading"/></div>
 </div>
 <div class="row">
     <div class="form-horizontal" role="form">

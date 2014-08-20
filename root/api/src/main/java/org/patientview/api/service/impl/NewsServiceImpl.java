@@ -210,6 +210,10 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return new PageImpl<>(pagedNewsItems, pageable, newsItems.size());
     }
 
+    public Page<NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException {
+        return newsItemRepository.getPublicNews(pageable);
+    }
+
     public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {

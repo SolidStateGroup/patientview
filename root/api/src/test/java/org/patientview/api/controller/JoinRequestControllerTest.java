@@ -19,7 +19,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -94,10 +96,10 @@ public class JoinRequestControllerTest {
     @Test
     public void testGroupJoinRequest_withParameterAndData() throws ResourceNotFoundException, JsonProcessingException{
         Long userId = 1L;
+        List<JoinRequestStatus> statuses = new ArrayList<>();
+        statuses.add(JoinRequestStatus.COMPLETED);
 
-        JoinRequestStatus returnStatus  = JoinRequestStatus.COMPLETED;
-
-        String url = "/user/" + userId + "/joinrequests?status=" + returnStatus;
+        String url = "/user/" + userId + "/joinrequests?statuses=" + mapper.writeValueAsString(statuses);
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get(url)
@@ -107,7 +109,7 @@ public class JoinRequestControllerTest {
             Assert.fail("Exception throw");
         }
 
-        verify(joinRequestService, Mockito.times(1)).getByStatus(eq(userId), eq(JoinRequestStatus.COMPLETED));
+        verify(joinRequestService, Mockito.times(1)).getByStatuses(eq(userId), eq(statuses));
     }
 
     /**
@@ -138,6 +140,25 @@ public class JoinRequestControllerTest {
         verify(joinRequestService, Mockito.times(1)).save(eq(joinRequest));
 
     }
+
+    /**
+     * Test: The request of the count of join request
+     */
+    @Test
+    public void testCountOfJoinRequest() throws ResourceNotFoundException {
+        Long groupId = 1L;
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + groupId + "/joinrequests/count"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            Assert.fail("Exception throw");
+        }
+
+        verify(joinRequestService, Mockito.times(1)).getCount(eq(groupId));
+    }
+
+
 
 
 }

@@ -65,6 +65,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.location = ['id','label','name','phone','address','web','email'];
             fields.identifier = ['id','identifier','identifierType'];
             fields.newsItem = ['id','heading','story','newsLinks'];
+            fields.unitRequest = ['forename','surname', 'nhsNumber','dateOfBirth', 'email'];
             return fields[objectType];
         },
         // used when converting from angular objects to those suitable for REST
@@ -88,7 +89,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         generateMonths: function () {
             var months = [];
-            for (var i=1;i<=13;i++) {
+            for (var i=1;i<=12;i++) {
                 months.push(i);
             }
             return months;

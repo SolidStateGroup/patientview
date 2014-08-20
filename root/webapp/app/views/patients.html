@@ -184,7 +184,7 @@
                         <div ng-include src="'views/partials/patientDetails.html'" ng-controller="UserDetailsCtrl"></div>
                     </form>
                     <hr>
-                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin}}</div>
+                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                     <div class="user-save-cancel pull-right">
                         <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
                     </div>
