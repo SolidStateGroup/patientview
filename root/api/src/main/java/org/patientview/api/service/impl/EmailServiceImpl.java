@@ -2,6 +2,8 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.service.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -16,6 +18,8 @@ import javax.inject.Inject;
 @Service
 public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> implements EmailService {
 
+    protected final Logger LOG = LoggerFactory.getLogger(EmailServiceImpl.class);
+
     @Inject
     private JavaMailSenderImpl javaMailSender;
 
@@ -29,9 +33,10 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
         try {
             javaMailSender.send(msg);
+            LOG.info("Sent email to {}", msg.getTo()[0]);
             return true;
         } catch (MailException ex) {
-            // todo: temporarily return true even if email failed
+            LOG.error("Unable to send message", ex);
             return true;
         }
     }
