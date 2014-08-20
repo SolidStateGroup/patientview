@@ -278,4 +278,13 @@ $('html').click(function(e){
         }
     }
 
+    if(target.hasClass('caret-container') || target.hasClass('caret')){
+        var dropdownContainer = target.closest('.filter-select');
+
+        if(!$('.filter-select').hasClass('open')){
+            dropdownContainer.addClass('open');
+        } else {
+            dropdownContainer.removeClass('open');
+        }
+    }
 });

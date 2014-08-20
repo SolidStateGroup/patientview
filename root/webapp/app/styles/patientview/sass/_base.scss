@@ -233,6 +233,12 @@ ul {
     height:34px;
 }
 
+.button-dropdown-group button{
+    span{
+        margin-left:8px;
+    }
+}
+
 .btn-grey{
     background-color: $textlight;
 }

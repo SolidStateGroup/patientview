@@ -4,9 +4,9 @@
             <a class="navbar-brand" href="#"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
             <div class="temp-mobile-nav visible-xs pull-right">
                 <ul class="unstyled" ng-hide="!authToken">
-                    <li  ng-repeat="menuitem in routes | menuFilter:'NAV'" ><a ng-href="#{{menuitem.url}}">Messages</a></li>
+                    <li><a ng-href="#/messages">Messages</a></li>
                     <li><a ng-href="#/settings">Settings</a></li>
-                    <li><a href="">Logout</a></li>
+                    <li><a href="#/logout">Logout</a></li>
                 </ul>
                 <ul class="unstyled" ng-hide="authToken">
                     <li><a ng-href="#/joinrequest">Join</a></li>
