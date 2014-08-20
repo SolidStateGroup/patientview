@@ -57,14 +57,19 @@
                 </div>
             </div>
             <h3 ng-hide="graphGroups.length > 2" ng-cloak>{{graphGroups[0].name}} <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
-            <div class="content-panel" ng-show="!chartLoading">
-                <div>
-                    <div><label class="sr-only" for="graph-select">Statistics</label>
-                        <select class="form-control" id="graph-select" ng-model="graphGroupId"
-                                ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
-                                ng-show="graphGroups.length > 2" ng-cloak></select>
-                    </div>
+            <div class="graph-selector clearfix">
+                <div class="col-md-2">
+                    <h3 class="" for="graph-select">Statistics</h3>
                 </div>
+                <div class="col-md-6">
+                    <select class="form-control" id="graph-select" ng-model="graphGroupId"
+                            ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
+                            ng-show="graphGroups.length > 2" ng-cloak>
+
+                    </select>
+                </div>
+            </div>
+            <div class="content-panel" ng-show="!chartLoading">
                 <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
             </div>
             <div class="content-panel" ng-show="chartLoading">

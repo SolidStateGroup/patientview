@@ -148,7 +148,7 @@
                             <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
                             <div class="row-item accordion-heading-text">DOB</div>
                             <div class="row-item accordion-heading-text">
-                                <ul class="unstyled">
+                                <ul class="unstyled patient-groups">
                                     <li ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']">
                                         <span ng-if="groupRole.role.name !== 'MEMBER'">
                                             {{groupRole.group.name}}
