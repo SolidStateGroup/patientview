@@ -49,7 +49,7 @@
                 <li><a href="" class="aside-link qreply" ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
             </ul>
             <div class="message-summary">
-                <h2 class="message-title"><span ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> &nbsp;New</span> &nbsp;{{conversation.title}}
+                <h2 class="message-title"><span ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> New</span> {{conversation.title}}
                     <span class="recipient">with: </span><span class="recipient" ng-repeat="conversationUser in conversation.conversationUsers" ng-show="conversationUser.user.id != loggedInUser.id"><span class="label label-info">{{conversationUser.user.forename}} {{conversationUser.user.surname}}</span></span>
                 </h2>
                 <div class="last-message">
