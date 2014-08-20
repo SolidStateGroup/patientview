@@ -10,7 +10,7 @@
 
   <groupId>org.patientview</groupId>
   <artifactId>root</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.2-RELEASE</version>
   <packaging>pom</packaging>
   <name>root</name>
   <modules>

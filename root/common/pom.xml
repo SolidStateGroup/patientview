@@ -6,12 +6,12 @@
     <parent>
         <groupId>org.patientview</groupId>
         <artifactId>root</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.2-RELEASE</version>
     </parent>
 
     <groupId>org.patientview</groupId>
     <artifactId>common</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.2-RELEASE</version>
     <name>common</name>
     <packaging>jar</packaging>
     <url>http://maven.apache.org</url>
