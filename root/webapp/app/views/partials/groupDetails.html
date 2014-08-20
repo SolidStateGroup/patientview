@@ -1,11 +1,11 @@
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
-            <label for="group-code" class="control-label">Code <span class="error" ng-show="groupForm.code.$error.required"> *required</span></label>
+            <label for="group-code" class="control-label">Code <span class="error" ng-hide="editGroup.code.length"> *required</span></label>
             <div class=""><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" ng-model="editGroup.code" ng-disabled="!permissions.canEditGroupCode" required ></div>
         </div>
         <div class="col-md-3">
-            <label for="group-name" class="control-label">Name <span class="error" ng-show="groupForm.name.$error.required"> *required</span></label>
+            <label for="group-name" class="control-label">Name <span class="error" ng-hide="editGroup.name.length"> *required</span></label>
             <div class=""><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" ng-model="editGroup.name" required></div>
 
         </div>
@@ -48,8 +48,7 @@
         </div>
     </div>
 </div>
-
-<button type="button" class="btn blue pull-right" ng-click="save(groupForm, editGroup)" ng-disabled="groupForm.$pristine || !groupForm.$valid">Save</button>
+<button type="button" class="btn blue pull-right" ng-click="save(groupForm, editGroup)" ng-disabled="!editGroup.code.length || !editGroup.name.length">Save</button>
 <span class="saved-notification pull-right" ng-show="groupForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <br/>
 <div class="row">
