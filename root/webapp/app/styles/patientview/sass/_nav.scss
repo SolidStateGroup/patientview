@@ -195,10 +195,10 @@ and (max-width : 1024px) {
     .navbar-brand {
         img {
             height: 50%;
-            width: 50%;
+            width: 160px;
 
             &.sub-brand {
-                width: 15%;
+                width: 50px;
                 height: 15%;
             }
         }

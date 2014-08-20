@@ -786,11 +786,11 @@ i.icon-messages {
   /* line 196, ../sass/_nav.scss */
   .navbar-brand img {
     height: 50%;
-    width: 50%;
+    width: 160px;
   }
   /* line 200, ../sass/_nav.scss */
   .navbar-brand img.sub-brand {
-    width: 15%;
+    width: 50px;
     height: 15%;
   }
 
@@ -1260,7 +1260,7 @@ label {
   border-left: 0;
 }
 /* line 251, ../sass/_forms.scss */
-.radio-button-list .btn .active, .radio-button-list .btn:hover {
+.radio-button-list .btn.active, .radio-button-list .btn:hover {
   background: #00adc6;
   border-left: 1px solid #039288;
   -webkit-box-shadow: 0;
