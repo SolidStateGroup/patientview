@@ -2,38 +2,77 @@
 
 
 // new conversation modal instance controller
-var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newConversation', 'ConversationService', 'recipients',
-    function ($scope, $rootScope, $modalInstance, newConversation, ConversationService, recipients) {
-        var i;
-        $scope.newConversation = newConversation;
-        newConversation.availableRecipients = _.clone(recipients);
-        newConversation.allRecipients = [];
+var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'UserService', 'ConversationService',
+    function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
 
-        for (i = 0; i < recipients.length; i++) {
-            newConversation.allRecipients[recipients[i].id] = recipients[i];
-        }
+        $scope.newConversation = {};
+        $scope.newConversation.recipients = [];
+        var i, roleIds = [], groupIds = [];
+        $scope.modalLoading = true;
+
+        // populate list of allowed recipients
+        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+            for (i = 0; i < groups.length; i++) {
+                var group = groups[i];
+                if (group.visible === true) {
+                    groupIds.push(group.id);
+                }
+            }
+
+            // todo: how to deal with patients sending messages
+            RoleService.getByType('STAFF').then(function(roles) {
+                for (i = 0; i < roles.length; i++) {
+                    var role = roles[i];
+                    if (role.visible === true) {
+                        roleIds.push(role.id);
+                    }
+                }
+
+                // now have user's groups and list of roles, get all users
+                UserService.getByGroupsAndRoles(groupIds, roleIds).then(function (recipients) {
+                    $scope.newConversation.availableRecipients = _.clone(recipients);
+                    $scope.newConversation.allRecipients = [];
+
+                    for (i = 0; i < recipients.length; i++) {
+                        $scope.newConversation.allRecipients[recipients[i].id] = recipients[i];
+                    }
+
+                    $scope.modalLoading = false;
+
+                }, function () {
+                    // error retrieving users
+                    alert('Error loading possible message recipients [3]');
+                });
+            }, function () {
+                // error retrieving roles
+                alert('Error loading possible message recipients [2]');
+            });
+        }, function () {
+            // error retrieving groups
+            alert('Error loading possible message recipients [1]');
+        });
 
         $scope.ok = function () {
             // build correct conversation from newConversation
             var conversation = {};
             conversation.type = "MESSAGE";
-            conversation.title = newConversation.title;
+            conversation.title = $scope.newConversation.title;
             conversation.messages = [];
             conversation.open = true;
 
             // build message
             var message = {};
             message.user = $scope.loggedInUser;
-            message.message = newConversation.message;
+            message.message = $scope.newConversation.message;
             message.type = "MESSAGE";
             conversation.messages[0] = message;
 
             // add conversation users from list of users (temp anonymous = false)
             var conversationUsers = [];
-            for (i=0;i<newConversation.recipients.length;i++) {
+            for (i=0;i<$scope.newConversation.recipients.length;i++) {
                 conversationUsers[i] = {};
                 conversationUsers[i].user = {};
-                conversationUsers[i].user.id = newConversation.recipients[i].id;
+                conversationUsers[i].user.id = $scope.newConversation.recipients[i].id;
                 conversationUsers[i].anonymous = false;
             }
 
@@ -244,80 +283,36 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     $scope.openModalNewConversation = function (size) {
         var i;
         $scope.errorMessage = '';
-        $scope.newConversation = {};
-        $scope.newConversation.recipients = [];
-        var roleIds = [], groupIds = [];
 
-        // populate list of allowed recipients
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            // get logged in user's groups
-            for (i = 0; i < groups.length; i++) {
-                var group = groups[i];
-                if (group.visible === true) {
-                    groupIds.push(group.id);
+        // open modal
+        var modalInstance = $modal.open({
+            templateUrl: 'newConversationModal.html',
+            controller: NewConversationModalInstanceCtrl,
+            size: size,
+            resolve: {
+                ConversationService: function () {
+                    return ConversationService;
                 }
             }
+        });
 
-            // todo: how to deal with patients sending messages
-            RoleService.getByType('STAFF').then(function(roles) {
-                // get roles for recipients
-                for (i = 0; i < roles.length; i++) {
-                    var role = roles[i];
-                    if (role.visible === true) {
-                        roleIds.push(role.id);
-                    }
-                }
-
-                // now have user's groups and list of roles, get all users
-                UserService.getByGroupsAndRoles(groupIds, roleIds).then(function (users) {
-
-                    // open modal
-                    var modalInstance = $modal.open({
-                        templateUrl: 'newConversationModal.html',
-                        controller: NewConversationModalInstanceCtrl,
-                        size: size,
-                        resolve: {
-                            recipients: function(){
-                                return users;
-                            },
-                            newConversation: function(){
-                                return $scope.newConversation;
-                            },
-                            ConversationService: function(){
-                                return ConversationService;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function () {
-                        $scope.loading = true;
-                        ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
-                            $scope.pagedItems = page.content;
-                            $scope.total = page.totalElements;
-                            $scope.totalPages = page.totalPages;
-                            $scope.loading = false;
-                            $scope.successMessage = 'Conversation successfully created';
-                        }, function() {
-                            $scope.loading = false;
-                            // error
-                        });
-                    }, function () {
-                        // cancel
-                        $scope.editConversation = '';
-                    });
-
-                }, function () {
-                    // error retrieving users
-                    alert('Error loading possible message recipients [3]');
-                });
+        modalInstance.result.then(function () {
+            $scope.loading = true;
+            ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
+                $scope.pagedItems = page.content;
+                $scope.total = page.totalElements;
+                $scope.totalPages = page.totalPages;
+                $scope.loading = false;
+                $scope.successMessage = 'Conversation successfully created';
             }, function () {
-                // error retrieving roles
-                alert('Error loading possible message recipients [2]');
+                $scope.loading = false;
+                // error
             });
         }, function () {
-            // error retrieving groups
-            alert('Error loading possible message recipients [1]');
+            // cancel
+            $scope.editConversation = '';
         });
+
     };
-    
+
 }]);

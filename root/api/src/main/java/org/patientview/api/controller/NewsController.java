@@ -48,13 +48,31 @@ public class NewsController extends BaseController<NewsController> {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<>(newsItem, HttpStatus.CREATED);
-
     }
 
     @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<NewsItem> get(@PathVariable("newsItemId") Long newsItemId) throws ResourceNotFoundException  {
         return new ResponseEntity<>(newsService.get(newsItemId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/news/public", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Page<NewsItem>> getPublicNews(
+            @RequestParam(value = "size", required = false) String size,
+            @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException  {
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : null;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : null;
+
+        if (sizeConverted != null && sizeConverted != null) {
+            pageable = new PageRequest(pageConverted, sizeConverted);
+        } else {
+            pageable = new PageRequest(0, Integer.MAX_VALUE);
+        }
+
+        return new ResponseEntity<>(newsService.getPublicNews(pageable), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/news", method = RequestMethod.PUT)

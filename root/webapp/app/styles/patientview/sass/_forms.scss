@@ -1,6 +1,9 @@
 /** form styles **/
 
-input[type="text"], .group-select{
+input[type="text"],
+input[type="password"],
+select,
+.group-select{
     background:$inputbg;
     border:1px solid $border-default;
     @include bootstrap-box-shadow(none);
@@ -10,14 +13,32 @@ input[type="text"], .group-select{
         @include bootstrap-box-shadow(none);
         @include bootstrap-border-radius(0);
     }
+
+    &:-moz-placeholder {
+        color: $textlight;
+    }
+    &::-webkit-input-placeholder {
+        color: $textlight;
+    }
 }
 
 select.form-control{
-    height:40px;
+    height:35px;
 }
 
 label{
-    color:$textlight;
+    color:$textdefault;
+}
+
+.disabled{
+    cursor:not-allowed;
+    background:$inputbg;
+    color:#989898;
+    width:auto;
+    font-weight:normal;
+    @include bootstrap-border-radius(0);
+    @include bootstrap-box-shadow(none);
+    border:1px solid #f3f3f3;
 }
 
 
@@ -75,7 +96,7 @@ label{
 
         button{
             background:transparent;
-            color:$light-grey;
+            color:$textlight;
             position:relative;
             height:34px;
             padding:0 50px 0 10px;

@@ -36,13 +36,12 @@
                 <div class="brand"><img src="images/pv-logo.png" alt="patient view"/></div>
                 <!--<p class="pull-left">PatientView 2 - {{endPoint}} - {{authToken}} - {{loggedInUser.username}}</p>-->
                 <ul class="inline unstyled pull-right legal-links">
-                    <li><a href="">Privacy Policy</a></li>
-                    <li><a href="">Terms &amp; Conditions</a></li>
+                    <li><a href="#/privacy">Privacy Policy</a></li>
+                    <li><a href="#/terms">Terms &amp; Conditions</a></li>
                     <li>Patient View 2014 &copy;</li>
                 </ul>
             </div>
         </div>
-        <!--<p>{{loggedInUser}}</p>-->
         <!-- Google Analytics: change UA-XXXXX-X to be site's ID -->
         <!-- build:js scripts/vendor.js -->
         <!-- bower:js -->
@@ -60,6 +59,8 @@
         <script src="bower_components/respond/dest/respond.src.js"></script>
         <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
         <script src="bower_components/angular-local-storage/angular-local-storage.js"></script>
+        <script src="bower_components/angular-google-chart/ng-google-chart.js"></script>
+        <script src="bower_components/jquery-htmlclean/jquery.htmlClean.js"></script>
         <!-- endbower -->
         <!-- endbuild -->
 
@@ -91,7 +92,15 @@
         <script src="scripts/controllers/groupdetails.js"></script>
         <script src="scripts/controllers/joinrequest.js"></script>
         <script src="scripts/controllers/joinrequestadmin.js"></script>
+        <script src="scripts/controllers/conversationdetails.js"></script>
         <script src="scripts/controllers/passwordchange.js"></script>
+        <script src="scripts/controllers/news.js"></script>
+        <script src="scripts/controllers/newsdetails.js"></script>
+        <script src="scripts/controllers/forgottenpassword.js"></script>
+        <script src="scripts/controllers/contactunit.js"></script>
+        <script src="scripts/controllers/feedback.js"></script>
+        <script src="scripts/controllers/terms.js"></script>
+        <script src="scripts/controllers/privacy.js"></script>
 
         <script src="scripts/services/resultservice.js"></script>
         <script src="scripts/services/routeservice.js"></script>
@@ -110,6 +119,7 @@
         <script src="scripts/services/locationservice.js"></script>
         <script src="scripts/services/identifierservice.js"></script>
         <script src="scripts/services/conversationservice.js"></script>
+        <script src="scripts/services/newsservice.js"></script>
 
         <script src="scripts/interceptors/httprequestinterceptor.js"></script>
         <script src="scripts/interceptors/httpresponseinterceptor.js"></script>
@@ -120,9 +130,13 @@
         <script src="scripts/filters/codetypefilter.js"></script>
         <script src="scripts/filters/standardtypefilter.js"></script>
         <script src="scripts/filters/grouptypefilter.js"></script>
+        <script src="scripts/filters/truncatefilter.js"></script>
+        <script src="scripts/filters/newlinebrfilter.js"></script>
 
         <script src="scripts/directives/buttongroup.js"></script>
         <script src="scripts/directives/strengthcheck.js"></script>
+        <script src="scripts/directives/confirmclick.js"></script>
+        <script src="scripts/directives/collapsetext.js"></script>
         <!-- endbuild -->
     </body>
 </html>

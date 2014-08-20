@@ -38,7 +38,7 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
 
         var formOk = true;
 
-        if (typeof $scope.joinRequest.unit == 'undefined') {
+        if (typeof $scope.joinRequest.unit === 'undefined') {
             $scope.errorMessage = '- Please select a unit to join';
             formOk = false;
         } else {
@@ -59,7 +59,6 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
             }
         }
 
-
         if (!UtilService.validationDate($scope.joinRequest.selectedDay,
                                         $scope.joinRequest.selectedMonth,
                                         $scope.joinRequest.selectedYear)) {
@@ -75,7 +74,7 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
             JoinRequestService.new(groupId, $scope.joinRequest).then(function () {
                 $scope.successMessage = 'The join request has been saved';
             }, function (result) {
-                $scope.errorMessage = '- The join request has not been submitted ' + result;
+                $scope.errorMessage = '- The join request has not been submitted ' + result.data;
             });
         }
 

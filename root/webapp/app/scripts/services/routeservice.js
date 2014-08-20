@@ -159,6 +159,40 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                 }
             };
         },
+        getTermsRoute: function() {
+            return {
+                'url': '/terms',
+                'templateUrl': 'views/terms.html',
+                'controller': 'TermsCtrl',
+                'title': 'Terms and Conditions',
+                'lookup': {
+                    'id': 103,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
+        getPrivacyRoute: function() {
+            return {
+                'url': '/privacy',
+                'templateUrl': 'views/privacy.html',
+                'controller': 'PrivacyCtrl',
+                'title': 'Privacy Policy',
+                'lookup': {
+                    'id': 103,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
         getRoutes: function (uuid) {
             var deferred = $q.defer();
             Restangular.all('security').one('user', uuid).customGET('routes').then(function (res) {
