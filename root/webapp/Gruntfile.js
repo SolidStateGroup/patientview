@@ -494,7 +494,7 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
+                        apiEndpoint: 'http://patientview2.staging.solidstategroup.com/api'
                     }
                 }
             }
