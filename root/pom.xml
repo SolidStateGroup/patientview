@@ -58,7 +58,7 @@
         <repository>
             <id>nexus</id>
             <name>Solid State Group Repository</name>
-            <url>http://nexus.solidstategroup.com/content/repositories/snapshots/</url>
+            <url>http://nexus.solidstategroup.com/content/repositories/milestones/</url>
         </repository>
     </distributionManagement>
 
@@ -135,20 +135,4 @@
              </plugin>
          </plugins>
      </reporting>-->
-    <repositories>
-        <repository>
-            <id>nexus</id>
-            <name>Solid State Group Repository</name>
-            <url>http://nexus.solidstategroup.com</url>
-        </repository>
-    </repositories>
-    <distributionManagement>
-        <repository>
-            <id>nexus</id>
-            <name>Solid State Group Repository</name>
-            <url>
-                http://nexus.solidstategroup.com/content/repositories/snapshots/
-            </url>
-        </repository>
-    </distributionManagement>
 </project>
