@@ -10,7 +10,7 @@
 
   <groupId>org.patientview</groupId>
   <artifactId>root</artifactId>
-  <version>0.2-MILESTONE</version>
+  <version>0.1-RELEASE</version>
   <packaging>pom</packaging>
   <name>root</name>
   <modules>
@@ -56,10 +56,15 @@
 
     <distributionManagement>
         <repository>
-            <id>nexus</id>
-            <name>Solid State Group Repository</name>
-            <url>http://nexus.solidstategroup.com/content/repositories/milestones/</url>
+            <id>deployment</id>
+            <name>Internal Releases</name>
+            <url>http://nexus.solidstategropu.com/nexus/content/repositories/releases/</url>
         </repository>
+        <snapshotRepository>
+            <id>deployment</id>
+            <name>Internal Releases</name>
+            <url>http://nexus.solidstategropu.com/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <!--  <build>
