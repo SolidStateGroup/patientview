@@ -72,6 +72,33 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private Properties properties;
 
+    private void addParentGroupRoles(GroupRole groupRole) {
+
+        User entityUser = userRepository.findOne(groupRole.getUser().getId());
+        Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
+        Role entityRole = roleRepository.findOne(groupRole.getRole().getId());
+
+        // save grouprole with same role and parent group if doesn't exist already
+        if (!CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
+            for (GroupRelationship groupRelationship : entityGroup.getGroupRelationships()) {
+                if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
+                    Group parentEntityGroup =
+                            groupRepository.findOne(groupRelationship.getObjectGroup().getId());
+                    if (groupRoleRepository.findByUserGroupRole(entityUser, parentEntityGroup, entityRole)
+                            == null) {
+                        GroupRole parentGroupRole = new GroupRole();
+
+                        parentGroupRole.setGroup(parentEntityGroup);
+                        parentGroupRole.setRole(entityRole);
+                        parentGroupRole.setUser(entityUser);
+                        parentGroupRole.setCreator(userRepository.findOne(1L));
+                        groupRoleRepository.save(parentGroupRole);
+                    }
+                }
+            }
+        }
+    }
+
     public User add(User user) {
 
         User newUser;
@@ -104,25 +131,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRoleRepository.save(groupRole);
                 }
 
-                // save grouprole with same role and parent group if doesn't exist already
-                if (!CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
-                    for (GroupRelationship groupRelationship : entityGroup.getGroupRelationships()) {
-                        if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
-                            Group parentEntityGroup =
-                                    groupRepository.findOne(groupRelationship.getObjectGroup().getId());
-                            if (groupRoleRepository.findByUserGroupRole(newUser, parentEntityGroup, entityRole)
-                                    == null) {
-                                GroupRole parentGroupRole = new GroupRole();
-
-                                parentGroupRole.setGroup(parentEntityGroup);
-                                parentGroupRole.setRole(entityRole);
-                                parentGroupRole.setUser(newUser);
-                                parentGroupRole.setCreator(userRepository.findOne(1L));
-                                groupRoleRepository.save(parentGroupRole);
-                            }
-                        }
-                    }
-                }
+                addParentGroupRoles(groupRole);
             }
         }
 
