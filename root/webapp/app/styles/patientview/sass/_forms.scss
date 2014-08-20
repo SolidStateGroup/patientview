@@ -233,33 +233,32 @@ label{
 
 .radio-button-list{
     padding-left:10px;
-    li{
+    .btn{
         background:$inputaddon;
         color:$textdefault;
         @include bootstrap-border-radius(0);
         border-left:1px solid $inputaddonborder;
         line-height:15px;
         white-space: normal;
+        word-spacing: 999999px;
+        width: 58px;
+        font-size: 1.2rem;
 
         &:first-child{
             border-left:0;
         }
 
-        .active, &:hover{
+        &.active, &:hover{
             background:$aqua;
             border-left:1px solid $aquadark;
             @include bootstrap-box-shadow(0);
-        }
-
-        &.btn{
-            line-height:15px;
         }
     }
 }
 
 .select-add-group{
     select{
-        width:50%;
+        width:65%;
         float:left;
         height:40px;
     }
@@ -267,6 +266,21 @@ label{
     .group-list-item{
         width:auto;
         float:left;
+        clear:left;
+
+        .radio-button-list{
+            padding-left:0;
+            margin-top:10px;
+
+            li.active{
+                background:#00adc6;
+            }
+        }
+    }
+
+    button{
+        float:left;
+        margin-top:10px;
     }
 }
 
