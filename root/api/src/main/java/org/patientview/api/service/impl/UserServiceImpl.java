@@ -1,7 +1,6 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
@@ -24,7 +23,6 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -339,7 +337,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             user.setChangePassword(Boolean.TRUE);
 
             // Set the new password
-            user.setPassword(CommonUtils.getAuthtoken());
+            user.setPassword(CommonUtils.getAuthToken());
             emailService.sendEmail(getForgottenPassword(user));
             // Hash the password
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
