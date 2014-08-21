@@ -109,6 +109,7 @@ public final class TestUtils {
         group.setCreator(creator);
         group.setVisible(true);
         group.setVisibleToJoin(true);
+        group.setGroupRelationships(new HashSet<GroupRelationship>());
         return group;
     }
 

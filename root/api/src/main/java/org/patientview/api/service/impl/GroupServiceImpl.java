@@ -200,9 +200,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             contactPoints = new HashSet<ContactPoint>();
         }
 
-
         // save basic details
         try {
+            // set all newly created groups to visible
+            group.setVisible(true);
             newGroup = groupRepository.save(group);
         } catch (DataIntegrityViolationException dve) {
             LOG.debug("Group not created, duplicate: {}", dve.getCause());

@@ -10,11 +10,13 @@ import org.patientview.api.util.Util;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -22,6 +24,7 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -69,6 +72,33 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private Properties properties;
 
+    private void addParentGroupRoles(GroupRole groupRole) {
+
+        User entityUser = userRepository.findOne(groupRole.getUser().getId());
+        Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
+        Role entityRole = roleRepository.findOne(groupRole.getRole().getId());
+
+        // save grouprole with same role and parent group if doesn't exist already
+        if (!CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
+            for (GroupRelationship groupRelationship : entityGroup.getGroupRelationships()) {
+                if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
+                    Group parentEntityGroup =
+                            groupRepository.findOne(groupRelationship.getObjectGroup().getId());
+                    if (groupRoleRepository.findByUserGroupRole(entityUser, parentEntityGroup, entityRole)
+                            == null) {
+                        GroupRole parentGroupRole = new GroupRole();
+
+                        parentGroupRole.setGroup(parentEntityGroup);
+                        parentGroupRole.setRole(entityRole);
+                        parentGroupRole.setUser(entityUser);
+                        parentGroupRole.setCreator(userRepository.findOne(1L));
+                        groupRoleRepository.save(parentGroupRole);
+                    }
+                }
+            }
+        }
+    }
+
     public User add(User user) {
 
         User newUser;
@@ -87,21 +117,27 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         LOG.info("New user with id: {}", user.getId());
 
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
-
             for (GroupRole groupRole : user.getGroupRoles()) {
 
-                groupRole.setGroup(groupRepository.findOne(groupRole.getGroup().getId()));
-                groupRole.setRole(roleRepository.findOne(groupRole.getRole().getId()));
-                groupRole.setUser(userRepository.findOne(userId));
-                groupRole.setCreator(userRepository.findOne(1L));
-                groupRoleRepository.save(groupRole);
+                Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
+                Role entityRole = roleRepository.findOne(groupRole.getRole().getId());
+
+                // only save if doesn't already exist
+                if (groupRoleRepository.findByUserGroupRole(newUser, entityGroup, entityRole) == null) {
+                    groupRole.setGroup(entityGroup);
+                    groupRole.setRole(entityRole);
+                    groupRole.setUser(newUser);
+                    groupRole.setCreator(userRepository.findOne(1L));
+                    groupRoleRepository.save(groupRole);
+                }
+
+                addParentGroupRoles(groupRole);
             }
         }
 
         entityManager.flush();
 
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
-
             for (UserFeature userFeature : user.getUserFeatures()) {
                 userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
                 userFeature.setUser(userRepository.findOne(userId));
@@ -114,7 +150,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // TODO remove into a separate call
         if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
-
             for (Identifier identifier : user.getIdentifiers()) {
                 identifier.setId(null);
                 identifier.setUser(userRepository.findOne(userId));
@@ -132,7 +167,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         addUserToGenericGroup(newUser);
 
         return userRepository.save(user);
-
     }
 
     // We do this so early one gets the generic group

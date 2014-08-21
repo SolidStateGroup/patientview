@@ -494,6 +494,17 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
+                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
+                    }
+                }
+            },
+            apissgstaging: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'production',
                         apiEndpoint: 'http://patientview2.staging.solidstategroup.com/api'
                     }
                 }
@@ -676,6 +687,13 @@ module.exports = function (grunt) {
     grunt.registerTask('minimalssgdev', [
         'clean:dist',
         'ngconstant:apissgdev',
+        'copy:minimal',
+        'war'
+    ]);
+
+    grunt.registerTask('minimalssgstaging', [
+        'clean:dist',
+        'ngconstant:apissgstaging',
         'copy:minimal',
         'war'
     ]);
