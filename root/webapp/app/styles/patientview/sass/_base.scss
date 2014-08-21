@@ -333,6 +333,14 @@ i.icon-news{
     margin-top:7px;
 }
 
+i.icon-settings{
+    background: url('../../../images/icons/settings.png') 0 0 no-repeat;
+    height: 22px;
+    width: 24px;
+    display:block;
+    margin-top:4px;
+}
+
 i.icon-patients{
     background: url('../../../images/icons/patients.png') 0 0 no-repeat;
     height: 27px;
@@ -388,7 +396,6 @@ i.icon-messages{
     height: 22px;
     width: 37px;
 }
-
 
 @media only screen
 and (max-width : 1024px) {

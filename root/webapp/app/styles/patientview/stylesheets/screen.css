@@ -519,34 +519,43 @@ i.icon-news {
 }
 
 /* line 336, ../sass/_base.scss */
+i.icon-settings {
+  background: url("../../../images/icons/settings.png") 0 0 no-repeat;
+  height: 22px;
+  width: 24px;
+  display: block;
+  margin-top: 4px;
+}
+
+/* line 344, ../sass/_base.scss */
 i.icon-patients {
   background: url("../../../images/icons/patients.png") 0 0 no-repeat;
   height: 27px;
   width: 17px;
 }
 
-/* line 342, ../sass/_base.scss */
+/* line 350, ../sass/_base.scss */
 i.icon-join {
   background: url("../../../images/icons/join.png") 0 0 no-repeat;
   height: 24px;
   width: 22px;
 }
 
-/* line 348, ../sass/_base.scss */
+/* line 356, ../sass/_base.scss */
 i.icon-reply {
   background: url("../../../images/icons/reply-icon.png") 0 0 no-repeat;
   height: 15px;
   width: 16px;
 }
 
-/* line 354, ../sass/_base.scss */
+/* line 362, ../sass/_base.scss */
 i.icon-sort {
   background: url("../../../images/icons/sort.png") 0 0 no-repeat;
   height: 25px;
   width: 20px;
 }
 
-/* line 360, ../sass/_base.scss */
+/* line 368, ../sass/_base.scss */
 i.icon-join-large {
   background: url("../../../images/icons/join-large.png") 0 0 no-repeat;
   height: 37px;
@@ -554,7 +563,7 @@ i.icon-join-large {
   display: block;
 }
 
-/* line 367, ../sass/_base.scss */
+/* line 375, ../sass/_base.scss */
 i.icon-login-large {
   background: url("../../../images/icons/login-large.png") 0 0 no-repeat;
   height: 37px;
@@ -562,21 +571,21 @@ i.icon-login-large {
   display: block;
 }
 
-/* line 374, ../sass/_base.scss */
+/* line 382, ../sass/_base.scss */
 i.icon-help {
   background: url("../../../images/icons/help.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 380, ../sass/_base.scss */
+/* line 388, ../sass/_base.scss */
 i.icon-issues {
   background: url("../../../images/icons/issues.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 386, ../sass/_base.scss */
+/* line 394, ../sass/_base.scss */
 i.icon-messages {
   background: url("../../../images/icons/messages.png") 0 0 no-repeat;
   height: 22px;
@@ -584,11 +593,11 @@ i.icon-messages {
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 395, ../sass/_base.scss */
+  /* line 402, ../sass/_base.scss */
   .content-panel {
     margin-bottom: 20px;
   }
-  /* line 398, ../sass/_base.scss */
+  /* line 405, ../sass/_base.scss */
   .content-panel.panel-header {
     margin-bottom: 5px;
   }
