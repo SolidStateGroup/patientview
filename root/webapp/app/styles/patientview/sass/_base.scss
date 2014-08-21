@@ -59,11 +59,15 @@ body {
         padding:15px;
     }
 
-    .panel-footer {
+    .panel-footer, .panel-intro {
         background: $lowlight;
         border-top: 1px solid $border-default;
         width: 100%;
         padding: 0 0 15px 0;
+    }
+
+    .panel-intro{
+        padding:10px;
     }
 }
 
@@ -233,6 +237,14 @@ ul {
     height:34px;
 }
 
+.button-dropdown-group button{
+    border-right:1px solid #1f6bba;
+
+    span{
+        margin:1px 0 0 8px;
+    }
+}
+
 .button-dropdown-group button, .btn-group button{
     span{
         margin-left:4px;
@@ -247,6 +259,12 @@ ul {
 
 .blue {
     background-color: $primary;
+    color:$white;
+
+    &:active, &:focus {
+        color: $white;
+        outline:0;
+    }
 }
 .aquamarine {
     background-color: $aquamarine;
@@ -338,7 +356,7 @@ i.icon-settings{
     height: 22px;
     width: 24px;
     display:block;
-    margin-top:4px;
+    margin-top:9px;
 }
 
 i.icon-patients{

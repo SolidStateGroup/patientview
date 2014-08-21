@@ -24,6 +24,7 @@ select,
 
 select.form-control{
     height:35px;
+    cursor:pointer;
 }
 
 label{
@@ -219,14 +220,17 @@ label{
     float: left;
     width: 50%;
     margin-right:10px;
+    cursor:pointer;
 
     .caret-container{
         position:absolute;
         right:0;
         top:0;
+        cursor:pointer;
 
         .caret{
             margin-left:12px;
+            cursor:pointer;
         }
     }
 }

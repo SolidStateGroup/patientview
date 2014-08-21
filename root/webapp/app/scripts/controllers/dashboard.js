@@ -33,11 +33,17 @@ function (UserService, $scope, GroupService, NewsService) {
                 chart1.options = {
                     'title': null,
                     'isStacked': 'true',
+                    'fontName':'Lato',
+                    'color': '#959595',
                     'fill': 20,
+                    'lineWidth': 10,
+                    legendTextStyle: {color:'#666666'},
                     'displayExactValues': true,
+                    'colors':['368de8','00adc6','00aa9e'],
                     'vAxis': {
                         'title': null,
-                        'pointSize': 5,
+                        'pointSize': 15,
+//                        'ticks':[1,100],
                         'gridlines': {
                             'count': 10,
                             'color': '#ffffff'
@@ -47,7 +53,8 @@ function (UserService, $scope, GroupService, NewsService) {
                         }
                     },
                     'hAxis': {
-                        'title': null
+                        'title': null,
+                        'titleTextStyle': {color: '#5c5c5c'}
                     },
                     'chartArea': {
                         left: '7%',
