@@ -222,6 +222,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setEmailVerified(user.getEmailVerified());
         entityUser.setLocked(user.getLocked());
         entityUser.setDummy(user.getDummy());
+        entityUser.setContactNumber(user.getContactNumber());
         return userRepository.save(entityUser);
     }
 
