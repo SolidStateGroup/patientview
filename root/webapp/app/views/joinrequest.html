@@ -75,7 +75,7 @@
                     <select required="required"
                             ng-model="joinRequest.specialty"
                             ng-change="refreshUnits()"
-                            ng-options="obj.id as obj.name for obj in specialties"
+                            ng-options="obj.id as obj.name for obj in specialties | orderBy:['name']"
                             class="form-control">
                             </select>
                 </div>
@@ -85,10 +85,9 @@
                 <label class="col-sm-3 control-label">Unit:</label>
 
                 <div class="col-sm-4">
-
                     <select required="required"
                             ng-model="joinRequest.unit"
-                            ng-options="obj.id as obj.name for obj in units"
+                            ng-options="obj.id as obj.name for obj in units | orderBy:['name']"
                             class="form-control">
                             </select>
                 </div>
