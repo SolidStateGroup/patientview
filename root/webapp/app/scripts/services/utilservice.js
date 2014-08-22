@@ -26,6 +26,11 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         },
 
         validationDate: function (day, month, year) {
+
+            // strip preceding 0 on dates if present
+            day = parseInt(day.toString());
+            month = parseInt(month.toString());
+
             var valid = true;
             if ((month < 1) || (month > 12)) {
                 valid = false;
