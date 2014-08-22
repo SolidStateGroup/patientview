@@ -43,7 +43,8 @@
                 <div class="content-inner">
                 <!-- filter by group type -->
                     <div class="pull-right">
-                        <h5>Showing {{ filtered.length }} of {{ list.length }} total</h5>
+                        <h5>Showing {{ filtered.length }} of {{ list.length }} total
+                        </h5>
                     </div>
                     <div class="form-horizontal" role="form">
                         <div class="select-container pull-left">
@@ -56,6 +57,7 @@
                                 </ul>
                             </div>
                         </div>
+                        <span data-ng-repeat="type in filterGroupTypes" ng-show="isGroupTypeChecked(type.id)"><span class="label label-info">{{type.value}}</span>&nbsp;</span>
                     </div>
                 </div>
             </div>
