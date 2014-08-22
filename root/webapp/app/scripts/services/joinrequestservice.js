@@ -7,6 +7,10 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
 
             joinRequest = UtilService.cleanObject(joinRequest, 'joinRequest');
 
+            // correctly format DOB
+            joinRequest.dateOfBirth = joinRequest.dateOfBirth.split("-")[2] + "-"
+                + joinRequest.dateOfBirth.split("-")[1] + "-" + joinRequest.dateOfBirth.split("-")[0];
+
             var deferred = $q.defer();
             Restangular.all('group/' + groupId + '/joinRequest').customPOST(joinRequest).then(function(successResult) {
                 deferred.resolve(successResult);
