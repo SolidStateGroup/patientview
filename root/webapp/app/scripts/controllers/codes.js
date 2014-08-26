@@ -164,7 +164,17 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
     $scope.getItems = function(page, size, filterText, codeTypes, standardTypes, sortField, sortDirection) {
         $scope.loading = true;
-        CodeService.getAll(page, size, filterText, codeTypes, standardTypes, sortField, sortDirection).then(function(page) {
+
+        var getParameters = {};
+        getParameters.page = page;
+        getParameters.size = size;
+        getParameters.filterText = filterText;
+        getParameters.codeTypes = codeTypes;
+        getParameters.standardTypes = standardTypes;
+        getParameters.sortField = sortField;
+        getParameters.sortDirection = sortDirection;
+
+        CodeService.getAll(getParameters).then(function(page) {
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;

@@ -5,13 +5,15 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -48,7 +50,30 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return longs;
     }
 
-    public Page<Code> getAllCodes(Pageable pageable, String filterText, String[] codeTypes, String[] standardTypes) {
+    public Page<Code> getAllCodes(GetParameters getParameters) {
+
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        String sortField = getParameters.getSortField();
+        String sortDirection = getParameters.getSortDirection();
+        String[] codeTypes = getParameters.getCodeTypes();
+        String[] standardTypes = getParameters.getStandardTypes();
+        String filterText = getParameters.getFilterText();
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals("DESC")) {
+                direction = Sort.Direction.DESC;
+            }
+
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            pageable = new PageRequest(pageConverted, sizeConverted);
+        }
 
         List<Long> codeTypesList = convertStringArrayToLongs(codeTypes);
         List<Long> standardTypesList = convertStringArrayToLongs(standardTypes);

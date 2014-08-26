@@ -1,9 +1,9 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface CodeService extends CrudService<Code> {
 
-    Page<Code> getAllCodes(Pageable pageable, String filterText, String[] codeTypes, String[] standardTypes);
+    Page<Code> getAllCodes(GetParameters getParameters);
 
     Code cloneCode(Long codeId);
 
