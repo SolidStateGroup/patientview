@@ -71,6 +71,22 @@ body {
     }
 }
 
+.added-container{
+    min-height:120px;
+}
+
+.add-container{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid #e2e2e2;
+
+    .add-feature{
+        button{
+            margin:3px 0 0 10px;
+        }
+    }
+}
+
 .notification-dialog{
     position:absolute;
     width:300px;

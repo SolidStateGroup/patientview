@@ -63,7 +63,7 @@
             <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userForm, editUser, feature)" >Delete</a></span></div>
         </div>
         <div class="feature-add-container" ng-show="editUser.availableFeatures.length > 0 ">
-            <h5 class="inner-title">Add Feature </h5>
+            <label class="inner-title">Add Feature </label>
             <div class="add-feature">
                 <select class="form-control feature-select" ng-model="editUser.featureToAdd" ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
                 <button type="button" class="btn blue feature-add-button" ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
