@@ -94,7 +94,7 @@
             <!-- body -->
             <!--<div class="code.open" ng-repeat="code in filtered = (list | codeTypeFilter:selectedCodeType | standardTypeFilter:selectedStandardType | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">-->
             <div class="item-header" ng-repeat="code in pagedItems">
-                    <div class="faux-row" ng-click="opened(code)">
+                    <div class="faux-row">
                         <div class="row-item hidden">{{code.id}}</div>
                         <div class="row-item accordion-heading-text">{{code.code}}</div>
                         <div class="row-item accordion-heading-text">{{code.codeType.value}}</div>
@@ -103,7 +103,7 @@
                         <div class="row-item actions">
                             <!-- Edit, Actions dropdown buttons -->
                             <div class="btn-group pull-right">
-                                <button type="button" class="btn blue">Edit</button>
+                                <button type="button" class="btn blue" ng-click="opened(code)">Edit</button>
                                 <button type="button" class="btn aquamarine" ng-click="clone(code.id, $event)">Copy</button>
                                 <button type="button" class="btn negative" ng-click="delete(code.id, $event)">Delete</button>
                             </div>

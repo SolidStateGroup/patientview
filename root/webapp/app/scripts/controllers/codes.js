@@ -97,7 +97,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             $scope.sortDirection = 'ASC';
             $scope.sortField = sortField;
         } else {
-            if ($scope.sortDirection = 'ASC') {
+            if ($scope.sortDirection === 'ASC') {
                 $scope.sortDirection = 'DESC';
             } else {
                 $scope.sortDirection = 'ASC';
