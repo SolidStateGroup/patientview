@@ -2,9 +2,14 @@
 
 angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
     return {
-        getAll: function () {
+        getAll: function (page, size, filterText, codeTypes, standardTypes, sortField, sortDirection) {
             var deferred = $q.defer();
-            Restangular.all('code').getList().then(function(successResult) {
+            // GET /code?codeTypes=1&filterText=something&page=0&size=5&sortDirection=ASC&sortField=code&standardTypes=2
+            Restangular.one('code')
+                .get({'page': page, 'size': size, 'filterText': filterText,
+                    'codeTypes': codeTypes, 'standardTypes': standardTypes,
+                    'sortField': sortField, 'sortDirection': sortDirection})
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

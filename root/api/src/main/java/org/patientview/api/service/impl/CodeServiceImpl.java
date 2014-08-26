@@ -1,17 +1,26 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CodeService;
-import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import javax.inject.Inject;
+import javax.persistence.EntityExistsException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class to control the crud operations of Codes.
@@ -29,10 +38,69 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Inject
     private UserRepository userRepository;
 
-    public List<Code> getAllCodes() { return Util.convertIterable(codeRepository.findAll()); }
+    private List<Long> convertStringArrayToLongs(String[] strings) {
+        final List<Long> longs = new ArrayList<>();
+        if (ArrayUtils.isNotEmpty(strings)) {
+            for (String string : strings) {
+                longs.add(Long.parseLong(string));
+            }
+        }
+        return longs;
+    }
+
+    public Page<Code> getAllCodes(Pageable pageable, String filterText, String[] codeTypes, String[] standardTypes) {
+
+        List<Long> codeTypesList = convertStringArrayToLongs(codeTypes);
+        List<Long> standardTypesList = convertStringArrayToLongs(standardTypes);
+
+        if (StringUtils.isEmpty(filterText)) {
+            filterText = "%%";
+        } else {
+            filterText = "%" + filterText.toUpperCase() + "%";
+        }
+
+        if (ArrayUtils.isNotEmpty(codeTypes) && ArrayUtils.isNotEmpty(standardTypes)) {
+            return codeRepository.findAllByCodeAndStandardTypesFiltered(filterText, codeTypesList,
+                    standardTypesList, pageable);
+        }
+        if (ArrayUtils.isNotEmpty(codeTypes)) {
+            return codeRepository.findAllByCodeTypesFiltered(filterText, codeTypesList, pageable);
+        }
+        if (ArrayUtils.isNotEmpty(standardTypes)) {
+            return codeRepository.findAllByStandardTypesFiltered(filterText, standardTypesList, pageable);
+        }
+
+        return codeRepository.findAllFiltered(filterText, pageable);
+    }
 
     public Code add(final Code code) {
-        return codeRepository.save(code);
+        Code newCode;
+
+        Set<Link> links;
+        // get links and features, avoid persisting until code created successfully
+        if (!CollectionUtils.isEmpty(code.getLinks())) {
+            links = new HashSet<>(code.getLinks());
+            code.getLinks().clear();
+        } else {
+            links = new HashSet<>();
+        }
+
+        // save basic details
+        try {
+            newCode = codeRepository.save(code);
+        } catch (DataIntegrityViolationException dve) {
+            LOG.debug("Code not created, duplicate: {}", dve.getCause());
+            throw new EntityExistsException("Code already exists");
+        }
+
+        // save links
+        for (Link link : links) {
+            link.setCode(newCode);
+            link = linkRepository.save(link);
+            newCode.getLinks().add(link);
+        }
+
+        return newCode;
     }
 
     public Code get(final Long codeId) {
