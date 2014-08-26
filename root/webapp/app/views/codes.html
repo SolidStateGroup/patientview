@@ -60,6 +60,7 @@
                                     <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
+                            <span data-ng-repeat="type in codeTypes" ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.value}}</span>&nbsp;</span>
                         </div>
                         <div class="select-container pull-left">
                             <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
@@ -70,6 +71,7 @@
                                     <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
+                            <span data-ng-repeat="type in standardTypes" ng-show="isStandardTypeChecked(type.id)"><span class="label label-info">{{type.value}}</span>&nbsp;</span>
                         </div>
                     </div>
                 </div>
