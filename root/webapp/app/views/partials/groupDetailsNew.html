@@ -11,8 +11,7 @@
         </div>
         <div class="col-md-3">
             <label for="group-groupType" class="ccontrol-label">Group Type <span class="error" ng-show="!editGroup.groupTypeId"> *required</span></label>
-            <!--<div class="col-sm-7" ng-show="(!permissions.isSuperAdmin && editMode)">{{editGroup.groupType.value}}</div>-->
-            <div class=""><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
+            <div class=""><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in editGroup.groupTypes"></select></div>
         </div>
         <div class="col-md-3">
             <label for="group-sftp-user" class="control-label">SFTP User</label>

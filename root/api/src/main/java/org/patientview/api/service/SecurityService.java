@@ -1,9 +1,10 @@
 package org.patientview.api.service;
 
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,5 +42,11 @@ public interface SecurityService {
      * @param userId
      * @return
      */
-    List<Group> getUserGroups(Long userId);
+    Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters);
+
+    // allowed relationship groups are those that can be added as parents or children to existing groups
+    // GLOBAL_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
+    // SPECIALTY_ADMIN can only edit their specialty and add relationships
+    // all other users cannot add parents/children
+    Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId);
 }

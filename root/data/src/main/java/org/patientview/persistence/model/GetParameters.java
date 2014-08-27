@@ -13,6 +13,7 @@ public class GetParameters {
     private String sortField;
     private String sortDirection;
     private String[] standardTypes;
+    private String[] groupTypes;
 
     public GetParameters() {
     }
@@ -71,5 +72,13 @@ public class GetParameters {
 
     public void setStandardTypes(String[] standardTypes) {
         this.standardTypes = standardTypes;
+    }
+
+    public String[] getGroupTypes() {
+        return groupTypes;
+    }
+
+    public void setGroupTypes(String[] groupTypes) {
+        this.groupTypes = groupTypes;
     }
 }

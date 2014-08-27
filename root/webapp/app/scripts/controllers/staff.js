@@ -264,14 +264,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                         }
                     });
 
-                    // todo: note only applies to patients, consider unifying controllers (as patients is a copy of staff)
-                    // get list of identifier types when user adding identifiers to staff members
+                    // only applies to patients
                     $scope.identifierTypes = [];
-                    /*StaticDataService.getLookupsByType('IDENTIFIER').then(function(identifierTypes) {
-                        if (identifierTypes.length > 0) {
-                            $scope.identifierTypes = identifierTypes;
-                        }
-                    });*/
 
                 } else {
                     // no groups found
