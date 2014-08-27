@@ -66,7 +66,7 @@
                             <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
                                 <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Standard <span class="caret-container"><span class="caret"></span></span></button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                                    <li><a data-ng-click="removeAllStandardTypes();" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                    <li><a data-ng-click="removeAllStandardTypes()" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                     <li class="divider"></li>
                                     <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
                                 </ul>
@@ -78,11 +78,10 @@
             </div>
         </div>
 
-
         <!-- data grid -->
-        <div class="faux-table five-col" data-ng-show="pagedItems.length  > 0">
+        <div class="faux-table five-col" data-ng-show="pagedItems.length  > 0" ng-cloak>
             <!-- header -->
-            <div class="accordion-title-row table-head" ng-show="pagedItems.length > 0" ng-cloak>
+            <div class="accordion-title-row table-head">
                 <div class="hidden">ID</div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('codeType');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
@@ -92,23 +91,22 @@
             </div>
 
             <!-- body -->
-            <!--<div class="code.open" ng-repeat="code in filtered = (list | codeTypeFilter:selectedCodeType | standardTypeFilter:selectedStandardType | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">-->
             <div class="item-header" ng-repeat="code in pagedItems">
-                    <div class="faux-row" ng-click="opened(code)">
-                        <div class="row-item hidden">{{code.id}}</div>
-                        <div class="row-item accordion-heading-text">{{code.code}}</div>
-                        <div class="row-item accordion-heading-text">{{code.codeType.value}}</div>
-                        <div class="row-item accordion-heading-text">{{code.standardType.value}}</div>
-                        <div class="row-item accordion-heading-text">{{code.description}}</div>
-                        <div class="row-item actions">
-                            <!-- Edit, Actions dropdown buttons -->
-                            <div class="btn-group pull-right">
-                                <button type="button" class="btn blue">Edit</button>
-                                <button type="button" class="btn aquamarine" ng-click="clone(code.id, $event)">Copy</button>
-                                <button type="button" class="btn negative" ng-click="delete(code.id, $event)">Delete</button>
-                            </div>
+                <div class="faux-row">
+                    <div class="row-item hidden">{{code.id}}</div>
+                    <div class="row-item accordion-heading-text">{{code.code}}</div>
+                    <div class="row-item accordion-heading-text">{{code.codeType.value}}</div>
+                    <div class="row-item accordion-heading-text">{{code.standardType.value}}</div>
+                    <div class="row-item accordion-heading-text">{{code.description}}</div>
+                    <div class="row-item actions">
+                        <!-- Edit, Actions dropdown buttons -->
+                        <div class="btn-group pull-right">
+                            <button type="button" class="btn blue" ng-click="opened(code)">Edit</button>
+                            <button type="button" class="btn aquamarine" ng-click="clone(code.id, $event)">Copy</button>
+                            <button type="button" class="btn negative" ng-click="delete(code.id, $event)">Delete</button>
                         </div>
                     </div>
+                </div>
                 <div class="quick-reply content-panel" ng-show="code.showEdit">
                     <!-- edit pane -->
                     <form name="codeForm" class="edit-code">
@@ -126,7 +124,6 @@
 
         <!-- pagination -->
         <div class="col-md-12" data-ng-show="pagedItems.length > 0">
-            <!--<div pagination on-select-page="setPage(page)" total-items="filtered.length" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filtered.length  < entryLimit "></div>-->
             <div ng-show="pagedItems.length > 0 && totalPages > 1">
                 <ul class="pagination">
                     <li ng-class="prevPageDisabled()">

@@ -43,7 +43,7 @@ function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode
 angular.module('patientviewApp').controller('CodesCtrl', ['$scope','$timeout', '$modal','CodeService','StaticDataService',
 function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
-    $scope.itemsPerPage = 5;
+    $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
     $scope.filterText = '';
     $scope.sortField = '';
@@ -63,7 +63,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             filterTextTimeout = $timeout(function () {
                 $scope.filterText = tempFilterText;
                 $scope.getItems($scope.currentPage, $scope.itemsPerPage, tempFilterText
-                    , $scope.selectedCodeType, $scope.selectedStandardType);
+                    , $scope.selectedCodeType, $scope.selectedStandardType, $scope.sortField, $scope.sortDirection);
             }, 1000); // delay 1000 ms
         }
     });
@@ -71,7 +71,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     // update page when currentPage is changed (and at start)
     $scope.$watch("currentPage", function(value) {
         $scope.getItems(value, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+            , $scope.selectedCodeType, $scope.selectedStandardType, $scope.sortField, $scope.sortDirection);
     });
 
     // Init
@@ -97,7 +97,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             $scope.sortDirection = 'ASC';
             $scope.sortField = sortField;
         } else {
-            if ($scope.sortDirection = 'ASC') {
+            if ($scope.sortDirection === 'ASC') {
                 $scope.sortDirection = 'DESC';
             } else {
                 $scope.sortDirection = 'ASC';

@@ -90,19 +90,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     @Inject
     private EntityManager entityManager;
 
-
-    /**
-     * Get all the groups and put the children and parents into the transient objects
-     *
-     * @return
-     */
-    public List<Group> findAll() {
-
-        List<Group> groups = Util.convertIterable(groupRepository.findAll());
-
-        return addParentAndChildGroups(groups);
-    }
-
     public Group get(Long id) {
         return addSingleParentAndChildGroup(groupRepository.findOne(id));
     }
@@ -110,22 +97,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     public List<Group> findGroupByUser(User user) {
         List<Group> groups = Util.convertIterable(groupRepository.findGroupByUser(user));
         return addParentAndChildGroups(groups);
-    }
-
-    public List<Group> findGroupAndChildGroupsByUser(User user) {
-        Set<Group> groups = new HashSet<Group>();
-        // get list of groups associated with user directly (user is member of group)
-        groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(user)));
-        // for each group get list of children if present
-        for (Group group : groups) {
-            for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
-                if (groupRelationship.getRelationshipType() == RelationshipTypes.CHILD) {
-                    groups.add(groupRelationship.getObjectGroup());
-                }
-            }
-        }
-
-        return addParentAndChildGroups(new ArrayList<Group>(groups));
     }
 
     public List<Group> findGroupByType(Long lookupId) {
@@ -334,7 +305,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     // Attached the relationship of children groups and parents groups onto Transient objects
-    private List<Group> addParentAndChildGroups(List<Group> groups) {
+    public List<Group> addParentAndChildGroups(List<Group> groups) {
 
         for (Group group : groups) {
             addSingleParentAndChildGroup(group);

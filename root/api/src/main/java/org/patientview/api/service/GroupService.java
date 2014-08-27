@@ -26,11 +26,7 @@ public interface GroupService {
     //@GroupMemberOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
     Group get(Long id);
 
-    List<Group> findAll();
-
     List<Group> findGroupByUser(User user);
-
-    List<Group> findGroupAndChildGroupsByUser(User user);
 
     List<Group> findGroupByType(Long lookupId);
 
@@ -65,4 +61,7 @@ public interface GroupService {
     void deleteFeature(Long groupId, Long featureId);
 
     void contactUnit(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException, ResourceInvalidException;
+
+    // now public
+    public List<Group> addParentAndChildGroups(List<Group> groups);
 }
