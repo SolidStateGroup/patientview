@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -23,6 +24,9 @@ import javax.inject.Inject;
 public class UserRepositoryTest {
 
     @Inject
+    IdentifierRepository identifierRepository;
+
+    @Inject
     UserRepository userRepository;
 
     @Inject
@@ -36,7 +40,10 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void testBlank() {
-
+    public void test() {
+        System.out.println("Need some user tests");
     }
+
+
+
 }

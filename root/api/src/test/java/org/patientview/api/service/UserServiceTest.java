@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.controller.model.Email;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -123,7 +123,7 @@ public class UserServiceTest {
         // Add test identifier, with lookup type IDENTIFIER, value NHS_NUMBER
         LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
         Lookup lookup = TestUtils.createLookup(lookupType, "NHS_NUMBER");
-        Identifier identifier = TestUtils.createIdentifier(lookup, newUser);
+        Identifier identifier = TestUtils.createIdentifier(lookup, newUser, "342343424");
         newUser.setIdentifiers(new HashSet<Identifier>());
         newUser.getIdentifiers().add(identifier);
 

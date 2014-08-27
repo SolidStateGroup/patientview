@@ -2,7 +2,11 @@ package org.patientview.importer.controller;
 
 import generated.Patientview;
 import junit.framework.Assert;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -28,7 +32,7 @@ import java.nio.file.Paths;
  * Created by james@solidstategroup.com
  * Created on 21/08/2014
  */
-public class TestImportController {
+public class ImportControllerTest {
 
     @Mock
     UriComponentsBuilder uriComponentsBuilder;
@@ -62,7 +66,8 @@ public class TestImportController {
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.post("/import")
-                    .content(content).contentType(MediaType.APPLICATION_XML))
+                    .contentType(MediaType.APPLICATION_XML)
+                    .content(content))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         }
         catch (Exception e) {
@@ -73,6 +78,13 @@ public class TestImportController {
 
     }
 
+    // used to test the service once running
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTest() throws Exception {
+        post(getTestFile());
+    }
+
 
     String getTestFile() throws IOException, URISyntaxException {
 
@@ -81,5 +93,20 @@ public class TestImportController {
         File file = new File(xmlPath.toURI());
         return  new String(Files.readAllBytes(Paths.get(file.getPath())));
     }
+
+    private static org.apache.http.HttpResponse post(String json) throws Exception {
+
+        org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+
+        String postUrl="http://localhost:8009/import";// put in your url
+        HttpPost post = new HttpPost(postUrl);
+        StringEntity postingString = new StringEntity(json);
+
+        post.setEntity(postingString);
+        post.setHeader("Content-type", "application/xml");
+        return httpClient.execute(post);
+
+    }
+
 
 }

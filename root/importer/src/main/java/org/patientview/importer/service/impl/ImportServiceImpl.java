@@ -6,7 +6,9 @@ import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.service.ImportService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -23,10 +25,20 @@ public class ImportServiceImpl extends AbstractServiceImpl<ImportServiceImpl> im
     private final static String QUEUE_NAME = "patient_import";
 
     @Inject
+    @Named(value = "write")
     private Channel channel;
 
     public ImportServiceImpl() {
 
+    }
+
+    @PreDestroy
+    public void tearDown() {
+        try {
+            channel.close();
+        } catch (IOException io) {
+            LOG.error("Error closing channel");
+        }
     }
 
     @Override

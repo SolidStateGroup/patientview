@@ -55,9 +55,8 @@ public class PersistenceConfig extends CommonConfig {
         return factory.getObject();
     }
 
-    @Bean
+    @Bean(name = "patientView")
     public DataSource dataSource() {
-
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
         dataSource.setUrl(properties.getProperty("url"));
@@ -66,18 +65,15 @@ public class PersistenceConfig extends CommonConfig {
         return dataSource;
     }
 
-
-
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
-
         return transactionManager;
     }
 
     @Bean
-    public HibernateExceptionTranslator hibernateExceptionTranslator(){
+    public HibernateExceptionTranslator hibernateExceptionTranslator() {
 
         return new HibernateExceptionTranslator();
     }

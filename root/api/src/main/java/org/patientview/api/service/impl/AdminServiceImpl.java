@@ -9,7 +9,6 @@ import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -32,9 +31,6 @@ public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> impl
 
     @Inject
     private GroupRepository groupRepository;
-
-    @Inject
-    private LookupRepository lookupRepository;
 
     @Inject
     private GroupFeatureRepository groupFeatureRepository;
@@ -67,15 +63,6 @@ public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> impl
 
     }
 
-    public User getByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    public User saveUser(User user) {
-        User entityUser = userRepository.findOne(user.getId());
-        entityUser.setFhirResourceId(user.getFhirResourceId());
-        return userRepository.save(user);
-    }
 
     public GroupFeature createGroupFeature(GroupFeature groupFeature) {
         return groupFeatureRepository.save(groupFeature);
@@ -85,7 +72,4 @@ public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> impl
         return Util.convertIterable(groupRepository.findGroupStaffByRole(groupId, "STAFF"));
     }
 
-    public List<User> getGroupUserByRolePatient(Long groupId) {
-        return Util.convertIterable(groupRepository.findGroupStaffByRole(groupId, "PATIENT"));
-    }
 }

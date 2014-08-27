@@ -1,4 +1,4 @@
-package org.patientview.api.exception;
+package org.patientview.config.exception;
 
 /**
  * Exception for use this the custom annotation exception

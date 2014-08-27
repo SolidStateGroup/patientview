@@ -1,6 +1,6 @@
 package org.patientview.api.service;
 
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 
 /**
  * Base CRUD service to align services methods

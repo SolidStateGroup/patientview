@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.LocationService;
 import org.patientview.persistence.model.Location;
 import org.springframework.http.HttpHeaders;

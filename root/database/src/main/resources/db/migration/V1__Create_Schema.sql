@@ -7,7 +7,6 @@ CREATE TABLE PV_User
   Failed_Logon_Attempts INTEGER NOT NULL DEFAULT 0,
   Locked           BOOL         NOT NULL,
   Dummy            BOOL         NOT NULL,
-  Fhir_Resource_Id UUID UNIQUE,
   Email            VARCHAR(200) NOT NULL,
   Forename         VARCHAR(500) NOT NULL,
   Surname          VARCHAR(500) NOT NULL,
@@ -25,7 +24,6 @@ CREATE TABLE PV_User
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
-
 
 CREATE TABLE PV_Lookup_Type (
   Id               BIGINT    NOT NULL,
@@ -493,6 +491,17 @@ CREATE TABLE PV_Group_Statistic (
   Collated_Period  VARCHAR(50),
   Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,
   Value            NUMERIC(19, 2) DEFAULT 0,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Fhir_Link
+(
+  Id                 BIGINT       NOT NULL,
+  User_Id            BIGINT       REFERENCES PV_User (Id),
+  Identifier_Id      BIGINT       REFERENCES PV_Identifier (Id),
+  Resource_Id   UUID,
+  Resource_Type VARCHAR(100),
+  Creation_Date      TIMESTAMP    NOT NULL,
   PRIMARY KEY (Id)
 );
 

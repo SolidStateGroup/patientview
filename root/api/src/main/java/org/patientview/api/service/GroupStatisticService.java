@@ -1,6 +1,6 @@
 package org.patientview.api.service;
 
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.springframework.transaction.annotation.Propagation;

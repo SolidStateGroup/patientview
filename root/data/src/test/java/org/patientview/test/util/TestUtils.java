@@ -4,6 +4,7 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
@@ -31,6 +32,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Id can be passed when not using any persistence to test against.
@@ -192,13 +195,19 @@ public final class TestUtils {
         return lookupType;
     }
 
-    public static Identifier createIdentifier(Lookup identifierType, User user) {
+    public static Identifier createIdentifier(Lookup identifierType, User user, String value) {
         Identifier identifier = new Identifier();
         identifier.setId(getId());
         identifier.setIdentifierType(identifierType);
         identifier.setUser(user);
+        identifier.setIdentifier(value);
         identifier.setCreated(new Date());
         identifier.setCreator(creator);
+
+        if (CollectionUtils.isEmpty(user.getIdentifiers())) {
+            user.setIdentifiers(new HashSet<Identifier>());
+        }
+        user.getIdentifiers().add(identifier);
         return identifier;
     }
 
@@ -253,7 +262,7 @@ public final class TestUtils {
     }
 
     public static void authenticateTest(User user, RoleName... roleNames) {
-        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+        Set<GrantedAuthority> authorities = new HashSet<>();
 
         Group group = createGroup("AuthenticationGroup");
         for (RoleName roleName : roleNames) {
@@ -264,7 +273,7 @@ public final class TestUtils {
     }
 
     public static void authenticateTest(User user, Collection<GroupRole> groupRoles) {
-        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+        Set<GrantedAuthority> authorities = new HashSet<>();
         for (GroupRole groupRole : groupRoles) {
             authorities.add(groupRole);
         }
@@ -335,6 +344,20 @@ public final class TestUtils {
         contactPoint.setCreator(creator);
 
         return contactPoint;
+    }
+
+    public static FhirLink createFhirLink(User user, Identifier identifier) {
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(user);
+        fhirLink.setResourceId(UUID.randomUUID());
+        fhirLink.setCreated(new Date());
+        fhirLink.setIdentifier(identifier);
+        if (CollectionUtils.isEmpty(user.getFhirLinks())) {
+            user.setFhirLinks(new HashSet<FhirLink>());
+        }
+
+        user.getFhirLinks().add(fhirLink);
+        return fhirLink;
     }
 
 }

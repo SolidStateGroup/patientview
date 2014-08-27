@@ -38,7 +38,6 @@ public class ImportController {
 
     @RequestMapping(value = "/import", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<Void> importPatient(@RequestBody Patientview patientview) throws ImportResourceException {
-
         importService.importRecord(patientview);
         return new ResponseEntity<>(HttpStatus.OK);
 
@@ -46,7 +45,7 @@ public class ImportController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> getTest(@RequestBody Patientview patientview) throws ImportResourceException {
+    public ResponseEntity<String> getTest() throws ImportResourceException {
 
         return new ResponseEntity<>("Importer OK", HttpStatus.OK);
 

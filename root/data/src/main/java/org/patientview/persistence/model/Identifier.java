@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -28,6 +29,10 @@ public class Identifier extends RangeModel {
     @Column(name = "identifier")
     private String identifier;
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "identifier")
+    @JsonIgnore
+    private FhirLink fhirLink;
+
     @JsonIgnore
     public User getUser() {
         return user;
@@ -51,5 +56,13 @@ public class Identifier extends RangeModel {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public FhirLink getFhirLink() {
+        return fhirLink;
+    }
+
+    public void setFhirLink(final FhirLink fhirLink) {
+        this.fhirLink = fhirLink;
     }
 }

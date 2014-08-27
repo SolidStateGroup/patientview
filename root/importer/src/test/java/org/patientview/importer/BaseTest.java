@@ -31,4 +31,5 @@ public abstract class BaseTest {
         return  new String(Files.readAllBytes(Paths.get(file.getPath())));
     }
 
+
 }

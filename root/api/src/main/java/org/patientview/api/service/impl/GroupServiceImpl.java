@@ -2,8 +2,8 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.controller.model.UnitRequest;
-import org.patientview.api.exception.ResourceInvalidException;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
