@@ -140,16 +140,16 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         }
         Page<Group> groupList;
         User user = userRepository.findOne(userId);
+        boolean groupTypesNotEmpty = ArrayUtils.isNotEmpty(groupTypes);
 
-        if (doesListContainRole(roleRepository.findByUser(user), RoleName.GLOBAL_ADMIN)) {
-            if (ArrayUtils.isNotEmpty(groupTypes)) {
+        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            if (groupTypesNotEmpty) {
                 groupList = groupRepository.findAllByGroupType(filterText, groupTypesList, pageable);
             } else {
                 groupList = groupRepository.findAll(filterText, pageable);
             }
-        } else if (doesListContainRole(roleRepository.findByUser(user), RoleName.SPECIALTY_ADMIN)) {
-            // if specialty admin get specialty group and all child groups
-            if (ArrayUtils.isNotEmpty(groupTypes)) {
+        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+            if (groupTypesNotEmpty) {
                 groupList = groupRepository.findGroupAndChildGroupsByUserAndGroupType(filterText, groupTypesList,
                         user, pageable);
             } else {
@@ -157,7 +157,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
             }
         }
         else {
-            if (ArrayUtils.isNotEmpty(groupTypes)) {
+            if (groupTypesNotEmpty) {
                 groupList = groupRepository.findGroupsByUserAndGroupTypeNoSpecialties(filterText, groupTypesList,
                         user, pageable);
             } else {
@@ -180,22 +180,9 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
 
     // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups
     public Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId) {
-
-        boolean isGlobalAdmin = false;
-        boolean isSpecialtyAdmin = false;
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
 
-        List<Role> userRoles = getUserRoles(userId);
-        for (Role role : userRoles) {
-            if (role.getName().equals(RoleName.GLOBAL_ADMIN)) {
-                isGlobalAdmin = true;
-            }
-            if (role.getName().equals(RoleName.SPECIALTY_ADMIN)) {
-                isSpecialtyAdmin = true;
-            }
-        }
-
-        if (isGlobalAdmin || isSpecialtyAdmin) {
+        if (doesContainRoles(RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN)) {
 
             Page<Group> groupList = groupRepository.findAll("%%", new PageRequest(0, Integer.MAX_VALUE));
 
@@ -206,14 +193,5 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         }
 
         return new PageImpl<>(new ArrayList<org.patientview.api.model.Group>(), pageable, 0L);
-    }
-
-    private boolean doesListContainRole(List<Role> roles, RoleName roleName) {
-        for (Role role : roles) {
-            if (role.getName().equals(roleName)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
