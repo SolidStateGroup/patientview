@@ -420,13 +420,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             });
 
             modalInstance.result.then(function () {
-                // ok, delete from list
-                for(var l=0;l<$scope.list.length;l++) {
-                    if ($scope.list[l].id === codeId) {
-                        $scope.list = _.without($scope.list, $scope.list[l]);
-                    }
-                }
-                $scope.successMessage = 'Code successfully deleted';
+                // ok (not used)
             }, function () {
                 // closed
             });
@@ -491,9 +485,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         });
 
         modalInstance.result.then(function (group) {
-            // modal closed, successfully added group, add to group list
-            $scope.list.push(group);
-            $scope.editGroup = group;
+            $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText, $scope.selectedGroupType);
             $scope.successMessage = 'Group successfully created';
             $scope.groupCreated = true;
         }, function () {
@@ -512,12 +504,14 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
             // update accordion header for group with data from GET
             GroupService.get(group.id).then(function (successResult) {
-                for(var i=0;i<$scope.list.length;i++) {
-                    if($scope.list[i].id == successResult.id) {
-                        var headerDetails = $scope.list[i];
+                for(var i=0;i<$scope.pagedItems.length;i++) {
+                    if($scope.pagedItems[i].id == successResult.id) {
+                        var headerDetails = $scope.pagedItems[i];
                         headerDetails.code = successResult.code;
                         headerDetails.name = successResult.name;
                         headerDetails.groupType = successResult.groupType;
+                        headerDetails.groupFeatures = successResult.groupFeatures;
+                        headerDetails.parentGroups = successResult.parentGroups;
                     }
                 }
             }, function () {

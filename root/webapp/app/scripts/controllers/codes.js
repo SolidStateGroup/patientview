@@ -346,9 +346,9 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             $scope.saved = true;
 
             // update header details (code, type, standard, description)
-            for(var i=0;i<$scope.list.length;i++) {
-                if($scope.list[i].id == code.id) {
-                    var headerDetails = $scope.list[i];
+            for(var i=0;i<$scope.pagedItems.length;i++) {
+                if($scope.pagedItems[i].id == code.id) {
+                    var headerDetails = $scope.pagedItems[i];
                     headerDetails.code = successResult.code;
                     headerDetails.codeType = successResult.codeType;
                     headerDetails.standardType = successResult.standardType;
