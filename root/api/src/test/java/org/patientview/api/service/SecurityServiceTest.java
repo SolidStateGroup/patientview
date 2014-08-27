@@ -94,6 +94,7 @@ public class SecurityServiceTest {
      */
     @Test
     public void testGetUserGroupsWithSuperAdmin() {
+
         GetParameters getParameters = new GetParameters();
         User testUser = TestUtils.createUser("testUser");
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
@@ -101,6 +102,7 @@ public class SecurityServiceTest {
         roles.add(TestUtils.createRole(RoleName.GLOBAL_ADMIN));
         when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
 
+        TestUtils.authenticateTest(testUser, RoleName.GLOBAL_ADMIN);
         securityService.getUserGroups(testUser.getId(), getParameters);
 
         String filterText = "%%";
@@ -123,6 +125,7 @@ public class SecurityServiceTest {
         roles.add(TestUtils.createRole(RoleName.UNIT_ADMIN));
         when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
 
+        TestUtils.authenticateTest(testUser, RoleName.UNIT_ADMIN);
         securityService.getUserGroups(testUser.getId(), getParameters);
 
         String filterText = "%%";
