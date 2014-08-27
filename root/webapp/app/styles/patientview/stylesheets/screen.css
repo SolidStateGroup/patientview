@@ -1601,9 +1601,17 @@ label {
 .modal-dialog {
   width: 75%;
 }
+/* line 54, ../sass/_components.scss */
+.modal-dialog label {
+  font-size: 1.5rem;
+}
+/* line 58, ../sass/_components.scss */
+.modal-dialog .added-container {
+  margin-top: 30px;
+}
 
 /** GRAPHS **/
-/* line 59, ../sass/_components.scss */
+/* line 68, ../sass/_components.scss */
 .graph-selector h3 {
   margin: 0;
   line-height: 35px;

@@ -20,33 +20,50 @@
 </div>
 
 <div class="row">
-    <div class="col-md-3 grey-right-border">
-        <label class="inner-title">Groups &amp; Roles </label>
-        <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
-            <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
-            <li class="group-list-role  pull-left"><span class="group-list-role">{{groupRole.role.description}}</span></li>
-            <li class="group-list-delete negative pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userFormNew, editUser, groupRole.group)" >Delete</a></span></li>
-        </ul>
-        <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
-            <div class="group-list-item">
+    <div class="col-md-6 grey-right-border">
+        <div class="added-container">
+            <label class="inner-title">Groups &amp; Roles </label>
+            <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
+                <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
+                <li class="group-list-role  pull-left"><span class="group-list-role">{{groupRole.role.description}}</span></li>
+                <li class="group-list-delete negative pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userFormNew, editUser, groupRole.group)" >Delete</a></span></li>
+            </ul>
+        </div>
+        <div class="group-add-container add-container" ng-show="editUser.availableGroups.length > 0 ">
+            <label class="inner-title">Add New Group &amp; Role </label>
+            <div class="select-add-group">
                 <select class="form-control group-select" ng-model="editUser.groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editUser.availableGroups | orderBy:[orderGroups,'name']"></select>
-                <div buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userFormNew, editUser, $event)"></div>
+                <!--<div buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userFormNew, editUser, $event)"></div>-->
+                <div class="bracket-input">
+                    <span class="bracket pre">(</span>
+                    <select class="form-control" >
+                        <option>-- (Role) --</option>
+                        <option>Unit Admin</option>
+                        <option>Unit Admin</option>
+                        <option>Unit Admin</option>
+                        <option>Unit Admin</option>
+                    </select>
+                    <span class="bracket post">)</span>
+                </div>
+                <button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userFormNew, editUser, editUser.groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button>
             </div>
-            <div class=""><button type="button" class="btn btn-primary group-add-button" ng-click="addGroup(userFormNew, editUser, editUser.groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button></div>
+
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
     </div>
-    <div class="col-md-3">
-        <label class="inner-title">Features</label>
-        <div class="feature-list-item" ng-repeat="feature in editUser.userFeatures">
-            <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
-            <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userFormNew, editUser, feature)" >Delete</a></span></div>
+    <div class="col-md-6">
+        <div class="added-container">
+            <label class="inner-title">Features</label>
+            <div class="feature-list-item" ng-repeat="feature in editUser.userFeatures">
+                <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
+                <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userFormNew, editUser, feature)" >Delete</a></span></div>
+            </div>
         </div>
-        <div class="feature-add-container" ng-show="editUser.availableFeatures.length > 0 ">
-            <label class="inner-title">Add Feature </label>
-            <div class="row">
-                <div class="col-md-8"><select class="form-control feature-select" ng-model="editUser.featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editUser.availableFeatures"></select></div>
-                <div class=""><button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userFormNew, editUser, editUser.featureToAdd)">Add</button></div>
+        <div class="feature-add-container add-container" ng-show="editUser.availableFeatures.length > 0 ">
+            <label class="inner-title">Add New Feature </label>
+            <div class="add-feature">
+                <select class="form-control feature-select" ng-model="editUser.featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editUser.availableFeatures"></select>
+                <button type="button" class="btn btn-primary feature-add-button" ng-click="addFeature(userFormNew, editUser, editUser.featureToAdd)">Add</button>
             </div>
         </div>
     </div>
