@@ -117,7 +117,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         // allowed relationship groups are those that can be added as parents or children to existing groups
         GroupService.getAllowedRelationshipGroups($scope.loggedInUser.id).then(function(allowedRelationshipGroups) {
             var group, i;
-            $scope.allowedRelationshipGroups = allowedRelationshipGroups;
+            $scope.allowedRelationshipGroups = allowedRelationshipGroups.content;
 
             // define groups that can be parents by type, currently hardcoded to SPECIALTY (and later DISEASE_GROUP)
             $scope.allParentGroups = [];

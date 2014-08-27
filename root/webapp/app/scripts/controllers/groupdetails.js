@@ -145,9 +145,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == group.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id == group.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.groupFeatures = successResult.groupFeatures;
                         }
                     }
@@ -186,9 +186,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == group.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id == group.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.groupFeatures = successResult.groupFeatures;
                         }
                     }
@@ -228,9 +228,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == successResult.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id == successResult.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
                     }
@@ -269,9 +269,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == successResult.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id == successResult.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
                     }
@@ -311,9 +311,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
                 // update accordion header for child group with data from GET
                 GroupService.get(childGroupId).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == successResult.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id == successResult.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
                     }
@@ -352,9 +352,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
                 // update accordion header with data from GET
                 GroupService.get(childGroup.id).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == successResult.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id == successResult.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
                     }
