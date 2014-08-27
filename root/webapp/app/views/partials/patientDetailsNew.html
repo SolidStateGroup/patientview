@@ -36,17 +36,32 @@
 <div class="row">
     <hr/>
     <div class="col-md-6 grey-right-border">
-        <label class="inner-title">Groups &amp; Roles <span class="error" ng-show="(!editUser.groupRoles || editUser.groupRoles.length == 0) && !userFormNew.$pristine">Please add a group and role for this patient</span></label>
-        <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
-            <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
-            <li class="group-list-role pull-left"><span class="group-list-role">{{groupRole.role.description}}</span></li>
-            <li class="group-list-delete negative pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><a id="remove-group-{{groupRole.group.id}}" href="" ng-click="removeGroup(userFormNew, editUser, groupRole.group)" >Delete</a></span></li>
-        </ul>
-        <div class="group-add-container" ng-show="editUser.availableGroups.length > 0 ">
+        <div class="added-container">
+            <label class="inner-title">Groups &amp; Roles <span class="error" ng-show="(!editUser.groupRoles || editUser.groupRoles.length == 0) && !userFormNew.$pristine">Please add a group and role for this patient</span></label>
+            <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
+                <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
+                <li class="group-list-role pull-left">( <span class="group-list-role">{{groupRole.role.description}}</span> )</li>
+                <li class="group-list-delete pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><button class="btn negative" id="remove-group-{{groupRole.group.id}}" ng-click="removeGroup(userFormNew, editUser, groupRole.group)" >Delete</button></span></li>
+            </ul>
+        </div>
+        <div class="group-add-container add-container" ng-show="editUser.availableGroups.length > 0 ">
+            <label class="inner-title">Add New Group &amp; Role </label>
             <div class="select-add-group">
                 <select class="form-control" ng-model="editUser.groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editUser.availableGroups | orderBy:[orderGroups,'name']"></select>
-                <div class="group-list-item">
-                    <button buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userForm, editUser, $event)"></button>
+                <!--<div class="group-list-item">-->
+                    <!--<button buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userForm, editUser, $event)"></button>-->
+                <!--</div>-->
+                <!--NEW GROUP COMPONENT-->
+                <div class="bracket-input">
+                    <span class="bracket pre">(</span>
+                    <select class="form-control" >
+                        <option>-- (Role) --</option>
+                        <option>Unit Admin</option>
+                        <option>Unit Admin</option>
+                        <option>Unit Admin</option>
+                        <option>Unit Admin</option>
+                    </select>
+                    <span class="bracket post">)</span>
                 </div>
                 <button type="button" class="btn blue group-add-button" ng-click="addGroup(userFormNew, editUser, editUser.groupToAdd)" ng-disabled="!editUser.selectedRole">Add</button>
             </div>
@@ -54,39 +69,41 @@
         </div>
     </div>
     <div class="col-md-6 hidden">
-        <label class="inner-title">Features</label>
-        <div class="feature-list-item" ng-repeat="feature in editUser.userFeatures">
-            <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
-            <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userFormNew, editUser, feature)" >Delete</a></span></div>
+        <div class="added-container">
+            <label class="inner-title">Features</label>
+            <div class="feature-list-item" ng-repeat="feature in editUser.userFeatures">
+                <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
+                <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userFormNew, editUser, feature)" >Delete</a></span></div>
+            </div>
         </div>
-        <div class="feature-add-container" ng-show="editUser.availableFeatures.length > 0 ">
-            <h5 class="inner-title">Add Feature </h5>
+        <div class="feature-add-container add-container" ng-show="editUser.availableFeatures.length > 0 ">
+            <h5 class="inner-title">Add New Feature </h5>
             <div class="add-feature">
                 <select class="form-control feature-select" ng-model="editUser.featureToAdd" ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
-                <div class=""><button type="button" class="btn blue feature-add-button" ng-click="addFeature(userFormNew, editUser, editUser.featureToAdd)">Add</button></div>
+                <button type="button" class="btn blue feature-add-button" ng-click="addFeature(userFormNew, editUser, editUser.featureToAdd)">Add</button>
             </div>
         </div>
     </div>
-</div>
 
 <!-- Identifiers -->
-<div class="row" ng-show="identifierTypes">
-    <hr/>
-    <div class="col-sm-12">
-        <label class="inner-title">Identifiers <span class="error" ng-show="editUser.identifiers.length < 1 && !userFormNew.$pristine">Please add an identifier for this patient</span></label>
-        <div class="identifier-list-item row" ng-repeat="identifier in editUser.identifiers">
-            <div class="col-sm-5"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}" placeholder="NHS or CHI Number" name="identifier" ng-model="identifier.identifier" required></div>
-            <div class="col-sm-3"><span class="identifier-identifier">{{identifier.identifierType.description}}</span></div>
-            <div class="btn-group">
-                <button type="button" class="btn negative link-delete-button" ng-click="removeIdentifier(userFormNew, editUser, identifier)">Delete</button>
+    <div class="col-md-6" ng-show="identifierTypes">
+        <div class="added-container">
+            <label class="inner-title">Identifiers <span class="error" ng-show="editUser.identifiers.length < 1 && !userFormNew.$pristine">Please add an identifier for this patient</span></label>
+            <div class="identifier-list-item row" ng-repeat="identifier in editUser.identifiers">
+                <div class="col-sm-5"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}" placeholder="NHS or CHI Number" name="identifier" ng-model="identifier.identifier" required></div>
+                <div class="col-sm-3"><span class="identifier-identifier">{{identifier.identifierType.description}}</span></div>
+                <div class="btn-group">
+                    <button type="button" class="btn negative link-delete-button" ng-click="removeIdentifier(userFormNew, editUser, identifier)">Delete</button>
+                </div>
             </div>
         </div>
-        <br/>
-        <h5 class="inner-title">Add Identifier</h5>
-        <div class="row" ng-model="newIdentifier">
-            <div class="col-sm-5"><input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="NHS or CHI Number" name="newIdentifier" ng-model="newIdentifier.identifier"></div>
-            <div class="col-sm-3"><select class="form-control indentifierType-select" ng-model="newIdentifier.identifierType" ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select></div>
-            <div class="col-sm-2"><button type="button" class="btn btn-primary identifier-add-button" ng-click="addIdentifier(userFormNew, editUser, newIdentifier)" ng-disabled="!(newIdentifier.identifier)">Add</button></div>
+        <div class="feature-add-container add-container">
+            <label class="inner-title">Add Identifier</label>
+            <div class="row" ng-model="newIdentifier">
+                <div class="col-sm-5"><input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="NHS or CHI Number" name="newIdentifier" ng-model="newIdentifier.identifier"></div>
+                <div class="col-sm-3"><select class="form-control indentifierType-select" ng-model="newIdentifier.identifierType" ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select></div>
+                <div class="col-sm-2"><button type="button" class="btn btn-primary identifier-add-button" ng-click="addIdentifier(userFormNew, editUser, newIdentifier)" ng-disabled="!(newIdentifier.identifier)">Add</button></div>
+            </div>
         </div>
     </div>
 </div>

@@ -408,7 +408,7 @@ ul .news-item {
   border-radius: 4px;
   color: white;
   font-size: 1.4rem;
-  min-height: 30px;
+  min-height: 34px;
   min-width: 34px;
   line-height: 20px;
 }
@@ -425,57 +425,58 @@ ul .news-item {
 /* line 256, ../sass/_base.scss */
 .button-dropdown-group button {
   border-right: 1px solid #1f6bba;
+  min-height: 34px;
 }
-/* line 259, ../sass/_base.scss */
+/* line 260, ../sass/_base.scss */
 .button-dropdown-group button span {
   margin: 1px 0 0 8px;
 }
 
-/* line 265, ../sass/_base.scss */
+/* line 266, ../sass/_base.scss */
 .button-dropdown-group button span, .btn-group button span {
   margin-left: 4px;
 }
 
-/* line 270, ../sass/_base.scss */
+/* line 271, ../sass/_base.scss */
 .btn-grey {
   background-color: #7a7a7a;
 }
 
 /** generic color styles **/
-/* line 276, ../sass/_base.scss */
+/* line 277, ../sass/_base.scss */
 .blue {
   background-color: #368de8;
   color: white;
 }
-/* line 280, ../sass/_base.scss */
+/* line 281, ../sass/_base.scss */
 .blue:active, .blue:focus {
   color: white;
   outline: 0;
 }
 
-/* line 285, ../sass/_base.scss */
+/* line 286, ../sass/_base.scss */
 .aquamarine {
   background-color: #00aa9e;
 }
 
-/* line 288, ../sass/_base.scss */
+/* line 289, ../sass/_base.scss */
 .negative {
   background-color: #f20d2e;
 }
 
 /* text classes */
-/* line 294, ../sass/_base.scss */
+/* line 295, ../sass/_base.scss */
 .light-text {
   color: #768696;
 }
 
-/* line 297, ../sass/_base.scss */
+/* line 298, ../sass/_base.scss */
 .sub-text {
   font-size: 0.85rem;
 }
 
 /** TODO add this in more appropriate place **/
-/* line 303, ../sass/_base.scss */
+/* line 304, ../sass/_base.scss */
 .showHideText {
   font-size: 16px;
   line-height: 16px;
@@ -483,61 +484,61 @@ ul .news-item {
   overflow: hidden;
 }
 
-/* line 309, ../sass/_base.scss */
+/* line 310, ../sass/_base.scss */
 .show {
   overflow: visible;
   height: auto;
   min-height: 35px;
 }
 
-/* line 315, ../sass/_base.scss */
+/* line 316, ../sass/_base.scss */
 .showHideLink {
   font-size: 16px;
 }
 
 /** temporary icons stuff **/
-/* line 321, ../sass/_base.scss */
+/* line 322, ../sass/_base.scss */
 .hero-icon {
   display: block;
   margin: 0 auto;
 }
 
-/* line 326, ../sass/_base.scss */
+/* line 327, ../sass/_base.scss */
 i.icon-hero-manage {
   background: url("../../../images/icons/hero-manage.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 332, ../sass/_base.scss */
+/* line 333, ../sass/_base.scss */
 i.icon-hero-monitor {
   background: url("../../../images/icons/hero-monitor.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 338, ../sass/_base.scss */
+/* line 339, ../sass/_base.scss */
 i.icon-hero-make {
   background: url("../../../images/icons/hero-make.png") 0 0 no-repeat;
   height: 145px;
   width: 145px;
 }
 
-/* line 344, ../sass/_base.scss */
+/* line 345, ../sass/_base.scss */
 i.icon-search-black {
   background: url("../../../images/icons/search-black.png") 0 0 no-repeat;
   height: 36px;
   width: 36px;
 }
 
-/* line 350, ../sass/_base.scss */
+/* line 351, ../sass/_base.scss */
 i.icon-account {
   background: url("../../../images/icons/account.png") 0 0 no-repeat;
   height: 32px;
   width: 32px;
 }
 
-/* line 356, ../sass/_base.scss */
+/* line 357, ../sass/_base.scss */
 i.icon-organisations {
   background: url("../../../images/icons/organisations.png") 0 0 no-repeat;
   height: 22px;
@@ -545,7 +546,7 @@ i.icon-organisations {
   margin-top: 7px;
 }
 
-/* line 363, ../sass/_base.scss */
+/* line 364, ../sass/_base.scss */
 i.icon-news {
   background: url("../../../images/icons/news.png") 0 0 no-repeat;
   height: 22px;
@@ -553,7 +554,7 @@ i.icon-news {
   margin-top: 7px;
 }
 
-/* line 370, ../sass/_base.scss */
+/* line 371, ../sass/_base.scss */
 i.icon-settings {
   background: url("../../../images/icons/settings.png") 0 0 no-repeat;
   height: 22px;
@@ -562,35 +563,35 @@ i.icon-settings {
   margin-top: 9px;
 }
 
-/* line 378, ../sass/_base.scss */
+/* line 379, ../sass/_base.scss */
 i.icon-patients {
   background: url("../../../images/icons/patients.png") 0 0 no-repeat;
   height: 27px;
   width: 17px;
 }
 
-/* line 384, ../sass/_base.scss */
+/* line 385, ../sass/_base.scss */
 i.icon-join {
   background: url("../../../images/icons/join.png") 0 0 no-repeat;
   height: 24px;
   width: 22px;
 }
 
-/* line 390, ../sass/_base.scss */
+/* line 391, ../sass/_base.scss */
 i.icon-reply {
   background: url("../../../images/icons/reply-icon.png") 0 0 no-repeat;
   height: 15px;
   width: 16px;
 }
 
-/* line 396, ../sass/_base.scss */
+/* line 397, ../sass/_base.scss */
 i.icon-sort {
   background: url("../../../images/icons/sort.png") 0 0 no-repeat;
   height: 25px;
   width: 20px;
 }
 
-/* line 402, ../sass/_base.scss */
+/* line 403, ../sass/_base.scss */
 i.icon-join-large {
   background: url("../../../images/icons/join-large.png") 0 0 no-repeat;
   height: 37px;
@@ -598,7 +599,7 @@ i.icon-join-large {
   display: block;
 }
 
-/* line 409, ../sass/_base.scss */
+/* line 410, ../sass/_base.scss */
 i.icon-login-large {
   background: url("../../../images/icons/login-large.png") 0 0 no-repeat;
   height: 37px;
@@ -606,21 +607,21 @@ i.icon-login-large {
   display: block;
 }
 
-/* line 416, ../sass/_base.scss */
+/* line 417, ../sass/_base.scss */
 i.icon-help {
   background: url("../../../images/icons/help.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 422, ../sass/_base.scss */
+/* line 423, ../sass/_base.scss */
 i.icon-issues {
   background: url("../../../images/icons/issues.png") 0 0 no-repeat;
   height: 22px;
   width: 24px;
 }
 
-/* line 428, ../sass/_base.scss */
+/* line 429, ../sass/_base.scss */
 i.icon-messages {
   background: url("../../../images/icons/messages.png") 0 0 no-repeat;
   height: 22px;
@@ -628,11 +629,11 @@ i.icon-messages {
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 436, ../sass/_base.scss */
+  /* line 437, ../sass/_base.scss */
   .content-panel {
     margin-bottom: 20px;
   }
-  /* line 439, ../sass/_base.scss */
+  /* line 440, ../sass/_base.scss */
   .content-panel.panel-header {
     margin-bottom: 5px;
   }
