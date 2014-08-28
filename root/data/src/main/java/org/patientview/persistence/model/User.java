@@ -103,6 +103,7 @@ public class User extends RangeModel implements UserDetails {
         this.username = username;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

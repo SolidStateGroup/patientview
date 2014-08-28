@@ -30,8 +30,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -89,16 +87,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Page<org.patientview.api.model.User>> getUsers(GetParameters getParameters)
             throws ResourceNotFoundException {
-/*
-        // if no groups or roles, bad request
-        if (!request.getParameterMap().containsKey("groupId") || !request.getParameterMap().containsKey("roleId")) {
-            LOG.debug("No group/role IDs passed in, required");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else {
-            List<Long> groupIds = Arrays.asList(groupIdsArr);
-            List<Long> roleIds = Arrays.asList(roleIdsArr);*/
-            return new ResponseEntity<>(userService.getUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
-        //}
+        return new ResponseEntity<>(userService.getUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE,
