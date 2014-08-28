@@ -23,9 +23,8 @@
             <div class="modal-footer">
                 <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
-                <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+                <button class="btn btn-grey" ng-click="cancel()">Close</button>
                 <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
-                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userFormExisting.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
 
@@ -90,7 +89,7 @@
         <!-- data grid -->
         <div class="faux-table six-col" data-ng-show="pagedItems.length  > 0" ng-cloak>
             <!-- header -->
-            <div class="accordion-title-row table-head" ng-cloak>
+            <div class="accordion-title-row table-head">
                 <div class="hidden">ID</div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title"><i class="icon-sort pull-right"></i>Email</a></div>

@@ -266,7 +266,9 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     // open modal for new code
     $scope.openModalNewCode = function (size) {
         // close any open edit panels
-        $('.panel-collapse.in').collapse('hide');
+        for (var i = 0; i < $scope.pagedItems.length; i++) {
+            $scope.pagedItems[i].showEdit = false;
+        }
         $scope.errorMessage = '';
         $scope.successMessage = '';
         $scope.codeCreated = '';
