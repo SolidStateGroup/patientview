@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,8 +37,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT DISTINCT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
-           "WHERE gr.role.id IN :roleIds AND gr.group.id IN :groupIds ")
-    Page<User> findByGroupsAndRoles(@Param("groupIds") List<Long> groupIds,
-                                    @Param("roleIds") List<Long> roleIds,
-                                    Pageable pageable);
+           "WHERE gr.role.id IN :roleIds AND gr.group.id IN :groupIds " +
+           "AND ((UPPER(u.username) LIKE :filterText) " +
+           "OR (UPPER(u.forename) LIKE :filterText) " +
+           "OR (UPPER(u.surname) LIKE :filterText) " +
+           "OR (UPPER(u.email) LIKE :filterText)) ")
+    Page<User> findByGroupsRoles(@Param("filterText") String filterText,
+                                 @Param("groupIds") List<Long> groupIds,
+                                 @Param("roleIds") List<Long> roleIds,
+                                 Pageable pageable);
 }

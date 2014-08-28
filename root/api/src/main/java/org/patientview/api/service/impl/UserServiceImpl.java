@@ -284,7 +284,20 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             filterText = "%" + filterText.toUpperCase() + "%";
         }
 
-        return userRepository.findByGroupsAndRoles(groupIds, roleIds, pageable);
+        /*if (ArrayUtils.isNotEmpty(groupTypes) && ArrayUtils.isNotEmpty(roleTypes)) {
+            return groupRepository.findByGroupsRolesGroupTypesRoleTypes(filterText, groupTypesList,
+                    roleTypesList, groupIds, roleIds, pageable);
+        }
+        if (ArrayUtils.isNotEmpty(groupTypes)) {
+            return groupRepository.findByGroupsRolesGroupTypes(filterText, groupTypesList,
+                    groupIds, roleIds, pageable);
+        }
+        if (ArrayUtils.isNotEmpty(roleTypes)) {
+            return groupRepository.findByGroupsRolesRoleTypes(filterText, roleTypesList,
+                    groupIds, roleIds, pageable);
+        }*/
+
+        return userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
     }
 
     public void delete(Long userId) {
