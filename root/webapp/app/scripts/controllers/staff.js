@@ -155,7 +155,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             tempFilterText = value;
             filterTextTimeout = $timeout(function () {
                 $scope.filterText = tempFilterText;
-                $scope.getItems($scope.currentPage, $scope.itemsPerPage, tempFilterText, $scope.selectedGroupType, $scope.sortField, $scope.sortDirection);
+                $scope.getItems();
                 //console.log($scope.filterText);
             }, 1000); // delay 1000 ms
         }
@@ -165,7 +165,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     $scope.$watch("currentPage", function(value) {
         if ($scope.initFinished == true) {
             //console.log(value);
-            $scope.getItems(value, $scope.itemsPerPage, $scope.filterText, $scope.selectedGroupType, $scope.sortField, $scope.sortDirection);
+            $scope.currentPage = value;
+            $scope.getItems();
         }
     });
 
@@ -178,7 +179,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         } else {
             $scope.selectedGroup.push(id);
         }
-        return false;
+        $scope.getItems();
     };
     $scope.isGroupChecked = function (id) {
         if (_.contains($scope.selectedGroup, id)) {
@@ -196,7 +197,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         } else {
             $scope.selectedRole.push(id);
         }
-        return false;
+        $scope.getItems();
     };
     $scope.isRoleChecked = function (id) {
         if (_.contains($scope.selectedRole, id)) {
@@ -259,20 +260,43 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         return $scope.currentPage === $scope.pageCount() - 1 ? "disabled" : "";
     };
 
+    $scope.sortBy = function(sortField) {
+        $scope.currentPage = 0;
+        if ($scope.sortField !== sortField) {
+            $scope.sortDirection = 'ASC';
+            $scope.sortField = sortField;
+        } else {
+            if ($scope.sortDirection === 'ASC') {
+                $scope.sortDirection = 'DESC';
+            } else {
+                $scope.sortDirection = 'ASC';
+            }
+        }
+
+        $scope.getItems();
+    };
 
     // Get staff based on current user selected filters etc
-    $scope.getItems = function (page, size, filterText, groupTypes, sortField, sortDirection) {
+    $scope.getItems = function () {
         $scope.loading = true;
 
         var getParameters = {};
-        getParameters.page = page;
-        getParameters.size = size;
-        getParameters.filterText = filterText;
-        getParameters.groupTypes = groupTypes;
-        getParameters.sortField = sortField;
-        getParameters.sortDirection = sortDirection;
-        getParameters.groupIds = $scope.groupIds;
-        getParameters.roleIds = $scope.roleIds;
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        getParameters.filterText = $scope.filterText;
+        getParameters.sortField = $scope.sortField;
+        getParameters.sortDirection = $scope.sortDirection;
+
+        if ($scope.selectedGroup.length > 0) {
+            getParameters.groupIds = $scope.selectedGroup;
+        } else {
+            getParameters.groupIds = $scope.groupIds;
+        }
+        if ($scope.selectedRole.length > 0) {
+            getParameters.roleIds = $scope.selectedRole;
+        } else {
+            getParameters.roleIds = $scope.roleIds;
+        }
 
         // get staff users by list of staff roles and list of logged in user's groups
         UserService.getByGroupsAndRoles(getParameters).then(function (page) {
@@ -358,7 +382,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     $scope.identifierTypes = [];
 
                     $scope.initFinished = true;
-                    $scope.getItems($scope.currentPage, $scope.itemsPerPage, tempFilterText, $scope.selectedGroupType, $scope.sortField, $scope.sortDirection);
+                    $scope.getItems();
                 });
 
 
@@ -578,7 +602,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             modalInstance.result.then(function () {
                 // ok, delete from list
                 $scope.currentPage = 0;
-                $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText, $scope.selectedGroupType, $scope.sortField, $scope.sortDirection);
+                $scope.getItems();
                 $scope.successMessage = 'User successfully deleted';
             }, function () {
                 // closed

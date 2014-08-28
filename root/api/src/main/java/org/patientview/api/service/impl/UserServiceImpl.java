@@ -3,7 +3,6 @@ package org.patientview.api.service.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
@@ -27,7 +26,6 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -256,8 +254,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
-        String[] roleTypes = getParameters.getCodeTypes();
-        String[] groupTypes = getParameters.getStandardTypes();
         String filterText = getParameters.getFilterText();
 
         PageRequest pageable;
@@ -275,27 +271,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
-        List<Long> roleTypesList = convertStringArrayToLongs(roleTypes);
-        List<Long> groupTypesList = convertStringArrayToLongs(groupTypes);
-
         if (StringUtils.isEmpty(filterText)) {
             filterText = "%%";
         } else {
             filterText = "%" + filterText.toUpperCase() + "%";
         }
-
-        /*if (ArrayUtils.isNotEmpty(groupTypes) && ArrayUtils.isNotEmpty(roleTypes)) {
-            return groupRepository.findByGroupsRolesGroupTypesRoleTypes(filterText, groupTypesList,
-                    roleTypesList, groupIds, roleIds, pageable);
-        }
-        if (ArrayUtils.isNotEmpty(groupTypes)) {
-            return groupRepository.findByGroupsRolesGroupTypes(filterText, groupTypesList,
-                    groupIds, roleIds, pageable);
-        }
-        if (ArrayUtils.isNotEmpty(roleTypes)) {
-            return groupRepository.findByGroupsRolesRoleTypes(filterText, roleTypesList,
-                    groupIds, roleIds, pageable);
-        }*/
 
         return userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
     }

@@ -62,16 +62,15 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             tempFilterText = value;
             filterTextTimeout = $timeout(function () {
                 $scope.filterText = tempFilterText;
-                $scope.getItems($scope.currentPage, $scope.itemsPerPage, tempFilterText
-                    , $scope.selectedCodeType, $scope.selectedStandardType, $scope.sortField, $scope.sortDirection);
+                $scope.getItems();
             }, 1000); // delay 1000 ms
         }
     });
 
     // update page when currentPage is changed (and at start)
     $scope.$watch("currentPage", function(value) {
-        $scope.getItems(value, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType, $scope.sortField, $scope.sortDirection);
+        $scope.currentPage = value;
+        $scope.getItems();
     });
 
     // Init
@@ -104,8 +103,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             }
         }
 
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType, $scope.sortField, $scope.sortDirection);
+        $scope.getItems();
     };
 
     $scope.pageCount = function() {
@@ -162,17 +160,16 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         return $scope.currentPage === $scope.pageCount() - 1 ? "disabled" : "";
     };
 
-    $scope.getItems = function(page, size, filterText, codeTypes, standardTypes, sortField, sortDirection) {
+    $scope.getItems = function() {
         $scope.loading = true;
-
         var getParameters = {};
-        getParameters.page = page;
-        getParameters.size = size;
-        getParameters.filterText = filterText;
-        getParameters.codeTypes = codeTypes;
-        getParameters.standardTypes = standardTypes;
-        getParameters.sortField = sortField;
-        getParameters.sortDirection = sortDirection;
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        getParameters.filterText = $scope.filterText;
+        getParameters.codeTypes = $scope.selectedCodeType;
+        getParameters.standardTypes = $scope.selectedStandardType;
+        getParameters.sortField = $scope.sortField;
+        getParameters.sortDirection = $scope.sortDirection;
 
         CodeService.getAll(getParameters).then(function(page) {
             $scope.pagedItems = page.content;
@@ -193,8 +190,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         } else {
             $scope.selectedCodeType.push(id);
         }
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+        $scope.getItems();
     };
     $scope.isCodeTypeChecked = function (id) {
         if (_.contains($scope.selectedCodeType, id)) {
@@ -204,8 +200,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
     $scope.removeAllCodeTypes = function () {
         $scope.selectedCodeType = [];
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+        $scope.getItems();
     };
 
     // filter by standard type
@@ -217,8 +212,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         } else {
             $scope.selectedStandardType.push(id);
         }
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+        $scope.getItems();
     };
     $scope.isStandardTypeChecked = function (id) {
         if (_.contains($scope.selectedStandardType, id)) {
@@ -228,8 +222,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
     $scope.removeAllStandardTypes = function () {
         $scope.selectedStandardType = [];
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+        $scope.getItems();
     };
 
     // Opened for edit
@@ -301,8 +294,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         });
 
         modalInstance.result.then(function () {
-            $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-                , $scope.selectedCodeType, $scope.selectedStandardType);
+            $scope.getItems();
             $scope.successMessage = 'Code successfully created';
             $scope.codeCreated = true;
         }, function () {
@@ -330,8 +322,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             });
 
             modalInstance.result.then(function () {
-                $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-                    , $scope.selectedCodeType, $scope.selectedStandardType);
+                $scope.getItems();
                 $scope.successMessage = 'Code successfully deleted';
             }, function () {
                 // closed
