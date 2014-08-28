@@ -174,6 +174,9 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
             // strip <script> (otherwise htmlClean crashes)
             text = stripScripts(text);
 
+            // remove 'javascript' strings
+            text = text.replace('javascript','');
+
             // https://github.com/components/jquery-htmlclean
             // clean html to remove all but certain tags
             var htmlCleanOptions = {
