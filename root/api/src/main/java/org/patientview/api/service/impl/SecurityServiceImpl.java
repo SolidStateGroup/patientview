@@ -157,7 +157,6 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
 
         // convert to lightweight transport objects, create Page and return
         List<org.patientview.api.model.Group> transportContent = convertGroupsToTransportGroups(content);
-
         return new PageImpl<>(transportContent, pageable, groupList.getTotalElements());
     }
 

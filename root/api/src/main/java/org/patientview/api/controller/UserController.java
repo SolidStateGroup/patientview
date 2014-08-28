@@ -87,11 +87,8 @@ public class UserController extends BaseController<UserController> {
     // handle getting users from multiple groups and roles using query parameters
     @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Page<User>> getUsers(
-            //@RequestParam(value = "groupId", required = false) Long[] groupIdsArr,
-            //@RequestParam(value = "roleId", required = false) Long[] roleIdsArr,
-            GetParameters getParameters,
-            HttpServletRequest request) throws ResourceNotFoundException {
+    public ResponseEntity<Page<org.patientview.api.model.User>> getUsers(GetParameters getParameters)
+            throws ResourceNotFoundException {
 /*
         // if no groups or roles, bad request
         if (!request.getParameterMap().containsKey("groupId") || !request.getParameterMap().containsKey("roleId")) {

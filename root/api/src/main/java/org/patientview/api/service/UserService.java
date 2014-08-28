@@ -38,7 +38,7 @@ public interface UserService extends CrudService<User> {
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId);
 
-    Page<User> getUsersByGroupsAndRoles(GetParameters getParameters);
+    Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters);
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
     User changePassword(final Long userId, final String password) throws ResourceNotFoundException ;

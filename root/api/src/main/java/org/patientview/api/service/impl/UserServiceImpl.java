@@ -27,6 +27,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -242,11 +243,21 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return longs;
     }
 
+    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
+        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
+
+        for (User user : users) {
+            transportUsers.add(new org.patientview.api.model.User(user));
+        }
+
+        return transportUsers;
+    }
+
     /**
      * Get users based on a list of groups and role types
      * @return
      */
-    public Page<User> getUsersByGroupsAndRoles(GetParameters getParameters) {
+    public Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters) {
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
         List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
@@ -277,7 +288,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             filterText = "%" + filterText.toUpperCase() + "%";
         }
 
-        return userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
+        Page<User> users = userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
+
+        // convert to lightweight transport objects, create Page and return
+        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(users.getContent());
+        return new PageImpl<>(transportContent, pageable, users.getTotalElements());
     }
 
     public void delete(Long userId) {
