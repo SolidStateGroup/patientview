@@ -58,7 +58,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
 
     public Set<Route> getUserRoutes(Long userId) {
         User user = userRepository.findOne(userId);
-        Set<Route> routes = new TreeSet<Route>(Util.convertIterable(routeRepository.findFeatureRoutesByUser(user)));
+        Set<Route> routes = new TreeSet<>(Util.convertIterable(routeRepository.findFeatureRoutesByUser(user)));
         routes.addAll(Util.convertIterable(routeRepository.findGroupRoutesByUser(user)));
         routes.addAll(Util.convertIterable(routeRepository.findRoleRoutesByUser(user)));
         return routes;
@@ -75,24 +75,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         List<org.patientview.api.model.Group> transportGroups = new ArrayList<>();
 
         for (Group group : groups) {
-            org.patientview.api.model.Group newGroup = new org.patientview.api.model.Group();
-            newGroup.setCode(group.getCode());
-            newGroup.setId(group.getId());
-            newGroup.setGroupType(group.getGroupType());
-            newGroup.setGroupFeatures(group.getGroupFeatures());
-            newGroup.setName(group.getName());
-            newGroup.setVisible(group.getVisible());
-
-            // only need parent groups in front end for headers
-            for (Group parentGroup : group.getParentGroups()) {
-                org.patientview.api.model.Group newParentGroup = new org.patientview.api.model.Group();
-                newParentGroup.setCode(parentGroup.getCode());
-                newParentGroup.setId(parentGroup.getId());
-                newParentGroup.setName(parentGroup.getName());
-                newGroup.getParentGroups().add(newParentGroup);
-            }
-
-            transportGroups.add(newGroup);
+            transportGroups.add(new org.patientview.api.model.Group(group));
         }
 
         return transportGroups;
