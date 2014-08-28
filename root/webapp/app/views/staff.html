@@ -64,7 +64,10 @@
                                 <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role clearfix"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
                             </ul>
                         </div>
+                        <span data-ng-repeat="role in allRoles" ng-show="isRoleChecked(role.id)"><span class="label label-info">{{role.description}}</span>&nbsp;</span>
+                    </div>
                         <!-- filter by group -->
+                    <div class="select-container pull-left">
                         <div class="btn-group filter-select" id="filter-group" data-ng-class="{open: open-group}">
                             <button class="btn dropdown-toggle" data-ng-click="open=!open-group">Filter By Group <span class="caret-container"><span class="caret"></span></span></button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
@@ -73,6 +76,7 @@
                                 <li data-ng-repeat="group in allGroups"> <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix"><span class="pull-left">{{group.name}}</span><span data-ng-class="isGroupChecked(group.id)"></span></a></li>
                             </ul>
                         </div>
+                        <span data-ng-repeat="group in allGroups" ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</span>
                     </div>
                 </div>
             </div>
