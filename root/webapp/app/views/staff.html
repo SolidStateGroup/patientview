@@ -117,9 +117,7 @@
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="button-dropdown-group">
-                            <button type="button" class="btn blue pull-left" ng-click="opened(user)">
-                                <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>
-                                &nbsp;&nbsp;Edit</button>
+                            <button type="button" class="btn blue pull-left" ng-click="opened(user)">Edit</button>
                             <div class="dropdown pull-left">
                                 <button class="btn blue dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
                                     <span class="caret"></span>
@@ -142,7 +140,7 @@
                     <hr>
                     <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                     <div class="user-save-cancel pull-right">
-                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
+                        <button type="button" class="btn btn-grey" ng-click="user.showEdit = false">Close</button>
                     </div>
                 </div>
             </div>

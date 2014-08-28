@@ -118,7 +118,7 @@
             </div>
             <!-- body -->
             <div class="item-header" ng-repeat="user in pagedItems">
-                <div class="faux-row" ng-click="opened(user, $event, status)">
+                <div class="faux-row">
                     <div class="row-item hidden">{{user.id}}</div>
                     <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
@@ -137,9 +137,7 @@
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="button-dropdown-group">
-                            <button type="button" class="btn blue pull-left">
-                                <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>
-                                &nbsp;&nbsp;Edit</button>
+                            <button type="button" class="btn blue pull-left" ng-click="opened(user)">Edit</button>
                             <div class="dropdown pull-left">
                                 <button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
                                     <span class="caret"></span>
@@ -162,7 +160,7 @@
                     <hr>
                     <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                     <div class="user-save-cancel pull-right">
-                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
+                        <button type="button" class="btn btn-grey" ng-click="user.showEdit = false">Close</button>
                     </div>
                 </div>
             </div>
