@@ -3,9 +3,11 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,8 @@ public interface UserService extends CrudService<User> {
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId);
 
-    List<User> getUsersByGroupsAndRoles(List<Long> groupIds,List<Long> roleIds);
+    //Page<User> getUsersByGroupsAndRoles(List<Long> groupIds, List<Long> roleIds, GetParameters getParameters);
+    Page<User> getUsersByGroupsAndRoles(GetParameters getParameters);
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
     User changePassword(final Long userId, final String password) throws ResourceNotFoundException ;

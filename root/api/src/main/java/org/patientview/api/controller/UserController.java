@@ -7,11 +7,13 @@ import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -85,23 +87,25 @@ public class UserController extends BaseController<UserController> {
     // handle getting users from multiple groups and roles using query parameters
     @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<User>> getUsers(
-            @RequestParam(value = "groupId", required = false) Long[] groupIdsArr,
-            @RequestParam(value = "roleId", required = false) Long[] roleIdsArr,
+    public ResponseEntity<Page<User>> getUsers(
+            //@RequestParam(value = "groupId", required = false) Long[] groupIdsArr,
+            //@RequestParam(value = "roleId", required = false) Long[] roleIdsArr,
+            GetParameters getParameters,
             HttpServletRequest request) throws ResourceNotFoundException {
-
+/*
         // if no groups or roles, bad request
         if (!request.getParameterMap().containsKey("groupId") || !request.getParameterMap().containsKey("roleId")) {
             LOG.debug("No group/role IDs passed in, required");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
             List<Long> groupIds = Arrays.asList(groupIdsArr);
-            List<Long> roleIds = Arrays.asList(roleIdsArr);
-            return new ResponseEntity<>(userService.getUsersByGroupsAndRoles(groupIds, roleIds), HttpStatus.OK);
-        }
+            List<Long> roleIds = Arrays.asList(roleIdsArr);*/
+            return new ResponseEntity<>(userService.getUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
+        //}
     }
 
-    @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public  ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
         userService.delete(userId);
@@ -113,8 +117,8 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user,
-                                           @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword,
-                                                   UriComponentsBuilder uriComponentsBuilder) throws ResourceNotFoundException {
+                               @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword,
+                               UriComponentsBuilder uriComponentsBuilder) throws ResourceNotFoundException {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.get(1L));
@@ -234,7 +238,8 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/role/{roleId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Role>> getUserByRoles(@PathVariable("roleId") Long roleId, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<List<Role>> getUserByRoles(@PathVariable("roleId") Long roleId,
+                                                     UriComponentsBuilder uriComponentsBuilder) {
 
         LOG.debug("Request has been received for userId : {}", roleId);
 
