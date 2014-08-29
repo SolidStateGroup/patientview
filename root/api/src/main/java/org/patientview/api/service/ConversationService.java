@@ -29,5 +29,5 @@ public interface ConversationService extends CrudService<Conversation> {
 
     int getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
 
-    List<User> getRecipients(Long userId) throws ResourceNotFoundException, ResourceInvalidException;
+    List<User> getRecipients(Long userId, String[] featureTypes) throws ResourceNotFoundException, ResourceInvalidException;
 }
