@@ -71,34 +71,37 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     // watches
     // update page on user typed search text
     $scope.$watch('searchText', function (value) {
-        if (value != undefined) {
-            if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+        if (value !== undefined) {
+            if (filterTextTimeout) {
+                $timeout.cancel(filterTextTimeout);
+            }
             $scope.currentPage = 0;
 
             tempFilterText = value;
             filterTextTimeout = $timeout(function () {
                 $scope.filterText = tempFilterText;
-                $scope.getItems($scope.currentPage, $scope.itemsPerPage, tempFilterText, $scope.selectedGroupType, $scope.sortField, $scope.sortDirection);
+                $scope.getItems();
             }, 1000); // delay 1000 ms
         }
     });
 
     // update page when currentPage is changed (and at start)
-    $scope.$watch("currentPage", function(value) {
-        $scope.getItems(value, $scope.itemsPerPage, $scope.filterText, $scope.selectedGroupType, $scope.sortField, $scope.sortDirection);
+    $scope.$watch('currentPage', function(value) {
+        $scope.currentPage = value;
+        $scope.getItems();
     });
 
     // Get groups based on current user selected filters etc
-    $scope.getItems = function (page, size, filterText, groupTypes, sortField, sortDirection) {
+    $scope.getItems = function () {
         $scope.loading = true;
 
         var getParameters = {};
-        getParameters.page = page;
-        getParameters.size = size;
-        getParameters.filterText = filterText;
-        getParameters.groupTypes = groupTypes;
-        getParameters.sortField = sortField;
-        getParameters.sortDirection = sortDirection;
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        getParameters.filterText = $scope.filterText;
+        getParameters.groupTypes = $scope.selectedGroupType;
+        getParameters.sortField = $scope.sortField;
+        getParameters.sortDirection = $scope.sortDirection;
 
         // get list of groups associated with a user
         GroupService.getGroupsForUser($scope.loggedInUser.id, getParameters).then(function(page) {
@@ -221,8 +224,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             }
         }
 
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedGroupType, $scope.sortField, $scope.sortDirection);
+        $scope.getItems();
     };
 
     $scope.pageCount = function() {
@@ -266,7 +268,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "hidden" : "";
+        return $scope.currentPage === 0 ? 'hidden' : '';
     };
 
     $scope.nextPage = function() {
@@ -276,7 +278,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     };
 
     $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.pageCount() - 1 ? "disabled" : "";
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
     };
 
     // filter by group type
@@ -288,7 +290,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         } else {
             $scope.selectedGroupType.push(id);
         }
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText, $scope.selectedGroupType);
+        $scope.getItems();
     };
     $scope.isGroupTypeChecked = function (id) {
         if (_.contains($scope.selectedGroupType, id)) {
@@ -298,7 +300,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     };
     $scope.removeAllGroupTypes = function () {
         $scope.selectedGroupType = [];
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText, $scope.selectedGroupType);
+        $scope.getItems();
     };
 
     // Group opened for edit
@@ -484,8 +486,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             }
         });
 
-        modalInstance.result.then(function (group) {
-            $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText, $scope.selectedGroupType);
+        modalInstance.result.then(function () {
+            $scope.getItems();
             $scope.successMessage = 'Group successfully created';
             $scope.groupCreated = true;
         }, function () {
@@ -505,7 +507,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             // update accordion header for group with data from GET
             GroupService.get(group.id).then(function (successResult) {
                 for(var i=0;i<$scope.pagedItems.length;i++) {
-                    if($scope.pagedItems[i].id == successResult.id) {
+                    if($scope.pagedItems[i].id === successResult.id) {
                         var headerDetails = $scope.pagedItems[i];
                         headerDetails.code = successResult.code;
                         headerDetails.name = successResult.name;

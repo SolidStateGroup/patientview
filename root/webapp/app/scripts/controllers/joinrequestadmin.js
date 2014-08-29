@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupService', 'JoinRequestService', 'StaticDataService', '$scope', '$rootScope', 'UtilService', function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,UtilService) {
+angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupService', 'JoinRequestService', 'StaticDataService', '$scope', '$rootScope',
+function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScope) {
 
     $scope.filter = {};
 
@@ -18,10 +19,10 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
             $scope.refresh();
         }
 
-        JoinRequestService.getByStatus($rootScope.loggedInUser.id, selectedStatus).then(function(data) {
+        JoinRequestService.getByStatus($rootScope.loggedInUser.id, status).then(function(data) {
             $scope.joinRequests = $scope.initRequests(data);
         });
-    },
+    };
 
     $scope.save = function(form, joinRequest) {
         joinRequest.status = joinRequest.newStatus;
@@ -30,13 +31,13 @@ angular.module('patientviewApp').controller('JoinRequestAdminCtrl', ['GroupServi
         $rootScope.setSubmittedJoinRequestCount();
         // once saved requery the join requests
 
-    },
+    };
 
     $scope.refresh = function() {
         JoinRequestService.getByUser($rootScope.loggedInUser.id).then(function(data) {
             $scope.joinRequests = $scope.initRequests(data);
         });
-    },
+    };
 
     $scope.initRequests = function(requests) {
         requests.forEach(function(request) {

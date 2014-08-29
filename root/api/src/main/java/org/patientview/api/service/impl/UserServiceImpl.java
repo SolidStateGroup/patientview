@@ -1,7 +1,8 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
@@ -9,6 +10,7 @@ import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
@@ -24,13 +26,17 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -226,15 +232,67 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return userRepository.save(entityUser);
     }
 
+    // todo: move to static class
+    private List<Long> convertStringArrayToLongs(String[] strings) {
+        final List<Long> longs = new ArrayList<>();
+        if (ArrayUtils.isNotEmpty(strings)) {
+            for (String string : strings) {
+                longs.add(Long.parseLong(string));
+            }
+        }
+        return longs;
+    }
+
+    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
+        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
+
+        for (User user : users) {
+            transportUsers.add(new org.patientview.api.model.User(user));
+        }
+
+        return transportUsers;
+    }
+
     /**
      * Get users based on a list of groups and role types
-     *
-     * @param groupIds
-     * @param roleIds
      * @return
      */
-    public List<User> getUsersByGroupsAndRoles(List<Long> groupIds, List<Long> roleIds) {
-        return Util.convertIterable(userRepository.findByGroupsAndRoles(groupIds, roleIds));
+    public Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters) {
+
+        List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
+        List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        String sortField = getParameters.getSortField();
+        String sortDirection = getParameters.getSortDirection();
+        String filterText = getParameters.getFilterText();
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals("DESC")) {
+                direction = Sort.Direction.DESC;
+            }
+
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            pageable = new PageRequest(pageConverted, sizeConverted);
+        }
+
+        if (StringUtils.isEmpty(filterText)) {
+            filterText = "%%";
+        } else {
+            filterText = "%" + filterText.toUpperCase() + "%";
+        }
+
+        Page<User> users = userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
+
+        // convert to lightweight transport objects, create Page and return
+        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(users.getContent());
+        return new PageImpl<>(transportContent, pageable, users.getTotalElements());
     }
 
     public void delete(Long userId) {

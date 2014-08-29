@@ -1,3 +1,31 @@
+<!-- TODO: put in main styles -->
+<style>
+    .clamped {
+        line-height: 1.5;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .clamped-2 {
+        /* Clamp to 2 lines, ie line-height x 2: */
+        max-height: 3em;
+    }
+
+    .ellipsis {
+        background: #fff;
+        bottom: 0;
+        position: absolute;
+        right: 10px;
+    }
+
+    .fill {
+        background: #fff;
+        height: 100%;
+        position: absolute;
+        width: 100%;
+    }
+</style>
+
 <div class="hider" ng-show="status.open"></div>
 
 <div>
@@ -52,9 +80,14 @@
                     </h2>
                     <div class="last-message">
                         <p class="date-stamp"><strong>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
-                        <p class="message-content">
-                            <div class="showHideText" ng-class="{show: show}" ng-bind-html="parseHTMLText(news.story)"></div>
-                            <a href="" class="showHideLink" ng-click="show = true" ng-show="!show">show more</a><a href="" class="showHideLink" ng-click="show = false" ng-show="show">show less</a>
+                        <p ng-class="{'clamped': !news.showMore, 'clamped-2': !news.showMore}" class="message-content">
+                            <span class="text">
+                                <span ng-bind-html="parseHTMLText(news.story)"></span>
+                                <span class="ellipsis">
+                                    &nbsp;&nbsp;&nbsp;<a href="" ng-click="news.showMore = true">Show More</a>
+                                </span>
+                                <span class="fill"></span>
+                            </span>
                         </p>
                     </div>
                 </div>

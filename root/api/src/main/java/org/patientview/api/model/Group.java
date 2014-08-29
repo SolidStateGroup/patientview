@@ -23,6 +23,29 @@ public class Group extends BaseModel{
     private List<Group> childGroups = new ArrayList<>();
     private Boolean visible;
 
+    public Group() {
+
+    }
+
+    public Group(org.patientview.persistence.model.Group group) {
+        setCode(group.getCode());
+        setId(group.getId());
+        setGroupType(group.getGroupType());
+        setGroupFeatures(group.getGroupFeatures());
+        setName(group.getName());
+        setVisible(group.getVisible());
+        setParentGroups(new ArrayList<Group>());
+
+        // only need parent groups in front end for headers
+        for (org.patientview.persistence.model.Group parentGroup : group.getParentGroups()) {
+            Group newParentGroup = new Group();
+            newParentGroup.setCode(parentGroup.getCode());
+            newParentGroup.setId(parentGroup.getId());
+            newParentGroup.setName(parentGroup.getName());
+            getParentGroups().add(newParentGroup);
+        }
+    }
+
     public String getName() {
         return name;
     }

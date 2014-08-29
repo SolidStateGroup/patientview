@@ -14,6 +14,8 @@ public class GetParameters {
     private String sortDirection;
     private String[] standardTypes;
     private String[] groupTypes;
+    private String[] groupIds;
+    private String[] roleIds;
 
     public GetParameters() {
     }
@@ -72,6 +74,22 @@ public class GetParameters {
 
     public void setStandardTypes(String[] standardTypes) {
         this.standardTypes = standardTypes;
+    }
+
+    public String[] getGroupIds() {
+        return groupIds;
+    }
+
+    public void setGroupIds(String[] groupIds) {
+        this.groupIds = groupIds;
+    }
+
+    public String[] getRoleIds() {
+        return roleIds;
+    }
+
+    public void setRoleIds(String[] roleIds) {
+        this.roleIds = roleIds;
     }
 
     public String[] getGroupTypes() {

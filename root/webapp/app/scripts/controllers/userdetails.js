@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserService', 'IdentifierService', function ($scope, UserService, IdentifierService) {
-    var i, j;
+angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserService', 'IdentifierService',
+function ($scope, UserService, IdentifierService) {
+    var i;
 
     // add group to current group, remove from allowed
     $scope.addGroup = function (form, user, groupId) {
@@ -12,7 +13,8 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
             if ($scope.editMode) {
                 UserService.addGroupRole(user, newGroup.id, newGroup.role.id).then(function () {
                     user.groups.push(newGroup);
-                    user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
+                    user.availableGroups = _.without(user.availableGroups,
+                        _.findWhere(user.availableGroups, {id: groupId}));
 
                     // for REST compatibility
                     user.groupRoles = [];
@@ -27,9 +29,9 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
 
                     // update accordion header with data from GET
                     UserService.get(user.id).then(function (successResult) {
-                        for(i=0;i<$scope.list.length;i++) {
-                            if($scope.list[i].id == user.id) {
-                                var headerDetails = $scope.list[i];
+                        for(i=0;i<$scope.pagedItems.length;i++) {
+                            if($scope.pagedItems[i].id === user.id) {
+                                var headerDetails = $scope.pagedItems[i];
                                 headerDetails.groupRoles = successResult.groupRoles;
                             }
                         }
@@ -45,7 +47,8 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
                 });
             } else {
                 user.groups.push(newGroup);
-                user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: groupId}));
+                user.availableGroups = _.without(user.availableGroups,
+                    _.findWhere(user.availableGroups, {id: groupId}));
 
                 // for REST compatibility
                 user.groupRoles = [];
@@ -87,9 +90,9 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
 
                 // update accordion header with data from GET
                 UserService.get(user.id).then(function (successResult) {
-                    for(i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == user.id) {
-                            var headerDetails = $scope.list[i];
+                    for(i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id === user.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.groupRoles = successResult.groupRoles;
                         }
                     }
@@ -140,9 +143,9 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
 
                 // update accordion header with data from GET
                 UserService.get(user.id).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == user.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id === user.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.userFeatures = successResult.userFeatures;
                         }
                     }
@@ -190,9 +193,9 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
 
                 // update accordion header with data from GET
                 UserService.get(user.id).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == user.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id === user.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.userFeatures = successResult.userFeatures;
                         }
                     }
@@ -223,7 +226,7 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
     $scope.validateNHSNumber = function(txtNhsNumber) {
         var isValid = false;
 
-        if (txtNhsNumber.length == 10) {
+        if (txtNhsNumber.length === 10) {
             var total = 0, i;
             for (i = 0; i <= 8; i++) {
                 var digit = txtNhsNumber.substr(i, 1);
@@ -247,7 +250,7 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
             // validate NHS_NUMBER
             var valid = true, errorMessage = '';
 
-            if (identifier.identifierType.value === 'NHS_NUMBER' && user.dummy != true) {
+            if (identifier.identifierType.value === 'NHS_NUMBER' && user.dummy !== true) {
                 valid = $scope.validateNHSNumber(identifier.identifier);
                 errorMessage = 'Invalid NHS Number, please check format';
             }
@@ -264,9 +267,9 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
 
                         // update accordion header with data from GET
                         UserService.get(user.id).then(function (successResult) {
-                            for(var i=0;i<$scope.list.length;i++) {
-                                if($scope.list[i].id == user.id) {
-                                    var headerDetails = $scope.list[i];
+                            for(var i=0;i<$scope.pagedItems.length;i++) {
+                                if($scope.pagedItems[i].id === user.id) {
+                                    var headerDetails = $scope.pagedItems[i];
                                     headerDetails.identifiers = successResult.identifiers;
                                 }
                             }
@@ -303,9 +306,9 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
 
             // update accordion header with data from GET
             UserService.get(user.id).then(function (successResult) {
-                for(var i=0;i<$scope.list.length;i++) {
-                    if($scope.list[i].id == user.id) {
-                        var headerDetails = $scope.list[i];
+                for(var i=0;i<$scope.pagedItems.length;i++) {
+                    if($scope.pagedItems[i].id === user.id) {
+                        var headerDetails = $scope.pagedItems[i];
                         headerDetails.identifiers = successResult.identifiers;
                     }
                 }
@@ -332,9 +335,9 @@ angular.module('patientviewApp').controller('UserDetailsCtrl', ['$scope', 'UserS
 
                 // update accordion header with data from GET
                 UserService.get(user.id).then(function (successResult) {
-                    for(var i=0;i<$scope.list.length;i++) {
-                        if($scope.list[i].id == user.id) {
-                            var headerDetails = $scope.list[i];
+                    for(var i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id === user.id) {
+                            var headerDetails = $scope.pagedItems[i];
                             headerDetails.identifiers = successResult.identifiers;
                         }
                     }

@@ -15,10 +15,10 @@ function ($q, Restangular, UtilService) {
             return deferred.promise;
         },
         // gets users by group, role IDs passed in
-        getByGroupsAndRoles: function (groupIds, roleIds) {
+        getByGroupsAndRoles: function (getParameters) {
             var deferred = $q.defer();
             // GET /user?groupId=1&groupId=2&roleId=1 etc
-            Restangular.all('user').getList({'groupId':groupIds, 'roleId':roleIds}).then(function(successResult) {
+            Restangular.one('user').get(getParameters).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

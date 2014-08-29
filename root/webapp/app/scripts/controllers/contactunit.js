@@ -38,7 +38,7 @@ angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 
 
         var formOk = true;
 
-        if (typeof $scope.joinRequest.unit == 'undefined') {
+        if (typeof $scope.joinRequest.unit === 'undefined') {
             $scope.errorMessage = '- Please select a unit';
             formOk = false;
         } else {

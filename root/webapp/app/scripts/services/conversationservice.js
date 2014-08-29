@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
+angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangular', function ($q, Restangular) {
     return {
         get: function (conversationId) {
             var deferred = $q.defer();
@@ -25,7 +25,8 @@ angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangu
             var deferred = $q.defer();
             // GET /user/{userId}/conversations?page=0&size=5
             // returns page
-            Restangular.one('user', user.id).one('conversations').get({'page': page, 'size': size}).then(function(successResult) {
+            Restangular.one('user', user.id).one('conversations').get({'page': page, 'size': size})
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -41,7 +42,8 @@ angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangu
             message.type = 'MESSAGE';
 
             var deferred = $q.defer();
-            Restangular.one('conversation', conversation.id).all('messages').post(message).then(function(successResult) {
+            Restangular.one('conversation', conversation.id).all('messages').post(message)
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

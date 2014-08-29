@@ -55,7 +55,7 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
         $scope.ok = function () {
             // build correct conversation from newConversation
             var conversation = {};
-            conversation.type = "MESSAGE";
+            conversation.type = 'MESSAGE';
             conversation.title = $scope.newConversation.title;
             conversation.messages = [];
             conversation.open = true;
@@ -64,7 +64,7 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
             var message = {};
             message.user = $scope.loggedInUser;
             message.message = $scope.newConversation.message;
-            message.type = "MESSAGE";
+            message.type = 'MESSAGE';
             conversation.messages[0] = message;
 
             // add conversation users from list of users (temp anonymous = false)
@@ -102,8 +102,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService', 'RoleService', 'UserService', '$sce',
-    function ($scope, $modal, $q, ConversationService, GroupService, RoleService, UserService, $sce) {
+angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', '$q', 'ConversationService',
+    function ($scope, $modal, $q, ConversationService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -140,7 +140,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "hidden" : "";
+        return $scope.currentPage === 0 ? 'hidden' : '';
     };
 
     $scope.nextPage = function() {
@@ -151,14 +151,14 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
 
     $scope.nextPageDisabled = function() {
         if ($scope.totalPages > 0) {
-            return $scope.currentPage === $scope.totalPages - 1 ? "hidden" : "";
+            return $scope.currentPage === $scope.totalPages - 1 ? 'hidden' : '';
         } else {
-            return "hidden";
+            return 'hidden';
         }
     };
 
     // get page of data every time currentPage is changed
-    $scope.$watch("currentPage", function(newValue, oldValue) {
+    $scope.$watch('currentPage', function(newValue) {
         $scope.loading = true;
         ConversationService.getAll($scope.loggedInUser, newValue, $scope.itemsPerPage).then(function(page) {
             $scope.pagedItems = page.content;
@@ -243,12 +243,13 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     };
 
     $scope.addMessage = function(conversation) {
-        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent).then(function() {
+        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent)
+            .then(function() {
             conversation.addMessageContent = '';
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
-                    if($scope.pagedItems[i].id == successResult.id) {
+                    if($scope.pagedItems[i].id === successResult.id) {
                         $scope.pagedItems[i].messages = successResult.messages;
                     }
                 }
@@ -261,13 +262,14 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     };
 
     $scope.quickReply = function(conversation) {
-        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.quickReplyContent).then(function() {
+        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.quickReplyContent)
+            .then(function() {
             conversation.quickReplyContent = '';
             conversation.quickReplyOpen = false;
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
-                    if($scope.pagedItems[i].id == successResult.id) {
+                    if($scope.pagedItems[i].id === successResult.id) {
                         $scope.pagedItems[i].messages = successResult.messages;
                     }
                 }
@@ -281,7 +283,6 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
 
     // open modal for new conversation
     $scope.openModalNewConversation = function (size) {
-        var i;
         $scope.errorMessage = '';
 
         // open modal
@@ -298,7 +299,8 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
 
         modalInstance.result.then(function () {
             $scope.loading = true;
-            ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
+            ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage)
+                .then(function (page) {
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
