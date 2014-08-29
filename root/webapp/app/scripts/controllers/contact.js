@@ -2,13 +2,22 @@
 
 
 // contact unit modal instance controller
-var ContactUnitModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'ConversationService',
-function ($scope, $rootScope, $modalInstance, ConversationService) {
+var ContactUnitModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'ConversationService', 'group',
+function ($scope, $rootScope, $modalInstance, ConversationService, group) {
     var i;
     $scope.conversation = {};
     $scope.conversation.recipients = [];
     $scope.modalLoading = true;
+    $scope.group = group;
     var featureTypes = ['MESSAGING'];
+
+    $scope.contactOptions = [];
+    $scope.contactOptions.push({'id': 1, 'description': 'Missing or incorrect details in my record, such as results, diagnoses or contact details'});
+    $scope.contactOptions.push({'id': 2, 'description': 'Feedback to my unit (public)'});
+    $scope.contactOptions.push({'id': 3, 'description': 'Feedback to my unit (anonymous)'});
+    $scope.contactOptions.push({'id': 4, 'description': 'Comments about PatientView for the system administrators'});
+    $scope.contactOptions.push({'id': 5, 'description': 'Other'});
+    $scope.contactOption = 1;
 
     ConversationService.getRecipients($scope.loggedInUser.id, featureTypes).then(function (recipients) {
         $scope.conversation.availableRecipients = _.clone(recipients);
@@ -90,15 +99,17 @@ function ($scope, $modal, GroupService, ConversationService) {
     };
 
     // open modal for contacting unit
-    $scope.openModalContactUnit = function (size) {
+    $scope.openModalContactUnit = function (group) {
         $scope.errorMessage = '';
 
         // open modal
         var modalInstance = $modal.open({
             templateUrl: 'contactUnitModal.html',
             controller: ContactUnitModalInstanceCtrl,
-            size: size,
             resolve: {
+                group: function () {
+                    return group;
+                },
                 ConversationService: function () {
                     return ConversationService;
                 }

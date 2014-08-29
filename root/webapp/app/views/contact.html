@@ -1,17 +1,19 @@
 <!-- new contact unit modal template -->
 <script type="text/ng-template" id="contactUnitModal.html">
-    <div class="modal-header">
-        <h3 class="modal-title">Contact Your Unit</h3>
-    </div>
-    <div class="modal-body">
-        <form name="contactUnitForm" ng-model="conversation">
-            <div ng-include src="'views/partials/contactUnitDetails.html'" ng-controller="ContactUnitDetailsCtrl"></div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
-        <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-        <button class="btn btn-primary" ng-click="ok()" ng-disabled="!contactUnitForm.$valid || (conversation.recipients.length < 1)" ng-show="conversation.allRecipients.length">Contact Unit</button>
+    <div ng-controller="ContactUnitDetailsCtrl">
+        <div class="modal-header">
+            <h3 class="modal-title">Send a Message to {{group.name}}</h3>
+        </div>
+        <div class="modal-body">
+            <form name="contactUnitForm" ng-model="conversation">
+                <div ng-include src="'views/partials/contactUnitDetails.html'"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!contactUnitForm.$valid || (conversation.recipients.length < 1)" ng-show="conversation.allRecipients.length">Contact Unit</button>
+        </div>
     </div>
 </script>
 
@@ -28,7 +30,7 @@
                 <div class="panel panel-default">
                     <div class="panel-title"><h2>{{group.name}}</h2></div>
                     <div class="panel-body">
-                        <p>Refer to contact details below or <a href="" ng-click="openModalContactUnit()">send a message now</a>.</p>
+                        <p>Refer to contact details below or <a href="" ng-click="openModalContactUnit(group)">send a message now</a>.</p>
 
                         <h5>Address</h5>
                         <ul class="unstyled">
