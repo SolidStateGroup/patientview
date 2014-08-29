@@ -12,8 +12,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
         // populate list of allowed recipients
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            for (i = 0; i < groups.length; i++) {
-                var group = groups[i];
+            for (i = 0; i < groups.content.length; i++) {
+                var group = groups.content[i];
                 if (group.visible === true) {
                     groupIds.push(group.id);
                 }
@@ -28,8 +28,13 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
                     }
                 }
 
+                var getParameters = {};
+                getParameters.groupIds = groupIds;
+                getParameters.roleIds = roleIds;
+
                 // now have user's groups and list of roles, get all users
-                UserService.getByGroupsAndRoles(groupIds, roleIds).then(function (recipients) {
+                UserService.getByGroupsAndRoles(getParameters).then(function (recipients) {
+                    recipients = recipients.content;
                     $scope.newConversation.availableRecipients = _.clone(recipients);
                     $scope.newConversation.allRecipients = [];
 
