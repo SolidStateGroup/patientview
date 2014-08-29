@@ -192,6 +192,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         } else {
             $scope.selectedCodeType.push(id);
         }
+        $scope.currentPage = 0;
         $scope.getItems();
     };
     $scope.isCodeTypeChecked = function (id) {
@@ -202,6 +203,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
     $scope.removeAllCodeTypes = function () {
         $scope.selectedCodeType = [];
+        $scope.currentPage = 0;
         $scope.getItems();
     };
 
@@ -214,6 +216,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         } else {
             $scope.selectedStandardType.push(id);
         }
+        $scope.currentPage = 0;
         $scope.getItems();
     };
     $scope.isStandardTypeChecked = function (id) {
@@ -224,6 +227,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
     $scope.removeAllStandardTypes = function () {
         $scope.selectedStandardType = [];
+        $scope.currentPage = 0;
         $scope.getItems();
     };
 

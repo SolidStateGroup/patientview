@@ -140,8 +140,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
     $scope.filterText = '';
-    $scope.sortField = '';
-    $scope.sortDirection = '';
+    $scope.sortField = 'forename';
+    $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
 
     var tempFilterText = '';
@@ -181,6 +181,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         } else {
             $scope.selectedGroup.push(id);
         }
+        $scope.currentPage = 0;
         $scope.getItems();
     };
     $scope.isGroupChecked = function (id) {
@@ -191,6 +192,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     };
     $scope.removeAllSelectedGroup = function () {
         $scope.selectedGroup = [];
+        $scope.currentPage = 0;
         $scope.getItems();
     };
         
@@ -203,6 +205,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         } else {
             $scope.selectedRole.push(id);
         }
+        $scope.currentPage = 0;
         $scope.getItems();
     };
     $scope.isRoleChecked = function (id) {
@@ -213,6 +216,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     };
     $scope.removeAllSelectedRole = function () {
         $scope.selectedRole = [];
+        $scope.currentPage = 0;
         $scope.getItems();
     };
 

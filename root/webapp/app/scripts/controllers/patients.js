@@ -238,8 +238,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
     $scope.filterText = '';
-    $scope.sortField = '';
-    $scope.sortDirection = '';
+    $scope.sortField = 'forename';
+    $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
 
     var tempFilterText = '';
@@ -279,6 +279,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         } else {
             $scope.selectedGroup.push(id);
         }
+        $scope.currentPage = 0;
         $scope.getItems();
     };
     $scope.isGroupChecked = function (id) {
@@ -289,6 +290,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
     $scope.removeAllSelectedGroup = function () {
         $scope.selectedGroup = [];
+        $scope.currentPage = 0;
         $scope.getItems();
     };
 
