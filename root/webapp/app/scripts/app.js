@@ -68,8 +68,10 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
         $routeProviderReference = $routeProvider;
     }]);
 
-patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular', '$route', 'RouteService', 'ENV', 'ConversationService', 'JoinRequestService',
-    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route, RouteService, ENV, ConversationService, JoinRequestService) {
+patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular',
+    '$route', 'RouteService', 'ENV', 'ConversationService', 'JoinRequestService', 'UserService',
+    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
+             RouteService, ENV, ConversationService, JoinRequestService, UserService) {
 
     $rootScope.ieTestMode = false;
 
@@ -149,11 +151,19 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
     // global function to retrieve number of submitted join requests
     $rootScope.setSubmittedJoinRequestCount = function() {
         if ($rootScope.loggedInUser) {
-            JoinRequestService.getSubmittedJoinRequestCount($rootScope.loggedInUser.id).then(function(unreadCount) {
-                $rootScope.submittedJoinRequestCount  = unreadCount.toString();
-            }, function() {
 
-            });
+            var isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $rootScope.loggedInUser);
+            var isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $rootScope.loggedInUser);
+            var isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $rootScope.loggedInUser);
+            var isUnitStaff = UserService.checkRoleExists('UNIT_STAFF', $rootScope.loggedInUser);
+
+            if (isSuperAdmin || isSpecialtyAdmin || isUnitAdmin || isUnitStaff) {
+                JoinRequestService.getSubmittedJoinRequestCount($rootScope.loggedInUser.id).then(function (unreadCount) {
+                    $rootScope.submittedJoinRequestCount = unreadCount.toString();
+                }, function () {
+
+                });
+            }
         }
     };
 
