@@ -75,6 +75,15 @@ public class SecurityController extends BaseController<SecurityController> {
         return new ResponseEntity<>(securityService.getUserGroups(userId, getParameters), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/security/user/{userId}/groups/alldetails", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<Group>> getUserGroupsFull(@PathVariable("userId") Long userId
+            , GetParameters getParameters) {
+        LOG.trace("Request has been received for userId : {}", userId);
+        return new ResponseEntity<>(securityService.getUserGroupsAllDetails(userId, getParameters), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/security/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

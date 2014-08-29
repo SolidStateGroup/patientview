@@ -44,6 +44,8 @@ public interface SecurityService {
      */
     Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters);
 
+    Page<Group> getUserGroupsAllDetails(Long userId, GetParameters getParameters);
+
     // allowed relationship groups are those that can be added as parents or children to existing groups
     // GLOBAL_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
     // SPECIALTY_ADMIN can only edit their specialty and add relationships
