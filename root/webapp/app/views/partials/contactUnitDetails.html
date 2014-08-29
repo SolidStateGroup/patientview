@@ -1,8 +1,10 @@
 <div>
-    <select class="form-control" id="conversation-contact-option" ng-model="contactOption" ng-options="contactOption.id as contactOption.description for contactOption in contactOptions"></select>
+    <select class="form-control" id="conversation-contact-option" ng-model="selectedContactOption"
+            ng-options="contactOption as contactOption.description for contactOption in contactOptions"
+            ng-change="contactOptionChanged(selectedContactOption)"></select>
 </div>
 <div>
-    <div class="row">
+    <div class="row hidden">
         <div class="form-horizontal" role="form">
             <div class="col-md-12">
                 <label for="conversation-add-recipient" class="control-label">Recipients <span class="error" ng-show="conversation.recipients.length < 1 && !contactUnitForm.$pristine"> *required</span></label>
@@ -17,7 +19,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row hidden">
         <div class="form-horizontal" role="form" ng-show="!modalLoading">
             <div class="custom-select col-md-3" ng-show="!conversation.allRecipients.length" ng-cloak>
                 <p>No message recipients available, cannot send a new message</p>
@@ -35,7 +37,7 @@
     <div class="row">
         <div class="form-horizontal" role="form">
             <div class="col-md-12">
-                <label for="conversation-title" class="control-label">Title <span class="error" ng-show="contactUnitForm.title.$error.required && !contactUnitForm.$pristine"> *required</span></label>
+                <label for="conversation-title" class="control-label">Subject <span class="error" ng-show="contactUnitForm.title.$error.required && !contactUnitForm.$pristine"> *required</span></label>
                 <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" ng-model="conversation.title" required></div>
             </div>
         </div>

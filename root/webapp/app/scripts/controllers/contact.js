@@ -12,12 +12,12 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
     var featureTypes = ['MESSAGING'];
 
     $scope.contactOptions = [];
-    $scope.contactOptions.push({'id': 1, 'description': 'Missing or incorrect details in my record, such as results, diagnoses or contact details'});
-    $scope.contactOptions.push({'id': 2, 'description': 'Feedback to my unit (public)'});
-    $scope.contactOptions.push({'id': 3, 'description': 'Feedback to my unit (anonymous)'});
-    $scope.contactOptions.push({'id': 4, 'description': 'Comments about PatientView for the system administrators'});
-    $scope.contactOptions.push({'id': 5, 'description': 'Other'});
-    $scope.contactOption = 1;
+    $scope.contactOptions.push({'id':0, 'anonymous': false, 'description':'Missing or incorrect details in my record, such as results, diagnoses or contact details'});
+    $scope.contactOptions.push({'id':1, 'anonymous': false, 'description':'Feedback to my unit (public)'});
+    $scope.contactOptions.push({'id':2, 'anonymous': false, 'description':'Feedback to my unit (anonymous)'});
+    $scope.contactOptions.push({'id':3, 'anonymous': false, 'description':'Comments about PatientView for the system administrators'});
+    $scope.contactOptions.push({'id':4, 'anonymous': false, 'description':'Other'});
+    $scope.selectedContactOption = $scope.contactOptions[0];
 
     ConversationService.getRecipients($scope.loggedInUser.id, featureTypes).then(function (recipients) {
         $scope.conversation.availableRecipients = _.clone(recipients);
@@ -32,6 +32,7 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
         $scope.modalLoading = false;
     }, function () {
         alert('Error loading message recipients');
+        $scope.modalLoading = false;
     });
 
     $scope.ok = function () {
@@ -81,6 +82,10 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+
+    $scope.contactOptionChanged = function(value) {
+        $scope.conversation.title = value.description;
+    }
 }];
 
 
