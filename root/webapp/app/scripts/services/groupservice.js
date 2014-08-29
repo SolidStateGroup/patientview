@@ -66,6 +66,8 @@ function ($q, Restangular, UtilService) {
             var groupType = UtilService.cleanObject(_.findWhere(groupTypes, {id: inputGroup.groupTypeId}),'groupType');
             var group = UtilService.cleanObject(inputGroup, 'group');
 
+            group.groupType = groupType;
+
             // PUT /group
             Restangular.all('group').customPUT(group).then(function(successResult) {
                 deferred.resolve(successResult);
@@ -255,7 +257,8 @@ function ($q, Restangular, UtilService) {
             contactPoint.contactPointType = UtilService.cleanObject(contactPoint.contactPointType, 'contactPointType');
             delete contactPoint.id;
             // POST /group/{groupId}/contactpoints
-            Restangular.one('group', group.id).all('contactpoints').post(UtilService.cleanObject(contactPoint, 'contactPoint')).then(function(successResult) {
+            Restangular.one('group', group.id).all('contactpoints').post(UtilService.cleanObject(contactPoint,
+                'contactPoint')).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -263,12 +266,11 @@ function ($q, Restangular, UtilService) {
             return deferred.promise;
         },        // save join request
         contactUnit: function (groupId, unitRequest) {
-
             unitRequest = UtilService.cleanObject(unitRequest, 'unitRequest');
 
             // correctly format DOB
-            unitRequest.dateOfBirth = unitRequest.dateOfBirth.split("-")[2] + "-"
-                + unitRequest.dateOfBirth.split("-")[1] + "-" + unitRequest.dateOfBirth.split("-")[0];
+            unitRequest.dateOfBirth = unitRequest.dateOfBirth.split('-')[2] + '-'
+                + unitRequest.dateOfBirth.split('-')[1] + '-' + unitRequest.dateOfBirth.split('-')[0];
 
             var deferred = $q.defer();
             Restangular.all('group/' + groupId + '/contactunit').customPOST(unitRequest).then(function(successResult) {
@@ -278,6 +280,5 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         }
-
     };
 }]);

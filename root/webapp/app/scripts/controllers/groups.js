@@ -71,8 +71,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     // watches
     // update page on user typed search text
     $scope.$watch('searchText', function (value) {
-        if (value != undefined) {
-            if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+        if (value !== undefined) {
+            if (filterTextTimeout) {
+                $timeout.cancel(filterTextTimeout);
+            }
             $scope.currentPage = 0;
 
             tempFilterText = value;
@@ -84,7 +86,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     });
 
     // update page when currentPage is changed (and at start)
-    $scope.$watch("currentPage", function(value) {
+    $scope.$watch('currentPage', function(value) {
         $scope.currentPage = value;
         $scope.getItems();
     });
@@ -266,7 +268,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "hidden" : "";
+        return $scope.currentPage === 0 ? 'hidden' : '';
     };
 
     $scope.nextPage = function() {
@@ -276,7 +278,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     };
 
     $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.pageCount() - 1 ? "disabled" : "";
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
     };
 
     // filter by group type
@@ -505,7 +507,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             // update accordion header for group with data from GET
             GroupService.get(group.id).then(function (successResult) {
                 for(var i=0;i<$scope.pagedItems.length;i++) {
-                    if($scope.pagedItems[i].id == successResult.id) {
+                    if($scope.pagedItems[i].id === successResult.id) {
                         var headerDetails = $scope.pagedItems[i];
                         headerDetails.code = successResult.code;
                         headerDetails.name = successResult.name;

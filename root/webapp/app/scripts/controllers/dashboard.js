@@ -4,7 +4,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$sc
 function (UserService, $scope, GroupService, NewsService) {
 
     // get graph every time group is changed
-    $scope.$watch('graphGroupId', function(newValue, oldValue) {
+    $scope.$watch('graphGroupId', function(newValue) {
         var i;
         $scope.chartLoading = true;
 

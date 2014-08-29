@@ -65,7 +65,7 @@ var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'pe
 
         // click Update Existing button, (after finding patient already exists)
         $scope.edit = function () {
-            UserService.save($scope.editUser).then(function(result) {
+            UserService.save($scope.editUser).then(function() {
                 // successfully saved existing user
                 $scope.editUser.isNewUser = false;
                 $modalInstance.close($scope.editUser);
@@ -95,7 +95,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                 var groupRoleGroupCode = user.groupRoles[j].group.code;
                 var groupRoleGroupType = user.groupRoles[j].group.groupType.value;
 
-                if (groupRoleGroupCode != 'Generic' && groupRoleGroupType != 'SPECIALTY') {
+                if (groupRoleGroupCode !== 'Generic' && groupRoleGroupType !== 'SPECIALTY') {
                     if (allGroups[i].id === user.groupRoles[j].group.id) {
                         inMyGroups = true;
                     } else {
@@ -116,7 +116,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         for (i=0;i<user.groupRoles.length;i++) {
             for (j=0;j<user.groupRoles[i].group.groupFeatures;j++) {
                 var feature = user.groupRoles[i].group.groupFeatures[j];
-                if (feature.name = 'KEEP_ALL_DATA') {
+                if (feature.name === 'KEEP_ALL_DATA') {
                     $scope.user.keepData = true;
                 }
             }
@@ -248,8 +248,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     // watches
     // update page on user typed search text
     $scope.$watch('searchText', function (value) {
-        if (value != undefined) {
-            if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+        if (value !== undefined) {
+            if (filterTextTimeout) {
+                $timeout.cancel(filterTextTimeout);
+            }
             $scope.currentPage = 0;
 
             tempFilterText = value;
@@ -261,8 +263,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     });
 
     // update page when currentPage is changed
-    $scope.$watch("currentPage", function(value) {
-        if ($scope.initFinished == true) {
+    $scope.$watch('currentPage', function(value) {
+        if ($scope.initFinished === true) {
             $scope.currentPage = value;
             $scope.getItems();
         }
@@ -331,7 +333,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "hidden" : "";
+        return $scope.currentPage === 0 ? 'hidden' : '';
     };
 
     $scope.nextPage = function() {
@@ -341,7 +343,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.pageCount() - 1 ? "disabled" : "";
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
     };
 
     $scope.sortBy = function(sortField) {
@@ -575,7 +577,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     // Save from edit
-    $scope.save = function (editUserForm, user, index) {
+    $scope.save = function (editUserForm, user) {
         UserService.save(user).then(function() {
             // successfully saved user
             editUserForm.$setPristine(true);
@@ -584,7 +586,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             // update accordion header for group with data from GET
             UserService.get(user.id).then(function (successResult) {
                 for(var i=0;i<$scope.pagedItems.length;i++) {
-                    if($scope.pagedItems[i].id == successResult.id) {
+                    if($scope.pagedItems[i].id === successResult.id) {
                         var headerDetails = $scope.pagedItems[i];
                         headerDetails.forename = successResult.forename;
                         headerDetails.surname = successResult.surname;
@@ -749,10 +751,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.resetUserPassword = function (userId) {
         $scope.successMessage = '';
 
-        // workaround for cloned object not capturing ng-click properties
-        var eventUserId = $event.currentTarget.dataset.userid;
-
-        UserService.get(eventUserId).then(function(user) {
+        UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
                 templateUrl: 'views/partials/resetPasswordModal.html',
                 controller: ResetPasswordModalInstanceCtrl,

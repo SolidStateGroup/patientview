@@ -134,7 +134,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
     $scope.addFeature = function (form, group, featureId) {
         // only do POST if in edit mode, otherwise just add to object
         if ($scope.editMode) {
-            GroupService.addFeature(group, featureId).then(function (successResult) {
+            GroupService.addFeature(group, featureId).then(function () {
                 // added feature
                 for (var j = 0; j < group.availableFeatures.length; j++) {
                     if (group.availableFeatures[j].feature.id === featureId) {
@@ -146,7 +146,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
                     for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id == group.id) {
+                        if($scope.pagedItems[i].id === group.id) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.groupFeatures = successResult.groupFeatures;
                         }
@@ -187,7 +187,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
                     for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id == group.id) {
+                        if($scope.pagedItems[i].id === group.id) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.groupFeatures = successResult.groupFeatures;
                         }
@@ -217,7 +217,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
     $scope.addParentGroup = function (form, group, parentGroupId) {
         // only do POST if in edit mode, otherwise just add to object
         if ($scope.editMode) {
-            GroupService.addParentGroup(group, parentGroupId).then(function (successResult) {
+            GroupService.addParentGroup(group, parentGroupId).then(function () {
                 // added parentGroup
                 for (var j = 0; j < group.availableParentGroups.length; j++) {
                     if (group.availableParentGroups[j].id === parentGroupId) {
@@ -229,7 +229,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
                     for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id == successResult.id) {
+                        if($scope.pagedItems[i].id === successResult.id) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
@@ -270,7 +270,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // update accordion header with data from GET
                 GroupService.get(group.id).then(function (successResult) {
                     for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id == successResult.id) {
+                        if($scope.pagedItems[i].id === successResult.id) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
@@ -300,7 +300,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
     $scope.addChildGroup = function (form, group, childGroupId) {
         // only do POST if in edit mode, otherwise just add to object
         if ($scope.editMode) {
-            GroupService.addChildGroup(group, childGroupId).then(function (successResult) {
+            GroupService.addChildGroup(group, childGroupId).then(function () {
                 // added childGroup
                 for (var j = 0; j < group.availableChildGroups.length; j++) {
                     if (group.availableChildGroups[j].id === childGroupId) {
@@ -312,7 +312,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // update accordion header for child group with data from GET
                 GroupService.get(childGroupId).then(function (successResult) {
                     for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id == successResult.id) {
+                        if($scope.pagedItems[i].id === successResult.id) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }
@@ -353,7 +353,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 // update accordion header with data from GET
                 GroupService.get(childGroup.id).then(function (successResult) {
                     for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id == successResult.id) {
+                        if($scope.pagedItems[i].id === successResult.id) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.parentGroups = successResult.parentGroups;
                         }

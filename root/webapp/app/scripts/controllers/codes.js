@@ -55,8 +55,10 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     // watches
     // update page on user typed search text
     $scope.$watch('searchText', function (value) {
-        if (value != undefined) {
-            if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+        if (value !== undefined) {
+            if (filterTextTimeout) {
+                $timeout.cancel(filterTextTimeout);
+            }
             $scope.currentPage = 0;
 
             tempFilterText = value;
@@ -68,7 +70,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     });
 
     // update page when currentPage is changed (and at start)
-    $scope.$watch("currentPage", function(value) {
+    $scope.$watch('currentPage', function(value) {
         $scope.currentPage = value;
         $scope.getItems();
     });
@@ -147,7 +149,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "hidden" : "";
+        return $scope.currentPage === 0 ? 'hidden' : '';
     };
 
     $scope.nextPage = function() {
@@ -157,7 +159,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
 
     $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.pageCount() - 1 ? "disabled" : "";
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
     };
 
     $scope.getItems = function() {
@@ -340,7 +342,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
             // update header details (code, type, standard, description)
             for(var i=0;i<$scope.pagedItems.length;i++) {
-                if($scope.pagedItems[i].id == code.id) {
+                if($scope.pagedItems[i].id === code.id) {
                     var headerDetails = $scope.pagedItems[i];
                     headerDetails.code = successResult.code;
                     headerDetails.codeType = successResult.codeType;
