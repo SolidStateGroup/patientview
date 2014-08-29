@@ -1,7 +1,9 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.api.model.User;
 import org.patientview.api.service.ConversationService;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.Message;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -89,6 +92,20 @@ public class ConversationController extends BaseController<ConversationControlle
             LOG.debug("Request has been received for conversations of userId : {}", userId);
             return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
         } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<User>> getRecipients(@PathVariable("userId") Long userId) {
+        try {
+            LOG.debug("Request has been received for potential recipients of userId : {}", userId);
+            return new ResponseEntity<>(conversationService.getRecipients(userId), HttpStatus.OK);
+        } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ResourceInvalidException ri) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
