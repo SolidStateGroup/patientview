@@ -15,6 +15,8 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.FhirLinkRepository;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -38,6 +40,12 @@ public class PatientServiceImplTest extends BaseTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    GroupRepository groupRepository;
+
+    @Mock
+    FhirLinkRepository fhirLinkRepository;
 
     @InjectMocks
     PatientService patientService = new PatientServiceImpl();
@@ -68,6 +76,6 @@ public class PatientServiceImplTest extends BaseTest {
 
         patientService.add(patient);
 
-        verify(this.fhirResource, Mockito.times(1)).createResource(any(org.hl7.fhir.instance.model.Resource.class));
+        verify(this.fhirResource, Mockito.times(1)).create(any(org.hl7.fhir.instance.model.Resource.class));
     }
 }

@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -29,12 +30,22 @@ public class FhirLink extends BaseModel {
     @Column(name = "resource_id")
     private UUID resourceId;
 
+    @Column(name = "version_id")
+    private UUID versionId;
+
     @Column(name = "resource_type")
     private String resourceType;
+
+    @OneToOne
+    @JoinColumn(name = "group_id")
+    private Group group;
 
     @Column(name = "creation_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date created = new Date();
+
+    @Column(name = "active")
+    private Boolean active;
 
     public User getUser() {
         return user;
@@ -75,4 +86,30 @@ public class FhirLink extends BaseModel {
     public void setIdentifier(final Identifier identifier) {
         this.identifier = identifier;
     }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(final Group group) {
+        this.group = group;
+    }
+
+
+    public UUID getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(final UUID versionId) {
+        this.versionId = versionId;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(final Boolean active) {
+        this.active = active;
+    }
+
 }

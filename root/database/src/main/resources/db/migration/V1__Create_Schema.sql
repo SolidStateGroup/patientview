@@ -499,8 +499,11 @@ CREATE TABLE PV_Fhir_Link
   Id                 BIGINT       NOT NULL,
   User_Id            BIGINT       REFERENCES PV_User (Id),
   Identifier_Id      BIGINT       REFERENCES PV_Identifier (Id),
+  Group_Id           BIGINT       REFERENCES PV_Group (Id),
   Resource_Id   UUID,
+  Version_Id    UUID,
   Resource_Type VARCHAR(100),
+  Active        BOOLEAN DEFAULT TRUE,
   Creation_Date      TIMESTAMP    NOT NULL,
   PRIMARY KEY (Id)
 );

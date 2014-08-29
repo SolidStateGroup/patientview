@@ -91,7 +91,7 @@ public class User extends RangeModel implements UserDetails {
     private String lastLoginIpAddress;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<FhirLink> fhirLinks;
 
     public String getUsername() {

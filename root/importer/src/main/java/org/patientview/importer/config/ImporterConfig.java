@@ -83,15 +83,4 @@ public class ImporterConfig {
 
     }
 
-    /*
-    @Bean(name = "fhir")
-    public DataSource dataSourceBean() {
-
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("localhost:5432");
-        dataSource.setUsername("fhir");
-        dataSource.setPassword("fhir");
-        return dataSource;
-    }*/
 }
