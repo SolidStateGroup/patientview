@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.model.User;
 import org.patientview.persistence.model.Conversation;
@@ -28,5 +29,5 @@ public interface ConversationService extends CrudService<Conversation> {
 
     int getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
 
-    List<User> getRecipients(Long userId) throws ResourceNotFoundException;
+    List<User> getRecipients(Long userId) throws ResourceNotFoundException, ResourceInvalidException;
 }

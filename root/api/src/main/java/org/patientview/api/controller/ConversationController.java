@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.model.User;
 import org.patientview.api.service.ConversationService;
@@ -103,6 +104,8 @@ public class ConversationController extends BaseController<ConversationControlle
             LOG.debug("Request has been received for potential recipients of userId : {}", userId);
             return new ResponseEntity<>(conversationService.getRecipients(userId), HttpStatus.OK);
         } catch (ResourceNotFoundException rnf) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ResourceInvalidException ri) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

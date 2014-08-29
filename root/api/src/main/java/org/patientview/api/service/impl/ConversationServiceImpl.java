@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.exception.ResourceInvalidException;
 import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.ConversationService;
@@ -251,7 +252,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return transportUsers;
     }
 
-    public List<org.patientview.api.model.User> getRecipients(Long userId) throws ResourceNotFoundException {
+    public List<org.patientview.api.model.User> getRecipients(Long userId)
+            throws ResourceNotFoundException, ResourceInvalidException {
         User entityUser = findEntityUser(userId);
 
         // global admin can contact all users
@@ -289,6 +291,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             return userService.getUsersByGroupsRolesFeatures(getParameters).getContent();
         }
 
-        return new ArrayList<>();
+        throw new ResourceInvalidException("No suitable roles");
     }
 }
