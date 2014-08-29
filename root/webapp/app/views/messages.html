@@ -15,7 +15,7 @@
         <div class="modal-footer">
             <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)">Create New Conversation</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)" ng-show="newConversation.allRecipients.length">Create New Conversation</button>
         </div>
     </script>
 

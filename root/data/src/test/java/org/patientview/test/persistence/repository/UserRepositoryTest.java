@@ -4,10 +4,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.UserRepository;
@@ -20,9 +22,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -58,6 +59,35 @@ public class UserRepositoryTest {
 
         Page<User> users = userRepository.findByGroupsRoles("%%", Arrays.asList(groupIdsArr)
                 , Arrays.asList(roleIdsArr), new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
+
+    }
+
+    @Test
+    public void findByGroupsRolesFeatures() {
+
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role);
+
+        Feature feature = dataTestUtils.createFeature("MESSAGING");
+        UserFeature userFeature = new UserFeature();
+        userFeature.setId(1L);
+        userFeature.setUser(user);
+        userFeature.setFeature(feature);
+        userFeature.setCreator(creator);
+        user.setUserFeatures(new HashSet<UserFeature>());
+        user.getUserFeatures().add(userFeature);
+        userRepository.save(user);
+
+        Long[] groupIdsArr = {group.getId()};
+        Long[] roleIdsArr = {role.getId()};
+        Long[] featureIdsArr = {feature.getId()};
+
+        Page<User> users = userRepository.findByGroupsRolesFeatures("%%", Arrays.asList(groupIdsArr)
+                , Arrays.asList(roleIdsArr), Arrays.asList(featureIdsArr), new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
 

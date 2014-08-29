@@ -1,13 +1,25 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.api.service.AdminService;
 import org.patientview.api.service.ConversationService;
+import org.patientview.api.service.GroupService;
+import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.ConversationRepository;
+import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -16,9 +28,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,6 +50,21 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private MessageRepository messageRepository;
+
+    @Inject
+    private FeatureRepository featureRepository;
+
+    @Inject
+    private LookupRepository lookupRepository;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
+    private AdminService adminService;
+
+    @Inject
+    private UserService userService;
 
     public Conversation get(Long conversationId) {
         return conversationRepository.findOne(conversationId);
@@ -210,5 +239,56 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return unreadConversations;
+    }
+
+    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
+        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
+
+        for (User user : users) {
+            transportUsers.add(new org.patientview.api.model.User(user));
+        }
+
+        return transportUsers;
+    }
+
+    public List<org.patientview.api.model.User> getRecipients(Long userId) throws ResourceNotFoundException {
+        User entityUser = findEntityUser(userId);
+
+        // global admin can contact all users
+        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            return convertUsersToTransportUsers(userRepository.findAll());
+        }
+
+        List<String> groupIdList = new ArrayList<>();
+        List<String> roleIdList = new ArrayList<>();
+
+        // staff & patient users can only contact those in their groups
+        for (Group group : groupService.findGroupByUser(entityUser)) {
+            groupIdList.add(group.getId().toString());
+        }
+
+        // assuming patients cannot contact other patients
+        for (Role role : adminService.getRolesByType(RoleType.STAFF)) {
+            roleIdList.add(role.getId().toString());
+        }
+
+        GetParameters getParameters = new GetParameters();
+        getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
+        getParameters.setRoleIds(roleIdList.toArray(new String[roleIdList.size()]));
+
+        // specialty/unit staff and admin can contact all users in specialty/unit
+        if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN)) {
+            return userService.getUsersByGroupsAndRoles(getParameters).getContent();
+        }
+
+        // patients can only contact staff with MESSAGING feature
+        if (doesContainRoles(RoleName.PATIENT)) {
+            Feature feat = featureRepository.findByName(FeatureType.MESSAGING.toString());
+            String[] featureIds = new String[]{feat.getId().toString()};
+            getParameters.setFeatureIds(featureIds);
+            return userService.getUsersByGroupsRolesFeatures(getParameters).getContent();
+        }
+
+        return new ArrayList<>();
     }
 }

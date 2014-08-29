@@ -254,7 +254,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     /**
-     * Get users based on a list of groups and role types
+     * Get users based on a list of groups and roles
      * @return
      */
     public Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters) {
@@ -289,6 +289,50 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         Page<User> users = userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
+
+        // convert to lightweight transport objects, create Page and return
+        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(users.getContent());
+        return new PageImpl<>(transportContent, pageable, users.getTotalElements());
+    }
+
+    /**
+     * Get users based on a list of groups, roles and user features
+     * @return
+     */
+    public Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters) {
+
+        List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
+        List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
+        List<Long> featureIds = convertStringArrayToLongs(getParameters.getFeatureIds());
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        String sortField = getParameters.getSortField();
+        String sortDirection = getParameters.getSortDirection();
+        String filterText = getParameters.getFilterText();
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals("DESC")) {
+                direction = Sort.Direction.DESC;
+            }
+
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            pageable = new PageRequest(pageConverted, sizeConverted);
+        }
+
+        if (StringUtils.isEmpty(filterText)) {
+            filterText = "%%";
+        } else {
+            filterText = "%" + filterText.toUpperCase() + "%";
+        }
+
+        Page<User> users = userRepository.findByGroupsRolesFeatures(filterText, groupIds, roleIds
+                , featureIds, pageable);
 
         // convert to lightweight transport objects, create Page and return
         List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(users.getContent());

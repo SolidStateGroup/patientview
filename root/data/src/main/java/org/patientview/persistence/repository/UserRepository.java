@@ -46,4 +46,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
                                  Pageable pageable);
+
+    @Query("SELECT DISTINCT u " +
+           "FROM User u " +
+           "JOIN u.groupRoles gr " +
+           "JOIN u.userFeatures uf " +
+           "JOIN uf.feature f " +
+           "WHERE gr.role.id IN :roleIds " +
+           "AND gr.group.id IN :groupIds " +
+           "AND f.id IN :featureIds " +
+           "AND ((UPPER(u.username) LIKE :filterText) " +
+           "OR (UPPER(u.forename) LIKE :filterText) " +
+           "OR (UPPER(u.surname) LIKE :filterText) " +
+           "OR (UPPER(u.email) LIKE :filterText)) ")
+    Page<User> findByGroupsRolesFeatures(@Param("filterText") String filterText,
+                                 @Param("groupIds") List<Long> groupIds,
+                                 @Param("roleIds") List<Long> roleIds,
+                                 @Param("featureIds") List<Long> featureIds,
+                                 Pageable pageable);
 }

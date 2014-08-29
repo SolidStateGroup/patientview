@@ -32,4 +32,7 @@ public interface FeatureRepository extends CrudRepository<Feature, Long> {
 
     @Query("SELECT fea FROM Feature fea WHERE :featureType MEMBER OF fea.featureTypes")
     public Iterable<Feature> findByType(@Param("featureType") Lookup featureType);
+
+    @Query("SELECT fea FROM Feature fea WHERE fea.name = :featureName")
+    public Feature findByName(@Param("featureName") String featureName);
 }

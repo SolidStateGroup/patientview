@@ -1,60 +1,26 @@
 'use strict';
 
-
 // new conversation modal instance controller
 var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'UserService', 'ConversationService',
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
-
+        var i;
         $scope.newConversation = {};
         $scope.newConversation.recipients = [];
-        var i, roleIds = [], groupIds = [];
         $scope.modalLoading = true;
 
-        // populate list of allowed recipients
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            for (i = 0; i < groups.content.length; i++) {
-                var group = groups.content[i];
-                if (group.visible === true) {
-                    groupIds.push(group.id);
-                }
+        ConversationService.getRecipients($scope.loggedInUser.id).then(function (recipients) {
+            $scope.newConversation.availableRecipients = _.clone(recipients);
+            $scope.newConversation.allRecipients = [];
+
+            for (i = 0; i < recipients.length; i++) {
+                $scope.newConversation.allRecipients[recipients[i].id] = recipients[i];
             }
 
-            // todo: how to deal with patients sending messages
-            RoleService.getByType('STAFF').then(function(roles) {
-                for (i = 0; i < roles.length; i++) {
-                    var role = roles[i];
-                    if (role.visible === true) {
-                        roleIds.push(role.id);
-                    }
-                }
+            $scope.recipientToAdd = recipients[0].id;
 
-                var getParameters = {};
-                getParameters.groupIds = groupIds;
-                getParameters.roleIds = roleIds;
-
-                // now have user's groups and list of roles, get all users
-                UserService.getByGroupsAndRoles(getParameters).then(function (recipients) {
-                    recipients = recipients.content;
-                    $scope.newConversation.availableRecipients = _.clone(recipients);
-                    $scope.newConversation.allRecipients = [];
-
-                    for (i = 0; i < recipients.length; i++) {
-                        $scope.newConversation.allRecipients[recipients[i].id] = recipients[i];
-                    }
-
-                    $scope.modalLoading = false;
-
-                }, function () {
-                    // error retrieving users
-                    alert('Error loading possible message recipients [3]');
-                });
-            }, function () {
-                // error retrieving roles
-                alert('Error loading possible message recipients [2]');
-            });
+            $scope.modalLoading = false;
         }, function () {
-            // error retrieving groups
-            alert('Error loading possible message recipients [1]');
+            alert('Error loading message recipients');
         });
 
         $scope.ok = function () {
@@ -74,7 +40,7 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
             // add conversation users from list of users (temp anonymous = false)
             var conversationUsers = [];
-            for (i=0;i<$scope.newConversation.recipients.length;i++) {
+            for (i=0; i<$scope.newConversation.recipients.length; i++) {
                 conversationUsers[i] = {};
                 conversationUsers[i].user = {};
                 conversationUsers[i].user.id = $scope.newConversation.recipients[i].id;
