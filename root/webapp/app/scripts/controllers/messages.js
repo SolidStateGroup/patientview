@@ -7,8 +7,9 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
         $scope.newConversation = {};
         $scope.newConversation.recipients = [];
         $scope.modalLoading = true;
+        var featureTypes = ['MESSAGING'];
 
-        ConversationService.getRecipients($scope.loggedInUser.id).then(function (recipients) {
+        ConversationService.getRecipients($scope.loggedInUser.id, featureTypes).then(function (recipients) {
             $scope.newConversation.availableRecipients = _.clone(recipients);
             $scope.newConversation.allRecipients = [];
 
