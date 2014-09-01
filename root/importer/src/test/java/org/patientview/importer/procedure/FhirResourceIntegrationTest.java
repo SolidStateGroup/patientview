@@ -1,6 +1,7 @@
 package org.patientview.importer.procedure;
 
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,14 +36,14 @@ public class FhirResourceIntegrationTest extends BaseTest {
     }
 
     @Test
-    //@Ignore("Integration Test")
+    @Ignore("Integration Test")
     public void testCreateResource() throws Exception {
         Mockito.when(dataSource.getConnection()).thenReturn(realDataSource.getConnection());
         System.out.println(fhirResource.create(FhirTestUtil.createTestPatient("1231321312")));
     }
 
     @Test
-   // @Ignore("Integration Test")
+    @Ignore("Integration Test")
     public void testUpdateResource() throws Exception {
         Mockito.when(dataSource.getConnection()).thenReturn(realDataSource.getConnection());
         JSONObject jsonObject = fhirResource.create(FhirTestUtil.createTestPatient("1231321312"));

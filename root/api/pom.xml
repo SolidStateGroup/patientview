@@ -69,6 +69,7 @@
             <artifactId>spring-context-support</artifactId>
             <version>4.0.5.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
