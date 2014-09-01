@@ -16,7 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.api.util.Util;

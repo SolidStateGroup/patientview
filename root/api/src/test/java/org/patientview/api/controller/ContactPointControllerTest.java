@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.api.service.ContactPointService;
 import org.patientview.persistence.model.ContactPoint;
 import org.springframework.http.MediaType;

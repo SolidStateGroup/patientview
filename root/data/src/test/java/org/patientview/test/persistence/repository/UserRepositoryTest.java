@@ -12,6 +12,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -33,6 +34,9 @@ import java.util.HashSet;
 @ContextConfiguration(classes = {TestPersistenceConfig.class})
 @Transactional
 public class UserRepositoryTest {
+
+    @Inject
+    IdentifierRepository identifierRepository;
 
     @Inject
     UserRepository userRepository;

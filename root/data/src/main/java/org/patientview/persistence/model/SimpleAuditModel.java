@@ -7,6 +7,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
@@ -44,6 +45,14 @@ public abstract class SimpleAuditModel extends BaseModel {
 
     public void setCreator(final User creator) {
         this.creator = creator;
+    }
+
+
+    @PrePersist
+    public void prePersist() {
+        if (created == null) {
+            created = new Date();
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.persistence.model.Identifier;
 import org.slf4j.Logger;

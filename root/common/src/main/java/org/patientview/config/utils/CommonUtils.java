@@ -11,7 +11,7 @@ public final class CommonUtils {
     private CommonUtils() {
     }
 
-    public static String getAuthtoken() {
+    public static String getAuthToken() {
         return RandomStringUtils.randomAlphanumeric(12);
     }
 

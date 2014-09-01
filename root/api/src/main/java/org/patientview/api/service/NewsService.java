@@ -1,6 +1,6 @@
 package org.patientview.api.service;
 
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.NewsItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

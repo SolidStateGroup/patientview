@@ -3,7 +3,7 @@ package org.patientview.api.aspect;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.patientview.api.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;

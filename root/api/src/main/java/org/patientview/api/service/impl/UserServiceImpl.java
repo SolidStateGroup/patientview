@@ -4,10 +4,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.controller.model.Email;
-import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
@@ -442,7 +442,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             user.setChangePassword(Boolean.TRUE);
 
             // Set the new password
-            user.setPassword(CommonUtils.getAuthtoken());
+            user.setPassword(CommonUtils.getAuthToken());
             emailService.sendEmail(getForgottenPassword(user));
             // Hash the password
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
