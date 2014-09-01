@@ -76,6 +76,13 @@ public class GroupRepositoryTest {
     }
 
     @Test
+    public void testFindGroupByName() {
+        Group group = dataTestUtils.createGroup("testGroup");
+        Iterable<Group> groups = groupRepository.findByName(group.getName());
+        Assert.assertTrue("There are no groups", groups.iterator().hasNext());
+    }
+
+    @Test
     public void findGroupAndChildGroupsByUser() {
         User user = dataTestUtils.createUser("testUser");
         Group parentGroup = dataTestUtils.createGroup("parentGroup");

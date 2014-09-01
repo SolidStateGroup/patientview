@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.Lookup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -79,4 +80,14 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
             @Param("codeTypes") List<Long> codeTypes,
             @Param("standardTypes") List<Long> standardTypes,
             Pageable pageable);
+
+    @Query("SELECT c FROM Code c " +
+            "WHERE c.code = :code " +
+            "AND c.description = :description " +
+            "AND c.codeType = :codeType " +
+            "AND c.standardType = :standardType ")
+    public Iterable<Code> findAllByExistingCodeDetails(@Param("code") String code,
+                                                       @Param("description") String description,
+                                                       @Param("codeType") Lookup codeType,
+                                                       @Param("standardType") Lookup standardType);
 }

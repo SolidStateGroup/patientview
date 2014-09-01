@@ -7,12 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityExistsException;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 25/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface CodeService extends CrudService<Code> {
+
+    Code add(Code code) throws EntityExistsException;
 
     Page<Code> getAllCodes(GetParameters getParameters);
 
