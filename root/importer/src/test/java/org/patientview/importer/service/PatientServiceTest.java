@@ -1,4 +1,4 @@
-package org.patientview.importer.service.impl;
+package org.patientview.importer.service;
 
 import generated.Patientview;
 import org.json.JSONObject;
@@ -11,8 +11,9 @@ import org.mockito.Mockito;
 import org.patientview.importer.BaseTest;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.resource.FhirResource;
-import org.patientview.importer.service.PatientService;
+import org.patientview.importer.service.impl.PatientServiceImpl;
 import org.patientview.importer.util.Util;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Util.class)
-public class PatientServiceImplTest extends BaseTest {
+public class PatientServiceTest extends BaseTest {
 
     @Mock
     FhirResource fhirResource;
@@ -75,7 +76,7 @@ public class PatientServiceImplTest extends BaseTest {
      * @throws Exception
      */
     @Test
-    public void testAdd() throws Exception {
+    public void testPatientAdd() throws Exception {
 
         when(Util.getVersionId(any(JSONObject.class))).thenReturn(UUID.randomUUID());
 
@@ -91,8 +92,12 @@ public class PatientServiceImplTest extends BaseTest {
 
         patientService.add(patient);
 
-        verify(this.fhirResource, Mockito.times(1)).create(any(org.hl7.fhir.instance.model.Resource.class));
+        verify(fhirResource, Mockito.times(1)).create(any(org.hl7.fhir.instance.model.Resource.class));
+        verify(fhirLinkRepository, Mockito.times(1)).findByUserAndGroupAndIdentifier(any(User.class), any(Group.class), any(Identifier.class));
+        verify(userRepository, Mockito.times(1)).save(eq(user));
     }
+
+
 
 
     private static Patientview unmarshallPatientRecord(String content) throws ImportResourceException {

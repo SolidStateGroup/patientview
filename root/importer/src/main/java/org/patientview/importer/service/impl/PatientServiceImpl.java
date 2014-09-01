@@ -26,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -62,7 +63,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
      * @throws FhirResourceException
      */
     @Override
-    public void add(final Patientview patient) throws ResourceNotFoundException, FhirResourceException {
+    public UUID add(final Patientview patient) throws ResourceNotFoundException, FhirResourceException {
         // Find the identifier which the patient is linked to.
         Identifier identifier = matchPatient(patient);
 
@@ -78,6 +79,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         addLink(identifier, group, jsonObject);
 
         LOG.info("Processed Patient NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());
+
+        return Util.getVersionId(jsonObject);
     }
 
     private void delete(FhirLink fhirLink) {

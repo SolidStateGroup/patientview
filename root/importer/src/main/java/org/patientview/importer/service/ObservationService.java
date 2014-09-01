@@ -1,7 +1,7 @@
 package org.patientview.importer.service;
 
 import generated.Patientview;
-import org.patientview.importer.exception.ImportResourceException;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 01/09/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface ImportService {
+public interface ObservationService {
 
-    public void process(Patientview patientview) throws ImportResourceException;
+    public void add(Patientview data, ResourceReference patientReference);
 
 }

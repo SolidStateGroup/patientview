@@ -7,20 +7,20 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.importer.service.impl.ImportServiceImpl;
+import org.patientview.importer.service.impl.QueueServiceImpl;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.net.URL;
 
-public class ImportServiceImplTest {
+public class QueueServiceTest {
 
     @Mock
     Channel channel;
 
     @InjectMocks
-    ImportService importService = new ImportServiceImpl();
+    QueueService queueService = new QueueServiceImpl();
 
     @Before
     public void setUp() throws Exception {
@@ -30,7 +30,7 @@ public class ImportServiceImplTest {
 
     @Test
     public void testImportRecord() throws Exception {
-        importService.importRecord(getPatientViewRecord());
+        queueService.importRecord(getPatientViewRecord());
     }
 
     private Patientview getPatientViewRecord() throws Exception {
