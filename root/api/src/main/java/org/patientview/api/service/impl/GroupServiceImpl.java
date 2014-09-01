@@ -90,6 +90,16 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     @Inject
     private EntityManager entityManager;
 
+    /**
+     * Get all the groups and put the children and parents into the transient objects
+     *
+     * @return
+     */
+    public List<Group> findAll() {
+        List<Group> groups = Util.convertIterable(groupRepository.findAll());
+        return addParentAndChildGroups(groups);
+    }
+
     public Group get(Long id) {
         return addSingleParentAndChildGroup(groupRepository.findOne(id));
     }

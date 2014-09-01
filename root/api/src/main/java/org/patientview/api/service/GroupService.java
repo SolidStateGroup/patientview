@@ -26,6 +26,8 @@ public interface GroupService {
     //@GroupMemberOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
     Group get(Long id);
 
+    List<Group> findAll();
+
     List<Group> findGroupByUser(User user);
 
     List<Group> findGroupByType(Long lookupId);
