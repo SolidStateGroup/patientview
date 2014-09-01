@@ -5,8 +5,6 @@ package org.patientview.api.aspect;
  * Created on 27/07/2014
  */
 
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.Signature;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -43,9 +41,6 @@ public class SecurityAspectTest {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspectTest.class);
 
     @Mock
-    private JoinPoint joinPoint;
-
-    @Mock
     private GroupService groupService;
 
     @Mock
@@ -53,9 +48,6 @@ public class SecurityAspectTest {
 
     @InjectMocks
     private SecurityAspect securityAspect = SecurityAspect.aspectOf();
-
-    @Mock
-    private Signature signature;
 
 
     @UserOnly
