@@ -77,12 +77,6 @@ public class GroupController extends BaseController<GroupController> {
         return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<List<Group>> getGroups() {
-        return new ResponseEntity<>(groupService.findAll(), HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/group", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<Void> saveGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
@@ -161,7 +155,7 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/group/{groupId}/children", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Group>> getChildreb(@PathVariable("groupId") Long groupId)
+    public ResponseEntity<List<Group>> getChildren(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException{
         return new ResponseEntity<>(groupService.findChildren(groupId), HttpStatus.OK);
     }

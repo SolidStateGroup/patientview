@@ -1,61 +1,32 @@
 'use strict';
 
-
 // new conversation modal instance controller
 var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'UserService', 'ConversationService',
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
-
+        var i;
         $scope.newConversation = {};
         $scope.newConversation.recipients = [];
-        var i, roleIds = [], groupIds = [];
         $scope.modalLoading = true;
 
-        // populate list of allowed recipients
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            for (i = 0; i < groups.length; i++) {
-                var group = groups[i];
-                if (group.visible === true) {
-                    groupIds.push(group.id);
-                }
+        ConversationService.getRecipients($scope.loggedInUser.id).then(function (recipients) {
+            $scope.newConversation.availableRecipients = _.clone(recipients);
+            $scope.newConversation.allRecipients = [];
+
+            for (i = 0; i < recipients.length; i++) {
+                $scope.newConversation.allRecipients[recipients[i].id] = recipients[i];
             }
 
-            // todo: how to deal with patients sending messages
-            RoleService.getByType('STAFF').then(function(roles) {
-                for (i = 0; i < roles.length; i++) {
-                    var role = roles[i];
-                    if (role.visible === true) {
-                        roleIds.push(role.id);
-                    }
-                }
+            $scope.recipientToAdd = recipients[0].id;
 
-                // now have user's groups and list of roles, get all users
-                UserService.getByGroupsAndRoles(groupIds, roleIds).then(function (recipients) {
-                    $scope.newConversation.availableRecipients = _.clone(recipients);
-                    $scope.newConversation.allRecipients = [];
-
-                    for (i = 0; i < recipients.length; i++) {
-                        $scope.newConversation.allRecipients[recipients[i].id] = recipients[i];
-                    }
-
-                    $scope.modalLoading = false;
-
-                }, function () {
-                    // error retrieving users
-                    alert('Error loading possible message recipients [3]');
-                });
-            }, function () {
-                // error retrieving roles
-                alert('Error loading possible message recipients [2]');
-            });
+            $scope.modalLoading = false;
         }, function () {
-            // error retrieving groups
-            alert('Error loading possible message recipients [1]');
+            alert('Error loading message recipients');
         });
 
         $scope.ok = function () {
             // build correct conversation from newConversation
             var conversation = {};
-            conversation.type = "MESSAGE";
+            conversation.type = 'MESSAGE';
             conversation.title = $scope.newConversation.title;
             conversation.messages = [];
             conversation.open = true;
@@ -64,12 +35,12 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
             var message = {};
             message.user = $scope.loggedInUser;
             message.message = $scope.newConversation.message;
-            message.type = "MESSAGE";
+            message.type = 'MESSAGE';
             conversation.messages[0] = message;
 
             // add conversation users from list of users (temp anonymous = false)
             var conversationUsers = [];
-            for (i=0;i<$scope.newConversation.recipients.length;i++) {
+            for (i=0; i<$scope.newConversation.recipients.length; i++) {
                 conversationUsers[i] = {};
                 conversationUsers[i].user = {};
                 conversationUsers[i].user.id = $scope.newConversation.recipients[i].id;
@@ -102,8 +73,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService', 'RoleService', 'UserService', '$sce',
-    function ($scope, $modal, $q, ConversationService, GroupService, RoleService, UserService, $sce) {
+angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', '$q', 'ConversationService',
+    function ($scope, $modal, $q, ConversationService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -140,7 +111,7 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "hidden" : "";
+        return $scope.currentPage === 0 ? 'hidden' : '';
     };
 
     $scope.nextPage = function() {
@@ -151,14 +122,14 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
 
     $scope.nextPageDisabled = function() {
         if ($scope.totalPages > 0) {
-            return $scope.currentPage === $scope.totalPages - 1 ? "hidden" : "";
+            return $scope.currentPage === $scope.totalPages - 1 ? 'hidden' : '';
         } else {
-            return "hidden";
+            return 'hidden';
         }
     };
 
     // get page of data every time currentPage is changed
-    $scope.$watch("currentPage", function(newValue, oldValue) {
+    $scope.$watch('currentPage', function(newValue) {
         $scope.loading = true;
         ConversationService.getAll($scope.loggedInUser, newValue, $scope.itemsPerPage).then(function(page) {
             $scope.pagedItems = page.content;
@@ -243,12 +214,13 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     };
 
     $scope.addMessage = function(conversation) {
-        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent).then(function() {
+        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent)
+            .then(function() {
             conversation.addMessageContent = '';
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
-                    if($scope.pagedItems[i].id == successResult.id) {
+                    if($scope.pagedItems[i].id === successResult.id) {
                         $scope.pagedItems[i].messages = successResult.messages;
                     }
                 }
@@ -261,13 +233,14 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
     };
 
     $scope.quickReply = function(conversation) {
-        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.quickReplyContent).then(function() {
+        ConversationService.addMessage($scope.loggedInUser, conversation, conversation.quickReplyContent)
+            .then(function() {
             conversation.quickReplyContent = '';
             conversation.quickReplyOpen = false;
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
-                    if($scope.pagedItems[i].id == successResult.id) {
+                    if($scope.pagedItems[i].id === successResult.id) {
                         $scope.pagedItems[i].messages = successResult.messages;
                     }
                 }
@@ -281,7 +254,6 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
 
     // open modal for new conversation
     $scope.openModalNewConversation = function (size) {
-        var i;
         $scope.errorMessage = '';
 
         // open modal
@@ -298,7 +270,8 @@ angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', 
 
         modalInstance.result.then(function () {
             $scope.loading = true;
-            ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
+            ConversationService.getAll($scope.loggedInUser, $scope.currentPage, $scope.itemsPerPage)
+                .then(function (page) {
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;

@@ -1,11 +1,11 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -14,7 +14,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface CodeService extends CrudService<Code> {
 
-    List<Code> getAllCodes();
+    Page<Code> getAllCodes(GetParameters getParameters);
 
     Code cloneCode(Long codeId);
 

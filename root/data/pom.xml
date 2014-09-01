@@ -41,6 +41,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>common</artifactId>
             <version>0.1-SNAPSHOT</version>
@@ -88,7 +94,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.3-1100-jdbc41</version>
+            <version>9.3-1102-jdbc41</version>
         </dependency>
 
         <dependency>

@@ -1,11 +1,13 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.SecurityService;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,7 +51,6 @@ public class SecurityController extends BaseController<SecurityController> {
     @ResponseBody
     public List<Group> getSecurityGroupsByUserAndRole(@PathVariable("userId") Long userId,
                                                @PathVariable("roleId") Long roleId) {
-
         return securityService.getGroupByUserAndRole(userId, roleId);
     }
 
@@ -58,33 +59,28 @@ public class SecurityController extends BaseController<SecurityController> {
     @ResponseBody
     public ResponseEntity<Set<Route>> getUserRoutes(@PathVariable("userId") Long userId,
                                                      UriComponentsBuilder uriComponentsBuilder) {
-
         LOG.trace("Request has been received for userId : {}", userId);
-
         UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
-
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-
         return new ResponseEntity<>(securityService.getUserRoutes(userId), HttpStatus.OK);
-
     }
 
     @RequestMapping(value = "/security/user/{userId}/groups", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Group>> getUserGroups(@PathVariable("userId") Long userId,
-                                                      UriComponentsBuilder uriComponentsBuilder) {
-
+    public ResponseEntity<Page<org.patientview.api.model.Group>> getUserGroups(@PathVariable("userId") Long userId
+            , GetParameters getParameters) {
         LOG.trace("Request has been received for userId : {}", userId);
-
-        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(userId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
-        return new ResponseEntity<>(securityService.getUserGroups(userId), HttpStatus.OK);
-
+        return new ResponseEntity<>(securityService.getUserGroups(userId, getParameters), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/security/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<org.patientview.api.model.Group>> getAllowedRelationshipGroups(
+            @PathVariable("userId") Long userId) {
+        LOG.trace("Request has been received for userId : {}", userId);
+        return new ResponseEntity<>(securityService.getAllowedRelationshipGroups(userId), HttpStatus.OK);
+    }
 }

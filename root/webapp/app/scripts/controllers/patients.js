@@ -35,6 +35,8 @@ var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'pe
                     $scope.warningMessage = 'A patient member with this username or email already exists, you can add them to your group if required.';
                     $scope.editUser = result.data;
                     $scope.existingUser = true;
+                    $scope.editMode = true;
+                    $scope.pagedItems = [];
 
                     // get patient existing group/roles from groupRoles
                     $scope.editUser.groups = [];
@@ -63,7 +65,7 @@ var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'pe
 
         // click Update Existing button, (after finding patient already exists)
         $scope.edit = function () {
-            UserService.save($scope.editUser).then(function(result) {
+            UserService.save($scope.editUser).then(function() {
                 // successfully saved existing user
                 $scope.editUser.isNewUser = false;
                 $modalInstance.close($scope.editUser);
@@ -93,7 +95,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                 var groupRoleGroupCode = user.groupRoles[j].group.code;
                 var groupRoleGroupType = user.groupRoles[j].group.groupType.value;
 
-                if (groupRoleGroupCode != 'Generic' && groupRoleGroupType != 'SPECIALTY') {
+                if (groupRoleGroupCode !== 'Generic' && groupRoleGroupType !== 'SPECIALTY') {
                     if (allGroups[i].id === user.groupRoles[j].group.id) {
                         inMyGroups = true;
                     } else {
@@ -114,7 +116,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         for (i=0;i<user.groupRoles.length;i++) {
             for (j=0;j<user.groupRoles[i].group.groupFeatures;j++) {
                 var feature = user.groupRoles[i].group.groupFeatures[j];
-                if (feature.name = 'KEEP_ALL_DATA') {
+                if (feature.name === 'KEEP_ALL_DATA') {
                     $scope.user.keepData = true;
                 }
             }
@@ -233,6 +235,41 @@ var SendVerificationEmailModalInstanceCtrl = ['$scope', '$modalInstance','user',
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService', 'StaticDataService',
     function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService, StaticDataService) {
 
+    $scope.itemsPerPage = 20;
+    $scope.currentPage = 0;
+    $scope.filterText = '';
+    $scope.sortField = 'forename';
+    $scope.sortDirection = 'ASC';
+    $scope.initFinished = false;
+
+    var tempFilterText = '';
+    var filterTextTimeout;
+
+    // watches
+    // update page on user typed search text
+    $scope.$watch('searchText', function (value) {
+        if (value !== undefined) {
+            if (filterTextTimeout) {
+                $timeout.cancel(filterTextTimeout);
+            }
+            $scope.currentPage = 0;
+
+            tempFilterText = value;
+            filterTextTimeout = $timeout(function () {
+                $scope.filterText = tempFilterText;
+                $scope.getItems();
+            }, 1000); // delay 1000 ms
+        }
+    });
+
+    // update page when currentPage is changed
+    $scope.$watch('currentPage', function(value) {
+        if ($scope.initFinished === true) {
+            $scope.currentPage = value;
+            $scope.getItems();
+        }
+    });
+
     // filter users by group
     $scope.selectedGroup = [];
     $scope.setSelectedGroup = function () {
@@ -242,7 +279,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         } else {
             $scope.selectedGroup.push(id);
         }
-        return false;
+        $scope.currentPage = 0;
+        $scope.getItems();
     };
     $scope.isGroupChecked = function (id) {
         if (_.contains($scope.selectedGroup, id)) {
@@ -250,38 +288,107 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
         return false;
     };
+    $scope.removeAllSelectedGroup = function () {
+        $scope.selectedGroup = [];
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
 
-    // filter users by role
-    $scope.selectedRole = [];
-    $scope.setSelectedRole = function () {
-        var id = this.role.id;
-        if (_.contains($scope.selectedRole, id)) {
-            $scope.selectedRole = _.without($scope.selectedRole, id);
+    $scope.pageCount = function() {
+        return Math.ceil($scope.total/$scope.itemsPerPage);
+    };
+
+    $scope.range = function() {
+        var rangeSize = 10;
+        var ret = [];
+        var start;
+
+        if ($scope.currentPage < 10) {
+            start = 0;
         } else {
-            $scope.selectedRole.push(id);
+            start = $scope.currentPage;
         }
-        return false;
-    };
-    $scope.isRoleChecked = function (id) {
-        if (_.contains($scope.selectedRole, id)) {
-            return 'glyphicon glyphicon-ok pull-right';
+
+        if ( start > $scope.pageCount()-rangeSize ) {
+            start = $scope.pageCount()-rangeSize;
         }
-        return false;
+
+        for (var i=start; i<start+rangeSize; i++) {
+            if (i > -1) {
+                ret.push(i);
+            }
+        }
+
+        return ret;
     };
 
-    // TODO: server side pagination
-    // pagination, sorting, basic filter
-    $scope.setPage = function(pageNo) {
-        $scope.currentPage = pageNo;
+    $scope.setPage = function(n) {
+        if (n > -1 && n < $scope.totalPages) {
+            $scope.currentPage = n;
+        }
     };
-    $scope.filter = function() {
-        $timeout(function() {
-            $scope.filteredItems = $scope.filtered.length;
-        }, 10);
+
+    $scope.prevPage = function() {
+        if ($scope.currentPage > 0) {
+            $scope.currentPage--;
+        }
     };
-    $scope.sortBy = function(predicate) {
-        $scope.predicate = predicate;
-        $scope.reverse = !$scope.reverse;
+
+    $scope.prevPageDisabled = function() {
+        return $scope.currentPage === 0 ? 'hidden' : '';
+    };
+
+    $scope.nextPage = function() {
+        if ($scope.currentPage < $scope.totalPages - 1) {
+            $scope.currentPage++;
+        }
+    };
+
+    $scope.nextPageDisabled = function() {
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
+    };
+
+    $scope.sortBy = function(sortField) {
+        $scope.currentPage = 0;
+        if ($scope.sortField !== sortField) {
+            $scope.sortDirection = 'ASC';
+            $scope.sortField = sortField;
+        } else {
+            if ($scope.sortDirection === 'ASC') {
+                $scope.sortDirection = 'DESC';
+            } else {
+                $scope.sortDirection = 'ASC';
+            }
+        }
+
+        $scope.getItems();
+    };
+
+    // Get patients based on current user selected filters etc
+    $scope.getItems = function () {
+        $scope.loading = true;
+
+        var getParameters = {};
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        getParameters.filterText = $scope.filterText;
+        getParameters.sortField = $scope.sortField;
+        getParameters.sortDirection = $scope.sortDirection;
+        getParameters.roleIds = $scope.roleIds;
+
+        if ($scope.selectedGroup.length > 0) {
+            getParameters.groupIds = $scope.selectedGroup;
+        } else {
+            getParameters.groupIds = $scope.groupIds;
+        }
+
+        // get staff users by list of staff roles and list of logged in user's groups
+        UserService.getByGroupsAndRoles(getParameters).then(function (page) {
+            $scope.pagedItems = page.content;
+            $scope.total = page.totalElements;
+            $scope.totalPages = page.totalPages;
+            delete $scope.loading;
+        });
     };
 
     // Init
@@ -290,10 +397,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $('.child-menu').remove();
         });
 
-        var i, group, role, groupIds = [], patientRoleIds = [];
+        var i, role, group;
         $scope.loading = true;
         $scope.allGroups = [];
         $scope.allRoles = [];
+        $scope.roleIds = [];
+        $scope.groupIds = [];
 
         $scope.permissions = {};
         // used in html when checking for user group membership by id only (e.g. to show/hide delete on patient GroupRole)
@@ -327,13 +436,14 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 role = roles[i];
                 if (role.visible === true) {
                     $scope.allRoles.push(role);
-                    patientRoleIds.push(role.id);
+                    $scope.roleIds.push(role.id);
                 }
             }
 
             // get logged in user's groups
             GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-
+                $scope.initFinished = false;
+                groups = groups.content;
                 // sort groups by name
                 groups = _.sortBy(groups, 'name' );
 
@@ -345,19 +455,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         group = groups[i];
                         if (group.visible === true) {
                             $scope.allGroups.push(group);
-                            groupIds.push(group.id);
+                            $scope.groupIds.push(group.id);
                             $scope.permissions.allGroupsIds[group.id] = group.id;
                         }
                     }
-
-                    // get patient users by list of patient roles and list of logged in user's groups
-                    UserService.getByGroupsAndRoles(groupIds, patientRoleIds).then(function (users) {
-                        $scope.list = users;
-                        $scope.currentPage = 1; //current page
-                        $scope.entryLimit = 20; //max no of items to display in a page
-                        $scope.totalItems = $scope.list.length;
-                        delete $scope.loading;
-                    });
 
                     // get list of roles available when user is adding a new Group & Role to patient member
                     // e.g. unit admins cannot add specialty admin roles to patient members
@@ -365,7 +466,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         // filter by roleId found previously as PATIENT
                         var allowedRoles = [];
                         for (i = 0; i < roles.length; i++) {
-                            if (patientRoleIds.indexOf(roles[i].id) != -1) {
+                            if ($scope.roleIds.indexOf(roles[i].id) != -1) {
                                 allowedRoles.push(roles[i]);
                             }
                         }
@@ -388,6 +489,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                         }
                     });
 
+                    $scope.initFinished = true;
+                    $scope.getItems();
                 } else {
                     // no groups found
                     delete $scope.loading;
@@ -402,48 +505,24 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     // Opened for edit
-    $scope.opened = function (openedUser, $event, status) {
+    $scope.opened = function (openedUser) {
         $scope.successMessage = '';
         $scope.editUser = '';
         $scope.editMode = true;
         $scope.saved = '';
 
-        // TODO: handle accordion and bootstrap dropdowns correctly without workaround
-        if ($event) {
-            // workaround for angular accordion and bootstrap dropdowns (clone and activate ng-click)
-            if ($event.target.className.indexOf('dropdown-toggle') !== -1) {
-                if ($('#' + $event.target.id).parent().children('.child-menu').length > 0) {
-                    $('#' + $event.target.id).parent().children('.child-menu').remove();
-                    $event.stopPropagation();
-                } else {
-                    // close any open edit panels
-                    $('.panel-collapse.in').collapse('hide');
-                    $('.child-menu').remove();
-                    $event.stopPropagation();
-                    var childMenu = $('<div class="child-menu"></div>');
-                    var dropDownMenuToAdd = $('#' + $event.target.id + '-menu').clone().attr('id', '').show();
-
-                    // manually remove Send Verification Email link if already verified
-                    if (openedUser.emailVerified) {
-                        $(dropDownMenuToAdd).find('#li-email-verified-' + openedUser.id).hide();
-                    } else {
-                        $(dropDownMenuToAdd).find('#li-email-verified-' + openedUser.id).show();
-                    }
-
-                    // http://stackoverflow.com/questions/16949299/getting-ngclick-to-work-on-dynamic-fields
-                    // http://stackoverflow.com/questions/12202067/angularjs-ng-click-broken-inside-a-popover
-                    var compiledElement = $compile(dropDownMenuToAdd)($scope);
-                    $(childMenu).append(compiledElement);
-                    $('#' + $event.target.id).parent().append(childMenu);
-                }
+        // do not load if already opened
+        if (openedUser.showEdit) {
+            $scope.editCode = '';
+            openedUser.showEdit = false;
+        } else {
+            // close others
+            for (var i = 0; i < $scope.pagedItems.length; i++) {
+                $scope.pagedItems[i].showEdit = false;
             }
-            if ($event.target.className.indexOf('dropdown-menu-accordion-item') !== -1) {
-                $event.stopPropagation();
-            }
-        }
 
-        // do not load if already opened (status.open == true)
-        if (!status || status.open === false) {
+            $scope.editCode = '';
+            openedUser.showEdit = true;
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             UserService.get(openedUser.id).then(function (user) {
@@ -500,7 +579,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     // Save from edit
-    $scope.save = function (editUserForm, user, index) {
+    $scope.save = function (editUserForm, user) {
         UserService.save(user).then(function() {
             // successfully saved user
             editUserForm.$setPristine(true);
@@ -508,9 +587,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             // update accordion header for group with data from GET
             UserService.get(user.id).then(function (successResult) {
-                for(var i=0;i<$scope.list.length;i++) {
-                    if($scope.list[i].id == successResult.id) {
-                        var headerDetails = $scope.list[i];
+                for(var i=0;i<$scope.pagedItems.length;i++) {
+                    if($scope.pagedItems[i].id === successResult.id) {
+                        var headerDetails = $scope.pagedItems[i];
                         headerDetails.forename = successResult.forename;
                         headerDetails.surname = successResult.surname;
                         headerDetails.email = successResult.email;
@@ -528,7 +607,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     // handle opening modal (Angular UI Modal http://angular-ui.github.io/bootstrap/)
     $scope.openModalNewPatient = function (size) {
         // close any open edit panels
-        $('.panel-collapse.in').collapse('hide');
+        for (var i = 0; i < $scope.pagedItems.length; i++) {
+            $scope.pagedItems[i].showEdit = false;
+        }
         // clear messages
         $scope.errorMessage = '';
         $scope.warningMessage = '';
@@ -583,8 +664,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             // check if patient member is newly created
             if (user.isNewUser) {
                 // is a new patient member, add to end of list and show username and password
-                $scope.list.push(user);
-                $scope.editUser = user;
+                $scope.currentPage = 0;
+                $scope.getItems();
+                $scope.editUser = '';
                 $scope.successMessage = 'User successfully created ' +
                     'with username: "' + user.username + '" ' +
                     'and password: "' + user.password + '"';
@@ -592,25 +674,26 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             } else {
                 // is an already existing patient member, likely updated group roles
                 var index = null;
-                for (var i = 0; i < $scope.list.length; i++) {
-                    if (user.id === $scope.list[i].id) {
+                for (var i = 0; i < $scope.pagedItems.length; i++) {
+                    if (user.id === $scope.pagedItems[i].id) {
                         index = i;
                     }
                 }
 
                 if (index !== null) {
                     // user already in list of users shown, update object
-                    $scope.list[index] = _.clone(user);
+                    $scope.pagedItems[index] = _.clone(user);
                 } else {
-                    // user wasn't already present in list, add to end
-                    $scope.list.push(user);
+                    // user wasn't already present in list
+                    $scope.currentPage = 0;
+                    $scope.getItems();
                 }
 
                 $scope.successMessage = 'User successfully updated with username: "' + user.username + '"';
             }
         }, function () {
-            // cancel
-            $scope.editUser = '';
+            // close
+            $scope.getItems();
         });
     };
 
@@ -648,34 +731,29 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             modalInstance.result.then(function () {
                 // closed, refresh list
-                $scope.init();
+                $scope.currentPage = 0;
+                $scope.getItems();
             }, function () {
                 // closed
-                $scope.init();
+                $scope.currentPage = 0;
+                $scope.getItems();
             });
         });
     };
 
     // view patient
-    $scope.viewUser = function (userId, $event) {
+    $scope.viewUser = function (userId) {
         $scope.successMessage = '';
-
-        // workaround for cloned object not capturing ng-click properties
-        var eventUserId = $event.currentTarget.dataset.userid;
-
-        UserService.get(eventUserId).then(function(user) {
+        UserService.get(userId).then(function(user) {
             alert('TODO: view patient "' + user.forename + ' ' + user.surname + '" ');
         });
     };
 
     // reset user password
-    $scope.resetUserPassword = function (userId, $event) {
+    $scope.resetUserPassword = function (userId) {
         $scope.successMessage = '';
 
-        // workaround for cloned object not capturing ng-click properties
-        var eventUserId = $event.currentTarget.dataset.userid;
-
-        UserService.get(eventUserId).then(function(user) {
+        UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
                 templateUrl: 'views/partials/resetPasswordModal.html',
                 controller: ResetPasswordModalInstanceCtrl,
@@ -690,7 +768,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             });
 
             modalInstance.result.then(function (successResult) {
-                // ok
                 $scope.successMessage = 'Password reset, new password is: ' + successResult.password;
             }, function () {
                 // closed
@@ -699,14 +776,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     // send verification email
-    $scope.sendVerificationEmail = function (userId, $event) {
-
+    $scope.sendVerificationEmail = function (userId) {
         $scope.successMessage = '';
 
-        // workaround for cloned object not capturing ng-click properties
-        var eventUserId = $event.currentTarget.dataset.userid;
-
-        UserService.get(eventUserId).then(function(user) {
+        UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
                 templateUrl: 'views/partials/sendVerificationEmailModal.html',
                 controller: SendVerificationEmailModalInstanceCtrl,
@@ -721,7 +794,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             });
 
             modalInstance.result.then(function () {
-                // ok
                 $scope.successMessage = 'Verification email has been sent';
             }, function () {
                 // closed
@@ -735,5 +807,3 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     $scope.init();
 }]);
-
-

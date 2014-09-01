@@ -39,10 +39,10 @@ public class ImporterConfig {
 
         try {
             ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
-            factory.setUsername("ssg-user");
-            factory.setPassword("ssg-user");
-            factory.setVirtualHost("/ssg");
+            factory.setHost(properties.getProperty("rabbit.host"));
+            factory.setUsername(properties.getProperty("rabbit.username"));
+            factory.setPassword(properties.getProperty("rabbit.password"));
+            factory.setVirtualHost(properties.getProperty("rabbit.virtual.host"));
             Connection connection = factory.newConnection();
             channel = connection.createChannel();
             channel.queueDeclare(QUEUE_NAME, true, false, false, null);
@@ -62,10 +62,10 @@ public class ImporterConfig {
 
         try {
             ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
-            factory.setUsername("ssg-user");
-            factory.setPassword("ssg-user");
-            factory.setVirtualHost("/ssg");
+            factory.setHost(properties.getProperty("rabbit.host"));
+            factory.setUsername(properties.getProperty("rabbit.username"));
+            factory.setPassword(properties.getProperty("rabbit.password"));
+            factory.setVirtualHost(properties.getProperty("rabbit.virtual.host"));
             Connection connection = factory.newConnection();
             channel = connection.createChannel();
             channel.basicQos(1);

@@ -8,8 +8,8 @@ angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 
     $scope.years = UtilService.generateYears();
     $scope.days = UtilService.generateDays();
     $scope.joinRequest.selectedYear = 2000;
-    $scope.joinRequest.selectedMonth = 1;
-    $scope.joinRequest.selectedDay = 1;
+    $scope.joinRequest.selectedMonth = '01';
+    $scope.joinRequest.selectedDay = '01';
 
     StaticDataService.getLookupByTypeAndValue('GROUP', 'SPECIALTY').then(function(lookup){
         GroupService.getAllByType(lookup.id).then(function(specialties) {
@@ -38,7 +38,7 @@ angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 
 
         var formOk = true;
 
-        if (typeof $scope.joinRequest.unit == 'undefined') {
+        if (typeof $scope.joinRequest.unit === 'undefined') {
             $scope.errorMessage = '- Please select a unit';
             formOk = false;
         } else {

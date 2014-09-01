@@ -3,7 +3,9 @@ package org.patientview.api.controller;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +20,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
-import java.util.List;
 
 /**
  * Restful interface for the basic Crud operation for codes.
@@ -52,8 +53,8 @@ public class CodeController extends BaseController<CodeController> {
 
     @RequestMapping(value = "/code", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Code>> getAllCodes() {
-        return new ResponseEntity<>(codeService.getAllCodes(), HttpStatus.OK);
+    public ResponseEntity<Page<Code>> getAllCodes(GetParameters getParameters) {
+        return new ResponseEntity<>(codeService.getAllCodes(getParameters), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/code/{codeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -4,7 +4,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$sc
 function (UserService, $scope, GroupService, NewsService) {
 
     // get graph every time group is changed
-    $scope.$watch('graphGroupId', function(newValue, oldValue) {
+    $scope.$watch('graphGroupId', function(newValue) {
         var i;
         $scope.chartLoading = true;
 
@@ -69,12 +69,12 @@ function (UserService, $scope, GroupService, NewsService) {
         $scope.allGroups = [];
         var i;
 
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
+        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(page) {
             // set the list of groups to show in the data grid
-            $scope.graphGroups = groups;
+            $scope.graphGroups = page.content;
 
-            for(i=0;i<groups.length;i++) {
-                $scope.allGroups[groups[i].id] = groups[i];
+            for(i=0;i<page.content.length;i++) {
+                $scope.allGroups[page.content[i].id] = page.content[i];
             }
 
             // set feature (avoid blank option)

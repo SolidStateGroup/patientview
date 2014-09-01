@@ -26,6 +26,11 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         },
 
         validationDate: function (day, month, year) {
+
+            // strip preceding 0 on dates if present
+            day = parseInt(day.toString());
+            month = parseInt(month.toString());
+
             var valid = true;
             if ((month < 1) || (month > 12)) {
                 valid = false;
@@ -49,7 +54,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         getFields: function (objectType) {
             var fields = [];
             fields.user = ['id', 'username', 'password', 'email', 'forename', 'surname', 'changePassword', 'locked', 'userFeatures', 'emailVerified', 'verificationCode', 'identifiers', 'contactNumber', 'locked', 'dummy'];
-            fields.userDetails = ['id', 'username', 'email', 'forename', 'surname', 'locked', 'emailVerified', 'dummy'];
+            fields.userDetails = ['id', 'username', 'email', 'forename', 'surname', 'locked', 'emailVerified', 'dummy', 'contactNumber'];
             fields.role = ['id','name','description','routes'];
             fields.group = ['id','name','code','sftpUser','groupType','groupFeatures','routes','links','locations','contactPoints','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode'];
             fields.groupDetails = ['id','name','code','sftpUser','groupType','visibleToJoin','address1','address2','address3','postcode'];
@@ -82,7 +87,11 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         generateDays: function () {
             var days = [];
             for (var i=1;i<=31;i++) {
-                days.push(i);
+                if (i<10) {
+                    days.push('0' + i);
+                } else {
+                    days.push(i);
+                }
             }
             return days;
         },
@@ -90,7 +99,11 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         generateMonths: function () {
             var months = [];
             for (var i=1;i<=12;i++) {
-                months.push(i);
+                if (i<10) {
+                    months.push('0' + i);
+                } else {
+                    months.push(i);
+                }
             }
             return months;
         },
