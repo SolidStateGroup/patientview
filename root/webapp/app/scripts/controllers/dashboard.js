@@ -24,41 +24,44 @@ function (UserService, $scope, GroupService, NewsService) {
                 }
 
                 // get most recent statistics of user locked and inactive
-                $scope.statisticsDate = data[0].endDate;
-                $scope.lockedUsers = data[0].countOfUserLocked;
-                $scope.inactiveUsers = data[0].countOfUserInactive;
+                if (data[0]) {
+                    $scope.statisticsDate = data[0].endDate;
+                    $scope.lockedUsers = data[0].countOfUserLocked;
+                    $scope.inactiveUsers = data[0].countOfUserInactive;
 
-                chart1.data = new google.visualization.arrayToDataTable(chart1.data);
+                    chart1.data = new google.visualization.arrayToDataTable(chart1.data);
 
-                chart1.options = {
-                    'title': null,
-                    'isStacked': 'true',
-                    'fill': 20,
-                    'displayExactValues': true,
-                    'vAxis': {
+                    chart1.options = {
                         'title': null,
-                        'pointSize': 5,
-                        'gridlines': {
-                            'count': 10,
-                            'color': '#ffffff'
+                        'isStacked': 'true',
+                        'fill': 20,
+                        'displayExactValues': true,
+                        'vAxis': {
+                            'title': null,
+                            'pointSize': 5,
+                            'gridlines': {
+                                'count': 10,
+                                'color': '#ffffff'
+                            },
+                            'viewWindow': {
+                                'min': 0
+                            }
                         },
-                        'viewWindow': {
-                            'min': 0
+                        'hAxis': {
+                            'title': null
+                        },
+                        'chartArea': {
+                            left: '7%',
+                            top: '7%',
+                            width: '80%',
+                            height: '85%'
                         }
-                    },
-                    'hAxis': {
-                        'title': null
-                    },
-                    'chartArea': {
-                        left: '7%',
-                        top: '7%',
-                        width: '80%',
-                        height: '85%'
-                    }
-                };
+                    };
 
-                chart1.formatters = {};
-                $scope.chart = chart1;
+                    chart1.formatters = {};
+                    $scope.chart = chart1;
+                }
+
                 $scope.chartLoading = false;
             });
         }

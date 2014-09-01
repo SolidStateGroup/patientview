@@ -21,10 +21,10 @@ angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangu
             });
             return deferred.promise;
         },
-        getRecipients: function (userId) {
+        getRecipients: function (userId, featureTypes) {
             var deferred = $q.defer();
-            // GET /user/{userId}/conversations/recipients
-            Restangular.one('user', userId).one('conversations/recipients').get().then(function(successResult) {
+            // GET /user/{userId}/conversations/recipients?featuretype=MESSAGING
+            Restangular.one('user', userId).one('conversations/recipients').get({'featuretype' : featureTypes}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

@@ -99,10 +99,11 @@ public class ConversationController extends BaseController<ConversationControlle
     @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<User>> getRecipients(@PathVariable("userId") Long userId) {
+    public ResponseEntity<List<User>> getRecipients(@PathVariable("userId") Long userId,
+                                    @RequestParam(value = "featuretype", required = false) String[] featureTypes) {
         try {
             LOG.debug("Request has been received for potential recipients of userId : {}", userId);
-            return new ResponseEntity<>(conversationService.getRecipients(userId), HttpStatus.OK);
+            return new ResponseEntity<>(conversationService.getRecipients(userId, featureTypes), HttpStatus.OK);
         } catch (ResourceNotFoundException rnf) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (ResourceInvalidException ri) {

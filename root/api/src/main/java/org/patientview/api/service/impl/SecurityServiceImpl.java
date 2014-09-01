@@ -91,7 +91,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         return longs;
     }
 
-    public Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters) {
+    private Page<Group> getUserGroupsData(Long userId, GetParameters getParameters) {
         String size = getParameters.getSize();
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
@@ -121,43 +121,98 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         } else {
             filterText = "%" + filterText.toUpperCase() + "%";
         }
-        Page<Group> groupList;
+        Page<Group> groupPage;
         User user = userRepository.findOne(userId);
         boolean groupTypesNotEmpty = ArrayUtils.isNotEmpty(groupTypes);
 
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
             if (groupTypesNotEmpty) {
-                groupList = groupRepository.findAllByGroupType(filterText, groupTypesList, pageable);
+                groupPage = groupRepository.findAllByGroupType(filterText, groupTypesList, pageable);
             } else {
-                groupList = groupRepository.findAll(filterText, pageable);
+                groupPage = groupRepository.findAll(filterText, pageable);
             }
         } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
             if (groupTypesNotEmpty) {
-                groupList = groupRepository.findGroupAndChildGroupsByUserAndGroupType(filterText, groupTypesList,
+                groupPage = groupRepository.findGroupAndChildGroupsByUserAndGroupType(filterText, groupTypesList,
                         user, pageable);
             } else {
-                groupList = groupRepository.findGroupAndChildGroupsByUser(filterText, user, pageable);
+                groupPage = groupRepository.findGroupAndChildGroupsByUser(filterText, user, pageable);
             }
         }
         else {
             if (groupTypesNotEmpty) {
-                groupList = groupRepository.findGroupsByUserAndGroupTypeNoSpecialties(filterText, groupTypesList,
+                groupPage = groupRepository.findGroupsByUserAndGroupTypeNoSpecialties(filterText, groupTypesList,
                         user, pageable);
             } else {
-                groupList = groupRepository.findGroupsByUserNoSpecialties(filterText, user, pageable);
+                groupPage = groupRepository.findGroupsByUserNoSpecialties(filterText, user, pageable);
             }
         }
+        return groupPage;
+    }
 
-        if (groupList == null) {
+    public Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters) {
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        String sortField = getParameters.getSortField();
+        String sortDirection = getParameters.getSortDirection();
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals("DESC")) {
+                direction = Sort.Direction.DESC;
+            }
+
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            pageable = new PageRequest(pageConverted, sizeConverted);
+        }
+
+        Page<Group> groupPage = getUserGroupsData(userId, getParameters);
+        if (groupPage == null) {
             return new PageImpl<>(new ArrayList<org.patientview.api.model.Group>(), pageable, 0L);
         }
 
         // add parent and child groups
-        List<Group> content = groupService.addParentAndChildGroups(groupList.getContent());
+        List<Group> content = groupService.addParentAndChildGroups(groupPage.getContent());
 
         // convert to lightweight transport objects, create Page and return
         List<org.patientview.api.model.Group> transportContent = convertGroupsToTransportGroups(content);
-        return new PageImpl<>(transportContent, pageable, groupList.getTotalElements());
+        return new PageImpl<>(transportContent, pageable, groupPage.getTotalElements());
+    }
+
+    public Page<Group> getUserGroupsAllDetails(Long userId, GetParameters getParameters) {
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        String sortField = getParameters.getSortField();
+        String sortDirection = getParameters.getSortDirection();
+
+        PageRequest pageable;
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (sortDirection.equals("DESC")) {
+                direction = Sort.Direction.DESC;
+            }
+
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+        } else {
+            pageable = new PageRequest(pageConverted, sizeConverted);
+        }
+
+        Page<Group> groupPage = getUserGroupsData(userId, getParameters);
+        if (groupPage == null) {
+            return new PageImpl<>(new ArrayList<Group>(), pageable, 0L);
+        }
+
+        // add parent and child groups
+        List<Group> content = groupService.addParentAndChildGroups(groupPage.getContent());
+        return new PageImpl<>(content, pageable, groupPage.getTotalElements());
     }
 
     // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups

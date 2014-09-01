@@ -27,6 +27,9 @@ public class ContactPointType extends GenericLookup {
     @Enumerated(EnumType.STRING)
     private ContactPointTypes value;
 
+    @Column(name = "description")
+    private String description;
+
     public ContactPointTypes getValue() {
         return value;
     }
@@ -41,5 +44,13 @@ public class ContactPointType extends GenericLookup {
 
     public void setContactPoints(List<ContactPoint> contactPoints) {
         this.contactPoints = contactPoints;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
