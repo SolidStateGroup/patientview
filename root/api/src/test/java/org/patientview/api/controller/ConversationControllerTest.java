@@ -8,7 +8,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.ConversationService;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.User;

@@ -123,4 +123,6 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "AND    gr.sourceGroup = :group ")
     public Iterable<Group> findChildren(@Param("group") Group group);
 
+    public Group findByCode(String code);
+
 }

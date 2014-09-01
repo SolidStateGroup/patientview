@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.JoinRequestServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;

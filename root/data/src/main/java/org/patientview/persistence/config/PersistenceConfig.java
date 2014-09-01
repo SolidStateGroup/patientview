@@ -3,6 +3,7 @@ package org.patientview.persistence.config;
 import org.patientview.config.CommonConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
@@ -30,7 +31,6 @@ public class PersistenceConfig extends CommonConfig {
     @Inject
     private Properties properties;
 
-
     @PostConstruct
     public void init() {
         properties.setProperty("hibernate.hbm2ddl.auto", "validate");
@@ -48,43 +48,45 @@ public class PersistenceConfig extends CommonConfig {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setPackagesToScan("org.patientview.persistence");
-        factory.setDataSource(dataSource());
+        factory.setDataSource(patientViewDataSource());
         factory.setJpaProperties(properties);
         factory.afterPropertiesSet();
 
         return factory.getObject();
     }
 
-    @Bean
-    public DataSource dataSource() {
-
+    @Bean(name = "patientView")
+    @Primary
+    public DataSource patientViewDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl(properties.getProperty("url"));
-        dataSource.setUsername(properties.getProperty("user"));
-        dataSource.setPassword(properties.getProperty("password"));
+        dataSource.setUrl(properties.getProperty("pv.url"));
+        dataSource.setUsername(properties.getProperty("pv.user"));
+        dataSource.setPassword(properties.getProperty("pv.password"));
         return dataSource;
     }
 
+    @Bean(name = "fhir")
+    public DataSource fhirDataSource()     {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setUrl(properties.getProperty("fhir.url"));
+        dataSource.setUsername(properties.getProperty("fhir.user"));
+        dataSource.setPassword(properties.getProperty("fhir.password"));
+        return dataSource;
+    }
 
 
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
-
         return transactionManager;
     }
 
     @Bean
-    public HibernateExceptionTranslator hibernateExceptionTranslator(){
-
+    public HibernateExceptionTranslator hibernateExceptionTranslator() {
         return new HibernateExceptionTranslator();
     }
-
-    Properties additionalProperties() {
-        return properties;
-    }
-
 
 }

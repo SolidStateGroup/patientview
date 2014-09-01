@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.controller.model.Credentials;
 import org.patientview.api.controller.model.ForgottenCredentials;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.UserToken;

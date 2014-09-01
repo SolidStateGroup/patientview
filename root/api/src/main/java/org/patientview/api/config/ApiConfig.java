@@ -58,11 +58,6 @@ public class ApiConfig {
         return AuditAspect.aspectOf();
     }
 
-    //@Bean
-    //public LoggingAspect loggingAspectBean() {
-//        return LoggingAspect.aspectOf();
- //   }
-
 
     @Bean
     public JavaMailSenderImpl javaMailSender() {
