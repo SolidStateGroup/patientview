@@ -1,12 +1,11 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.api.exception.ResourceInvalidException;
-import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
 import org.patientview.persistence.model.Feature;
@@ -29,6 +28,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
