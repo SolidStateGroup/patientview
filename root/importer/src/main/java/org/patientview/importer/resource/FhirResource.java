@@ -40,7 +40,7 @@ public class FhirResource {
      * For FUNCTION fhir_create(cfg jsonb, _type varchar, resource jsonb, tags jsonb)
      *
      * @param resource
-     * @return
+     * @returnd
      * @throws SQLException
      * @throws FhirResourceException
      */
