@@ -26,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -62,7 +63,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
      * @throws FhirResourceException
      */
     @Override
-    public void add(final Patientview patient) throws ResourceNotFoundException, FhirResourceException {
+    public UUID add(final Patientview patient) throws ResourceNotFoundException, FhirResourceException {
         // Find the identifier which the patient is linked to.
         Identifier identifier = matchPatient(patient);
 
@@ -74,10 +75,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         delete(fhirLink);
 
         // Create a new Fhir record and add the link to the User and Unit
-        JSONObject jsonObject = create(PatientBuilder.create(patient));
+        PatientBuilder patientBuilder = new PatientBuilder(patient);
+        JSONObject jsonObject = create(patientBuilder.build());
         addLink(identifier, group, jsonObject);
 
         LOG.info("Processed Patient NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());
+
+        return Util.getVersionId(jsonObject);
     }
 
     private void delete(FhirLink fhirLink) {
@@ -95,7 +99,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         try {
             return fhirResource.create(patient);
         } catch (Exception e) {
-            LOG.error("Could not create patient resource", e);
+            LOG.error("Could not build patient resource", e);
             throw new FhirResourceException(e.getMessage());
         }
     }

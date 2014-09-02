@@ -1,67 +1,56 @@
 package org.patientview.importer.service.impl;
 
-import com.rabbitmq.client.Channel;
 import generated.Patientview;
+import org.hl7.fhir.instance.model.ResourceReference;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.importer.exception.FhirResourceException;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.service.ImportService;
+import org.patientview.importer.service.ObservationService;
+import org.patientview.importer.service.PatientService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
- * Created on 21/08/2014
+ * Created on 01/09/2014
  */
 @Service
-public class ImportServiceImpl extends AbstractServiceImpl<ImportServiceImpl> implements ImportService {
-
-    private final static String QUEUE_NAME = "patient_import";
+public class ImportServiceImpl extends AbstractServiceImpl<ImportService> implements ImportService {
 
     @Inject
-    @Named(value = "write")
-    private Channel channel;
+    private PatientService patientService;
 
-    public ImportServiceImpl() {
+    @Inject
+    private ObservationService observationService;
 
-    }
-
-    @PreDestroy
-    public void tearDown() {
-        try {
-            channel.close();
-        } catch (IOException io) {
-            LOG.error("Error closing channel");
-        }
-    }
 
     @Override
-    public void importRecord(final Patientview patientview) throws ImportResourceException {
-
-        StringWriter stringWriter = new StringWriter();
-
+    public void process(Patientview patientview) throws ImportResourceException {
+        ResourceReference patientReference;
         try {
-            JAXBContext context = JAXBContext.newInstance(Patientview.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(patientview, stringWriter);
-        } catch (JAXBException jxb) {
-            throw new ImportResourceException("Unable to marshall patientview record");
+            UUID uuid = patientService.add(patientview);
+            patientReference = createResourceReference(uuid);
+        } catch (FhirResourceException | ResourceNotFoundException e) {
+            LOG.error("Unable to build patient {}", patientview.getPatient().getPersonaldetails().getNhsno());
+            throw new ImportResourceException("Could not build patient");
         }
 
-        try {
-            channel.basicPublish("", QUEUE_NAME, true, null, stringWriter.toString().getBytes());
-        } catch (IOException e) {
-            throw new ImportResourceException("Unable to send message onto queue");
-        }
-        LOG.info("Successfully sent record to be processed for NHS number {}", patientview.getPatient().getPersonaldetails().getNhsno());
+        observationService.add(patientview, patientReference);
 
+    }
+
+
+
+    private ResourceReference createResourceReference(UUID uuid) {
+        ResourceReference resourceReference = new ResourceReference();
+
+        resourceReference.setDisplaySimple(uuid.toString());
+        resourceReference.setReferenceSimple("uuid");
+
+        return resourceReference;
     }
 
 

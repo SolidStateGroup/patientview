@@ -60,7 +60,7 @@ public class FhirResource {
             return new JSONObject(result.getValue());
 
         } catch (SQLException e) {
-            LOG.error("Unable to create resource {}", e);
+            LOG.error("Unable to build resource {}", e);
             throw new FhirResourceException(e.getMessage());
         }
 
