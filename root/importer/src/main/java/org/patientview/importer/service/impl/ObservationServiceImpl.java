@@ -4,7 +4,7 @@ import generated.Patientview;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.importer.builder.ObservationsBuilder;
-import org.patientview.importer.exception.FhirResourceException;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.ObservationService;
 import org.springframework.stereotype.Service;

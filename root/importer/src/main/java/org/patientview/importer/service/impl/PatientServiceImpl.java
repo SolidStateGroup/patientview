@@ -2,14 +2,15 @@ package org.patientview.importer.service.impl;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.PatientBuilder;
-import org.patientview.importer.exception.FhirResourceException;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.util.Util;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -70,9 +70,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // Find the group that is importing the data
         Group group = groupRepository.findByCode(patient.getCentredetails().getCentrecode());
 
-        // Find and delete the link between the existing User and UNit to the Fhir Record
+        // Find and update the link between the existing User and UNit to the Fhir Record
         FhirLink fhirLink = retrieveLink(group, identifier);
-        delete(fhirLink);
+        update(fhirLink);
 
         // Create a new Fhir record and add the link to the User and Unit
         PatientBuilder patientBuilder = new PatientBuilder(patient);
@@ -84,14 +84,16 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return Util.getVersionId(jsonObject);
     }
 
-    private void delete(FhirLink fhirLink) {
+    private void update(FhirLink fhirLink) {
         if (fhirLink != null) {
             try {
-                fhirResource.delete(fhirLink.getResourceId(), ResourceType.Patient);
-            } catch (SQLException | FhirResourceException e) {
-                LOG.error("Could delete patient resource ", e);
+                Resource resource = fhirResource.get(fhirLink.getResourceId(), ResourceType.valueOf(fhirLink.getResourceType()));
+                UUID versionId =  fhirResource.update(resource, fhirLink);
+                fhirLink.setVersionId(versionId);
+                fhirLinkRepository.save(fhirLink);
+            } catch (FhirResourceException e) {
+                LOG.error("Could update patient resource ", e);
             }
-            fhirLinkRepository.delete(fhirLink);
         }
     }
 

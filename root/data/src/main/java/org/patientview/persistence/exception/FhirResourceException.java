@@ -1,4 +1,4 @@
-package org.patientview.importer.exception;
+package org.patientview.persistence.exception;
 
 /**
  * Created by james@solidstategroup.com

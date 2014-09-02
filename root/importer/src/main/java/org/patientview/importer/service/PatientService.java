@@ -2,7 +2,7 @@ package org.patientview.importer.service;
 
 import generated.Patientview;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.importer.exception.FhirResourceException;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 

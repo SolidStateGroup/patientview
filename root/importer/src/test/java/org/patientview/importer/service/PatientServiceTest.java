@@ -1,6 +1,8 @@
 package org.patientview.importer.service;
 
 import generated.Patientview;
+import org.hl7.fhir.instance.model.Resource;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +15,7 @@ import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.impl.PatientServiceImpl;
 import org.patientview.importer.util.Util;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
@@ -71,7 +74,7 @@ public class PatientServiceTest extends BaseTest {
     }
 
     /**
-     * Test: Create a patient with a UUId and make sure this UUID is deleted and a new record created.
+     * Test: Create a patient with a UUId.
      *
      * @throws Exception
      */
@@ -93,6 +96,39 @@ public class PatientServiceTest extends BaseTest {
         patientService.add(patient);
 
         verify(fhirResource, Mockito.times(1)).create(any(org.hl7.fhir.instance.model.Resource.class));
+        verify(fhirLinkRepository, Mockito.times(1)).findByUserAndGroupAndIdentifier(any(User.class), any(Group.class), any(Identifier.class));
+        verify(userRepository, Mockito.times(1)).save(eq(user));
+    }
+
+
+    /**
+     * Test: Create a patient with a UUId and make sure patient record is updated.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testPatientAdd_WithUpdate() throws Exception {
+
+        when(Util.getVersionId(any(JSONObject.class))).thenReturn(UUID.randomUUID());
+
+        Patientview patient = unmarshallPatientRecord(super.getTestFile());
+        String nhsNumber = patient.getPatient().getPersonaldetails().getNhsno();
+        User user = TestUtils.createUser("NewPatient");
+        Group group = TestUtils.createGroup("PatientGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER), "NHS_NUMBER");
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, nhsNumber);
+        FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
+        fhirLink.setResourceType(ResourceType.Patient.name());
+
+
+        when(groupRepository.findByCode(any(String.class))).thenReturn(group);
+        when(lookupRepository.findByTypeAndValue(eq(LookupTypes.IDENTIFIER), eq("NHS_NUMBER"))).thenReturn(lookup);
+        when(identifierRepository.findByTypeAndValue(eq(nhsNumber), eq(lookup))).thenReturn(identifier);
+        when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(user), eq(group), eq(identifier))).thenReturn(fhirLink);
+
+        patientService.add(patient);
+
+        verify(fhirResource, Mockito.times(1)).update(any(Resource.class), eq(fhirLink));
         verify(fhirLinkRepository, Mockito.times(1)).findByUserAndGroupAndIdentifier(any(User.class), any(Group.class), any(Identifier.class));
         verify(userRepository, Mockito.times(1)).save(eq(user));
     }

@@ -6,7 +6,7 @@ import org.hl7.fhir.instance.formats.JsonParser;
 import org.hl7.fhir.instance.model.Resource;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.patientview.importer.exception.FhirResourceException;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.importer.exception.ImportResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
