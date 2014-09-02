@@ -56,7 +56,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
         }
 
         try {
-            channel.basicPublish("", QUEUE_NAME, true, true, null, stringWriter.toString().getBytes());
+            channel.basicPublish("", QUEUE_NAME, true, false, null, stringWriter.toString().getBytes());
         } catch (IOException e) {
             throw new ImportResourceException("Unable to send message onto queue");
         }
