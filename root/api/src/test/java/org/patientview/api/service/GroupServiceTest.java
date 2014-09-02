@@ -140,6 +140,9 @@ public class GroupServiceTest {
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findByName(Matchers.eq(testGroup.getName()))).thenReturn(new ArrayList<Group>());
+        when(groupRepository.findByName(Matchers.eq(childGroup.getName()))).thenReturn(new ArrayList<Group>());
+        when(groupRepository.findByName(Matchers.eq(parentGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
@@ -172,6 +175,9 @@ public class GroupServiceTest {
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findByName(Matchers.eq(testGroup.getName()))).thenReturn(new ArrayList<Group>());
+        when(groupRepository.findByName(Matchers.eq(childGroup.getName()))).thenReturn(new ArrayList<Group>());
+        when(groupRepository.findByName(Matchers.eq(parentGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 

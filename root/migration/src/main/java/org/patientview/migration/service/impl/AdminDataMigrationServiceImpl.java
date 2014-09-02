@@ -111,8 +111,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             Group group = createGroup(unit);
             group = callApiCreateGroup(group);
 
-            LOG.info("Success: created group");
-
             // Create the features
             if (CollectionUtils.isNotEmpty(unitFeatures)) {
                 for (Feature feature : unitFeatures) {
@@ -205,6 +203,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         Group newGroup = null;
         try {
             newGroup = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
+            LOG.info("Success: created group");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create group: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {

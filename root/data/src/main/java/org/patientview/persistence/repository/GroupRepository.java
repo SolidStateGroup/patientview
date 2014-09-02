@@ -125,4 +125,6 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
 
     public Group findByCode(String code);
 
+    public Iterable<Group> findByName(String name);
+
 }
