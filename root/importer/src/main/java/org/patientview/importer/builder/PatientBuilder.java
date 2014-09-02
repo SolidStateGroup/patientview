@@ -16,7 +16,13 @@ import org.hl7.fhir.instance.model.Patient;
  */
 public class PatientBuilder {
 
-    public static Patient create(Patientview oldPatient) {
+    private Patientview oldPatient;
+
+    public PatientBuilder(Patientview oldPatient) {
+        this.oldPatient = oldPatient;
+    }
+
+    public Patient build() {
 
         Patient newPatient = new Patient();
         createHumanName(newPatient, oldPatient);
@@ -25,7 +31,7 @@ public class PatientBuilder {
         return newPatient;
     }
 
-    private static Patient createHumanName(Patient newPatient, Patientview oldPatient) {
+    private Patient createHumanName(Patient newPatient, Patientview oldPatient) {
         HumanName humanName = newPatient.addName();
 
         humanName.addFamilySimple(oldPatient.getPatient().getPersonaldetails().getSurname());
@@ -36,7 +42,7 @@ public class PatientBuilder {
         return newPatient;
     }
 
-    private static Patient createAddress(Patient newPatient, Patientview oldPatient) {
+    private Patient createAddress(Patient newPatient, Patientview oldPatient) {
         Address address = newPatient.addAddress();
         address.addLineSimple(oldPatient.getPatient().getPersonaldetails().getAddress1());
         address.setCitySimple(oldPatient.getPatient().getPersonaldetails().getAddress2());
@@ -47,7 +53,7 @@ public class PatientBuilder {
         return newPatient;
     }
 
-    private static Patient createContactDetails(Patient newPatient, Patientview oldPatient) {
+    private Patient createContactDetails(Patient newPatient, Patientview oldPatient) {
         Patient.ContactComponent contactComponent = newPatient.addContact();
 
         if (StringUtils.isNotEmpty(oldPatient.getPatient().getPersonaldetails().getMobile())) {

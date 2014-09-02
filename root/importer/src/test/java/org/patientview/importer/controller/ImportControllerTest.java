@@ -1,11 +1,11 @@
 package org.patientview.importer.controller;
 
 import generated.Patientview;
-import junit.framework.Assert;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -26,6 +26,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by james@solidstategroup.com
@@ -61,7 +64,7 @@ public class ImportControllerTest {
     @Test
     public void testFileImport() throws Exception {
         String content = getTestFile();
-        Assert.assertTrue("The test file is not null", !StringUtils.isEmpty(content));
+        assertTrue("The test file is not null", !StringUtils.isEmpty(content));
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.post("/import")
@@ -70,7 +73,7 @@ public class ImportControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
         }
         catch (Exception e) {
-            Assert.fail("The post request all should not fail " + e.getCause());
+            fail("The post request all should not fail " + e.getCause());
         }
 
         Mockito.verify(queueService, Mockito.times(1)).importRecord(Mockito.any(Patientview.class));
@@ -79,7 +82,7 @@ public class ImportControllerTest {
 
     // used to test the service once running
     @Test
-    //@Ignore("IntegrationTest")
+    @Ignore("IntegrationTest")
     public void importIntegrationTest() throws Exception {
         post(getTestFile());
     }

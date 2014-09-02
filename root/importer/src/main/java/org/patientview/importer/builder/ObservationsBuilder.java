@@ -33,14 +33,10 @@ public class ObservationsBuilder {
                 observations.add(createObservation(test, result));
             }
         }
-
         return observations;
-
     }
 
-
     private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result) {
-
 
         Observation observation = new Observation();
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));

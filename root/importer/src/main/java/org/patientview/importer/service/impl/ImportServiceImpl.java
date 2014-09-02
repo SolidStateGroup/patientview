@@ -34,8 +34,8 @@ public class ImportServiceImpl extends AbstractServiceImpl<ImportService> implem
             UUID uuid = patientService.add(patientview);
             patientReference = createResourceReference(uuid);
         } catch (FhirResourceException | ResourceNotFoundException e) {
-            LOG.error("Unable to create patient {}", patientview.getPatient().getPersonaldetails().getNhsno());
-            throw new ImportResourceException("Could not create patient");
+            LOG.error("Unable to build patient {}", patientview.getPatient().getPersonaldetails().getNhsno());
+            throw new ImportResourceException("Could not build patient");
         }
 
         observationService.add(patientview, patientReference);

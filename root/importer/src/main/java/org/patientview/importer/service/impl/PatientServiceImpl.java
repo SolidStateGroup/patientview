@@ -75,7 +75,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         delete(fhirLink);
 
         // Create a new Fhir record and add the link to the User and Unit
-        JSONObject jsonObject = create(PatientBuilder.create(patient));
+        PatientBuilder patientBuilder = new PatientBuilder(patient);
+        JSONObject jsonObject = create(patientBuilder.build());
         addLink(identifier, group, jsonObject);
 
         LOG.info("Processed Patient NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());
@@ -98,7 +99,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         try {
             return fhirResource.create(patient);
         } catch (Exception e) {
-            LOG.error("Could not create patient resource", e);
+            LOG.error("Could not build patient resource", e);
             throw new FhirResourceException(e.getMessage());
         }
     }

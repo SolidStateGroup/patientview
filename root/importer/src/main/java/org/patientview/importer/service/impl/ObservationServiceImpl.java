@@ -34,7 +34,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             try {
                 fhirResource.create(observation);
             } catch (FhirResourceException e) {
-                LOG.error("Unable to create observation");
+                LOG.error("Unable to build observation");
             }
         }
     }

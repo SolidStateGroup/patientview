@@ -71,7 +71,7 @@ public class Util {
             jsonComposer.compose(outputStream, resource, false);
         } catch (Exception e) {
             LOG.error("Unable to handle Fhir resource record", e);
-            throw new FhirResourceException("Cannot create JSON", e);
+            throw new FhirResourceException("Cannot build JSON", e);
         }
         return outputStream.toString();
     }
