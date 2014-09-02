@@ -29,8 +29,8 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
     public Page<Group> findAll(@Param("filterText") String filterText, Pageable pageable);
 
     @Query("SELECT g FROM Group g " +
-            "WHERE (UPPER(g.code) LIKE :filterText) " +
-            "OR (UPPER(g.name) LIKE :filterText) " +
+            "WHERE ((UPPER(g.code) LIKE :filterText) " +
+            "OR (UPPER(g.name) LIKE :filterText)) " +
             "AND (g.groupType.id IN (:groupTypes))")
     public Page<Group> findAllByGroupType(@Param("filterText") String filterText,
                                            @Param("groupTypes") List<Long> groupTypes,
