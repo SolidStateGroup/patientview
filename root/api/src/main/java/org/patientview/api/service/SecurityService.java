@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
@@ -18,6 +19,7 @@ import java.util.Set;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface SecurityService {
 
+    @UserOnly
     List<Role> getUserRoles(Long userId);
 
     /**
@@ -31,6 +33,7 @@ public interface SecurityService {
      * @param userId
      * @return
      */
+    @UserOnly
     Set<Route> getUserRoutes(Long userId);
 
     List<Group> getGroupByUserAndRole(Long userId, Long roleId);
@@ -43,6 +46,8 @@ public interface SecurityService {
      * @return
      */
     Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters);
+
+    Page<Group> getUserGroupsAllDetails(Long userId, GetParameters getParameters);
 
     // allowed relationship groups are those that can be added as parents or children to existing groups
     // GLOBAL_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser

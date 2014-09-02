@@ -74,43 +74,41 @@ public class SecurityAspect {
         }
 
         // Refactor later into two different PointCuts - one for groupIds being passed, another for whole groups
-        Long groupId = getGroupId(joinPoint);
-        Group group;
+        Long groupId = getId(joinPoint);
+
         if (groupId == null) {
-            group = getGroup(joinPoint);
-        } else {
-            group = groupRepository.findOne(groupId);
+            groupId = getGroup(joinPoint).getId();
         }
 
-        if (group == null) {
+        if (groupId == null) {
             LOG.error("Cannot validate against a group that does not exist");
             return;
         }
 
         RoleName[] roles = Util.getRoles(joinPoint);
 
-        if (doesUserHavePermissions(roles)) {
+        if (Util.doesContainGroupAndRole(groupId, roles)) {
             LOG.debug("User has passed group validation");
         } else {
             throw new ResourceForbiddenException("The user does not belong to this group");
         }
 
-
-        LOG.info("PointCut");
+        LOG.debug("PointCut");
     }
 
-    private boolean doesUserHavePermissions(RoleName[] roles) {
-        for (Group group : Util.convertIterable(groupService.findGroupByUser(Util.getUser()))) {
-            if (Util.doesContainGroupAndRole(group, roles)) {
-                return true;
-            }
+    @Before("@annotation(org.patientview.api.annotation.UserOnly)")
+    public void checkUser(JoinPoint joinPoint) throws ResourceForbiddenException {
+        Long requestId = getId(joinPoint);
+        Long userId = Util.getUser().getId();
+        if (!requestId.equals(Util.getUser().getId())) {
+            throw new ResourceForbiddenException("You have to logged in as the requested user");
         }
-        return false;
+        LOG.debug("User with id: {id} should not be accessing the resource for user id {}", userId, requestId);
     }
 
     // TODO the next two methods can be fixed up with annotations on the parameters
     // Assuming we apply the annotation to a method with a groupId
-    private Long getGroupId(JoinPoint joinPoint) {
+    private Long getId(JoinPoint joinPoint) {
 
         for (Object argument : joinPoint.getArgs()) {
             if (argument instanceof Long) {

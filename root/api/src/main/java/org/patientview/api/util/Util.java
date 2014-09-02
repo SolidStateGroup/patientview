@@ -4,7 +4,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.controller.model.GroupStatisticTO;
-import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.User;
@@ -164,13 +163,13 @@ public class Util {
         return list;
     }
 
-    public static boolean doesContainGroupAndRole(Group group, RoleName... roleNames) {
+    public static boolean doesContainGroupAndRole(Long groupId, RoleName... roleNames) {
         if (CollectionUtils.isEmpty(getGroupRoles())) {
             return false;
         }
 
         for (GroupRole groupRole : getGroupRoles()) {
-            if (groupRole.getGroup().equals(group)) {
+            if (groupRole.getGroup().getId().equals(groupId)) {
                 for (RoleName roleNameArg : roleNames) {
                     if (groupRole.getRole().getName().equals(roleNameArg)) {
                         return true;

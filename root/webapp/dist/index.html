@@ -1,11 +1,11 @@
 <!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" ng-app="patientviewApp"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" ng-app="patientviewApp"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" ng-app="patientviewApp"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" ng-app="patientviewApp"> <!--<![endif]-->
     <head>
         <meta charset="utf-8">
-        <title></title>
+        <title ng-cloak>{{title}} - PatientView</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -21,7 +21,7 @@
         <!-- endbuild -->
         <script src="https://www.google.com/jsapi" type="text/javascript"></script>
     </head>
-    <body ng-app="patientviewApp">
+    <body>
         <!--[if lt IE 7]>
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
@@ -130,8 +130,6 @@
         <script src="scripts/filters/codetypefilter.js"></script>
         <script src="scripts/filters/standardtypefilter.js"></script>
         <script src="scripts/filters/grouptypefilter.js"></script>
-        <script src="scripts/filters/truncatefilter.js"></script>
-        <script src="scripts/filters/newlinebrfilter.js"></script>
 
         <script src="scripts/directives/buttongroup.js"></script>
         <script src="scripts/directives/strengthcheck.js"></script>
