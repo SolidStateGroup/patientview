@@ -43,6 +43,9 @@ public class QueueProcessor extends DefaultConsumer {
         } catch (IOException io) {
             LOG.error("Cannot consume messages", io);
             throw new IllegalStateException("Cannot start queue processor");
+        } catch (NullPointerException npe) {
+            LOG.error("Queue is not available");
+            throw new IllegalStateException("The queue is not available");
         }
         this.channel = channel;
         LOG.info("Create Request Processor");
