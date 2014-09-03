@@ -18,6 +18,7 @@ import java.util.Set;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface SecurityService {
 
+//    @UserOnly
     List<Role> getUserRoles(Long userId);
 
     /**
@@ -31,6 +32,7 @@ public interface SecurityService {
      * @param userId
      * @return
      */
+  //  @UserOnly
     Set<Route> getUserRoutes(Long userId);
 
     List<Group> getGroupByUserAndRole(Long userId, Long roleId);

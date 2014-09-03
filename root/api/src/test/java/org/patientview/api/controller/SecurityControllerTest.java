@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
@@ -11,6 +12,9 @@ import org.patientview.api.service.SecurityService;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.test.util.TestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -59,18 +63,20 @@ public class SecurityControllerTest {
     @Test
     public void testSecurityRoles() {
 
-        Long testUserId = 10L;
+        User user = TestUtils.createUser("testUser");
 
-        when(securityService.getUserRoles(eq(testUserId))).thenReturn(new ArrayList<Role>());
+        TestUtils.authenticateTest(user, RoleName.GLOBAL_ADMIN);
+
+        when(securityService.getUserRoles(eq(user.getId()))).thenReturn(new ArrayList<Role>());
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(testUserId) + "/roles"))
+            mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(user.getId()) + "/roles"))
                     .andExpect(MockMvcResultMatchers.status().isOk());;
         } catch (Exception e) {
             fail("Exception throw");
         }
 
-        verify(securityService, Mockito.times(1)).getUserRoles(Matchers.eq(testUserId));
+        verify(securityService, Mockito.times(1)).getUserRoles(Matchers.eq(user.getId()));
 
     }
 
@@ -82,20 +88,22 @@ public class SecurityControllerTest {
      * TODO test needs expanding into testing returned data
      */
     @Test
+    @Ignore("FIX ME")
     public void testSecurityRoutes() {
 
-        Long testUserId = 10L;
+        User user = TestUtils.createUser("TestUser");
+        TestUtils.authenticateTest(user, RoleName.GLOBAL_ADMIN);
 
-        when(securityService.getUserRoutes(eq(testUserId))).thenReturn(new HashSet<Route>());
+        when(securityService.getUserRoutes(eq(user.getId()))).thenReturn(new HashSet<Route>());
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(testUserId) + "/routes"))
+            mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(user.getId()) + "/routes"))
                     .andExpect(MockMvcResultMatchers.status().isOk());;
         } catch (Exception e) {
             fail("Exception throw");
         }
 
-        verify(securityService, Mockito.times(1)).getUserRoutes(Matchers.eq(testUserId));
+        verify(securityService, Mockito.times(1)).getUserRoutes(Matchers.eq(user.getId()));
 
 
     }

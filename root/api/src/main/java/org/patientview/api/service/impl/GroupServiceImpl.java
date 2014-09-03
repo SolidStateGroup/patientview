@@ -148,7 +148,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
      * @return
      * @throws javax.persistence.EntityExistsException
      */
-    public Group add (Group group) throws EntityExistsException {
+    public Group add(Group group) throws EntityExistsException {
         Group newGroup;
 
         Set<Link> links;

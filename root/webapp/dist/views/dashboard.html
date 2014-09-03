@@ -1,18 +1,28 @@
-<!-- TODO: put in style -->
+<!-- TODO: put in main styles -->
 <style>
-    .showHideText {
-        font-size: 16px;
-        line-height: 16px;
-        height: 35px;
+    .clamped {
+        line-height: 1.5;
         overflow: hidden;
+        position: relative;
     }
-    .show {
-        overflow: visible;
-        height: auto;
-        min-height: 35px;
+
+    .clamped-2 {
+        /* Clamp to 2 lines, ie line-height x 2: */
+        max-height: 3em;
     }
-    .showHideLink {
-        font-size: 16px;
+
+    .ellipsis {
+        background: #fff;
+        bottom: 0;
+        position: absolute;
+        right: 10px;
+    }
+
+    .fill {
+        background: #fff;
+        height: 100%;
+        position: absolute;
+        width: 100%;
     }
 </style>
 <div class="hider" ng-show="status.open"></div>
@@ -122,9 +132,15 @@
                             <h4>{{news.heading}}</h4>
                             <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                             <div>
-                                <div class="showHideText" ng-class="{show: show}" ng-bind-html="parseHTMLText(news.story)"></div>
-                                <a href="" class="showHideLink" ng-click="show = true" ng-show="!show">show more</a>
-                                <a href="" class="showHideLink" ng-click="show = false" ng-show="show">show less</a>
+                                <p ng-class="{'clamped': !news.showMore, 'clamped-2': !news.showMore}" class="message-content">
+                                    <span class="text">
+                                        <span ng-bind-html="parseHTMLText(news.story)"></span>
+                                        <span class="ellipsis" ng-hide="news.showMore">
+                                            &nbsp;&nbsp;&nbsp;<a href="" ng-click="news.showMore = true">Show More</a>
+                                        </span>
+                                        <span class="fill" ng-hide="news.showMore"></span>
+                                    </span>
+                                </p>
                             </div>
                         </div>
                     </li>

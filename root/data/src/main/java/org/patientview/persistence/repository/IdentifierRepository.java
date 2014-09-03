@@ -20,7 +20,6 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface IdentifierRepository extends JpaRepository<Identifier, Long> {
 
-
     @Query("SELECT  i " +
            "FROM   Identifier i " +
            "WHERE  i.identifier = :value " +

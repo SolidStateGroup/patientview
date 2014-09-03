@@ -58,4 +58,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  @Param("roleIds") List<Long> roleIds,
                                  @Param("featureIds") List<Long> featureIds,
                                  Pageable pageable);
+
 }
