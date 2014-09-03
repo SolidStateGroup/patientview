@@ -17,6 +17,12 @@ import java.util.List;
  */
 public class ObservationBuilderTest extends BaseTest {
 
+
+    /**
+     * Test: To create the observations without error
+     *
+     * @throws Exception
+     */
     @Test
     public void testObservationBuilder() throws Exception {
 
