@@ -10,6 +10,7 @@ import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.util.DataUtils;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.UUID;
  * Created by james@solidstategroup.com
  * Created on 02/09/2014
  */
+@Service
 public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> implements PatientService {
 
     @Inject
