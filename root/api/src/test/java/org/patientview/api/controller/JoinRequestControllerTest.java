@@ -2,15 +2,14 @@ package org.patientview.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.JoinRequestService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -64,7 +64,7 @@ public class JoinRequestControllerTest {
                     .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"));
 
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
     }
@@ -82,7 +82,7 @@ public class JoinRequestControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + groupId + "/joinrequests"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(joinRequestService, Mockito.times(1)).get(eq(groupId));
@@ -106,7 +106,7 @@ public class JoinRequestControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(joinRequestService, Mockito.times(1)).getByStatuses(eq(userId), eq(statuses));
@@ -134,7 +134,7 @@ public class JoinRequestControllerTest {
                     .content(mapper.writeValueAsString(joinRequest)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(joinRequestService, Mockito.times(1)).save(eq(joinRequest));
@@ -152,7 +152,7 @@ public class JoinRequestControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + groupId + "/joinrequests/count"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(joinRequestService, Mockito.times(1)).getCount(eq(groupId));

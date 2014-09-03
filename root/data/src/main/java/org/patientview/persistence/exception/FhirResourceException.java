@@ -6,6 +6,10 @@ package org.patientview.persistence.exception;
  */
 public class FhirResourceException extends Exception {
 
+    public FhirResourceException(final Exception e) {
+        super(e);
+    }
+
     public FhirResourceException(final String message) {
         super(message);
     }

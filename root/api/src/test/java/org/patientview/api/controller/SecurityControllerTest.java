@@ -1,8 +1,6 @@
 package org.patientview.api.controller;
 
-import junit.framework.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
@@ -21,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,7 +67,7 @@ public class SecurityControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(testUserId) + "/roles"))
                     .andExpect(MockMvcResultMatchers.status().isOk());;
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(securityService, Mockito.times(1)).getUserRoles(Matchers.eq(testUserId));
@@ -93,7 +92,7 @@ public class SecurityControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/security/user/" + Long.toString(testUserId) + "/routes"))
                     .andExpect(MockMvcResultMatchers.status().isOk());;
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(securityService, Mockito.times(1)).getUserRoutes(Matchers.eq(testUserId));
@@ -119,7 +118,7 @@ public class SecurityControllerTest {
                     + "?filterText=&page=0&size=20&sortDirection=&sortField="))
                     .andExpect(MockMvcResultMatchers.status().isOk());;
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         // todo: sees getParameters as 2 different objects so always fails

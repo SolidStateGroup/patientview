@@ -1,4 +1,4 @@
-package org.patientview.persistence;
+package org.patientview.persistence.resource;
 
 import org.hl7.fhir.instance.formats.JsonParser;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -7,6 +7,7 @@ import org.patientview.persistence.exception.FhirResourceException;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -20,6 +21,7 @@ import java.util.UUID;
  * Created by james@solidstategroup.com
  * Created on 02/09/2014
  */
+@Service
 public class FhirResource {
 
     private final Logger LOG = LoggerFactory.getLogger(FhirResource.class);
@@ -30,7 +32,7 @@ public class FhirResource {
     @Named("fhir")
     private DataSource dataSource;
 
-    private JSONObject getResource(UUID uuid, ResourceType resourceType) throws FhirResourceException {
+    public JSONObject getResource(UUID uuid, ResourceType resourceType) throws FhirResourceException {
         LOG.debug("Getting resource {}", uuid.toString());
         PGobject result;
         try {
