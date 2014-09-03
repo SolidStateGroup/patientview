@@ -86,11 +86,15 @@
 
                 <!-- edit pane -->
                 <div class="quick-reply content-panel" ng-show="group.showEdit">
-                    <form name="groupForm">
-                        <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
-                    </form>
-                    <hr>
-                    <div class="pull-right"><button class="btn btn-grey" ng-click="group.showEdit = false">Close</button></div>
+                    <div class="alert alert-danger" ng-show="group.errorMessage && !group.editLoading">There was an error {{group.errorMessage}}</div>
+                    <div ng-show="group.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div ng-show="!group.editLoading">
+                        <form name="groupForm">
+                            <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
+                        </form>
+                        <hr>
+                        <div class="pull-right"><button class="btn btn-grey" ng-click="group.showEdit = false">Close</button></div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -5,8 +5,9 @@ import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.patientview.importer.exception.FhirResourceException;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.importer.util.Util;
+import org.patientview.persistence.model.FhirLink;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,7 @@ public class FhirResource {
      * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
      *
      */
-    public UUID update(Resource resource, UUID resourceId, UUID versionId) throws FhirResourceException {
+    public UUID update(Resource resource, FhirLink fhirLink) throws FhirResourceException {
 
         PGobject result;
         try {
@@ -83,8 +84,8 @@ public class FhirResource {
             CallableStatement proc = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
             proc.setObject(1, config);
             proc.setObject(2, resource.getResourceType().name());
-            proc.setObject(3, resourceId);
-            proc.setObject(4, versionId);
+            proc.setObject(3, fhirLink.getResourceId());
+            proc.setObject(4, fhirLink.getVersionId());
             proc.setObject(5, Util.marshallFhirRecord(resource));
             proc.setObject(6, null);
             proc.registerOutParameter(1, Types.OTHER);

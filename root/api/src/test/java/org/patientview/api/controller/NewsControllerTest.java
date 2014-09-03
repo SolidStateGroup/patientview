@@ -1,7 +1,6 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -9,8 +8,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.NewsService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.NewsItem;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,20 +67,20 @@ public class NewsControllerTest {
         try {
             when(newsService.findByUserId(eq(testUserId), eq(pageable))).thenReturn(new PageImpl<>(new ArrayList<NewsItem>()));
         } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException throw");
+            fail("ResourceNotFoundException throw");
         }
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + Long.toString(testUserId) + "/news"))
                     .andExpect(MockMvcResultMatchers.status().isOk());;
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         try {
             verify(newsService, Mockito.times(1)).findByUserId(Matchers.eq(testUserId), Matchers.eq(pageable));
         } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException throw");
+            fail("ResourceNotFoundException throw");
         }
     }
 
@@ -96,7 +96,7 @@ public class NewsControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
             verify(newsService, Mockito.times(1)).save(eq(testNews));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
     }
 }
