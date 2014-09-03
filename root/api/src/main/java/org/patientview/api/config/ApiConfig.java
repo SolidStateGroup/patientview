@@ -32,6 +32,7 @@ public class ApiConfig {
     private Properties properties;
 
     //TODO this just gets the "name" of the enum
+    // remove and implement JSON shape object
     @Bean
     @Primary
     public ObjectMapper getCustomerObjectMapper() {

@@ -39,11 +39,11 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                     <li><a data-ng-click="removeAllGroupTypes()" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                     <li class="divider"></li>
-                                    <li data-ng-repeat="type in filterGroupTypes"> <a data-ng-click="setSelectedGroupType()" class="a-filter-group-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isGroupTypeChecked(type.id)"></span></a></li>
+                                    <li data-ng-repeat="type in filterGroupTypes"> <a data-ng-click="setSelectedGroupType()" class="a-filter-group-type"><span class="pull-left">{{type.description}}</span><span data-ng-class="isGroupTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
                         </div>
-                        <span data-ng-repeat="type in filterGroupTypes" ng-show="isGroupTypeChecked(type.id)"><span class="label label-info">{{type.value}}</span>&nbsp;</span>
+                        <span data-ng-repeat="type in filterGroupTypes" ng-show="isGroupTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
                     </div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
                     <div class="row-item hidden">{{group.id}}</div>
                     <div class="row-item accordion-heading-text">{{group.code}}</div>
                     <div class="row-item accordion-heading-text">{{group.name}}</div>
-                    <div class="row-item accordion-heading-text">{{group.groupType.value}}</div>
+                    <div class="row-item accordion-heading-text">{{group.groupType.description}}</div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="group in group.parentGroups">{{group.name}}</li></ul></div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="groupFeature in group.groupFeatures">{{groupFeature.feature.description}}</li></ul></div>
                     <div >{{group.lastImport}}</div>

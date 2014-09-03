@@ -1,7 +1,6 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -16,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,7 +54,7 @@ public class LocationControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isCreated());
             verify(locationService, Mockito.times(1)).add(eq(testLocation));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
     }
 
@@ -70,7 +70,7 @@ public class LocationControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
             verify(locationService, Mockito.times(1)).save(eq(testLocation));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
     }
 
@@ -82,7 +82,7 @@ public class LocationControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isNoContent());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(locationService, Mockito.times(1)).delete(eq(locationId));

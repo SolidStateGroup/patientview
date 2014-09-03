@@ -1,15 +1,14 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.api.service.ContactPointService;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.persistence.model.ContactPoint;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,6 +16,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,7 +56,7 @@ public class ContactPointControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(contactPointService, Mockito.times(1)).getContactPointType(eq(type));
@@ -74,7 +74,7 @@ public class ContactPointControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
             verify(contactPointService, Mockito.times(1)).save(eq(testContactPoint));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
     }
 
@@ -86,7 +86,7 @@ public class ContactPointControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isNoContent());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(contactPointService, Mockito.times(1)).delete(eq(contactPointId));

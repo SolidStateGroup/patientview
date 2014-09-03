@@ -20,6 +20,9 @@ public class Lookup extends AuditModel {
     @Column(name = "value")
     private String value;
 
+    @Column(name = "description")
+    private String description;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "lookup_type_id")
     private LookupType lookupType;
@@ -38,5 +41,13 @@ public class Lookup extends AuditModel {
 
     public void setLookupType(final LookupType lookupType) {
         this.lookupType = lookupType;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -1,7 +1,6 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -10,11 +9,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.SecurityAspect;
 import org.patientview.api.controller.model.UnitRequest;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.JoinRequestService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
@@ -36,6 +35,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Date;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -93,7 +93,7 @@ public class GroupControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(groupService, Mockito.times(1)).findGroupByType(eq(typeId));
@@ -112,7 +112,7 @@ public class GroupControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.put(url))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(groupService, Mockito.times(1)).addChildGroup(eq(groupId), eq(childGroupId));
@@ -130,7 +130,7 @@ public class GroupControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.put(url))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(groupService, Mockito.times(1)).addParentGroup(eq(groupId), eq(parentGroupId));
@@ -147,7 +147,7 @@ public class GroupControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.put(url)).andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(groupService, Mockito.times(1)).addFeature(eq(groupId), eq(featureId));
@@ -164,7 +164,7 @@ public class GroupControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(groupService, Mockito.times(1)).deleteFeature(eq(groupId), eq(featureId));
@@ -195,7 +195,7 @@ public class GroupControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isCreated());
             verify(joinRequestService, Mockito.times(1)).add(eq(groupId), eq(joinRequest));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
 
     }
@@ -214,7 +214,7 @@ public class GroupControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(groupService, Mockito.times(1)).findChildren(eq(groupId));
@@ -241,7 +241,7 @@ public class GroupControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isCreated());
             verify(groupService, Mockito.times(1)).addLocation(eq(groupId), eq(location));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
     }
 
@@ -266,7 +266,7 @@ public class GroupControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isCreated());
             verify(groupService, Mockito.times(1)).addContactPoint(eq(groupId), eq(contactPoint));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
     }
 
@@ -287,7 +287,7 @@ public class GroupControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isCreated());
             verify(groupService, Mockito.times(1)).addLink(eq(groupId), eq(link));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
     }
 
@@ -308,7 +308,7 @@ public class GroupControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/statistics"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
         verify(groupStatisticService, Mockito.times(1)).getMonthlyGroupStatistics(eq(group.getId()));
@@ -335,7 +335,7 @@ public class GroupControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
             verify(groupService, Mockito.times(1)).contactUnit(eq(groupId), any(UnitRequest.class));
         } catch (Exception e) {
-            Assert.fail("This call should not fail");
+            fail("This call should not fail");
         }
 
     }

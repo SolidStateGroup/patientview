@@ -11,6 +11,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
+import org.patientview.test.util.TestUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
@@ -180,6 +181,36 @@ public class CodeRepositoryTest {
         codes = codeRepository.findAllByStandardTypesFiltered("%%", convertStringArrayToLongs(standardTypes1), pageable);
         Assert.assertEquals("There should be 1 code available", 1, codes.getContent().size());
         Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code));
+    }
+
+
+    @Test
+    public void testFindAllByExistingCodeDetails() {
+
+        Code code = new Code();
+        code.setCode("TEST_CODE");
+        code.setDescription("a test code");
+        code.setCodeType(dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE));
+        code.setStandardType(dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD));
+        code.setCreated(new Date());
+        code.setCreator(creator);
+        codeRepository.save(code);
+
+        Code code2 = new Code();
+        code2.setCode("TEST_CODE_2");
+        code2.setDescription("a test code");
+        code2.setCodeType(dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE));
+        code2.setStandardType(dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD));
+        code2.setCreated(new Date());
+        code2.setCreator(creator);
+        codeRepository.save(code2);
+
+        List<Code> codes = TestUtils.iterableToList(codeRepository.findAllByExistingCodeDetails(
+                code2.getCode(), code2.getDescription(), code2.getCodeType(), code2.getStandardType()));
+
+        // Should get 1 code back and it should be the one that was created
+        Assert.assertEquals("There should be 1 code available", 1, codes.size());
+        Assert.assertTrue("The code should be the one created", codes.get(0).equals(code2));
     }
 
     private List<Long> convertStringArrayToLongs(String[] strings) {

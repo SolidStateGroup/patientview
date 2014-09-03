@@ -6,8 +6,8 @@ import org.hl7.fhir.instance.formats.JsonParser;
 import org.hl7.fhir.instance.model.Resource;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.patientview.importer.exception.FhirResourceException;
 import org.patientview.importer.exception.ImportResourceException;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -71,7 +70,7 @@ public class Util {
             jsonComposer.compose(outputStream, resource, false);
         } catch (Exception e) {
             LOG.error("Unable to handle Fhir resource record", e);
-            throw new FhirResourceException("Cannot create JSON", e);
+            throw new FhirResourceException("Cannot build JSON", e);
         }
         return outputStream.toString();
     }
@@ -90,13 +89,6 @@ public class Util {
         JSONObject resource = (JSONObject) resultArray.get(0);
         return UUID.fromString(resource.get("id").toString());
 
-    }
-
-    public static Resource getResource(final JSONObject bundle) throws Exception {
-        JSONArray jsonArray  = (JSONArray) bundle.get("entry");
-        JSONObject element = (JSONObject) jsonArray.get(0);
-
-        return jsonParser.parse(new ByteArrayInputStream(element.get("content").toString().getBytes()));
     }
 
 }

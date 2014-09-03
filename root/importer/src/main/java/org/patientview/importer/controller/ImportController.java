@@ -2,7 +2,7 @@ package org.patientview.importer.controller;
 
 import generated.Patientview;
 import org.patientview.importer.exception.ImportResourceException;
-import org.patientview.importer.service.ImportService;
+import org.patientview.importer.service.QueueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@ public class ImportController {
     private final static Logger LOG = LoggerFactory.getLogger(ImportController.class);
 
     @Inject
-    ImportService importService;
+    QueueService queueService;
 
     @PostConstruct
     public void init() {
@@ -38,7 +38,7 @@ public class ImportController {
 
     @RequestMapping(value = "/import", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<Void> importPatient(@RequestBody Patientview patientview) throws ImportResourceException {
-        importService.importRecord(patientview);
+        queueService.importRecord(patientview);
         return new ResponseEntity<>(HttpStatus.OK);
 
     }

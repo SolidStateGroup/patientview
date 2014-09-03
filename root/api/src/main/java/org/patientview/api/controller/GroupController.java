@@ -71,6 +71,12 @@ public class GroupController extends BaseController<GroupController> {
 
     }
 
+    @RequestMapping(value = "/group", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<Group>> getGroups() {
+        return new ResponseEntity<>(groupService.findAll(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId) throws SecurityException {

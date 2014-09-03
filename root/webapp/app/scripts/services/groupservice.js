@@ -40,6 +40,16 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getGroupsForUserAllDetails: function (userId, getParameters) {
+            var deferred = $q.defer();
+            // GET /security/user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
+            Restangular.all('security').one('user',userId).customGET('groups/alldetails', getParameters).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getAllowedRelationshipGroups: function (userId) {
             var deferred = $q.defer();
             // GET /security/user/allowedrelationshipgroups

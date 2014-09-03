@@ -57,10 +57,10 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                     <li><a data-ng-click="removeAllCodeTypes();" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                     <li class="divider"></li>
-                                    <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
+                                    <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type"><span class="pull-left">{{type.description}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
-                            <span data-ng-repeat="type in codeTypes" ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.value}}</span>&nbsp;</span>
+                            <span data-ng-repeat="type in codeTypes" ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
                         </div>
                         <div class="select-container pull-left">
                             <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
@@ -68,10 +68,10 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                     <li><a data-ng-click="removeAllStandardTypes()" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                     <li class="divider"></li>
-                                    <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type"><span class="pull-left">{{type.value}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
+                                    <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type"><span class="pull-left">{{type.description}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
-                            <span data-ng-repeat="type in standardTypes" ng-show="isStandardTypeChecked(type.id)"><span class="label label-info">{{type.value}}</span>&nbsp;</span>
+                            <span data-ng-repeat="type in standardTypes" ng-show="isStandardTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
                         </div>
                     </div>
                 </div>
@@ -95,8 +95,8 @@
                 <div class="faux-row">
                     <div class="row-item hidden">{{code.id}}</div>
                     <div class="row-item accordion-heading-text">{{code.code}}</div>
-                    <div class="row-item accordion-heading-text">{{code.codeType.value}}</div>
-                    <div class="row-item accordion-heading-text">{{code.standardType.value}}</div>
+                    <div class="row-item accordion-heading-text">{{code.codeType.description}}</div>
+                    <div class="row-item accordion-heading-text">{{code.standardType.description}}</div>
                     <div class="row-item accordion-heading-text">{{code.description}}</div>
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->

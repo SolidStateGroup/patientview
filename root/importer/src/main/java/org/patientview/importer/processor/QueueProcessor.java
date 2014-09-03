@@ -5,10 +5,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import generated.Patientview;
-import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.importer.exception.FhirResourceException;
 import org.patientview.importer.exception.ImportResourceException;
-import org.patientview.importer.service.PatientService;
+import org.patientview.importer.service.ImportService;
 import org.patientview.importer.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +31,7 @@ public class QueueProcessor extends DefaultConsumer {
     private ExecutorService executor;
 
     @Inject
-    private PatientService patientService;
+    private ImportService importService;
 
     private Channel channel;
 
@@ -45,6 +43,9 @@ public class QueueProcessor extends DefaultConsumer {
         } catch (IOException io) {
             LOG.error("Cannot consume messages", io);
             throw new IllegalStateException("Cannot start queue processor");
+        } catch (NullPointerException npe) {
+            LOG.error("Queue is not available");
+            throw new IllegalStateException("The queue is not available");
         }
         this.channel = channel;
         LOG.info("Create Request Processor");
@@ -70,8 +71,8 @@ public class QueueProcessor extends DefaultConsumer {
                 LOG.error("Unable to recreate message");
             }
             try {
-                patientService.add(patient);
-            } catch (FhirResourceException  | ResourceNotFoundException rnf) {
+                importService.process(patient);
+            } catch (ImportResourceException rnf) {
                 LOG.error("Could not add patient NHS Number {}", patient.getPatient().getPersonaldetails().getNhsno(), rnf);
             }
         }

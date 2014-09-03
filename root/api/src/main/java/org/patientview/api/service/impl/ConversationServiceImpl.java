@@ -253,7 +253,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return transportUsers;
     }
 
-    public List<org.patientview.api.model.User> getRecipients(Long userId)
+    public List<org.patientview.api.model.User> getRecipients(Long userId, String[] featureTypes)
             throws ResourceNotFoundException, ResourceInvalidException {
         User entityUser = findEntityUser(userId);
 
@@ -284,11 +284,18 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             return userService.getUsersByGroupsAndRoles(getParameters).getContent();
         }
 
-        // patients can only contact staff with MESSAGING feature
+        // patients can only contact staff with feature names passed in
         if (doesContainRoles(RoleName.PATIENT)) {
-            Feature feat = featureRepository.findByName(FeatureType.MESSAGING.toString());
-            String[] featureIds = new String[]{feat.getId().toString()};
-            getParameters.setFeatureIds(featureIds);
+
+            List<String> featureIdList = new ArrayList<>();
+
+            for (String featureType : featureTypes) {
+                Feature feat = featureRepository.findByName(featureType);
+                if (feat != null) {
+                    featureIdList.add(feat.getId().toString());
+                }
+            }
+            getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
             return userService.getUsersByGroupsRolesFeatures(getParameters).getContent();
         }
 
