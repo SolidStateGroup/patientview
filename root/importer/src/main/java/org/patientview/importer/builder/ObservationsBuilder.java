@@ -54,9 +54,10 @@ public class ObservationsBuilder {
         observation.setStatusSimple(Observation.ObservationStatus.registered);
         observation.setValue(createQuantity(result, test));
         observation.setSubject(resourceReference);
-        observation.setName(createConcept(test));
+        //observation.setName(createConcept(test));
         observation.setApplies(createDateTime(result));
         observation.setIdentifier(createIdentifier(test));
+
         return observation;
     }
 
@@ -65,6 +66,7 @@ public class ObservationsBuilder {
         Quantity quantity = new Quantity();
         quantity.setValue(createDecimal(result));
         quantity.setUnitsSimple(test.getUnits());
+
         return quantity;
     }
 
@@ -84,7 +86,7 @@ public class ObservationsBuilder {
 
     private org.hl7.fhir.instance.model.Identifier createIdentifier(Patientview.Patient.Testdetails.Test test) {
         org.hl7.fhir.instance.model.Identifier identifier = new org.hl7.fhir.instance.model.Identifier();
-        identifier.setLabelSimple("ResultCode");
+        identifier.setLabelSimple("resultcode");
         identifier.setValueSimple(test.getTestcode().name());
         return identifier;
     }
@@ -92,7 +94,8 @@ public class ObservationsBuilder {
     private CodeableConcept createConcept(Patientview.Patient.Testdetails.Test test) {
         CodeableConcept codeableConcept = new CodeableConcept();
         codeableConcept.setTextSimple(test.getTestcode().name());
-        codeableConcept.addCoding().setDisplaySimple(test.getTestname());
+
+       // codeableConcept.addCoding().setDisplaySimple(test.getTestname());
         return codeableConcept;
     }
 
