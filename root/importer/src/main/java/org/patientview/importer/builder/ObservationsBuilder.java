@@ -73,7 +73,7 @@ public class ObservationsBuilder {
         String resultString = result.getValue().replaceAll("[^.\\d]", "");
         NumberFormat decimalFormat = DecimalFormat.getInstance();
         try {
-            decimal.setValue((BigDecimal) decimalFormat.parse(resultString));
+            decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).longValue()));
         } catch (ParseException nfe) {
             LOG.info("Check down for parsing extra characters needs adding");
         }
@@ -99,9 +99,16 @@ public class ObservationsBuilder {
     private DateTime createDateTime(Patientview.Patient.Testdetails.Test.Result result) {
         DateTime dateTime = new DateTime();
         try {
-            dateTime.setValue(DateAndTime.parseV3(result.getDatestamp().toXMLFormat()));
-        } catch (ParseException e) {
-            LOG.error("Unable to parse date");
+            DateAndTime dateAndTime = DateAndTime.now();
+            dateAndTime.setYear(result.getDatestamp().getYear());
+            dateAndTime.setMonth(result.getDatestamp().getMonth());
+            dateAndTime.setDay(result.getDatestamp().getDay());
+            dateAndTime.setHour(result.getDatestamp().getHour());
+            dateAndTime.setMinute(result.getDatestamp().getMinute());
+            dateAndTime.setSecond(result.getDatestamp().getSecond());
+            dateTime.setValue(dateAndTime);
+        } catch (NullPointerException npe) {
+            LOG.error("Result timestamp has not been supplied");
         }
 
         return dateTime;
