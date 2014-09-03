@@ -4,9 +4,12 @@ angular.module('patientviewApp').controller('MydetailsCtrl',['$scope', 'PatientS
 function ($scope, PatientService) {
 
     $scope.init = function(){
-        PatientService.get($scope.loggedInUser.id).then(function (patients) {
-            $scope.patients = patients;
+        $scope.loading = true;
+        PatientService.get($scope.loggedInUser.id).then(function (patientDetails) {
+            $scope.patientDetails = patientDetails;
+            $scope.loading = false;
         }, function () {
+            $scope.loading = false;
             alert('Error getting patient details');
         });
     };

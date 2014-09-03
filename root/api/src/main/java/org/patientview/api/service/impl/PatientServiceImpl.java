@@ -31,7 +31,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private UserRepository userRepository;
 
     @Override
-    public List<Patient> get(final Long userId) throws FhirResourceException, ResourceNotFoundException {
+    public List<org.patientview.api.model.Patient> get(final Long userId)
+            throws FhirResourceException, ResourceNotFoundException {
 
         User user = userRepository.findOne(userId);
 
@@ -39,10 +40,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        List<Patient> patients = new ArrayList<>();
+        List<org.patientview.api.model.Patient> patients = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
-            patients.add(get(fhirLink.getResourceId()));
+            patients.add(new org.patientview.api.model.Patient(get(fhirLink.getResourceId()), fhirLink.getGroup()));
         }
 
         return patients;
