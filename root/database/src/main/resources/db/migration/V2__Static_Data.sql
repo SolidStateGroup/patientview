@@ -88,6 +88,9 @@ INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (2, 'SHARING_THOUGHTS', 'Sharing Thoughts', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (3, 'FEEDBACK', 'Feedback', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (4, 'ECS', 'Emergency Care Summary', now(), now(), 1);
+INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (5, 'UNIT_TECHNICAL_CONTACT', 'Unit Technical Contact', now(), now(), 1);
+INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (6, 'PATIENT_SUPPORT_CONTACT', 'Patient Support Contact', now(), now(), 1);
+INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (7, 'DEFAULT_MESSAGING_CONTACT', 'Default Messaging Contact', now(), now(), 1);
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
@@ -95,6 +98,9 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (4, 2, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (5, 2, 15);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (7, 3, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (9, 4, 14);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (10, 5, 15);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (11, 6, 15);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (12, 7, 15);
 
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 4, 1,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );
