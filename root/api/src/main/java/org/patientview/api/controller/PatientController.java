@@ -6,6 +6,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,8 +27,8 @@ public class PatientController  extends BaseController<PatientController> {
 
     @RequestMapping(value = "/patient/{userId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Patient>> getPatientDetails(Long userId) throws FhirResourceException,
-            ResourceNotFoundException {
+    public ResponseEntity<List<Patient>> getPatientDetails(@PathVariable("userId") Long userId)
+            throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(patientService.get(userId), HttpStatus.OK);
     }
 

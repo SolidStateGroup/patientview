@@ -320,6 +320,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             }
 
             $scope.editGroup = '';
+            $scope.editGroup.editLoading = true;
+            $scope.editGroup.editError = '';
+
             openedGroup.showEdit = true;
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
@@ -401,6 +404,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 if ($scope.editGroup.availableFeatures[0]) {
                     $scope.featureToAdd = $scope.editGroup.availableFeatures[0].feature.id;
                 }
+
+                $scope.editGroup.editLoading = false;
+            }, function () {
+                $scope.editGroup.errorMessage = 'There has been a problem retrieving this group';
             });
         }
     };
