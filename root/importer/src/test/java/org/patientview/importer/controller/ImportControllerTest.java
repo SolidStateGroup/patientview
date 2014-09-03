@@ -5,7 +5,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -82,7 +81,7 @@ public class ImportControllerTest {
 
     // used to test the service once running
     @Test
-    @Ignore("IntegrationTest")
+  //  @Ignore("IntegrationTest")
     public void importIntegrationTest() throws Exception {
         post(getTestFile());
     }
@@ -100,8 +99,8 @@ public class ImportControllerTest {
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
-        //String postUrl="http://localhost:8089/importer/import";// put in your url
         String postUrl="http://localhost:8089/importer/import";// put in your url
+      //  String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
 
