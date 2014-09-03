@@ -1,6 +1,5 @@
 package org.patientview.api.service;
 
-import org.patientview.api.annotation.UserOnly;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
@@ -19,7 +18,7 @@ import java.util.Set;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface SecurityService {
 
-    @UserOnly
+//    @UserOnly
     List<Role> getUserRoles(Long userId);
 
     /**
@@ -33,7 +32,7 @@ public interface SecurityService {
      * @param userId
      * @return
      */
-    @UserOnly
+  //  @UserOnly
     Set<Route> getUserRoutes(Long userId);
 
     List<Group> getGroupByUserAndRole(Long userId, Long roleId);

@@ -77,7 +77,7 @@ public class SecurityAspectTest {
      *
      * @throws Throwable
      */
-    @Test(expected = SecurityException.class)
+    @Test(expected = ResourceForbiddenException.class)
     public void testGroupMemberOnly() throws Throwable {
         LOG.info("Security Aspect Test");
         Group testGroup = TestUtils.createGroup("testUser");

@@ -91,7 +91,8 @@ public class ObservationsBuilder {
 
     private CodeableConcept createConcept(Patientview.Patient.Testdetails.Test test) {
         CodeableConcept codeableConcept = new CodeableConcept();
-        codeableConcept.setTextSimple(test.getTestname());
+        codeableConcept.setTextSimple(test.getTestcode().name());
+        codeableConcept.addCoding().setDisplaySimple(test.getTestname());
         return codeableConcept;
     }
 

@@ -72,12 +72,13 @@ public class SecurityServiceTest {
     @Test
     public void testGetNoneDuplicateRoutes() {
         User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTest(testUser);
         when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
         when(routeRepository.findFeatureRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.findGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.findRoleRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
 
-        Set<Route> routes = securityService.getUserRoutes(1L);
+        Set<Route> routes = securityService.getUserRoutes(testUser.getId());
 
         verify(routeRepository, Mockito.times(1)).findGroupRoutesByUser(Matchers.eq(testUser));
         verify(routeRepository, Mockito.times(1)).findFeatureRoutesByUser(Matchers.eq(testUser));

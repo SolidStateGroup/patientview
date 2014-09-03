@@ -3,11 +3,11 @@ package org.patientview.importer.service.impl;
 import generated.Patientview;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.service.ImportService;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.service.PatientService;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

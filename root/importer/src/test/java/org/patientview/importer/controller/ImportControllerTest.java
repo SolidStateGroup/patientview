@@ -5,6 +5,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -81,7 +82,7 @@ public class ImportControllerTest {
 
     // used to test the service once running
     @Test
-   // @Ignore("IntegrationTest")
+    @Ignore("IntegrationTest")
     public void importIntegrationTest() throws Exception {
         post(getTestFile());
     }
