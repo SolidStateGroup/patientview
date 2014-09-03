@@ -53,7 +53,7 @@ public class PatientControllerTest {
 
         Long testUserId = 10L;
 
-        when(patientService.get(eq(testUserId))).thenReturn(new ArrayList<Patient>());;
+        when(patientService.get(eq(testUserId))).thenReturn(new ArrayList<org.patientview.api.model.Patient>());
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/patient/" + Long.toString(testUserId)))
                     .andExpect(MockMvcResultMatchers.status().isOk());;

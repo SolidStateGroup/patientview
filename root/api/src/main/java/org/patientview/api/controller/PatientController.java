@@ -1,6 +1,5 @@
 package org.patientview.api.controller;
 
-import org.hl7.fhir.instance.model.Patient;
 import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -27,8 +26,8 @@ public class PatientController  extends BaseController<PatientController> {
 
     @RequestMapping(value = "/patient/{userId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Patient>> getPatientDetails(@PathVariable("userId") Long userId)
-            throws FhirResourceException, ResourceNotFoundException {
+    public ResponseEntity<List<org.patientview.api.model.Patient>> getPatientDetails(
+            @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(patientService.get(userId), HttpStatus.OK);
     }
 

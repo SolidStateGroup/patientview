@@ -13,7 +13,7 @@ import java.util.UUID;
  */
 public interface PatientService {
 
-    List<Patient> get(Long userId) throws FhirResourceException, ResourceNotFoundException;
+    List<org.patientview.api.model.Patient> get(Long userId) throws FhirResourceException, ResourceNotFoundException;
 
     Patient get(UUID uuid) throws FhirResourceException;
 
