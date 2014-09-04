@@ -1,21 +1,22 @@
 package org.patientview.importer.resource;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.hl7.fhir.instance.formats.JsonParser;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.importer.util.Util;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -36,7 +37,12 @@ public class FhirResource {
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private BasicDataSource dataSource;
+
+    @PostConstruct
+    public void init() {
+
+    }
 
     /**
      * For FUNCTION fhir_create(cfg jsonb, _type varchar, resource jsonb, tags jsonb)
@@ -49,8 +55,9 @@ public class FhirResource {
     public JSONObject create(Resource resource) throws FhirResourceException {
 
         PGobject result;
+        Connection connection = null;
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             CallableStatement proc = connection.prepareCall("{call fhir_create( ?::jsonb, ?, ?::jsonb, ?::jsonb)}");
             proc.setObject(1, config);
             proc.setObject(2, resource.getResourceType().name());
@@ -66,6 +73,8 @@ public class FhirResource {
         } catch (SQLException e) {
             LOG.error("Unable to build resource {}", e);
             throw new FhirResourceException(e.getMessage());
+        } catch (Exception e) {
+            throw new FhirResourceException(e);
         }
 
     }
@@ -79,8 +88,9 @@ public class FhirResource {
     public UUID update(Resource resource, FhirLink fhirLink) throws FhirResourceException {
 
         PGobject result;
+        Connection connection = null;
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             CallableStatement proc = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
             proc.setObject(1, config);
             proc.setObject(2, resource.getResourceType().name());
@@ -124,8 +134,9 @@ public class FhirResource {
     private JSONObject getBundle(UUID uuid, ResourceType resourceType) throws FhirResourceException {
         LOG.debug("Getting resource {}", uuid.toString());
         PGobject result;
+        Connection connection = null;
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
             proc.setObject(1, config);
             proc.setObject(2, resourceType.name());

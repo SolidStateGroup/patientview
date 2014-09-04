@@ -30,13 +30,17 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     @Override
     public void add(final Patientview data, final ResourceReference patientReference) {
         ObservationsBuilder observationsBuilder = new ObservationsBuilder(data, patientReference);
+        int count = 0;
         for (Observation observation : observationsBuilder.build()) {
+            LOG.trace("Creating... observation " + count);
             try {
                 fhirResource.create(observation);
             } catch (FhirResourceException e) {
                 LOG.error("Unable to build observation");
             }
+            LOG.trace("Finished creating observation " + count++);
         }
+        LOG.info("Processed {} of {} observations", observationsBuilder.getSuccess(), observationsBuilder.getCount());
     }
 
 

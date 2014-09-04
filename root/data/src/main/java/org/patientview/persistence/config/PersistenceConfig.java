@@ -1,5 +1,6 @@
 package org.patientview.persistence.config;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.patientview.config.CommonConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,8 +68,9 @@ public class PersistenceConfig extends CommonConfig {
     }
 
     @Bean(name = "fhir")
-    public DataSource fhirDataSource()     {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+    public BasicDataSource fhirDataSource(){
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setMaxTotal(20);
         dataSource.setDriverClassName("org.postgresql.Driver");
         dataSource.setUrl(properties.getProperty("fhir.url"));
         dataSource.setUsername(properties.getProperty("fhir.user"));

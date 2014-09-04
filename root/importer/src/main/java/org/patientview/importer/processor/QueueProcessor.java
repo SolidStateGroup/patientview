@@ -6,7 +6,7 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import generated.Patientview;
 import org.patientview.importer.exception.ImportResourceException;
-import org.patientview.importer.service.ImportService;
+import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class QueueProcessor extends DefaultConsumer {
     private ExecutorService executor;
 
     @Inject
-    private ImportService importService;
+    private ImportManager importManager;
 
     private Channel channel;
 
@@ -71,7 +71,7 @@ public class QueueProcessor extends DefaultConsumer {
                 LOG.error("Unable to recreate message");
             }
             try {
-                importService.process(patient);
+                importManager.process(patient);
             } catch (ImportResourceException rnf) {
                 LOG.error("Could not add patient NHS Number {}", patient.getPatient().getPersonaldetails().getNhsno(), rnf);
             }

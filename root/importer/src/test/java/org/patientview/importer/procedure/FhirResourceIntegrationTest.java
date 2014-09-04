@@ -1,21 +1,27 @@
 package org.patientview.importer.procedure;
 
-import org.json.JSONObject;
+import generated.Patientview;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.hl7.fhir.instance.model.Observation;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.patientview.importer.BaseTest;
+import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.util.FhirTestUtil;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.patientview.importer.util.Util;
 
 import javax.sql.DataSource;
+import java.util.List;
+import java.util.UUID;
 
 public class FhirResourceIntegrationTest extends BaseTest {
 
-    DriverManagerDataSource realDataSource;
+    DataSource realDataSource;
 
     @Mock
     DataSource dataSource;
@@ -25,11 +31,11 @@ public class FhirResourceIntegrationTest extends BaseTest {
 
     public void setUp() throws Exception {
         super.setUp();
-        realDataSource = new DriverManagerDataSource();
-        realDataSource.setDriverClassName("org.postgresql.Driver");
-        realDataSource.setUrl("jdbc:postgresql://localhost:5432/fhir");
-        realDataSource.setUsername("fhir");
-        realDataSource.setPassword("fhir");
+        realDataSource = new BasicDataSource();
+        ((BasicDataSource) realDataSource).setDriverClassName("org.postgresql.Driver");
+        ((BasicDataSource) realDataSource).setUrl("jdbc:postgresql://localhost:5432/fhir");
+        ((BasicDataSource) realDataSource).setUsername("fhir");
+        ((BasicDataSource) realDataSource).setPassword("fhir");
 
     }
 
@@ -44,10 +50,32 @@ public class FhirResourceIntegrationTest extends BaseTest {
     @Ignore("Integration Test")
     public void testUpdateResource() throws Exception {
         Mockito.when(dataSource.getConnection()).thenReturn(realDataSource.getConnection());
-        JSONObject jsonObject = fhirResource.create(FhirTestUtil.createTestPatient("1231321312"));
-      //  UUID versionId =  fhirResource.update(Util.getResource(jsonObject), Util.getResourceId(jsonObject), Util.getVersionId(jsonObject));
+        fhirResource.create(FhirTestUtil.createTestPatient("1231321312"));
+    }
 
-     //   System.out.println("New Version ID " + versionId);
+    @Test
+    @Ignore("Integration Test")
+    public void testInsertObservationResource() throws Exception {
+        Mockito.when(dataSource.getConnection()).thenReturn(realDataSource.getConnection());
+
+        Patientview patientview = Util.unmarshallPatientRecord(getTestFile());
+        ResourceReference resourceReference = new ResourceReference();
+        resourceReference.setReferenceSimple("uuid");
+        resourceReference.setDisplaySimple(UUID.randomUUID().toString());
+        ObservationsBuilder observationsBuilder = new ObservationsBuilder(patientview, resourceReference);
+        List<Observation> observations = observationsBuilder.build();
+
+        int i = 0;
+        for (Observation observation : observations) {
+            fhirResource.create(observation);
+            System.out.println(i++);
+
+        }
+    }
+
+    @org.junit.After
+    public void tearDown() {
+        realDataSource = null;
     }
 
 }

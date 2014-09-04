@@ -1,12 +1,13 @@
-package org.patientview.importer.service.impl;
+package org.patientview.importer.manager.impl;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.exception.ImportResourceException;
-import org.patientview.importer.service.ImportService;
+import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.service.PatientService;
+import org.patientview.importer.service.impl.AbstractServiceImpl;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ import java.util.UUID;
  * Created on 01/09/2014
  */
 @Service
-public class ImportServiceImpl extends AbstractServiceImpl<ImportService> implements ImportService {
+public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implements ImportManager {
 
     @Inject
     private PatientService patientService;
@@ -33,15 +34,12 @@ public class ImportServiceImpl extends AbstractServiceImpl<ImportService> implem
         try {
             UUID uuid = patientService.add(patientview);
             patientReference = createResourceReference(uuid);
+            observationService.add(patientview, patientReference);
         } catch (FhirResourceException | ResourceNotFoundException e) {
             LOG.error("Unable to build patient {}", patientview.getPatient().getPersonaldetails().getNhsno());
-            throw new ImportResourceException("Could not build patient");
+            throw new ImportResourceException("Could not process patient data");
         }
-
-        observationService.add(patientview, patientReference);
-
     }
-
 
 
     private ResourceReference createResourceReference(UUID uuid) {

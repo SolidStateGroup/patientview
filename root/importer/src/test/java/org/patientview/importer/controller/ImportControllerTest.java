@@ -84,7 +84,7 @@ public class ImportControllerTest {
     @Test
     @Ignore("IntegrationTest")
     public void importIntegrationTest() throws Exception {
-        post(getTestFile());
+            post(getTestFile());
     }
 
 
@@ -100,8 +100,8 @@ public class ImportControllerTest {
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
-        String postUrl="http://localhost:8089/importer/import";// put in your url
-      //  String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";// put in your url
+       String postUrl="http://localhost:8089/importer/import";// put in your url
+        //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
 

@@ -1,4 +1,4 @@
-package org.patientview.importer.service;
+package org.patientview.importer.manager;
 
 import generated.Patientview;
 import org.patientview.importer.exception.ImportResourceException;
@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 01/09/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface ImportService {
+public interface ImportManager {
 
     public void process(Patientview patientview) throws ImportResourceException;
 

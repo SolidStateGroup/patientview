@@ -1,6 +1,7 @@
 package org.patientview.importer.builder;
 
 import generated.Patientview;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
@@ -9,6 +10,7 @@ import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,8 @@ public class ObservationsBuilder {
     private ResourceReference resourceReference;
     private Patientview results;
     private List<Observation> observations;
+    private int success = 0;
+    private int count = 0;
 
     public ObservationsBuilder(Patientview results, ResourceReference resourceReference) {
         this.results = results;
@@ -37,24 +41,31 @@ public class ObservationsBuilder {
         observations = new ArrayList<>();
     }
 
+    // Normally and invalid data would fail the whole XML
     public List<Observation> build() {
 
         for (Patientview.Patient.Testdetails.Test test : results.getPatient().getTestdetails().getTest()) {
             for (Patientview.Patient.Testdetails.Test.Result result : test.getResult()) {
-                observations.add(createObservation(test, result));
+                try {
+                    observations.add(createObservation(test, result));
+                    success++;
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: ", e.getMessage());
+                }
+                count++;
             }
         }
         return observations;
     }
 
-    private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result) {
-
+    private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result)
+        throws FhirResourceException{
         Observation observation = new Observation();
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
         observation.setValue(createQuantity(result, test));
         observation.setSubject(resourceReference);
-        //observation.setName(createConcept(test));
+        observation.setName(createConcept(test));
         observation.setApplies(createDateTime(result));
         observation.setIdentifier(createIdentifier(test));
 
@@ -62,7 +73,7 @@ public class ObservationsBuilder {
     }
 
     private Quantity createQuantity(Patientview.Patient.Testdetails.Test.Result result,
-                                    Patientview.Patient.Testdetails.Test test) {
+                                    Patientview.Patient.Testdetails.Test test) throws FhirResourceException {
         Quantity quantity = new Quantity();
         quantity.setValue(createDecimal(result));
         quantity.setUnitsSimple(test.getUnits());
@@ -70,14 +81,18 @@ public class ObservationsBuilder {
         return quantity;
     }
 
-    private Decimal createDecimal(Patientview.Patient.Testdetails.Test.Result result) {
+    private Decimal createDecimal(Patientview.Patient.Testdetails.Test.Result result) throws FhirResourceException {
         Decimal decimal = new Decimal();
         String resultString = result.getValue().replaceAll("[^.\\d]", "");
         NumberFormat decimalFormat = DecimalFormat.getInstance();
-        try {
-            decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).longValue()));
-        } catch (ParseException nfe) {
-            LOG.info("Check down for parsing extra characters needs adding");
+        if (StringUtils.isNotEmpty(resultString)) {
+            try {
+                decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).longValue()));
+            } catch (ParseException nfe) {
+                LOG.info("Check down for parsing extra characters needs adding");
+            }
+        } else {
+            throw new FhirResourceException("Invalid value for observation");
         }
         return decimal;
 
@@ -94,12 +109,11 @@ public class ObservationsBuilder {
     private CodeableConcept createConcept(Patientview.Patient.Testdetails.Test test) {
         CodeableConcept codeableConcept = new CodeableConcept();
         codeableConcept.setTextSimple(test.getTestcode().name());
-
-       // codeableConcept.addCoding().setDisplaySimple(test.getTestname());
+        codeableConcept.addCoding().setDisplaySimple(test.getTestname());
         return codeableConcept;
     }
 
-    private DateTime createDateTime(Patientview.Patient.Testdetails.Test.Result result) {
+    private DateTime createDateTime(Patientview.Patient.Testdetails.Test.Result result) throws FhirResourceException {
         DateTime dateTime = new DateTime();
         try {
             DateAndTime dateAndTime = DateAndTime.now();
@@ -111,11 +125,18 @@ public class ObservationsBuilder {
             dateAndTime.setSecond(result.getDatestamp().getSecond());
             dateTime.setValue(dateAndTime);
         } catch (NullPointerException npe) {
-            LOG.error("Result timestamp has not been supplied");
+            throw new FhirResourceException("Result timestamp has not been supplied");
         }
 
         return dateTime;
     }
 
+    public int getSuccess() {
+        return success;
+    }
+
+    public int getCount() {
+        return count;
+    }
 
 }
