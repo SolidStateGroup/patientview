@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
 import org.patientview.persistence.model.enums.ConversationTypes;
+import org.patientview.persistence.model.enums.FeatureType;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Set;
 
 /**
@@ -46,6 +48,15 @@ public class Conversation extends AuditModel {
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
     @OrderBy("created ASC")
     private Set<Message> messages;
+
+    // used when contacting unit, staff with staff feature typically UNIT_TECHNICAL_CONTACT or PATIENT_SUPPORT_CONTACT
+    @Transient
+    @Enumerated(EnumType.STRING)
+    private FeatureType staffFeature;
+
+    // used when contacting unit, id of the group to contact
+    @Transient
+    private Long groupId;
 
     public ConversationTypes getType() {
         return type;
@@ -111,37 +122,19 @@ public class Conversation extends AuditModel {
         this.messages = messages;
     }
 
-    /*
-    // TODO: temporarily kept, may be useful
-    @Override
-    public int compareTo(Object object) {
-        Conversation conversation;
+    public FeatureType getStaffFeature() {
+        return staffFeature;
+    }
 
-        if (object == null) {
-            return 1;
-        } else {
-            conversation = (Conversation) object;
-        }
+    public void setStaffFeature(FeatureType staffFeature) {
+        this.staffFeature = staffFeature;
+    }
 
-        Date myMostRecentMessageDate = new Date(0);
-        Date theirMostRecentMessageDate = new Date(0);
+    public Long getGroupId() {
+        return groupId;
+    }
 
-        for (Message message: this.getMessages()) {
-            if (message.getCreated().after(myMostRecentMessageDate)) {
-                myMostRecentMessageDate = message.getCreated();
-            }
-        }
-
-        for (Message message: conversation.getMessages()) {
-            if (message.getCreated().after(theirMostRecentMessageDate)) {
-                theirMostRecentMessageDate = message.getCreated();
-            }
-        }
-
-        if (theirMostRecentMessageDate.after(myMostRecentMessageDate)) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }*/
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
+    }
 }
