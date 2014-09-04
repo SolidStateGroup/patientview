@@ -33,6 +33,8 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -119,7 +121,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
         }
 
-        Set<Message> newMessages = new HashSet<>();
+        List<Message> newMessages = new ArrayList<>();
 
         for (Message message : conversation.getMessages()) {
             Message newMessage = new Message();
@@ -137,7 +139,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessages.add(newMessage);
         }
 
-        newConversation.setMessages(newMessages);
+        // sort messages
+        Collections.sort(newMessages, new Comparator<Message>() {
+            public int compare(Message m1, Message m2) {
+                return m2.getCreated().compareTo(m1.getCreated());
+            }
+        });
+
+        newConversation.setMessages(new HashSet<>(newMessages));
         newConversation.setType(conversation.getType());
         newConversation.setStatus(conversation.getStatus());
         newConversation.setImageData(conversation.getImageData());
