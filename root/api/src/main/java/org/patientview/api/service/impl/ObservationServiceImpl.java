@@ -42,14 +42,15 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         for (FhirLink fhirLink : user.getFhirLinks()) {
             StringBuilder query = new StringBuilder();
             query.append("SELECT  content::varchar ");
+            //query.append("SELECT  * ");
             query.append("FROM    observation ");
             query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-            query.append(fhirLink.getResourceId().toString());
+            query.append(fhirLink.getVersionId().toString());
             query.append("\", \"reference\": \"uuid\"}'");
             observations.addAll(fhirResource.findResourceByQuery(query.toString(), Observation.class));
         }
 
-        return null;
+        return observations;
     }
 
     @Override

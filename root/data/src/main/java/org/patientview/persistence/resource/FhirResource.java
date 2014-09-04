@@ -79,7 +79,7 @@ public class FhirResource {
         List<T> resources = new ArrayList<>();
         while ((resultSet.next())) {
             try {
-                T resource = (T) jsonParser.parse(new ByteArrayInputStream(resultSet.getString(0).getBytes()));
+                T resource = (T) jsonParser.parse(new ByteArrayInputStream(resultSet.getString(1).getBytes()));
                 resources.add(resource);
             } catch (Exception e) {
                 LOG.error("Cannot create resource");
