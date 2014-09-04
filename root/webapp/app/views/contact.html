@@ -12,7 +12,7 @@
         <div class="modal-footer">
             <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!contactUnitForm.$valid || (conversation.recipients.length < 1)" ng-show="conversation.allRecipients.length">Contact Unit</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!contactUnitForm.$valid">Contact Unit</button>
         </div>
     </div>
 </script>
@@ -28,7 +28,7 @@
 
             <div ng-repeat="group in groups">
                 <div class="panel panel-default">
-                    <div class="panel-heading"><h2>{{group.name}}</h2></div>
+                    <div class="panel-heading"><h5>{{group.name}}</h5></div>
                     <div class="panel-body">
                         <p>Refer to contact details below or <a href="" ng-click="openModalContactUnit(group)">send a message now</a>.</p>
 

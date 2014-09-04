@@ -4,69 +4,47 @@
 // contact unit modal instance controller
 var ContactUnitModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'ConversationService', 'group',
 function ($scope, $rootScope, $modalInstance, ConversationService, group) {
-    var i;
+    var i, j;
     $scope.conversation = {};
     $scope.conversation.recipients = [];
     $scope.modalLoading = true;
     $scope.group = group;
-    var featureTypes = ['MESSAGING'];
 
     $scope.contactOptions = [];
-    $scope.contactOptions.push({'id':0, 'anonymous': false, 'description':'Missing or incorrect details in my record, such as results, diagnoses or contact details'});
-    $scope.contactOptions.push({'id':1, 'anonymous': false, 'description':'Feedback to my unit (public)'});
-    $scope.contactOptions.push({'id':2, 'anonymous': false, 'description':'Feedback to my unit (anonymous)'});
-    $scope.contactOptions.push({'id':3, 'anonymous': false, 'description':'Comments about PatientView for the system administrators'});
-    $scope.contactOptions.push({'id':4, 'anonymous': false, 'description':'Other'});
-    $scope.selectedContactOption = $scope.contactOptions[0];
-
-    ConversationService.getRecipients($scope.loggedInUser.id, featureTypes).then(function (recipients) {
-        $scope.conversation.availableRecipients = _.clone(recipients);
-        $scope.conversation.allRecipients = [];
-
-        for (i = 0; i < recipients.length; i++) {
-            $scope.conversation.allRecipients[recipients[i].id] = recipients[i];
-        }
-
-        $scope.recipientToAdd = recipients[0].id;
-
-        $scope.modalLoading = false;
-    }, function () {
-        alert('Error loading message recipients');
-        $scope.modalLoading = false;
-    });
+    $scope.contactOptions.push({'id':0, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Missing or incorrect details in my record, such as results, diagnoses or contact details'});
+    $scope.contactOptions.push({'id':1, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Feedback to my unit (public)'});
+    $scope.contactOptions.push({'id':2, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': true, 'description':'Feedback to my unit (anonymous)'});
+    $scope.contactOptions.push({'id':3, 'staffFeature': 'UNIT_TECHNICAL_CONTACT', 'anonymous': false, 'description':'Comments about PatientView for the system administrators'});
+    $scope.contactOptions.push({'id':4, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Other'});
+    $scope.selectedContactOption = $scope.contactOptions[-1];
+    $scope.modalLoading = false;
 
     $scope.ok = function () {
         // build correct conversation from conversation
         var conversation = {};
-        conversation.type = 'MESSAGE';
+        conversation.type = 'CONTACT_UNIT';
         conversation.title = $scope.conversation.title;
         conversation.messages = [];
         conversation.open = true;
+
+        // contact unit specific attributes
+        conversation.staffFeature = $scope.conversation.staffFeature;
+        conversation.groupId = $scope.group.id;
 
         // build message
         var message = {};
         message.user = $scope.loggedInUser;
         message.message = $scope.conversation.message;
-        message.type = 'MESSAGE';
+        message.type = 'CONTACT_UNIT';
         conversation.messages[0] = message;
 
-        // add conversation users from list of users (temp anonymous = false)
-        var conversationUsers = [];
-        for (i=0; i<$scope.conversation.recipients.length; i++) {
-            conversationUsers[i] = {};
-            conversationUsers[i].user = {};
-            conversationUsers[i].user.id = $scope.conversation.recipients[i].id;
-            conversationUsers[i].anonymous = false;
-        }
-
         // add logged in user to list of conversation users
+        conversation.conversationUsers = [];
         var conversationUser = {};
         conversationUser.user = {};
         conversationUser.user.id = $scope.loggedInUser.id;
-        conversationUser.anonymous = false;
-        conversationUsers.push(conversationUser);
-
-        conversation.conversationUsers = conversationUsers;
+        conversationUser.anonymous = $scope.conversation.anonymous;
+        conversation.conversationUsers.push(conversationUser);
 
         ConversationService.new($scope.loggedInUser, conversation).then(function() {
             $modalInstance.close();
@@ -85,6 +63,8 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
 
     $scope.contactOptionChanged = function(value) {
         $scope.conversation.title = value.description;
+        $scope.conversation.anonymous = value.anonymous;
+        $scope.conversation.staffFeature = value.staffFeature;
     }
 }];
 

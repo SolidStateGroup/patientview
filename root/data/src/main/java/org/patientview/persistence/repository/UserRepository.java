@@ -1,19 +1,17 @@
 package org.patientview.persistence.repository;
 
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,6 +38,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
                                  Pageable pageable);
+
+    @Query("SELECT DISTINCT u " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "JOIN u.userFeatures uf " +
+            "WHERE gr.group = :userGroup " +
+            "AND uf.feature = :feature")
+    List<User> findByGroupAndFeature(@Param("userGroup") Group userGroup, @Param("feature") Feature feature);
 
     @Query("SELECT DISTINCT u " +
            "FROM User u " +
