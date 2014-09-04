@@ -163,7 +163,7 @@ public class FhirResource {
         JSONObject resource = (JSONObject) resultArray.get(0);
 
         try {
-            return jsonParser.parse(new ByteArrayInputStream(resource.toString().getBytes()));
+            return jsonParser.parse(new ByteArrayInputStream(resource.getJSONObject("content").toString().getBytes()));
         } catch (Exception e) {
             throw new FhirResourceException(e.getMessage());
         }

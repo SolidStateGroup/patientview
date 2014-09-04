@@ -35,6 +35,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Matchers.any;
@@ -119,12 +121,13 @@ public class PatientServiceTest extends BaseTest {
         Identifier identifier = TestUtils.createIdentifier(lookup, user, nhsNumber);
         FhirLink fhirLink = TestUtils.createFhirLink(user, identifier);
         fhirLink.setResourceType(ResourceType.Patient.name());
-
+        List<FhirLink> fhirLinks = new ArrayList<>();
+        fhirLinks.add(fhirLink);
 
         when(groupRepository.findByCode(any(String.class))).thenReturn(group);
         when(lookupRepository.findByTypeAndValue(eq(LookupTypes.IDENTIFIER), eq("NHS_NUMBER"))).thenReturn(lookup);
         when(identifierRepository.findByTypeAndValue(eq(nhsNumber), eq(lookup))).thenReturn(identifier);
-        when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(user), eq(group), eq(identifier))).thenReturn(fhirLink);
+        when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(user), eq(group), eq(identifier))).thenReturn(fhirLinks);
 
         patientService.add(patient);
 

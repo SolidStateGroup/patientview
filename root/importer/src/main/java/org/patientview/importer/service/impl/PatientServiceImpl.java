@@ -26,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -70,7 +71,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // Find the group that is importing the data
         Group group = groupRepository.findByCode(patient.getCentredetails().getCentrecode());
 
-        // Find and update the link between the existing User and UNit to the Fhir Record
+        // Find and update the link between the existing User and Unit to the Fhir Record
         FhirLink fhirLink = retrieveLink(group, identifier);
         update(fhirLink);
 
@@ -108,7 +109,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     private Identifier matchPatient(Patientview patientview) throws ResourceNotFoundException {
         nhsIdentifier = lookupRepository.findByTypeAndValue(LookupTypes.IDENTIFIER, "NHS_NUMBER");
-        Identifier identifier = identifierRepository.findByTypeAndValue(patientview.getPatient().getPersonaldetails().getNhsno(), nhsIdentifier);
+        Identifier identifier = identifierRepository.findByTypeAndValue(
+                patientview.getPatient().getPersonaldetails().getNhsno(), nhsIdentifier);
 
         if (identifier == null) {
             throw new ResourceNotFoundException("The NHS number is not linked with PatientView");
@@ -118,7 +120,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     }
 
     private FhirLink retrieveLink(Group group, Identifier identifier) {
-        return fhirLinkRepository.findByUserAndGroupAndIdentifier(identifier.getUser(), group, identifier);
+        List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(
+                identifier.getUser(), group, identifier);
+
+        if (!fhirLinks.isEmpty()) {
+            // return most recent as ordered by created DESC
+            return fhirLinks.get(0);
+        } else {
+            return null;
+        }
     }
 
     private void addLink(Identifier identifier, Group group, JSONObject bundle) {

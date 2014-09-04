@@ -42,7 +42,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         for (FhirLink fhirLink : user.getFhirLinks()) {
             StringBuilder query = new StringBuilder();
             query.append("SELECT  content::varchar ");
-            //query.append("SELECT  * ");
             query.append("FROM    observation ");
             query.append("WHERE   content->> 'subject' = '{\"display\": \"");
             query.append(fhirLink.getVersionId().toString());
