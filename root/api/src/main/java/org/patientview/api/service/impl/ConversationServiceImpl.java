@@ -127,6 +127,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setType(message.getType());
             newMessage.setMessage(message.getMessage());
             newMessage.setReadReceipts(message.getReadReceipts());
+            newMessage.setCreated(message.getCreated());
 
             if (anonUserIds.contains(message.getUser().getId())) {
                 newMessage.setUser(anonUser);
