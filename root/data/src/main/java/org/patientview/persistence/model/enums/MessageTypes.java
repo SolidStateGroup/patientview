@@ -7,7 +7,8 @@ package org.patientview.persistence.model.enums;
 public enum MessageTypes {
     MESSAGE("Message"),
     FEEDBACK("Feedback"),
-    SHARED_THOUGHT("Shared Thought");
+    SHARED_THOUGHT("Shared Thought"),
+    CONTACT_UNIT("Contact Unit");
 
     private String name;
     MessageTypes(String name) { this.name = name; }

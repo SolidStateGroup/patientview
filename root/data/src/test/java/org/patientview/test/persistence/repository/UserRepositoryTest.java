@@ -65,7 +65,6 @@ public class UserRepositoryTest {
                 , Arrays.asList(roleIdsArr), new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
-
     }
 
     @Test
@@ -94,6 +93,29 @@ public class UserRepositoryTest {
                 , Arrays.asList(roleIdsArr), Arrays.asList(featureIdsArr), new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
+    }
+
+    @Test
+    public void findByGroupAndFeature() {
+
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role);
+
+        Feature feature = dataTestUtils.createFeature("UNIT_TECHNICAL_CONTACT");
+        UserFeature userFeature = new UserFeature();
+        userFeature.setId(1L);
+        userFeature.setUser(user);
+        userFeature.setFeature(feature);
+        userFeature.setCreator(creator);
+        user.setUserFeatures(new HashSet<UserFeature>());
+        user.getUserFeatures().add(userFeature);
+        userRepository.save(user);
+
+        Iterable<User> users = userRepository.findByGroupAndFeature(group, feature);
+
+        Assert.assertTrue("Should be one user returned", users.iterator().hasNext());
 
     }
 }
