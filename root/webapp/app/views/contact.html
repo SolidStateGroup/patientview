@@ -22,11 +22,12 @@
     <div class="content-inner">
         <div ng-show="!loading && groups.length">
             <p>Showing details provided by:</p>
-            <ul>
-                <li ng-repeat="group in groups">{{group.name}}</li>
-            </ul>
+            <label ng-repeat="group in groups">
+                <input type="checkbox" value="{{group.name}}" ng-model="group.selected">
+                {{group.name}}
+            </label>
 
-            <div ng-repeat="group in groups">
+            <div ng-repeat="group in groups" ng-show="group.selected">
                 <div class="panel panel-default">
                     <div class="panel-heading"><h5>{{group.name}}</h5></div>
                     <div class="panel-body">

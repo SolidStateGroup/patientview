@@ -4,7 +4,6 @@
 // contact unit modal instance controller
 var ContactUnitModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'ConversationService', 'group',
 function ($scope, $rootScope, $modalInstance, ConversationService, group) {
-    var i, j;
     $scope.conversation = {};
     $scope.conversation.recipients = [];
     $scope.modalLoading = true;
@@ -76,6 +75,12 @@ function ($scope, $modal, GroupService, ConversationService) {
         $scope.loading = true;
         GroupService.getGroupsForUserAllDetails($scope.loggedInUser.id).then(function(page) {
             $scope.groups = page.content;
+
+            // set checkboxes
+            for (var i=0;i<$scope.groups.length;i++) {
+                $scope.groups[i].selected = true;
+            }
+
             $scope.loading = false;
         }, function () {
             alert('Error retrieving groups');
