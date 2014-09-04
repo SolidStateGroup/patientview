@@ -54,7 +54,7 @@
         <div class="content-panel clearfix">
             <div ng-hide="!authToken" ng-cloak>
                 <ul class="secondary-nav nav nav-pills pull-left">
-                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" >
+                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" ng-class="{active: title === menuitem.title}">
                         <a ng-href="#{{menuitem.url}}">{{menuitem.title}}
                             <span ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="badge badge-small warning">{{submittedJoinRequestCount}}</span>
                         </a>
