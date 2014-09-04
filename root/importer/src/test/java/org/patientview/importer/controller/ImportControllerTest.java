@@ -91,7 +91,7 @@ public class ImportControllerTest {
     String getTestFile() throws IOException, URISyntaxException {
 
         URL xmlPath =
-                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_21626578408.xml");
+                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_1111111111.xml");
         File file = new File(xmlPath.toURI());
         return  new String(Files.readAllBytes(Paths.get(file.getPath())));
     }
@@ -100,7 +100,7 @@ public class ImportControllerTest {
 
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
-       String postUrl="http://localhost:8089/importer/import";// put in your url
+        String postUrl="http://localhost:8081/importer/import";// put in your url
         //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
