@@ -12,9 +12,11 @@ import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.SimpleAuditModel;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -23,6 +25,7 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
+import org.patientview.persistence.repository.UserInformationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -42,6 +45,9 @@ public class DataTestUtils {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    UserInformationRepository userInformationRepository;
 
     @Inject
     LookupRepository lookupRepository;
@@ -97,6 +103,12 @@ public class DataTestUtils {
         User user = TestUtils.createUser(username);
         setupBaseObject(user);
         return userRepository.save(user);
+    }
+
+    public UserInformation createUserInformation(User user, UserInformationTypes informationType, String value) {
+        UserInformation userInformation = TestUtils.createUserInformation(user, informationType, value);
+        setupBaseObject(userInformation);
+        return userInformationRepository.save(userInformation);
     }
 
 

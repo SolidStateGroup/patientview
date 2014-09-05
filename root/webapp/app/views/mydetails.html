@@ -1,6 +1,7 @@
 <h1>My Details</h1>
 <div class="content-panel">
     <div class="content-inner">
+        <!-- patient details from FHIR -->
         <div ng-show="!loading && patientDetails.length">
             <p>Showing details provided by: &nbsp;&nbsp;
                 <label ng-repeat="patient in patientDetails">
@@ -51,8 +52,38 @@
         <div ng-show="!loading && !patientDetails.length">
             <p>Your patient details are not currently stored in PatientView.</p>
         </div>
-    </div>
-    <div ng-show="loading" class="container"><br/>
-        <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+
+        <!-- More About Me -->
+        <div ng-show="!loading">
+            <h2>More About Me</h2>
+            <div class="row">
+                <div class="form-horizontal" role="form">
+                    <div class="col-md-12">
+                        <label for="should-know-input" class="control-label">Things people should know about me</label>
+                        <div>
+                            <textarea id="should-know-input" ng-model="moreAboutMe.shouldKnow" class="form-control"
+                                      placeholder="For example..." ></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-horizontal" role="form">
+                    <div class="col-md-12">
+                        <label for="talk-about-input" class="control-label">Things I'd like to talk about</label>
+                        <div>
+                            <textarea id="talk-about-input" ng-model="moreAboutMe.talkAbout" class="form-control"
+                                      placeholder="For example... what should my blood pressure be, home dialysis, stopping dialysis, getting a transplant)" ></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn blue" ng-click="saveMoreAboutMe(moreAboutMe)">Save</button>
+            <span>{{moreAboutMeMessage}}</span>
+        </div>
+
+        <div ng-show="loading" class="container"><br/>
+            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+        </div>
     </div>
 </div>

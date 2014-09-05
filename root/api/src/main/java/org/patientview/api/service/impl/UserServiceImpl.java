@@ -18,6 +18,7 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -25,6 +26,7 @@ import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
+import org.patientview.persistence.repository.UserInformationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -62,6 +64,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private RoleRepository roleRepository;
+
+    @Inject
+    private UserInformationRepository userInformationRepository;
 
     @Inject
     private UserFeatureRepository userFeatureRepository;
@@ -452,6 +457,30 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceNotFoundException("Could not find account");
         }
 
+    }
+
+    public void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException {
+        User user = findUser(userId);
+
+        // for user information we want to update existing info, only create if doesn't already exist
+        for (UserInformation newUserInformation : userInformation) {
+            UserInformation entityUserInformation
+                    = userInformationRepository.findByUserAndType(user, newUserInformation.getType());
+            if (entityUserInformation != null) {
+                entityUserInformation.setValue(newUserInformation.getValue());
+                userInformationRepository.save(entityUserInformation);
+            } else {
+                if (newUserInformation.getValue() != null) {
+                    newUserInformation.setUser(user);
+                    userInformationRepository.save(newUserInformation);
+                }
+            }
+        }
+    }
+
+    public List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException {
+        User user = findUser(userId);
+        return userInformationRepository.findByUser(user);
     }
 
     private User findUser(Long userId) throws ResourceNotFoundException {

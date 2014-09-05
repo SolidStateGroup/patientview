@@ -267,9 +267,12 @@ CREATE TABLE PV_Message_Read_Receipt (
 CREATE TABLE PV_User_Information (
   Id            BIGINT    NOT NULL,
   User_Id       BIGINT    NOT NULL REFERENCES PV_User (Id),
-  Type_Id       BIGINT    NOT NULL REFERENCES PV_Lookup_Value (Id),
+  Type          VARCHAR(255)  NOT NULL,
   Value         TEXT      NOT NULL,
-  Creation_Date TIMESTAMP NOT NULL,
+  Creation_Date   TIMESTAMP NOT NULL,
+  Created_By      BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date TIMESTAMP,
+  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 

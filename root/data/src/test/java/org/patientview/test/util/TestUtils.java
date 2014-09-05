@@ -22,12 +22,14 @@ import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -83,6 +85,15 @@ public final class TestUtils {
         user.setPassword("doNotShow");
         user.setGroupRoles(new HashSet<GroupRole>());
         return user;
+    }
+
+    public static UserInformation createUserInformation(User user, UserInformationTypes informationType, String value) {
+        UserInformation userInformation = new UserInformation();
+        userInformation.setUser(user);
+        userInformation.setId(getId());
+        userInformation.setType(informationType);
+        userInformation.setValue(value);
+        return userInformation;
     }
 
     public static Role createRole(RoleName name) {

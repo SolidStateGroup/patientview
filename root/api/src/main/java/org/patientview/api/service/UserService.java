@@ -6,6 +6,7 @@ import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
@@ -59,4 +60,8 @@ public interface UserService extends CrudService<User> {
     void deleteFeature(Long userId, Long featureId);
 
     void resetPasswordByUsernameAndEmail(String username, String email) throws ResourceNotFoundException;
+
+    void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;
+
+    List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException;
 }
