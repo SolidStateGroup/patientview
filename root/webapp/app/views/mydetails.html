@@ -3,7 +3,7 @@
     <div class="content-inner">
         <!-- patient details from FHIR -->
         <div ng-show="!loading && patientDetails.length">
-            <p>Showing details provided by: &nbsp;&nbsp;
+            <p>Information provided by: &nbsp;&nbsp;
                 <label ng-repeat="patient in patientDetails">
                     <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">
                     {{patient.group.name}}

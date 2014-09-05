@@ -35,9 +35,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private UserRepository userRepository;
 
     @Override
-    public List<org.patientview.api.model.Patient> get(final Long userId)
+    public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException {
 
+        boolean restrictGroups = !(groupIds == null || groupIds.isEmpty());
         User user = userRepository.findOne(userId);
 
         if (user == null) {
@@ -58,15 +59,17 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
         for (FhirLink fhirLink : fhirLinks) {
-            if (!groups.contains(fhirLink.getGroup())) {
-                Patient fhirPatient = get(fhirLink.getResourceId());
-                Practitioner fhirPractitioner = null;
-                if (!fhirPatient.getCareProvider().isEmpty()) {
-                    fhirPractitioner
-                            = getPractitioner(UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
+            if ((restrictGroups && groupIds.contains(fhirLink.getGroup().getId())) || (!restrictGroups)) {
+                if (!groups.contains(fhirLink.getGroup())) {
+                    Patient fhirPatient = get(fhirLink.getResourceId());
+                    Practitioner fhirPractitioner = null;
+                    if (!fhirPatient.getCareProvider().isEmpty()) {
+                        fhirPractitioner
+                                = getPractitioner(UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
+                    }
+                    patients.add(new org.patientview.api.model.Patient(fhirPatient, fhirPractitioner, fhirLink.getGroup()));
+                    groups.add(fhirLink.getGroup());
                 }
-                patients.add(new org.patientview.api.model.Patient(fhirPatient, fhirPractitioner, fhirLink.getGroup()));
-                groups.add(fhirLink.getGroup());
             }
         }
 

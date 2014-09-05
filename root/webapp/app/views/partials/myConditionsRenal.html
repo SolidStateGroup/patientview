@@ -1,0 +1,46 @@
+<p>Information provided by: &nbsp;&nbsp;
+    <label ng-repeat="patient in patientDetails">
+        <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">
+        {{patient.group.name}}
+    </label>
+</p>
+<div ng-repeat="patient in patientDetails" ng-show="patient.group.selected">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h5>{{patient.group.name}}</h5></div>
+        <div class="panel-body">
+            <table>
+                <tbody>
+                <tr><td><h5>Condition Details</h5></td></tr>
+                <tr>
+                    <td>Surname</td>
+                    <td>{{patient.fhirPatient.name[0].family[0].value}}</td>
+                </tr>
+                <tr>
+                    <td>Forename(s)</td>
+                    <td>{{patient.fhirPatient.name[0].given[0].value}}</td>
+                </tr>
+                <tr>
+                    <td>Date of Birth</td>
+                    <td>{{patient.fhirPatient.birthDateSimple}}</td>
+                </tr>
+                <tr>
+                    <td>Address</td>
+                    <td>
+                        {{patient.fhirPatient.address[0].line[0].value}}<br/>
+                        {{patient.fhirPatient.address[0].citySimple}}<br/>
+                        {{patient.fhirPatient.address[0].zipSimple}}<br/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Phone Number(s)</td>
+                    <td>
+                                        <span ng-repeat="phone in patient.fhirPatient.contact[0].telecom">
+                                            {{phone.valueSimple}}<br/>
+                                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
