@@ -1,0 +1,17 @@
+<h1>My Conditions</h1>
+<div class="content-panel">
+    <div class="content-inner">
+        <!-- patient details from FHIR -->
+        <div ng-show="!loading && conditions">
+
+        </div>
+        <div ng-show="!loading && !conditions">
+            <p>Your conditions are not currently stored in PatientView.</p>
+        </div>
+
+
+        <div ng-show="loading" class="container"><br/>
+            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+        </div>
+    </div>
+</div>
