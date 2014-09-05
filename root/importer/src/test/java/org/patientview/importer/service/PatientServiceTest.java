@@ -2,6 +2,7 @@ package org.patientview.importer.service;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Resource;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -95,7 +96,7 @@ public class PatientServiceTest extends BaseTest {
         when(lookupRepository.findByTypeAndValue(eq(LookupTypes.IDENTIFIER), eq("NHS_NUMBER"))).thenReturn(lookup);
         when(identifierRepository.findByTypeAndValue(eq(nhsNumber), eq(lookup))).thenReturn(TestUtils.createIdentifier(lookup, user, nhsNumber));
 
-        patientService.add(patient);
+        patientService.add(patient, new ResourceReference());
 
         verify(fhirResource, Mockito.times(1)).create(any(org.hl7.fhir.instance.model.Resource.class));
         verify(fhirLinkRepository, Mockito.times(1)).findByUserAndGroupAndIdentifier(any(User.class), any(Group.class), any(Identifier.class));
@@ -129,7 +130,7 @@ public class PatientServiceTest extends BaseTest {
         when(identifierRepository.findByTypeAndValue(eq(nhsNumber), eq(lookup))).thenReturn(identifier);
         when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(user), eq(group), eq(identifier))).thenReturn(fhirLinks);
 
-        patientService.add(patient);
+        patientService.add(patient, new ResourceReference());
 
         verify(fhirResource, Mockito.times(1)).update(any(Resource.class), eq(fhirLink));
         verify(fhirLinkRepository, Mockito.times(1)).findByUserAndGroupAndIdentifier(any(User.class), any(Group.class), any(Identifier.class));

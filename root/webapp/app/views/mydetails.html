@@ -15,6 +15,7 @@
                     <div class="panel-body">
                         <table>
                             <tbody>
+                                <tr><td><h5>Patient Details</h5></td></tr>
                                 <tr>
                                     <td>Surname</td>
                                     <td>{{patient.fhirPatient.name[0].family[0].value}}</td>
@@ -41,6 +42,30 @@
                                         <span ng-repeat="phone in patient.fhirPatient.contact[0].telecom">
                                             {{phone.valueSimple}}<br/>
                                         </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table ng-show="patient.fhirPractitioner">
+                            <tbody>
+                                <tr><td><h5>GP Details</h5></td></tr>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>{{patient.fhirPractitioner.name.family[0].value}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Address</td>
+                                    <td>
+                                        {{patient.fhirPractitioner.address.line[0].value}}<br/>
+                                        {{patient.fhirPractitioner.address.citySimple}}<br/>
+                                        {{patient.fhirPractitioner.address.stateSimple}}<br/>
+                                        {{patient.fhirPractitioner.address.zipSimple}}<br/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phone Number</td>
+                                    <td>
+                                        {{patient.fhirPractitioner.telecom[0].valueSimple}}
                                     </td>
                                 </tr>
                             </tbody>

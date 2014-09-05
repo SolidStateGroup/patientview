@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.ResourceReference;
 
 /**
  * This is going to mapping between parameters from old PatientView and the new PatientView fhir record
@@ -17,9 +18,11 @@ import org.hl7.fhir.instance.model.Patient;
 public class PatientBuilder {
 
     private Patientview oldPatient;
+    private ResourceReference practitionerReference;
 
-    public PatientBuilder(Patientview oldPatient) {
+    public PatientBuilder(Patientview oldPatient, ResourceReference practitionerReference) {
         this.oldPatient = oldPatient;
+        this.practitionerReference = practitionerReference;
     }
 
     public Patient build() {
@@ -28,6 +31,14 @@ public class PatientBuilder {
         createHumanName(newPatient, oldPatient);
         createAddress(newPatient, oldPatient);
         createContactDetails(newPatient, oldPatient);
+        addCareProvider(newPatient);
+        return newPatient;
+    }
+
+    private Patient addCareProvider(Patient newPatient) {
+        ResourceReference careProvider = newPatient.addCareProvider();
+        careProvider.setReference(practitionerReference.getReference());
+        careProvider.setDisplay(practitionerReference.getDisplay());
         return newPatient;
     }
 

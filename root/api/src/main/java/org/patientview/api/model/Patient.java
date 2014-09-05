@@ -1,5 +1,6 @@
 package org.patientview.api.model;
 
+import org.hl7.fhir.instance.model.Practitioner;
 import org.patientview.persistence.model.BaseModel;
 
 /**
@@ -9,13 +10,16 @@ import org.patientview.persistence.model.BaseModel;
 public class Patient extends BaseModel{
 
     private org.hl7.fhir.instance.model.Patient fhirPatient;
+    private org.hl7.fhir.instance.model.Practitioner fhirPractitioner;
     private Group group;
 
     public Patient() {
     }
 
-    public Patient(org.hl7.fhir.instance.model.Patient patient, org.patientview.persistence.model.Group group) {
+    public Patient(org.hl7.fhir.instance.model.Patient patient, org.hl7.fhir.instance.model.Practitioner practitioner,
+                   org.patientview.persistence.model.Group group) {
         setFhirPatient(patient);
+        setFhirPractitioner(practitioner);
         setGroup(new Group(group));
     }
 
@@ -25,6 +29,14 @@ public class Patient extends BaseModel{
 
     public void setFhirPatient(org.hl7.fhir.instance.model.Patient fhirPatient) {
         this.fhirPatient = fhirPatient;
+    }
+
+    public Practitioner getFhirPractitioner() {
+        return fhirPractitioner;
+    }
+
+    public void setFhirPractitioner(Practitioner fhirPractitioner) {
+        this.fhirPractitioner = fhirPractitioner;
     }
 
     public Group getGroup() {

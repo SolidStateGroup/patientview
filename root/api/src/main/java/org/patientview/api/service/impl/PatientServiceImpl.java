@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -18,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -59,7 +59,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
         for (FhirLink fhirLink : fhirLinks) {
             if (!groups.contains(fhirLink.getGroup())) {
-                patients.add(new org.patientview.api.model.Patient(get(fhirLink.getResourceId()), fhirLink.getGroup()));
+                Patient fhirPatient = get(fhirLink.getResourceId());
+                Practitioner fhirPractitioner = null;
+                if (!fhirPatient.getCareProvider().isEmpty()) {
+                    fhirPractitioner
+                            = getPractitioner(UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
+                }
+                patients.add(new org.patientview.api.model.Patient(fhirPatient, fhirPractitioner, fhirLink.getGroup()));
                 groups.add(fhirLink.getGroup());
             }
         }
@@ -71,6 +77,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     public Patient get(final UUID uuid) throws FhirResourceException {
         try {
             return (Patient) DataUtils.getResource(fhirResource.getResource(uuid, ResourceType.Patient));
+        } catch (Exception e) {
+            throw new FhirResourceException(e);
+        }
+    }
+
+    public Practitioner getPractitioner(final UUID uuid) throws FhirResourceException {
+        try {
+            return (Practitioner) DataUtils.getResource(fhirResource.getResource(uuid, ResourceType.Practitioner));
         } catch (Exception e) {
             throw new FhirResourceException(e);
         }

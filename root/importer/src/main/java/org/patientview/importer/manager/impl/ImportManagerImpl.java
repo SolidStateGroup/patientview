@@ -7,6 +7,7 @@ import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.service.PatientService;
+import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,24 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     @Inject
     private ObservationService observationService;
 
+    @Inject
+    private PractitionerService practitionerService;
+
 
     @Override
     public void process(Patientview patientview) throws ImportResourceException {
+        ResourceReference practitionerReference;
         ResourceReference patientReference;
         try {
-            UUID uuid = patientService.add(patientview);
-            patientReference = createResourceReference(uuid);
+
+            UUID practitionerUuid = practitionerService.add(patientview);
+            practitionerReference = createResourceReference(practitionerUuid);
+
+            UUID patientUuid = patientService.add(patientview, practitionerReference);
+            patientReference = createResourceReference(patientUuid);
+
             observationService.add(patientview, patientReference);
+
         } catch (FhirResourceException | ResourceNotFoundException e) {
             LOG.error("Unable to build patient {}", patientview.getPatient().getPersonaldetails().getNhsno());
             throw new ImportResourceException("Could not process patient data");

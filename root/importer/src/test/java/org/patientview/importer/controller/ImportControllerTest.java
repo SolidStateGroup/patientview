@@ -84,7 +84,7 @@ public class ImportControllerTest {
     @Test
     @Ignore("IntegrationTest")
     public void importIntegrationTest() throws Exception {
-            post(getTestFile());
+        post(getTestFile());
     }
 
 

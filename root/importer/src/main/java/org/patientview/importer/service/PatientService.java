@@ -1,6 +1,7 @@
 package org.patientview.importer.service;
 
 import generated.Patientview;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.transaction.annotation.Propagation;
@@ -14,5 +15,6 @@ import java.util.UUID;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface PatientService {
-    UUID add(Patientview patient) throws FhirResourceException, ResourceNotFoundException;
+    UUID add(Patientview patient, ResourceReference practitionerReference)
+            throws FhirResourceException, ResourceNotFoundException;
 }
