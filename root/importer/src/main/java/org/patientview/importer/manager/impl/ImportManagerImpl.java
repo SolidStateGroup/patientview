@@ -5,6 +5,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
+import org.patientview.importer.service.ConditionService;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.service.PractitionerService;
@@ -29,6 +30,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private ObservationService observationService;
 
     @Inject
+    private ConditionService conditionService;
+
+    @Inject
     private PractitionerService practitionerService;
 
 
@@ -38,13 +42,19 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         ResourceReference patientReference;
         try {
 
+            // practitioner (GP details)
             UUID practitionerUuid = practitionerService.add(patientview);
             practitionerReference = createResourceReference(practitionerUuid);
 
+            // core patient object
             UUID patientUuid = patientService.add(patientview, practitionerReference);
             patientReference = createResourceReference(patientUuid);
 
+            // observations (tests)
             observationService.add(patientview, patientReference);
+
+            // conditions (diagnoses)
+            conditionService.add(patientview, patientReference);
 
         } catch (FhirResourceException | ResourceNotFoundException e) {
             LOG.error("Unable to build patient {}", patientview.getPatient().getPersonaldetails().getNhsno());

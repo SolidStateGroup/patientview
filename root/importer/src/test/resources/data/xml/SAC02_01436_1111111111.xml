@@ -37,6 +37,9 @@
 </personaldetails>
 <clinicaldetails>
 <rrtstatus>TP</rrtstatus>
+<diagnosisedta>80</diagnosisedta>
+<diagnosis>(EDTA PRD) 80 Diabetes Type 1 (Insulin dependent)</diagnosis>
+<diagnosis>A second diagnosis</diagnosis>
 </clinicaldetails>
 <timelinedetails>
 <test>
