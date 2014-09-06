@@ -13,7 +13,6 @@ public class UnitRequest {
 
     private String forename;
     private String surname;
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private Date dateOfBirth;
     private String nhsNumber;
     private Group group;

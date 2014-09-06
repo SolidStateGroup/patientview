@@ -16,6 +16,7 @@
             <label for="new-user-surname" class="control-label">Surname <span class="error" ng-show="userForm.surname.$error.required && !userForm.$pristine"> *required</span></label>
             <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname" name="surname" ng-model="editUser.surname" required></div>
         </div>
+        <input type="hidden" ng-model="editUser.contactNumber">
     </div>
 </div>
 <br/>

@@ -1,7 +1,7 @@
 <div class="hider" ng-show="status.open"></div>
 
 <div>
-    <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')">Create New</button></h1>
+    <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')" ng-show="!loading">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
@@ -157,7 +157,7 @@
                                 </ul>
                             </div>
                             <div class="row-item accordion-heading-text"></div>
-                            <div class="row-item accordion-heading-text">{{user.lastLogin}}</div>
+                            <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:ss'}}</div>
                             <div class="row-item actions">
                                 <!-- Edit, Actions dropdown buttons -->
                                 <div class="button-dropdown-group">

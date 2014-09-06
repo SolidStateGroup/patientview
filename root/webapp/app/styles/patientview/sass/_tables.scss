@@ -28,16 +28,14 @@
         }
     }
 
-    .accordion-group {
-        &.panel {
-            background: $white;
-            @include bootstrap-border-radius(0);
-            margin-top: 0;
-            border-top: 0;
-            overflow:visible;
-            .panel-heading {
-                background: none;
-            }
+    .panel-body{
+        background: $white;
+        @include bootstrap-border-radius(0);
+        margin-top: 0;
+        border-top: 0;
+        overflow:visible;
+        .panel-heading {
+            background: none;
         }
 
         .panel-heading{
@@ -66,6 +64,8 @@
         width:100%;
         padding:5px 0;
         font-size:1.5rem;
+        background:#fff;
+        border-bottom:1px solid $border-default;
 
         .row-item{
             display:table-cell;
