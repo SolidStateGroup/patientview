@@ -20,6 +20,7 @@ public class FhirObservation extends BaseModel{
     private Date applies;
     private String name;
     private Double value;
+    private String comments;
 
     private static final Logger LOG = LoggerFactory.getLogger(FhirObservation.class);
 
@@ -29,18 +30,23 @@ public class FhirObservation extends BaseModel{
     public FhirObservation(Observation observation) {
 
         setName(observation.getName().getTextSimple());
+        setComments(observation.getCommentsSimple());
 
         try {
-            Decimal dec = (Decimal) observation.getValue().getChildByName("value").getValues().get(0);
-            setValue(Double.valueOf(dec.getStringValue()));
+            if (observation.getValue() != null) {
+                Decimal dec = (Decimal) observation.getValue().getChildByName("value").getValues().get(0);
+                setValue(Double.valueOf(dec.getStringValue()));
+            }
         } catch (NumberFormatException nfe) {
            LOG.debug("Error attempting to convert FHIR observation");
         }
 
-        DateTime applies = (DateTime) observation.getApplies();
-        DateAndTime date = applies.getValue();
-        setApplies(new Date(new GregorianCalendar(date.getYear(), date.getMonth()-1,
-                date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+        if (observation.getApplies() != null) {
+            DateTime applies = (DateTime) observation.getApplies();
+            DateAndTime date = applies.getValue();
+            setApplies(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                    date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+        }
     }
 
     public String getName() {
@@ -65,5 +71,13 @@ public class FhirObservation extends BaseModel{
 
     public void setApplies(Date applies) {
         this.applies = applies;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }

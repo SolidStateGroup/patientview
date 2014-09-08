@@ -7,10 +7,12 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Decimal;
 import org.hl7.fhir.instance.model.Enumeration;
+import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +43,10 @@ public class ObservationsBuilder {
         observations = new ArrayList<>();
     }
 
-    // Normally and invalid data would fail the whole XML
+    // Normally any invalid data would fail the whole XML
     public List<Observation> build() {
 
+        // build from tests e.g. ciclosporin, weight etc
         for (Patientview.Patient.Testdetails.Test test : results.getPatient().getTestdetails().getTest()) {
             for (Patientview.Patient.Testdetails.Test.Result result : test.getResult()) {
                 try {
@@ -55,6 +58,15 @@ public class ObservationsBuilder {
                 count++;
             }
         }
+
+        // build from specific non-test fields e.g. blood group
+        try {
+            observations.add(createObservationNonTest(NonTestObservationTypes.BLOOD_GROUP.toString(),
+                    results.getPatient().getClinicaldetails().getBloodgroup()));
+        } catch (FhirResourceException e) {
+            LOG.error("Invalid data in XML: ", e.getMessage());
+        }
+
         return observations;
     }
 
@@ -68,6 +80,30 @@ public class ObservationsBuilder {
         observation.setName(createConcept(test));
         observation.setApplies(createDateTime(result));
         observation.setIdentifier(createIdentifier(test));
+
+        return observation;
+    }
+
+    // store type in name and identifier, store value in comments
+    private Observation createObservationNonTest(String type, String value) throws FhirResourceException{
+        Observation observation = new Observation();
+        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+        observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+        observation.setValue(null);
+        observation.setSubject(resourceReference);
+
+        CodeableConcept name = new CodeableConcept();
+        name.setTextSimple(type);
+        name.addCoding().setDisplaySimple(type);
+        observation.setName(name);
+
+        Identifier identifier = new Identifier();
+        identifier.setLabelSimple("resultcode");
+        identifier.setValueSimple(type);
+        observation.setIdentifier(identifier);
+
+        observation.setCommentsSimple(value);
 
         return observation;
     }

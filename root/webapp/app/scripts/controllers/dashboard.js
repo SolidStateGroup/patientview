@@ -104,7 +104,8 @@ function (UserService, $scope, GroupService, NewsService, ResultService) {
         });
 
         if ($scope.permissions.isPatient) {
-            ResultService.getAll($scope.loggedInUser.id).then(function (patientDetails) {
+            // testing only
+            ResultService.getByCode($scope.loggedInUser.id, 'HB').then(function (patientDetails) {
                 $scope.patientDetails = patientDetails;
                 $scope.loading = false;
             }, function () {

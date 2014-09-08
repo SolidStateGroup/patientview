@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirObservation;
@@ -31,7 +32,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private UserRepository userRepository;
 
     @Override
-    public List<FhirObservation> get(final Long userId, final String code) throws ResourceNotFoundException, FhirResourceException {
+    public List<FhirObservation> get(final Long userId, String code) throws ResourceNotFoundException, FhirResourceException {
 
         List<Observation> observations = new ArrayList<>();
         List<FhirObservation> fhirObservations = new ArrayList<>();
@@ -47,7 +48,14 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             query.append("FROM    observation ");
             query.append("WHERE   content->> 'subject' = '{\"display\": \"");
             query.append(fhirLink.getVersionId().toString());
-            query.append("\", \"reference\": \"uuid\"}'");
+            query.append("\", \"reference\": \"uuid\"}' ");
+
+            if (StringUtils.isNotEmpty(code)) {
+                query.append("AND content-> 'name' ->> 'text' = '");
+                query.append(code);
+                query.append("'");
+            }
+
             observations.addAll(fhirResource.findResourceByQuery(query.toString(), Observation.class));
         }
 
