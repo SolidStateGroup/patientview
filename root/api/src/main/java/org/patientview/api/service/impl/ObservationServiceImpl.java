@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.controller.BaseController;
+import org.patientview.api.model.FhirObservation;
 import org.patientview.api.service.ObservationService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -30,9 +31,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private UserRepository userRepository;
 
     @Override
-    public List<Observation> get(final Long userId, final String code) throws ResourceNotFoundException, FhirResourceException {
+    public List<FhirObservation> get(final Long userId, final String code) throws ResourceNotFoundException, FhirResourceException {
 
         List<Observation> observations = new ArrayList<>();
+        List<FhirObservation> fhirObservations = new ArrayList<>();
 
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -49,7 +51,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             observations.addAll(fhirResource.findResourceByQuery(query.toString(), Observation.class));
         }
 
-        return observations;
+        // convert to transport observations
+        for (Observation observation : observations) {
+            fhirObservations.add(new FhirObservation(observation));
+        }
+        return fhirObservations;
     }
 
     @Override
