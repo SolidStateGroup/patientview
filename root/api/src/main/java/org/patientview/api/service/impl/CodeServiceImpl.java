@@ -172,4 +172,8 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         Link persistedLink = linkRepository.save(link);
         return persistedLink;
     }
+
+    public List<Code> findAllByCode(String code) {
+        return codeRepository.findAllByCode(code);
+    }
 }

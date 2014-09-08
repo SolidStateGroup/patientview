@@ -2,7 +2,7 @@
 <div class="content-panel">
     <div class="content-inner">
         <!-- patient details from FHIR -->
-        <div ng-show="!loading && specialties">
+        <div ng-show="!loading && specialties && specialties.length > 1">
             <div ng-repeat="specialty in specialties">
                 <div><a href="" ng-click="changeSpecialty(specialty)" class="btn btn-primary">{{specialty.name}}</a></div>
             </div>

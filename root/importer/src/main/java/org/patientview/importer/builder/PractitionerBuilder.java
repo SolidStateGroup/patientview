@@ -40,6 +40,7 @@ public class PractitionerBuilder {
         address.addLineSimple(gp.getGpaddress1());
         address.setCitySimple(gp.getGpaddress2());
         address.setStateSimple(gp.getGpaddress3());
+        address.setCountrySimple(gp.getGpaddress4());
         address.setZipSimple(gp.getGppostcode());
         practitioner.setAddress(address);
 

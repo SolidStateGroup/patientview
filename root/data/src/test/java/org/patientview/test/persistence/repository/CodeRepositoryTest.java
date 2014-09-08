@@ -50,52 +50,33 @@ public class CodeRepositoryTest {
     @Test
     public void testFindAll() {
 
-        Code code = new Code();
-        code.setCode("TEST_CODE");
-        code.setDescription("a test code");
-        code.setCodeType(dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE));
-        code.setStandardType(dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD));
-        code.setCreated(new Date());
-        code.setCreator(creator);
-        codeRepository.save(code);
-
-        Code code2 = new Code();
-        code2.setCode("TEST_CODE_2");
-        code2.setDescription("a test code");
-        code2.setCodeType(dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE));
-        code2.setStandardType(dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD));
-        code2.setCreated(new Date());
-        code2.setCreator(creator);
-        codeRepository.save(code2);
+        Code code1 = dataTestUtils.createCode("TEST_CODE", "a test code", "READ", "STANDARD1");
+        Code code2 = dataTestUtils.createCode("TEST_CODE_2", "a test code", "READ", "STANDARD1");
 
         PageRequest pageable = new PageRequest(0, 1);
         Page<Code> codes = codeRepository.findAllFiltered("%%", pageable);
 
         // Should get 1 code back and it should be the one that was created
         Assert.assertEquals("There should be 1 code available", 1, codes.getContent().size());
-        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code));
+        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code1));
+    }
+
+    @Test
+    public void testFindByCode() {
+
+        Code code1 = dataTestUtils.createCode("TEST_CODE", "a test code", "READ", "STANDARD1");
+        Code code2 = dataTestUtils.createCode("TEST_CODE_2", "a test code", "READ", "STANDARD1");
+
+        List<Code> codes = codeRepository.findAllByCode("TEST_CODE");
+        Assert.assertEquals("There should be 1 code available", 1, codes.size());
+        Assert.assertTrue("The code should be the one created", codes.get(0).equals(code1));
     }
 
     @Test
     public void testFindAllFiltered() {
 
-        Code code = new Code();
-        code.setCode("TEST_CODE_1");
-        code.setDescription("test code description 1");
-        code.setCodeType(dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE));
-        code.setStandardType(dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD));
-        code.setCreated(new Date());
-        code.setCreator(creator);
-        codeRepository.save(code);
-
-        Code code2 = new Code();
-        code2.setCode("ANOTHER_TEST_CODE");
-        code2.setDescription("another kind of test code");
-        code2.setCodeType(dataTestUtils.createLookup("EDTA", LookupTypes.CODE_TYPE));
-        code2.setStandardType(dataTestUtils.createLookup("STANDARD2", LookupTypes.CODE_STANDARD));
-        code2.setCreated(new Date());
-        code2.setCreator(creator);
-        codeRepository.save(code2);
+        Code code1 = dataTestUtils.createCode("TEST_CODE", "a test code", "READ", "STANDARD1");
+        Code code2 = dataTestUtils.createCode("TEST_CODE_2", "a test code", "READ", "STANDARD1");
 
         PageRequest pageable = new PageRequest(0, 999);
 
@@ -106,41 +87,26 @@ public class CodeRepositoryTest {
     @Test
     public void testFindAllFilterText() {
 
-        Code code = new Code();
-        code.setCode("TEST_CODE_1");
-        code.setDescription("test code description 1");
-        code.setCodeType(dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE));
-        code.setStandardType(dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD));
-        code.setCreated(new Date());
-        code.setCreator(creator);
-        codeRepository.save(code);
-
-        Code code2 = new Code();
-        code2.setCode("ANOTHER_TEST_CODE");
-        code2.setDescription("another kind of test code");
-        code2.setCodeType(dataTestUtils.createLookup("EDTA", LookupTypes.CODE_TYPE));
-        code2.setStandardType(dataTestUtils.createLookup("STANDARD2", LookupTypes.CODE_STANDARD));
-        code2.setCreated(new Date());
-        code2.setCreator(creator);
-        codeRepository.save(code2);
+        Code code1 = dataTestUtils.createCode("TEST_CODE_1", "test code description 1", "READ", "STANDARD1");
+        Code code2 = dataTestUtils.createCode("ANOTHER_TEST_CODE", "another kind of test code", "EDTA", "STANDARD2");
 
         PageRequest pageable = new PageRequest(0, 999);
 
         Page<Code> codes = codeRepository.findAllFiltered("%READ%".toUpperCase(), pageable);
         Assert.assertEquals("There should be 1 code available", 1, codes.getContent().size());
-        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code));
+        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code1));
 
         codes = codeRepository.findAllFiltered("%STANDARD1%".toUpperCase(), pageable);
         Assert.assertEquals("There should be 1 code available", 1, codes.getContent().size());
-        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code));
+        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code1));
 
         codes = codeRepository.findAllFiltered("%description 1%".toUpperCase(), pageable);
         Assert.assertEquals("There should be 1 code available", 1, codes.getContent().size());
-        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code));
+        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code1));
 
         codes = codeRepository.findAllFiltered("%CODE_1%".toUpperCase(), pageable);
         Assert.assertEquals("There should be 1 code available", 1, codes.getContent().size());
-        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code));
+        Assert.assertTrue("The code should be the one created", codes.getContent().get(0).equals(code1));
     }
 
     @Test
@@ -187,23 +153,8 @@ public class CodeRepositoryTest {
     @Test
     public void testFindAllByExistingCodeDetails() {
 
-        Code code = new Code();
-        code.setCode("TEST_CODE");
-        code.setDescription("a test code");
-        code.setCodeType(dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE));
-        code.setStandardType(dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD));
-        code.setCreated(new Date());
-        code.setCreator(creator);
-        codeRepository.save(code);
-
-        Code code2 = new Code();
-        code2.setCode("TEST_CODE_2");
-        code2.setDescription("a test code");
-        code2.setCodeType(dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE));
-        code2.setStandardType(dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD));
-        code2.setCreated(new Date());
-        code2.setCreator(creator);
-        codeRepository.save(code2);
+        Code code1 = dataTestUtils.createCode("TEST_CODE_1", "test code description 1", "READ", "STANDARD1");
+        Code code2 = dataTestUtils.createCode("ANOTHER_TEST_CODE", "another kind of test code", "EDTA", "STANDARD2");
 
         List<Code> codes = TestUtils.iterableToList(codeRepository.findAllByExistingCodeDetails(
                 code2.getCode(), code2.getDescription(), code2.getCodeType(), code2.getStandardType()));

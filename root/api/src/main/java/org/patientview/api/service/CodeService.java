@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityExistsException;
+import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -24,4 +25,5 @@ public interface CodeService extends CrudService<Code> {
 
     Link addLink(Long codeId, Link link);
 
+    List<Code> findAllByCode(String code);
 }

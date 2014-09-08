@@ -1,4 +1,4 @@
-package org.patientview.persistence.repository;
+package org.patientview.test.persistence.repository;
 
 import junit.framework.Assert;
 import org.junit.Before;
@@ -8,6 +8,8 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
 import org.springframework.test.context.ContextConfiguration;

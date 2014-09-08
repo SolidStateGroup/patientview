@@ -3,14 +3,19 @@ package org.patientview.api.service.impl;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.patientview.api.model.FhirCondition;
+import org.patientview.api.service.CodeService;
+import org.patientview.api.service.ConditionService;
 import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
-import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.User;
 import org.patientview.persistence.util.DataUtils;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +38,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private CodeService codeService;
+
+    @Inject
+    private ConditionService conditionService;
 
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
@@ -65,9 +76,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     Practitioner fhirPractitioner = null;
                     if (!fhirPatient.getCareProvider().isEmpty()) {
                         fhirPractitioner
-                                = getPractitioner(UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
+                            = getPractitioner(UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
                     }
-                    patients.add(new org.patientview.api.model.Patient(fhirPatient, fhirPractitioner, fhirLink.getGroup()));
+
+                    org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
+                            fhirPractitioner, fhirLink.getGroup(), conditionService.get(fhirLink.getVersionId()));
+
+                    // set edta diagnosis if present based on available codes
+                    patients.add(setDiagnosisCodes(patient));
+
                     groups.add(fhirLink.getGroup());
                 }
             }
@@ -91,5 +108,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         } catch (Exception e) {
             throw new FhirResourceException(e);
         }
+    }
+
+    private org.patientview.api.model.Patient setDiagnosisCodes(org.patientview.api.model.Patient patient) {
+
+        for (FhirCondition condition : patient.getFhirConditions()) {
+            if (condition.getCategory().equals(DiagnosisTypes.DIAGNOSIS_EDTA.toString())) {
+                List<Code> codes = codeService.findAllByCode(condition.getCode());
+                if (!codes.isEmpty()) {
+                    patient.getDiagnosisCodes().add(codes.get(0));
+                }
+            }
+        }
+
+        return patient;
     }
 }

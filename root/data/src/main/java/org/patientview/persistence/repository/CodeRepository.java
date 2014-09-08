@@ -37,6 +37,9 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
             @Param("filterText") String filterText,
             Pageable pageable);*/
 
+    @Query("SELECT c FROM Code c WHERE c.code = :code")
+    public List<Code> findAllByCode(@Param("code") String code);
+
     @Query("SELECT c FROM Code c " +
             "WHERE (UPPER(c.code) LIKE :filterText) " +
             "OR (UPPER(c.description) LIKE :filterText) " +

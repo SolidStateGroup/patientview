@@ -47,8 +47,6 @@ function ($scope, PatientService, GroupService) {
                     childGroupIds.push(childGroups[i].id);
                 }
 
-
-
                 PatientService.get($scope.loggedInUser.id, childGroupIds).then(function (patientDetails) {
                     $scope.patientDetails = patientDetails;
 

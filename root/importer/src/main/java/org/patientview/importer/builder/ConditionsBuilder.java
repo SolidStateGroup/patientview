@@ -6,6 +6,7 @@ import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,16 @@ public class ConditionsBuilder {
             }
             count++;
         }
+
+        // edta diagnosis <diagnosisedta>, linked to codes
+        try {
+            conditions.add(createCondition(data.getPatient().getClinicaldetails().getDiagnosisedta()));
+            success++;
+        } catch (FhirResourceException e) {
+            LOG.error("Invalid data in XML: ", e.getMessage());
+        }
+        count++;
+
         return conditions;
     }
 
@@ -60,6 +71,23 @@ public class ConditionsBuilder {
 
         CodeableConcept category = new CodeableConcept();
         category.setTextSimple("diagnosis");
+        condition.setCategory(category);
+
+        return condition;
+    }
+
+    private Condition createCondition(String edtaDiagnosis) throws FhirResourceException{
+        Condition condition = new Condition();
+        condition.setStatusSimple(Condition.ConditionStatus.confirmed);
+        condition.setSubject(resourceReference);
+        condition.setNotesSimple(edtaDiagnosis);
+
+        CodeableConcept code = new CodeableConcept();
+        code.setTextSimple(edtaDiagnosis);
+        condition.setCode(code);
+
+        CodeableConcept category = new CodeableConcept();
+        category.setTextSimple(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
         condition.setCategory(category);
 
         return condition;

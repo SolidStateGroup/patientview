@@ -18,29 +18,51 @@
                                 <tr><td><h5>Patient Details</h5></td></tr>
                                 <tr>
                                     <td>Surname</td>
-                                    <td>{{patient.fhirPatient.name[0].family[0].value}}</td>
+                                    <td>{{patient.fhirPatient.surname}}</td>
                                 </tr>
                                 <tr>
                                     <td>Forename(s)</td>
-                                    <td>{{patient.fhirPatient.name[0].given[0].value}}</td>
+                                    <td>{{patient.fhirPatient.forename}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Sex</td>
+                                    <td>{{patient.fhirPatient.gender}}</td>
                                 </tr>
                                 <tr>
                                     <td>Date of Birth</td>
-                                    <td>{{patient.fhirPatient.birthDateSimple}}</td>
+                                    <td>{{patient.fhirPatient.dateOfBirth | date:'dd-MMM-yyyy'}}</td>
+                                </tr>
+                                <tr>
+                                    <td>NHS Number</td>
+                                    <td>
+                                        <span ng-repeat="identifier in patient.fhirPatient.identifiers" ng-show="identifier.label === 'NHS_NUMBER'">
+                                            {{identifier.value}}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Hospital Number</td>
+                                    <td>
+                                        <span ng-repeat="identifier in patient.fhirPatient.identifiers" ng-show="identifier.label === 'HOSPITAL_NUMBER'">
+                                            {{identifier.value}}
+                                        </span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Address</td>
                                     <td>
-                                        {{patient.fhirPatient.address[0].line[0].value}}<br/>
-                                        {{patient.fhirPatient.address[0].citySimple}}<br/>
-                                        {{patient.fhirPatient.address[0].zipSimple}}<br/>
+                                        {{patient.fhirPatient.address1}},
+                                        {{patient.fhirPatient.address2}},
+                                        {{patient.fhirPatient.address3}},
+                                        {{patient.fhirPatient.address4}},
+                                        {{patient.fhirPatient.postcode}}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Phone Number(s)</td>
                                     <td>
-                                        <span ng-repeat="phone in patient.fhirPatient.contact[0].telecom">
-                                            {{phone.valueSimple}}<br/>
+                                        <span ng-repeat="phoneNumber in patient.fhirPatient.phoneNumbers">
+                                            {{phoneNumber}}<br/>
                                         </span>
                                     </td>
                                 </tr>
@@ -51,21 +73,24 @@
                                 <tr><td><h5>GP Details</h5></td></tr>
                                 <tr>
                                     <td>Name</td>
-                                    <td>{{patient.fhirPractitioner.name.family[0].value}}</td>
+                                    <td>{{patient.fhirPractitioner.name}}</td>
                                 </tr>
                                 <tr>
                                     <td>Address</td>
                                     <td>
-                                        {{patient.fhirPractitioner.address.line[0].value}}<br/>
-                                        {{patient.fhirPractitioner.address.citySimple}}<br/>
-                                        {{patient.fhirPractitioner.address.stateSimple}}<br/>
-                                        {{patient.fhirPractitioner.address.zipSimple}}<br/>
+                                        {{patient.fhirPractitioner.address1}},
+                                        {{patient.fhirPractitioner.address2}},
+                                        {{patient.fhirPractitioner.address3}},
+                                        {{patient.fhirPractitioner.address4}},
+                                        {{patient.fhirPractitioner.postcode}}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Phone Number</td>
+                                    <td>Phone Number (s)</td>
                                     <td>
-                                        {{patient.fhirPractitioner.telecom[0].valueSimple}}
+                                        <span ng-repeat="phoneNumber in patient.fhirPractitioner.phoneNumbers">
+                                            {{phoneNumber}}<br/>
+                                        </span>
                                     </td>
                                 </tr>
                             </tbody>

@@ -10,35 +10,48 @@
         <div class="panel-body">
             <table>
                 <tbody>
-                <tr><td><h5>Condition Details</h5></td></tr>
                 <tr>
-                    <td>Surname</td>
-                    <td>{{patient.fhirPatient.name[0].family[0].value}}</td>
-                </tr>
-                <tr>
-                    <td>Forename(s)</td>
-                    <td>{{patient.fhirPatient.name[0].given[0].value}}</td>
-                </tr>
-                <tr>
-                    <td>Date of Birth</td>
-                    <td>{{patient.fhirPatient.birthDateSimple}}</td>
-                </tr>
-                <tr>
-                    <td>Address</td>
+                    <td>Diagnosis</td>
                     <td>
-                        {{patient.fhirPatient.address[0].line[0].value}}<br/>
-                        {{patient.fhirPatient.address[0].citySimple}}<br/>
-                        {{patient.fhirPatient.address[0].zipSimple}}<br/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Phone Number(s)</td>
-                    <td>
-                                        <span ng-repeat="phone in patient.fhirPatient.contact[0].telecom">
-                                            {{phone.valueSimple}}<br/>
+                        <table ng-repeat="code in patient.diagnosisCodes">
+                            <tbody>
+                                <tr>
+                                    <td>{{code.description}}</td>
+                                    <td>
+                                        <strong ng-show="code.links.length">Relevant Links</strong><br/>
+                                        <span ng-repeat="link in code.links">
+                                            <a href="{{link.link}}">{{link.name}}</a><br/>
                                         </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </td>
                 </tr>
+                <tr>
+                    <td>Other Conditions</td>
+                    <td>
+                        <ul>
+                            <li ng-repeat="condition in patient.fhirConditions" ng-show="condition.category === 'diagnosis'">
+                                {{condition.notes}}
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr ng-show="patient.group.links">
+                    <td><h5>Helpful Information</h5></td><td></td>
+                </tr>
+                <tr ng-show="patient.group.links">
+                    <td colspan="2">
+                        <ul>
+                            <li ng-repeat="link in patient.group.links">
+                                <a href="{{link.link}}">{{link.name}}</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
                 </tbody>
             </table>
         </div>

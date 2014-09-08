@@ -1,5 +1,6 @@
 package org.patientview.test.util;
 
+import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
@@ -17,6 +18,7 @@ import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.UserInformationTypes;
+import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -72,6 +74,9 @@ public class DataTestUtils {
 
     @Inject
     RouteRepository routeRepository;
+
+    @Inject
+    CodeRepository codeRepository;
 
     User creator;
 
@@ -167,6 +172,14 @@ public class DataTestUtils {
 
     }
 
-
+    public Code createCode (String code, String description, String codeType, String standardType) {
+        Code newCode = new Code();
+        setupBaseObject(newCode);
+        newCode.setCode(code);
+        newCode.setDescription(description);
+        newCode.setCodeType(createLookup(codeType, LookupTypes.CODE_TYPE));
+        newCode.setStandardType(createLookup(standardType, LookupTypes.CODE_STANDARD));
+        return codeRepository.save(newCode);
+    }
 
 }
