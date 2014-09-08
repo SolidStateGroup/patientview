@@ -6,7 +6,9 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.ConditionService;
+import org.patientview.importer.service.EncounterService;
 import org.patientview.importer.service.ObservationService;
+import org.patientview.importer.service.OrganizationService;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
@@ -35,16 +37,28 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     @Inject
     private PractitionerService practitionerService;
 
+    @Inject
+    private OrganizationService organizationService;
+
+    @Inject
+    private EncounterService encounterService;
 
     @Override
     public void process(Patientview patientview) throws ImportResourceException {
+
         ResourceReference practitionerReference;
+        ResourceReference organizationReference;
         ResourceReference patientReference;
+
         try {
 
             // practitioner (GP details)
             UUID practitionerUuid = practitionerService.add(patientview);
             practitionerReference = createResourceReference(practitionerUuid);
+
+            // organization (Unit/centre details)
+            UUID organizationUuid = organizationService.add(patientview);
+            organizationReference = createResourceReference(organizationUuid);
 
             // core patient object
             UUID patientUuid = patientService.add(patientview, practitionerReference);
@@ -55,6 +69,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             // conditions (diagnoses)
             conditionService.add(patientview, patientReference);
+
+            // encounters (used for treatment and transplant status)
+            encounterService.add(patientview, patientReference, organizationReference);
 
         } catch (FhirResourceException | ResourceNotFoundException e) {
             LOG.error("Unable to build patient {}", patientview.getPatient().getPersonaldetails().getNhsno());

@@ -10,6 +10,7 @@
         <div class="panel-body">
             <table>
                 <tbody>
+
                 <tr>
                     <td>Diagnosis</td>
                     <td>
@@ -20,7 +21,7 @@
                                     <td>
                                         <strong ng-show="code.links.length">Relevant Links</strong><br/>
                                         <span ng-repeat="link in code.links">
-                                            <a href="{{link.link}}">{{link.name}}</a><br/>
+                                            <a href="{{link.link}}" target="_blank">{{link.name}}</a><br/>
                                         </span>
                                     </td>
                                 </tr>
@@ -28,6 +29,7 @@
                         </table>
                     </td>
                 </tr>
+
                 <tr>
                     <td>Other Conditions</td>
                     <td>
@@ -39,6 +41,23 @@
                     </td>
                 </tr>
 
+                <tr>
+                    <td>Treatment</td>
+                    <td>
+                        <span ng-repeat="encounter in patient.fhirEncounters" ng-show="encounter.identifier === 'TREATMENT'">
+                            {{encounter.type}}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Transplant Status</td>
+                    <td>
+                        <span ng-repeat="encounter in patient.fhirEncounters" ng-show="encounter.identifier === 'TRANSPLANT_STATUS'">
+                            {{encounter.type}}
+                        </span>
+                    </td>
+                </tr>
+
                 <tr ng-show="patient.group.links">
                     <td><h5>Helpful Information</h5></td><td></td>
                 </tr>
@@ -46,7 +65,7 @@
                     <td colspan="2">
                         <ul>
                             <li ng-repeat="link in patient.group.links">
-                                <a href="{{link.link}}">{{link.name}}</a>
+                                <a href="{{link.link}}" target="_blank">{{link.name}}</a>
                             </li>
                         </ul>
                     </td>

@@ -27,7 +27,7 @@ public class ObservationController extends BaseController<ObservationController>
 
     @RequestMapping(value = "/observation/{userId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<FhirObservation>> getPatientDetails(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<FhirObservation>> getObservations(@PathVariable("userId") Long userId)
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(observationService.get(userId,""), HttpStatus.OK);
     }

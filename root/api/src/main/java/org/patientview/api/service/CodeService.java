@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Lookup;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,5 +26,5 @@ public interface CodeService extends CrudService<Code> {
 
     Link addLink(Long codeId, Link link);
 
-    List<Code> findAllByCode(String code);
+    List<Code> findAllByCodeAndType(String code, Lookup codeType);
 }

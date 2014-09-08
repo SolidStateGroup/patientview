@@ -2,11 +2,11 @@ package org.patientview.test.persistence.repository;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
@@ -46,15 +46,12 @@ public class LookupRepositoryTest {
      * Test: Create a lookup type and value and attempt to retrieve by type and then by type and value
      * Fail: Either lookup type or value creation is unsuccessful
      */
-    @Ignore
     @Test
-    public void testCreateLookupTypeAndValue() {
+    public void testFindByTypeAndValue() {
+        Lookup lookup = dataTestUtils.createLookup(CodeTypes.DIAGNOSIS.toString(), LookupTypes.CODE_TYPE);
 
-        // Create a lookup type item
-        dataTestUtils.createLookup("STAFF", LookupTypes.FEATURE_TYPE);
-        LookupType getLookupType = lookupTypeRepository.findByType(LookupTypes.GROUP);
-
-        Assert.assertTrue("LookupType should be created", getLookupType.getType().equals("FEATURE_TYPE"));
-        Assert.assertNotNull("Lookup should be created", lookupRepository.findByTypeAndValue(LookupTypes.FEATURE_TYPE, "STAFF"));
+        Assert.assertTrue("Lookup should be created", lookup != null);
+        Assert.assertNotNull("Lookup should be found", lookupRepository.findByTypeAndValue(LookupTypes.CODE_TYPE,
+                CodeTypes.DIAGNOSIS.toString()));
     }
 }

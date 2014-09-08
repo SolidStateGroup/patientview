@@ -82,7 +82,7 @@ public class ImportControllerTest {
 
     // used to test the service once running
     @Test
-    //@Ignore("IntegrationTest")
+    @Ignore("IntegrationTest")
     public void importIntegrationTest() throws Exception {
         post(getTestFile());
     }

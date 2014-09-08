@@ -62,14 +62,23 @@ public class CodeRepositoryTest {
     }
 
     @Test
-    public void testFindByCode() {
+    public void testFindByCodeAndType() {
 
-        Code code1 = dataTestUtils.createCode("TEST_CODE", "a test code", "READ", "STANDARD1");
-        Code code2 = dataTestUtils.createCode("TEST_CODE_2", "a test code", "READ", "STANDARD1");
+        Lookup codeType1 = dataTestUtils.createLookup("READ", LookupTypes.CODE_TYPE);
+        Lookup standardType1 = dataTestUtils.createLookup("STANDARD1", LookupTypes.CODE_STANDARD);
 
-        List<Code> codes = codeRepository.findAllByCode("TEST_CODE");
+        Code code = new Code();
+        code.setCode("TEST_CODE");
+        code.setDescription("test code description 1");
+        code.setCodeType(codeType1);
+        code.setStandardType(standardType1);
+        code.setCreated(new Date());
+        code.setCreator(creator);
+        codeRepository.save(code);
+
+        List<Code> codes = codeRepository.findAllByCodeAndType("TEST_CODE", codeType1);
         Assert.assertEquals("There should be 1 code available", 1, codes.size());
-        Assert.assertTrue("The code should be the one created", codes.get(0).equals(code1));
+        Assert.assertTrue("The code should be the one created", codes.get(0).equals(code));
     }
 
     @Test

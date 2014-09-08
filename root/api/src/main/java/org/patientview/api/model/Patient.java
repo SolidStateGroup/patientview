@@ -19,6 +19,7 @@ public class Patient extends BaseModel{
     private FhirPractitioner fhirPractitioner;
     private Group group;
     private List<Code> diagnosisCodes;
+    private List<FhirEncounter> fhirEncounters;
 
     public Patient() {
     }
@@ -35,6 +36,7 @@ public class Patient extends BaseModel{
         }
 
         setDiagnosisCodes(new ArrayList<Code>());
+        setFhirEncounters(new ArrayList<FhirEncounter>());
     }
 
     public FhirPatient getFhirPatient() {
@@ -75,5 +77,13 @@ public class Patient extends BaseModel{
 
     public void setDiagnosisCodes(List<Code> diagnosisCodes) {
         this.diagnosisCodes = diagnosisCodes;
+    }
+
+    public List<FhirEncounter> getFhirEncounters() {
+        return fhirEncounters;
+    }
+
+    public void setFhirEncounters(List<FhirEncounter> fhirEncounters) {
+        this.fhirEncounters = fhirEncounters;
     }
 }

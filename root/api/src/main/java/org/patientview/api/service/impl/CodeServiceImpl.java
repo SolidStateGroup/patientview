@@ -7,6 +7,7 @@ import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -173,7 +174,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return persistedLink;
     }
 
-    public List<Code> findAllByCode(String code) {
-        return codeRepository.findAllByCode(code);
+    public List<Code> findAllByCodeAndType(String code, Lookup codeType) {
+        return codeRepository.findAllByCodeAndType(code, codeType);
     }
 }

@@ -2,7 +2,6 @@ package org.patientview.importer.builder;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Condition;
-import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.junit.Assert;
 import org.junit.Test;

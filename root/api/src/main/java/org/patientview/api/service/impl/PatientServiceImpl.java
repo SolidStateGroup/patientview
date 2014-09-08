@@ -1,11 +1,15 @@
 package org.patientview.api.service.impl;
 
+import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.model.FhirCondition;
+import org.patientview.api.model.FhirEncounter;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
+import org.patientview.api.service.EncounterService;
+import org.patientview.api.service.LookupService;
 import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -13,7 +17,9 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
@@ -45,6 +51,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     @Inject
     private ConditionService conditionService;
 
+    @Inject
+    private EncounterService encounterService;
+
+    @Inject
+    private LookupService lookupService;
+
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException {
@@ -73,6 +85,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             if ((restrictGroups && groupIds.contains(fhirLink.getGroup().getId())) || (!restrictGroups)) {
                 if (!groups.contains(fhirLink.getGroup())) {
                     Patient fhirPatient = get(fhirLink.getResourceId());
+
                     Practitioner fhirPractitioner = null;
                     if (!fhirPatient.getCareProvider().isEmpty()) {
                         fhirPractitioner
@@ -81,6 +94,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
                     org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
                             fhirPractitioner, fhirLink.getGroup(), conditionService.get(fhirLink.getVersionId()));
+
+                    // set encounters
+                    patient.getFhirEncounters().addAll(setEncounters(fhirLink.getVersionId()));
 
                     // set edta diagnosis if present based on available codes
                     patients.add(setDiagnosisCodes(patient));
@@ -111,10 +127,11 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     }
 
     private org.patientview.api.model.Patient setDiagnosisCodes(org.patientview.api.model.Patient patient) {
-
         for (FhirCondition condition : patient.getFhirConditions()) {
             if (condition.getCategory().equals(DiagnosisTypes.DIAGNOSIS_EDTA.toString())) {
-                List<Code> codes = codeService.findAllByCode(condition.getCode());
+
+                List<Code> codes = codeService.findAllByCodeAndType(condition.getCode(),
+                        lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.DIAGNOSIS.toString()));
                 if (!codes.isEmpty()) {
                     patient.getDiagnosisCodes().add(codes.get(0));
                 }
@@ -122,5 +139,24 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         return patient;
+    }
+
+    private List<FhirEncounter> setEncounters(UUID patientUuid) throws FhirResourceException {
+        List<FhirEncounter> fhirEncounters = new ArrayList<>();
+
+        // replace fhirEncounter type field with a more useful description if it exists in codes
+        for (Encounter encounter : encounterService.get(patientUuid)) {
+            FhirEncounter fhirEncounter = new FhirEncounter(encounter);
+
+            List<Code> codes = codeService.findAllByCodeAndType(fhirEncounter.getType(),
+                    lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.TREATMENT.toString()));
+            if (!codes.isEmpty()) {
+                fhirEncounter.setType(codes.get(0).getDescription());
+            }
+
+            fhirEncounters.add(fhirEncounter);
+        }
+
+        return fhirEncounters;
     }
 }

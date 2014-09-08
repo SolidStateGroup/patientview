@@ -1,8 +1,9 @@
 package org.patientview.api.service.impl;
 
-import org.hl7.fhir.instance.model.Condition;
+import org.hl7.fhir.instance.model.Encounter;
 import org.patientview.api.controller.BaseController;
-import org.patientview.api.service.ConditionService;
+import org.patientview.api.model.FhirEncounter;
+import org.patientview.api.service.EncounterService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
@@ -21,7 +22,7 @@ import java.util.UUID;
  * Created on 08/09/2014
  */
 @Service
-public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> implements ConditionService {
+public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> implements EncounterService {
 
     @Inject
     private FhirResource fhirResource;
@@ -30,9 +31,10 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
     private UserRepository userRepository;
 
     @Override
-    public List<Condition> get(final Long userId, final String code) throws ResourceNotFoundException, FhirResourceException {
+    public List<FhirEncounter> get(final Long userId, final String code) throws ResourceNotFoundException, FhirResourceException {
 
-        List<Condition> conditions = new ArrayList<>();
+        List<Encounter> encounters = new ArrayList<>();
+        List<FhirEncounter> fhirEncounters = new ArrayList<>();
 
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -42,28 +44,32 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
         for (FhirLink fhirLink : user.getFhirLinks()) {
             StringBuilder query = new StringBuilder();
             query.append("SELECT  content::varchar ");
-            query.append("FROM    condition ");
+            query.append("FROM    encounter ");
             query.append("WHERE   content->> 'subject' = '{\"display\": \"");
             query.append(fhirLink.getVersionId().toString());
             query.append("\", \"reference\": \"uuid\"}'");
-            conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
+            encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
         }
 
-        return conditions;
+        // convert to transport encounters
+        for (Encounter encounter : encounters) {
+            fhirEncounters.add(new FhirEncounter(encounter));
+        }
+        return fhirEncounters;
     }
 
     @Override
-    public List<Condition> get(final UUID patientUuid) throws FhirResourceException {
-        List<Condition> conditions = new ArrayList<>();
+    public List<Encounter> get(final UUID patientUuid) throws FhirResourceException {
+        List<Encounter> encounters = new ArrayList<>();
 
         StringBuilder query = new StringBuilder();
         query.append("SELECT  content::varchar ");
-        query.append("FROM    condition ");
+        query.append("FROM    encounter ");
         query.append("WHERE   content->> 'subject' = '{\"display\": \"");
         query.append(patientUuid);
         query.append("\", \"reference\": \"uuid\"}'");
-        conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
+        encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
 
-        return conditions;
+        return encounters;
     }
 }
