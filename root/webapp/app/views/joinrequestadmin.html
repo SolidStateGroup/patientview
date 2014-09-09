@@ -1,96 +1,108 @@
-<h1 ng-controller="JoinRequestAdminCtrl">Join Request Admin</h1>
+<h1>Join Request Admin</h1>
 <div class="content-panel filter-panel">
-
     <div class="">
         <p class="intro-block">Filter join requests by selecting a status from the options below.</p>
     </div>
     <div class="panel-footer clearfix">
+        <!-- filter by code type -->
         <div class="content-inner">
-            <form class="form-horizontal" ng-cloak id="account-settings-form">
-                <!-- Filter -->
+            <div class="pull-right">
+                <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
+            </div>
+            <div class="form-horizontal" role="form">
                 <div class="select-container pull-left">
-                    <!-- filter by status -->
-                    <div class="btn-group filter-select" id="filter-role2" data-ng-class="{open: open2}">
+                    <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
                         <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Status <span class="caret-container"><span class="caret"></span></span></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                            <li><a data-ng-click="selectedStatus=[]; refresh()" class="a-filter-status"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                            <li><a data-ng-click="removeAllStatuses()"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                             <li class="divider"></li>
-                            <li data-ng-repeat="status in statuses"> <a data-ng-click="setSelectStatus(status)" class="a-filter-role clearfix"><span class="pull-left">{{status}}</span><span data-ng-class="isStatusChecked(status)"></span></a></li>
+                            <li data-ng-repeat="status in statuses">
+                                <a data-ng-click="setSelectedStatus()">
+                                    <span class="pull-left">{{status}}</span>
+                                    <span data-ng-class="isStatusChecked(status)"></span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
-
+                    <span data-ng-repeat="status in statuses" ng-show="isStatusChecked(status)"><span class="label label-info">{{status}}</span>&nbsp;</span>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- data grid -->
-<div class="faux-table eight-col" data-ng-show="joinRequests.length > 0">
+<div class="faux-table eight-col" data-ng-show="pagedItems.length > 0 && !loading" ng-cloak>
 
-    <div class="table-head accordion-title-row" ng-show="joinRequests.length > 0" ng-cloak>
+    <div class="table-head accordion-title-row">
         <div class="hidden">ID</div>
-        <div class="head-item accordion-title-text "><a ng-click="sortBy('forename');" class="sort-title"><i
-                class="icon-sort pull-right"></i>Name</a></div>
-        <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title"><i
-                class="icon-sort pull-right"></i>Date Of Birth</a></div>
-        <div class="head-item accordion-title-text ">NHS Number&nbsp;<i
-                class="glyphicon glyphicon-sort hidden"></i></a></div>
-        <div class="head-item accordion-title-text ">Email&nbsp;<i
-                class="glyphicon glyphicon-sort hidden"></i></a></div>
+        <div class="head-item accordion-title-text ">
+            <a ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a>
+        </div>
+        <div class="head-item accordion-title-text ">Date of Birth</div>
+        <div class="head-item accordion-title-text ">NHS Number</div>
+        <div class="head-item accordion-title-text ">Email</div>
         <div class="head-item accordion-title-text ">Unit</div>
-        <div class="head-item accordion-title-text "><a ng-click="sortBy('dateOfRequest');" class="sort-title"><i
-                class="icon-sort pull-right"></i>Date of Request</a></div>
+        <div class="head-item accordion-title-text ">
+            <a ng-click="sortBy('created');" class="sort-title"><i class="icon-sort pull-right"></i>Date of Request</a>
+        </div>
         <div class="head-item accordion-title-text ">Status</div>
         <div class="head-item accordion-title-text "></div>
     </div>
 
-    <div accordion class="accordion" close-others="true" ng-show="joinRequests.length  > 0" ng-cloak>
-        <div accordion-group id="accordion-group-{{joinRequest.id}}" class="accordion-group" is-open="status.open"
-             ng-repeat="joinRequest in joinRequests">
-            <div accordion-heading class="accordion-heading">
-                <div class="faux-row" ng-click="opened(joinRequest, $event, status)">
-                    <div class="row-item hidden">{{joinRequest.id}}</div>
-                    <div class="row-item accordion-heading-text">{{joinRequest.forename}} {{joinRequest.surname}}</div>
-                    <div class="row-item accordion-heading-text">{{joinRequest.dateOfBirth  | date:'dd-MMM-yyyy'}}</div>
-                    <div class="row-item accordion-heading-text">{{joinRequest.nhsNumber}}</div>
-                    <div class="row-item accordion-heading-text">{{joinRequest.email}}</div>
-                    <div class="row-item accordion-heading-text">{{joinRequest.group.name}}</div>
-                    <div class="row-item accordion-heading-text">{{joinRequest.created  | date:'dd-MMM-yyyy'}}</div>
-                    <div class="row-item accordion-heading-text">
-                        <span ng-if="joinRequest.status==='COMPLETED'" class="badge badge-small completed"></span>
-                        <span ng-if="joinRequest.status==='SUBMITTED'" class="badge badge-small warning"></span>
-                        <span ng-if="joinRequest.status==='INCOMPLETE'" class="badge badge-small warning"></span>
-                        <span ng-if="joinRequest.status==='IGNORED'" class="badge badge-small ignored"></span>
-                        <span ng-if="joinRequest.status==='DUPLICATE'" class="badge badge-small ignored"></span>
-                        {{joinRequest.status}}
-                    </div>
-                    <div class="row-item accordion-heading-text">
-                        <button type="button" class="btn blue pull-left">
-                            <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>
-                            &nbsp;&nbsp;Edit</button>
-                    </div>
-                </div>
-            </div accordion-heading>
-
+    <div class="item-header" ng-repeat="joinRequest in pagedItems">
+        <div class="faux-row">
+            <div class="row-item hidden">{{joinRequest.id}}</div>
+            <div class="row-item accordion-heading-text">{{joinRequest.forename}} {{joinRequest.surname}}</div>
+            <div class="row-item accordion-heading-text">{{joinRequest.dateOfBirth  | date:'dd-MMM-yyyy'}}</div>
+            <div class="row-item accordion-heading-text">{{joinRequest.nhsNumber}}</div>
+            <div class="row-item accordion-heading-text">{{joinRequest.email}}</div>
+            <div class="row-item accordion-heading-text">{{joinRequest.group.name}}</div>
+            <div class="row-item accordion-heading-text">{{joinRequest.created  | date:'dd-MMM-yyyy'}}</div>
+            <div class="row-item accordion-heading-text">
+                <span ng-if="joinRequest.status==='COMPLETED'" class="badge badge-small completed"></span>
+                <span ng-if="joinRequest.status==='SUBMITTED'" class="badge badge-small warning"></span>
+                <span ng-if="joinRequest.status==='INCOMPLETE'" class="badge badge-small warning"></span>
+                <span ng-if="joinRequest.status==='IGNORED'" class="badge badge-small ignored"></span>
+                <span ng-if="joinRequest.status==='DUPLICATE'" class="badge badge-small ignored"></span>
+                {{joinRequest.status}}
+            </div>
+            <div class="row-item accordion-heading-text">
+                <button type="button" class="btn blue" ng-click="opened(joinRequest)">Edit</button>
+            </div>
+        </div>
+        <div class="quick-reply content-panel" ng-show="joinRequest.showEdit">
             <form name="joinRequestForm">
                 <div ng-include src="'views/partials/joinrequestdetails.html'"></div>
             </form>
-
-        </div accordion-group>
-    </div accordion>
+        </div>
+    </div>
 </div>
 
-<div class="col-md-12" data-ng-show="joinRequests.length == 0">
+<div class="col-md-12" data-ng-show="pagedItems.length == 0 && !loading">
     <div class="col-md-12">
         <h4>No Join Requests found</h4>
     </div>
 </div>
 
-
-
 <div ng-show="loading" class="container"><br/><br/>
-
     <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
 </div>
 
+
+<!-- pagination -->
+<div class="col-md-12" data-ng-show="pagedItems.length > 0">
+    <div ng-show="pagedItems.length > 0 && totalPages > 1">
+        <ul class="pagination">
+            <li ng-class="prevPageDisabled()">
+                <a href ng-click="prevPage()">« Prev</a>
+            </li>
+            <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+                <a href>{{n+1}}</a>
+            </li>
+            <li ng-class="nextPageDisabled()">
+                <a href ng-click="nextPage()">Next »</a>
+            </li>
+        </ul>
+    </div>
+</div>

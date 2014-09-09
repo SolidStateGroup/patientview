@@ -18,6 +18,7 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +44,6 @@ public class JoinRequestRepositoryTest {
     UserRepository userRepository;
 
     User creator;
-
 
     @Before
     public void setup() {
@@ -87,10 +87,10 @@ public class JoinRequestRepositoryTest {
         user.getGroupRoles().add(dataTestUtils.createGroupRole(user,parentGroup,role));
         userRepository.save(user);
 
-        List<JoinRequest> joinRequests = TestUtils.iterableToList(joinRequestRepository.findByParentUser(user));
+        PageRequest pageable = new PageRequest(0, 999);
+        List<JoinRequest> joinRequests = joinRequestRepository.findByParentUser(user, pageable).getContent();
 
         Assert.assertTrue("The is one join request", !CollectionUtils.isEmpty(joinRequests));
-
     }
 
     /**
@@ -125,7 +125,6 @@ public class JoinRequestRepositoryTest {
         BigInteger count = joinRequestRepository.countSubmittedByParentUser(user);
 
         Assert.assertTrue("The is one join request", count == BigInteger.ONE);
-
     }
 
     /**
@@ -150,6 +149,5 @@ public class JoinRequestRepositoryTest {
         BigInteger count = joinRequestRepository.countSubmittedByUser(user);
 
         Assert.assertTrue("The is one join request", count == BigInteger.ONE);
-
     }
 }

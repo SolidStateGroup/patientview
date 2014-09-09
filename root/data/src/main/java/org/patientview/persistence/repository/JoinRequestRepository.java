@@ -1,9 +1,10 @@
 package org.patientview.persistence.repository;
 
-import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -21,10 +22,14 @@ import java.util.List;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long> {
+
+    Page<JoinRequest> findAll(Pageable pageable);
+
     @Query("SELECT  jr " +
             "FROM   JoinRequest jr " +
             "WHERE    jr.status IN :statuses")
-    Iterable<JoinRequest> findByStatuses(@Param("statuses") List<JoinRequestStatus> joinRequestStatuses);
+    Page<JoinRequest> findAllByStatuses(@Param("statuses") List<JoinRequestStatus> joinRequestStatuses,
+                                            Pageable pageable);
 
     @Query("SELECT  COUNT(1)  " +
             "FROM   JoinRequest jr " +
@@ -53,15 +58,16 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
            "FROM   JoinRequest jr " +
            "JOIN   jr.group.groupRoles gr " +
            "WHERE  gr.user = :user")
-    Iterable<JoinRequest> findByUser(@Param("user") User user);
+    Page<JoinRequest> findByUser(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT jr " +
             "FROM   JoinRequest jr " +
             "JOIN   jr.group.groupRoles gr " +
             "WHERE  gr.user = :user " +
             "AND    jr.status = :statuses")
-    Iterable<JoinRequest> findByUserAndStatuses(@Param("user") User user,
-                                              @Param("statuses") List<JoinRequestStatus> joinRequestStatuses);
+    Page<JoinRequest> findByUserAndStatuses(@Param("user") User user,
+                                              @Param("statuses") List<JoinRequestStatus> joinRequestStatuses,
+                                              Pageable pageable);
 
 
     @Query("SELECT jr " +
@@ -71,7 +77,7 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
             "JOIN   grs.objectGroup.groupRoles gr " +
             "WHERE  gr.user = :user " +
             "AND    grs.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.PARENT")
-    Iterable<JoinRequest> findByParentUser(@Param("user") User user);
+    Page<JoinRequest> findByParentUser(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT jr " +
            "FROM   JoinRequest jr " +
@@ -81,6 +87,7 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
            "WHERE  gr.user = :user " +
            "AND    jr.status = :statuses " +
            "AND    grs.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.PARENT")
-    Iterable<JoinRequest> findByParentUserAndStatuses(@Param("user") User user,
-                                                    @Param("statuses") List<JoinRequestStatus> joinRequestStatuses);
+    Page<JoinRequest> findByParentUserAndStatuses(@Param("user") User user,
+                                                    @Param("statuses") List<JoinRequestStatus> joinRequestStatuses,
+                                                    Pageable pageable);
 }

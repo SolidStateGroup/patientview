@@ -3,36 +3,29 @@
         <div class="col-md-3">
             <div>
                 <label for="join-request-notes" class="control-label">Status</label>
-                <select ng-model="joinRequest.newStatus"
+                <select ng-model="editItem.status"
                         ng-options="status as status for status in statuses"
                         class="form-control"></select>
             </div>
 
             <div class="">
                 <label for="join-request-notes" class="control-label">Notes</label>
-                <textarea cols="40"
-                          rows="5"
-                          type="text" class="form-control" id="join-request-notes" placeholder="Notes"
-                          name="notes" ng-model="joinRequest.notes" required></textarea></div>
+                <textarea cols="40" rows="5" type="text" class="form-control" id="join-request-notes" placeholder="Notes"
+                    name="notes" ng-model="editItem.notes"></textarea>
+            </div>
 
+            <label class="control-label" ng-show="editItem.completedBy">Completed By</label>
+            <div ng-show="editItem.completedBy">{{joinRequest.completedBy.forename}} {{joinRequest.completedBy.surname}}</div>
 
-            <label class="control-label" ng-show="joinRequest.completedBy">Completed By</label>
-
-            <div ng-show="joinRequest.completedBy">{{joinRequest.completedBy.forename}} {{joinRequest.completedBy.surname}}</div>
-
-            <label class="control-label" ng-show="joinRequest.completedBy">Completed On</label>
-
-            <div ng-show="joinRequest.completedBy">{{joinRequest.completionDate | date:'dd-MMM-yyyy'}}</div>
-
+            <label class="control-label" ng-show="editItem.completedBy">Completed On</label>
+            <div ng-show="editItem.completedBy">{{joinRequest.completionDate | date:'dd-MMM-yyyy'}}</div>
         </div>
     </div>
 </div>
 <br/>
-<button type="button" class="btn blue pull-right" ng-click="save(joinRequestForm, joinRequest)"
-        ng-disabled="joinRequestForm.$pristine">Save
-</button>
 
-<div class="user-save-cancel pull-right">
-    <button type="button" class="btn btn-grey" ng-click="status.open = !status.open; refresh()">Close</button>
+<div class="user-save-cancel pull-right btn-group">
+    <button type="button" class="btn blue" ng-click="save(joinRequestForm, editItem)" ng-disabled="joinRequestForm.$pristine">Save</button>
+    <button class="btn btn-grey" ng-click="joinRequest.showEdit = false">Close</button>
 </div>
 <span class="saved-notification pull-right" ng-show="saved">Saved Successfully! &nbsp;</span>
