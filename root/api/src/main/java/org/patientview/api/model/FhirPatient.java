@@ -52,7 +52,9 @@ public class FhirPatient extends BaseModel{
         }
 
         // gender/sex
-        setGender(patient.getGender().getTextSimple());
+        if (patient.getGender() != null) {
+            setGender(patient.getGender().getTextSimple());
+        }
 
         // address from first record, if present
         if (!patient.getAddress().isEmpty()) {
