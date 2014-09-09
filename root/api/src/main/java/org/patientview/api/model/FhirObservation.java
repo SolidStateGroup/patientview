@@ -4,9 +4,8 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Decimal;
 import org.hl7.fhir.instance.model.Observation;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.BaseModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -22,30 +21,33 @@ public class FhirObservation extends BaseModel{
     private Double value;
     private String comments;
 
-    private static final Logger LOG = LoggerFactory.getLogger(FhirObservation.class);
-
     public FhirObservation() {
     }
 
-    public FhirObservation(Observation observation) {
+    public FhirObservation(Observation observation) throws FhirResourceException {
 
-        setName(observation.getName().getTextSimple());
-        setComments(observation.getCommentsSimple());
+        if (observation.getName() != null) {
+            setName(observation.getName().getTextSimple());
 
-        try {
-            if (observation.getValue() != null) {
-                Decimal dec = (Decimal) observation.getValue().getChildByName("value").getValues().get(0);
-                setValue(Double.valueOf(dec.getStringValue()));
+            setComments(observation.getCommentsSimple());
+
+            try {
+                if (observation.getValue() != null) {
+                    Decimal dec = (Decimal) observation.getValue().getChildByName("value").getValues().get(0);
+                    setValue(Double.valueOf(dec.getStringValue()));
+                }
+            } catch (NumberFormatException nfe) {
+                throw new FhirResourceException("Cannot convert FHIR observation, missing Value");
             }
-        } catch (NumberFormatException nfe) {
-           LOG.debug("Error attempting to convert FHIR observation");
-        }
 
-        if (observation.getApplies() != null) {
-            DateTime applies = (DateTime) observation.getApplies();
-            DateAndTime date = applies.getValue();
-            setApplies(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
-                    date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+            if (observation.getApplies() != null) {
+                DateTime applies = (DateTime) observation.getApplies();
+                DateAndTime date = applies.getValue();
+                setApplies(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                        date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+            }
+        } else {
+            throw new FhirResourceException("Cannot convert FHIR observation, missing Name");
         }
     }
 

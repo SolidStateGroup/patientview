@@ -11,6 +11,8 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -30,6 +32,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     @Inject
     private UserRepository userRepository;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ObservationServiceImpl.class);
 
     @Override
     public List<FhirObservation> get(final Long userId, String code) throws ResourceNotFoundException, FhirResourceException {
@@ -61,7 +65,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         // convert to transport observations
         for (Observation observation : observations) {
-            fhirObservations.add(new FhirObservation(observation));
+            try {
+                fhirObservations.add(new FhirObservation(observation));
+            } catch (FhirResourceException fre) {
+                LOG.debug(fre.getMessage());
+            }
         }
         return fhirObservations;
     }

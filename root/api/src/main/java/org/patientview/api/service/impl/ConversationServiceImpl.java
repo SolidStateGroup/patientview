@@ -97,15 +97,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     private Conversation anonymiseConversation(Conversation conversation) {
 
-        Set<ConversationUser> conversationUsers = new HashSet<>(conversation.getConversationUsers());
         Conversation newConversation = new Conversation();
-        newConversation.setConversationUsers(conversationUsers);
+        newConversation.setConversationUsers(new HashSet<ConversationUser>());
         List<Long> anonUserIds = new ArrayList<>();
         User anonUser = new User();
         anonUser.setForename("Anonymous");
         anonUser.setSurname("User");
 
-        for (ConversationUser conversationUser : conversationUsers) {
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             if (conversationUser.getAnonymous()) {
                 anonUserIds.add(conversationUser.getUser().getId());
 
@@ -113,8 +112,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 anonConversationUser.setAnonymous(true);
                 anonConversationUser.setUser(anonUser);
                 anonConversationUser.setConversation(conversation);
-
-                newConversation.getConversationUsers().remove(conversationUser);
                 newConversation.getConversationUsers().add(anonConversationUser);
             } else {
                 newConversation.getConversationUsers().add(conversationUser);
