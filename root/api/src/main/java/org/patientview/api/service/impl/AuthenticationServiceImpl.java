@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Audit;
@@ -62,6 +63,39 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    public UserToken switchUser(Long userId, String token) throws AuthenticationServiceException {
+
+        LOG.debug("Switching to user with ID: {}", userId);
+        User user = userRepository.findOne(userId);
+
+        if (user == null) {
+            throw new AuthenticationServiceException("Cannot switch user, user not found");
+        }
+
+        // if no token, assume switching to another user, if token then switching back
+        if (StringUtils.isEmpty(token)) {
+
+            // TODO handled with aspects
+            createAudit(AuditActions.SWITCH_USER, user.getUsername());
+            UserToken userToken = new UserToken();
+            userToken.setUser(user);
+            userToken.setToken(CommonUtils.getAuthToken());
+            userToken.setCreated(new Date());
+            userToken = userTokenRepository.save(userToken);
+            userRepository.save(user);
+
+            return userToken;
+
+        } else {
+            UserToken userToken = getToken(token);
+            if (userToken != null) {
+                return userToken;
+            }
+            throw new AuthenticationServiceException("Cannot switch user, token not found");
+        }
+    }
+
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
     public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
             AuthenticationServiceException {
 
@@ -74,7 +108,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
-            //TODO handled with aspects
+            // TODO handled with aspects
             createAudit(AuditActions.LOGON_FAIL, user.getUsername());
             incrementFailedLogon(user);
             throw new AuthenticationServiceException("Invalid credentials");
