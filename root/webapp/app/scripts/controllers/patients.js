@@ -701,15 +701,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     // delete user
-    $scope.deleteUser = function (userId, $event) {
+    $scope.deleteUser = function (userId) {
         $scope.successMessage = '';
         // close any open edit panels
         $('.panel-collapse.in').collapse('hide');
 
-        // workaround for cloned object not capturing ng-click properties
-        var eventUserId = $event.currentTarget.dataset.userid;
-
-        UserService.get(eventUserId).then(function(user) {
+        UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
                 templateUrl: 'deletePatientModal.html',
                 controller: DeletePatientModalInstanceCtrl,
