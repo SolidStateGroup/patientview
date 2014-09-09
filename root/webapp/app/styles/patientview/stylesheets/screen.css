@@ -583,12 +583,49 @@ i.icon-messages {
   width: 37px;
 }
 
+/* line 392, ../sass/_base.scss */
+i.icon-results-large {
+  background: url("../../../images/icons/results-large.png") 0 0 no-repeat;
+  height: 100px;
+  width: 100px;
+}
+
+/* line 398, ../sass/_base.scss */
+i.icon-circle-arrow {
+  background: url("../../../images/icons/circle-arrow.png") 0 0 no-repeat;
+  height: 30px;
+  width: 30px;
+}
+
+/* line 404, ../sass/_base.scss */
+i.icon-result-info {
+  background: url("../../../images/icons/result-info.png") 0 0 no-repeat;
+  height: 27px;
+  width: 27px;
+}
+
+/* line 410, ../sass/_base.scss */
+i.icon-result-down {
+  background: url("../../../images/icons/result-down.png") 0 0 no-repeat;
+  height: 35px;
+  width: 35px;
+  display: block;
+}
+
+/* line 417, ../sass/_base.scss */
+i.icon-result-up {
+  background: url("../../../images/icons/result-up.png") 0 0 no-repeat;
+  height: 35px;
+  width: 35px;
+  display: block;
+}
+
 @media only screen and (max-width: 1024px) {
-  /* line 395, ../sass/_base.scss */
+  /* line 427, ../sass/_base.scss */
   .content-panel {
     margin-bottom: 20px;
   }
-  /* line 398, ../sass/_base.scss */
+  /* line 430, ../sass/_base.scss */
   .content-panel.panel-header {
     margin-bottom: 5px;
   }
@@ -1501,6 +1538,102 @@ label {
 .message-summary .last-message .date-stamp {
   color: #909090;
   font-size: 1.5rem;
+}
+
+/* line 1, ../sass/_results.scss */
+.results-header {
+  height: 120px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+/* line 6, ../sass/_results.scss */
+.results-header .header-icon {
+  background: #368de8;
+  padding: 10px;
+  text-align: center;
+  width: 120px;
+  height: 100%;
+  margin-right: 20px;
+}
+/* line 13, ../sass/_results.scss */
+.results-header .header-icon i {
+  display: block;
+}
+
+/* line 24, ../sass/_results.scss */
+.results-container .results-list > li {
+  width: 25%;
+  height: 256px;
+  float: left;
+}
+/* line 29, ../sass/_results.scss */
+.results-container .results-list > li .result-item {
+  height: 100%;
+  padding: 15px;
+  position: relative;
+}
+/* line 35, ../sass/_results.scss */
+.results-container .results-list > li .result-header {
+  width: 100%;
+  height: 35px;
+  border-bottom: 1px solid #e4e9f0;
+  color: #585858;
+}
+/* line 41, ../sass/_results.scss */
+.results-container .results-list > li .result-header h4 {
+  font-weight: bold;
+  margin: 0;
+  line-height: 26px;
+}
+/* line 48, ../sass/_results.scss */
+.results-container .results-list > li .result-change {
+  margin: 0;
+}
+/* line 51, ../sass/_results.scss */
+.results-container .results-list > li .result-change dt {
+  font-size: 65px;
+  float: left;
+}
+/* line 56, ../sass/_results.scss */
+.results-container .results-list > li .result-change dd {
+  float: right;
+  text-align: right;
+  width: 30%;
+  padding-top: 22px;
+}
+/* line 62, ../sass/_results.scss */
+.results-container .results-list > li .result-change dd i {
+  float: right;
+}
+/* line 66, ../sass/_results.scss */
+.results-container .results-list > li .result-change dd span {
+  clear: right;
+  margin-right: 5px;
+}
+/* line 73, ../sass/_results.scss */
+.results-container .results-list > li .info-list {
+  width: 100%;
+}
+/* line 75, ../sass/_results.scss */
+.results-container .results-list > li .info-list li {
+  width: 100%;
+  color: #8f8f8f;
+}
+/* line 81, ../sass/_results.scss */
+.results-container .results-list > li .result-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: #f3f6f9;
+  border-top: 1px solid #e4e9f0;
+  padding: 4px 10px;
+}
+/* line 91, ../sass/_results.scss */
+.results-container .results-list > li .result-footer p {
+  font-size: 20px;
+  color: #aebccf;
 }
 
 /* line 2, ../sass/_components.scss */

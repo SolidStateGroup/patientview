@@ -1,0 +1,99 @@
+.results-header{
+    height:120px;
+    overflow:hidden;
+    margin-bottom:20px;
+
+    .header-icon{
+        background:$primary;
+        padding:10px;
+        text-align:center;
+        width:120px;
+        height:100%;
+        margin-right:20px;
+        i{
+            display:block;
+        }
+    }
+
+
+}
+
+.results-container{
+
+    .results-list{
+        > li{
+            width:25%;
+            height:256px;
+            float:left;
+
+            .result-item{
+                height:100%;
+                padding:15px;
+                position:relative;
+            }
+
+            .result-header{
+                width:100%;
+                height:35px;
+                border-bottom:1px solid $border-default;
+                color:$textdefault;
+
+                h4{
+                    font-weight:bold;
+                    margin:0;
+                    line-height:26px;
+                }
+            }
+
+            .result-change{
+                margin:0;
+
+                dt{
+                    font-size:65px;
+                    float:left;
+                }
+
+                dd{
+                    float: right;
+                    text-align: right;
+                    width: 30%;
+                    padding-top: 22px;
+
+                    i{
+                        float:right;
+                    }
+
+                    span{
+                        clear:right;
+                        margin-right:5px;
+                    }
+                }
+            }
+
+            .info-list{
+                width:100%;
+                li{
+                    width:100%;
+                    color:$linklist;
+                }
+            }
+
+            .result-footer{
+                position:absolute;
+                bottom:0;
+                left:0;
+                width:100%;
+                height:40px;
+                background:$lowlight;
+                border-top:1px solid $border-default;
+                padding:4px 10px;
+
+                p{
+                    font-size:20px;
+                    color:$lowlighttext;
+                }
+            }
+        }
+    }
+
+}
