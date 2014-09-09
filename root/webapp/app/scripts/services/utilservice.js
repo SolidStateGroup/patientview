@@ -86,6 +86,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         generateDays: function () {
             var days = [];
+            days.push('');
             for (var i=1;i<=31;i++) {
                 if (i<10) {
                     days.push('0' + i);
@@ -98,6 +99,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         generateMonths: function () {
             var months = [];
+            months.push('');
             for (var i=1;i<=12;i++) {
                 if (i<10) {
                     months.push('0' + i);
@@ -110,6 +112,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         generateYears: function () {
             var years = [];
+            years.push('');
             for (var i=new Date().getFullYear();i>=1920;i--) {
                 years.push(i);
             }

@@ -232,8 +232,11 @@ var SendVerificationEmailModalInstanceCtrl = ['$scope', '$modalInstance','user',
     }];
 
 // Patient controller
-angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService', 'StaticDataService',
-    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService, StaticDataService) {
+angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$location',
+    'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService', 'StaticDataService',
+    'AuthService', 'localStorageService', 'RouteService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, $location, UserService, GroupService, RoleService, FeatureService,
+              SecurityService, StaticDataService, AuthService, localStorageService, RouteService) {
 
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
@@ -698,15 +701,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     // delete user
-    $scope.deleteUser = function (userId, $event) {
+    $scope.deleteUser = function (userId) {
         $scope.successMessage = '';
         // close any open edit panels
         $('.panel-collapse.in').collapse('hide');
 
-        // workaround for cloned object not capturing ng-click properties
-        var eventUserId = $event.currentTarget.dataset.userid;
-
-        UserService.get(eventUserId).then(function(user) {
+        UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
                 templateUrl: 'deletePatientModal.html',
                 controller: DeletePatientModalInstanceCtrl,
@@ -744,8 +744,33 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     // view patient
     $scope.viewUser = function (userId) {
         $scope.successMessage = '';
-        UserService.get(userId).then(function(user) {
-            alert('TODO: view patient "' + user.forename + ' ' + user.surname + '" ');
+        var currentToken = $rootScope.authToken;
+
+        AuthService.switchUser(userId, null).then(function(authenticationResult) {
+
+            var authToken = authenticationResult.token;
+            var user = authenticationResult.user;
+
+            $rootScope.previousAuthToken = currentToken;
+            localStorageService.set('previousAuthToken', currentToken);
+
+            $rootScope.previousLoggedInUser = $scope.loggedInUser;
+            localStorageService.set('previousLoggedInUser', $scope.loggedInUser);
+
+            $rootScope.authToken = authToken;
+            localStorageService.set('authToken', authToken);
+
+            // get user details, store in session
+            $rootScope.loggedInUser = user;
+            localStorageService.set('loggedInUser', user);
+
+            RouteService.getRoutes(user.id).then(function (data) {
+                $rootScope.routes = data;
+                localStorageService.set('routes', data);
+                $location.path('/dashboard');
+            });
+        }, function() {
+            alert("Cannot view patient");
         });
     };
 

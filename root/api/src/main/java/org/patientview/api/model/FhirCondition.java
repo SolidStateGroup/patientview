@@ -17,8 +17,12 @@ public class FhirCondition extends BaseModel{
     }
 
     public FhirCondition(Condition condition) {
-        setCode(condition.getCode().getTextSimple());
-        setCategory(condition.getCategory().getTextSimple());
+        if (condition.getCode() != null) {
+            setCode(condition.getCode().getTextSimple());
+        }
+        if (condition.getCategory() != null) {
+            setCategory(condition.getCategory().getTextSimple());
+        }
         setNotes(condition.getNotesSimple());
     }
 

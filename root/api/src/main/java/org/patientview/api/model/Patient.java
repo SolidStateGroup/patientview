@@ -27,7 +27,11 @@ public class Patient extends BaseModel{
     public Patient(org.hl7.fhir.instance.model.Patient patient, Practitioner practitioner,
                    org.patientview.persistence.model.Group group, List<Condition> conditions) {
         setFhirPatient(new FhirPatient(patient));
-        setFhirPractitioner(new FhirPractitioner(practitioner));
+        if (practitioner != null) {
+            setFhirPractitioner(new FhirPractitioner(practitioner));
+        } else {
+            setFhirPractitioner(new FhirPractitioner());
+        }
         setGroup(new Group(group));
 
         setFhirConditions(new ArrayList<FhirCondition>());
