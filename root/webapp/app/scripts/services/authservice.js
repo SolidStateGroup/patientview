@@ -30,6 +30,26 @@ angular.module('patientviewApp').factory('AuthService', ['$q', 'Restangular',
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // switch from current user to another based on userId
+        switchUser: function (userId, token) {
+            var deferred = $q.defer();
+            if (token) {
+                // POST /auth/{token}/switchuser/{userId}
+                Restangular.one('auth', token).one('switchuser', userId).get().then(function (successResult) {
+                    deferred.resolve(successResult);
+                }, function (failureResult) {
+                    deferred.reject(failureResult);
+                });
+            } else {
+                // POST /auth/switchuser/{userId}
+                Restangular.one('auth').one('switchuser', userId).get().then(function (successResult) {
+                    deferred.resolve(successResult);
+                }, function (failureResult) {
+                    deferred.reject(failureResult);
+                });
+            }
+            return deferred.promise;
         }
     };
 }]);
