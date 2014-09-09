@@ -111,6 +111,13 @@
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
+                            <xs:element maxOccurs="1" minOccurs="0" name="gpaddress4">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:maxLength value="30"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
                             <xs:element maxOccurs="1" minOccurs="0" name="gppostcode">
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
@@ -513,9 +520,9 @@
             <xs:documentation>Sex</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="M"/>
-            <xs:enumeration value="F"/>
-            <xs:enumeration value="U"/>
+            <xs:enumeration value="Male"/>
+            <xs:enumeration value="Female"/>
+            <xs:enumeration value="Unknown"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="testcode">

@@ -28,7 +28,7 @@
 <dateofbirth>1944-09-27</dateofbirth>
 <sex>Female</sex>
 <nhsno>1111111111</nhsno>
-<hospitalnumber>XXXXXX</hospitalnumber>
+<hospitalnumber>125634</hospitalnumber>
 <address1>1 street road</address1>
 <address2>townsville</address2>
 <postcode>BS10 5NB</postcode>
@@ -37,6 +37,10 @@
 </personaldetails>
 <clinicaldetails>
 <rrtstatus>TP</rrtstatus>
+<diagnosisedta>80</diagnosisedta>
+<diagnosis>(EDTA PRD) 80 Diabetes Type 1 (Insulin dependent)</diagnosis>
+<diagnosis>A second diagnosis</diagnosis>
+<bloodgroup>A</bloodgroup>
 </clinicaldetails>
 <timelinedetails>
 <test>

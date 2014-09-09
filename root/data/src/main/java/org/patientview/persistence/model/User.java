@@ -68,6 +68,9 @@ public class User extends RangeModel implements UserDetails {
     private String name;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    private Set<UserInformation> userInformation;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     //@SortNatural
     private Set<GroupRole> groupRoles;
 
@@ -176,6 +179,14 @@ public class User extends RangeModel implements UserDetails {
 
     public void setSurname(final String surname) {
         this.surname = surname;
+    }
+
+    public Set<UserInformation> getUserInformation() {
+        return userInformation;
+    }
+
+    public void setUserInformation(Set<UserInformation> userInformation) {
+        this.userInformation = userInformation;
     }
 
     public void setGroupRoles(final Set<GroupRole> groupRoles) {

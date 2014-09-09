@@ -2,6 +2,7 @@ package org.patientview.api.model;
 
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class Group extends BaseModel{
     private List<Group> parentGroups = new ArrayList<>();
     private List<Group> childGroups = new ArrayList<>();
     private Boolean visible;
+    private List<Link> links;
 
     public Group() {
 
@@ -43,6 +45,11 @@ public class Group extends BaseModel{
             newParentGroup.setId(parentGroup.getId());
             newParentGroup.setName(parentGroup.getName());
             getParentGroups().add(newParentGroup);
+        }
+
+        setLinks(new ArrayList<Link>());
+        for (Link link : group.getLinks()) {
+            getLinks().add(link);
         }
     }
 
@@ -100,5 +107,13 @@ public class Group extends BaseModel{
 
     public void setVisible(Boolean visible) {
         this.visible = visible;
+    }
+
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> links) {
+        this.links = links;
     }
 }

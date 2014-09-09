@@ -5,6 +5,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.QueueingConsumer;
 import generated.Patientview;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -61,7 +62,8 @@ public class QueueProcessorTest extends BaseTest {
        // Thread thread = new Thread(queueProcessor);
         //thread.start();
         Thread.currentThread().sleep(2000L);
-        Mockito.verify(patientService, Mockito.atLeastOnce()).add(Mockito.any(Patientview.class));
+        Mockito.verify(patientService, Mockito.atLeastOnce()).add(Mockito.any(Patientview.class)
+                , Mockito.any(ResourceReference.class));
         queueProcessor.shutdown();
     }
 

@@ -1,6 +1,5 @@
 package org.patientview.api.controller;
 
-import org.hl7.fhir.instance.model.Patient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -14,7 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
+import java.util.UUID;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -32,7 +31,6 @@ public class PatientControllerTest {
     @InjectMocks
     private PatientController patientController;
 
-
     private MockMvc mockMvc;
 
     @Before
@@ -44,19 +42,19 @@ public class PatientControllerTest {
     }
 
     /**
-     * Test: Send a GET request with a long parameter to the user service
+     * Test: Send a GET request with a long parameter to the patient controller
      * Fail: The service does not get called with the parameter
      *
      */
     @Test
     public void testGetUser() throws ResourceNotFoundException, FhirResourceException {
 
-        Long testUserId = 10L;
+        String testUserId = "40279dad-5d60-49ec-8f08-f9767e5772af";
+        when(patientService.get(eq(UUID.fromString(testUserId)))).thenReturn(null);
 
-        when(patientService.get(eq(testUserId))).thenReturn(new ArrayList<org.patientview.api.model.Patient>());
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/patient/" + Long.toString(testUserId)))
-                    .andExpect(MockMvcResultMatchers.status().isOk());;
+            mockMvc.perform(MockMvcRequestBuilders.get("/patient/10"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
         }

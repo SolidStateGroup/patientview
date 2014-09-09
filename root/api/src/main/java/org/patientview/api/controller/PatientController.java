@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,8 +28,9 @@ public class PatientController  extends BaseController<PatientController> {
     @RequestMapping(value = "/patient/{userId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<org.patientview.api.model.Patient>> getPatientDetails(
-            @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(patientService.get(userId), HttpStatus.OK);
+            @PathVariable("userId") Long userId, @RequestParam(value = "groupId", required = false) List<Long> groupIds)
+            throws FhirResourceException, ResourceNotFoundException {
+        return new ResponseEntity<>(patientService.get(userId, groupIds), HttpStatus.OK);
     }
 
 }

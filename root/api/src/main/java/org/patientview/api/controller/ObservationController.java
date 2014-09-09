@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.hl7.fhir.instance.model.Observation;
+import org.patientview.api.model.FhirObservation;
 import org.patientview.api.service.ObservationService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -27,9 +27,16 @@ public class ObservationController extends BaseController<ObservationController>
 
     @RequestMapping(value = "/observation/{userId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Observation>> getPatientDetails(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<FhirObservation>> getAllObservations(@PathVariable("userId") Long userId)
             throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(observationService.get(userId,""), HttpStatus.OK);
+        return new ResponseEntity<>(observationService.get(userId, ""), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/observation/{userId}/{code}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<FhirObservation>> getObservationsByCode(@PathVariable("userId") Long userId,
+            @PathVariable("code") String code) throws FhirResourceException, ResourceNotFoundException {
+        return new ResponseEntity<>(observationService.get(userId, code), HttpStatus.OK);
     }
 
 }

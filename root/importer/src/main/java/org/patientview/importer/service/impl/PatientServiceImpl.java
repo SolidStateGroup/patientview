@@ -3,6 +3,7 @@ package org.patientview.importer.service.impl;
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Resource;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -64,7 +65,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
      * @throws FhirResourceException
      */
     @Override
-    public UUID add(final Patientview patient) throws ResourceNotFoundException, FhirResourceException {
+    public UUID add(final Patientview patient, final ResourceReference practitionerReference)
+            throws ResourceNotFoundException, FhirResourceException {
         // Find the identifier which the patient is linked to.
         Identifier identifier = matchPatient(patient);
 
@@ -76,7 +78,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         update(fhirLink);
 
         // Create a new Fhir record and add the link to the User and Unit
-        PatientBuilder patientBuilder = new PatientBuilder(patient);
+        PatientBuilder patientBuilder = new PatientBuilder(patient, practitionerReference);
         JSONObject jsonObject = create(patientBuilder.build());
         addLink(identifier, group, jsonObject);
 

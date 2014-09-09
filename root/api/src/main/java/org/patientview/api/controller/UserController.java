@@ -11,6 +11,7 @@ import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -263,4 +264,21 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/user/{userId}/information", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Void> addInformation(@PathVariable("userId") Long userId,
+                                               @RequestBody List<UserInformation> userInformation)
+            throws ResourceNotFoundException {
+        userService.addInformation(userId, userInformation);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/user/{userId}/information", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<UserInformation>> getInformation(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(userService.getInformation(userId), HttpStatus.OK);
+    }
 }

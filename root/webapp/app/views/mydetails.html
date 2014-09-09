@@ -1,38 +1,95 @@
 <h1>My Details</h1>
 <div class="content-panel">
     <div class="content-inner">
+        <!-- patient details from FHIR -->
         <div ng-show="!loading && patientDetails.length">
-            <div ng-repeat="patient in patientDetails">
+            <p>Information provided by: &nbsp;&nbsp;
+                <label ng-repeat="patient in patientDetails">
+                    <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">
+                    {{patient.group.name}}
+                </label>
+            </p>
+            <div ng-repeat="patient in patientDetails" ng-show="patient.group.selected">
                 <div class="panel panel-default">
-                    <div class="panel-heading"><h5>Details provided by {{patient.group.name}}</h5></div>
+                    <div class="panel-heading"><h5>{{patient.group.name}}</h5></div>
                     <div class="panel-body">
                         <table>
                             <tbody>
+                                <tr><td><h5>Patient Details</h5></td></tr>
                                 <tr>
                                     <td>Surname</td>
-                                    <td>{{patient.fhirPatient.name[0].family[0].value}}</td>
+                                    <td>{{patient.fhirPatient.surname}}</td>
                                 </tr>
                                 <tr>
                                     <td>Forename(s)</td>
-                                    <td>{{patient.fhirPatient.name[0].given[0].value}}</td>
+                                    <td>{{patient.fhirPatient.forename}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Sex</td>
+                                    <td>{{patient.fhirPatient.gender}}</td>
                                 </tr>
                                 <tr>
                                     <td>Date of Birth</td>
-                                    <td>{{patient.fhirPatient.birthDateSimple}}</td>
+                                    <td>{{patient.fhirPatient.dateOfBirth | date:'dd-MMM-yyyy'}}</td>
+                                </tr>
+                                <tr>
+                                    <td>NHS Number</td>
+                                    <td>
+                                        <span ng-repeat="identifier in patient.fhirPatient.identifiers" ng-show="identifier.label === 'NHS_NUMBER'">
+                                            {{identifier.value}}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Hospital Number</td>
+                                    <td>
+                                        <span ng-repeat="identifier in patient.fhirPatient.identifiers" ng-show="identifier.label === 'HOSPITAL_NUMBER'">
+                                            {{identifier.value}}
+                                        </span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Address</td>
                                     <td>
-                                        {{patient.fhirPatient.address[0].line[0].value}}<br/>
-                                        {{patient.fhirPatient.address[0].citySimple}}<br/>
-                                        {{patient.fhirPatient.address[0].zipSimple}}<br/>
+                                        {{patient.fhirPatient.address1}},
+                                        {{patient.fhirPatient.address2}},
+                                        {{patient.fhirPatient.address3}},
+                                        {{patient.fhirPatient.address4}},
+                                        {{patient.fhirPatient.postcode}}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Phone Number(s)</td>
                                     <td>
-                                        <span ng-repeat="phone in patient.fhirPatient.contact[0].telecom">
-                                            {{phone.valueSimple}}<br/>
+                                        <span ng-repeat="phoneNumber in patient.fhirPatient.phoneNumbers">
+                                            {{phoneNumber}}<br/>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table ng-show="patient.fhirPractitioner">
+                            <tbody>
+                                <tr><td><h5>GP Details</h5></td></tr>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>{{patient.fhirPractitioner.name}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Address</td>
+                                    <td>
+                                        {{patient.fhirPractitioner.address1}},
+                                        {{patient.fhirPractitioner.address2}},
+                                        {{patient.fhirPractitioner.address3}},
+                                        {{patient.fhirPractitioner.address4}},
+                                        {{patient.fhirPractitioner.postcode}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phone Number (s)</td>
+                                    <td>
+                                        <span ng-repeat="phoneNumber in patient.fhirPractitioner.phoneNumbers">
+                                            {{phoneNumber}}<br/>
                                         </span>
                                     </td>
                                 </tr>
@@ -45,8 +102,38 @@
         <div ng-show="!loading && !patientDetails.length">
             <p>Your patient details are not currently stored in PatientView.</p>
         </div>
-    </div>
-    <div ng-show="loading" class="container"><br/>
-        <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+
+        <!-- More About Me -->
+        <div ng-show="!loading">
+            <h2>More About Me</h2>
+            <div class="row">
+                <div class="form-horizontal" role="form">
+                    <div class="col-md-12">
+                        <label for="should-know-input" class="control-label">Things people should know about me</label>
+                        <div>
+                            <textarea id="should-know-input" ng-model="moreAboutMe.shouldKnow" class="form-control"
+                                      placeholder="For example..." ></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-horizontal" role="form">
+                    <div class="col-md-12">
+                        <label for="talk-about-input" class="control-label">Things I'd like to talk about</label>
+                        <div>
+                            <textarea id="talk-about-input" ng-model="moreAboutMe.talkAbout" class="form-control"
+                                      placeholder="For example... what should my blood pressure be, home dialysis, stopping dialysis, getting a transplant)" ></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn blue" ng-click="saveMoreAboutMe(moreAboutMe)">Save</button>
+            <span>{{moreAboutMeMessage}}</span>
+        </div>
+
+        <div ng-show="loading" class="container"><br/>
+            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+        </div>
     </div>
 </div>
