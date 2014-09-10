@@ -8,8 +8,8 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
             joinRequest = UtilService.cleanObject(joinRequest, 'joinRequest');
 
             // correctly format DOB
-            joinRequest.dateOfBirth = joinRequest.dateOfBirth.split("-")[2] + "-"
-                + joinRequest.dateOfBirth.split("-")[1] + "-" + joinRequest.dateOfBirth.split("-")[0];
+            joinRequest.dateOfBirth = joinRequest.dateOfBirth.split('-')[2] + '-'
+                + joinRequest.dateOfBirth.split('-')[1] + '-' + joinRequest.dateOfBirth.split('-')[0];
 
             var deferred = $q.defer();
             Restangular.all('group/' + groupId + '/joinRequest').customPOST(joinRequest).then(function(successResult) {
@@ -22,20 +22,19 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
 
         // lookup values for the statuses
         getStatuses: function () {
-
-                var deferred = $q.defer();
-                Restangular.all('joinrequest/statuses').getList().then(function(successResult) {
-                    deferred.resolve(successResult);
-                },function(failureResult) {
-                    deferred.reject(failureResult);
-                });
-                return deferred.promise;
+            var deferred = $q.defer();
+            Restangular.all('joinrequest/statuses').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            },function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         },
 
         // get the join request relating to a new user
-        getByUser: function (userId) {
+        getByUser: function (userId, getParameters) {
             var deferred = $q.defer();
-            Restangular.one('user/' + userId).all('joinrequests').getList().then(function(successResult) {
+            Restangular.one('user/' + userId).one('joinrequests').get(getParameters).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);
@@ -43,12 +42,10 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
             return deferred.promise;
         },
 
-        // filter results by the type
-        getByStatus: function (userId, status) {
+        // get join request by id
+        get: function (joinRequestId) {
             var deferred = $q.defer();
-            var statuses = [];
-            statuses.push(status);
-            Restangular.one('user', userId).all('joinrequests').getList({'statuses': statuses}).then(function(successResult) {
+            Restangular.one('joinrequest',joinRequestId).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);
@@ -60,7 +57,6 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
         save: function (joinRequest) {
             // PUT /group
             joinRequest = UtilService.cleanObject(joinRequest, 'joinRequest');
-
             var deferred = $q.defer();
             Restangular.all('joinrequest').customPUT(joinRequest).then(function(successResult) {
                 deferred.resolve(successResult);

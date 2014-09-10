@@ -2,8 +2,8 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.controller.model.UnitRequest;
-import org.patientview.api.exception.ResourceInvalidException;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
@@ -31,7 +31,6 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -90,16 +89,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     @Inject
     private EntityManager entityManager;
 
-
     /**
      * Get all the groups and put the children and parents into the transient objects
      *
      * @return
      */
     public List<Group> findAll() {
-
         List<Group> groups = Util.convertIterable(groupRepository.findAll());
-
         return addParentAndChildGroups(groups);
     }
 
@@ -110,22 +106,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     public List<Group> findGroupByUser(User user) {
         List<Group> groups = Util.convertIterable(groupRepository.findGroupByUser(user));
         return addParentAndChildGroups(groups);
-    }
-
-    public List<Group> findGroupAndChildGroupsByUser(User user) {
-        Set<Group> groups = new HashSet<Group>();
-        // get list of groups associated with user directly (user is member of group)
-        groups.addAll(Util.convertIterable(groupRepository.findGroupByUser(user)));
-        // for each group get list of children if present
-        for (Group group : groups) {
-            for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
-                if (groupRelationship.getRelationshipType() == RelationshipTypes.CHILD) {
-                    groups.add(groupRelationship.getObjectGroup());
-                }
-            }
-        }
-
-        return addParentAndChildGroups(new ArrayList<Group>(groups));
     }
 
     public List<Group> findGroupByType(Long lookupId) {
@@ -157,6 +137,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return groupRepository.save(entityGroup);
     }
 
+    private boolean groupExists(Group group) {
+        return groupRepository.findByName(group.getName()).iterator().hasNext();
+    }
+
     /**
      * TODO remove links, relationships, locations, and features SPRINT 2
      *
@@ -164,51 +148,50 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
      * @return
      * @throws javax.persistence.EntityExistsException
      */
-    public Group add (Group group) throws EntityExistsException {
+    public Group add(Group group) throws EntityExistsException {
         Group newGroup;
 
         Set<Link> links;
         // get links and features, avoid persisting until group created successfully
         if (!CollectionUtils.isEmpty(group.getLinks())) {
-            links = new HashSet<Link>(group.getLinks());
+            links = new HashSet<>(group.getLinks());
             group.getLinks().clear();
         } else {
-            links = new HashSet<Link>();
+            links = new HashSet<>();
         }
 
         Set<Location> locations;
         if (!CollectionUtils.isEmpty(group.getLocations())) {
-            locations = new HashSet<Location>(group.getLocations());
+            locations = new HashSet<>(group.getLocations());
             group.getLocations().clear();
         } else {
-            locations = new HashSet<Location>();
+            locations = new HashSet<>();
         }
 
         Set<GroupFeature> groupFeatures;
         if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
-            groupFeatures = new HashSet<GroupFeature>(group.getGroupFeatures());
+            groupFeatures = new HashSet<>(group.getGroupFeatures());
             group.getGroupFeatures().clear();
         } else {
-            groupFeatures = new HashSet<GroupFeature>();
+            groupFeatures = new HashSet<>();
         }
 
         Set<ContactPoint> contactPoints;
         if (!CollectionUtils.isEmpty(group.getContactPoints())) {
-            contactPoints = new HashSet<ContactPoint>(group.getContactPoints());
+            contactPoints = new HashSet<>(group.getContactPoints());
             group.getContactPoints().clear();
         } else {
-            contactPoints = new HashSet<ContactPoint>();
+            contactPoints = new HashSet<>();
         }
 
-        // save basic details
-        try {
-            // set all newly created groups to visible
-            group.setVisible(true);
-            newGroup = groupRepository.save(group);
-        } catch (DataIntegrityViolationException dve) {
-            LOG.debug("Group not created, duplicate: {}", dve.getCause());
-            throw new EntityExistsException("Group already exists");
+        // save basic details, checking if identical group already exists
+        if (groupExists(group)) {
+            LOG.debug("Group not created, Group already exists with these details");
+            throw new EntityExistsException("Group already exists with these details");
         }
+
+        group.setVisible(true);
+        newGroup = groupRepository.save(group);
 
         // Group Relationships
         saveGroupRelationships(newGroup);
@@ -334,7 +317,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     // Attached the relationship of children groups and parents groups onto Transient objects
-    private List<Group> addParentAndChildGroups(List<Group> groups) {
+    public List<Group> addParentAndChildGroups(List<Group> groups) {
 
         for (Group group : groups) {
             addSingleParentAndChildGroup(group);

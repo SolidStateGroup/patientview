@@ -15,10 +15,10 @@ function ($q, Restangular, UtilService) {
             return deferred.promise;
         },
         // gets users by group, role IDs passed in
-        getByGroupsAndRoles: function (groupIds, roleIds) {
+        getByGroupsAndRoles: function (getParameters) {
             var deferred = $q.defer();
             // GET /user?groupId=1&groupId=2&roleId=1 etc
-            Restangular.all('user').getList({'groupId':groupIds, 'roleId':roleIds}).then(function(successResult) {
+            Restangular.one('user').get(getParameters).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -54,7 +54,7 @@ function ($q, Restangular, UtilService) {
             var deferred = $q.defer();
             var newPasword = user.password;
             // POST /user/{userId}/changePassword
-            Restangular.one('user').post('changePassword', {'password':newPasword}).then(function(successResult) {
+            Restangular.one('user', user.id).post('changePassword', {'password':newPasword}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -227,22 +227,33 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        // Count the number of locked users in a group
-        countLockedUsersByGroup: function (groupId) {
+        // Save More About Me details (currently SHOULD_KNOW and TALK_ABOUT fields)
+        saveMoreAboutMe: function (user, moreAboutMe) {
+
+            var userInformation = [];
+            var shouldKnow = {}, talkAbout = {};
+
+            shouldKnow.type = 'SHOULD_KNOW';
+            shouldKnow.value = moreAboutMe.shouldKnow;
+            userInformation.push(shouldKnow);
+            talkAbout.type = 'TALK_ABOUT';
+            talkAbout.value = moreAboutMe.talkAbout;
+            userInformation.push(talkAbout);
+
             var deferred = $q.defer();
-            // GET /group/{groupId}/lockedusers
-            Restangular.one('group', groupId).one('lockedusers').get().then(function(successResult) {
+            // POST /user/{userId}/information
+            Restangular.one('user', user.id).post('information', userInformation).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        // Count the number of inactive users in a group
-        countInactiveUsersByGroup: function (groupId) {
+        // get user information
+        getInformation: function (userId) {
             var deferred = $q.defer();
-            // GET /group/{groupId}/inactiveusers
-            Restangular.one('group', groupId).one('inactiveusers').get().then(function(successResult) {
+            // GET /user/{userId}/information
+            Restangular.one('user', userId).one('information').get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

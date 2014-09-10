@@ -68,8 +68,10 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
         $routeProviderReference = $routeProvider;
     }]);
 
-patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular', '$route', 'RouteService', 'ENV', 'ConversationService', 'JoinRequestService',
-    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route, RouteService, ENV, ConversationService, JoinRequestService) {
+patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular',
+    '$route', 'RouteService', 'ENV', 'ConversationService', 'JoinRequestService', 'UserService', 'AuthService',
+    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
+             RouteService, ENV, ConversationService, JoinRequestService, UserService, AuthService) {
 
     $rootScope.ieTestMode = false;
 
@@ -149,11 +151,19 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
     // global function to retrieve number of submitted join requests
     $rootScope.setSubmittedJoinRequestCount = function() {
         if ($rootScope.loggedInUser) {
-            JoinRequestService.getSubmittedJoinRequestCount($rootScope.loggedInUser.id).then(function(unreadCount) {
-                $rootScope.submittedJoinRequestCount  = unreadCount.toString();
-            }, function() {
 
-            });
+            var isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $rootScope.loggedInUser);
+            var isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $rootScope.loggedInUser);
+            var isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $rootScope.loggedInUser);
+            var isUnitStaff = UserService.checkRoleExists('UNIT_STAFF', $rootScope.loggedInUser);
+
+            if (isSuperAdmin || isSpecialtyAdmin || isUnitAdmin || isUnitStaff) {
+                JoinRequestService.getSubmittedJoinRequestCount($rootScope.loggedInUser.id).then(function (unreadCount) {
+                    $rootScope.submittedJoinRequestCount = unreadCount.toString();
+                }, function () {
+
+                });
+            }
         }
     };
 
@@ -174,6 +184,9 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
             // strip <script> (otherwise htmlClean crashes)
             text = stripScripts(text);
 
+            // remove 'javascript' strings
+            text = text.replace('javascript','');
+
             // https://github.com/components/jquery-htmlclean
             // clean html to remove all but certain tags
             var htmlCleanOptions = {
@@ -183,7 +196,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
             text = $.htmlClean(text, htmlCleanOptions);
 
             // trust as html
-            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, "<br>"));
+            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, '<br>'));
         }
     };
 
@@ -234,30 +247,67 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
         delete $rootScope.routes;
         delete $rootScope.loggedInUser;
         delete $rootScope.authToken;
+        delete $rootScope.previousAuthToken;
+        delete $rootScope.previousLoggedInUser;
         localStorageService.clearAll();
         $location.path('/');
     };
 
-    // Try getting valid user from cookie or go to login page
-    // var originalPath = $location.path();
-    //$location.path("/login");
+    $rootScope.switchUserBack = function() {
+        AuthService.switchUser($rootScope.previousLoggedInUser.id, $rootScope.previousAuthToken).then(
+        function(authenticationResult) {
 
-    //var authToken = $cookieStore.get('authToken');
+            var authToken = authenticationResult.token;
+            var user = authenticationResult.user;
+
+            delete $rootScope.previousAuthToken;
+            localStorageService.remove('previousAuthToken');
+
+            delete $rootScope.previousLoggedInUser;
+            localStorageService.remove('previousLoggedInUser');
+
+            $rootScope.authToken = authToken;
+            localStorageService.set('authToken', authToken);
+
+            // get user details, store in session
+            $rootScope.loggedInUser = user;
+            localStorageService.set('loggedInUser', user);
+
+            RouteService.getRoutes(user.id).then(function (data) {
+                $rootScope.routes = data;
+                localStorageService.set('routes', data);
+                $location.path('/dashboard');
+            });
+        }, function() {
+            alert("Cannot view patient");
+        });
+    };
+
+    // get auth token
     var authToken = localStorageService.get('authToken');
     if (authToken !== undefined) {
         $rootScope.authToken = authToken;
-        //  $location.path(originalPath);
+    }
+
+    // get previous auth token
+    var previousAuthToken = localStorageService.get('previousAuthToken');
+    if (previousAuthToken !== undefined) {
+        $rootScope.previousAuthToken = previousAuthToken;
+    }
+
+    // get previous logged in user
+    var previousLoggedInUser = localStorageService.get('previousLoggedInUser');
+    if (previousLoggedInUser !== undefined) {
+        $rootScope.previousLoggedInUser = previousLoggedInUser;
     }
 
     // get cookie user
-    //var loggedInUser = $cookieStore.get('loggedInUser');
     var loggedInUser = localStorageService.get('loggedInUser');
     if (loggedInUser !== undefined) {
         $rootScope.loggedInUser = loggedInUser;
     }
 
     // get cookie routes
-    //var routes = $cookieStore.get('routes');
     var routes = localStorageService.get('routes');
     if (routes !== undefined) {
         $rootScope.routes = routes;

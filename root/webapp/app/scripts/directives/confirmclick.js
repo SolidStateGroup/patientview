@@ -1,7 +1,7 @@
 'use strict';
 
 // http://zachsnow.com/#!/blog/2013/confirming-ng-click/
-http://stackoverflow.com/questions/18313576/confirmation-dialog-on-ng-click-angularjs
+// http://stackoverflow.com/questions/18313576/confirmation-dialog-on-ng-click-angularjs
 angular.module('patientviewApp').directive('ngConfirmClick', [function(){
     return {
         priority: -1,
@@ -15,5 +15,5 @@ angular.module('patientviewApp').directive('ngConfirmClick', [function(){
                 }
             });
         }
-    }
+    };
 }]);

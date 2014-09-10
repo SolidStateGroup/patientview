@@ -4,6 +4,7 @@ import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
@@ -21,16 +22,19 @@ import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -42,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Id can be passed when not using any persistence to test against.
@@ -80,6 +85,15 @@ public final class TestUtils {
         user.setPassword("doNotShow");
         user.setGroupRoles(new HashSet<GroupRole>());
         return user;
+    }
+
+    public static UserInformation createUserInformation(User user, UserInformationTypes informationType, String value) {
+        UserInformation userInformation = new UserInformation();
+        userInformation.setUser(user);
+        userInformation.setId(getId());
+        userInformation.setType(informationType);
+        userInformation.setValue(value);
+        return userInformation;
     }
 
     public static Role createRole(RoleName name) {
@@ -192,13 +206,19 @@ public final class TestUtils {
         return lookupType;
     }
 
-    public static Identifier createIdentifier(Lookup identifierType, User user) {
+    public static Identifier createIdentifier(Lookup identifierType, User user, String value) {
         Identifier identifier = new Identifier();
         identifier.setId(getId());
         identifier.setIdentifierType(identifierType);
         identifier.setUser(user);
+        identifier.setIdentifier(value);
         identifier.setCreated(new Date());
         identifier.setCreator(creator);
+
+        if (CollectionUtils.isEmpty(user.getIdentifiers())) {
+            user.setIdentifiers(new HashSet<Identifier>());
+        }
+        user.getIdentifiers().add(identifier);
         return identifier;
     }
 
@@ -253,7 +273,7 @@ public final class TestUtils {
     }
 
     public static void authenticateTest(User user, RoleName... roleNames) {
-        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+        Set<GrantedAuthority> authorities = new HashSet<>();
 
         Group group = createGroup("AuthenticationGroup");
         for (RoleName roleName : roleNames) {
@@ -264,7 +284,7 @@ public final class TestUtils {
     }
 
     public static void authenticateTest(User user, Collection<GroupRole> groupRoles) {
-        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+        Set<GrantedAuthority> authorities = new HashSet<>();
         for (GroupRole groupRole : groupRoles) {
             authorities.add(groupRole);
         }
@@ -273,7 +293,7 @@ public final class TestUtils {
     }
 
     public static void authenticateTest(User user) {
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), Collections.EMPTY_SET);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
@@ -310,11 +330,11 @@ public final class TestUtils {
         return newsLink;
     }
 
-    public static JoinRequest createJoinRequest(Group group) {
+    public static JoinRequest createJoinRequest(Group group, JoinRequestStatus status) {
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setCreated(new Date());
-        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
+        joinRequest.setStatus(status);
         joinRequest.setGroup(group);
         joinRequest.setNhsNumber("234234234");
         joinRequest.setDateOfBirth(new Date());
@@ -335,6 +355,20 @@ public final class TestUtils {
         contactPoint.setCreator(creator);
 
         return contactPoint;
+    }
+
+    public static FhirLink createFhirLink(User user, Identifier identifier) {
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(user);
+        fhirLink.setResourceId(UUID.randomUUID());
+        fhirLink.setCreated(new Date());
+        fhirLink.setIdentifier(identifier);
+        if (CollectionUtils.isEmpty(user.getFhirLinks())) {
+            user.setFhirLinks(new HashSet<FhirLink>());
+        }
+
+        user.getFhirLinks().add(fhirLink);
+        return fhirLink;
     }
 
 }

@@ -1,6 +1,5 @@
 'use strict';
 
-
 // new news modal instance controller
 var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'NewsService', 'permissions',
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsService, permissions) {
@@ -17,7 +16,6 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
 
         // populate list of allowed groups for current user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-
             // add 'All Groups' option (with id -1) if allowed
             if ($scope.permissions.canAddAllGroups) {
                 group = {};
@@ -26,8 +24,8 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
                 $scope.newNews.allGroups.push(group);
             }
 
-            for (i = 0; i < groups.length; i++) {
-                group = groups[i];
+            for (i = 0; i < groups.content.length; i++) {
+                group = groups.content[i];
                 if (group.visible === true) {
                     $scope.newNews.allGroups.push(group);
                 }
@@ -154,7 +152,7 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "hidden" : "";
+        return $scope.currentPage === 0 ? 'hidden' : '';
     };
 
     $scope.nextPage = function() {
@@ -165,14 +163,14 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
 
     $scope.nextPageDisabled = function() {
         if ($scope.totalPages > 0) {
-            return $scope.currentPage === $scope.totalPages - 1 ? "hidden" : "";
+            return $scope.currentPage === $scope.totalPages - 1 ? 'hidden' : '';
         } else {
-            return "hidden";
+            return 'hidden';
         }
     };
 
     // get page of data every time currentPage is changed
-    $scope.$watch("currentPage", function(newValue, oldValue) {
+    $scope.$watch('currentPage', function(newValue) {
         $scope.loading = true;
         NewsService.getByUser($scope.loggedInUser.id, newValue, $scope.itemsPerPage).then(function(page) {
             $scope.pagedItems = page.content;
@@ -187,7 +185,6 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
 
     // open modal for new news
     $scope.openModalNewNews = function (size) {
-        var i, group;
         $scope.errorMessage = '';
         $scope.editMode = false;
 
@@ -302,7 +299,7 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
             // update news with data from GET
             NewsService.get(news.id).then(function (entityNews) {
                 for (var i=0;i<$scope.pagedItems.length;i++) {
-                    if ($scope.pagedItems[i].id == entityNews.id) {
+                    if ($scope.pagedItems[i].id === entityNews.id) {
                         var newsItemToUpdate = $scope.pagedItems[i];
                         newsItemToUpdate.heading = entityNews.heading;
                         newsItemToUpdate.story = entityNews.story;

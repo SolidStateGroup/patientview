@@ -7,10 +7,10 @@ import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -39,16 +39,6 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     private LinkRepository linkRepository;
     @Inject
     private UserRepository userRepository;
-
-    private List<Long> convertStringArrayToLongs(String[] strings) {
-        final List<Long> longs = new ArrayList<>();
-        if (ArrayUtils.isNotEmpty(strings)) {
-            for (String string : strings) {
-                longs.add(Long.parseLong(string));
-            }
-        }
-        return longs;
-    }
 
     public Page<Code> getAllCodes(GetParameters getParameters) {
 
@@ -98,7 +88,12 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return codeRepository.findAllFiltered(filterText, pageable);
     }
 
-    public Code add(final Code code) {
+    private boolean codeExists(Code code) {
+        return codeRepository.findAllByExistingCodeDetails(
+             code.getCode(), code.getDescription(), code.getCodeType(), code.getStandardType()).iterator().hasNext();
+    }
+
+    public Code add(final Code code) throws EntityExistsException{
         Code newCode;
 
         Set<Link> links;
@@ -110,13 +105,12 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             links = new HashSet<>();
         }
 
-        // save basic details
-        try {
-            newCode = codeRepository.save(code);
-        } catch (DataIntegrityViolationException dve) {
-            LOG.debug("Code not created, duplicate: {}", dve.getCause());
-            throw new EntityExistsException("Code already exists");
+        // save basic details, checking if identical code already exists
+        if (codeExists(code)) {
+            LOG.debug("Code not created, Code already exists with these details");
+            throw new EntityExistsException("Code already exists with these details");
         }
+        newCode = codeRepository.save(code);
 
         // save links
         for (Link link : links) {
@@ -167,5 +161,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         link.setCreator(userRepository.findOne(1L));
         Link persistedLink = linkRepository.save(link);
         return persistedLink;
+    }
+
+    public List<Code> findAllByCodeAndType(String code, Lookup codeType) {
+        return codeRepository.findAllByCodeAndType(code, codeType);
     }
 }

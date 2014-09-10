@@ -1,0 +1,87 @@
+
+<div ng-show="!patientDetails.length">
+    <p>Your conditions are not currently stored in PatientView.</p>
+</div>
+
+<div ng-show="patientDetails.length">
+    <p>Information provided by: &nbsp;&nbsp;
+        <label ng-repeat="patient in patientDetails">
+            <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">
+            {{patient.group.name}}
+        </label>
+    </p>
+    <div ng-repeat="patient in patientDetails" ng-show="patient.group.selected">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h5>{{patient.group.name}}</h5></div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr><td colspan="2"><h5>Condition Information</h5></td></tr>
+                    <tr>
+                        <td>Diagnosis</td>
+                        <td>
+                            <table ng-repeat="code in patient.diagnosisCodes">
+                                <tbody>
+                                    <tr>
+                                        <td>{{code.description}}</td>
+                                        <td>
+                                            <strong ng-show="code.links.length">Relevant Links</strong><br/>
+                                            <span ng-repeat="link in code.links">
+                                                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Other Conditions</td>
+                        <td>
+                            <ul>
+                                <li ng-repeat="condition in patient.fhirConditions" ng-show="condition.category === 'diagnosis'">
+                                    {{condition.notes}}
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Treatment</td>
+                        <td>
+                            <span ng-repeat="encounter in patient.fhirEncounters" ng-show="encounter.identifier === 'TREATMENT'">
+                                {{encounter.type}}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Transplant Status</td>
+                        <td>
+                            <span ng-repeat="encounter in patient.fhirEncounters" ng-show="encounter.identifier === 'TRANSPLANT_STATUS'">
+                                {{encounter.type}}
+                            </span>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+                <table class="table table-bordered" ng-show="patient.group.links">
+                    <tbody>
+                        <tr><td colspan="2"><h5>Other Helpful Information</h5></td></tr>
+                        <tr>
+                            <td colspan="2">
+                                <ul>
+                                    <li ng-repeat="link in patient.group.links">
+                                        <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

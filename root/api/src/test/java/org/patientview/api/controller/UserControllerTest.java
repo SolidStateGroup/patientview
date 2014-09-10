@@ -1,7 +1,5 @@
 package org.patientview.api.controller;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -12,10 +10,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.controller.model.Credentials;
-import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
@@ -30,11 +28,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+;
 
 /**
  * Created by james@solidstategroup.com
@@ -90,7 +91,7 @@ public class UserControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + Long.toString(testUserId)))
                     .andExpect(MockMvcResultMatchers.status().isOk());;
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
     }
 
@@ -118,7 +119,7 @@ public class UserControllerTest {
         }
 
         catch (Exception e) {
-            Assert.fail("The post request all should not fail " + e.getCause());
+            fail("The post request all should not fail " + e.getCause());
         }
 
         verify(userService, Mockito.times(1)).createUserWithPasswordEncryption(any(User.class));
@@ -144,7 +145,7 @@ public class UserControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
         }
         catch (Exception e) {
-            Assert.fail("The put request all should not fail " + e.getCause());
+            fail("The put request all should not fail " + e.getCause());
         }
 
         verify(groupService, Mockito.times(1)).addGroupRole(Matchers.eq(userId), Matchers.eq(groupId), Matchers.eq(roleId));
@@ -172,7 +173,7 @@ public class UserControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isCreated());
         }
         catch (Exception e) {
-            Assert.fail("The post request all should not fail " + e.getCause());
+            fail("The post request all should not fail " + e.getCause());
         }
     }
 
@@ -200,7 +201,7 @@ public class UserControllerTest {
                     .content(mapper.writeValueAsString(credentials)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("The post request should not fail " + e.getCause());
+            fail("The post request should not fail " + e.getCause());
         }
 
       //  verify(userService, Mockito.times(1)).resetPassword(eq(testUser.getId()), eq(credentials.getPassword()));
@@ -229,7 +230,7 @@ public class UserControllerTest {
                     .content(mapper.writeValueAsString(credentials)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("The post request should not fail " + e.getCause());
+            fail("The post request should not fail " + e.getCause());
         }
        //weirdest Mockito bug
       // verify(userService, Mockito.times(1)).changePassword(Matchers.eq(testUser.getId()), Matchers.eq(credentials.getPassword()));

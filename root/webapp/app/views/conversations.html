@@ -1,0 +1,112 @@
+<div class="hider" ng-show="status.open"></div>
+
+<div>
+    <h1>Conversations <button class="btn blue" ng-click="openModalNewConversation('lg')" ng-show="!loading">Create New</button></h1>
+    <!-- new conversation modal template -->
+    <script type="text/ng-template" id="newConversationModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Conversation</h3>
+        </div>
+        <div class="modal-body">
+            <form name="conversationFormNew" ng-model="newConversation">
+                <div ng-include src="'views/partials/conversationDetailsNew.html'" ng-controller="ConversationDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)" ng-show="newConversation.allRecipients.length">Create New Conversation</button>
+        </div>
+    </script>
+
+    <div ng-show="!loading" ng-cloak>
+        <div class="panel panel-info">
+            <div class="panel-body">
+            <p>Click on <strong>View Messages</strong> to see the full conversation or <strong>Quick Reply</strong> to reply to it. To send a new message, click
+            on <strong>Create New</strong> above. When you send a message, the recipient will receive an email asking them to log in to read
+            it, if they have an email address in the system.</p>
+            </div>
+        </div>
+
+        <div ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li ng-class="prevPageDisabled()">
+                    <a href ng-click="prevPage()">« Prev</a>
+                </li>
+                <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li ng-class="nextPageDisabled()">
+                    <a href ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="message-item" ng-repeat="conversation in pagedItems">
+            <div class="content-panel">
+                <ul class="pull-right aside-actions unstyled">
+                    <li><a href="" class="aside-link active" ng-click="viewMessages(conversation)">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
+                    <li><a href="" class="aside-link qreply" ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
+                </ul>
+                <div class="message-summary">
+                    <h2 class="message-title"><span ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> New</span> {{conversation.title}}
+                        <span class="recipient">with: </span>
+                        <span class="recipient" ng-repeat="conversationUser in conversation.conversationUsers" ng-show="conversationUser.user.id != loggedInUser.id">
+                            <span class="label label-info">{{conversationUser.user.forename}} {{conversationUser.user.surname}}</span>&nbsp;
+                        </span>
+                    </h2>
+                    <div class="last-message">
+                        <h4>Most recent message from: {{conversation.messages[conversation.messages.length-1].user.forename}} {{conversation.messages[conversation.messages.length-1].user.surname}}</h4>
+                        <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
+                        <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="quick-reply content-panel" ng-show="conversation.quickReplyOpen">
+                <form class="form-quick-reply">
+                    <label for="quick-reply-input">Quick Reply</label>
+                    <textarea id="quick-reply-input" ng-model="conversation.quickReplyContent"></textarea>
+                    <div ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+                    <fieldset>
+                        <div class="btn-group pull-right">
+                            <button class="btn btn-grey" ng-click="conversation.quickReplyOpen = false">Close</button>
+                            <button class="btn blue" ng-click="quickReply(conversation)" ng-disabled="!conversation.quickReplyContent.length"><i class="icon-reply"></i> Send</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="quick-reply content-panel" ng-show="conversation.showMessages">
+                <div class="message-summary" ng-repeat="message in conversation.messages | orderBy:'created'">
+                    <div class="last-message">
+                        <h4 class="message-title">
+                            <span ng-show="message.unread" class="label label-success pull-right new-message">New</span>
+                            {{message.user.forename}} {{message.user.surname}}
+                        </h4>
+                        <p class="message-content" ng-bind-html="parseHTMLText(message.message)"></p>
+                        <p class="date-stamp"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
+                    </div>
+                    <hr/>
+                </div>
+
+                <form class="form-quick-reply">
+                    <label for="add-message-input">Add Message</label>
+                    <textarea id="add-message-input" ng-model="conversation.addMessageContent"></textarea>
+                    <div ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+                    <fieldset>
+                        <div class="btn-group pull-right">
+                            <button class="btn btn-grey" ng-click="viewMessages(conversation)">Close</button>
+                            <button class="btn blue" ng-click="addMessage(conversation)" ng-disabled="!conversation.addMessageContent.length"><i class="icon-reply"></i> Send</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+
+        <div ng-show="pagedItems.length < 1">
+            <h4>No Conversations Found</h4>
+        </div>
+    </div>
+</div>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>

@@ -39,6 +39,12 @@
 
         <dependency>
             <groupId>org.patientview</groupId>
+            <artifactId>common</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.patientview</groupId>
             <artifactId>data</artifactId>
             <version>0.1-SNAPSHOT</version>
             <scope>test</scope>
@@ -63,6 +69,7 @@
             <artifactId>spring-context-support</artifactId>
             <version>4.0.5.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
@@ -150,9 +157,25 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+
     </dependencies>
-
-
 
     <build>
         <finalName>api</finalName>

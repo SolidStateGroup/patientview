@@ -23,9 +23,8 @@
             <div class="modal-footer">
                 <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
-                <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
+                <button class="btn btn-grey" ng-click="cancel()">Close</button>
                 <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0) || (!editUser.identifiers || editUser.identifiers.length == 0)">Create New</button>
-                <button class="btn btn-primary" ng-click="edit()" ng-show="existingUser" ng-disabled="!userFormExisting.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Update Existing User</button>
             </div>
         </script>
 
@@ -75,131 +74,116 @@
 
         <!-- Filter -->
         <div class="content-panel filter-panel">
-            <div class="hidden">PageSize:
-                <select data-ng-model="entryLimit" class="form-control">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>5</option>
-                </select>
-            </div>
             <div class="search-container">
                 <i class="icon-search-black"></i>
-                <input type="text" ng-model="search" ng-change="filter()" placeholder="Search all fields..." class="form-control input-block-level" />
+                <input type="text" ng-model="searchText" placeholder="Search all fields..." class="form-control input-block-level" />
             </div>
         </div>
         <div class="panel-footer clearfix">
             <div class="content-inner">
-                <div class="pull-right hidden">
-                    <h5>Showing {{ filtered.length }} of {{ totalItems}} total patient users</h5>
-                    <h5>{{ allGroups.length }} groups available</h5>
-                </div>
                 <div class="form-horizontal" role="form">
+                    <!-- filter by group -->
                     <div class="select-container pull-left">
-                        <!-- filter by role -->
-                        <div class="btn-group filter-select" id="filter-role" data-ng-class="{open: open2}">
-                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Role <span class="caret-container"><span class="caret"></span></span></button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                                <li><a data-ng-click="selectedRole=[];" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
-                                <li class="divider"></li>
-                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role clearfix"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
-                            </ul>
-                        </div>
-                        <!-- filter by group -->
                         <div class="btn-group filter-select" id="filter-group" data-ng-class="{open: open-group}">
                             <button class="btn dropdown-toggle" data-ng-click="open=!open-group">Filter By Group <span class="caret-container"><span class="caret"></span></span></button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                                <li><a data-ng-click="selectedGroup=[];" class="a-filter-group"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li><a data-ng-click="removeAllSelectedGroup()" class="a-filter-group"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                 <li class="divider"></li>
                                 <li data-ng-repeat="group in allGroups"> <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix"><span class="pull-left">{{group.name}}</span><span data-ng-class="isGroupChecked(group.id)"></span></a></li>
                             </ul>
                         </div>
+                        <span data-ng-repeat="group in allGroups" ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</span>
                     </div>
                 </div>
             </div>
             <div class="pull-right">
-                <h5>Showing {{ filtered.length }} of {{ list.length }} total</h5>
+                <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
             </div>
         </div>
 
         <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
-        <div class="faux-table seven-col" data-ng-show="filtered.length  > 0">
+        <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0" ng-cloak>
             <!-- header -->
-            <span class="hidden" ng-repeat="data in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"></span>
-            <div class="table-head accordion-title-row" ng-show="filtered.length > 0" ng-cloak>
+            <div class="table-head accordion-title-row">
                 <div class="hidden">ID</div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
                 <div class="head-item accordion-title-text ">NHS Number&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('name');" class="sort-title"><i class="icon-sort pull-right"></i>Date Of Birth</a></div>
+                <div class="head-item accordion-title-text "><a ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Date Of Birth</a></div>
                 <div class="head-item accordion-title-text ">Groups</div>
                 <div class="head-item accordion-title-text ">Treatment</div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
                 <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
             </div>
             <!-- body -->
-            <div accordion class="accordion" close-others="true" ng-show="filtered.length  > 0" ng-cloak>
-                <div accordion-group id="accordion-group-{{user.id}}" class="accordion-group" is-open="status.open" ng-repeat="user in filtered = (list | groupFilter:selectedGroup | roleFilter:selectedRole | filter:search | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
-                    <div accordion-heading class="accordion-heading">
-                        <div class="faux-row" ng-click="opened(user, $event, status)">
-                            <div class="row-item hidden">{{user.id}}</div>
-                            <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
-                            <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
-                            <div class="row-item accordion-heading-text">DOB</div>
-                            <div class="row-item accordion-heading-text">
-                                <ul class="unstyled patient-groups">
-                                    <li ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']">
-                                        <span ng-if="groupRole.role.name !== 'MEMBER'">
-                                            {{groupRole.group.name}}
-                                        </span>
-                                    </li>
+            <div class="item-header" ng-repeat="user in pagedItems">
+                <div class="faux-row">
+                    <div class="row-item hidden">{{user.id}}</div>
+                    <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
+                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
+                    <div class="row-item accordion-heading-text">DOB</div>
+                    <div class="row-item accordion-heading-text">
+                        <ul class="unstyled patient-groups">
+                            <li ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']">
+                                <span ng-if="groupRole.role.name !== 'MEMBER'">
+                                    {{groupRole.group.name}}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="row-item accordion-heading-text"></div>
+                    <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:ss'}}</div>
+                    <div class="row-item actions">
+                        <!-- Edit, Actions dropdown buttons -->
+                        <div class="button-dropdown-group">
+                            <button type="button" class="btn blue pull-left" ng-click="opened(user)">Edit</button>
+                            <div class="dropdown pull-left">
+                                <button type="button" class="btn blue dropdown-toggle" id="dropdown-toggle-{{user.id}}">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
+                                    <li><a ng-click="viewUser(user.id)" class="dropdown-menu-accordion-item">View As Patient</a></li>
+                                    <li ng-show="permissions.showDeleteMenuOption"><a ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
+                                    <li><a ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
+                                    <li ng-hide="user.emailVerified" id="li-email-verified-{{user.id}}"><a ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
                                 </ul>
                             </div>
-                            <div class="row-item accordion-heading-text"></div>
-                            <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:ss'}}</div>
-                            <div class="row-item actions">
-                                <!-- Edit, Actions dropdown buttons -->
-                                <div class="button-dropdown-group">
-                                    <button type="button" class="btn blue pull-left">
-                                        <span class="glyphicon" ng-class="{'glyphicon-chevron-up': status.open, 'glyphicon-pencil': !status.open}"></span>
-                                        &nbsp;&nbsp;Edit</button>
-                                    <div class="dropdown pull-left">
-                                        <button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" id="dropdown-toggle-{{user.id}}">
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
-                                            <li><a ng-click="viewUser(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">View Patient</a></li>
-                                            <li ng-show="permissions.showDeleteMenuOption"><a ng-click="deleteUser(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Delete</a></li>
-                                            <li><a ng-click="resetUserPassword(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Reset Password</a></li>
-                                            <li ng-hide="user.emailVerified" id="li-email-verified-{{user.id}}"><a ng-click="sendVerificationEmail(user.id, $event)" class="dropdown-menu-accordion-item" data-userId="{{user.id}}">Send Verification Email</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                    </div accordion-heading>
-                    <!-- edit pane -->
+                    </div>
+                </div>
+                <!-- edit pane -->
+                <div class="quick-reply content-panel" ng-show="user.showEdit">
                     <form name="userForm">
                         <div ng-include src="'views/partials/patientDetails.html'" ng-controller="UserDetailsCtrl"></div>
                     </form>
                     <hr>
                     <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                     <div class="user-save-cancel pull-right">
-                        <button type="button" class="btn btn-grey" ng-click="status.open = !status.open">Close</button>
+                        <button type="button" class="btn btn-grey" ng-click="user.showEdit = false">Close</button>
                     </div>
-                </div accordion-group>
-            </div accordion>
+                </div>
+            </div>
         </div>
-        <div class="col-md-12" data-ng-show="filtered.length == 0">
+        <div class="col-md-12" data-ng-show="pagedItems.length == 0">
             <div class="col-md-12">
                 <h4>No patients found</h4>
             </div>
         </div>
 
         <!-- pagination -->
-        <div class="col-md-12" data-ng-show="filtered.length > 0">
-            <div pagination on-select-page="setPage(page)" total-items="filtered.length" items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm" ng-hide="filtered.length  < entryLimit "></div>
+        <div class="col-md-12" data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li ng-class="prevPageDisabled()">
+                    <a href ng-click="prevPage()">« Prev</a>
+                </li>
+                <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li ng-class="nextPageDisabled()">
+                    <a href ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>

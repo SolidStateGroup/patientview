@@ -1,6 +1,5 @@
 package org.patientview.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,7 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Main user class for the PatientView application
@@ -70,20 +68,20 @@ public class User extends RangeModel implements UserDetails {
     private String name;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    private Set<UserInformation> userInformation;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     //@SortNatural
     private Set<GroupRole> groupRoles;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<UserFeature> userFeatures;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<Identifier> identifiers;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.EAGER)
     private Set<ConversationUser> conversationUsers;
-
-    @Column(name = "fhir_resource_id")
-    private UUID fhirResourceId;
 
     @Column(name = "last_login")
     @Temporal(TemporalType.TIMESTAMP)
@@ -94,6 +92,10 @@ public class User extends RangeModel implements UserDetails {
 
     @Column(name = "last_login_ip_address")
     private String lastLoginIpAddress;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<FhirLink> fhirLinks;
 
     public String getUsername() {
         return username;
@@ -179,12 +181,12 @@ public class User extends RangeModel implements UserDetails {
         this.surname = surname;
     }
 
-    public UUID getFhirResourceId() {
-        return fhirResourceId;
+    public Set<UserInformation> getUserInformation() {
+        return userInformation;
     }
 
-    public void setFhirResourceId(final UUID fhirResourceId) {
-        this.fhirResourceId = fhirResourceId;
+    public void setUserInformation(Set<UserInformation> userInformation) {
+        this.userInformation = userInformation;
     }
 
     public void setGroupRoles(final Set<GroupRole> groupRoles) {
@@ -289,6 +291,14 @@ public class User extends RangeModel implements UserDetails {
 
     public void setLastLoginIpAddress(String lastLoginIpAddress) {
         this.lastLoginIpAddress = lastLoginIpAddress;
+    }
+
+    public Set<FhirLink> getFhirLinks() {
+        return fhirLinks;
+    }
+
+    public void setFhirLinks(final Set<FhirLink> fhirLinks) {
+        this.fhirLinks = fhirLinks;
     }
 
     @JsonIgnore

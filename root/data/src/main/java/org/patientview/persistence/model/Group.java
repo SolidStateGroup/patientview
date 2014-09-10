@@ -76,6 +76,9 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<ContactPoint> contactPoints;
 
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<FhirLink> fhirLinks;
+
     @Transient
     private List<Group> parentGroups = new ArrayList<Group>();
 
@@ -246,5 +249,14 @@ public class Group extends AuditModel {
 
     public void setPostcode(String postcode) {
         this.postcode = postcode;
+    }
+
+    @JsonIgnore
+    public Set<FhirLink> getFhirLinks() {
+        return fhirLinks;
+    }
+
+    public void setFhirLinks(final Set<FhirLink> fhirLinks) {
+        this.fhirLinks = fhirLinks;
     }
 }

@@ -1,0 +1,36 @@
+<div>
+
+    <div class="row">
+        <div class="form-horizontal" role="form">
+            <div class="col-md-12">
+                <label for="conversation-contact-option" class="control-label">What is the message about? <span class="error" ng-show="!selectedContactOption || selectedContactOption < 0">(please select)</span></label>
+                <div class="">
+                    <select class="form-control" id="conversation-contact-option" ng-model="selectedContactOption"
+                          ng-options="contactOption as contactOption.description for contactOption in contactOptions"
+                          ng-change="contactOptionChanged(selectedContactOption)"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div ng-hide="!selectedContactOption || selectedContactOption < 0" ng-cloak>
+    <div class="row">
+        <div class="form-horizontal" role="form">
+            <div class="col-md-12">
+                <label for="conversation-title" class="control-label">Subject <span class="error" ng-show="contactUnitForm.title.$error.required && !contactUnitForm.$pristine"> *required</span></label>
+                <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" ng-model="conversation.title" required></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-horizontal" role="form">
+            <div class="col-md-12">
+                <label for="conversation-message" class="control-label">Message <span class="error" ng-show="contactUnitForm.message.$error.required && !contactUnitForm.$pristine"> *required</span></label>
+                <div class=""><textarea class="form-control" id="conversation-message" placeholder="Message" name="message" ng-model="conversation.message" required></textarea></div>
+            </div>
+        </div>
+    </div>
+    <div ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+</div>

@@ -43,7 +43,7 @@ function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode
 angular.module('patientviewApp').controller('CodesCtrl', ['$scope','$timeout', '$modal','CodeService','StaticDataService',
 function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
-    $scope.itemsPerPage = 5;
+    $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
     $scope.filterText = '';
     $scope.sortField = '';
@@ -55,23 +55,24 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     // watches
     // update page on user typed search text
     $scope.$watch('searchText', function (value) {
-        if (value != undefined) {
-            if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
+        if (value !== undefined) {
+            if (filterTextTimeout) {
+                $timeout.cancel(filterTextTimeout);
+            }
             $scope.currentPage = 0;
 
             tempFilterText = value;
             filterTextTimeout = $timeout(function () {
                 $scope.filterText = tempFilterText;
-                $scope.getItems($scope.currentPage, $scope.itemsPerPage, tempFilterText
-                    , $scope.selectedCodeType, $scope.selectedStandardType);
+                $scope.getItems();
             }, 1000); // delay 1000 ms
         }
     });
 
     // update page when currentPage is changed (and at start)
-    $scope.$watch("currentPage", function(value) {
-        $scope.getItems(value, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+    $scope.$watch('currentPage', function(value) {
+        $scope.currentPage = value;
+        $scope.getItems();
     });
 
     // Init
@@ -97,15 +98,14 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             $scope.sortDirection = 'ASC';
             $scope.sortField = sortField;
         } else {
-            if ($scope.sortDirection = 'ASC') {
+            if ($scope.sortDirection === 'ASC') {
                 $scope.sortDirection = 'DESC';
             } else {
                 $scope.sortDirection = 'ASC';
             }
         }
 
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType, $scope.sortField, $scope.sortDirection);
+        $scope.getItems();
     };
 
     $scope.pageCount = function() {
@@ -149,7 +149,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
 
     $scope.prevPageDisabled = function() {
-        return $scope.currentPage === 0 ? "hidden" : "";
+        return $scope.currentPage === 0 ? 'hidden' : '';
     };
 
     $scope.nextPage = function() {
@@ -159,20 +159,19 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
 
     $scope.nextPageDisabled = function() {
-        return $scope.currentPage === $scope.pageCount() - 1 ? "disabled" : "";
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
     };
 
-    $scope.getItems = function(page, size, filterText, codeTypes, standardTypes, sortField, sortDirection) {
+    $scope.getItems = function() {
         $scope.loading = true;
-
         var getParameters = {};
-        getParameters.page = page;
-        getParameters.size = size;
-        getParameters.filterText = filterText;
-        getParameters.codeTypes = codeTypes;
-        getParameters.standardTypes = standardTypes;
-        getParameters.sortField = sortField;
-        getParameters.sortDirection = sortDirection;
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        getParameters.filterText = $scope.filterText;
+        getParameters.codeTypes = $scope.selectedCodeType;
+        getParameters.standardTypes = $scope.selectedStandardType;
+        getParameters.sortField = $scope.sortField;
+        getParameters.sortDirection = $scope.sortDirection;
 
         CodeService.getAll(getParameters).then(function(page) {
             $scope.pagedItems = page.content;
@@ -193,8 +192,8 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         } else {
             $scope.selectedCodeType.push(id);
         }
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+        $scope.currentPage = 0;
+        $scope.getItems();
     };
     $scope.isCodeTypeChecked = function (id) {
         if (_.contains($scope.selectedCodeType, id)) {
@@ -204,8 +203,8 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
     $scope.removeAllCodeTypes = function () {
         $scope.selectedCodeType = [];
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+        $scope.currentPage = 0;
+        $scope.getItems();
     };
 
     // filter by standard type
@@ -217,8 +216,8 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         } else {
             $scope.selectedStandardType.push(id);
         }
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+        $scope.currentPage = 0;
+        $scope.getItems();
     };
     $scope.isStandardTypeChecked = function (id) {
         if (_.contains($scope.selectedStandardType, id)) {
@@ -228,8 +227,8 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
     $scope.removeAllStandardTypes = function () {
         $scope.selectedStandardType = [];
-        $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-            , $scope.selectedCodeType, $scope.selectedStandardType);
+        $scope.currentPage = 0;
+        $scope.getItems();
     };
 
     // Opened for edit
@@ -273,7 +272,9 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     // open modal for new code
     $scope.openModalNewCode = function (size) {
         // close any open edit panels
-        $('.panel-collapse.in').collapse('hide');
+        for (var i = 0; i < $scope.pagedItems.length; i++) {
+            $scope.pagedItems[i].showEdit = false;
+        }
         $scope.errorMessage = '';
         $scope.successMessage = '';
         $scope.codeCreated = '';
@@ -301,8 +302,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         });
 
         modalInstance.result.then(function () {
-            $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-                , $scope.selectedCodeType, $scope.selectedStandardType);
+            $scope.getItems();
             $scope.successMessage = 'Code successfully created';
             $scope.codeCreated = true;
         }, function () {
@@ -330,8 +330,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             });
 
             modalInstance.result.then(function () {
-                $scope.getItems($scope.currentPage, $scope.itemsPerPage, $scope.filterText
-                    , $scope.selectedCodeType, $scope.selectedStandardType);
+                $scope.getItems();
                 $scope.successMessage = 'Code successfully deleted';
             }, function () {
                 // closed
@@ -346,9 +345,9 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             $scope.saved = true;
 
             // update header details (code, type, standard, description)
-            for(var i=0;i<$scope.list.length;i++) {
-                if($scope.list[i].id == code.id) {
-                    var headerDetails = $scope.list[i];
+            for(var i=0;i<$scope.pagedItems.length;i++) {
+                if($scope.pagedItems[i].id === code.id) {
+                    var headerDetails = $scope.pagedItems[i];
                     headerDetails.code = successResult.code;
                     headerDetails.codeType = successResult.codeType;
                     headerDetails.standardType = successResult.standardType;

@@ -11,7 +11,6 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
         if ($scope.pw !== $scope.userdetails.confirmPassword) {
             $scope.passwordErrorMessage = 'The passwords do not match';
         } else {
-
             AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword}).then(function () {
 
                 // set the password
@@ -22,10 +21,9 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
                     $scope.successMessage = 'The password has been changed';
 
                     RouteService.getRoutes($scope.userdetails.id).then(function (data) {
-                            $rootScope.routes = data;
-                            localStorageService.set('routes', data);
+                        $rootScope.routes = data;
+                        localStorageService.set('routes', data);
                     });
-
                 }, function () {
                     // error
                     $scope.passwordErrorMessage = '- There was an error';
@@ -39,9 +37,5 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
                 }
             });
         }
-
     };
-
-
 }]);
-

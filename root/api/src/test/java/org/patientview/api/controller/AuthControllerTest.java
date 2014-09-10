@@ -1,7 +1,6 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -11,9 +10,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.controller.model.Credentials;
 import org.patientview.api.controller.model.ForgottenCredentials;
-import org.patientview.api.exception.ResourceNotFoundException;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.UserToken;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,7 +73,7 @@ public class AuthControllerTest {
             verify(authenticationService, Mockito.times(1)).authenticate(eq(credentials.getUsername()),
                     eq(credentials.getPassword()));
         } catch (Exception e) {
-            Assert.fail("Exception throw");
+            fail("Exception throw");
         }
 
     }
@@ -98,7 +98,7 @@ public class AuthControllerTest {
                     .content(mapper.writeValueAsString(forgottenCredentials)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            Assert.fail("The post request should not fail " + e.getCause());
+            fail("The post request should not fail " + e.getCause());
         }
 
         verify(userService, Mockito.times(1))

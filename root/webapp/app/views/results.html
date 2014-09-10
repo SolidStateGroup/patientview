@@ -1,38 +1,175 @@
+<h1>Results</h1>
 
-<div class="row">
-    <div class="col-md-3">
-        <h1>Results</h1>
-        <p>This is a list of the results available in graphical form. Click 'View' to see the results in more details.</p>
+<div class="results-header content-panel">
+    <div class="header-icon pull-left">
+        <i class="icon-results-large pull-left"></i>
     </div>
-    <div class="col-md-4">
-        <h1>Showing Tests</h1>
-        <ul ng-show="!resultsLoading" ng-cloak class="list-inline">
-            <li ng-repeat="type in typesList">
-                {{type}}<a id="remove-{{type}}" href="" ng-click="remove(type)" class="close">&nbsp;&times;&nbsp;</a>
-            </li>
-        </ul>
-        <div class="dropdown" ng-show="!resultsLoading" ng-cloak class="list-inline">
-            <button class="btn dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" ng-show="typesListAvailable.length" ng-cloak>
-                Add Test<span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                <li ng-repeat="type in typesListAvailable" role="presentation">
-                    <a role="menuitem" tabindex="-1" id="add-{{type}}" href="" ng-click="add(type)">{{type}}</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <h1>Filter</h1>
-        <div class="btn-group">
-            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 7}" ng-click="filter(7)">1 Week</button>
-            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 31}"  ng-click="filter(31)">1 Month</button>
-            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 365}"  ng-click="filter(365)">1 Year</button>
-            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 1095}"  ng-click="filter(1095)">3 Years</button>
-            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 3650000}" ng-click="filter(3650000)">All</button>
-        </div>
+    <div class="content-inner clearfix">
+        <form id="search-patient-results">
+            <div class="form-row pull-right">
+                <label>Select Specialty: </label>
+                <select class="form-control">
+                    <option>Specialty name 1</option>
+                    <option>Specialty name 2</option>
+                </select>
+            </div>
+            <fieldset class="pull-right panel-controls">
+                <select class="form-control">
+                    <option>Select panel to view</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                </select>
+            </fieldset>
+            <fieldset>
+                <label class="large">Showing Panel: <span class="">1</span></label>
+                <ul class="unstyled inline">
+                    <li>C3PO,</li>
+                    <li>R2D2,</li>
+                    <li>RSPCA</li>
+                </ul>
+            </fieldset>
+        </form>
     </div>
 </div>
-<br/>
-<div ng-show="resultsLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-<div id="obsdiv"></div>
+
+<ul class="pagination results pull-right">
+    <li><a href="#">< Prev</a></li>
+    <li><a href="#">1</a></li>
+    <li><a href="#">2</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">4</a></li>
+    <li><a href="#">5</a></li>
+    <li><a href="#">Next ></a></li>
+</ul>
+
+<div class="results-container clearfix">
+    <ul class="unstyled results-list row">
+        <li class="col-md-3 col-xs-12">
+            <div class="content-panel result-item">
+                <div class="result-header">
+                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
+                </div>
+                <div class="result-value">
+                    <dl class="result-change">
+                        <dt>76.17</dt>
+                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                    </dl>
+                </div>
+                <ul class="unstyled info-list pull-left">
+                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
+                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                </ul>
+                <div class="result-footer">
+                    <i class="icon-circle-arrow pull-right"></i>
+                    <p>View More Details</p>
+                </div>
+            </div>
+        </li>
+        <li class="col-md-3 col-xs-12">
+            <div class="content-panel result-item">
+                <div class="result-header">
+                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
+                </div>
+                <div class="result-value">
+                    <dl class="result-change">
+                        <dt>76.17</dt>
+                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                    </dl>
+                </div>
+                <ul class="unstyled info-list pull-left">
+                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
+                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                </ul>
+                <div class="result-footer">
+                    <i class="icon-circle-arrow pull-right"></i>
+                    <p>View More Details</p>
+                </div>
+            </div>
+        </li>
+        <li class="col-md-3 col-xs-12">
+            <div class="content-panel result-item">
+                <div class="result-header">
+                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
+                </div>
+                <div class="result-value">
+                    <dl class="result-change">
+                        <dt>76.17</dt>
+                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                    </dl>
+                </div>
+                <ul class="unstyled info-list pull-left">
+                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
+                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                </ul>
+                <div class="result-footer">
+                    <i class="icon-circle-arrow pull-right"></i>
+                    <p>View More Details</p>
+                </div>
+            </div>
+        </li>
+        <li class="col-md-3 col-xs-12">
+            <div class="content-panel result-item">
+                <div class="result-header">
+                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
+                </div>
+                <div class="result-value">
+                    <dl class="result-change">
+                        <dt>76.17</dt>
+                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                    </dl>
+                </div>
+                <ul class="unstyled info-list pull-left">
+                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
+                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                </ul>
+                <div class="result-footer">
+                    <i class="icon-circle-arrow pull-right"></i>
+                    <p>View More Details</p>
+                </div>
+            </div>
+        </li>
+        <li class="col-md-3 col-xs-12">
+            <div class="content-panel result-item">
+                <div class="result-header">
+                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
+                </div>
+                <div class="result-value">
+                    <dl class="result-change">
+                        <dt>76.17</dt>
+                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                    </dl>
+                </div>
+                <ul class="unstyled info-list pull-left">
+                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
+                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                </ul>
+                <div class="result-footer">
+                    <i class="icon-circle-arrow pull-right"></i>
+                    <p>View More Details</p>
+                </div>
+            </div>
+        </li>
+        <li class="col-md-3 col-xs-12">
+            <div class="content-panel result-item">
+                <div class="result-header">
+                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
+                </div>
+                <div class="result-value">
+                    <dl class="result-change">
+                        <dt>76.17</dt>
+                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                    </dl>
+                </div>
+                <ul class="unstyled info-list pull-left">
+                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
+                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                </ul>
+                <div class="result-footer">
+                    <i class="icon-circle-arrow pull-right"></i>
+                    <p>View More Details</p>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>

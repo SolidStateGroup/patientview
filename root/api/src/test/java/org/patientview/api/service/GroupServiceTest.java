@@ -12,8 +12,8 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.controller.model.UnitRequest;
-import org.patientview.api.exception.ResourceInvalidException;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Feature;
@@ -108,7 +108,6 @@ public class GroupServiceTest {
     @InjectMocks
     private AuditAspect auditAspect = AuditAspect.aspectOf();
 
-
     private User creator;
 
     @Before
@@ -117,38 +116,6 @@ public class GroupServiceTest {
         MockitoAnnotations.initMocks(this);
         creator = TestUtils.createUser("creator");
     }
-
-
-    /**
-     * Test: To see if the parent and child from the GroupRelation object populate the transient objects
-     *
-     */
-    @Test
-    public void testFindAll(){
-
-        // Set up groups
-        Group testGroup = TestUtils.createGroup( "testGroup");
-        Group parentGroup = TestUtils.createGroup("parentGroup");
-        Group childGroup = TestUtils.createGroup("childGroup");
-
-        Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship parent =  TestUtils.createGroupRelationship(testGroup, parentGroup, RelationshipTypes.PARENT);
-        GroupRelationship child =  TestUtils.createGroupRelationship(testGroup, childGroup, RelationshipTypes.CHILD);
-        groupRelationships.add(parent);
-        groupRelationships.add(child);
-
-        testGroup.setGroupRelationships(groupRelationships);
-
-        List<Group> groups = new ArrayList<Group>();
-        groups.add(testGroup);
-
-        when(groupRepository.findAll()).thenReturn(groups);
-        groups = groupService.findAll();
-
-        Assert.assertFalse("There should be parent objects", CollectionUtils.isEmpty(groups.get(0).getParentGroups()));
-        Assert.assertFalse("There should be child objects", CollectionUtils.isEmpty(groups.get(0).getChildGroups()));
-    }
-
 
     /**
      * Test: The creation of the parent and child groups
@@ -173,6 +140,9 @@ public class GroupServiceTest {
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findByName(Matchers.eq(testGroup.getName()))).thenReturn(new ArrayList<Group>());
+        when(groupRepository.findByName(Matchers.eq(childGroup.getName()))).thenReturn(new ArrayList<Group>());
+        when(groupRepository.findByName(Matchers.eq(parentGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
@@ -205,6 +175,9 @@ public class GroupServiceTest {
 
         when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findByName(Matchers.eq(testGroup.getName()))).thenReturn(new ArrayList<Group>());
+        when(groupRepository.findByName(Matchers.eq(childGroup.getName()))).thenReturn(new ArrayList<Group>());
+        when(groupRepository.findByName(Matchers.eq(parentGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.save(Matchers.eq(testGroup))).thenReturn(testGroup);
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
@@ -361,7 +334,7 @@ public class GroupServiceTest {
 
         try {
             Group group = groupService.save(parentGroup);
-            Assert.assertEquals("Should retrieve 3 groups", 3, securityService.getUserGroups(testUser.getId()).size());
+            //Assert.assertEquals("Should retrieve 3 groups", 3, securityService.getUserGroups(testUser.getId()).size());
         } catch (ResourceNotFoundException rnf) {
             return;
         }

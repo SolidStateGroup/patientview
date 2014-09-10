@@ -23,7 +23,7 @@ import java.util.Properties;
  * Created on 03/06/2014.
  */
 @Configuration
-@ComponentScan(basePackages = {"org.patientview.api.service","org.patientview.api.aspect","org.patientview.api.job"})
+@ComponentScan(basePackages = {"org.patientview.api.service","org.patientview.api.aspect","org.patientview.api.job","org.patientview.persistence.resource"})
 @EnableWebMvc
 @EnableScheduling
 public class ApiConfig {
@@ -32,6 +32,7 @@ public class ApiConfig {
     private Properties properties;
 
     //TODO this just gets the "name" of the enum
+    // remove and implement JSON shape object
     @Bean
     @Primary
     public ObjectMapper getCustomerObjectMapper() {
@@ -57,11 +58,6 @@ public class ApiConfig {
     public AuditAspect auditAspectBean() {
         return AuditAspect.aspectOf();
     }
-
-    //@Bean
-    //public LoggingAspect loggingAspectBean() {
-//        return LoggingAspect.aspectOf();
- //   }
 
 
     @Bean

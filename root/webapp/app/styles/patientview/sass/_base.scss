@@ -436,6 +436,39 @@ i.icon-messages{
     width: 37px;
 }
 
+i.icon-results-large{
+    background: url('../../../images/icons/results-large.png') 0 0 no-repeat;
+    height: 100px;
+    width: 100px;
+}
+
+i.icon-circle-arrow{
+    background: url('../../../images/icons/circle-arrow.png') 0 0 no-repeat;
+    height: 30px;
+    width: 30px;
+}
+
+i.icon-result-info{
+    background: url('../../../images/icons/result-info.png') 0 0 no-repeat;
+    height: 27px;
+    width: 27px;
+}
+
+i.icon-result-down{
+    background: url('../../../images/icons/result-down.png') 0 0 no-repeat;
+    height: 35px;
+    width: 17px;
+    display:block;
+}
+
+i.icon-result-up{
+    background: url('../../../images/icons/result-up.png') 0 0 no-repeat;
+    height: 35px;
+    width: 17px;
+    display:block;
+}
+
+
 @media only screen
 and (max-width : 1024px) {
     .content-panel{

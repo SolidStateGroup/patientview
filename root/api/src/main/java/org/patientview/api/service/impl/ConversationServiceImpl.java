@@ -1,24 +1,44 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.api.service.AdminService;
 import org.patientview.api.service.ConversationService;
+import org.patientview.api.service.GroupService;
+import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ConversationTypes;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.ConversationRepository;
+import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,8 +57,23 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     @Inject
     private MessageRepository messageRepository;
 
+    @Inject
+    private FeatureRepository featureRepository;
+
+    @Inject
+    private GroupRepository groupRepository;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
+    private AdminService adminService;
+
+    @Inject
+    private UserService userService;
+
     public Conversation get(Long conversationId) {
-        return conversationRepository.findOne(conversationId);
+        return anonymiseConversation(conversationRepository.findOne(conversationId));
     }
 
     public Conversation add(Conversation conversation) {
@@ -60,9 +95,77 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         conversationRepository.delete(conversationId);
     }
 
+    private Conversation anonymiseConversation(Conversation conversation) {
+
+        Conversation newConversation = new Conversation();
+        newConversation.setConversationUsers(new HashSet<ConversationUser>());
+        List<Long> anonUserIds = new ArrayList<>();
+        User anonUser = new User();
+        anonUser.setForename("Anonymous");
+        anonUser.setSurname("User");
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            if (conversationUser.getAnonymous()) {
+                anonUserIds.add(conversationUser.getUser().getId());
+
+                ConversationUser anonConversationUser = new ConversationUser();
+                anonConversationUser.setAnonymous(true);
+                anonConversationUser.setUser(anonUser);
+                anonConversationUser.setConversation(conversation);
+                newConversation.getConversationUsers().add(anonConversationUser);
+            } else {
+                newConversation.getConversationUsers().add(conversationUser);
+            }
+        }
+
+        List<Message> newMessages = new ArrayList<>();
+
+        for (Message message : conversation.getMessages()) {
+            Message newMessage = new Message();
+            newMessage.setId(message.getId());
+            newMessage.setConversation(newConversation);
+            newMessage.setType(message.getType());
+            newMessage.setMessage(message.getMessage());
+            newMessage.setReadReceipts(message.getReadReceipts());
+            newMessage.setCreated(message.getCreated());
+
+            if (anonUserIds.contains(message.getUser().getId())) {
+                newMessage.setUser(anonUser);
+            } else {
+                newMessage.setUser(message.getUser());
+            }
+            newMessages.add(newMessage);
+        }
+
+        // sort messages
+        Collections.sort(newMessages, new Comparator<Message>() {
+            public int compare(Message m1, Message m2) {
+                return m2.getCreated().compareTo(m1.getCreated());
+            }
+        });
+
+        newConversation.setMessages(new HashSet<>(newMessages));
+        newConversation.setType(conversation.getType());
+        newConversation.setStatus(conversation.getStatus());
+        newConversation.setImageData(conversation.getImageData());
+        newConversation.setOpen(conversation.getOpen());
+        newConversation.setTitle(conversation.getTitle());
+        newConversation.setRating(conversation.getRating());
+        newConversation.setId(conversation.getId());
+        return newConversation;
+    }
+
     public Page<Conversation> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
         User entityUser = findEntityUser(userId);
-        return conversationRepository.findByUser(entityUser, pageable);
+        Page<Conversation> conversationPage = conversationRepository.findByUser(entityUser, pageable);
+        List<Conversation> conversations = new ArrayList<>();
+
+        // make anonymous if necessary
+        for (Conversation conversation : conversationPage.getContent()) {
+            conversations.add(anonymiseConversation(conversation));
+        }
+
+        return new PageImpl<>(conversations, pageable, conversations.size());
     }
 
     public void addMessage(Long conversationId, Message message) throws ResourceNotFoundException {
@@ -98,6 +201,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private Set<ConversationUser> createEntityConversationUserSet
             (Set<ConversationUser> conversationUsers, Conversation conversation, User creator)
             throws ResourceNotFoundException {
+
         Set<ConversationUser> conversationUserSet = new HashSet<>();
 
         for (ConversationUser conversationUser : conversationUsers) {
@@ -107,6 +211,52 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newConversationUser.setAnonymous(conversationUser.getAnonymous());
             newConversationUser.setCreator(creator);
             conversationUserSet.add(newConversationUser);
+        }
+
+        // now handle contacting unit staff
+        if (conversation.getType().equals(ConversationTypes.CONTACT_UNIT)) {
+            Group entityGroup = groupRepository.findOne(conversation.getGroupId());
+            Feature entityFeature = featureRepository.findByName(conversation.getStaffFeature().toString());
+
+            if (entityGroup == null || entityFeature == null) {
+                throw new ResourceNotFoundException("Missing parameters when sending message");
+            }
+
+            List<User> staffUsers = new ArrayList<>();
+
+            // if need unit technical contact. if no unit technical contact, try patient support contact
+            if (conversation.getStaffFeature().equals(FeatureType.UNIT_TECHNICAL_CONTACT)) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
+                if (staffUsers.isEmpty()) {
+                    staffUsers = userRepository.findByGroupAndFeature(entityGroup
+                            , featureRepository.findByName(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
+                }
+            }
+
+            // if need patient support contact
+            if (conversation.getStaffFeature().equals(FeatureType.PATIENT_SUPPORT_CONTACT)) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
+            }
+
+            // if empty then try default messaging contact
+            if (staffUsers.isEmpty()) {
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup
+                        , featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()));
+            }
+
+            if (staffUsers.isEmpty()) {
+                throw new ResourceNotFoundException("No staff available to send message");
+            }
+
+            // add found staff to conversation
+            for (User user : staffUsers) {
+                ConversationUser newConversationUser = new ConversationUser();
+                newConversationUser.setConversation(conversation);
+                newConversationUser.setUser(userRepository.findOne(user.getId()));
+                newConversationUser.setAnonymous(false);
+                newConversationUser.setCreator(creator);
+                conversationUserSet.add(newConversationUser);
+            }
         }
 
         return conversationUserSet;
@@ -126,6 +276,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newConversation.setRating(conversation.getRating());
         newConversation.setStatus(conversation.getStatus());
         newConversation.setType(conversation.getType());
+        newConversation.setStaffFeature(conversation.getStaffFeature());
+        newConversation.setGroupId(conversation.getGroupId());
 
         // get first message from passed in conversation
         Iterator iter = conversation.getMessages().iterator();
@@ -210,5 +362,64 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return unreadConversations;
+    }
+
+    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
+        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
+
+        for (User user : users) {
+            transportUsers.add(new org.patientview.api.model.User(user));
+        }
+
+        return transportUsers;
+    }
+
+    public List<org.patientview.api.model.User> getRecipients(Long userId, String[] featureTypes)
+            throws ResourceNotFoundException, ResourceInvalidException {
+        User entityUser = findEntityUser(userId);
+
+        // global admin can contact all users
+        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            return convertUsersToTransportUsers(userRepository.findAll());
+        }
+
+        List<String> groupIdList = new ArrayList<>();
+        List<String> roleIdList = new ArrayList<>();
+
+        // staff & patient users can only contact those in their groups
+        for (Group group : groupService.findGroupByUser(entityUser)) {
+            groupIdList.add(group.getId().toString());
+        }
+
+        // assuming patients cannot contact other patients
+        for (Role role : adminService.getRolesByType(RoleType.STAFF)) {
+            roleIdList.add(role.getId().toString());
+        }
+
+        GetParameters getParameters = new GetParameters();
+        getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
+        getParameters.setRoleIds(roleIdList.toArray(new String[roleIdList.size()]));
+
+        // specialty/unit staff and admin can contact all users in specialty/unit
+        if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN)) {
+            return userService.getUsersByGroupsAndRoles(getParameters).getContent();
+        }
+
+        // patients can only contact staff with feature names passed in
+        if (doesContainRoles(RoleName.PATIENT)) {
+
+            List<String> featureIdList = new ArrayList<>();
+
+            for (String featureType : featureTypes) {
+                Feature feat = featureRepository.findByName(featureType);
+                if (feat != null) {
+                    featureIdList.add(feat.getId().toString());
+                }
+            }
+            getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
+            return userService.getUsersByGroupsRolesFeatures(getParameters).getContent();
+        }
+
+        throw new ResourceInvalidException("No suitable roles");
     }
 }

@@ -7,26 +7,32 @@ angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 
     $scope.months = UtilService.generateMonths();
     $scope.years = UtilService.generateYears();
     $scope.days = UtilService.generateDays();
-    $scope.joinRequest.selectedYear = 2000;
-    $scope.joinRequest.selectedMonth = '01';
-    $scope.joinRequest.selectedDay = '01';
+    $scope.joinRequest.selectedYear = '';
+    $scope.joinRequest.selectedMonth = '';
+    $scope.joinRequest.selectedDay = '';
 
-    StaticDataService.getLookupByTypeAndValue('GROUP', 'SPECIALTY').then(function(lookup){
-        GroupService.getAllByType(lookup.id).then(function(specialties) {
-            $scope.specialties = [];
-            specialties.forEach(function(entry) {
+    $scope.init = function() {
+        $scope.getSpecialtiesAndUnits();
+    };
 
-                if (entry.visibleToJoin === true) {
-                    $scope.specialties.push(entry);
-                    // Lets default to Renal and requery the units
-                    if (entry.name === 'Renal') {
-                        $scope.joinRequest.specialty = entry.id;
-                        $scope.refreshUnits();
+    $scope.getSpecialtiesAndUnits = function() {
+        StaticDataService.getLookupByTypeAndValue('GROUP', 'SPECIALTY').then(function (lookup) {
+            GroupService.getAllByType(lookup.id).then(function (specialties) {
+                $scope.specialties = [];
+                specialties.forEach(function (entry) {
+
+                    if (entry.visibleToJoin === true) {
+                        $scope.specialties.push(entry);
+                        // Lets default to Renal and requery the units
+                        if (entry.name === 'Renal') {
+                            $scope.joinRequest.specialty = entry.id;
+                            $scope.refreshUnits();
+                        }
                     }
-                }
+                });
             });
         });
-    });
+    };
 
     $scope.submit = function () {
 
@@ -38,7 +44,7 @@ angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 
 
         var formOk = true;
 
-        if (typeof $scope.joinRequest.unit == 'undefined') {
+        if (typeof $scope.joinRequest.unit === 'undefined') {
             $scope.errorMessage = '- Please select a unit';
             formOk = false;
         } else {
@@ -95,5 +101,7 @@ angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 
             });
         }
     };
+
+    $scope.init();
 
 }]);

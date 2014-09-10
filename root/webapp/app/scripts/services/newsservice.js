@@ -73,7 +73,7 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
         // save code
         save: function (newsItem) {
             var deferred = $q.defer();
-            var newsItem = UtilService.cleanObject(newsItem, 'newsItem');
+            newsItem = UtilService.cleanObject(newsItem, 'newsItem');
 
             Restangular.all('news').customPUT(newsItem).then(function(successResult) {
                 deferred.resolve(successResult);

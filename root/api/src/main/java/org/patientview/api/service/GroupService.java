@@ -2,8 +2,8 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.controller.model.UnitRequest;
-import org.patientview.api.exception.ResourceInvalidException;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -29,8 +29,6 @@ public interface GroupService {
     List<Group> findAll();
 
     List<Group> findGroupByUser(User user);
-
-    List<Group> findGroupAndChildGroupsByUser(User user);
 
     List<Group> findGroupByType(Long lookupId);
 
@@ -65,4 +63,7 @@ public interface GroupService {
     void deleteFeature(Long groupId, Long featureId);
 
     void contactUnit(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException, ResourceInvalidException;
+
+    // now public
+    public List<Group> addParentAndChildGroups(List<Group> groups);
 }

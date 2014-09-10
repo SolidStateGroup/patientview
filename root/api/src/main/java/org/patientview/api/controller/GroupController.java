@@ -2,8 +2,8 @@ package org.patientview.api.controller;
 
 import org.patientview.api.controller.model.GroupStatisticTO;
 import org.patientview.api.controller.model.UnitRequest;
-import org.patientview.api.exception.ResourceInvalidException;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
@@ -71,16 +71,16 @@ public class GroupController extends BaseController<GroupController> {
 
     }
 
-    @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId) throws SecurityException {
-        return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/group", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Group>> getGroups() {
         return new ResponseEntity<>(groupService.findAll(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId) throws SecurityException {
+        return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.PUT)
@@ -161,7 +161,7 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/group/{groupId}/children", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Group>> getChildreb(@PathVariable("groupId") Long groupId)
+    public ResponseEntity<List<Group>> getChildren(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException{
         return new ResponseEntity<>(groupService.findChildren(groupId), HttpStatus.OK);
     }

@@ -7,9 +7,9 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
     $scope.months = UtilService.generateMonths();
     $scope.years = UtilService.generateYears();
     $scope.days = UtilService.generateDays();
-    $scope.joinRequest.selectedYear = 2000;
-    $scope.joinRequest.selectedMonth = '01';
-    $scope.joinRequest.selectedDay = '01';
+    $scope.joinRequest.selectedYear = '';
+    $scope.joinRequest.selectedMonth = '';
+    $scope.joinRequest.selectedDay = '';
 
     StaticDataService.getLookupByTypeAndValue('GROUP', 'SPECIALTY').then(function(lookup){
         GroupService.getAllByType(lookup.id).then(function(specialties) {

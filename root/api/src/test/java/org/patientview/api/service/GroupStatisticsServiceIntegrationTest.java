@@ -7,7 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.api.config.TestPersistenceConfig;
-import org.patientview.api.exception.ResourceNotFoundException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;

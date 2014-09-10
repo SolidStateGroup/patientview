@@ -10,27 +10,26 @@ var GroupStatisticsModalInstanceCtrl = ['$scope', '$modalInstance','statistics',
     }];
 
 // new group modal instance controller
-var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'groupTypes', 'editGroup', 'allFeatures', 'contactPointTypes', 'allParentGroups', 'allChildGroups', 'GroupService',
-function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup, allFeatures, contactPointTypes, allParentGroups, allChildGroups, GroupService) {
+var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'editGroup', 'allFeatures', 'contactPointTypes', 'allParentGroups', 'allChildGroups', 'GroupService',
+function ($scope, $rootScope, $modalInstance, permissions, editGroup, allFeatures, contactPointTypes, allParentGroups, allChildGroups, GroupService) {
     $scope.permissions = permissions;
     $scope.editGroup = editGroup;
-    $scope.groupTypes = groupTypes;
     $scope.allFeatures = allFeatures;
     $scope.contactPointTypes = contactPointTypes;
     $scope.editMode = false;
     var i;
 
     // restrict all but GLOBAL_ADMIN from adding new SPECIALTY type groups by reducing groupTypes
-    for (i = 0; i < $scope.groupTypes.length; i++) {
-        if (!$scope.permissions.isSuperAdmin && $scope.groupTypes[i].value === 'SPECIALTY') {
-            $scope.groupTypes.splice(i, 1);
+    for (i = 0; i < $scope.editGroup.groupTypes.length; i++) {
+        if (!$scope.permissions.isSuperAdmin && $scope.editGroup.groupTypes[i].value === 'SPECIALTY') {
+            $scope.editGroup.groupTypes.splice(i, 1);
         }
     }
 
     // set up groupTypesArray for use when showing/hiding parent/child group blocks for UNIT or SPECIALTY
     $scope.groupTypesArray = [];
-    for (i = 0; i < $scope.groupTypes.length; i++) {
-        $scope.groupTypesArray[$scope.groupTypes[i].value] = $scope.groupTypes[i].id;
+    for (i = 0; i < $scope.editGroup.groupTypes.length; i++) {
+        $scope.groupTypesArray[$scope.editGroup.groupTypes[i].value] = $scope.editGroup.groupTypes[i].id;
     }
 
     // set feature (avoid blank option)
@@ -39,7 +38,7 @@ function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup
     }
 
     $scope.ok = function () {
-        GroupService.new($scope.editGroup, groupTypes).then(function(result) {
+        GroupService.new($scope.editGroup, $scope.editGroup.groupTypes).then(function(result) {
             // successfully added new Group, close modal and return group
             $scope.editGroup = result;
             $modalInstance.close($scope.editGroup);
@@ -60,42 +59,72 @@ function ($scope, $rootScope, $modalInstance, permissions, groupTypes, editGroup
 angular.module('patientviewApp').controller('GroupsCtrl', ['$scope','$timeout', '$modal','GroupService','StaticDataService','FeatureService','UserService',
 function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureService, UserService) {
 
-    // Get groups, used during initialisation
-    $scope.getGroups = function () {
-        var i, j, group;
+    $scope.itemsPerPage = 20;
+    $scope.currentPage = 0;
+    $scope.filterText = '';
+    $scope.sortField = '';
+    $scope.sortDirection = '';
+
+    var tempFilterText = '';
+    var filterTextTimeout;
+
+    // watches
+    // update page on user typed search text
+    $scope.$watch('searchText', function (value) {
+        if (value !== undefined) {
+            if (filterTextTimeout) {
+                $timeout.cancel(filterTextTimeout);
+            }
+            $scope.currentPage = 0;
+
+            tempFilterText = value;
+            filterTextTimeout = $timeout(function () {
+                $scope.filterText = tempFilterText;
+                $scope.getItems();
+            }, 1000); // delay 1000 ms
+        }
+    });
+
+    // update page when currentPage is changed (and at start)
+    $scope.$watch('currentPage', function(value) {
+        $scope.currentPage = value;
+        $scope.getItems();
+    });
+
+    // Get groups based on current user selected filters etc
+    $scope.getItems = function () {
+        $scope.loading = true;
+
+        var getParameters = {};
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        getParameters.filterText = $scope.filterText;
+        getParameters.groupTypes = $scope.selectedGroupType;
+        getParameters.sortField = $scope.sortField;
+        getParameters.sortDirection = $scope.sortDirection;
 
         // get list of groups associated with a user
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(groups) {
+        GroupService.getGroupsForUser($scope.loggedInUser.id, getParameters).then(function(page) {
+            $scope.pagedItems = page.content;
+            $scope.total = page.totalElements;
+            $scope.totalPages = page.totalPages;
+            delete $scope.loading;
+        }, function () {
+            delete $scope.loading;
+            $scope.fatalErrorMessage = 'Error retrieving groups';
+        });
+    };
 
-            // set the list of groups to show in the data grid
-            $scope.list = groups;
+    // TODO: this needs performance improvements, server currently retrieves all groups
+    $scope.getAllowedRelationshipGroups = function() {
+        // allowed relationship groups are those that can be added as parents or children to existing groups
+        GroupService.getAllowedRelationshipGroups($scope.loggedInUser.id).then(function(allowedRelationshipGroups) {
+            var group, i;
+            $scope.allowedRelationshipGroups = allowedRelationshipGroups.content;
 
-            // set initial pagination
-            $scope.currentPage = 1; //current page
-            $scope.entryLimit = 10; //max no of items to display in a page
-            $scope.totalItems = $scope.list.length;
-            $scope.predicate = 'id';
-
-            // allowed relationship groups are those that can be added as parents or children to existing groups
-            // GLOBAL_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
-            // SPECIALTY_ADMIN can only edit their specialty and add relationships so allowedRelationshipGroups is just a
-            // list of all available units found from getUnitGroups which is $scope.AllUnits
-            // all other users cannot add parents/children so allowedRelationshipGroups is an empty array
-            if ($scope.permissions.isSuperAdmin) {
-                $scope.allowedRelationshipGroups = groups;
-            } else if ($scope.permissions.isSpecialtyAdmin) {
-                // add all units
-                $scope.allowedRelationshipGroups = $scope.allUnits;
-                // add specialty groups associated with user
-                $scope.allowedRelationshipGroups = $scope.allowedRelationshipGroups.concat(groups);
-            } else {
-                $scope.allowedRelationshipGroups = [];
-            }
-
-            // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups
-            // define groups that can be parents by type, currently hardcoded to SPECIALTY (and later DISEASE_GROUP) type groups
+            // define groups that can be parents by type, currently hardcoded to SPECIALTY (and later DISEASE_GROUP)
             $scope.allParentGroups = [];
-            for (i=0;i<$scope.allowedRelationshipGroups.length;i++) {
+            for (i = 0; i < $scope.allowedRelationshipGroups.length; i++) {
                 group = $scope.allowedRelationshipGroups[i];
                 if (group && group.groupType && group.groupType.value === 'SPECIALTY') {
                     $scope.allParentGroups.push(group);
@@ -104,71 +133,27 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
             // similarly, child groups are all those of type NOT SPECIALTY
             $scope.allChildGroups = [];
-            for (j=0;j<$scope.allowedRelationshipGroups.length;j++) {
-                group = $scope.allowedRelationshipGroups[j];
+            for (i = 0; i < $scope.allowedRelationshipGroups.length; i++) {
+                group = $scope.allowedRelationshipGroups[i];
                 if (group && group.groupType && group.groupType.value !== 'SPECIALTY') {
                     $scope.allChildGroups.push(group);
                 }
             }
-        }, function () {
-            // error retrieving groups
-            delete $scope.loading;
-            $scope.fatalErrorMessage = 'Error retrieving groups';
         });
     };
 
-    // Init, started at page load
-    $scope.init = function () {
-        var i;
-        $scope.loading = true;
-        $scope.allUnits = [];
-
-        // TODO: set permissions for ui, hard coded to check if user has GLOBAL_ADMIN, SPECIALTY_ADMIN role anywhere, if so can do:
-        // add SPECIALTY groups
-        // edit group code
-        // edit parents groups (GLOBAL_ADMIN only)
-        // edit child groups
-        // edit features
-        // create group
-        $scope.permissions = {};
-
-        // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
-        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
-        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
-
-        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
-            $scope.permissions.canEditGroupCode = true;
-            $scope.permissions.canEditChildGroups = true;
-            $scope.permissions.canEditFeatures = true;
-            $scope.permissions.canCreateGroup = true;
-            $scope.permissions.canEditParentGroups = true;
-        }
-
-        // get all units if SPECIALTY_ADMIN, used when setting allowed groups for parent/child relationships
-        if ($scope.permissions.isSpecialtyAdmin) {
-            StaticDataService.getLookupByTypeAndValue('GROUP','UNIT').then(function(lookup){
-                GroupService.getAllByType(lookup.id).then(function(units) {
-                    $scope.allUnits = units;
-                    // get list of groups
-                    $scope.getGroups();
-                });
-            });
-        } else {
-            // get list of groups
-            $scope.getGroups();
-        }
-
-        // set allowed group types (when adding/editing groups)
+    $scope.getAllowedAddEditFilterGroups = function() {
+        // set allowed group types (when adding/editing groups) and filter group types (when filtering by group type)
         $scope.groupTypes = [];
-        // set allowed filter group types (when filtering by group type)
         $scope.filterGroupTypes = [];
 
         StaticDataService.getLookupsByType('GROUP').then(function(groupTypes) {
+            $scope.loading = true;
             if (groupTypes.length > 0) {
                 var allowedGroupTypes = [];
                 var allowedFilterGroupTypes = [];
 
-                for (i=0;i<groupTypes.length;i++) {
+                for (var i=0;i<groupTypes.length;i++) {
                     if (groupTypes[i].value === 'SPECIALTY') {
                         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
                             allowedGroupTypes.push(groupTypes[i]);
@@ -186,6 +171,31 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             }
             delete $scope.loading;
         });
+    };
+
+    // Init, started at page load
+    $scope.init = function () {
+        var i;
+        $scope.loading = true;
+        $scope.allUnits = [];
+
+        // set permissions, currently hardcoded
+        $scope.permissions = {};
+
+        // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN
+        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+
+        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
+            $scope.permissions.canEditGroupCode = true;
+            $scope.permissions.canEditChildGroups = true;
+            $scope.permissions.canEditFeatures = true;
+            $scope.permissions.canCreateGroup = true;
+            $scope.permissions.canEditParentGroups = true;
+        }
+
+        $scope.getAllowedRelationshipGroups();
+        $scope.getAllowedAddEditFilterGroups();
 
         // get list of features associated with groups
         FeatureService.getAllGroupFeatures().then(function(allFeatures) {
@@ -201,6 +211,76 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         });
     };
 
+    $scope.sortBy = function(sortField) {
+        $scope.currentPage = 0;
+        if ($scope.sortField !== sortField) {
+            $scope.sortDirection = 'ASC';
+            $scope.sortField = sortField;
+        } else {
+            if ($scope.sortDirection === 'ASC') {
+                $scope.sortDirection = 'DESC';
+            } else {
+                $scope.sortDirection = 'ASC';
+            }
+        }
+
+        $scope.getItems();
+    };
+
+    $scope.pageCount = function() {
+        return Math.ceil($scope.total/$scope.itemsPerPage);
+    };
+
+    $scope.range = function() {
+        var rangeSize = 10;
+        var ret = [];
+        var start;
+
+        if ($scope.currentPage < 10) {
+            start = 0;
+        } else {
+            start = $scope.currentPage;
+        }
+
+        if ( start > $scope.pageCount()-rangeSize ) {
+            start = $scope.pageCount()-rangeSize;
+        }
+
+        for (var i=start; i<start+rangeSize; i++) {
+            if (i > -1) {
+                ret.push(i);
+            }
+        }
+
+        return ret;
+    };
+
+    $scope.setPage = function(n) {
+        if (n > -1 && n < $scope.totalPages) {
+            $scope.currentPage = n;
+        }
+    };
+
+    $scope.prevPage = function() {
+        if ($scope.currentPage > 0) {
+            $scope.currentPage--;
+        }
+    };
+
+    $scope.prevPageDisabled = function() {
+        return $scope.currentPage === 0 ? 'hidden' : '';
+    };
+
+    $scope.nextPage = function() {
+        if ($scope.currentPage < $scope.totalPages - 1) {
+            $scope.currentPage++;
+        }
+    };
+
+    $scope.nextPageDisabled = function() {
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
+    };
+
     // filter by group type
     $scope.selectedGroupType = [];
     $scope.setSelectedGroupType = function () {
@@ -210,7 +290,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         } else {
             $scope.selectedGroupType.push(id);
         }
-        return false;
+        $scope.getItems();
     };
     $scope.isGroupTypeChecked = function (id) {
         if (_.contains($scope.selectedGroupType, id)) {
@@ -218,30 +298,32 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         }
         return false;
     };
-
-    // pagination, sorting, basic filter
-    $scope.setPage = function(pageNo) {
-        $scope.currentPage = pageNo;
-    };
-    $scope.filter = function() {
-        $timeout(function() {
-            $scope.filteredItems = $scope.filtered.length;
-        }, 10);
-    };
-    $scope.sortBy = function(predicate) {
-        $scope.predicate = predicate;
-        $scope.reverse = !$scope.reverse;
+    $scope.removeAllGroupTypes = function () {
+        $scope.selectedGroupType = [];
+        $scope.getItems();
     };
 
     // Group opened for edit
-    $scope.opened = function (openedGroup, $event, status) {
-
+    $scope.opened = function (openedGroup) {
+        var i;
         $scope.editMode = true;
         $scope.saved = '';
 
         // do not load if already opened (status.open == true)
-        if (!status || status.open === false) {
+        if (openedGroup.showEdit) {
             $scope.editGroup = '';
+            openedGroup.showEdit = false;
+        } else {
+            // close others
+            for (i = 0; i < $scope.pagedItems.length; i++) {
+                $scope.pagedItems[i].showEdit = false;
+            }
+
+            $scope.editGroup = '';
+            $scope.editGroup.editLoading = true;
+            $scope.editGroup.editError = '';
+
+            openedGroup.showEdit = true;
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             GroupService.get(openedGroup.id).then(function (group) {
@@ -322,6 +404,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 if ($scope.editGroup.availableFeatures[0]) {
                     $scope.featureToAdd = $scope.editGroup.availableFeatures[0].feature.id;
                 }
+
+                $scope.editGroup.editLoading = false;
+            }, function () {
+                $scope.editGroup.errorMessage = 'There has been a problem retrieving this group';
             });
         }
     };
@@ -343,13 +429,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             });
 
             modalInstance.result.then(function () {
-                // ok, delete from list
-                for(var l=0;l<$scope.list.length;l++) {
-                    if ($scope.list[l].id === codeId) {
-                        $scope.list = _.without($scope.list, $scope.list[l]);
-                    }
-                }
-                $scope.successMessage = 'Code successfully deleted';
+                // ok (not used)
             }, function () {
                 // closed
             });
@@ -359,7 +439,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
     // open modal for new group
     $scope.openModalNewGroup = function (size) {
         // close any open edit panels
-        $('.panel-collapse.in').collapse('hide');
+        for (var i = 0; i < $scope.pagedItems.length; i++) {
+            $scope.pagedItems[i].showEdit = false;
+        }
         $scope.errorMessage = '';
         $scope.successMessage = '';
         $scope.groupCreated = '';
@@ -380,6 +462,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.editGroup.newLocation = {};
         $scope.editGroup.newLocation.label = 'Additional Location';
 
+        $scope.editGroup.groupTypes = _.clone($scope.groupTypes);
+
         var modalInstance = $modal.open({
             templateUrl: 'newGroupModal.html',
             controller: NewGroupModalInstanceCtrl,
@@ -387,9 +471,6 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             resolve: {
                 permissions: function(){
                     return $scope.permissions;
-                },
-                groupTypes: function(){
-                    return $scope.groupTypes;
                 },
                 allFeatures: function(){
                     return $scope.allFeatures;
@@ -412,10 +493,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             }
         });
 
-        modalInstance.result.then(function (group) {
-            // modal closed, successfully added group, add to group list
-            $scope.list.push(group);
-            $scope.editGroup = group;
+        modalInstance.result.then(function () {
+            $scope.getItems();
             $scope.successMessage = 'Group successfully created';
             $scope.groupCreated = true;
         }, function () {
@@ -434,12 +513,14 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
 
             // update accordion header for group with data from GET
             GroupService.get(group.id).then(function (successResult) {
-                for(var i=0;i<$scope.list.length;i++) {
-                    if($scope.list[i].id == successResult.id) {
-                        var headerDetails = $scope.list[i];
+                for(var i=0;i<$scope.pagedItems.length;i++) {
+                    if($scope.pagedItems[i].id === successResult.id) {
+                        var headerDetails = $scope.pagedItems[i];
                         headerDetails.code = successResult.code;
                         headerDetails.name = successResult.name;
                         headerDetails.groupType = successResult.groupType;
+                        headerDetails.groupFeatures = successResult.groupFeatures;
+                        headerDetails.parentGroups = successResult.parentGroups;
                     }
                 }
             }, function () {

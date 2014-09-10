@@ -1,10 +1,15 @@
+<div ng-show="previousAuthToken" class="container">
+    <a href="" class="btn btn-primary pull-right" ng-click="switchUserBack()">Back to Admin Area</a>
+    <br/><br/>
+</div>
+
 <div class="container">
     <div class="navbar navbar-default content-panel" role="navigation">
         <div class="navbar-header">
             <a class="navbar-brand" href="#"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
             <div class="temp-mobile-nav visible-xs pull-right">
                 <ul class="unstyled" ng-hide="!authToken">
-                    <li><a ng-href="#/messages">Messages</a></li>
+                    <li><a ng-href="#/conversations">Messages</a></li>
                     <li><a ng-href="#/settings">Settings</a></li>
                     <li><a href="#/logout">Logout</a></li>
                 </ul>
@@ -54,7 +59,7 @@
         <div class="content-panel clearfix">
             <div ng-hide="!authToken" ng-cloak>
                 <ul class="secondary-nav nav nav-pills pull-left">
-                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" >
+                    <li ng-repeat="menuitem in routes | menuFilter:'TOP'" ng-class="{active: title === menuitem.title}">
                         <a ng-href="#{{menuitem.url}}">{{menuitem.title}}
                             <span ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="badge badge-small warning">{{submittedJoinRequestCount}}</span>
                         </a>
