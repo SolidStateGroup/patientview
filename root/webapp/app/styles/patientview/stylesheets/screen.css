@@ -608,7 +608,7 @@ i.icon-result-info {
 i.icon-result-down {
   background: url("../../../images/icons/result-down.png") 0 0 no-repeat;
   height: 35px;
-  width: 35px;
+  width: 17px;
   display: block;
 }
 
@@ -616,7 +616,7 @@ i.icon-result-down {
 i.icon-result-up {
   background: url("../../../images/icons/result-up.png") 0 0 no-repeat;
   height: 35px;
-  width: 35px;
+  width: 17px;
   display: block;
 }
 
@@ -1559,67 +1559,99 @@ label {
 .results-header .header-icon i {
   display: block;
 }
-
-/* line 24, ../sass/_results.scss */
-.results-container .results-list > li {
-  width: 25%;
-  height: 256px;
+/* line 18, ../sass/_results.scss */
+.results-header .panel-controls {
+  clear: right;
+}
+/* line 22, ../sass/_results.scss */
+.results-header .form-row {
+  width: 400px;
+  margin-bottom: 10px;
+}
+/* line 26, ../sass/_results.scss */
+.results-header .form-row label, .results-header .form-row select {
+  width: 50%;
   float: left;
 }
-/* line 29, ../sass/_results.scss */
+/* line 31, ../sass/_results.scss */
+.results-header .form-row label {
+  padding-right: 20px;
+  text-align: right;
+  padding-top: 7px;
+}
+
+/* line 39, ../sass/_results.scss */
+.results-container {
+  float: left;
+  width: 100%;
+  margin-top: 20px;
+}
+/* line 44, ../sass/_results.scss */
+.results-container .results-list {
+  margin-left: -5px;
+  margin-right: -5px;
+}
+/* line 48, ../sass/_results.scss */
+.results-container .results-list > li {
+  height: 256px;
+  float: left;
+  padding: 5px;
+}
+/* line 53, ../sass/_results.scss */
 .results-container .results-list > li .result-item {
   height: 100%;
   padding: 15px;
   position: relative;
 }
-/* line 35, ../sass/_results.scss */
+/* line 59, ../sass/_results.scss */
 .results-container .results-list > li .result-header {
   width: 100%;
   height: 35px;
   border-bottom: 1px solid #e4e9f0;
   color: #585858;
 }
-/* line 41, ../sass/_results.scss */
+/* line 65, ../sass/_results.scss */
 .results-container .results-list > li .result-header h4 {
   font-weight: bold;
   margin: 0;
   line-height: 26px;
 }
-/* line 48, ../sass/_results.scss */
+/* line 72, ../sass/_results.scss */
 .results-container .results-list > li .result-change {
   margin: 0;
 }
-/* line 51, ../sass/_results.scss */
+/* line 75, ../sass/_results.scss */
 .results-container .results-list > li .result-change dt {
   font-size: 65px;
   float: left;
 }
-/* line 56, ../sass/_results.scss */
+/* line 80, ../sass/_results.scss */
 .results-container .results-list > li .result-change dd {
   float: right;
   text-align: right;
   width: 30%;
-  padding-top: 22px;
+  padding-top: 39px;
+  padding-left: 24px;
 }
-/* line 62, ../sass/_results.scss */
+/* line 87, ../sass/_results.scss */
 .results-container .results-list > li .result-change dd i {
-  float: right;
+  margin-top: 2px;
 }
-/* line 66, ../sass/_results.scss */
+/* line 91, ../sass/_results.scss */
 .results-container .results-list > li .result-change dd span {
   clear: right;
   margin-right: 5px;
 }
-/* line 73, ../sass/_results.scss */
+/* line 98, ../sass/_results.scss */
 .results-container .results-list > li .info-list {
   width: 100%;
 }
-/* line 75, ../sass/_results.scss */
+/* line 100, ../sass/_results.scss */
 .results-container .results-list > li .info-list li {
   width: 100%;
   color: #8f8f8f;
 }
-/* line 81, ../sass/_results.scss */
+/* line 106, ../sass/_results.scss */
 .results-container .results-list > li .result-footer {
   position: absolute;
   bottom: 0;
@@ -1630,13 +1662,18 @@ label {
   border-top: 1px solid #e4e9f0;
   padding: 4px 10px;
 }
-/* line 91, ../sass/_results.scss */
+/* line 116, ../sass/_results.scss */
 .results-container .results-list > li .result-footer p {
   font-size: 20px;
   color: #aebccf;
 }
 
 /* line 2, ../sass/_components.scss */
+.pagination.results {
+  margin: 0;
+}
+
+/* line 8, ../sass/_components.scss */
 .tab-panel-item .aside-actions {
   height: 180px;
   position: absolute;
@@ -1644,56 +1681,56 @@ label {
   right: 0;
   bottom: 0;
 }
-/* line 9, ../sass/_components.scss */
+/* line 15, ../sass/_components.scss */
 .tab-panel-item .aside-actions li {
   height: 75px;
 }
-/* line 12, ../sass/_components.scss */
+/* line 18, ../sass/_components.scss */
 .tab-panel-item .aside-actions li a {
   height: 100%;
   line-height: 15px;
   padding-top: 15px;
 }
-/* line 20, ../sass/_components.scss */
+/* line 26, ../sass/_components.scss */
 .tab-panel-item .item-detail {
   padding: 20px;
 }
-/* line 23, ../sass/_components.scss */
+/* line 29, ../sass/_components.scss */
 .tab-panel-item .item-detail dl {
   margin-bottom: 10px;
 }
-/* line 28, ../sass/_components.scss */
+/* line 34, ../sass/_components.scss */
 .tab-panel-item .item-detail dl dd {
   color: #768696;
 }
 
-/* line 35, ../sass/_components.scss */
+/* line 41, ../sass/_components.scss */
 .user-details {
   margin-bottom: 20px;
   padding: 20px;
   min-height: 170px;
 }
-/* line 40, ../sass/_components.scss */
+/* line 46, ../sass/_components.scss */
 .user-details h3 {
   margin-top: 0;
 }
-/* line 44, ../sass/_components.scss */
+/* line 50, ../sass/_components.scss */
 .user-details h4 {
   margin-bottom: 5px;
 }
 
 /** MODALS **/
-/* line 51, ../sass/_components.scss */
+/* line 57, ../sass/_components.scss */
 .modal-dialog {
   width: 75%;
 }
 
 /** GRAPHS **/
-/* line 57, ../sass/_components.scss */
+/* line 63, ../sass/_components.scss */
 .graph-selector {
   margin-bottom: 10px;
 }
-/* line 60, ../sass/_components.scss */
+/* line 66, ../sass/_components.scss */
 .graph-selector h3 {
   margin: 0;
   line-height: 35px;

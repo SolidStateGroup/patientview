@@ -15,16 +15,40 @@
         }
     }
 
+    .panel-controls{
+        clear:right;
+    }
 
+    .form-row{
+        width:400px;
+        margin-bottom:10px;
+
+        label, select{
+            width:50%;
+            float:left;
+        }
+
+        label{
+            padding-right:20px;
+            text-align:right;
+            padding-top:7px;
+        }
+    }
 }
 
 .results-container{
+    float:left;
+    width:100%;
+    margin-top:20px;
 
     .results-list{
+        margin-left:-5px;
+        margin-right:-5px;
+
         > li{
-            width:25%;
             height:256px;
             float:left;
+            padding:5px;
 
             .result-item{
                 height:100%;
@@ -57,10 +81,11 @@
                     float: right;
                     text-align: right;
                     width: 30%;
-                    padding-top: 22px;
+                    padding-top: 39px;
+                    padding-left: 24px;
 
                     i{
-                        float:right;
+                        margin-top:2px;
                     }
 
                     span{
@@ -95,5 +120,4 @@
             }
         }
     }
-
 }
