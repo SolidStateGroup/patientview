@@ -4,6 +4,12 @@
     height:40px;
 }
 
+.panel-body{
+    form{
+        padding:10px;
+    }
+}
+
 input[type="text"],
 input[type="password"],
 select,
@@ -41,7 +47,6 @@ label{
 
 .edit-code{
     background:$white;
-    padding:10px;
 
     .links-container{
         margin-top:20px;
