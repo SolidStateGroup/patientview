@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.JoinRequestServiceImpl;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
@@ -18,6 +19,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.JoinRequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +54,6 @@ public class JoinRequestServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
-
     /**
      * Test: Create a join request with attached units
      * Fail: The join request is created without error
@@ -78,7 +79,6 @@ public class JoinRequestServiceTest {
 
         Assert.assertNotNull("The return join request should not be null", joinRequest);
         Assert.assertNotNull("The group should not be null", joinRequest.getGroup());
-
     }
 
     /**
@@ -124,10 +124,25 @@ public class JoinRequestServiceTest {
 
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
-        joinRequestService.get(group.getId());
+        GetParameters getParameters = new GetParameters();
+        String[] statuses = {JoinRequestStatus.COMPLETED.toString()};
+        getParameters.setStatuses(statuses);
+
+        joinRequestService.getByUser(group.getId(), new GetParameters());
 
         verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(1)).findByUser(eq(user));
+        verify(joinRequestRepository, Mockito.times(1)).findByUser(eq(user), eq(new PageRequest(0, Integer.MAX_VALUE)));
+    }
+
+    private List<JoinRequestStatus> convertStringArrayToStatusList (String[] statuses) {
+        List<JoinRequestStatus> statusList = new ArrayList<>();
+        for (String status : statuses) {
+            JoinRequestStatus found = JoinRequestStatus.valueOf(status);
+            if (found != null) {
+                statusList.add(found);
+            }
+        }
+        return statusList;
     }
 
     /**
@@ -149,13 +164,15 @@ public class JoinRequestServiceTest {
 
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
-        List<JoinRequestStatus> statuses = new ArrayList<>();
-        statuses.add(JoinRequestStatus.COMPLETED);
+        GetParameters getParameters = new GetParameters();
+        String[] statuses = {JoinRequestStatus.COMPLETED.toString()};
+        getParameters.setStatuses(statuses);
 
-        joinRequestService.getByStatuses(group.getId(), statuses);
+        joinRequestService.getByUser(group.getId(), getParameters);
 
         verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(1)).findByUserAndStatuses(eq(user), eq(statuses));
+        verify(joinRequestRepository, Mockito.times(1)).findByUserAndStatuses(eq(user),
+            eq(convertStringArrayToStatusList(getParameters.getStatuses())), eq(new PageRequest(0, Integer.MAX_VALUE)));
     }
 
     /**
@@ -177,12 +194,12 @@ public class JoinRequestServiceTest {
 
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
-        joinRequestService.get(group.getId());
+        joinRequestService.getByUser(group.getId(), new GetParameters());
 
         verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(1)).findByParentUser(eq(user));
+        verify(joinRequestRepository, Mockito.times(1)).findByParentUser(eq(user),
+                eq(new PageRequest(0, Integer.MAX_VALUE)));
     }
-
 
     /**
      * Test: Attempt to retrieve the join request that are related to a user
@@ -202,12 +219,15 @@ public class JoinRequestServiceTest {
 
         when(userRepository.findOne(eq(group.getId()))).thenReturn(null);
 
-        joinRequestService.get(group.getId());
+        GetParameters getParameters = new GetParameters();
+        String[] statuses = {JoinRequestStatus.COMPLETED.toString()};
+        getParameters.setStatuses(statuses);
+
+        joinRequestService.getByUser(group.getId(), getParameters);
 
         verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(0)).findByUser(eq(user));
+        verify(joinRequestRepository, Mockito.times(0)).findByUser(eq(user), eq(new PageRequest(0, Integer.MAX_VALUE)));
     }
-
 
     /**
      * Test: Save a join request from the controller
@@ -231,9 +251,7 @@ public class JoinRequestServiceTest {
         joinRequestService.save(joinRequest);
 
         verify(joinRequestRepository, Mockito.times(1)).save(eq(joinRequest));
-
     }
-
 
     /**
      * Test: Attempt to retrieve the join request that are related to a user
@@ -253,8 +271,6 @@ public class JoinRequestServiceTest {
         verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(joinRequestRepository, Mockito.times(1)).countSubmittedByUser(eq(user));
     }
-
-
 
     /**
      * Test: Attempt to retrieve the join request that are related to a user

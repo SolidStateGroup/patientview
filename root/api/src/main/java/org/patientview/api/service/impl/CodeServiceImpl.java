@@ -40,17 +40,6 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Inject
     private UserRepository userRepository;
 
-    // todo: move to static class
-    private List<Long> convertStringArrayToLongs(String[] strings) {
-        final List<Long> longs = new ArrayList<>();
-        if (ArrayUtils.isNotEmpty(strings)) {
-            for (String string : strings) {
-                longs.add(Long.parseLong(string));
-            }
-        }
-        return longs;
-    }
-
     public Page<Code> getAllCodes(GetParameters getParameters) {
 
         String size = getParameters.getSize();

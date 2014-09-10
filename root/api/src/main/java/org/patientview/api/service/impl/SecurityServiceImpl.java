@@ -81,16 +81,6 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         return transportGroups;
     }
 
-    private List<Long> convertStringArrayToLongs(String[] strings) {
-        final List<Long> longs = new ArrayList<>();
-        if (ArrayUtils.isNotEmpty(strings)) {
-            for (String string : strings) {
-                longs.add(Long.parseLong(string));
-            }
-        }
-        return longs;
-    }
-
     private Page<Group> getUserGroupsData(Long userId, GetParameters getParameters) {
         String size = getParameters.getSize();
         String page = getParameters.getPage();

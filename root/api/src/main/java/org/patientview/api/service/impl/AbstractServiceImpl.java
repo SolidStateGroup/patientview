@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
@@ -13,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,6 +68,16 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
     @PreDestroy
     public void close() {
         LOG.info("Service closing");
+    }
+
+    protected List<Long> convertStringArrayToLongs(String[] strings) {
+        final List<Long> longs = new ArrayList<>();
+        if (ArrayUtils.isNotEmpty(strings)) {
+            for (String string : strings) {
+                longs.add(Long.parseLong(string));
+            }
+        }
+        return longs;
     }
 
 }
