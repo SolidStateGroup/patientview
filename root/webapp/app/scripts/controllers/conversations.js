@@ -74,7 +74,7 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('MessagesCtrl',['$scope', '$modal', '$q', 'ConversationService',
+angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', 'ConversationService',
     function ($scope, $modal, $q, ConversationService) {
 
     $scope.itemsPerPage = 5;
