@@ -43,25 +43,19 @@
             <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
                 <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
                 <li class="group-list-role pull-left">( <span class="group-list-role">{{groupRole.role.description}}</span> )</li>
-                <li class="group-list-delete pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id] && permissions.canDeleteGroupRolesDuringEdit"><span class="group-list-delete"><button class="btn negative" id="remove-group-{{groupRole.group.id}}" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</button></span></li>
+                <li class="group-list-delete negative pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id] && permissions.canDeleteGroupRolesDuringEdit"><span class="group-list-delete"><button class="btn negative" id="remove-group-{{groupRole.group.id}}" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</button></span></li>
             </ul>
         </div>
         <div class="group-add-container add-container" ng-show="editUser.availableGroups.length > 0 ">
             <label class="inner-title">Add New Group &amp; Role </label>
             <div class="select-add-group">
-                <select class="form-control" ng-model="editUser.groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editUser.availableGroups | orderBy:[orderGroups,'name']"></select>
-                <!--<div class="group-list-item">-->
-                    <!--<button buttongroup="" buttongroupname="role" model="editUser.selectedRole" options="editUser.roles" ng-init="editUser.selectedRole" ng-click="selectRole(userForm, editUser, $event)"></button>-->
-                <!--</div>-->
-                <!--NEW GROUP COMPONENT-->
+                <select class="form-control" ng-model="editUser.groupToAdd"
+                    ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editUser.availableGroups | orderBy:[orderGroups,'name']">
+                </select>
                 <div class="bracket-input">
                     <span class="bracket pre">(</span>
-                    <select class="form-control" >
-                        <option>-- (Role) --</option>
-                        <option>Unit Admin</option>
-                        <option>Unit Admin</option>
-                        <option>Unit Admin</option>
-                        <option>Unit Admin</option>
+                    <select class="form-control" ng-model="editUser.selectedRole"
+                            ng-options="role.id as role.description for role in editUser.roles">
                     </select>
                     <span class="bracket post">)</span>
                 </div>
