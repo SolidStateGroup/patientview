@@ -122,6 +122,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         for (Message message : conversation.getMessages()) {
             Message newMessage = new Message();
+            newMessage.setId(message.getId());
             newMessage.setConversation(newConversation);
             newMessage.setType(message.getType());
             newMessage.setMessage(message.getMessage());
