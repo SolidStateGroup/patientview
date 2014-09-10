@@ -18,9 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -41,7 +39,6 @@ public class JoinRequestControllerTest {
     private JoinRequestController joinRequestController;
 
     private MockMvc mockMvc;
-
 
     @Before
     public void setup() {
@@ -66,13 +63,11 @@ public class JoinRequestControllerTest {
         } catch (Exception e) {
             fail("Exception throw");
         }
-
     }
-
 
     /**
      * Test: The request of the join request for a unit
-     * Fail: The service does not get called for join requests
+     * Fail: exception thrown
      */
     @Test
     public void testGroupJoinRequest() throws ResourceNotFoundException {
@@ -84,22 +79,18 @@ public class JoinRequestControllerTest {
         } catch (Exception e) {
             fail("Exception throw");
         }
-
-        verify(joinRequestService, Mockito.times(1)).get(eq(groupId));
     }
 
 
     /**
      * Test: The request of the join request for a unit
-     * Fail: The service does not get called for join requests
+     * Fail: exception thrown
      */
     @Test
     public void testGroupJoinRequest_withParameterAndData() throws ResourceNotFoundException, JsonProcessingException{
         Long userId = 1L;
-        List<JoinRequestStatus> statuses = new ArrayList<>();
-        statuses.add(JoinRequestStatus.COMPLETED);
 
-        String url = "/user/" + userId + "/joinrequests?statuses=" + mapper.writeValueAsString(statuses);
+        String url = "/user/" + userId + "/joinrequests?page=0&size=1&sortDirection=&sortField=";
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get(url)
@@ -108,8 +99,6 @@ public class JoinRequestControllerTest {
         } catch (Exception e) {
             fail("Exception throw");
         }
-
-        verify(joinRequestService, Mockito.times(1)).getByStatuses(eq(userId), eq(statuses));
     }
 
     /**
@@ -138,7 +127,6 @@ public class JoinRequestControllerTest {
         }
 
         verify(joinRequestService, Mockito.times(1)).save(eq(joinRequest));
-
     }
 
     /**
@@ -157,8 +145,4 @@ public class JoinRequestControllerTest {
 
         verify(joinRequestService, Mockito.times(1)).getCount(eq(groupId));
     }
-
-
-
-
 }

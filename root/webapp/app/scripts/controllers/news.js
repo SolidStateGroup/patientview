@@ -16,7 +16,6 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
 
         // populate list of allowed groups for current user
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-
             // add 'All Groups' option (with id -1) if allowed
             if ($scope.permissions.canAddAllGroups) {
                 group = {};
@@ -25,8 +24,8 @@ var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'Group
                 $scope.newNews.allGroups.push(group);
             }
 
-            for (i = 0; i < groups.length; i++) {
-                group = groups[i];
+            for (i = 0; i < groups.content.length; i++) {
+                group = groups.content[i];
                 if (group.visible === true) {
                     $scope.newNews.allGroups.push(group);
                 }

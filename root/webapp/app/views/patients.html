@@ -143,7 +143,7 @@
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
-                                    <li><a ng-click="viewUser(user.id)" class="dropdown-menu-accordion-item">View Patient</a></li>
+                                    <li><a ng-click="viewUser(user.id)" class="dropdown-menu-accordion-item">View As Patient</a></li>
                                     <li ng-show="permissions.showDeleteMenuOption"><a ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
                                     <li><a ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
                                     <li ng-hide="user.emailVerified" id="li-email-verified-{{user.id}}"><a ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>

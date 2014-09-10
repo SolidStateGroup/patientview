@@ -1,9 +1,11 @@
 package org.patientview.api.controller;
 
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.JoinRequestService;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,16 +39,9 @@ public class JoinRequestController extends BaseController<JoinRequestController>
 
     @RequestMapping(value = "/user/{userId}/joinrequests", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<JoinRequest>> get(@PathVariable("userId") Long userId,
-                                                 @RequestParam(value = "statuses", required = false)
-                                                            List<String> statuses)
-            throws ResourceNotFoundException {
-        if (CollectionUtils.isEmpty(statuses)) {
-            return new ResponseEntity(joinRequestService.get(userId), HttpStatus.OK);
-        }
-
-        return new ResponseEntity(joinRequestService.getByStatuses(userId, convertList(statuses)), HttpStatus.OK);
-
+    public ResponseEntity<Page<JoinRequest>> getByUser(@PathVariable("userId") Long userId
+            , GetParameters getParameters) throws ResourceNotFoundException {
+        return new ResponseEntity(joinRequestService.getByUser(userId, getParameters), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/joinrequest", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -57,6 +50,13 @@ public class JoinRequestController extends BaseController<JoinRequestController>
         throws ResourceNotFoundException{
         joinRequestService.save(joinRequest);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/joinrequest/{joinRequestId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<JoinRequest> get(@PathVariable("joinRequestId") Long joinRequestId)
+            throws ResourceNotFoundException{
+        return new ResponseEntity<>(joinRequestService.get(joinRequestId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/joinrequests/count", method = RequestMethod.GET,
@@ -70,16 +70,4 @@ public class JoinRequestController extends BaseController<JoinRequestController>
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
-    private List<JoinRequestStatus> convertList(List<String> values) {
-        List<JoinRequestStatus> statuses = new ArrayList<>();
-        for (String value : values) {
-            value = value.replaceAll("\\[", "");
-            value = value.replaceAll("\\]", "");
-            value = value.replaceAll("\"", "");
-            statuses.add(JoinRequestStatus.valueOf(value));
-        }
-        return statuses;
-    }
-
 }

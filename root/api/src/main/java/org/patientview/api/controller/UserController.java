@@ -51,6 +51,8 @@ public class UserController extends BaseController<UserController> {
     @Inject
     private AdminService adminService;
 
+    final private static int MINIMUM_PASSWORD_LENGTH = 7;
+
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> getUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
@@ -196,6 +198,11 @@ public class UserController extends BaseController<UserController> {
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
             LOG.debug("A password must be supplied");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (credentials.getPassword().length() < MINIMUM_PASSWORD_LENGTH) {
+            LOG.debug("Password is not long enough");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 

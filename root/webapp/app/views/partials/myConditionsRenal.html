@@ -14,9 +14,9 @@
         <div class="panel panel-default">
             <div class="panel-heading"><h5>{{patient.group.name}}</h5></div>
             <div class="panel-body">
-                <table>
+                <table class="table table-bordered">
                     <tbody>
-
+                    <tr><td colspan="2"><h5>Condition Information</h5></td></tr>
                     <tr>
                         <td>Diagnosis</td>
                         <td>
@@ -27,7 +27,7 @@
                                         <td>
                                             <strong ng-show="code.links.length">Relevant Links</strong><br/>
                                             <span ng-repeat="link in code.links">
-                                                <a href="{{link.link}}" target="_blank">{{link.name}}</a><br/>
+                                                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                             </span>
                                         </td>
                                     </tr>
@@ -64,19 +64,21 @@
                         </td>
                     </tr>
 
-                    <tr ng-show="patient.group.links">
-                        <td><h5>Helpful Information</h5></td><td></td>
-                    </tr>
-                    <tr ng-show="patient.group.links">
-                        <td colspan="2">
-                            <ul>
-                                <li ng-repeat="link in patient.group.links">
-                                    <a href="{{link.link}}" target="_blank">{{link.name}}</a>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
+                    </tbody>
+                </table>
 
+                <table class="table table-bordered" ng-show="patient.group.links">
+                    <tbody>
+                        <tr><td colspan="2"><h5>Other Helpful Information</h5></td></tr>
+                        <tr>
+                            <td colspan="2">
+                                <ul>
+                                    <li ng-repeat="link in patient.group.links">
+                                        <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
