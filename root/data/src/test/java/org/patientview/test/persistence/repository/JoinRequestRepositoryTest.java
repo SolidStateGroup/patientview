@@ -116,13 +116,13 @@ public class JoinRequestRepositoryTest {
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(childGroup, parentGroup, RelationshipTypes.PARENT));
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.CHILD));
 
-        JoinRequest joinRequest = TestUtils.createJoinRequest(childGroup, JoinRequestStatus.COMPLETED);
+        JoinRequest joinRequest = TestUtils.createJoinRequest(childGroup, JoinRequestStatus.SUBMITTED);
         joinRequestRepository.save(joinRequest);
 
         User user = dataTestUtils.createUser("TestUser");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
         user.setGroupRoles(new HashSet<GroupRole>());
-        user.getGroupRoles().add(dataTestUtils.createGroupRole(user,parentGroup,role));
+        user.getGroupRoles().add(dataTestUtils.createGroupRole(user, parentGroup, role));
         userRepository.save(user);
 
         BigInteger count = joinRequestRepository.countSubmittedByParentUser(user);
@@ -146,7 +146,7 @@ public class JoinRequestRepositoryTest {
         User user = dataTestUtils.createUser("TestUser");
         Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
         user.setGroupRoles(new HashSet<GroupRole>());
-        user.getGroupRoles().add(dataTestUtils.createGroupRole(user,group,role));
+        user.getGroupRoles().add(dataTestUtils.createGroupRole(user, group, role));
         userRepository.save(user);
 
         BigInteger count = joinRequestRepository.countSubmittedByUser(user);
