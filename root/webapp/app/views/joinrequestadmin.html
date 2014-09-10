@@ -4,15 +4,15 @@
         <p class="intro-block">Filter join requests by selecting a status from the options below.</p>
     </div>
     <div class="panel-footer clearfix">
-        <!-- filter by code type -->
         <div class="content-inner">
             <div class="pull-right">
                 <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
             </div>
             <div class="form-horizontal" role="form">
+                <!-- filter by code type -->
                 <div class="select-container pull-left">
-                    <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
-                        <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Status <span class="caret-container"><span class="caret"></span></span></button>
+                    <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open1}">
+                        <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Status <span class="caret-container"><span class="caret"></span></span></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                             <li><a data-ng-click="removeAllStatuses()"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                             <li class="divider"></li>
@@ -25,6 +25,18 @@
                         </ul>
                     </div>
                     <span data-ng-repeat="status in statuses" ng-show="isStatusChecked(status)"><span class="label label-info">{{status}}</span>&nbsp;</span>
+                </div>
+                <!-- filter by group -->
+                <div class="select-container pull-left">
+                    <div class="btn-group filter-select" id="filter-group" data-ng-class="{open: open2}">
+                        <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Group <span class="caret-container"><span class="caret"></span></span></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                            <li><a data-ng-click="removeAllSelectedGroup()" class="a-filter-group"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                            <li class="divider"></li>
+                            <li data-ng-repeat="group in allGroups"> <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix"><span class="pull-left">{{group.name}}</span><span data-ng-class="isGroupChecked(group.id)"></span></a></li>
+                        </ul>
+                    </div>
+                    <span data-ng-repeat="group in allGroups" ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</span>
                 </div>
             </div>
         </div>

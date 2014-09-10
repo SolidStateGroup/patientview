@@ -330,11 +330,11 @@ public final class TestUtils {
         return newsLink;
     }
 
-    public static JoinRequest createJoinRequest(Group group) {
+    public static JoinRequest createJoinRequest(Group group, JoinRequestStatus status) {
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setCreated(new Date());
-        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
+        joinRequest.setStatus(status);
         joinRequest.setGroup(group);
         joinRequest.setNhsNumber("234234234");
         joinRequest.setDateOfBirth(new Date());

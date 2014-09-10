@@ -17,11 +17,30 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
     // Init
     $scope.init = function () {
         $scope.statuses = [];
+        $scope.allGroups = [];
+
         JoinRequestService.getStatuses().then(function(statuses) {
             if (statuses.length > 0) {
-                $scope.statuses = statuses;
+                $scope.statuses = statuses.sort();
             }
         });
+
+        // get logged in user's groups
+        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+            var i, group;
+            groups = groups.content;
+            groups = _.sortBy(groups, 'name' );
+
+            // set groups that can be chosen in UI, only show visible groups
+            for (i = 0; i < groups.length; i++) {
+                group = groups[i];
+                if (group.visible === true) {
+                    $scope.allGroups.push(group);
+                }
+            }
+        }, function() {
+            alert('Error getting groups');
+        })
     };
 
     $scope.getItems = function() {
@@ -33,6 +52,10 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
         getParameters.statuses = $scope.selectedStatus;
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
+
+        if ($scope.selectedGroup.length > 0) {
+            getParameters.groupIds = $scope.selectedGroup;
+        }
 
         JoinRequestService.getByUser($scope.loggedInUser.id, getParameters).then(function(page) {
             $scope.pagedItems = page.content;
@@ -64,6 +87,30 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
     };
     $scope.removeAllStatuses = function () {
         $scope.selectedStatus = [];
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+
+    // filter by group
+    $scope.selectedGroup = [];
+    $scope.setSelectedGroup = function () {
+        var id = this.group.id;
+        if (_.contains($scope.selectedGroup, id)) {
+            $scope.selectedGroup = _.without($scope.selectedGroup, id);
+        } else {
+            $scope.selectedGroup.push(id);
+        }
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.isGroupChecked = function (id) {
+        if (_.contains($scope.selectedGroup, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+    $scope.removeAllSelectedGroup = function () {
+        $scope.selectedGroup = [];
         $scope.currentPage = 0;
         $scope.getItems();
     };

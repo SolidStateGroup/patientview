@@ -14,6 +14,7 @@ import org.patientview.persistence.repository.JoinRequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -72,6 +73,8 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             statusList = convertStringArrayToStatusList(getParameters.getStatuses());
         }
 
+        List<Long> groupIdList = convertStringArrayToLongs(getParameters.getGroupIds());
+
         PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
@@ -88,25 +91,64 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         }
 
         if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            if (statusList.isEmpty()) {
-                return joinRequestRepository.findByParentUser(user, pageable);
-            } else {
-                return joinRequestRepository.findByParentUserAndStatuses(user, statusList, pageable);
-            }
+            return findByParentUser(user, statusList, groupIdList, pageable);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
-            if (statusList.isEmpty()) {
-                return joinRequestRepository.findByUser(user, pageable);
-            } else {
-                return joinRequestRepository.findByUserAndStatuses(user, statusList, pageable);
-            }
+            return findByUser(user, statusList, groupIdList, pageable);
         } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            if (statusList.isEmpty()) {
-                return joinRequestRepository.findAll(pageable);
-            } else {
-                return joinRequestRepository.findAllByStatuses(statusList, pageable);
-            }
+            return findAll(statusList, groupIdList, pageable);
         } else {
             throw new SecurityException("Invalid role for join requests");
+        }
+    }
+
+    private Page<JoinRequest> findByParentUser (User user, List<JoinRequestStatus> statusList,
+                                                List<Long> groupIds, Pageable pageable) {
+        if (statusList.isEmpty()) {
+            if (groupIds.isEmpty()) {
+                return joinRequestRepository.findByParentUser(user, pageable);
+            } else {
+                return joinRequestRepository.findByParentUserAndGroups(user, groupIds, pageable);
+            }
+        } else {
+            if (groupIds.isEmpty()) {
+                return joinRequestRepository.findByParentUserAndStatuses(user, statusList, pageable);
+            } else {
+                return joinRequestRepository.findByParentUserAndStatusesAndGroups(user, statusList, groupIds, pageable);
+            }
+        }
+    }
+
+    private Page<JoinRequest> findByUser (User user, List<JoinRequestStatus> statusList,
+                                          List<Long> groupIds, Pageable pageable) {
+        if (statusList.isEmpty()) {
+            if (groupIds.isEmpty()) {
+                return joinRequestRepository.findByUser(user, pageable);
+            } else {
+                return joinRequestRepository.findByUserAndGroups(user, groupIds, pageable);
+            }
+        } else {
+            if (groupIds.isEmpty()) {
+                return joinRequestRepository.findByUserAndStatuses(user, statusList, pageable);
+            } else {
+                return joinRequestRepository.findByUserAndStatusesAndGroups(user, statusList, groupIds, pageable);
+            }
+        }
+    }
+
+    private Page<JoinRequest> findAll (List<JoinRequestStatus> statusList,
+                                       List<Long> groupIds, Pageable pageable) {
+        if (statusList.isEmpty()) {
+            if (groupIds.isEmpty()) {
+                return joinRequestRepository.findAll(pageable);
+            } else {
+                return joinRequestRepository.findAllByGroups(groupIds, pageable);
+            }
+        } else {
+            if (groupIds.isEmpty()) {
+                return joinRequestRepository.findAllByStatuses(statusList, pageable);
+            } else {
+                return joinRequestRepository.findAllByStatusesAndGroups(statusList, groupIds, pageable);
+            }
         }
     }
 

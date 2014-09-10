@@ -1,7 +1,6 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.controller.model.Email;
 import org.patientview.api.service.EmailService;
@@ -235,17 +234,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setDummy(user.getDummy());
         entityUser.setContactNumber(user.getContactNumber());
         return userRepository.save(entityUser);
-    }
-
-    // todo: move to static class
-    private List<Long> convertStringArrayToLongs(String[] strings) {
-        final List<Long> longs = new ArrayList<>();
-        if (ArrayUtils.isNotEmpty(strings)) {
-            for (String string : strings) {
-                longs.add(Long.parseLong(string));
-            }
-        }
-        return longs;
     }
 
     private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
