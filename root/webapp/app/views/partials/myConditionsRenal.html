@@ -27,7 +27,7 @@
                                         <td>
                                             <strong ng-show="code.links.length">Relevant Links</strong><br/>
                                             <span ng-repeat="link in code.links">
-                                                <a href="{{link.link}}" target="_blank">{{link.name}}</a><br/>
+                                                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                             </span>
                                         </td>
                                     </tr>
@@ -71,7 +71,7 @@
                         <td colspan="2">
                             <ul>
                                 <li ng-repeat="link in patient.group.links">
-                                    <a href="{{link.link}}" target="_blank">{{link.name}}</a>
+                                    <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
                                 </li>
                             </ul>
                         </td>
