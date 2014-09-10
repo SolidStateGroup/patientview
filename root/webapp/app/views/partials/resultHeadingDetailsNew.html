@@ -1,0 +1,192 @@
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-3">
+            <label for="group-code" class="control-label">Code <span class="error" ng-show="groupFormNew.code.$error.required"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" ng-model="editGroup.code" ng-disabled="!permissions.canEditGroupCode" required ></div>
+        </div>
+        <div class="col-md-3">
+            <label for="group-name" class="control-label">Name <span class="error" ng-show="groupFormNew.name.$error.required"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" ng-model="editGroup.name" required></div>
+
+        </div>
+        <div class="col-md-3">
+            <label for="group-groupType" class="ccontrol-label">Group Type <span class="error" ng-show="!editGroup.groupTypeId"> *required</span></label>
+            <div class=""><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in editGroup.groupTypes"></select></div>
+        </div>
+        <div class="col-md-3">
+            <label for="group-sftp-user" class="control-label">SFTP User</label>
+            <input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" ng-model="editGroup.sftpUser">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-3">
+            <label for="group-address-1" class="control-label">Address 1</label>
+            <input type="text" class="form-control" id="group-address-1" placeholder="Address 1" name="address1" ng-model="editGroup.address1">
+        </div>
+        <div class="col-md-3">
+            <label for="group-address-2" class="control-label">Address 2</label>
+            <input type="text" class="form-control" id="group-address-2" placeholder="Address 2" name="address2" ng-model="editGroup.address2">
+        </div>
+        <div class="col-md-3">
+            <label for="group-address-3" class="control-label">Address 3</label>
+            <input type="text" class="form-control" id="group-address-3" placeholder="Address 1" name="address3" ng-model="editGroup.address3">
+        </div>
+        <div class="col-md-3">
+            <label for="group-postcode" class="control-label">Postcode</label>
+            <input type="text" class="form-control" id="group-postcode" placeholder="Postcode" name="postcode" ng-model="editGroup.postcode">
+        </div>
+    </div>
+</div>
+        
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-3 visible-for-col">
+            <h5 for="group-visible-to-join pull-left" class="control-label">Visible For Patients to Join</h5>
+            <input type="checkbox" class="form-control" id="group-visible-to-join" name="visible-to-join" ng-model="editGroup.visibleToJoin"/>
+        </div>
+    </div>
+</div>
+        
+<div class="row">
+    <hr />
+    <div class="col-md-12">
+        <label>Additional Locations</label>
+        <div ng-hide="editGroup.locations.length > 0" class="no-items">No additional locations</div>
+    </div>
+    <div class="location-list-item"  ng-repeat="location in editGroup.locations | orderBy:'id'">
+        <div class="col-md-1 hidden">{{location.id}}</div>
+        <div class="col-md-1"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="label" name="label" ng-model="location.label" required></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="name" name="name" ng-model="location.name" required></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-phone-{{location.id}}" placeholder="phone" name="phone" ng-model="location.phone" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" ng-model="location.address" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" ng-model="location.web" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" ng-model="location.email" ></div>
+        <div><button type="button" class="btn negative location-delete-button" ng-click="removeLocation(groupFormNew, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+    </div>
+    <div class="add-form" ng-model="editGroup.newLocation">
+        <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" ng-model="editGroup.newLocation.label"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="Name" name="newLocationName" ng-model="editGroup.newLocation.name"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="Phone" name="newLocationPhone" ng-model="editGroup.newLocation.phone"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="Address" name="newLocationAddress" ng-model="editGroup.newLocation.address"></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="Web" name="newLocationWeb" ng-model="editGroup.newLocation.web"></div>
+        <div class="col-md-2"><input type="email" class="form-control" id="group-newLocation-email" placeholder="Email" name="newLocationEmail" ng-model="editGroup.newLocation.email"> <span ng-show="groupFormNew.newLocationEmail.$error.email"> Invalid</span></div>
+        <div class="modal-hack"><button type="button" class="btn blue location-add-button" ng-click="addLocation(groupFormNew, editGroup, editGroup.newLocation)" ng-disabled="!(editGroup.newLocation.label && editGroup.newLocation.name && !groupFormNew.newLocationEmail.$error.email)">Add</button></div>
+    </div>
+</div>
+        
+<div class="row">
+    <hr />
+    <div class="col-md-12">
+        <label>Additional Contact Points</label>
+        <div ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points</div>
+    </div>
+    <div class="link-list-item" ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
+        <div class="col-md-1 hidden">{{contactPoint.id}}</div>
+        <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointType.id" ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" ng-model="contactPoint.content" required></div>
+        <div><button type="button" class="btn negative contactPoint-delete-button" ng-click="removeContactPoint(groupFormNew, editGroup, contactPoint)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+    </div>
+    <div class="add-form" ng-model="newContactPoint">
+        <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" ng-model="newContactPoint.contactPointTypeId" ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" ng-model="newContactPoint.content"></div>
+        <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" ng-click="addContactPoint(groupFormNew, editGroup, newContactPoint)" ng-disabled="!(newContactPoint.content)">Add</button></div>
+    </div>
+</div>    
+        
+<div class="row">
+    <hr />
+    <div class="links-container">
+        <div class="col-md-12">
+            <label>Links </label>
+            <div ng-hide="editGroup.links.length > 0" class="no-items"> There are currently no links associated with this group</div>
+        </div>
+        <div class="link-list-item" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
+            <div class="col-md-3"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="URL" name="link" ng-model="link.link" required></div>
+            <div class="col-md-5"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="Description" name="name" ng-model="link.name" required></div>
+            <div class="col-md-1">
+                <select id="group-link-displayOrder-{{link.id}}" class="form-control" ng-model="link.displayOrder">
+                    <option ng-repeat="link in editGroup.links">{{$index + 1}}</option>
+                </select>
+            </div>
+            <button type="button" class="btn negative link-delete-button" ng-click="removeLink(groupFormNew, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>
+        </div>
+        <div class="add-form" ng-model="newLink">
+            <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" ng-model="newLink.link"></div>
+            <div class="col-md-5"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" ng-model="newLink.name"></div>
+            <div class="col-md-1 hidden">
+                <select id="group-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
+                    <option ng-show="newLink.displayOrder" ng-repeat="link in editGroup.links">{{$index + 1}}</option>
+                    <option >{{editGroup.links.length + 1}}</option>
+                </select>
+            </div>
+            <button type="button" class="btn blue link-add-button" ng-click="addLink(groupFormNew, editGroup, newLink)" ng-disabled="!(newLink.link && newLink.name)">Add</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <hr />
+    <div class="col-md-12">
+        <label>Features</label>
+        <div ng-hide="editGroup.groupFeatures.length > 0" class="no-items">No features</div>
+    </div>
+    <div class="col-md-6">
+        <ul class="feature-list inline capsule-list">
+            <li class="feature-list-item" ng-repeat="feature in editGroup.groupFeatures">
+                <div class="feature-list-name"><i class="glyphicon glyphicon-ok-circle"></i> <span class="feature-list-name"> {{feature.feature.description}}</span></div>
+                <div class="feature-list-delete" ng-show="permissions.canEditFeatures"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(groupFormNew, editGroup, feature)" >Delete</a></span></div>
+            </li>
+        </ul>
+        <div class="feature-add-container item-add-container" ng-show="editGroup.availableFeatures.length > 0 && permissions.canEditFeatures">
+            <div class="custom-select">
+                <select class="form-control feature-select group-select" ng-model="featureToAdd" ng-options="feature.feature.id as feature.feature.name for feature in editGroup.availableFeatures"></select>
+                <!--<span class="caret-container"><span class="caret"></span></span>-->
+            </div>
+            <button type="button" class="btn blue feature-add-button pull-left" ng-click="addFeature(groupFormNew, editGroup, featureToAdd)">Add</button>
+        </div>
+    </div>
+</div>
+
+<div class="row form-edit-row">
+    <hr/>
+    <!-- TODO: hardcoded, only show parents if UNIT or DISEASE_GROUP -->
+    <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['UNIT'] || editGroup.groupTypeId==groupTypesArray['DISEASE_GROUP']">
+        <label>Parent Groups</label>
+        <div ng-hide="editGroup.parentGroups.length > 0" class="no-items">No parent groups, must have at least one</div>
+
+        <ul class="feature-list">
+            <li class="feature-list-item" ng-repeat="parentGroup in editGroup.parentGroups">
+                <div class="feature-list-name"><span class="feature-list-name">{{parentGroup.name}}</span></div>
+                <div class="feature-list-delete" ng-show="permissions.canEditParentGroups">
+                    <a id="remove-parent-group-modal-{{parentGroup.id}}" href="" ng-click="removeParentGroup(groupFormNew, editGroup, parentGroup)" ><i class="glyphicon glyphicon-remove"></i></a>
+                </div>
+            </li>
+        </ul>
+        <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableParentGroups.length > 0 && permissions.canEditParentGroups">
+            <div class="custom-select">
+                <select class="form-control parent-group-select group-select" ng-model="parentGroupToAdd" ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select>
+                <!--<span class="caret-container"><span class="caret"></span></span>-->
+            </div>
+            <button type="button" class="btn blue parent-group-add-button pull-left" ng-click="addParentGroup(groupFormNew, editGroup, parentGroupToAdd)">Add</button>
+        </div>
+    </div>
+    <div class="col-md-6" ng-show="editGroup.groupTypeId==groupTypesArray['SPECIALTY']">
+        <label>Child Groups</label>
+        <div ng-hide="editGroup.childGroups.length > 0" class="no-items">No child groups</div>
+        <ul class="name-action-list unstyled inline">
+            <li class="feature-list-item" ng-repeat="childGroup in editGroup.childGroups">
+                <div class="feature-list-name pull-left"><span class="feature-list-name">{{childGroup.name}}</span></div>
+                <div class="feature-list-delete pull-left" ng-show="permissions.canEditChildGroups"><span class="feature-list-delete"><a id="remove-child-group-modal-{{childGroup.id}}" href="" ng-click="removeChildGroup(groupFormNew, editGroup, childGroup)" ><i class="glyphicon glyphicon-remove"></i></a></span></div>
+            </li>
+        </ul>
+        <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableChildGroups.length > 0 && permissions.canEditChildGroups">
+            <div class="custom-select">
+                <select class="form-control child-group-select group-select" ng-model="childGroupToAdd" ng-options="childGroup.id as childGroup.name for childGroup in editGroup.availableChildGroups"></select>
+                <!--<span class="caret-container"><span class="caret"></span></span>-->
+            </div>
+            <button type="button" class="btn blue child-group-add-button pull-left" ng-click="addChildGroup(groupFormNew, editGroup, childGroupToAdd)">Add</button>
+        </div>
+    </div>
+</div>
