@@ -7,6 +7,7 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.RoleType;
 import org.patientview.persistence.model.Route;
@@ -25,6 +26,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
+import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserInformationRepository;
@@ -77,6 +79,9 @@ public class DataTestUtils {
 
     @Inject
     CodeRepository codeRepository;
+
+    @Inject
+    ObservationHeadingRepository observationHeadingRepository;
 
     User creator;
 
@@ -182,4 +187,8 @@ public class DataTestUtils {
         return codeRepository.save(newCode);
     }
 
+    public ObservationHeading createObservationHeading(String code) {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading(code);
+        return observationHeadingRepository.save(observationHeading);
+    }
 }

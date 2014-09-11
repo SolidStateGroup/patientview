@@ -70,6 +70,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.identifier = ['id','identifier','identifierType'];
             fields.newsItem = ['id','heading','story','newsLinks'];
             fields.unitRequest = ['forename','surname', 'nhsNumber','dateOfBirth', 'email'];
+            fields.observationHeading = ['id', 'code','heading', 'name','normalRange', 'units', 'minGraph', 'maxGraph', 'infoLink', 'defaultPanel', 'defaultPanelOrder'];
             return fields[objectType];
         },
         // used when converting from angular objects to those suitable for REST

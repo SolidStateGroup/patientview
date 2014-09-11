@@ -17,6 +17,7 @@ import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.RouteLink;
@@ -371,4 +372,11 @@ public final class TestUtils {
         return fhirLink;
     }
 
+    public static ObservationHeading createObservationHeading(String code) {
+        ObservationHeading observationHeading = new ObservationHeading();
+        observationHeading.setCode(code);
+        //observationHeading.setCreated(new Date());
+        //observationHeading.setCreator(creator);
+        return observationHeading;
+    }
 }
