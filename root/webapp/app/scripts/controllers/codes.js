@@ -5,7 +5,7 @@ var DeleteCodeModalInstanceCtrl = ['$scope', '$modalInstance','code', 'CodeServi
 function ($scope, $modalInstance, code, CodeService) {
     $scope.code = code;
     $scope.ok = function () {
-        CodeService.delete(code).then(function() {
+        CodeService.remove(code).then(function() {
             $modalInstance.close();
         });
     };

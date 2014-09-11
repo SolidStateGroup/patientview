@@ -1,106 +1,77 @@
 <div>
-    <h1>Groups <button class="btn blue" ng-click="openModalNewGroup('lg')" ng-show="permissions.canCreateGroup">Create New</button></h1>
+    <h1>Result Headings <button class="btn blue" ng-click="openModalNewResultHeading('lg')" ng-show="permissions.canCreateResultHeading">Create New</button></h1>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage && !loading" ng-cloak>
-        <!-- new group modal template -->
-        <script type="text/ng-template" id="newGroupModal.html">
+        <!-- new resultHeading modal template -->
+        <script type="text/ng-template" id="newResultHeadingModal.html">
             <div class="modal-header">
-                <h3 class="modal-title">Create New Group</h3>
+                <h3 class="modal-title">Create New ResultHeading</h3>
             </div>
             <div class="modal-body">
-                <form name="groupFormNew" ng-model="editGroup">
-                    <div ng-include src="'views/partials/groupDetailsNew.html'" ng-controller="GroupDetailsCtrl"></div>
+                <form name="resultHeadingFormNew" ng-model="editResultHeading">
+                    <div ng-include src="'views/partials/resultHeadingDetailsNew.html'" ng-controller="ResultHeadingDetailsCtrl"></div>
                 </form>
             </div>
             <div class="modal-footer">
                 <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn blue" ng-click="ok()" ng-disabled="!groupFormNew.$valid || (editGroup.groupTypeId==groupTypesArray['UNIT'] && editGroup.parentGroups.length == 0)">Create New</button>
+                <button class="btn blue" ng-click="ok()" ng-disabled="!resultHeadingFormNew.$valid || (editResultHeading.resultHeadingTypeId==resultHeadingTypesArray['UNIT'] && editResultHeading.parentResultHeadings.length == 0)">Create New</button>
             </div>
         </script>
-
-        <!-- Filter -->
-        <div class="content-panel filter-panel">
-            <div class="search-container">
-                <i class="icon-search-black"></i>
-                <input type="text" ng-model="searchText" placeholder="Search all fields..." class="form-control input-block-level" />
-            </div>
-            <div class="panel-footer clearfix">
-                <div class="content-inner">
-                <!-- filter by group type -->
-                    <div class="pull-right">
-                        <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
-                    </div>
-                    <div class="form-horizontal" role="form">
-                        <div class="select-container pull-left">
-                            <div class="btn-group filter-select" id="filter-group-type" data-ng-class="{open: open1}">
-                                <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Group Type <span class="caret-container"><span class="caret"></span></span></button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                                    <li><a data-ng-click="removeAllGroupTypes()" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
-                                    <li class="divider"></li>
-                                    <li data-ng-repeat="type in filterGroupTypes"> <a data-ng-click="setSelectedGroupType()" class="a-filter-group-type"><span class="pull-left">{{type.description}}</span><span data-ng-class="isGroupTypeChecked(type.id)"></span></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <span data-ng-repeat="type in filterGroupTypes" ng-show="isGroupTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
-        <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0">
+        <div class="faux-table eight-col" data-ng-show="pagedItems.length  > 0">
             <!-- header -->
             <div class="accordion-title-row table-head">
                 <div class="hidden">ID</div>
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
+                <div class="head-item accordion-title-text"><a ng-click="sortBy('heading');" class="sort-title"><i class="icon-sort pull-right"></i>Heading</a></div>
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('name');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
-                <div class="head-item accordion-title-text"><a ng-click="sortBy('groupType.value');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
-                <div class="head-item accordion-title-text">Parent Groups</div>
-                <div class="head-item accordion-title-text">Features</div>
-                <div class="head-item accordion-title-text">Last Import</div>
-                <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
+                <div class="head-item accordion-title-text">Normal Range</div>
+                <div class="head-item accordion-title-text">Units</div>
+                <div class="head-item accordion-title-text">Min Value</div>
+                <div class="head-item accordion-title-text">Max Value</div>
+                <div class="head-item accordion-title-text"></div>
             </div>
 
             <!-- body -->
-            <div class="item-header" ng-repeat="group in pagedItems">
+            <div class="item-header" ng-repeat="resultHeading in pagedItems">
                 <div class="faux-row">
-                    <div class="row-item hidden">{{group.id}}</div>
-                    <div class="row-item accordion-heading-text">{{group.code}}</div>
-                    <div class="row-item accordion-heading-text">{{group.name}}</div>
-                    <div class="row-item accordion-heading-text">{{group.groupType.description}}</div>
-                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="group in group.parentGroups">{{group.name}}</li></ul></div>
-                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="groupFeature in group.groupFeatures">{{groupFeature.feature.description}}</li></ul></div>
-                    <div >{{group.lastImport}}</div>
+                    <div class="row-item hidden">{{resultHeading.id}}</div>
+                    <div class="row-item accordion-heading-text">{{resultHeading.code}}</div>
+                    <div class="row-item accordion-heading-text">{{resultHeading.heading}}</div>
+                    <div class="row-item accordion-heading-text">{{resultHeading.name}}</div>
+                    <div class="row-item accordion-heading-text">{{resultHeading.normalRange}}</div>
+                    <div class="row-item accordion-heading-text">{{resultHeading.units}}</div>
+                    <div class="row-item accordion-heading-text">{{resultHeading.minValue}}</div>
+                    <div class="row-item accordion-heading-text">{{resultHeading.maxValue}}</div>
                     <div class="row-item actions">
-                        <!-- Stats, Edit buttons -->
-                        <div class="btn-group">
-                            <button type="button" class="edit-button btn blue" ng-click="opened(group)"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
-                            <button type="button" class="statistics-button btn aquamarine" ng-click="statistics(group.id, $event)"><span class="glyphicon glyphicon-stats"></span> Stats</button>
+                        <div class="btn-resultHeading">
+                            <button type="button" class="edit-button btn blue" ng-click="opened(resultHeading)">Edit</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- edit pane -->
-                <div class="quick-reply content-panel" ng-show="group.showEdit">
-                    <div class="alert alert-danger" ng-show="group.errorMessage && !group.editLoading">There was an error {{group.errorMessage}}</div>
-                    <div ng-show="group.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-                    <div ng-show="!group.editLoading">
-                        <form name="groupForm">
-                            <div ng-include src="'views/partials/groupDetails.html'" ng-controller="GroupDetailsCtrl"></div>
+                <div class="quick-reply content-panel" ng-show="resultHeading.showEdit">
+                    <div class="alert alert-danger" ng-show="resultHeading.errorMessage && !resultHeading.editLoading">There was an error {{resultHeading.errorMessage}}</div>
+                    <div ng-show="resultHeading.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div ng-show="!resultHeading.editLoading">
+                        <form name="resultHeadingForm">
+                            <div ng-include src="'views/partials/resultHeadingDetails.html'" ng-controller="ResultHeadingDetailsCtrl"></div>
                         </form>
                         <hr>
-                        <div class="pull-right"><button class="btn btn-grey" ng-click="group.showEdit = false">Close</button></div>
+                        <div class="pull-right"><button class="btn btn-grey" ng-click="resultHeading.showEdit = false">Close</button></div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-12" data-ng-show="pagedItems.length == 0">
             <div class="col-md-12">
-                <h4>No groups found</h4>
+                <h4>No Result Headings found</h4>
             </div>
         </div>
 
@@ -122,4 +93,5 @@
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+</div>
