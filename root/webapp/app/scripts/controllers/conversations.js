@@ -57,7 +57,7 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
             conversation.conversationUsers = conversationUsers;
 
-            ConversationService.new($scope.loggedInUser, conversation).then(function() {
+            ConversationService.create($scope.loggedInUser, conversation).then(function() {
                 $modalInstance.close();
             }, function(result) {
                 if (result.data) {

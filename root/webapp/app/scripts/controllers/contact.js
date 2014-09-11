@@ -45,7 +45,7 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
         conversationUser.anonymous = $scope.conversation.anonymous;
         conversation.conversationUsers.push(conversationUser);
 
-        ConversationService.new($scope.loggedInUser, conversation).then(function() {
+        ConversationService.create($scope.loggedInUser, conversation).then(function() {
             $modalInstance.close();
         }, function(result) {
             if (result.data) {

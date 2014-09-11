@@ -26,7 +26,7 @@ function ($q, Restangular, UtilService) {
             return deferred.promise;
         },
         // Remove a single user based on userId
-        delete: function (user) {
+        remove: function (user) {
             var deferred = $q.defer();
             // GET then DELETE /user/{userId}
             Restangular.one('user', user.id).get().then(function(user) {

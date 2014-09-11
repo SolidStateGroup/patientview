@@ -22,7 +22,7 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // create new code
-        new: function (code, codeTypes, standardTypes) {
+        create: function (code, codeTypes, standardTypes) {
             var deferred = $q.defer();
 
             // convert code and standard type ids to actual objects and clean

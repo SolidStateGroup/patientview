@@ -324,7 +324,7 @@ function ($scope, UserService, IdentifierService) {
 
     $scope.removeIdentifier = function (form, user, identifier) {
         if ($scope.editMode) {
-            IdentifierService.delete(identifier).then(function () {
+            IdentifierService.remove(identifier).then(function () {
                 // deleted identifier
                 for (i = 0; i < user.identifiers.length; i++) {
                     if (user.identifiers[i].id === identifier.id) {

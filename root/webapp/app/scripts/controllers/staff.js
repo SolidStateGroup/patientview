@@ -84,7 +84,7 @@ var DeleteStaffModalInstanceCtrl = ['$scope', '$modalInstance','user','UserServi
 function ($scope, $modalInstance, user, UserService) {
     $scope.user = user;
     $scope.ok = function () {
-        UserService.delete(user).then(function() {
+        UserService.remove(user).then(function() {
             // successfully deleted user
             $modalInstance.close();
         }, function() {

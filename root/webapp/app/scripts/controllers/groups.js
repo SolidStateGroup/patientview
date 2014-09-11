@@ -38,7 +38,7 @@ function ($scope, $rootScope, $modalInstance, permissions, editGroup, allFeature
     }
 
     $scope.ok = function () {
-        GroupService.new($scope.editGroup, $scope.editGroup.groupTypes).then(function(result) {
+        GroupService.create($scope.editGroup, $scope.editGroup.groupTypes).then(function(result) {
             // successfully added new Group, close modal and return group
             $scope.editGroup = result;
             $modalInstance.close($scope.editGroup);

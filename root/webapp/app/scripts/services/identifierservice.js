@@ -23,7 +23,7 @@ angular.module('patientviewApp').factory('IdentifierService', ['$q', 'Restangula
             return deferred.promise;
         },
         // Remove a single identifier based on identifierId
-        delete: function (identifier) {
+        remove: function (identifier) {
             var deferred = $q.defer();
             // DELETE /identifier/{identifierId}
             Restangular.one('identifier', identifier.id).remove().then(function(successResult) {

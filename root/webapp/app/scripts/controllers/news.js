@@ -2,80 +2,80 @@
 
 // new news modal instance controller
 var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'NewsService', 'permissions',
-    function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsService, permissions) {
-        var i, group, newsLink = {};
+function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsService, permissions) {
+    var i, group, newsLink = {};
 
-        $scope.modalLoading = true;
+    $scope.modalLoading = true;
 
-        $scope.permissions = permissions;
-        $scope.groupToAdd = -1;
-        $scope.newNews = {};
-        $scope.newNews.allRoles = [];
-        $scope.newNews.allGroups = [];
-        $scope.newNews.newsLinks = [];
+    $scope.permissions = permissions;
+    $scope.groupToAdd = -1;
+    $scope.newNews = {};
+    $scope.newNews.allRoles = [];
+    $scope.newNews.allGroups = [];
+    $scope.newNews.newsLinks = [];
 
-        // populate list of allowed groups for current user
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            // add 'All Groups' option (with id -1) if allowed
-            if ($scope.permissions.canAddAllGroups) {
-                group = {};
-                group.id = -1;
-                group.name = 'All Groups';
+    // populate list of allowed groups for current user
+    GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+        // add 'All Groups' option (with id -1) if allowed
+        if ($scope.permissions.canAddAllGroups) {
+            group = {};
+            group.id = -1;
+            group.name = 'All Groups';
+            $scope.newNews.allGroups.push(group);
+        }
+
+        for (i = 0; i < groups.content.length; i++) {
+            group = groups.content[i];
+            if (group.visible === true) {
                 $scope.newNews.allGroups.push(group);
             }
+        }
 
-            for (i = 0; i < groups.content.length; i++) {
-                group = groups.content[i];
-                if (group.visible === true) {
-                    $scope.newNews.allGroups.push(group);
+        // todo: currently gets all roles, adds public & member roles
+        RoleService.getAll().then(function(roles) {
+            for (i = 0; i < roles.length; i++) {
+                var role = roles[i];
+                if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
+                    $scope.newNews.allRoles.push(role);
                 }
             }
 
-            // todo: currently gets all roles, adds public & member roles
-            RoleService.getAll().then(function(roles) {
-                for (i = 0; i < roles.length; i++) {
-                    var role = roles[i];
-                    if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
-                        $scope.newNews.allRoles.push(role);
-                    }
+            // add GLOBAL_ADMIN role (no group) to all news by default
+            for (i = 0; i < $scope.newNews.allRoles.length; i++) {
+                if ($scope.newNews.allRoles[i] && $scope.newNews.allRoles[i].name === 'GLOBAL_ADMIN') {
+                    newsLink.role = $scope.newNews.allRoles[i];
+                    $scope.newNews.newsLinks.push(newsLink);
                 }
+            }
 
-                // add GLOBAL_ADMIN role (no group) to all news by default
-                for (i = 0; i < $scope.newNews.allRoles.length; i++) {
-                    if ($scope.newNews.allRoles[i] && $scope.newNews.allRoles[i].name === 'GLOBAL_ADMIN') {
-                        newsLink.role = $scope.newNews.allRoles[i];
-                        $scope.newNews.newsLinks.push(newsLink);
-                    }
-                }
+            $scope.modalLoading = false;
 
-                $scope.modalLoading = false;
-
-            }, function () {
-                alert('Error loading possible roles');
-            });
         }, function () {
-            alert('Error loading possible groups');
+            alert('Error loading possible roles');
         });
+    }, function () {
+        alert('Error loading possible groups');
+    });
 
-        $scope.ok = function () {
-            $scope.newNews.creator = {};
-            $scope.newNews.creator.id = $scope.loggedInUser.id;
+    $scope.ok = function () {
+        $scope.newNews.creator = {};
+        $scope.newNews.creator.id = $scope.loggedInUser.id;
 
-            NewsService.new($scope.newNews).then(function() {
-                $modalInstance.close();
-            }, function(result) {
-                if (result.data) {
-                    $scope.errorMessage = ' - ' + result.data;
-                } else {
-                    $scope.errorMessage = ' ';
-                }
-            });
-        };
+        NewsService.create($scope.newNews).then(function() {
+            $modalInstance.close();
+        }, function(result) {
+            if (result.data) {
+                $scope.errorMessage = ' - ' + result.data;
+            } else {
+                $scope.errorMessage = ' ';
+            }
+        });
+    };
 
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    }];
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
 angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService', 'RoleService', 'UserService',
@@ -92,11 +92,9 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
         permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
         permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
-        permissions.canAddAllGroups = false;
 
-        if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin) {
-            permissions.canAddAllGroups = true;
-        }
+
+        permissions.canAddAllGroups = permissions.isSuperAdmin || permissions.isSpecialtyAdmin;
 
         if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin || permissions.isUnitAdmin) {
             permissions.canAddNews = true;
