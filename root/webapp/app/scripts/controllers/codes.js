@@ -23,7 +23,7 @@ function ($scope, $rootScope, $modalInstance, codeTypes, standardTypes, editCode
     $scope.editMode = false;
 
     $scope.ok = function () {
-        CodeService.new($scope.editCode, codeTypes, standardTypes).then(function(result) {
+        CodeService.create($scope.editCode, codeTypes, standardTypes).then(function(result) {
             $scope.editCode = result;
             $modalInstance.close($scope.editCode);
         }, function(result) {

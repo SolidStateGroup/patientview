@@ -59,11 +59,35 @@ body {
         padding:15px;
     }
 
-    .panel-footer {
+    .panel-footer, .panel-intro {
         background: $lowlight;
         border-top: 1px solid $border-default;
         width: 100%;
         padding: 0 0 15px 0;
+    }
+
+    .panel-intro{
+        padding:10px;
+    }
+}
+
+.edit-code-input{
+    margin-bottom:20px;
+}
+
+.added-container{
+    min-height:120px;
+}
+
+.add-container{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid #e2e2e2;
+
+    .add-feature{
+        button{
+            margin:3px 0 0 10px;
+        }
     }
 }
 
@@ -121,7 +145,7 @@ ul {
         margin-right:5px;
 
         & > div{
-            color:$inputaddoninner;
+            color:#585858;
             height:100%;
             padding:4px;
             text-align:left;
@@ -216,7 +240,7 @@ ul {
     @include bootstrap-border-radius(4px);
     color: $white;
     font-size: 1.4rem;
-    min-height:30px;
+    min-height:34px;
     min-width: 34px;
     line-height:20px;
 
@@ -233,6 +257,15 @@ ul {
     height:34px;
 }
 
+.button-dropdown-group button{
+    border-right:1px solid #1f6bba;
+    min-height:34px;
+
+    span{
+        margin:1px 0 0 8px;
+    }
+}
+
 .button-dropdown-group button, .btn-group button{
     span{
         margin-left:4px;
@@ -247,6 +280,12 @@ ul {
 
 .blue {
     background-color: $primary;
+    color:$white;
+
+    &:active, &:focus {
+        color: $white;
+        outline:0;
+    }
 }
 .aquamarine {
     background-color: $aquamarine;
@@ -333,6 +372,14 @@ i.icon-news{
     margin-top:7px;
 }
 
+i.icon-settings{
+    background: url('../../../images/icons/settings.png') 0 0 no-repeat;
+    height: 22px;
+    width: 24px;
+    display:block;
+    margin-top:9px;
+}
+
 i.icon-patients{
     background: url('../../../images/icons/patients.png') 0 0 no-repeat;
     height: 27px;
@@ -410,14 +457,14 @@ i.icon-result-info{
 i.icon-result-down{
     background: url('../../../images/icons/result-down.png') 0 0 no-repeat;
     height: 35px;
-    width: 35px;
+    width: 17px;
     display:block;
 }
 
 i.icon-result-up{
     background: url('../../../images/icons/result-up.png') 0 0 no-repeat;
     height: 35px;
-    width: 35px;
+    width: 17px;
     display:block;
 }
 

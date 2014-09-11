@@ -114,7 +114,7 @@
         </div>
         <div class="add-form" ng-model="newLink">
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" ng-model="newLink.link"></div>
-            <div class="col-md-5"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" ng-model="newLink.name"></div>
+            <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" ng-model="newLink.name"></div>
             <div class="col-md-1 hidden">
                 <select id="group-newLink-displayOrder" class="form-control" ng-model="newLink.displayOrder" ng-init="newLink.displayOrder='1'" >
                     <option ng-show="newLink.displayOrder" ng-repeat="link in editGroup.links">{{$index + 1}}</option>

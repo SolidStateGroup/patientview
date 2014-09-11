@@ -7,7 +7,7 @@ function ($q, Restangular) {
         get: function (userId, groupIds) {
             var deferred = $q.defer();
             var getParameters = {};
-            getParameters.groupId = groupIds
+            getParameters.groupId = groupIds;
             // GET /patient/{userId}?groupId=1
             Restangular.one('patient').customGET(userId, getParameters).then(function(successResult) {
                 deferred.resolve(successResult);

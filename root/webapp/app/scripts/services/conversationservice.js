@@ -60,7 +60,7 @@ angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangu
             });
             return deferred.promise;
         },
-        new: function (user, conversation) {
+        create: function (user, conversation) {
             var deferred = $q.defer();
             Restangular.one('user', user.id).all('conversations').post(conversation).then(function(successResult) {
                 deferred.resolve(successResult);

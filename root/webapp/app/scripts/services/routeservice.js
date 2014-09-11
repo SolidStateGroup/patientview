@@ -3,7 +3,7 @@
 angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', function ($q, Restangular) {
     return {
         getDefault: function() {
-            var defaultRoutes = {
+            return {
                 'routes': [{
                     'url': '/verify',
                     'templateUrl': 'views/verify.html',
@@ -20,8 +20,6 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                     }
                 }]
             };
-
-            return defaultRoutes;
         },
         getMainRoute: function() {
             return {

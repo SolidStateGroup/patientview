@@ -32,7 +32,7 @@ angular.module('patientviewApp').factory('LinkService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // Remove a single link based on linkId
-        delete: function (link) {
+        remove: function (link) {
             var deferred = $q.defer();
             // DELETE /link/{linkId}
             Restangular.one('link', link.id).remove().then(function(successResult) {

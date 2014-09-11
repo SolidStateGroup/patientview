@@ -26,7 +26,6 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         },
 
         validationDate: function (day, month, year) {
-
             // strip preceding 0 on dates if present
             day = parseInt(day.toString());
             month = parseInt(month.toString());
@@ -118,6 +117,5 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
             return years;
         }
-
     };
 }]);
