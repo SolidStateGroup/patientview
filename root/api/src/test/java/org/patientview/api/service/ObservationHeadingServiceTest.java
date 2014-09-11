@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +90,23 @@ public class ObservationHeadingServiceTest {
 
         Assert.assertNotNull("The returned observation heading should not be null", savedObservationHeading);
         verify(observationHeadingRepository, Mockito.times(1)).save(eq(savedObservationHeading));
+    }
+
+    @Test(expected = EntityExistsException.class)
+    public void testAddDuplicate() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        List<ObservationHeading> observationHeadings = new ArrayList<>();
+        observationHeadings.add(observationHeading);
+        when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
+        when(observationHeadingRepository.findByCode(eq(observationHeading.getCode()))).thenReturn(observationHeadings);
+
+        ObservationHeading savedObservationHeading = observationHeadingService.add(observationHeading);
+
+        Assert.assertNotNull("The returned observation heading should not be null", savedObservationHeading);
+        verify(observationHeadingRepository, Mockito.times(1)).save(eq(savedObservationHeading));
+
+        ObservationHeading observationHeading2 = TestUtils.createObservationHeading("OBS1");
+        observationHeadingService.add(observationHeading2);
     }
 
     @Test

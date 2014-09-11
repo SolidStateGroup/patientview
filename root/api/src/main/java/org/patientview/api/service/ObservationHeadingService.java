@@ -14,4 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ObservationHeadingService extends CrudService<ObservationHeading> {
 
     Page<ObservationHeading> findAll(GetParameters getParameters);
+
+    ObservationHeading add(ObservationHeading observationHeading);
 }

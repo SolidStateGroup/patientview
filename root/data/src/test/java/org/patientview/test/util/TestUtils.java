@@ -376,7 +376,7 @@ public final class TestUtils {
         ObservationHeading observationHeading = new ObservationHeading();
         observationHeading.setCode(code);
         //observationHeading.setCreated(new Date());
-        observationHeading.setCreator(creator);
+        //observationHeading.setCreator(creator);
         return observationHeading;
     }
 }

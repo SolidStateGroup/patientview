@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Tests concerned with retrieving the correct news for a user.
@@ -51,5 +52,15 @@ public class ObservationHeadingRepositoryTest {
         Assert.assertEquals("There should be 1 observation heading", 1, observationHeadings.getContent().size());
         Assert.assertTrue("The observation heading should be the one created",
                 observationHeadings.getContent().get(0).equals(observationHeading));
+    }
+
+    @Test
+    public void testFindByCode() {
+        ObservationHeading observationHeading = dataTestUtils.createObservationHeading("OBS1");
+
+        List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode("OBS1");
+        Assert.assertEquals("There should be 1 observation heading available", 1, observationHeadings.size());
+        Assert.assertTrue("The observation heading should be the one created",
+                observationHeadings.get(0).equals(observationHeading));
     }
 }
