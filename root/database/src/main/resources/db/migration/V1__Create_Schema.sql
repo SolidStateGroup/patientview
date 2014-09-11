@@ -329,16 +329,21 @@ CREATE TABLE PV_Audit (
 );
 
 CREATE TABLE PV_Observation_Heading (
-  Id               BIGINT    NOT NULL,
-  Type_Id          BIGINT    NOT NULL  REFERENCES PV_Lookup_Value (Id),
-  Colour           VARCHAR(7),
-  Link             VARCHAR(2048),
-  Name             VARCHAR(200),
-  Description      VARCHAR(200),
-  Creation_Date    TIMESTAMP NOT NULL,
-  Created_By       BIGINT REFERENCES PV_User (Id),
-  Last_Update_Date TIMESTAMP,
-  Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  Id                    BIGINT    NOT NULL,
+  Code                  VARCHAR(200) NOT NULL,
+  Heading               TEXT,
+  Name                  TEXT,
+  Normal_Range          TEXT,
+  Units                 TEXT,
+  Min_Graph             NUMERIC(19, 2),
+  Max_Graph             NUMERIC(19, 2),
+  Info_Link             TEXT,
+  Default_Panel         BIGINT,
+  Default_Panel_Order   BIGINT,
+  Creation_Date         TIMESTAMP NOT NULL,
+  Created_By            BIGINT REFERENCES PV_User (Id),
+  Last_Update_Date      TIMESTAMP,
+  Last_Updated_By       BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 

@@ -14,7 +14,7 @@ import org.patientview.GroupFeature;
 import org.patientview.GroupRole;
 import org.patientview.Link;
 import org.patientview.Lookup;
-import org.patientview.LookupType;
+import org.patientview.ObservationHeading;
 import org.patientview.Role;
 import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
@@ -24,10 +24,11 @@ import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Unit;
 import org.patientview.patientview.model.EdtaCode;
+import org.patientview.patientview.model.ResultHeading;
 import org.patientview.repository.EdtaCodeDao;
 import org.patientview.repository.FeatureDao;
+import org.patientview.repository.ResultHeadingDao;
 import org.patientview.repository.UnitDao;
-import org.patientview.service.EdtaCodeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private EdtaCodeDao edtaCodeDao;
 
     @Inject
+    private ResultHeadingDao resultHeadingDao;
+
+    @Inject
     private FeatureDao featureDao;
 
     private List<Group> groups;
@@ -65,7 +69,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private Group renal;
     private Group diabetes;
     private Group ibd;
-
 
     @Override
     public Group getRenal() {
@@ -94,10 +97,10 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         createGroups();
         createCodes(getLookupByName("DIAGNOSIS"), "edtaCode");
         createCodes(getLookupByName("TREATMENT"), "treatment");
+        createObservationHeadings();
     }
 
     public void createGroups() {
-
         // Export a dummy group to test hibernate
         sendDummyUnit();
 
@@ -134,14 +137,11 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
                     callApiCreateContactPoint(group, contactPoint);
                 }
             }
-
         }
-
     }
 
     private void callApiCreateParentGroup(Group group, Group parentGroup) {
         String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/parent/" + parentGroup.getId();
-
 
         try {
             JsonUtil.jsonRequest(featureUrl, GroupRole.class, null, HttpPut.class);
@@ -154,9 +154,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         } catch (Exception e) {
             LOG.error("Unable to parent group: ", e.getMessage());
         }
-
-
-
     }
 
     private GroupFeature callApiCreateGroupFeature(Group group, Feature feature) {
@@ -175,9 +172,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
         LOG.info("Success: feature created for group");
 
-
         return null;
-
     }
 
     private ContactPoint callApiCreateContactPoint(Group group, ContactPoint contactPoint) {
@@ -195,7 +190,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         }
 
         return null;
-
     }
 
 
@@ -238,6 +232,21 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         }
 
         return newCode;
+    }
+
+    private ObservationHeading callApiCreateObservationHeading(ObservationHeading observationHeading) {
+        ObservationHeading newObservationHeading = null;
+        try {
+            newObservationHeading = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/observationheading",
+                    ObservationHeading.class, observationHeading, HttpPost.class);
+            LOG.info("Created observation heading");
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create observation heading: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to create observation heading: ", jee.getMessage());
+        }
+
+        return newObservationHeading;
     }
 
     private Link callApiCreateLink(Link link) {
@@ -310,10 +319,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         }
 
         return  unitFeatures;
-
     }
-
-
 
     public void createCodes(Lookup codeType, String codeTypeName) {
 
@@ -327,10 +333,30 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             code.setCode(edtaCode.getEdtaCode());
             code.setLinks(PvUtil.getLinks(edtaCode));
             callApiCreateCode(code);
-
         }
     }
 
+    public void createObservationHeadings() {
+
+        // note: gets defaults from first instance of specialty result headings
+        // todo: create specialty specific panel ordering based on existing
+
+        for (ResultHeading resultHeading : resultHeadingDao.getAll(null)) {
+            ObservationHeading observationHeading = new ObservationHeading();
+            observationHeading.setCode(resultHeading.getHeadingcode());
+            observationHeading.setHeading(resultHeading.getHeading());
+            observationHeading.setName(resultHeading.getRollover());
+            observationHeading.setInfoLink(resultHeading.getLink());
+            observationHeading.setDefaultPanel(
+                    (long)resultHeading.getSpecialtyResultHeadings().iterator().next().getPanel());
+            observationHeading.setDefaultPanelOrder(
+                    (long)resultHeading.getSpecialtyResultHeadings().iterator().next().getPanelOrder());
+            observationHeading.setMinGraph(resultHeading.getMinRangeValue());
+            observationHeading.setMaxGraph(resultHeading.getMaxRangeValue());
+            observationHeading.setUnits(resultHeading.getUnits());
+            callApiCreateObservationHeading(observationHeading);
+        }
+    }
 
     @Override
     public Lookup getLookupByName(String value) {
@@ -434,9 +460,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
             group.setGroupType(getLookupByName("DISEASE_GROUP"));
         }
 
-
         return group;
-
     }
 
     private Group getGroupParent(Unit unit) {
@@ -448,7 +472,6 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
         }
 
         return null;
-
     }
 
     public void setUnitDao(final UnitDao unitDao) {

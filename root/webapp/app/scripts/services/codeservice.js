@@ -75,7 +75,7 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // Remove a single code based on userId
-        delete: function (code) {
+        remove: function (code) {
             var deferred = $q.defer();
             // GET then DELETE /user/{userId}
             Restangular.one('code', code.id).remove().then(function(successResult) {
