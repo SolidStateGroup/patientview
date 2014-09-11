@@ -1,13 +1,13 @@
 'use strict';
 
 // new resultHeading modal instance controller
-var NewResultHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editResultHeading', 'ResultHeadingService',
-    function ($scope, $rootScope, $modalInstance, editResultHeading, ResultHeadingService) {
+var NewResultHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editResultHeading', 'ObservationHeadingService',
+    function ($scope, $rootScope, $modalInstance, editResultHeading, ObservationHeadingService) {
         $scope.editResultHeading = editResultHeading;
         $scope.editMode = false;
 
         $scope.ok = function () {
-            ResultHeadingService.create($scope.editResultHeading).then(function(result) {
+            ObservationHeadingService.create($scope.editResultHeading).then(function(result) {
                 $scope.editResultHeading = result;
                 $modalInstance.close($scope.editResultHeading);
             }, function(result) {
@@ -24,8 +24,8 @@ var NewResultHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance
         };
     }];
 
-angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$timeout', '$modal', 'ResultHeadingService',
-    function ($scope, $timeout, $modal, ResultHeadingService) {
+angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$timeout', '$modal', 'ObservationHeadingService', 'UserService',
+    function ($scope, $timeout, $modal, ObservationHeadingService, UserService) {
 
         $scope.itemsPerPage = 999;
         $scope.currentPage = 0;
@@ -40,7 +40,14 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
 
         // Init
         $scope.init = function () {
+            $scope.permissions = {};
 
+            // check if user is GLOBAL_ADMIN
+            $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+
+            if ($scope.permissions.isSuperAdmin) {
+                $scope.permissions.canCreateResultHeading = true;
+            }
         };
 
         $scope.sortBy = function(sortField) {
@@ -121,7 +128,7 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
             getParameters.sortField = $scope.sortField;
             getParameters.sortDirection = $scope.sortDirection;
 
-            ResultHeadingService.getAll(getParameters).then(function(page) {
+            ObservationHeadingService.getAll(getParameters).then(function(page) {
                 $scope.pagedItems = page.content;
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
@@ -150,7 +157,7 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
                 openedResultHeading.showEdit = true;
 
                 // using lightweight list, do GET on id to get full resultHeading and populate editResultHeading
-                ResultHeadingService.get(openedResultHeading.id).then(function (resultHeading) {
+                ObservationHeadingService.get(openedResultHeading.id).then(function (resultHeading) {
                     $scope.successMessage = '';
                     $scope.saved = '';
                     $scope.editResultHeading = _.clone(resultHeading);
@@ -179,8 +186,8 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
                     editResultHeading: function(){
                         return $scope.editResultHeading;
                     },
-                    ResultHeadingService: function(){
-                        return ResultHeadingService;
+                    ObservationHeadingService: function(){
+                        return ObservationHeadingService;
                     }
                 }
             });
@@ -197,8 +204,8 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
         // Save resultHeading details from edit
         $scope.save = function (editResultHeadingForm, resultHeading) {
 
-            ResultHeadingService.save(resultHeading).then(function() {
-                ResultHeadingService.get(resultHeading.id).then(function (entity) {
+            ObservationHeadingService.save(resultHeading).then(function() {
+                ObservationHeadingService.get(resultHeading.id).then(function (entity) {
                     for (var i = 0; i < $scope.pagedItems.length; i++) {
                         if ($scope.pagedItems[i].id === resultHeading.id) {
                             var headerDetails = $scope.pagedItems[i];

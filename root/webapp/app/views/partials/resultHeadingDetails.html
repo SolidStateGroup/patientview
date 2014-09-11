@@ -51,4 +51,8 @@
     </div>
 </div>
 
+<button type="button" class="btn blue pull-right" ng-click="save(resultHeadingForm, editResultHeading)" ng-disabled="resultHeadingForm.$pristine || !resultHeadingForm.$valid">Save</button>
+<span class="saved-notification pull-right" ng-show="resultHeadingForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+
+<br/>
 <!-- SPECIALTY SELECTION OF PANEL AND PANEL ORDER GOES HERE -->

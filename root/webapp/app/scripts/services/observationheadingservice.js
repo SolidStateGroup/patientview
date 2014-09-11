@@ -1,41 +1,41 @@
 'use strict';
 
-angular.module('patientviewApp').factory('ResultHeadingService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
+angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
     return {
         getAll: function (getParameters) {
             var deferred = $q.defer();
-            // GET /code?codeTypes=1&filterText=something&page=0&size=5&sortDirection=ASC&sortField=code&standardTypes=2
-            Restangular.one('code').get(getParameters).then(function(successResult) {
+            // GET /observationheading?page=0&size=5&sortDirection=ASC&sortField=code
+            Restangular.one('observationheading').get(getParameters).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        get: function (codeId) {
+        get: function (observationheadingId) {
             var deferred = $q.defer();
-            Restangular.one('code',codeId).get().then(function(successResult) {
+            Restangular.one('observationheading', observationheadingId).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        // create new code
-        create: function (code) {
+        // create new observation heading
+        create: function (observationHeading) {
             var deferred = $q.defer();
-            Restangular.all('code').post(code).then(function(successResult) {
+            Restangular.all('observationheading').post(observationHeading).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        // save code
-        save: function (inputCode) {
+        // save observation heading
+        save: function (inputObservationHeading) {
             var deferred = $q.defer();
-            var code = UtilService.cleanObject(inputCode, 'code');
-            Restangular.all('code').customPUT(code).then(function(successResult) {
+            var observationHeading = UtilService.cleanObject(inputObservationHeading, 'observationHeading');
+            Restangular.all('observationheading').customPUT(observationHeading).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

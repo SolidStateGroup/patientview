@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ObservationHeadingServiceImpl;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
@@ -79,60 +80,28 @@ public class ObservationHeadingServiceTest {
         Assert.assertEquals("Should have 2 observation headings", 2, result.getNumberOfElements());
         verify(observationHeadingRepository, Mockito.times(1)).findAll(Matchers.eq(pageableAll));
     }
-/*
+
     @Test
-    public void testCreateNewsItem() {
-        User user = TestUtils.createUser("testUser");
+    public void testAdd() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
+        ObservationHeading savedObservationHeading = observationHeadingService.add(observationHeading);
 
-        NewsItem newsItem = new NewsItem();
-        newsItem.setId(3L);
-        newsItem.setCreator(user);
-        newsItem.setHeading("HEADING TEXT");
-        newsItem.setStory("NEWS STORY TEXT");
-        newsItem.setNewsLinks(new HashSet<NewsLink>());
-
-        NewsLink newsLink = new NewsLink();
-        newsLink.setId(4L);
-        newsLink.setNewsItem(newsItem);
-        newsLink.setGroup(TestUtils.createGroup("testGroup"));
-
-        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
-
-        when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
-        newsService.add(newsItem);
-        verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
+        Assert.assertNotNull("The returned observation heading should not be null", savedObservationHeading);
+        verify(observationHeadingRepository, Mockito.times(1)).save(eq(savedObservationHeading));
     }
 
     @Test
-    public void testUpdateNewsItem() {
-        User user = TestUtils.createUser("testUser");
-
-        NewsItem newsItem = new NewsItem();
-        newsItem.setId(3L);
-        newsItem.setCreator(user);
-        newsItem.setHeading("HEADING TEXT");
-        newsItem.setStory("NEWS STORY TEXT");
-        newsItem.setNewsLinks(new HashSet<NewsLink>());
-
-        NewsLink newsLink = new NewsLink();
-        newsLink.setId(4L);
-        newsLink.setNewsItem(newsItem);
-        newsLink.setGroup(TestUtils.createGroup("testGroup"));
-
-        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
-
-        when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
-        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
-
-        newsService.add(newsItem);
+    public void testSave() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
 
         try {
-            newsItem.setHeading("HEADING TEXT UPDATED");
-            newsService.save(newsItem);
+            observationHeadingService.save(observationHeading);
         } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException");
+            Assert.fail("ResourceNotFoundException thrown");
         }
 
-        verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
-    }*/
+        verify(observationHeadingRepository, Mockito.times(1)).save(eq(observationHeading));
+    }
 }
