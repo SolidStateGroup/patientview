@@ -1,17 +1,24 @@
 /** form styles **/
 
+.form-control{
+    height:40px;
+}
+
+.panel-body{
+    form{
+        padding:10px;
+    }
+}
+
 input[type="text"],
 input[type="password"],
 select,
 .group-select{
-    background:$inputbg;
-    border:1px solid $border-default;
-    @include bootstrap-box-shadow(none);
-    @include bootstrap-border-radius(0);
+    background:#fff;
+    border:1px solid #cccccc;
 
     &:focus{
         @include bootstrap-box-shadow(none);
-        @include bootstrap-border-radius(0);
     }
 
     &:-moz-placeholder {
@@ -20,10 +27,6 @@ select,
     &::-webkit-input-placeholder {
         color: $textlight;
     }
-}
-
-select.form-control{
-    height:35px;
 }
 
 label{
@@ -44,7 +47,6 @@ label{
 
 .edit-code{
     background:$white;
-    padding:10px;
 
     .links-container{
         margin-top:20px;
@@ -179,7 +181,7 @@ label{
 
 .group-list-item{
     li{
-        width:40px;
+        width:auto;
         height:40px;
         border:none;
         color:$white;
@@ -198,13 +200,26 @@ label{
         }
 
         &.group-list-role{
-            background:$aqua;
-            line-height:15px;
+            color:#e0e0e0;
+            font-size:3rem;
+            padding:0 10px;
+            font-weight:bold;
+
+            span{
+                font-size: 1.35rem;
+                height: 100%;
+                position: relative;
+                top: -4px;
+                font-weight:normal;
+                color:$textdefault;
+            }
         }
 
         &.group-list-delete{
+            font-size:2rem;
+            padding:0;
             a{
-                color:$white;
+                color:$error;
                 display:block;
                 height:100%;
                 width:100%;
@@ -219,14 +234,17 @@ label{
     float: left;
     width: 50%;
     margin-right:10px;
+    cursor:pointer;
 
     .caret-container{
         position:absolute;
         right:0;
         top:0;
+        cursor:pointer;
 
         .caret{
             margin-left:12px;
+            cursor:pointer;
         }
     }
 }
@@ -259,7 +277,7 @@ label{
 
 .select-add-group{
     select{
-        width:65%;
+        width:50%;
         float:left;
         height:40px;
     }
@@ -281,18 +299,40 @@ label{
 
     button{
         float:left;
-        margin-top:10px;
+        margin-top:2px;
     }
-}
-
-.group-add-button, .feature-add-button{
-    height:40px;
-    margin-left:10px;
 }
 
 .add-feature{
     select{
         float:left;
         width:80%;
+    }
+}
+
+.bracket{
+    font-size:3rem;
+    font-weight:bold;
+    display:block;
+    width:20px;
+    float:left;
+    text-align:center;
+    line-height:38px;
+    color:#e0e0e0;
+
+    &.pre{
+        margin-left:5px;
+    }
+    &.post{
+
+    }
+}
+
+.bracket-input{
+    input, select{
+        width:120px;
+        float:left;
+        height:30px;
+        margin-top:5px;
     }
 }
