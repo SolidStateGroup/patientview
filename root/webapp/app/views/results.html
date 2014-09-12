@@ -31,7 +31,7 @@
 
 <div class="results-container clearfix" ng-show="!loading">
     <ul class="unstyled results-list row">
-        <li class="col-md-3 col-xs-12 result-item-container" ng-repeat="result in panel">
+        <li class="col-md-3 col-xs-12 result-item-container" ng-repeat="result in panel | orderBy:'panelOrder' ">
             <div class="content-panel result-item">
                 <div class="result-header">
                     <h4>
