@@ -3,7 +3,7 @@ package org.patientview.api.util;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.patientview.api.annotation.GroupMemberOnly;
-import org.patientview.api.controller.model.GroupStatisticTO;
+import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.User;

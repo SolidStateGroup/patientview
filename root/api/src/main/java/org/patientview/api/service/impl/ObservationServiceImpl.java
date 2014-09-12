@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirObservation;
+import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.service.ObservationService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -76,6 +77,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     @Override
     public List<Observation> get(final UUID patientUuid) {
+        return null;
+    }
+
+    public ObservationSummary getObservationSummary(Long userId) {
+
         return null;
     }
 }

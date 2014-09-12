@@ -66,9 +66,16 @@ public class ObservationHeadingController extends BaseController<ObservationHead
 
     @RequestMapping(value = "/observationheading/{observationHeadingId}/group/{groupId}", method = RequestMethod.POST)
     @ResponseBody
-    public void addGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
+    public void addOrUpdateGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
             @PathVariable("groupId") Long groupId, @RequestParam Long panel, @RequestParam Long panelOrder)
             throws ResourceNotFoundException {
-        observationHeadingService.addGroup(observationHeadingId, groupId, panel, panelOrder);
+        observationHeadingService.addOrUpdateGroup(observationHeadingId, groupId, panel, panelOrder);
+    }
+
+    @RequestMapping(value = "/observationheading/{observationHeadingId}/group/{groupId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void removeGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
+            @PathVariable("groupId") Long groupId) throws ResourceNotFoundException {
+        observationHeadingService.removeGroup(observationHeadingId, groupId);
     }
 }

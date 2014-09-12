@@ -5,7 +5,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.api.config.TestCommonConfig;
-import org.patientview.api.controller.model.Email;
+import org.patientview.api.model.Email;
 import org.patientview.api.service.impl.EmailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;

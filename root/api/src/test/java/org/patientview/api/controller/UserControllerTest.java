@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
-import org.patientview.api.controller.model.Credentials;
+import org.patientview.api.model.Credentials;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;

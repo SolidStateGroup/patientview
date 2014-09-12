@@ -18,6 +18,8 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     ObservationHeading add(ObservationHeading observationHeading);
 
-    void addGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
+    void addOrUpdateGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
             throws ResourceNotFoundException;
+
+    void removeGroup(Long observationHeadingId, Long groupId) throws ResourceNotFoundException;
 }

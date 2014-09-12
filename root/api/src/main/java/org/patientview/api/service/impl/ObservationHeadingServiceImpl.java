@@ -41,8 +41,39 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.save(observationHeading);
     }
 
-    public void addGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
+    public void addOrUpdateGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
             throws ResourceNotFoundException {
+        ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
+
+        if (observationHeading == null) {
+            throw new ResourceNotFoundException("Observation Heading does not exist");
+        }
+
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("Group does not exist");
+        }
+
+        ObservationHeadingGroup toRemove = null;
+
+        for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+            if (observationHeadingGroup.getGroup().equals(group)
+                    && observationHeadingGroup.getObservationHeading().equals(observationHeading)) {
+                toRemove = observationHeadingGroup;
+            }
+        }
+
+        if (toRemove != null) {
+            observationHeading.getObservationHeadingGroups().remove(toRemove);
+        }
+
+        observationHeading.getObservationHeadingGroups().add(
+                new ObservationHeadingGroup(observationHeading, group, panel, panelOrder));
+
+        observationHeadingRepository.save(observationHeading);
+    }
+
+    public void removeGroup(Long observationHeadingId, Long groupId) throws ResourceNotFoundException {
         ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
         if (observationHeading == null) {
             throw new ResourceNotFoundException("Observation Heading does not exist");
@@ -52,10 +83,19 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             throw new ResourceNotFoundException("Group does not exist");
         }
 
-        observationHeading.getObservationHeadingGroups().add(
-                new ObservationHeadingGroup(observationHeading, group, panel, panelOrder));
+        ObservationHeadingGroup toRemove = null;
 
-        observationHeadingRepository.save(observationHeading);
+        for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+            if (observationHeadingGroup.getGroup().equals(group)
+                    && observationHeadingGroup.getObservationHeading().equals(observationHeading)) {
+                toRemove = observationHeadingGroup;
+            }
+        }
+
+        if (toRemove != null) {
+            observationHeading.getObservationHeadingGroups().remove(toRemove);
+            observationHeadingRepository.save(observationHeading);
+        }
     }
 
     public void delete(final Long observationHeadingId) {

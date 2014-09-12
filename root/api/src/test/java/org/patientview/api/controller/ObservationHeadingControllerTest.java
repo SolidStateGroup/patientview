@@ -11,6 +11,7 @@ import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.test.util.TestUtils;
@@ -141,8 +142,62 @@ public class ObservationHeadingControllerTest {
                     .param("panelOrder", "4"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
 
-            verify(observationHeadingService, Mockito.times(1)).addGroup(eq(observationHeading.getId()),
+            verify(observationHeadingService, Mockito.times(1)).addOrUpdateGroup(eq(observationHeading.getId()),
                     eq(group.getId()), eq(3L), eq(4L));
+        } catch (Exception e) {
+            fail("Exception thrown" + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateGroup() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setId(1L);
+        Group group = TestUtils.createGroup("GROUP1");
+        group.setId(2L);
+
+        try {
+            when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+            when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
+            when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+            mockMvc.perform(MockMvcRequestBuilders.post("/observationheading/" + observationHeading.getId() + "/group/"
+                    + group.getId())
+                    .param("panel", "3")
+                    .param("panelOrder", "4"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            verify(observationHeadingService, Mockito.times(1)).addOrUpdateGroup(eq(observationHeading.getId()),
+                    eq(group.getId()), eq(3L), eq(4L));
+        } catch (Exception e) {
+            fail("Exception thrown" + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testRemoveGroup() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setId(1L);
+        Group group = TestUtils.createGroup("GROUP1");
+        group.setId(2L);
+
+        observationHeading.getObservationHeadingGroups().add(
+                new ObservationHeadingGroup(observationHeading, group, 3L, 4L));
+
+        try {
+            when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+            when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
+            when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+            mockMvc.perform(MockMvcRequestBuilders.delete("/observationheading/"
+                    + observationHeading.getId() + "/group/"
+                    + group.getId())
+                    .param("panel", "3")
+                    .param("panelOrder", "4"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            verify(observationHeadingService, Mockito.times(1)).removeGroup(eq(observationHeading.getId()),
+                    eq(group.getId()));
         } catch (Exception e) {
             fail("Exception thrown" + e.getMessage());
         }
