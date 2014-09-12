@@ -45,14 +45,50 @@
     </div>
 </div>
 
-<div claass="row">
-    <div class="added-specialty col-md-6">
-
+<div class="row">
+    <div class="col-md-12 actions-row">
+        <button type="button" class="btn blue pull-right" ng-click="save(resultHeadingForm, editResultHeading)" ng-disabled="resultHeadingForm.$pristine || !resultHeadingForm.$valid">Save</button>
+        <span class="saved-notification pull-right" ng-show="resultHeadingForm.$pristine && saved">Saved Successfully! &nbsp;</span>
     </div>
 </div>
 
-<button type="button" class="btn blue pull-right" ng-click="save(resultHeadingForm, editResultHeading)" ng-disabled="resultHeadingForm.$pristine || !resultHeadingForm.$valid">Save</button>
-<span class="saved-notification pull-right" ng-show="resultHeadingForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+<hr/>
 
-<br/>
 <!-- SPECIALTY SELECTION OF PANEL AND PANEL ORDER GOES HERE -->
+
+<div class="row specialty-manager">
+    <div class="added-container col-md-6">
+        <label class="large-label">Current specialty Order</label>
+        <div class="added-specialty row">
+            <div class="col-md-6">
+                <label>Specialty</label>
+                <input type="text" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label>Order</label>
+                <input type="text" class="form-control"/>
+            </div>
+            <div class="col-md-4 no-label">
+                <button class="btn">Update</button>
+                <button class="btn negative">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-container col-md-6">
+        <label class="large-label">Add specialty</label>
+        <div class="added-specialty row">
+            <div class="col-md-6">
+                <label>Specialty</label>
+                <input type="text" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label>Order</label>
+                <input type="text" class="form-control"/>
+            </div>
+            <div class="col-md-4 no-label">
+                <button class="btn blue">Add</button>
+            </div>
+        </div>
+    </div>
+</div>

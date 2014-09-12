@@ -1,3 +1,7 @@
+.large-label{
+    font-size:20px;
+}
+
 .results-header{
     height:120px;
     overflow:hidden;
@@ -34,6 +38,10 @@
             padding-top:7px;
         }
     }
+}
+
+.actions-row{
+    margin-top:20px;
 }
 
 .results-container{
@@ -121,5 +129,17 @@
             font-size:20px;
             color:$lowlighttext;
         }
+    }
+}
+
+.specialty-manager{
+    .add-container{
+        padding-top:0;
+        border-top:0;
+        margin-top:0;
+    }
+
+    .no-label{
+        padding-top:29px;
     }
 }

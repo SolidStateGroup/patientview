@@ -1601,12 +1601,17 @@ label {
 }
 
 /* line 1, ../sass/_results.scss */
+.large-label {
+  font-size: 20px;
+}
+
+/* line 5, ../sass/_results.scss */
 .results-header {
   height: 120px;
   overflow: hidden;
   margin-bottom: 20px;
 }
-/* line 6, ../sass/_results.scss */
+/* line 10, ../sass/_results.scss */
 .results-header .header-icon {
   background: #368de8;
   padding: 10px;
@@ -1615,78 +1620,83 @@ label {
   height: 100%;
   margin-right: 20px;
 }
-/* line 13, ../sass/_results.scss */
+/* line 17, ../sass/_results.scss */
 .results-header .header-icon i {
   display: block;
 }
-/* line 18, ../sass/_results.scss */
+/* line 22, ../sass/_results.scss */
 .results-header .panel-controls {
   clear: right;
 }
-/* line 22, ../sass/_results.scss */
+/* line 26, ../sass/_results.scss */
 .results-header .form-row {
   width: 400px;
   margin-bottom: 10px;
 }
-/* line 26, ../sass/_results.scss */
+/* line 30, ../sass/_results.scss */
 .results-header .form-row label, .results-header .form-row select {
   width: 50%;
   float: left;
 }
-/* line 31, ../sass/_results.scss */
+/* line 35, ../sass/_results.scss */
 .results-header .form-row label {
   padding-right: 20px;
   text-align: right;
   padding-top: 7px;
 }
 
-/* line 39, ../sass/_results.scss */
+/* line 43, ../sass/_results.scss */
+.actions-row {
+  margin-top: 20px;
+}
+
+/* line 47, ../sass/_results.scss */
 .results-container {
   float: left;
   width: 100%;
   margin-top: 20px;
 }
-/* line 44, ../sass/_results.scss */
+/* line 52, ../sass/_results.scss */
 .results-container .results-list {
   margin-left: -5px;
   margin-right: -5px;
 }
 
-/* line 52, ../sass/_results.scss */
+/* line 60, ../sass/_results.scss */
 .result-item-container {
   height: 256px;
   float: left;
   padding: 5px;
 }
-/* line 57, ../sass/_results.scss */
+/* line 65, ../sass/_results.scss */
 .result-item-container .result-item {
   height: 100%;
   padding: 15px;
   position: relative;
 }
-/* line 63, ../sass/_results.scss */
+/* line 71, ../sass/_results.scss */
 .result-item-container .result-header {
   width: 100%;
   height: 35px;
   border-bottom: 1px solid #e4e9f0;
   color: #585858;
 }
-/* line 69, ../sass/_results.scss */
+/* line 77, ../sass/_results.scss */
 .result-item-container .result-header h4 {
   font-weight: bold;
   margin: 0;
   line-height: 26px;
 }
-/* line 76, ../sass/_results.scss */
+/* line 84, ../sass/_results.scss */
 .result-item-container .result-change {
   margin: 0;
 }
-/* line 79, ../sass/_results.scss */
+/* line 87, ../sass/_results.scss */
 .result-item-container .result-change dt {
   font-size: 65px;
   float: left;
 }
-/* line 84, ../sass/_results.scss */
+/* line 92, ../sass/_results.scss */
 .result-item-container .result-change dd {
   float: right;
   text-align: right;
@@ -1694,25 +1704,25 @@ label {
   padding-top: 39px;
   padding-left: 24px;
 }
-/* line 91, ../sass/_results.scss */
+/* line 99, ../sass/_results.scss */
 .result-item-container .result-change dd i {
   margin-top: 2px;
 }
-/* line 95, ../sass/_results.scss */
+/* line 103, ../sass/_results.scss */
 .result-item-container .result-change dd span {
   clear: right;
   margin-right: 5px;
 }
-/* line 102, ../sass/_results.scss */
+/* line 110, ../sass/_results.scss */
 .result-item-container .info-list {
   width: 100%;
 }
-/* line 104, ../sass/_results.scss */
+/* line 112, ../sass/_results.scss */
 .result-item-container .info-list li {
   width: 100%;
   color: #8f8f8f;
 }
-/* line 110, ../sass/_results.scss */
+/* line 118, ../sass/_results.scss */
 .result-item-container .result-footer {
   position: absolute;
   bottom: 0;
@@ -1723,10 +1733,21 @@ label {
   border-top: 1px solid #e4e9f0;
   padding: 4px 10px;
 }
-/* line 120, ../sass/_results.scss */
+/* line 128, ../sass/_results.scss */
 .result-item-container .result-footer p {
   font-size: 20px;
   color: #aebccf;
+}
+
+/* line 136, ../sass/_results.scss */
+.specialty-manager .add-container {
+  padding-top: 0;
+  border-top: 0;
+  margin-top: 0;
+}
+/* line 142, ../sass/_results.scss */
+.specialty-manager .no-label {
+  padding-top: 29px;
 }
 
 /* line 2, ../sass/_components.scss */
