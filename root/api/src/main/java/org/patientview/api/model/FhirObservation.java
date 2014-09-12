@@ -20,6 +20,7 @@ public class FhirObservation extends BaseModel{
     private String name;
     private Double value;
     private String comments;
+    private Group group;
 
     public FhirObservation() {
     }
@@ -81,5 +82,13 @@ public class FhirObservation extends BaseModel{
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

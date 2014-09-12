@@ -103,7 +103,7 @@ function (UserService, $scope, GroupService, NewsService, ResultService) {
             $scope.loading = false;
         });
 
-        if ($scope.permissions.isPatient) {
+        /*if ($scope.permissions.isPatient) {
             // testing only
             //ResultService.getByCode($scope.loggedInUser.id, 'HB').then(function (patientDetails) {
             ResultService.getAll($scope.loggedInUser.id).then(function (patientDetails) {
@@ -113,7 +113,7 @@ function (UserService, $scope, GroupService, NewsService, ResultService) {
                 $scope.loading = false;
                 alert('Error getting patient details');
             });
-        }
+        }*/
     };
 
     $scope.init();

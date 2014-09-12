@@ -5,6 +5,7 @@ import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.ObservationSummary;
+import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
@@ -40,6 +41,9 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private FhirLinkService fhirLinkService;
 
     @Inject
     private GroupService groupService;
@@ -92,7 +96,12 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         // convert to transport observations
         for (Observation observation : observations) {
             try {
-                fhirObservations.add(new FhirObservation(observation));
+                FhirObservation fhirObservation = new FhirObservation(observation);
+                FhirLink fhirLink = fhirLinkService.findByVersionId(observation.getSubject().getDisplaySimple());
+                if (fhirLink != null) {
+                    fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
+                }
+                fhirObservations.add(fhirObservation);
             } catch (FhirResourceException fre) {
                 LOG.debug(fre.getMessage());
             }

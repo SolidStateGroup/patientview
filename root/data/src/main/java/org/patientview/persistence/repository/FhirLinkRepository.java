@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -30,4 +31,9 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
     List<FhirLink> findByUserAndGroupAndIdentifier(@Param("user") User user,
                                                    @Param("group") Group group,
                                                    @Param("identifier") Identifier identifier);
+
+    @Query("SELECT  f " +
+            "FROM   FhirLink f " +
+            "WHERE  f.versionId = :versionId ")
+    FhirLink findByVersionUuid(@Param("versionId") UUID versionId);
 }
