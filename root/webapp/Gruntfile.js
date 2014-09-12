@@ -436,8 +436,7 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: 'http://dev.solidstategroup.com/api'
-                        //apiEndpoint: 'http://localhost:' + port + '/api'
+                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
                     }
                 }
             },
