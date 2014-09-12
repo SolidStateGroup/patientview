@@ -45,79 +45,81 @@
         margin-left:-5px;
         margin-right:-5px;
 
-        > li{
-            height:256px;
+
+    }
+}
+
+.result-item-container{
+    height:256px;
+    float:left;
+    padding:5px;
+
+    .result-item{
+        height:100%;
+        padding:15px;
+        position:relative;
+    }
+
+    .result-header{
+        width:100%;
+        height:35px;
+        border-bottom:1px solid $border-default;
+        color:$textdefault;
+
+        h4{
+            font-weight:bold;
+            margin:0;
+            line-height:26px;
+        }
+    }
+
+    .result-change{
+        margin:0;
+
+        dt{
+            font-size:65px;
             float:left;
-            padding:5px;
+        }
 
-            .result-item{
-                height:100%;
-                padding:15px;
-                position:relative;
+        dd{
+            float: right;
+            text-align: right;
+            width: 30%;
+            padding-top: 39px;
+            padding-left: 24px;
+
+            i{
+                margin-top:2px;
             }
 
-            .result-header{
-                width:100%;
-                height:35px;
-                border-bottom:1px solid $border-default;
-                color:$textdefault;
-
-                h4{
-                    font-weight:bold;
-                    margin:0;
-                    line-height:26px;
-                }
+            span{
+                clear:right;
+                margin-right:5px;
             }
+        }
+    }
 
-            .result-change{
-                margin:0;
+    .info-list{
+        width:100%;
+        li{
+            width:100%;
+            color:$linklist;
+        }
+    }
 
-                dt{
-                    font-size:65px;
-                    float:left;
-                }
+    .result-footer{
+        position:absolute;
+        bottom:0;
+        left:0;
+        width:100%;
+        height:40px;
+        background:$lowlight;
+        border-top:1px solid $border-default;
+        padding:4px 10px;
 
-                dd{
-                    float: right;
-                    text-align: right;
-                    width: 30%;
-                    padding-top: 39px;
-                    padding-left: 24px;
-
-                    i{
-                        margin-top:2px;
-                    }
-
-                    span{
-                        clear:right;
-                        margin-right:5px;
-                    }
-                }
-            }
-
-            .info-list{
-                width:100%;
-                li{
-                    width:100%;
-                    color:$linklist;
-                }
-            }
-
-            .result-footer{
-                position:absolute;
-                bottom:0;
-                left:0;
-                width:100%;
-                height:40px;
-                background:$lowlight;
-                border-top:1px solid $border-default;
-                padding:4px 10px;
-
-                p{
-                    font-size:20px;
-                    color:$lowlighttext;
-                }
-            }
+        p{
+            font-size:20px;
+            color:$lowlighttext;
         }
     }
 }

@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
-import org.patientview.api.controller.model.Credentials;
+import org.patientview.api.model.Credentials;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;

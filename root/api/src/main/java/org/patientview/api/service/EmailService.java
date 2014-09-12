@@ -1,6 +1,6 @@
 package org.patientview.api.service;
 
-import org.patientview.api.controller.model.Email;
+import org.patientview.api.model.Email;
 
 /**
  * Created by jamesr@solidstategroup.com

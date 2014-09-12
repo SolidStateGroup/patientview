@@ -1,6 +1,6 @@
 <h1>Results</h1>
 
-<div class="results-header content-panel">
+<div class="results-header content-panel" ng-show="!loading">
     <div class="header-icon pull-left">
         <i class="icon-results-large pull-left"></i>
     </div>
@@ -8,168 +8,63 @@
         <form id="search-patient-results">
             <div class="form-row pull-right">
                 <label>Select Specialty: </label>
-                <select class="form-control">
-                    <option>Specialty name 1</option>
-                    <option>Specialty name 2</option>
-                </select>
+                <select class="form-control" ng-model="selectedGroup"
+                        ng-options="group.id as group.name for group in groups"></select>
             </div>
-            <fieldset class="pull-right panel-controls">
-                <select class="form-control">
-                    <option>Select panel to view</option>
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                </select>
-            </fieldset>
             <fieldset>
-                <label class="large">Showing Panel: <span class="">1</span></label>
+                <label class="large">Showing Panel: <span class="">{{currentPage}}</span></label>
                 <ul class="unstyled inline">
-                    <li>C3PO,</li>
-                    <li>R2D2,</li>
-                    <li>RSPCA</li>
+                    <li ng-repeat="result in panel">
+                        {{result.heading}} &nbsp;
+                    </li>
                 </ul>
             </fieldset>
         </form>
     </div>
 </div>
 
-<ul class="pagination results pull-right">
-    <li><a href="#">< Prev</a></li>
-    <li><a href="#">1</a></li>
-    <li><a href="#">2</a></li>
-    <li><a href="#">3</a></li>
-    <li><a href="#">4</a></li>
-    <li><a href="#">5</a></li>
-    <li><a href="#">Next ></a></li>
+<ul class="pagination results pull-right" ng-show="!loading">
+    <li ng-repeat="(key, panel) in panels" ng-class="{active: currentPage == key}" ng-click="changePanel(key)">
+        <a href>{{key}}</a>
+    </li>
 </ul>
 
-<div class="results-container clearfix">
+<div class="results-container clearfix" ng-show="!loading">
     <ul class="unstyled results-list row">
-        <li class="col-md-3 col-xs-12">
+        <li class="col-md-3 col-xs-12 result-item-container" ng-repeat="result in panel">
             <div class="content-panel result-item">
                 <div class="result-header">
-                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
+                    <h4>
+                        <a href="{{result.infoLink | addhttpFilter}}" target="_blank" ng-show="result.infoLink">
+                        <i class="icon-result-info pull-right"></i>
+                        </a> {{result.heading}}
+                    </h4>
                 </div>
-                <div class="result-value">
+                <div class="result-value" ng-show="result.latestObservation">
                     <dl class="result-change">
-                        <dt>76.17</dt>
-                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                        <dt>{{result.latestObservation.value}}</dt>
+                        <dd ng-show="getResultIcon(result)">
+                            <i class="{{getResultIcon(result)}} pull-left"></i>
+                            <span class="pull-left">{{result.valueChange}}</span>
+                        </dd>
                     </dl>
                 </div>
-                <ul class="unstyled info-list pull-left">
-                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
-                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                <div class="result-value" ng-show="!result.latestObservation">
+                    <h5>Not Available</h5>
+                </div>
+                <ul class="unstyled info-list pull-left" ng-show="result.latestObservation">
+                    <li><span class="pull-right">{{result.latestObservation.group.name}}</span><strong>Source:</strong></li>
+                    <li><span class="pull-right">{{result.latestObservation.applies | date:'dd-MMM-yyyy'}}</span><strong>Showing Result:</strong> </li>
                 </ul>
                 <div class="result-footer">
-                    <i class="icon-circle-arrow pull-right"></i>
-                    <p>View More Details</p>
-                </div>
-            </div>
-        </li>
-        <li class="col-md-3 col-xs-12">
-            <div class="content-panel result-item">
-                <div class="result-header">
-                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
-                </div>
-                <div class="result-value">
-                    <dl class="result-change">
-                        <dt>76.17</dt>
-                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
-                    </dl>
-                </div>
-                <ul class="unstyled info-list pull-left">
-                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
-                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
-                </ul>
-                <div class="result-footer">
-                    <i class="icon-circle-arrow pull-right"></i>
-                    <p>View More Details</p>
-                </div>
-            </div>
-        </li>
-        <li class="col-md-3 col-xs-12">
-            <div class="content-panel result-item">
-                <div class="result-header">
-                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
-                </div>
-                <div class="result-value">
-                    <dl class="result-change">
-                        <dt>76.17</dt>
-                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
-                    </dl>
-                </div>
-                <ul class="unstyled info-list pull-left">
-                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
-                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
-                </ul>
-                <div class="result-footer">
-                    <i class="icon-circle-arrow pull-right"></i>
-                    <p>View More Details</p>
-                </div>
-            </div>
-        </li>
-        <li class="col-md-3 col-xs-12">
-            <div class="content-panel result-item">
-                <div class="result-header">
-                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
-                </div>
-                <div class="result-value">
-                    <dl class="result-change">
-                        <dt>76.17</dt>
-                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
-                    </dl>
-                </div>
-                <ul class="unstyled info-list pull-left">
-                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
-                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
-                </ul>
-                <div class="result-footer">
-                    <i class="icon-circle-arrow pull-right"></i>
-                    <p>View More Details</p>
-                </div>
-            </div>
-        </li>
-        <li class="col-md-3 col-xs-12">
-            <div class="content-panel result-item">
-                <div class="result-header">
-                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
-                </div>
-                <div class="result-value">
-                    <dl class="result-change">
-                        <dt>76.17</dt>
-                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
-                    </dl>
-                </div>
-                <ul class="unstyled info-list pull-left">
-                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
-                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
-                </ul>
-                <div class="result-footer">
-                    <i class="icon-circle-arrow pull-right"></i>
-                    <p>View More Details</p>
-                </div>
-            </div>
-        </li>
-        <li class="col-md-3 col-xs-12">
-            <div class="content-panel result-item">
-                <div class="result-header">
-                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
-                </div>
-                <div class="result-value">
-                    <dl class="result-change">
-                        <dt>76.17</dt>
-                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
-                    </dl>
-                </div>
-                <ul class="unstyled info-list pull-left">
-                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
-                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
-                </ul>
-                <div class="result-footer">
-                    <i class="icon-circle-arrow pull-right"></i>
-                    <p>View More Details</p>
+                    <a href="/#/resultsdetail?code={{result.code}}"><i class="icon-circle-arrow pull-right"></i>
+                    <p>View More Details</p></a>
                 </div>
             </div>
         </li>
     </ul>
+</div>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
 </div>

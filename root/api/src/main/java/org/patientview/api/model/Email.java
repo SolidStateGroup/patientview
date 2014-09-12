@@ -1,4 +1,4 @@
-package org.patientview.api.controller.model;
+package org.patientview.api.model;
 
 /**
  * Created by jamesr@solidstategroup.com

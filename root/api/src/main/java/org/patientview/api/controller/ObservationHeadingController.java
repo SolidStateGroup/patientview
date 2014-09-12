@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -61,5 +62,20 @@ public class ObservationHeadingController extends BaseController<ObservationHead
         } catch (ResourceNotFoundException rnf) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @RequestMapping(value = "/observationheading/{observationHeadingId}/group/{groupId}", method = RequestMethod.POST)
+    @ResponseBody
+    public void addOrUpdateGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
+            @PathVariable("groupId") Long groupId, @RequestParam Long panel, @RequestParam Long panelOrder)
+            throws ResourceNotFoundException {
+        observationHeadingService.addOrUpdateGroup(observationHeadingId, groupId, panel, panelOrder);
+    }
+
+    @RequestMapping(value = "/observationheading/{observationHeadingId}/group/{groupId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void removeGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
+            @PathVariable("groupId") Long groupId) throws ResourceNotFoundException {
+        observationHeadingService.removeGroup(observationHeadingId, groupId);
     }
 }

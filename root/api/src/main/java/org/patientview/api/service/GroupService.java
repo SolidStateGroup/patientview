@@ -1,7 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.AuditTrail;
-import org.patientview.api.controller.model.UnitRequest;
+import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;

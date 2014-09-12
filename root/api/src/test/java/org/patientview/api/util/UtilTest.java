@@ -3,7 +3,7 @@ package org.patientview.api.util;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.patientview.api.controller.model.GroupStatisticTO;
+import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;

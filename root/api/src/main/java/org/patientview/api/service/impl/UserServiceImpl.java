@@ -2,7 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.patientview.api.controller.model.Email;
+import org.patientview.api.model.Email;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;

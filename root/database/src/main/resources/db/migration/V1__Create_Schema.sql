@@ -347,6 +347,17 @@ CREATE TABLE PV_Observation_Heading (
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Observation_Heading_Group (
+  Id                    BIGINT    NOT NULL,
+  Observation_Heading_Id  BIGINT    NOT NULL,
+  Group_Id              BIGINT    NOT NULL,
+  Panel                 BIGINT,
+  PanelOrder            BIGINT,
+  Creation_Date         TIMESTAMP NOT NULL,
+  Created_By            BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
 CREATE TABLE PV_Module (
   Id               BIGINT    NOT NULL,
   Name             VARCHAR(200),
