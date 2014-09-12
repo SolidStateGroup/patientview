@@ -14,7 +14,6 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
         getByUser: function (userId, page, size) {
             var deferred = $q.defer();
             // GET /user/{userId}/news?page=0&size=5
-            // returns page
             Restangular.one('user', userId).one('news').get({'page': page, 'size': size}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
@@ -33,29 +32,9 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
-        getNewsLinksFromGroupsRoles: function (groups, roles) {
-            var i, newsLink, newsLinks = [];
-
-            for (i=0;i<groups.length;i++) {
-                newsLink = {};
-                newsLink.group = {};
-                newsLink.group.id = groups[i].id;
-                newsLinks.push(newsLink);
-            }
-
-            for (i=0;i<roles.length;i++) {
-                newsLink = {};
-                newsLink.role = {};
-                newsLink.role.id = roles[i].id;
-                newsLinks.push(newsLink);
-            }
-
-            return newsLinks;
-        },
-        new: function (newsItem) {
+        create: function (newsItem) {
             var i;
 
-            //newsItem.newsLinks = this.getNewsLinksFromGroupsRoles(newsItem.groups, newsItem.roles);
             newsItem = UtilService.cleanObject(newsItem, 'newsItem');
             for (i=0;i<newsItem.newsLinks.length;i++) {
                 newsItem.newsLinks[i].group = UtilService.cleanObject(newsItem.newsLinks[i].group, 'group');

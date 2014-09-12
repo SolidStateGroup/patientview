@@ -42,7 +42,7 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
     $scope.removeLink = function (form, code, link) {
         // only do DELETE if in edit mode, otherwise just remove from object
         if ($scope.editMode) {
-            LinkService.delete(link).then(function () {
+            LinkService.remove(link).then(function () {
                 // deleted link
                 for (var j = 0; j < code.links.length; j++) {
                     if (code.links[j].id === link.id) {

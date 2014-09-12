@@ -32,7 +32,7 @@ angular.module('patientviewApp').factory('LocationService', ['$q', 'Restangular'
             return deferred.promise;
         },
         // Remove a single location based on locationId
-        delete: function (location) {
+        remove: function (location) {
             var deferred = $q.defer();
             // DELETE /location/{locationId}
             Restangular.one('location', location.id).remove().then(function(successResult) {

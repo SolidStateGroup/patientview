@@ -71,7 +71,7 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
         }
 
         if (formOk) {
-            JoinRequestService.new(groupId, $scope.joinRequest).then(function () {
+            JoinRequestService.create(groupId, $scope.joinRequest).then(function () {
                 $scope.successMessage = 'The join request has been saved';
             }, function (result) {
                 $scope.errorMessage = '- The join request has not been submitted ' + result.data;

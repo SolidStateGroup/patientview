@@ -156,7 +156,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                     promises.push(UserService.deleteGroupRole(user, groupRole.group.id, groupRole.role.id));
                 }
             } else {
-                promises.push(UserService.delete(user));
+                promises.push(UserService.remove(user));
             }
 
             $q.all(promises).then(function () {
@@ -177,7 +177,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
 
         // delete patient permanently
         $scope.delete = function () {
-            UserService.delete(user).then(function() {
+            UserService.remove(user).then(function() {
                 // successfully deleted user
                 $scope.successMessage = 'Patient has been permanently deleted.';
                 $scope.user.canRemoveFromMyGroups = false;

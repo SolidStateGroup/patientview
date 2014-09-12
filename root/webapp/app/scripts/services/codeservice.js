@@ -22,7 +22,7 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // create new code
-        new: function (code, codeTypes, standardTypes) {
+        create: function (code, codeTypes, standardTypes) {
             var deferred = $q.defer();
 
             // convert code and standard type ids to actual objects and clean
@@ -75,7 +75,7 @@ angular.module('patientviewApp').factory('CodeService', ['$q', 'Restangular', 'U
             return deferred.promise;
         },
         // Remove a single code based on userId
-        delete: function (code) {
+        remove: function (code) {
             var deferred = $q.defer();
             // GET then DELETE /user/{userId}
             Restangular.one('code', code.id).remove().then(function(successResult) {

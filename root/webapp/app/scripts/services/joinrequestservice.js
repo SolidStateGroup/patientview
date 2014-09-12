@@ -3,7 +3,7 @@
 angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
     return {
         // save join request
-        new: function (groupId, joinRequest) {
+        create: function (groupId, joinRequest) {
 
             joinRequest = UtilService.cleanObject(joinRequest, 'joinRequest');
 

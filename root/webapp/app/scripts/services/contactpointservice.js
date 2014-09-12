@@ -15,7 +15,7 @@ angular.module('patientviewApp').factory('ContactPointService', ['$q', 'Restangu
             return deferred.promise;
         },
         // Remove a single contactPoint based on contactPointId
-        delete: function (contactPoint) {
+        remove: function (contactPoint) {
             var deferred = $q.defer();
             // DELETE /contactPoint/{contactPointId}
             Restangular.one('contactpoint', contactPoint.id).remove().then(function(successResult) {

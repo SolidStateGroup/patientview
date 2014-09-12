@@ -47,7 +47,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
     $scope.removeLink = function (form, group, link) {
         // only do DELETE if in edit mode, otherwise just remove from object
         if ($scope.editMode) {
-            LinkService.delete(link).then(function () {
+            LinkService.remove(link).then(function () {
                 // deleted link
                 for (var j = 0; j < group.links.length; j++) {
                     if (group.links[j].id === link.id) {
@@ -109,7 +109,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
     $scope.removeLocation = function (form, group, location) {
         // only do DELETE if in edit mode, otherwise just remove from object
         if ($scope.editMode) {
-            LocationService.delete(location).then(function () {
+            LocationService.remove(location).then(function () {
                 // deleted location
                 for (var j = 0; j < group.locations.length; j++) {
                     if (group.locations[j].id === location.id) {
@@ -428,7 +428,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
     $scope.removeContactPoint = function (form, group, contactPoint) {
         // only do DELETE if in edit mode, otherwise just remove from object
         if ($scope.editMode) {
-            ContactPointService.delete(contactPoint).then(function () {
+            ContactPointService.remove(contactPoint).then(function () {
                 // deleted contactPoint
                 for (var j = 0; j < group.contactPoints.length; j++) {
                     if (group.contactPoints[j].id === contactPoint.id) {

@@ -87,7 +87,7 @@ function ($q, Restangular, UtilService) {
             return deferred.promise;
         },
         // create new group
-        new: function (inputGroup, groupTypes) {
+        create: function (inputGroup, groupTypes) {
             var deferred = $q.defer();
             var i;
 
