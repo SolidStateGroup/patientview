@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirObservation;
+import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
@@ -104,7 +105,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         return null;
     }
 
-    public List<HashMap<Long, List<org.patientview.api.model.ObservationHeading>>> getObservationSummary(Long userId)
+    public List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -122,67 +123,94 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         }
 
         List<ObservationHeading> observationHeadings = observationHeadingService.findAll();
-
-        List<HashMap<Long, List<org.patientview.api.model.ObservationHeading>>> observationData = new ArrayList<>();
+        List<ObservationSummary> observationData = new ArrayList<>();
 
         for (Group specialty : specialties) {
+            observationData.add(getObservationSummary(specialty, observationHeadings, user));
+        }
+        return observationData;
+    }
 
-            HashMap<Long, List<org.patientview.api.model.ObservationHeading>> panels = new HashMap<>();
+    private ObservationSummary getObservationSummary(Group group, List<ObservationHeading> observationHeadings,
+                                                 User user) throws ResourceNotFoundException, FhirResourceException {
 
-            for (ObservationHeading observationHeading : observationHeadings) {
-                Long panel = observationHeading.getDefaultPanel();
-                Long panelOrder = observationHeading.getDefaultPanelOrder();
+        ObservationSummary observationSummary = new ObservationSummary();
+        observationSummary.setPanels(new HashMap<Long, List<org.patientview.api.model.ObservationHeading>>());
+        observationSummary.setGroup(new org.patientview.api.model.Group(group));
 
-                // get panel and panel order for this specialty if available
-                for (ObservationHeadingGroup observationHeadingGroup :
-                        observationHeading.getObservationHeadingGroups()) {
-                    if (observationHeadingGroup.getGroup().equals(specialty)) {
-                        panel = observationHeadingGroup.getPanel();
-                        panelOrder = observationHeadingGroup.getPanelOrder();
-                    }
+        for (ObservationHeading observationHeading : observationHeadings) {
+
+            // get panel and panel order for this specialty if available
+            Long panel = getPanel(observationHeading, group);
+            Long panelOrder = getPanelOrder(observationHeading, group);
+
+            org.patientview.api.model.ObservationHeading summaryHeading =
+                    buildSummaryHeading(panel, panelOrder, observationHeading);
+
+            List<FhirObservation> latestObservations = get(user.getId(), observationHeading.getCode().toUpperCase(),
+                    "appliesDateTime", 2L);
+
+            if (!latestObservations.isEmpty()) {
+                summaryHeading.setLatestObservation(latestObservations.get(0));
+
+                if (latestObservations.size() > 1) {
+                    summaryHeading.setValueChange(
+                            latestObservations.get(0).getValue() - latestObservations.get(1).getValue());
                 }
-
-                org.patientview.api.model.ObservationHeading summaryHeading =
-                        new org.patientview.api.model.ObservationHeading();
-
-                summaryHeading.setPanel(panel);
-                summaryHeading.setPanelOrder(panelOrder);
-                summaryHeading.setCode(observationHeading.getCode());
-                summaryHeading.setHeading(observationHeading.getHeading());
-                summaryHeading.setName(observationHeading.getName());
-                summaryHeading.setNormalRange(observationHeading.getNormalRange());
-                summaryHeading.setUnits(observationHeading.getUnits());
-                summaryHeading.setMinGraph(observationHeading.getMinGraph());
-                summaryHeading.setMaxGraph(observationHeading.getMaxGraph());
-                summaryHeading.setInfoLink(observationHeading.getInfoLink());
-
-                List<FhirObservation> latestObservations = get(user.getId(), observationHeading.getCode().toUpperCase(),
-                        "appliesDateTime", 2L);
-
-                if (!latestObservations.isEmpty()) {
-                    summaryHeading.setLatestObservation(latestObservations.get(0));
-
-                    if (latestObservations.size() > 1) {
-                        summaryHeading.setValueChange(
-                                latestObservations.get(0).getValue() - latestObservations.get(1).getValue());
-                    }
-                }
-
-                if (panels.get(panel) == null) {
-                    List<org.patientview.api.model.ObservationHeading> summaryHeadings = new ArrayList<>();
-                    summaryHeadings.add(summaryHeading);
-                    panels.put(panel, summaryHeadings);
-                } else {
-                    panels.get(panel).add(summaryHeading);
-                }
-
-
             }
 
-            observationData.add(panels);
+            if (observationSummary.getPanels().get(panel) == null) {
+                List<org.patientview.api.model.ObservationHeading> summaryHeadings = new ArrayList<>();
+                summaryHeadings.add(summaryHeading);
+                observationSummary.getPanels().put(panel, summaryHeadings);
+            } else {
+                observationSummary.getPanels().get(panel).add(summaryHeading);
+            }
         }
 
+        return observationSummary;
+    }
 
-        return observationData;
+    private Long getPanel(ObservationHeading observationHeading, Group group) {
+        Long panel = observationHeading.getDefaultPanel();
+
+        for (ObservationHeadingGroup observationHeadingGroup :
+                observationHeading.getObservationHeadingGroups()) {
+            if (observationHeadingGroup.getGroup().equals(group)) {
+                panel = observationHeadingGroup.getPanel();
+            }
+        }
+        return panel;
+    }
+
+    private Long getPanelOrder(ObservationHeading observationHeading, Group group) {
+        Long panelOrder = observationHeading.getDefaultPanelOrder();
+
+        for (ObservationHeadingGroup observationHeadingGroup :
+                observationHeading.getObservationHeadingGroups()) {
+            if (observationHeadingGroup.getGroup().equals(group)) {
+                panelOrder = observationHeadingGroup.getPanelOrder();
+            }
+        }
+        return panelOrder;
+    }
+
+    private org.patientview.api.model.ObservationHeading buildSummaryHeading(Long panel, Long panelOrder,
+                                                                             ObservationHeading observationHeading) {
+        org.patientview.api.model.ObservationHeading summaryHeading =
+                new org.patientview.api.model.ObservationHeading();
+
+        summaryHeading.setPanel(panel);
+        summaryHeading.setPanelOrder(panelOrder);
+        summaryHeading.setCode(observationHeading.getCode());
+        summaryHeading.setHeading(observationHeading.getHeading());
+        summaryHeading.setName(observationHeading.getName());
+        summaryHeading.setNormalRange(observationHeading.getNormalRange());
+        summaryHeading.setUnits(observationHeading.getUnits());
+        summaryHeading.setMinGraph(observationHeading.getMinGraph());
+        summaryHeading.setMaxGraph(observationHeading.getMaxGraph());
+        summaryHeading.setInfoLink(observationHeading.getInfoLink());
+
+        return summaryHeading;
     }
 }

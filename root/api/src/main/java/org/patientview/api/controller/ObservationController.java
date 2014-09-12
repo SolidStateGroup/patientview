@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.model.FhirObservation;
-import org.patientview.api.model.ObservationHeading;
+import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.service.ObservationService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -43,7 +42,7 @@ public class ObservationController extends BaseController<ObservationController>
 
     @RequestMapping(value = "/observation/user/{userId}/summary", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<HashMap<Long, List<ObservationHeading>>>> getObservationSummary(
+    public ResponseEntity<List<ObservationSummary>> getObservationSummary(
             @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(observationService.getObservationSummary(userId), HttpStatus.OK);
     }

@@ -2,11 +2,10 @@ package org.patientview.api.service;
 
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.model.FhirObservation;
-import org.patientview.api.model.ObservationHeading;
+import org.patientview.api.model.ObservationSummary;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +20,6 @@ public interface ObservationService {
 
     List<Observation> get(UUID patientUuid);
 
-    List<HashMap<Long, List<ObservationHeading>>> getObservationSummary(Long userId)
+    List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException;
 }
