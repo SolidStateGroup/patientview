@@ -1,8 +1,11 @@
 package org.patientview.persistence.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -41,6 +44,9 @@ public class ObservationHeading extends AuditModel {
 
     @Column(name = "default_panel_order")
     private Long defaultPanelOrder;
+
+    @OneToMany(mappedBy = "observationHeading", cascade = {CascadeType.ALL})
+    private Set<ObservationHeadingGroup> observationHeadingGroups;
 
     public String getCode() {
         return code;
@@ -120,5 +126,13 @@ public class ObservationHeading extends AuditModel {
 
     public void setDefaultPanelOrder(Long defaultPanelOrder) {
         this.defaultPanelOrder = defaultPanelOrder;
+    }
+
+    public Set<ObservationHeadingGroup> getObservationHeadingGroups() {
+        return observationHeadingGroups;
+    }
+
+    public void setObservationHeadingGroups(Set<ObservationHeadingGroup> observationHeadingGroups) {
+        this.observationHeadingGroups = observationHeadingGroups;
     }
 }
