@@ -7,12 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ObservationHeadingService extends CrudService<ObservationHeading> {
+
+    List<ObservationHeading> findAll();
 
     Page<ObservationHeading> findAll(GetParameters getParameters);
 

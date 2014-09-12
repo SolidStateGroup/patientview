@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.ObservationHeadingService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.List;
 
 /**
  * Class to control the crud operations of the Observation Headings.
@@ -124,6 +126,10 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         return observationHeadingRepository.findAll(pageable);
+    }
+
+    public List<ObservationHeading> findAll() {
+        return Util.convertIterable(observationHeadingRepository.findAll());
     }
 
     public ObservationHeading get(final Long observationHeadingId) {
