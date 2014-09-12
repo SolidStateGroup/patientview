@@ -1651,68 +1651,69 @@ label {
   margin-left: -5px;
   margin-right: -5px;
 }
-/* line 48, ../sass/_results.scss */
-.results-container .results-list > li {
+
+/* line 52, ../sass/_results.scss */
+.result-item-container {
   height: 256px;
   float: left;
   padding: 5px;
 }
-/* line 53, ../sass/_results.scss */
-.results-container .results-list > li .result-item {
+/* line 57, ../sass/_results.scss */
+.result-item-container .result-item {
   height: 100%;
   padding: 15px;
   position: relative;
 }
-/* line 59, ../sass/_results.scss */
-.results-container .results-list > li .result-header {
+/* line 63, ../sass/_results.scss */
+.result-item-container .result-header {
   width: 100%;
   height: 35px;
   border-bottom: 1px solid #e4e9f0;
   color: #585858;
 }
-/* line 65, ../sass/_results.scss */
-.results-container .results-list > li .result-header h4 {
+/* line 69, ../sass/_results.scss */
+.result-item-container .result-header h4 {
   font-weight: bold;
   margin: 0;
   line-height: 26px;
 }
-/* line 72, ../sass/_results.scss */
-.results-container .results-list > li .result-change {
+/* line 76, ../sass/_results.scss */
+.result-item-container .result-change {
   margin: 0;
 }
-/* line 75, ../sass/_results.scss */
-.results-container .results-list > li .result-change dt {
+/* line 79, ../sass/_results.scss */
+.result-item-container .result-change dt {
   font-size: 65px;
   float: left;
 }
-/* line 80, ../sass/_results.scss */
-.results-container .results-list > li .result-change dd {
+/* line 84, ../sass/_results.scss */
+.result-item-container .result-change dd {
   float: right;
   text-align: right;
   width: 30%;
   padding-top: 39px;
   padding-left: 24px;
 }
-/* line 87, ../sass/_results.scss */
-.results-container .results-list > li .result-change dd i {
+/* line 91, ../sass/_results.scss */
+.result-item-container .result-change dd i {
   margin-top: 2px;
 }
-/* line 91, ../sass/_results.scss */
-.results-container .results-list > li .result-change dd span {
+/* line 95, ../sass/_results.scss */
+.result-item-container .result-change dd span {
   clear: right;
   margin-right: 5px;
 }
-/* line 98, ../sass/_results.scss */
-.results-container .results-list > li .info-list {
+/* line 102, ../sass/_results.scss */
+.result-item-container .info-list {
   width: 100%;
 }
-/* line 100, ../sass/_results.scss */
-.results-container .results-list > li .info-list li {
+/* line 104, ../sass/_results.scss */
+.result-item-container .info-list li {
   width: 100%;
   color: #8f8f8f;
 }
-/* line 106, ../sass/_results.scss */
-.results-container .results-list > li .result-footer {
+/* line 110, ../sass/_results.scss */
+.result-item-container .result-footer {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1722,8 +1723,8 @@ label {
   border-top: 1px solid #e4e9f0;
   padding: 4px 10px;
 }
-/* line 116, ../sass/_results.scss */
-.results-container .results-list > li .result-footer p {
+/* line 120, ../sass/_results.scss */
+.result-item-container .result-footer p {
   font-size: 20px;
   color: #aebccf;
 }
