@@ -33,6 +33,17 @@ public class ObservationHeadingGroup extends SimpleAuditModel {
     @Column(name = "panelOrder")
     private Long panelOrder;
 
+    public ObservationHeadingGroup () {
+
+    }
+
+    public ObservationHeadingGroup (ObservationHeading observationHeading, Group group, Long panel, Long panelOrder) {
+        setObservationHeading(observationHeading);
+        setGroup(group);
+        setPanel(panel);
+        setPanelOrder(panelOrder);
+    }
+
     public ObservationHeading getObservationHeading() {
         return observationHeading;
     }

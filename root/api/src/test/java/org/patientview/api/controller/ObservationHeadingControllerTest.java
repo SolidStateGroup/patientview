@@ -9,7 +9,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
@@ -37,6 +39,9 @@ public class ObservationHeadingControllerTest {
 
     @Mock
     private ObservationHeadingRepository observationHeadingRepository;
+
+    @Mock
+    private GroupRepository groupRepository;
 
     @InjectMocks
     private ObservationHeadingController observationHeadingController;
@@ -115,6 +120,31 @@ public class ObservationHeadingControllerTest {
             verify(observationHeadingService, Mockito.times(1)).save(eq(observationHeading));
         } catch (Exception e) {
             fail("Exception thrown");
+        }
+    }
+
+    @Test
+    public void testAddGroup() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setId(1L);
+        Group group = TestUtils.createGroup("GROUP1");
+        group.setId(2L);
+
+        try {
+            when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+            when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
+            when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+            mockMvc.perform(MockMvcRequestBuilders.post("/observationheading/" + observationHeading.getId() + "/group/"
+                    + group.getId())
+                    .param("panel", "3")
+                    .param("panelOrder", "4"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            verify(observationHeadingService, Mockito.times(1)).addGroup(eq(observationHeading.getId()),
+                    eq(group.getId()), eq(3L), eq(4L));
+        } catch (Exception e) {
+            fail("Exception thrown" + e.getMessage());
         }
     }
 }

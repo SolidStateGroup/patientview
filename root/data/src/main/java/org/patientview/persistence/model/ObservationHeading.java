@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -46,7 +47,7 @@ public class ObservationHeading extends AuditModel {
     private Long defaultPanelOrder;
 
     @OneToMany(mappedBy = "observationHeading", cascade = {CascadeType.ALL})
-    private Set<ObservationHeadingGroup> observationHeadingGroups;
+    private Set<ObservationHeadingGroup> observationHeadingGroups = new HashSet<>();
 
     public String getCode() {
         return code;

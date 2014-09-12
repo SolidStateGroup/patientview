@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.springframework.data.domain.Page;
@@ -16,4 +17,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
     Page<ObservationHeading> findAll(GetParameters getParameters);
 
     ObservationHeading add(ObservationHeading observationHeading);
+
+    void addGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
+            throws ResourceNotFoundException;
 }

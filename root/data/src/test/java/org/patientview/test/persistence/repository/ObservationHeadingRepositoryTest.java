@@ -78,7 +78,6 @@ public class ObservationHeadingRepositoryTest {
         observationHeadingGroup.setPanel(1L);
         observationHeadingGroup.setPanelOrder(2L);
 
-        observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
         observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
         observationHeadingRepository.save(observationHeading);
 

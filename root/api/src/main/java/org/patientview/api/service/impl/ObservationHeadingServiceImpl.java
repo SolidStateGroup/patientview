@@ -4,11 +4,13 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.ObservationHeadingGroup;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,7 @@ import javax.persistence.EntityExistsException;
 
 /**
  * Class to control the crud operations of the Observation Headings.
- *
+ * <p/>
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
  */
@@ -27,6 +29,38 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     private ObservationHeadingRepository observationHeadingRepository;
+
+    @Inject
+    private GroupRepository groupRepository;
+
+    public ObservationHeading add(final ObservationHeading observationHeading) {
+        if (observationHeadingExists(observationHeading)) {
+            LOG.debug("Observation Heading not created, already exists with these details");
+            throw new EntityExistsException("Observation Heading already exists with these details");
+        }
+        return observationHeadingRepository.save(observationHeading);
+    }
+
+    public void addGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
+            throws ResourceNotFoundException {
+        ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
+        if (observationHeading == null) {
+            throw new ResourceNotFoundException("Observation Heading does not exist");
+        }
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("Group does not exist");
+        }
+
+        observationHeading.getObservationHeadingGroups().add(
+                new ObservationHeadingGroup(observationHeading, group, panel, panelOrder));
+
+        observationHeadingRepository.save(observationHeading);
+    }
+
+    public void delete(final Long observationHeadingId) {
+        observationHeadingRepository.delete(observationHeadingId);
+    }
 
     public Page<ObservationHeading> findAll(final GetParameters getParameters) {
         String size = getParameters.getSize();
@@ -58,18 +92,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     public ObservationHeading save(final ObservationHeading observationHeading) throws ResourceNotFoundException {
         return observationHeadingRepository.save(observationHeading);
-    }
-
-    public ObservationHeading add(final ObservationHeading observationHeading) {
-        if (observationHeadingExists(observationHeading)) {
-            LOG.debug("Observation Heading not created, already exists with these details");
-            throw new EntityExistsException("Observation Heading already exists with these details");
-        }
-        return observationHeadingRepository.save(observationHeading);
-    }
-
-    public void delete(final Long observationHeadingId) {
-        observationHeadingRepository.delete(observationHeadingId);
     }
 
     private boolean observationHeadingExists(ObservationHeading observationHeading) {

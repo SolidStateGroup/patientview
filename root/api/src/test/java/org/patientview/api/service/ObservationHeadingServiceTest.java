@@ -11,8 +11,10 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ObservationHeadingServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -40,6 +42,9 @@ public class ObservationHeadingServiceTest {
 
     @Mock
     ObservationHeadingRepository observationHeadingRepository;
+
+    @Mock
+    GroupRepository groupRepository;
 
     @Mock
     UserRepository userRepository;
@@ -116,6 +121,26 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.save(observationHeading);
+        } catch (ResourceNotFoundException rnf) {
+            Assert.fail("ResourceNotFoundException thrown");
+        }
+
+        verify(observationHeadingRepository, Mockito.times(1)).save(eq(observationHeading));
+    }
+
+    @Test
+    public void testAddGroup() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setId(1L);
+        Group group = TestUtils.createGroup("GROUP1");
+        group.setId(2L);
+
+        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+        try {
+            observationHeadingService.addGroup(1L, 2L, 3L, 4L);
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("ResourceNotFoundException thrown");
         }
