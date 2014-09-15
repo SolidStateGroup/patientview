@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', 'ResultService',
-function ($scope, ResultService) {
+angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', 'ObservationService',
+function ($scope, ObservationService) {
 
     $scope.init = function() {
 
@@ -9,7 +9,7 @@ function ($scope, ResultService) {
         $scope.initFinished = false;
         $scope.loading = true;
 
-        ResultService.getSummary($scope.loggedInUser.id).then(function(summary) {
+        ObservationService.getSummary($scope.loggedInUser.id).then(function(summary) {
 
             if (summary.length) {
                 $scope.groupIndex = 0;

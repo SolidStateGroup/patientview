@@ -14,7 +14,7 @@
             <fieldset>
                 <label class="large">Showing Panel: <span class="">{{currentPage}}</span></label>
                 <ul class="unstyled inline">
-                    <li ng-repeat="result in panel">
+                    <li ng-repeat="result in panel | orderBy:'panelOrder'">
                         {{result.heading}} &nbsp;
                     </li>
                 </ul>
@@ -31,7 +31,7 @@
 
 <div class="results-container clearfix" ng-show="!loading">
     <ul class="unstyled results-list row">
-        <li class="col-md-3 col-xs-12 result-item-container" ng-repeat="result in panel | orderBy:'panelOrder' ">
+        <li class="col-md-3 col-xs-12 result-item-container" ng-repeat="result in panel | orderBy:'panelOrder'">
             <div class="content-panel result-item">
                 <div class="result-header">
                     <h4>
@@ -42,18 +42,25 @@
                 </div>
                 <div class="result-value" ng-show="result.latestObservation">
                     <dl class="result-change">
-                        <dt>{{result.latestObservation.value}}</dt>
+                        <dt>
+                            {{result.latestObservation.value}}
+                        </dt>
                         <dd ng-show="getResultIcon(result)">
                             <i class="{{getResultIcon(result)}} pull-left"></i>
                             <span class="pull-left">{{result.valueChange}}</span>
                         </dd>
+                        <dd ng-show="result.units">{{result.units}}</dd>
                     </dl>
                 </div>
                 <div class="result-value" ng-show="!result.latestObservation">
                     <h5>Not Available</h5>
                 </div>
                 <ul class="unstyled info-list pull-left" ng-show="result.latestObservation">
-                    <li><span class="pull-right">{{result.latestObservation.group.name}}</span><strong>Source:</strong></li>
+                    <li>
+                        <span class="pull-right" ng-show="result.latestObservation.group">{{result.latestObservation.group.name}}</span>
+                        <span class="pull-right" ng-show="!result.latestObservation.group">Unknown</span>
+                        <strong>Source:</strong>
+                    </li>
                     <li><span class="pull-right">{{result.latestObservation.applies | date:'dd-MMM-yyyy'}}</span><strong>Showing Result:</strong> </li>
                 </ul>
                 <div class="result-footer">

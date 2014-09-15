@@ -26,21 +26,21 @@ public class ObservationController extends BaseController<ObservationController>
     @Inject
     private ObservationService observationService;
 
-    @RequestMapping(value = "/observation/user/{userId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/observations", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getAllObservations(@PathVariable("userId") Long userId)
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(observationService.get(userId, null, null, null), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/observation/user/{userId}/{code}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/observations/{code}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getObservationsByCode(@PathVariable("userId") Long userId,
             @PathVariable("code") String code) throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(observationService.get(userId, code, null, null), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/observation/user/{userId}/summary", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/observations/summary", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<ObservationSummary>> getObservationSummary(
             @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {

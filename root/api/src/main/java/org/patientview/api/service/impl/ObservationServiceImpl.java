@@ -99,7 +99,9 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 FhirObservation fhirObservation = new FhirObservation(observation);
                 FhirLink fhirLink = fhirLinkService.findByVersionId(observation.getSubject().getDisplaySimple());
                 if (fhirLink != null) {
-                    fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
+                    if (fhirLink.getGroup() != null) {
+                        fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
+                    }
                 }
                 fhirObservations.add(fhirObservation);
             } catch (FhirResourceException fre) {
