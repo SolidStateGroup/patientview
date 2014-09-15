@@ -303,6 +303,10 @@ ul {
     font-size:0.85rem;
 }
 
+.blue-text{
+    color:$primary;
+}
+
 /** TODO add this in more appropriate place **/
 
 .showHideText {
@@ -465,6 +469,13 @@ i.icon-result-up{
     background: url('../../../images/icons/result-up.png') 0 0 no-repeat;
     height: 35px;
     width: 17px;
+    display:block;
+}
+
+i.icon-plot-this{
+    background: url('../../../images/icons/plot-this.png') 0 0 no-repeat;
+    height: 30px;
+    width: 30px;
     display:block;
 }
 
