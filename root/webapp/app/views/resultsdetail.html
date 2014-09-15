@@ -1,10 +1,9 @@
 <div class="header-select row">
     <div class=" col-md-7">
-        <i class="icon-result-info pull-right"></i>
-        <h1>Showing results: <span class="blue">CPA</span></h1>
+        <h1>Showing results: <span class="blue-text">CPA</span></h1>
     </div>
     <div class="col-md-5">
-        <select class="pull-right">
+        <select class="form-control pull-right">
             <option>CPA</option>
             <option>CPA</option>
             <option>CPA</option>
@@ -13,22 +12,29 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row result-detail-panel">
     <div class="col-md-7 result-container clearfix">
         <div class="result-item-container">
             <div class="content-panel result-item">
                 <div class="result-header">
-                    <h4><i class="icon-result-info pull-right"></i> ALB</h4>
+                    <i class="icon-result-info pull-right"></i>
+                    <ul class="unstyled info-list pull-left">
+                        <li><strong>Showing Result:</strong> 1st July 2014</li>
+                    </ul>
                 </div>
-                <div class="result-value">
+                <div class="result-value clearfix">
                     <dl class="result-change">
                         <dt>76.17</dt>
                         <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
                     </dl>
                 </div>
-                <ul class="unstyled info-list pull-left">
-                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
-                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                <div class="result-comment pull-left">
+                    <label>Comments</label>
+                    <p>Here is a comment that the specialist made about this particular result, this text changes based on the focused result</p>
+                </div>
+                <ul class="unstyled inline info-list pull-left">
+                    <li><strong>Source:</strong> EDU123</li>
+                    <li><strong>Units:</strong> Mg</li>
                 </ul>
                 <div class="result-footer">
                     <i class="icon-circle-arrow pull-right"></i>
@@ -36,18 +42,78 @@
                 </div>
             </div>
         </div>
-        <aside class="col-md-5 historical-data">
-            <div class="info-header">
-                <p>Click <i class="icon-graph-tiny"></i> to highlight result</p>
+
+        <div class="result-graph">
+            <div class=" content-panel">
+                <!--GRAPH GOES HERE-->
+                <p>Here is the graph container</p>
             </div>
-            <div class="faux-table">
-                <div class="table-head accordion-title-row">
-                    <div class="hidden">ID</div>
-                    <div class="head-item accordion-title-text "><span>Date Taken</span></div>
-                    <div class="head-item accordion-title-text "><span>Date Taken</span></div>
-                    <div class="head-item accordion-title-text "><span>Source</span></div>
+        </div>
+    </div>
+    <aside class="col-md-5 historical-data">
+        <div class="info-header blue">
+            <p>Click <i class="icon-graph-tiny"></i> to highlight result</p>
+        </div>
+        <div class="faux-table three-col">
+            <div class="table-head accordion-title-row">
+                <div class="hidden">ID</div>
+                <div class="head-item accordion-title-text plot-this"></div>
+                <div class="head-item accordion-title-text "><span>Date Taken</span></div>
+                <div class="head-item accordion-title-text "><span>Value</span></div>
+                <div class="head-item accordion-title-text "><span>Source</span></div>
+            </div>
+            <!--Table Body-->
+            <div class="item-header">
+                <div class="faux-row">
+                    <div class="row-item hidden">id</div>
+                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
+                    <div class="row-item accordion-heading-text">19/12/2014</div>
+                    <div class="row-item accordion-heading-text">78.54</div>
+                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
+                </div>
+                <div class="faux-row">
+                    <div class="row-item hidden">id</div>
+                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
+                    <div class="row-item accordion-heading-text">19/12/2014</div>
+                    <div class="row-item accordion-heading-text">78.54</div>
+                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
+                </div>
+                <div class="faux-row">
+                    <div class="row-item hidden">id</div>
+                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
+                    <div class="row-item accordion-heading-text">19/12/2014</div>
+                    <div class="row-item accordion-heading-text">78.54</div>
+                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
+                </div>
+                <div class="faux-row">
+                    <div class="row-item hidden">id</div>
+                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
+                    <div class="row-item accordion-heading-text">19/12/2014</div>
+                    <div class="row-item accordion-heading-text">78.54</div>
+                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
+                </div>
+                <div class="faux-row">
+                    <div class="row-item hidden">id</div>
+                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
+                    <div class="row-item accordion-heading-text">19/12/2014</div>
+                    <div class="row-item accordion-heading-text">78.54</div>
+                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
+                </div>
+                <div class="faux-row">
+                    <div class="row-item hidden">id</div>
+                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
+                    <div class="row-item accordion-heading-text">19/12/2014</div>
+                    <div class="row-item accordion-heading-text">78.54</div>
+                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
+                </div>
+                <div class="faux-row">
+                    <div class="row-item hidden">id</div>
+                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
+                    <div class="row-item accordion-heading-text">19/12/2014</div>
+                    <div class="row-item accordion-heading-text">78.54</div>
+                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
                 </div>
             </div>
-        </aside>
-    </div>
+        </div>
+    </aside>
 </div>

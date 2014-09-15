@@ -78,6 +78,10 @@
             word-break: break-word;
             font-family: 'Lato', sans-serif;
 
+            &.plot-this{
+                width:40px;
+            }
+
             span{
                 display:block;
                 float:right;
@@ -92,6 +96,12 @@
                     margin: 0 auto;
                 }
             }
+        }
+    }
+
+    &.three-col{
+        .row-item,.head-item{
+            width:33.33%;
         }
     }
 
