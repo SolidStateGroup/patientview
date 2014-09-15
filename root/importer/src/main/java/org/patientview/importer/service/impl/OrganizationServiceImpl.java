@@ -3,11 +3,13 @@ package org.patientview.importer.service.impl;
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Organization;
 import org.json.JSONObject;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.OrganizationBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.OrganizationService;
 import org.patientview.importer.util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -23,13 +25,23 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
     @Inject
     private FhirResource fhirResource;
 
+    @Inject
+    private GroupRepository groupRepository;
+
     /**
      * Creates FHIR organization (unit/centre) record from the Patientview object.
      *
      * @param data
      */
     @Override
-    public UUID add(final Patientview data) {
+    public UUID add(final Patientview data) throws ResourceNotFoundException {
+
+        // validate that group exists in patientview using persistence module, otherwise throw exception
+        if (groupRepository.findByCode(data.getCentredetails().getCentrecode()) == null) {
+            LOG.error("Unable to build organization, group not found");
+            throw new ResourceNotFoundException("Unable to build organization, group not found");
+        }
+
         OrganizationBuilder organizationBuilder = new OrganizationBuilder(data);
 
         try {
