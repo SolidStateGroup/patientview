@@ -26,9 +26,12 @@
         <div class="result-item-container" ng-show="selectedObservation">
             <div class="content-panel result-item">
                 <div class="result-header">
-                    <i class="icon-result-info pull-right"></i>
+                    <a href="{{observationHeading.infoLink | addhttpFilter}}" target="_blank"
+                       ng-show="observationHeading.infoLink">
+                        <i class="icon-result-info pull-right"></i>
+                    </a>
                     <ul class="unstyled info-list pull-left">
-                        <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MM-yyyy'}}</li>
+                        <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
                     </ul>
                 </div>
                 <div class="result-value clearfix">
@@ -41,15 +44,14 @@
                     <li><strong>Source:</strong> {{selectedObservation.group.name}}</li>
                     <li ng-show="selectedObservation.units"><strong>Units:</strong> {{selectedObservation.units}}</li>
                 </ul>
-                <div class="result-comment pull-left">
+                <div class="result-comment pull-left" ng-show="selectedObservation.comments">
                     <label>Comments</label>
                     <p ng-show="selectedObservation.comments">{{selectedObservation.comments}}</p>
-                    <p ng-hide="selectedObservation.comments">No comments for this observation</p>
                 </div>
-                <div class="result-footer">
+                <!--<div class="result-footer">
                     <i class="icon-circle-arrow pull-right"></i>
                     <p>View More Details</p>
-                </div>
+                </div>-->
             </div>
         </div>
 
