@@ -59,6 +59,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         List<Observation> observations = new ArrayList<>();
         List<FhirObservation> fhirObservations = new ArrayList<>();
+        List<FhirLink> fhirLinks = new ArrayList<>();
 
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -66,6 +67,12 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         }
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
+            if (fhirLink.getActive()) {
+                fhirLinks.add(fhirLink);
+            }
+        }
+
+        for (FhirLink fhirLink : fhirLinks) {
             StringBuilder query = new StringBuilder();
             query.append("SELECT  content::varchar ");
             query.append("FROM    observation ");
