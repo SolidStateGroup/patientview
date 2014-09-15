@@ -61,7 +61,7 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
-        delete: function (news) {
+        remove: function (news) {
             var deferred = $q.defer();
             // DELETE /news/{newsId}
             Restangular.one('news', news.id).remove().then(function(successResult) {

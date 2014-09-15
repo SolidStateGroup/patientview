@@ -100,7 +100,7 @@ function ($q, Restangular, UtilService) {
             return deferred.promise;
         },
         // Create new user
-        new: function (inputUser) {
+        create: function (inputUser) {
             var deferred = $q.defer();
 
             // clean group roles (clean role and group then add to groupRoles)

@@ -311,7 +311,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
 
     // delete code, opens modal
-    $scope.delete = function (codeId, $event) {
+    $scope.remove = function (codeId, $event) {
         $event.stopPropagation();
         $scope.successMessage = '';
 
