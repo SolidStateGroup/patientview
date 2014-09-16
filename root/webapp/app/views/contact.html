@@ -46,6 +46,16 @@
                                 {{contactPoint.contactPointType.description}}: {{contactPoint.content}}
                             </li>
                         </ul>
+                        <h5 ng-show="group.locations">Additional Locations</h5>
+                        <ul class="unstyled" ng-show="group.locations">
+                            <li ng-repeat="location in group.locations">
+                                <strong>{{location.name}}</strong><br/>
+                                Phone: {{location.phone}}<br/>
+                                Address: {{location.address}}<br/>
+                                Web: {{location.web}}<br/>
+                                Email: {{location.email}}
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

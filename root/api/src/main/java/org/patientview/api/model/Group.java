@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class Group extends BaseModel{
     private List<Group> childGroups = new ArrayList<>();
     private Boolean visible;
     private List<Link> links;
+    private Set<Location> locations;
 
     public Group() {
 
@@ -37,6 +39,7 @@ public class Group extends BaseModel{
         setName(group.getName());
         setVisible(group.getVisible());
         setParentGroups(new ArrayList<Group>());
+        setLocations(group.getLocations());
 
         // only need parent groups in front end for headers
         for (org.patientview.persistence.model.Group parentGroup : group.getParentGroups()) {
@@ -115,5 +118,13 @@ public class Group extends BaseModel{
 
     public void setLinks(List<Link> links) {
         this.links = links;
+    }
+
+    public Set<Location> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(Set<Location> locations) {
+        this.locations = locations;
     }
 }
