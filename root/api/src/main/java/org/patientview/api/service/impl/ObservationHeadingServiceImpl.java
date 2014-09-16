@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class to control the crud operations of the Observation Headings.
@@ -40,6 +42,21 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             LOG.debug("Observation Heading not created, already exists with these details");
             throw new EntityExistsException("Observation Heading already exists with these details");
         }
+
+        // manage observation heading groups (for migration)
+        Set<ObservationHeadingGroup> observationHeadingGroups = new HashSet<>();
+
+        for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+            ObservationHeadingGroup newObservationHeadingGroup = new ObservationHeadingGroup();
+            newObservationHeadingGroup.setObservationHeading(observationHeading);
+            newObservationHeadingGroup.setPanelOrder(observationHeadingGroup.getPanelOrder());
+            newObservationHeadingGroup.setPanel(observationHeadingGroup.getPanel());
+            newObservationHeadingGroup.setGroup(groupRepository.findOne(observationHeadingGroup.getGroup().getId()));
+            observationHeadingGroups.add(newObservationHeadingGroup);
+        }
+
+        observationHeading.setObservationHeadingGroups(observationHeadingGroups);
+
         return observationHeadingRepository.save(observationHeading);
     }
 

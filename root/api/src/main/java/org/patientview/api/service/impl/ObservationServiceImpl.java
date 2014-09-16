@@ -194,7 +194,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         for (ObservationHeadingGroup observationHeadingGroup :
                 observationHeading.getObservationHeadingGroups()) {
-            if (observationHeadingGroup.getGroup().equals(group)) {
+            if (observationHeadingGroup.getGroup().getId() == group.getId()) {
                 panel = observationHeadingGroup.getPanel();
             }
         }
@@ -206,7 +206,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         for (ObservationHeadingGroup observationHeadingGroup :
                 observationHeading.getObservationHeadingGroups()) {
-            if (observationHeadingGroup.getGroup().equals(group)) {
+            if (observationHeadingGroup.getGroup().getId() == group.getId()) {
                 panelOrder = observationHeadingGroup.getPanelOrder();
             }
         }

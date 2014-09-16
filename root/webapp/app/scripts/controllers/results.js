@@ -36,6 +36,18 @@ function ($scope, ObservationService) {
         })
     };
 
+    $scope.changeGroup = function(groupId) {
+        for (var i=0;i<$scope.summary.length;i++) {
+            if (groupId === $scope.summary[i].group.id) {
+                $scope.groupIndex = i;
+                $scope.currentPage = 1;
+                $scope.group = $scope.summary[$scope.groupIndex].group;
+                $scope.panels = $scope.summary[$scope.groupIndex].panels;
+                $scope.panel = $scope.panels[$scope.currentPage];
+            }
+        }
+    };
+
     $scope.changePanel = function(panelId) {
         $scope.panel = $scope.panels[panelId];
         $scope.currentPage = panelId;

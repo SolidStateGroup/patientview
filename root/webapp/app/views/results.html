@@ -9,7 +9,9 @@
             <div class="form-row pull-right">
                 <label>Select Specialty: </label>
                 <select class="form-control" ng-model="selectedGroup"
-                        ng-options="group.id as group.name for group in groups"></select>
+                        ng-options="group.id as group.name for group in groups"
+                        ng-change="changeGroup(selectedGroup)">
+                </select>
             </div>
             <fieldset>
                 <label class="large">Showing Panel: <span class="">{{currentPage}}</span></label>
