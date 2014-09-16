@@ -9,7 +9,6 @@
         padding:10px;
     }
 }
-
 input[type="text"],
 input[type="password"],
 select,
@@ -335,4 +334,30 @@ label{
         height:30px;
         margin-top:5px;
     }
+}
+
+// WEIRD DASHBOARD STYLES
+.clamped {
+    line-height: 1.5;
+    overflow: hidden;
+    position: relative;
+}
+
+.clamped-2 {
+    /* Clamp to 2 lines, ie line-height x 2: */
+    max-height: 3em;
+}
+
+.ellipsis {
+    background: #fff;
+    bottom: 0;
+    position: absolute;
+    right: 10px;
+}
+
+.fill {
+    background: #fff;
+    height: 100%;
+    position: absolute;
+    width: 100%;
 }
