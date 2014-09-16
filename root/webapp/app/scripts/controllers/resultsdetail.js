@@ -99,9 +99,10 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             'chartArea': {
                 left: '7%',
                 top: '7%',
-                width: '80%',
+                width: '90%',
                 height: '85%'
-            }
+            },
+            'legend': {position: 'none'}
         };
 
         chart1.formatters = {};
