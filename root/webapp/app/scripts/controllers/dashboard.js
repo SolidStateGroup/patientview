@@ -18,13 +18,19 @@ function (UserService, $scope, GroupService, NewsService, ObservationService) {
                         ['date', 'Patients', 'Unique Logons', 'Logons']
                     ];
 
+                    var minDate = new Date(2999,1,1);
+
                     for (i = 0; i < data.length; i++) {
                         var row = [];
-                        row[0] = data[i].endDate;
+                        row[0] = new Date(data[i].endDate);
                         row[1] = data[i].countOfPatients;
                         row[2] = data[i].countOfUniqueLogons;
                         row[3] = data[i].countOfLogons;
                         chart1.data.push(row);
+
+                        if (row[0].getTime() < minDate.getTime()) {
+                            minDate = row[0];
+                        }
                     }
 
                     // get most recent statistics of user locked and inactive
@@ -34,6 +40,12 @@ function (UserService, $scope, GroupService, NewsService, ObservationService) {
                         $scope.inactiveUsers = data[0].countOfUserInactive;
 
                         chart1.data = new google.visualization.arrayToDataTable(chart1.data);
+
+                        // set min/max to one month either side of data
+                        var minValue = new Date(minDate);
+                        var maxValue = new Date($scope.statisticsDate);
+                        minValue = new Date(minValue.getTime() - 2592000000);
+                        maxValue = new Date(maxValue.getTime() + 2592000000);
 
                         chart1.options = {
                             'title': null,
@@ -52,7 +64,10 @@ function (UserService, $scope, GroupService, NewsService, ObservationService) {
                                 }
                             },
                             'hAxis': {
-                                'title': null
+                                'title': null,
+                                format: 'MMM-yyyy',
+                                minValue: minValue,
+                                maxValue: maxValue
                             },
                             'chartArea': {
                                 left: '7%',
