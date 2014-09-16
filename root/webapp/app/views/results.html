@@ -47,7 +47,7 @@
                         </dt>
                         <dd ng-show="getResultIcon(result)">
                             <i class="{{getResultIcon(result)}} pull-left"></i>
-                            <span class="pull-left">{{result.valueChange}}</span>
+                            <span class="pull-left">{{removeMinus(result.valueChange)}}</span>
                         </dd>
                         <dd ng-show="result.units">{{result.units}}</dd>
                     </dl>

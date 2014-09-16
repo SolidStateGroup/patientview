@@ -52,5 +52,10 @@ function ($scope, ObservationService) {
         return 'icon-result-up';
     };
 
+    $scope.removeMinus = function(value) {
+        value = Math.abs(value);
+        return value;
+    };
+
     $scope.init();
 }]);
