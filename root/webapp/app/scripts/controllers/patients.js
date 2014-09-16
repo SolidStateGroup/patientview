@@ -32,7 +32,7 @@ var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'pe
             }, function(result) {
                 if (result.status === 409) {
                     // 409 = CONFLICT, means patient already exists, provide UI to edit existing patient group roles
-                    $scope.warningMessage = 'A patient member with this username or email already exists, you can add them to your group if required.';
+                    $scope.warningMessage = 'A patient member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
                     $scope.editUser = result.data;
                     $scope.existingUser = true;
                     $scope.editMode = true;
