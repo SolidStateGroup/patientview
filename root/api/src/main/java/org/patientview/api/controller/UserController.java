@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
-import org.patientview.api.controller.model.Credentials;
+import org.patientview.api.model.Credentials;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
@@ -132,7 +132,14 @@ public class UserController extends BaseController<UserController> {
             try {
                 user = userService.createUserWithPasswordEncryption(user);
             } catch (EntityExistsException eee) {
-                return new ResponseEntity<>(userService.getByUsername(user.getUsername()), HttpStatus.CONFLICT);
+                User foundUser = userService.getByUsername(user.getUsername());
+                if (foundUser != null) {
+                    // found by username
+                    return new ResponseEntity<>(foundUser, HttpStatus.CONFLICT);
+                } else {
+                    // found by email
+                    return new ResponseEntity<>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
+                }
             }
         }
 

@@ -1,52 +1,63 @@
+<!-- TODO: put in main styles -->
+<style>
+    .faux-row.active div.row-item {
+        color: #368DE8;
+        background: #eee;
+    }
+    .faux-row {
+        cursor: pointer;
+    }
+</style>
+
 <div class="header-select row">
     <div class=" col-md-7">
-        <h1>Showing results: <span class="blue-text">CPA</span></h1>
+        <h1>Showing results: <span class="blue-text">{{observationHeading.heading}}</span></h1>
     </div>
     <div class="col-md-5">
-        <select class="form-control pull-right">
-            <option>CPA</option>
-            <option>CPA</option>
-            <option>CPA</option>
-            <option>CPA</option>
+        <select class="form-control pull-right" ng-model="selectedCode"
+            ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings"
+            ng-change="changeObservationHeading(selectedCode)" >
         </select>
     </div>
 </div>
 
-<div class="row result-detail-panel">
+<div class="row result-detail-panel" ng-show="!loading && observations">
     <div class="col-md-7 result-container clearfix">
-        <div class="result-item-container">
+        <div class="result-item-container" ng-show="selectedObservation">
             <div class="content-panel result-item">
                 <div class="result-header">
-                    <i class="icon-result-info pull-right"></i>
+                    <a href="{{observationHeading.infoLink | addhttpFilter}}" target="_blank"
+                       ng-show="observationHeading.infoLink">
+                        <i class="icon-result-info pull-right"></i>
+                    </a>
                     <ul class="unstyled info-list pull-left">
-                        <li><strong>Showing Result:</strong> 1st July 2014</li>
+                        <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
                     </ul>
                 </div>
                 <div class="result-value clearfix">
                     <dl class="result-change">
-                        <dt>76.17</dt>
-                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                        <dt>{{selectedObservation.value}}</dt>
+                        <!--<dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>-->
                     </dl>
                 </div>
-                <div class="result-comment pull-left">
-                    <label>Comments</label>
-                    <p>Here is a comment that the specialist made about this particular result, this text changes based on the focused result</p>
-                </div>
                 <ul class="unstyled inline info-list pull-left">
-                    <li><strong>Source:</strong> EDU123</li>
-                    <li><strong>Units:</strong> Mg</li>
+                    <li><strong>Source:</strong> {{selectedObservation.group.name}}</li>
+                    <li ng-show="selectedObservation.units"><strong>Units:</strong> {{selectedObservation.units}}</li>
                 </ul>
-                <div class="result-footer">
+                <div class="result-comment pull-left" ng-show="selectedObservation.comments">
+                    <label>Comments</label>
+                    <p ng-show="selectedObservation.comments">{{selectedObservation.comments}}</p>
+                </div>
+                <!--<div class="result-footer">
                     <i class="icon-circle-arrow pull-right"></i>
                     <p>View More Details</p>
-                </div>
+                </div>-->
             </div>
         </div>
 
-        <div class="result-graph">
+        <div class="result-graph" ng-show="!chartLoading">
             <div class=" content-panel">
-                <!--GRAPH GOES HERE-->
-                <p>Here is the graph container</p>
+                <div google-chart chart="chart" on-select="graphClicked(selectedItem)" on-ready="readyHandler(chartWrapper)"></div>
             </div>
         </div>
     </div>
@@ -64,56 +75,21 @@
             </div>
             <!--Table Body-->
             <div class="item-header">
-                <div class="faux-row">
-                    <div class="row-item hidden">id</div>
+                <div class="faux-row" ng-repeat="observation in observations" ng-click="observationClicked(observation)"
+                     ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
+                    <div class="row-item hidden">{{observation.id}}</div>
                     <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                    <div class="row-item accordion-heading-text">19/12/2014</div>
-                    <div class="row-item accordion-heading-text">78.54</div>
-                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
-                </div>
-                <div class="faux-row">
-                    <div class="row-item hidden">id</div>
-                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                    <div class="row-item accordion-heading-text">19/12/2014</div>
-                    <div class="row-item accordion-heading-text">78.54</div>
-                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
-                </div>
-                <div class="faux-row">
-                    <div class="row-item hidden">id</div>
-                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                    <div class="row-item accordion-heading-text">19/12/2014</div>
-                    <div class="row-item accordion-heading-text">78.54</div>
-                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
-                </div>
-                <div class="faux-row">
-                    <div class="row-item hidden">id</div>
-                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                    <div class="row-item accordion-heading-text">19/12/2014</div>
-                    <div class="row-item accordion-heading-text">78.54</div>
-                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
-                </div>
-                <div class="faux-row">
-                    <div class="row-item hidden">id</div>
-                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                    <div class="row-item accordion-heading-text">19/12/2014</div>
-                    <div class="row-item accordion-heading-text">78.54</div>
-                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
-                </div>
-                <div class="faux-row">
-                    <div class="row-item hidden">id</div>
-                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                    <div class="row-item accordion-heading-text">19/12/2014</div>
-                    <div class="row-item accordion-heading-text">78.54</div>
-                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
-                </div>
-                <div class="faux-row">
-                    <div class="row-item hidden">id</div>
-                    <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                    <div class="row-item accordion-heading-text">19/12/2014</div>
-                    <div class="row-item accordion-heading-text">78.54</div>
-                    <div class="row-item accordion-heading-text">EDTUAT 211</div>
+                    <div class="row-item accordion-heading-text">{{observation.applies | date: 'dd-MMM-yyyy'}}</div>
+                    <div class="row-item accordion-heading-text">{{observation.value}}</div>
+                    <div class="row-item accordion-heading-text">{{observation.group.code}}</div>
                 </div>
             </div>
         </div>
     </aside>
+</div>
+<div class="row result-detail-panel" ng-show="!loading && !observations">
+    <h3>No {{observationHeading.heading}} Results Found</h3>
+</div>
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
 </div>

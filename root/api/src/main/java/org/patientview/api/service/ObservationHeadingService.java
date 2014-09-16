@@ -1,10 +1,13 @@
 package org.patientview.api.service;
 
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -13,7 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ObservationHeadingService extends CrudService<ObservationHeading> {
 
+    List<ObservationHeading> findAll();
+
     Page<ObservationHeading> findAll(GetParameters getParameters);
 
     ObservationHeading add(ObservationHeading observationHeading);
+
+    void addOrUpdateGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
+            throws ResourceNotFoundException;
+
+    void removeGroup(Long observationHeadingId, Long groupId) throws ResourceNotFoundException;
 }

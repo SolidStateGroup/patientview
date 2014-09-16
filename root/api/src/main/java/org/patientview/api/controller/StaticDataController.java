@@ -65,4 +65,13 @@ public class StaticDataController extends BaseController<StaticDataController> {
             return new ResponseEntity<List<Feature>>(staticDataManager.getFeaturesByType(featureType), HttpStatus.OK);
         }
     }
+
+    /*@RequestMapping(value = "/proxy.html", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> getProxy() {
+        String proxyHtml = "<!DOCTYPE HTML>\n" +
+                "<script src=\"http://cdn.rawgit.com/jpillora/xdomain/gh-pages/dist/0.6/xdomain.min.js\" " +
+                "master=\"http://10.0.2.2:8080/api/*\"></script>";
+        return new ResponseEntity<>(proxyHtml, HttpStatus.OK);
+    }*/
 }

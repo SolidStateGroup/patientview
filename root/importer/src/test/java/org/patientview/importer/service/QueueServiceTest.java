@@ -35,7 +35,7 @@ public class QueueServiceTest {
 
     private Patientview getPatientViewRecord() throws Exception {
         URL xmlPath =
-                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_21626578408.xml");
+                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_14251692001.xml");
         File file = new File(xmlPath.toURI());
 
         JAXBContext jc = JAXBContext.newInstance(Patientview.class);

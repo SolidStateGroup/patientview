@@ -15,7 +15,7 @@
     "respond": "~1.4.2",
     "angular-bootstrap": "~0.11.0",
     "angular-local-storage": "~0.0.5",
-    "angular-google-chart": "~0.0.10",
+    "angular-google-chart": "0.0.11",
     "jquery-htmlclean": "~1.4.0"
   },
   "devDependencies": {

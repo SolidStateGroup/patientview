@@ -20,7 +20,7 @@ public class XmlParserTest {
     public void testXmlLoading() throws IOException, URISyntaxException {
 
         URL xmlPath =
-                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_21626578408.xml");
+                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_14251692001.xml");
         File file = new File(xmlPath.toURI());
 
         Assert.assertTrue("Test file not loaded", file.exists());

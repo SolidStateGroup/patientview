@@ -9,6 +9,7 @@ import org.patientview.persistence.model.BaseModel;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -20,6 +21,8 @@ public class FhirObservation extends BaseModel{
     private String name;
     private Double value;
     private String comments;
+    private Group group;
+    private String temporaryUuid;
 
     public FhirObservation() {
     }
@@ -27,8 +30,8 @@ public class FhirObservation extends BaseModel{
     public FhirObservation(Observation observation) throws FhirResourceException {
 
         if (observation.getName() != null) {
+            setTemporaryUuid(UUID.randomUUID().toString());
             setName(observation.getName().getTextSimple());
-
             setComments(observation.getCommentsSimple());
 
             try {
@@ -81,5 +84,21 @@ public class FhirObservation extends BaseModel{
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public String getTemporaryUuid() {
+        return temporaryUuid;
+    }
+
+    public void setTemporaryUuid(String temporaryUuid) {
+        this.temporaryUuid = temporaryUuid;
     }
 }

@@ -463,6 +463,17 @@ module.exports = function (grunt) {
                     }
                 }
             },
+            apiievm: {
+                options: {
+                    dest: '<%= yeoman.app %>/scripts/config.js'
+                },
+                constants: {
+                    ENV: {
+                        name: 'production',
+                        apiEndpoint: 'http://10.0.2.2:8080/api'
+                    }
+                }
+            },
             apiaryprod: {
                 options: {
                     dest: '<%= yeoman.app %>/scripts/config.js'
@@ -672,6 +683,14 @@ module.exports = function (grunt) {
 
         'clean:dist',
         'ngconstant:apilocal',
+        'copy:minimal',
+        'war'
+    ]);
+
+    grunt.registerTask('minimalievm', [
+
+        'clean:dist',
+        'ngconstant:apiievm',
         'copy:minimal',
         'war'
     ]);

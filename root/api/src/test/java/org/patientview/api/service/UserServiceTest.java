@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
-import org.patientview.api.controller.model.Email;
+import org.patientview.api.model.Email;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.UserServiceImpl;
 import org.patientview.persistence.model.Feature;

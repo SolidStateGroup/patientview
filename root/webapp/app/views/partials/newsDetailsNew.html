@@ -50,12 +50,20 @@
             <li class="group-list-delete negative pull-left"><span class="group-list-delete"><a id="remove-group-{{newsLink.group.id}}" href="" ng-click="removeNewsLink(newsFormNew, newNews, newsLink)" >Delete</a></span></li>
         </ul>
         <div class="group-add-container">
-            <div class="group-list-item">
-                <select class="form-control group-select" ng-model="groupToAdd" ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in newNews.allGroups | orderBy:[orderGroups,'name']"></select>
-                <div buttongroup="" buttongroupname="role" model="roleToAdd" options="newNews.allRoles" ng-init="roleToAdd" ng-click="selectRole(userFormNew, newNews, $event)"></div>
+            <div class="select-add-group">
+                <select class="form-control" ng-model="groupToAdd"
+                        ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in newNews.allGroups | orderBy:[orderGroups,'name']">
+                </select>
+                <div class="bracket-input">
+                    <span class="bracket pre">(</span>
+                    <select class="form-control" ng-model="roleToAdd"
+                            ng-options="role.id as role.description for role in newNews.allRoles">
+                    </select>
+                    <span class="bracket post">)</span>
+                </div>
+                <button type="button" class="btn blue group-add-button" ng-click="addNewsLink(newsFormNew, newNews, groupToAdd, roleToAdd)" ng-disabled="!roleToAdd">Add</button>
             </div>
-            <div class=""><button type="button" class="btn btn-primary group-add-button" ng-click="addNewsLink(newsFormNew, newNews, groupToAdd, roleToAdd)" ng-disabled="!roleToAdd">Add</button></div>
-        </div>
+         </div>
     </div>
     <div class="loading" ng-show="modalLoading"><img src="images/loading.gif" alt="Loading"/></div>
 </div>

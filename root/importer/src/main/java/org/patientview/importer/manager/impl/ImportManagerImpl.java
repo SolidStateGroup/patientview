@@ -51,14 +51,13 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         ResourceReference patientReference;
 
         try {
+            // organization (Unit/centre details)
+            UUID organizationUuid = organizationService.add(patientview);
+            organizationReference = createResourceReference(organizationUuid);
 
             // practitioner (GP details)
             UUID practitionerUuid = practitionerService.add(patientview);
             practitionerReference = createResourceReference(practitionerUuid);
-
-            // organization (Unit/centre details)
-            UUID organizationUuid = organizationService.add(patientview);
-            organizationReference = createResourceReference(organizationUuid);
 
             // core patient object
             UUID patientUuid = patientService.add(patientview, practitionerReference);

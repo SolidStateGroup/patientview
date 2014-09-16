@@ -3,7 +3,7 @@
     <parent>
         <artifactId>patientview-parent</artifactId>
         <groupId>org.patientview</groupId>
-        <version>1.4-SNAPSHOT</version>
+        <version>1.4.3-RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>patientview</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.4.3-RELEASE</version>
             <type>jar</type>
             <classifier>classes</classifier>
         </dependency>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>common</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.4.3-RELEASE</version>
             <scope>provided</scope>
         </dependency>
 

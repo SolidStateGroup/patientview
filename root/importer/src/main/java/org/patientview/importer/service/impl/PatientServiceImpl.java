@@ -93,6 +93,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 Resource resource = fhirResource.get(fhirLink.getResourceId(), ResourceType.valueOf(fhirLink.getResourceType()));
                 UUID versionId =  fhirResource.update(resource, fhirLink);
                 fhirLink.setVersionId(versionId);
+                fhirLink.setActive(false);
                 fhirLinkRepository.save(fhirLink);
             } catch (FhirResourceException e) {
                 LOG.error("Could update patient resource ", e);
@@ -144,6 +145,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         fhirLink.setResourceId(Util.getResourceId(bundle));
         fhirLink.setVersionId((Util.getVersionId(bundle)));
         fhirLink.setResourceType(ResourceType.Patient.name());
+        fhirLink.setActive(true);
 
         identifier.getUser().getFhirLinks().add(fhirLink);
         userRepository.save(identifier.getUser());

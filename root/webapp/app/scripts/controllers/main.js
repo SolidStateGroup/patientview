@@ -7,8 +7,31 @@ var FurtherInformationInstanceCtrl = ['$scope', '$modalInstance',
         };
     }];
 
-angular.module('patientviewApp').controller('MainCtrl', ['$scope', '$modal', 'NewsService',
-function ($scope, $modal, NewsService) {
+angular.module('patientviewApp').controller('MainCtrl', ['$scope', '$http', '$modal', 'NewsService',
+function ($scope, $http, $modal, NewsService) {
+
+    /*var request = $http({
+        method: "get",
+        url: "/api/news/public"
+    });*/
+    /*var url = 'http://10.0.2.2:8080/api/news/public';
+
+    console.log("logging...............");
+    $.support.cors = true;
+    $.ajax({
+        type : 'GET',
+        url : url,
+        async : true,
+        contentType : "application/json",
+        crossDomain : true,
+        success : function(response, textStatus, jqXHR) {
+            console.log("reached here");
+            console.log(response);
+        },
+        error : function(jqXHR, textStatus, errorThrown) {
+            console.log(errorThrown);
+        }
+    });*/
 
     $scope.init = function(){
         $scope.newsLoading = true;

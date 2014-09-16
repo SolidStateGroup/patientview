@@ -11,8 +11,11 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ObservationHeadingServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -29,6 +32,7 @@ import java.util.List;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
 /**
  * Created by james@solidstategroup.com
@@ -40,6 +44,9 @@ public class ObservationHeadingServiceTest {
 
     @Mock
     ObservationHeadingRepository observationHeadingRepository;
+
+    @Mock
+    GroupRepository groupRepository;
 
     @Mock
     UserRepository userRepository;
@@ -116,6 +123,72 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.save(observationHeading);
+        } catch (ResourceNotFoundException rnf) {
+            Assert.fail("ResourceNotFoundException thrown");
+        }
+
+        verify(observationHeadingRepository, Mockito.times(1)).save(eq(observationHeading));
+    }
+
+    @Test
+    public void testAddGroup() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setId(1L);
+        Group group = TestUtils.createGroup("GROUP1");
+        group.setId(2L);
+
+        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+        try {
+            observationHeadingService.addOrUpdateGroup(1L, 2L, 3L, 4L);
+        } catch (ResourceNotFoundException rnf) {
+            Assert.fail("ResourceNotFoundException thrown");
+        }
+
+        verify(observationHeadingRepository, Mockito.times(1)).save(eq(observationHeading));
+    }
+
+    @Test
+    public void testUpdateGroup() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setId(1L);
+        Group group = TestUtils.createGroup("GROUP1");
+        group.setId(2L);
+
+        observationHeading.getObservationHeadingGroups().add(
+                new ObservationHeadingGroup(observationHeading, group, 3L, 4L));
+
+        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+        try {
+            observationHeadingService.addOrUpdateGroup(1L, 2L, 4L, 4L);
+        } catch (ResourceNotFoundException rnf) {
+            Assert.fail("ResourceNotFoundException thrown");
+        }
+
+        verify(observationHeadingRepository, Mockito.times(1)).save(eq(observationHeading));
+    }
+
+    @Test
+    public void testRemoveGroup() {
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setId(1L);
+        Group group = TestUtils.createGroup("GROUP1");
+        group.setId(2L);
+
+        observationHeading.getObservationHeadingGroups().add(
+                new ObservationHeadingGroup(observationHeading, group, 3L, 4L));
+
+        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+        try {
+            observationHeadingService.removeGroup(1L, 2L);
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("ResourceNotFoundException thrown");
         }

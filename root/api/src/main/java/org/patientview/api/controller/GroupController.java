@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
-import org.patientview.api.controller.model.GroupStatisticTO;
-import org.patientview.api.controller.model.UnitRequest;
+import org.patientview.api.model.GroupStatisticTO;
+import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;

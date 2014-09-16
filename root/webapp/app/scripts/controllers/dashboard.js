@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService', 'ResultService',
-function (UserService, $scope, GroupService, NewsService, ResultService) {
+angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService', 'ObservationService',
+function (UserService, $scope, GroupService, NewsService, ObservationService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -18,13 +18,19 @@ function (UserService, $scope, GroupService, NewsService, ResultService) {
                         ['date', 'Patients', 'Unique Logons', 'Logons']
                     ];
 
+                    var minDate = new Date(2999,1,1);
+
                     for (i = 0; i < data.length; i++) {
                         var row = [];
-                        row[0] = data[i].startDate + ' to ' + data[i].endDate;
+                        row[0] = new Date(data[i].endDate);
                         row[1] = data[i].countOfPatients;
                         row[2] = data[i].countOfUniqueLogons;
                         row[3] = data[i].countOfLogons;
                         chart1.data.push(row);
+
+                        if (row[0].getTime() < minDate.getTime()) {
+                            minDate = row[0];
+                        }
                     }
 
                     // get most recent statistics of user locked and inactive
@@ -34,6 +40,12 @@ function (UserService, $scope, GroupService, NewsService, ResultService) {
                         $scope.inactiveUsers = data[0].countOfUserInactive;
 
                         chart1.data = new google.visualization.arrayToDataTable(chart1.data);
+
+                        // set min/max to one month either side of data
+                        var minValue = new Date(minDate);
+                        var maxValue = new Date($scope.statisticsDate);
+                        minValue = new Date(minValue.getTime() - 2592000000);
+                        maxValue = new Date(maxValue.getTime() + 2592000000);
 
                         chart1.options = {
                             'title': null,
@@ -52,7 +64,10 @@ function (UserService, $scope, GroupService, NewsService, ResultService) {
                                 }
                             },
                             'hAxis': {
-                                'title': null
+                                'title': null,
+                                format: 'MMM-yyyy',
+                                minValue: minValue,
+                                maxValue: maxValue
                             },
                             'chartArea': {
                                 left: '7%',
@@ -103,17 +118,17 @@ function (UserService, $scope, GroupService, NewsService, ResultService) {
             $scope.loading = false;
         });
 
-        if ($scope.permissions.isPatient) {
+        /*if ($scope.permissions.isPatient) {
             // testing only
-            //ResultService.getByCode($scope.loggedInUser.id, 'HB').then(function (patientDetails) {
-            ResultService.getAll($scope.loggedInUser.id).then(function (patientDetails) {
+            //ObservationService.getByCode($scope.loggedInUser.id, 'HB').then(function (patientDetails) {
+            ObservationService.getAll($scope.loggedInUser.id).then(function (patientDetails) {
                 $scope.patientDetails = patientDetails;
                 $scope.loading = false;
             }, function () {
                 $scope.loading = false;
                 alert('Error getting patient details');
             });
-        }
+        }*/
     };
 
     $scope.init();

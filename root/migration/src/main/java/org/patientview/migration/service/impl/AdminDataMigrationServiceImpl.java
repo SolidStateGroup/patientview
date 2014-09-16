@@ -15,6 +15,7 @@ import org.patientview.GroupRole;
 import org.patientview.Link;
 import org.patientview.Lookup;
 import org.patientview.ObservationHeading;
+import org.patientview.ObservationHeadingGroup;
 import org.patientview.Role;
 import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
@@ -22,12 +23,15 @@ import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.PvUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
+import org.patientview.model.Specialty;
 import org.patientview.model.Unit;
 import org.patientview.patientview.model.EdtaCode;
 import org.patientview.patientview.model.ResultHeading;
+import org.patientview.patientview.model.SpecialtyResultHeading;
 import org.patientview.repository.EdtaCodeDao;
 import org.patientview.repository.FeatureDao;
 import org.patientview.repository.ResultHeadingDao;
+import org.patientview.repository.SpecialtyDao;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +64,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     @Inject
     private FeatureDao featureDao;
+
+    @Inject
+    private SpecialtyDao specialtyDao;
 
     private List<Group> groups;
     private List<Role> roles;
@@ -339,8 +346,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     public void createObservationHeadings() {
 
         // note: gets defaults from first instance of specialty result headings
-        // todo: create specialty specific panel ordering based on existing
-
         for (ResultHeading resultHeading : resultHeadingDao.getAll(null)) {
             ObservationHeading observationHeading = new ObservationHeading();
             observationHeading.setCode(resultHeading.getHeadingcode());
@@ -348,12 +353,29 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             observationHeading.setName(resultHeading.getRollover());
             observationHeading.setInfoLink(resultHeading.getLink());
             observationHeading.setDefaultPanel(
-                    (long)resultHeading.getSpecialtyResultHeadings().iterator().next().getPanel());
+                    (long) resultHeading.getSpecialtyResultHeadings().iterator().next().getPanel());
             observationHeading.setDefaultPanelOrder(
-                    (long)resultHeading.getSpecialtyResultHeadings().iterator().next().getPanelOrder());
+                    (long) resultHeading.getSpecialtyResultHeadings().iterator().next().getPanelOrder());
             observationHeading.setMinGraph(resultHeading.getMinRangeValue());
             observationHeading.setMaxGraph(resultHeading.getMaxRangeValue());
             observationHeading.setUnits(resultHeading.getUnits());
+
+            // create specialty specific
+            Set<SpecialtyResultHeading> specialtyResultHeadings = resultHeading.getSpecialtyResultHeadings();
+            observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
+
+            for (SpecialtyResultHeading specialtyResultHeading : specialtyResultHeadings) {
+                ObservationHeadingGroup observationHeadingGroup = new ObservationHeadingGroup();
+                observationHeadingGroup.setPanel((long) specialtyResultHeading.getPanel());
+                observationHeadingGroup.setPanelOrder((long) specialtyResultHeading.getPanelOrder());
+
+                Specialty specialty = specialtyDao.get((long) specialtyResultHeading.getSpecialtyId());
+                Group group = getGroupByCode(specialty.getContext());
+                observationHeadingGroup.setGroup(group);
+
+                observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
+            }
+
             callApiCreateObservationHeading(observationHeading);
         }
     }
