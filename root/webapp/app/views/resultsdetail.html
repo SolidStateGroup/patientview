@@ -55,10 +55,10 @@
             </div>
         </div>
 
-        <div class="result-graph">
+        <div class="result-graph" ng-show="!chartLoading">
             <div class=" content-panel">
                 <!--GRAPH GOES HERE-->
-                <p>Here is the graph container</p>
+                <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
             </div>
         </div>
     </div>

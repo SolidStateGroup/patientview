@@ -20,7 +20,7 @@ function (UserService, $scope, GroupService, NewsService, ObservationService) {
 
                     for (i = 0; i < data.length; i++) {
                         var row = [];
-                        row[0] = data[i].startDate + ' to ' + data[i].endDate;
+                        row[0] = data[i].endDate;
                         row[1] = data[i].countOfPatients;
                         row[2] = data[i].countOfUniqueLogons;
                         row[3] = data[i].countOfLogons;
