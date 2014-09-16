@@ -66,12 +66,16 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.chartData = chart1.data;
         chart1.data = new google.visualization.arrayToDataTable(chart1.data);
 
-        if (minValue > $scope.observationHeading.minGraph) {
-            minValue = $scope.observationHeading.minGraph;
+        if ($scope.observationHeading.minGraph) {
+            if (minValue > $scope.observationHeading.minGraph) {
+                minValue = $scope.observationHeading.minGraph;
+            }
         }
 
-        if (maxValue < $scope.observationHeading.maxGraph) {
-            maxValue = $scope.observationHeading.maxGraph;
+        if ($scope.observationHeading.maxGraph) {
+            if (maxValue < $scope.observationHeading.maxGraph) {
+                maxValue = $scope.observationHeading.maxGraph;
+            }
         }
 
         chart1.options = {
@@ -80,7 +84,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             'fill': 20,
             'displayExactValues': true,
             'vAxis': {
-                baseline: minValue,
+                baseline: 0,
                 viewWindow: {min: minValue, max: maxValue},
                 title: null,
                 'pointSize': 5,
