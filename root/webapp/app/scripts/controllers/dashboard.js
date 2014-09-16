@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService', 'ResultService',
-function (UserService, $scope, GroupService, NewsService, ResultService) {
+angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService', 'ObservationService',
+function (UserService, $scope, GroupService, NewsService, ObservationService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -105,8 +105,8 @@ function (UserService, $scope, GroupService, NewsService, ResultService) {
 
         /*if ($scope.permissions.isPatient) {
             // testing only
-            //ResultService.getByCode($scope.loggedInUser.id, 'HB').then(function (patientDetails) {
-            ResultService.getAll($scope.loggedInUser.id).then(function (patientDetails) {
+            //ObservationService.getByCode($scope.loggedInUser.id, 'HB').then(function (patientDetails) {
+            ObservationService.getAll($scope.loggedInUser.id).then(function (patientDetails) {
                 $scope.patientDetails = patientDetails;
                 $scope.loading = false;
             }, function () {
