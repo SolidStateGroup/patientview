@@ -21,10 +21,10 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     }
 
     // click Create New button
-    $scope.new = function () {
+    $scope.create = function () {
         var i;
 
-        UserService.new($scope.editUser).then(function(result) {
+        UserService.create($scope.editUser).then(function(result) {
             // successfully created new staff user
             $scope.editUser = result;
             $scope.editUser.isNewUser = true;

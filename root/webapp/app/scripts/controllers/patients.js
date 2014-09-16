@@ -21,10 +21,10 @@ var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'pe
         }
 
         // click Create New button
-        $scope.new = function () {
+        $scope.create = function () {
             var i;
 
-            UserService.new($scope.editUser).then(function(result) {
+            UserService.create($scope.editUser).then(function(result) {
                 // successfully created new patient user
                 $scope.editUser = result;
                 $scope.editUser.isNewUser = true;
@@ -176,7 +176,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         };
 
         // delete patient permanently
-        $scope.delete = function () {
+        $scope.remove = function () {
             UserService.remove(user).then(function() {
                 // successfully deleted user
                 $scope.successMessage = 'Patient has been permanently deleted.';

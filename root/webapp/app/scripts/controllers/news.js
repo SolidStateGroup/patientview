@@ -316,8 +316,8 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         });
     };
 
-    $scope.delete = function(news) {
-        NewsService.delete(news).then(function() {
+    $scope.remove = function(news) {
+        NewsService.remove(news).then(function() {
             $scope.loading = true;
             NewsService.getByUser($scope.loggedInUser.id, $scope.currentPage, $scope.itemsPerPage).then(function(page) {
                 $scope.pagedItems = page.content;

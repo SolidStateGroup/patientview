@@ -24,7 +24,7 @@
                 <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Close</button>
-                <button class="btn btn-primary" ng-click="new()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0) || (!editUser.identifiers || editUser.identifiers.length == 0)">Create New</button>
+                <button class="btn btn-primary" ng-click="create()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0) || (!editUser.identifiers || editUser.identifiers.length == 0)">Create New</button>
             </div>
         </script>
 
@@ -62,7 +62,7 @@
                 <div ng-show="user.canDelete">
                     <h4>Permanently Delete Patient</h4>
                     <p>This will completely delete a patient from PatientView and cannot be undone.</p>
-                    <p><button class="btn btn-primary" ng-click="delete()">Permanently Delete Patient</button></p>
+                    <p><button class="btn btn-primary" ng-click="remove()">Permanently Delete Patient</button></p>
                 </div>
             </div>
             <div class="modal-footer">
