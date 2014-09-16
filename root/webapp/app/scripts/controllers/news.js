@@ -256,8 +256,8 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                         $scope.editNews.allGroups.push(group);
                     }
 
-                    for (i = 0; i < groups.length; i++) {
-                        var group = groups[i];
+                    for (i = 0; i < groups.content.length; i++) {
+                        var group = groups.content[i];
                         if (group.visible === true) {
                             $scope.editNews.allGroups.push(group);
                         }
