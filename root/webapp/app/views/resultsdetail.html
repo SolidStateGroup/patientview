@@ -57,8 +57,7 @@
 
         <div class="result-graph" ng-show="!chartLoading">
             <div class=" content-panel">
-                <!--GRAPH GOES HERE-->
-                <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
+                <div google-chart chart="chart" on-select="graphClicked(selectedItem)" on-ready="readyHandler(chartWrapper)"></div>
             </div>
         </div>
     </div>
