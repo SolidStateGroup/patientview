@@ -141,7 +141,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (19, 4, 40,  '/myconditions', 'views/myconditions.html','MyconditionsCtrl', 'My Conditions', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (20, 4, 150,  '/resultheadings', 'views/resultheadings.html','ResultheadingsCtrl', 'Result Headings', now(), 1 );
+  (20, 4, 105,  '/resultheadings', 'views/resultheadings.html','ResultheadingsCtrl', 'Result Headings', now(), 1 );
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (1, 1, 1, null, null, now(), 1 );
