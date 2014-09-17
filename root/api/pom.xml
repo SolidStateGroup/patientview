@@ -57,6 +57,13 @@
             <version>1.0.2.RELEASE</version>
         </dependency>
 
+        <!-- added to avoid tomcat issues on clean install -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
