@@ -41,6 +41,43 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // add observation heading group (specialty specific order)
+        addObservationHeadingGroup: function (observationHeadingId, groupId, panel, panelOrder) {
+            var deferred = $q.defer();
+
+            Restangular.one('observationheading', observationHeadingId)
+                .one('group', groupId).one('panel', panel).one('panelorder', panelOrder).post()
+                .then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // save observation heading group (specialty specific order)
+        updateObservationHeadingGroup: function (observationHeadingGroup) {
+            var deferred = $q.defer();
+
+            Restangular.one('observationheadinggroup').customPUT(observationHeadingGroup).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // remove observation heading group (specialty specific order)
+        removeObservationHeadingGroup: function (observationHeadingGroupId) {
+            var deferred = $q.defer();
+
+            Restangular.one('observationheadinggroup', observationHeadingGroupId)
+                .remove()
+                .then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

@@ -1,22 +1,22 @@
 <div>
-    <h1>Result Headings <button class="btn blue" ng-click="openModalNewResultHeading('lg')" ng-show="permissions.canCreateResultHeading">Create New</button></h1>
+    <h1>Result Headings <button class="btn blue" ng-click="openModalNewObservationHeading('lg')" ng-show="permissions.canCreateObservationHeading">Create New</button></h1>
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
     <div ng-show="!fatalErrorMessage && !loading" ng-cloak>
-        <!-- new resultHeading modal template -->
-        <script type="text/ng-template" id="newResultHeadingModal.html">
+        <!-- new observationHeading modal template -->
+        <script type="text/ng-template" id="newObservationHeadingModal.html">
             <div class="modal-header">
                 <h3 class="modal-title">Create New Result Heading</h3>
             </div>
             <div class="modal-body">
-                <form name="resultHeadingFormNew" ng-model="editResultHeading">
-                    <div ng-include src="'views/partials/resultHeadingDetailsNew.html'" ng-controller="ResultHeadingDetailsCtrl"></div>
+                <form name="observationHeadingFormNew" ng-model="editObservationHeading">
+                    <div ng-include src="'views/partials/observationHeadingDetailsNew.html'" ng-controller="ObservationHeadingDetailsCtrl"></div>
                 </form>
             </div>
             <div class="modal-footer">
                 <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn blue" ng-click="ok()" ng-disabled="!resultHeadingFormNew.$valid || (editResultHeading.resultHeadingTypeId==resultHeadingTypesArray['UNIT'] && editResultHeading.parentResultHeadings.length == 0)">Create New</button>
+                <button class="btn blue" ng-click="ok()" ng-disabled="!observationHeadingFormNew.$valid || (editObservationHeading.observationHeadingTypeId==observationHeadingTypesArray['UNIT'] && editObservationHeading.parentObservationHeadings.length == 0)">Create New</button>
             </div>
         </script>
 
@@ -38,33 +38,33 @@
             </div>
 
             <!-- body -->
-            <div class="item-header" ng-repeat="resultHeading in pagedItems">
+            <div class="item-header" ng-repeat="observationHeading in pagedItems">
                 <div class="faux-row">
-                    <div class="row-item hidden">{{resultHeading.id}}</div>
-                    <div class="row-item accordion-heading-text">{{resultHeading.code}}</div>
-                    <div class="row-item accordion-heading-text">{{resultHeading.heading}}</div>
-                    <div class="row-item accordion-heading-text">{{resultHeading.name}}</div>
-                    <div class="row-item accordion-heading-text">{{resultHeading.normalRange}}</div>
-                    <div class="row-item accordion-heading-text">{{resultHeading.units}}</div>
-                    <div class="row-item accordion-heading-text">{{resultHeading.minGraph}}</div>
-                    <div class="row-item accordion-heading-text">{{resultHeading.maxGraph}}</div>
+                    <div class="row-item hidden">{{observationHeading.id}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.code}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.heading}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.name}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.normalRange}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.units}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.minGraph}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.maxGraph}}</div>
                     <div class="row-item actions">
-                        <div class="btn-resultHeading">
-                            <button type="button" class="edit-button btn blue" ng-click="opened(resultHeading)">Edit</button>
+                        <div class="btn-observationHeading">
+                            <button type="button" class="edit-button btn blue" ng-click="opened(observationHeading)">Edit</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- edit pane -->
-                <div class="panel-body" ng-show="resultHeading.showEdit">
-                    <div class="alert alert-danger" ng-show="resultHeading.errorMessage && !resultHeading.editLoading">There was an error {{resultHeading.errorMessage}}</div>
-                    <div ng-show="resultHeading.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-                    <div ng-show="!resultHeading.editLoading">
-                        <form name="resultHeadingForm">
-                            <div ng-include src="'views/partials/resultHeadingDetails.html'" ng-controller="ResultHeadingDetailsCtrl"></div>
+                <div class="panel-body" ng-show="observationHeading.showEdit">
+                    <div class="alert alert-danger" ng-show="observationHeading.errorMessage && !observationHeading.editLoading">There was an error {{observationHeading.errorMessage}}</div>
+                    <div ng-show="observationHeading.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div ng-show="!observationHeading.editLoading">
+                        <form name="observationHeadingForm">
+                            <div ng-include src="'views/partials/observationHeadingDetails.html'" ng-controller="ObservationHeadingDetailsCtrl"></div>
                         </form>
                         <hr>
-                        <div class="pull-right"><button class="btn btn-grey" ng-click="resultHeading.showEdit = false">Close</button></div>
+                        <div class="pull-right"><button class="btn btn-grey" ng-click="observationHeading.showEdit = false">Close</button></div>
                     </div>
                 </div>
             </div>

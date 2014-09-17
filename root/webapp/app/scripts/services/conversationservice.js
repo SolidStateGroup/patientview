@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangular', function ($q, Restangular) {
+angular.module('patientviewApp').factory('ConversationService', ['$http', '$q', 'Restangular', '$rootScope',
+function ($http, $q, Restangular, $rootScope) {
     return {
         get: function (conversationId) {
             var deferred = $q.defer();
@@ -12,11 +13,21 @@ angular.module('patientviewApp').factory('ConversationService', ['$q', 'Restangu
             return deferred.promise;
         },
         getUnreadConversationCount: function (userId) {
-            var deferred = $q.defer();
+            /*var deferred = $q.defer();
             // GET /user/{userId}/conversations/unreadcount
             Restangular.one('user', userId).one('conversations/unreadcount').get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;*/
+
+            // temporary testing non-restangular for performance
+            // GET /user/{userId}/conversations/unreadcount
+            var deferred = $q.defer();
+            $http.get($rootScope.apiEndpoint + '/user/' + userId + '/conversations/unreadcount').success(function(successResult){
+                deferred.resolve(successResult);
+            }).error(function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;

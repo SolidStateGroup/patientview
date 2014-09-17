@@ -74,6 +74,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
              RouteService, ENV, ConversationService, JoinRequestService, UserService, AuthService) {
 
     $rootScope.ieTestMode = false;
+    $rootScope.apiEndpoint = ENV.apiEndpoint;
 
     // rebuild routes from cookie, allow refresh of page
     var buildRoute = function() {

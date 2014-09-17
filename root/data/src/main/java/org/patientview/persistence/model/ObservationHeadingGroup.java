@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -18,8 +17,7 @@ import javax.persistence.Table;
 @Table(name = "pv_observation_heading_group")
 public class ObservationHeadingGroup extends SimpleAuditModel {
 
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "observation_heading_id", nullable = false)
     private ObservationHeading observationHeading;
 
@@ -44,6 +42,7 @@ public class ObservationHeadingGroup extends SimpleAuditModel {
         setPanelOrder(panelOrder);
     }
 
+    @JsonIgnore
     public ObservationHeading getObservationHeading() {
         return observationHeading;
     }
