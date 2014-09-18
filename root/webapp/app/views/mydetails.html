@@ -1,17 +1,20 @@
 <h1>My Details</h1>
-<div class="content-panel">
-    <div class="content-inner">
-        <!-- patient details from FHIR -->
-        <div ng-show="!loading && patientDetails.length">
-            <p>Information provided by: &nbsp;&nbsp;
+
+<div class="patient-details">
+    <!-- patient details from FHIR -->
+    <div ng-show="!loading && patientDetails.length">
+        <div class="details-filter clearfix">
+            <div class="pull-right">Information provided by: &nbsp;&nbsp;
                 <label ng-repeat="patient in patientDetails">
                     <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">
-                    {{patient.group.name}}
+                    <span class="checkbox-label">{{patient.group.name}}</span>
                 </label>
-            </p>
-            <div ng-repeat="patient in patientDetails" ng-show="patient.group.selected">
+            </div>
+        </div>
+        <div ng-repeat="patient in patientDetails" ng-show="patient.group.selected" class="details-container">
+
                 <div class="panel panel-default">
-                    <div class="panel-heading"><h5>{{patient.group.name}}</h5></div>
+                    <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
                     <div class="panel-body">
                         <table class="table table-bordered">
                             <tbody>
@@ -97,44 +100,53 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div ng-show="!loading && !patientDetails.length">
-            <p>Your patient details are not currently stored in PatientView.</p>
-        </div>
 
-        <!-- More About Me -->
-        <div ng-show="!loading">
-            <h2>More About Me</h2>
-            <div class="row">
-                <div class="form-horizontal" role="form">
-                    <div class="col-md-12">
-                        <label for="should-know-input" class="control-label">Things people should know about me</label>
-                        <div>
-                            <textarea id="should-know-input" ng-model="moreAboutMe.shouldKnow" class="form-control"
-                                      placeholder="E.g. my interests and relevant personal details" ></textarea>
+        </div>
+        <div class="details-container">
+            <div class="panel panel-default">
+                <!-- More About Me -->
+                <div class="panel-heading"><h3>More About Me</h3></div>
+                <div ng-show="!loading">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="form-horizontal" role="form">
+                                <div class="col-md-12">
+                                    <label for="should-know-input" class="control-label">Things people should know about me</label>
+                                    <div>
+                                        <textarea id="should-know-input" ng-model="moreAboutMe.shouldKnow" class="form-control"
+                                                  placeholder="E.g. my interests and relevant personal details" ></textarea>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <div class="row">
+                            <div class="form-horizontal" role="form">
+                                <div class="col-md-12">
+                                    <label for="talk-about-input" class="control-label">Things I'd like to talk about</label>
+                                    <div>
+                                        <textarea id="talk-about-input" ng-model="moreAboutMe.talkAbout" class="form-control"
+                                                  placeholder="E.g. how my treatment is progressing or possible questions about new treatment options"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <button class="btn blue" ng-click="saveMoreAboutMe(moreAboutMe)">Save</button>
+                        <span>{{moreAboutMeMessage}}</span>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="form-horizontal" role="form">
-                    <div class="col-md-12">
-                        <label for="talk-about-input" class="control-label">Things I'd like to talk about</label>
-                        <div>
-                            <textarea id="talk-about-input" ng-model="moreAboutMe.talkAbout" class="form-control"
-                                      placeholder="E.g. how my treatment is progressing or possible questions about new treatment options"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br/>
-            <button class="btn blue" ng-click="saveMoreAboutMe(moreAboutMe)">Save</button>
-            <span>{{moreAboutMeMessage}}</span>
-        </div>
-
-        <div ng-show="loading" class="container"><br/>
-            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
         </div>
     </div>
+    <div ng-show="!loading && !patientDetails.length">
+        <p>Your patient details are not currently stored in PatientView.</p>
+    </div>
+
+
+
+    <div ng-show="loading" class="container"><br/>
+        <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+    </div>
 </div>
+
+

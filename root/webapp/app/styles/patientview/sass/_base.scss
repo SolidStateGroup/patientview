@@ -80,6 +80,26 @@ body {
     }
 }
 
+.panel-heading{
+    h3{
+        margin:0;
+        font-weight:bold;
+    }
+}
+
+.patient-details{
+    .details-filter{
+        width:100%;
+
+        .checkbox-label{
+            margin:0 10px 0 5px;
+        }
+    }
+    .content-panel{
+        margin-bottom:20px;
+    }
+}
+
 .edit-code-input{
     margin-bottom:20px;
 }
