@@ -52,6 +52,7 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
 
             if ($scope.permissions.isSuperAdmin) {
                 $scope.permissions.canCreateObservationHeading = true;
+                $scope.permissions.canEdit = true;
             }
 
             GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
@@ -249,6 +250,10 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                 $scope.saved = true;
                 $scope.successMessage = 'Result Heading saved';
             });
+        };
+
+        $scope.groupVisible = function(group) {
+            return _.findWhere($scope.groups, {id: group.id});
         };
 
         $scope.init();

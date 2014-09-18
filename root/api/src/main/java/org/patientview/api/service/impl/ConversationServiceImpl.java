@@ -140,11 +140,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // sort messages
         Collections.sort(newMessages, new Comparator<Message>() {
             public int compare(Message m1, Message m2) {
-                return m2.getCreated().compareTo(m1.getCreated());
+                return m1.getCreated().compareTo(m2.getCreated());
             }
         });
 
-        newConversation.setMessages(new HashSet<>(newMessages));
+        newConversation.setMessages(newMessages);
         newConversation.setType(conversation.getType());
         newConversation.setStatus(conversation.getStatus());
         newConversation.setImageData(conversation.getImageData());
@@ -292,7 +292,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
         newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
 
-        Set<Message> messageSet = new HashSet<>();
+        List<Message> messageSet = new ArrayList<>();
         messageSet.add(newMessage);
         newConversation.setMessages(messageSet);
 

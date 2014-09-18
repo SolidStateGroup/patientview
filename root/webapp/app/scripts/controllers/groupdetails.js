@@ -3,6 +3,19 @@
 angular.module('patientviewApp').controller('GroupDetailsCtrl', ['$scope', 'GroupService', 'LinkService', 'LocationService', 'ContactPointService',
 function ($scope, GroupService, LinkService, LocationService, ContactPointService) {
 
+    $scope.hasAdminEmail = function(group) {
+        if (group !== undefined) {
+            if (group.contactPoints) {
+                for (var i = 0; i < group.contactPoints.length; i++) {
+                    if (group.contactPoints[i].contactPointType.value === 'PV_ADMIN_EMAIL') {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    };
+
     $scope.addLink = function (form, group, link) {
         link.displayOrder = group.links.length +1;
 

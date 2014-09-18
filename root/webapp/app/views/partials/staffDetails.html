@@ -28,7 +28,7 @@
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles </label>
             <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-show="groupRole.group.visible === true">
-                <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}}</span></li>
+                <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span></li>
                 <li class="group-list-role pull-left">( <span class="group-list-role">{{groupRole.role.description}}</span> )</li>
                 <li class="group-list-delete pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]"><span class="group-list-delete"><button class="btn negative" id="remove-group-{{groupRole.group.id}}" ng-click="removeGroup(userForm, editUser, groupRole.group)" >Delete</button></span></li>
             </ul>

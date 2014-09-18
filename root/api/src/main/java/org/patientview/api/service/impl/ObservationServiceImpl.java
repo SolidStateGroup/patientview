@@ -162,27 +162,29 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             Long panel = getPanel(observationHeading, group);
             Long panelOrder = getPanelOrder(observationHeading, group);
 
-            org.patientview.api.model.ObservationHeading summaryHeading =
-                    buildSummaryHeading(panel, panelOrder, observationHeading);
+            if (panel != null) {
+                org.patientview.api.model.ObservationHeading summaryHeading =
+                        buildSummaryHeading(panel, panelOrder, observationHeading);
 
-            List<FhirObservation> latestObservations = get(user.getId(), observationHeading.getCode().toUpperCase(),
-                    "appliesDateTime", 2L);
+                List<FhirObservation> latestObservations = get(user.getId(), observationHeading.getCode().toUpperCase(),
+                        "appliesDateTime", 2L);
 
-            if (!latestObservations.isEmpty()) {
-                summaryHeading.setLatestObservation(latestObservations.get(0));
+                if (!latestObservations.isEmpty()) {
+                    summaryHeading.setLatestObservation(latestObservations.get(0));
 
-                if (latestObservations.size() > 1) {
-                    summaryHeading.setValueChange(
-                            latestObservations.get(0).getValue() - latestObservations.get(1).getValue());
+                    if (latestObservations.size() > 1) {
+                        summaryHeading.setValueChange(
+                                latestObservations.get(0).getValue() - latestObservations.get(1).getValue());
+                    }
                 }
-            }
 
-            if (observationSummary.getPanels().get(panel) == null) {
-                List<org.patientview.api.model.ObservationHeading> summaryHeadings = new ArrayList<>();
-                summaryHeadings.add(summaryHeading);
-                observationSummary.getPanels().put(panel, summaryHeadings);
-            } else {
-                observationSummary.getPanels().get(panel).add(summaryHeading);
+                if (observationSummary.getPanels().get(panel) == null) {
+                    List<org.patientview.api.model.ObservationHeading> summaryHeadings = new ArrayList<>();
+                    summaryHeadings.add(summaryHeading);
+                    observationSummary.getPanels().put(panel, summaryHeadings);
+                } else {
+                    observationSummary.getPanels().get(panel).add(summaryHeading);
+                }
             }
         }
 

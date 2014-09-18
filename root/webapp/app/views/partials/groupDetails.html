@@ -86,6 +86,7 @@
     <hr />
     <div class="col-md-12">
         <label>Additional Contact Points</label>
+        <span class="error" ng-show="!hasAdminEmail(editGroup)"> * Must have PatientView Admin Email</span>
         <div ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points</div>
     </div>
     <div class="link-list-item clearfix" ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">

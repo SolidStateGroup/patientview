@@ -14,7 +14,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+                <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
                 <button class="btn blue" ng-click="ok()" ng-disabled="!groupFormNew.$valid || (editGroup.groupTypeId==groupTypesArray['UNIT'] && editGroup.parentGroups.length == 0)">Create New</button>
             </div>
@@ -58,7 +58,8 @@
                 <div class="hidden">ID</div>
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
                 <div class="head-item accordion-title-text"><a ng-click="sortBy('name');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
-                <div class="head-item accordion-title-text"><a ng-click="sortBy('groupType.value');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
+                <div class="head-item accordion-title-text" ng-show="permissions.sortByGroupType"><a ng-click="sortBy('groupType.value');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
+                <div class="head-item accordion-title-text" ng-show="!permissions.sortByGroupType">Type</div>
                 <div class="head-item accordion-title-text">Parent Groups</div>
                 <div class="head-item accordion-title-text">Features</div>
                 <div class="head-item accordion-title-text">Last Import</div>

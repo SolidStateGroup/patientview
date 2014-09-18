@@ -43,10 +43,15 @@ function ($scope, $rootScope, $modalInstance, permissions, editGroup, allFeature
             $scope.editGroup = result;
             $modalInstance.close($scope.editGroup);
         }, function(result) {
-            if (result.data) {
-                $scope.errorMessage = ' - ' + result.data;
-            } else {
-                $scope.errorMessage = ' ';
+            if (result.status === 409) {
+                $scope.errorMessage = 'Group with this code already exists, please choose another';
+            }
+            else {
+                if (result.data) {
+                    $scope.errorMessage = 'There was an error: ' + result.data;
+                } else {
+                    $scope.errorMessage = 'There was an error';
+                }
             }
         });
     };
@@ -192,6 +197,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.permissions.canEditFeatures = true;
             $scope.permissions.canCreateGroup = true;
             $scope.permissions.canEditParentGroups = true;
+        }
+
+        if ($scope.permissions.isSuperAdmin) {
+            $scope.permissions.sortByGroupType = true;
         }
 
         $scope.getAllowedRelationshipGroups();
@@ -529,6 +538,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             });
 
             $scope.successMessage = 'Group saved';
+        }, function(result) {
+            if (result.status === 409) {
+                alert('Group with this code already exists, please choose another');
+            }
         });
     };
 

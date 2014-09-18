@@ -83,6 +83,8 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
                                                      @Param("user") User user, Pageable pageable);
 
     // get group and children
+    // TODO: this query and below need work to work in both postgresql 9.4b1 and 9.4b2
+    // TODO: requires DISTINCT in b1 but not b2 but with DISTINCT fails to sort by groupType.value
     @Query("SELECT DISTINCT g1 " +
             "FROM   Group g1 " +
             "JOIN   g1.groupRelationships g1r " +
