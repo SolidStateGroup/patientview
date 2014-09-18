@@ -116,32 +116,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         observationHeadingGroupRepository.delete(observationHeadingGroup);
     }
 
-    /*public void removeObservationHeadingGroup(Long observationHeadingId, Long groupId) throws ResourceNotFoundException {
-        ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
-        if (observationHeading == null) {
-            throw new ResourceNotFoundException("Observation Heading does not exist");
-        }
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("Group does not exist");
-        }
-
-        ObservationHeadingGroup toRemove = null;
-
-        for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
-            if (observationHeadingGroup.getGroup().getId().equals(group.getId())
-                    && observationHeadingGroup.getObservationHeading().equals(observationHeading)) {
-                toRemove = observationHeadingGroup;
-            }
-        }
-
-        if (toRemove != null) {
-            observationHeading.getObservationHeadingGroups().remove(toRemove);
-            //toRemove.setObservationHeading(null);
-            observationHeadingRepository.save(observationHeading);
-        }
-    }*/
-
     public void delete(final Long observationHeadingId) {
         observationHeadingRepository.delete(observationHeadingId);
     }
@@ -178,8 +152,25 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.findOne(observationHeadingId);
     }
 
-    public ObservationHeading save(final ObservationHeading observationHeading) throws ResourceNotFoundException {
-        return observationHeadingRepository.save(observationHeading);
+    public ObservationHeading save(final ObservationHeading input) throws ResourceNotFoundException {
+
+        ObservationHeading entity = observationHeadingRepository.findOne(input.getId());
+        if (entity == null) {
+            throw new ResourceNotFoundException("Observation Heading does not exist");
+        }
+
+        entity.setCode(input.getCode());
+        entity.setHeading(input.getHeading());
+        entity.setName(input.getName());
+        entity.setNormalRange(input.getNormalRange());
+        entity.setUnits(input.getUnits());
+        entity.setMinGraph(input.getMinGraph());
+        entity.setMaxGraph(input.getMaxGraph());
+        entity.setInfoLink(input.getInfoLink());
+        entity.setDefaultPanel(input.getDefaultPanel());
+        entity.setDefaultPanelOrder(input.getDefaultPanelOrder());
+
+        return observationHeadingRepository.save(entity);
     }
 
     private boolean observationHeadingExists(ObservationHeading observationHeading) {

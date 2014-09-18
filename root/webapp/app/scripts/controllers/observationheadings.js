@@ -1,11 +1,13 @@
 'use strict';
 
 // new observationHeading modal instance controller
-var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editObservationHeading', 'ObservationHeadingService',
-    function ($scope, $rootScope, $modalInstance, editObservationHeading, ObservationHeadingService) {
+var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editObservationHeading', 'ObservationHeadingService', 'groups',
+    function ($scope, $rootScope, $modalInstance, editObservationHeading, ObservationHeadingService, groups) {
         $scope.editObservationHeading = editObservationHeading;
         $scope.editMode = false;
         $scope.editObservationHeading.groupId = editObservationHeading.groups[0].id;
+        $scope.editObservationHeading.observationHeadingGroups = [];
+        $scope.groups = groups;
 
         $scope.ok = function () {
             ObservationHeadingService.create($scope.editObservationHeading).then(function(result) {
@@ -30,8 +32,8 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
 
         $scope.itemsPerPage = 999;
         $scope.currentPage = 0;
-        $scope.sortField = '';
-        $scope.sortDirection = '';
+        $scope.sortField = 'code';
+        $scope.sortDirection = 'ASC';
 
         // update page when currentPage is changed (and at start)
         $scope.$watch('currentPage', function(value) {
@@ -203,6 +205,9 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                 controller: NewObservationHeadingModalInstanceCtrl,
                 size: size,
                 resolve: {
+                    groups: function() {
+                        return $scope.groups;
+                    },
                     editObservationHeading: function(){
                         return $scope.editObservationHeading;
                     },
