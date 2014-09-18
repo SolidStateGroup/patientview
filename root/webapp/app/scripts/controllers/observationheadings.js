@@ -161,7 +161,6 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
         // Opened for edit
         $scope.opened = function (openedObservationHeading) {
             var i;
-            console.log($scope.groups);
 
             if (openedObservationHeading.showEdit) {
                 $scope.editObservationHeading = '';

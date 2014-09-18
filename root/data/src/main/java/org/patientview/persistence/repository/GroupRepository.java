@@ -83,7 +83,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
                                                      @Param("user") User user, Pageable pageable);
 
     // get group and children
-    @Query("SELECT DISTINCT g1 " +
+    @Query("SELECT g1 " +
             "FROM   Group g1 " +
             "JOIN   g1.groupRelationships g1r " +
             "JOIN   g1r.objectGroup.groupRoles gr2 " +
@@ -97,7 +97,7 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
     public Page<Group> findGroupAndChildGroupsByUser(@Param("filterText") String filterText,
                                                      @Param("user") User user, Pageable pageable);
     // get group and children
-    @Query("SELECT DISTINCT g1 " +
+    @Query("SELECT g1 " +
             "FROM   Group g1 " +
             "JOIN   g1.groupRelationships g1r " +
             "JOIN   g1r.objectGroup.groupRoles gr2 " +
