@@ -14,6 +14,7 @@ import org.patientview.persistence.model.enums.AuditActions;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityExistsException;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ public interface GroupService {
     List<Group> findGroupByType(Long lookupId);
 
     //@GroupMemberOnly(roles = {RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN})
-    Group save(Group group) throws ResourceNotFoundException;
+    Group save(Group group) throws ResourceNotFoundException, EntityExistsException;
 
     @AuditTrail(value = AuditActions.CREATE, objectType = Group.class)
     Group add(Group group);

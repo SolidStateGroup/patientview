@@ -58,17 +58,10 @@ public class GroupController extends BaseController<GroupController> {
     private GroupStatisticService groupStatisticService;
 
     @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Group> createGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
-
+    public ResponseEntity<Group> createGroup(@RequestBody Group group) {
         group = groupService.add(group);
-
         LOG.info("Created group with id " + group.getId());
-        UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(group.getId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<>(group, HttpStatus.CREATED);
-
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.GET)

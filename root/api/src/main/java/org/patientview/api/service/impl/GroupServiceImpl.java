@@ -118,11 +118,15 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
      * @param group
      * @return
      */
-    public Group save(Group group) throws ResourceNotFoundException {
+    public Group save(Group group) throws ResourceNotFoundException, EntityExistsException {
         Group entityGroup = groupRepository.findOne(group.getId());
 
         if (entityGroup == null) {
             throw new ResourceNotFoundException(String.format("Could not find group %s", group.getId()));
+        }
+
+        if (groupExists(group)) {
+            throw new EntityExistsException("Group already exists with this code");
         }
 
         entityGroup.setCode(group.getCode());
@@ -138,7 +142,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     private boolean groupExists(Group group) {
-        return groupRepository.findByName(group.getName()).iterator().hasNext();
+        return groupRepository.findByCode(group.getCode()) != null;
     }
 
     /**

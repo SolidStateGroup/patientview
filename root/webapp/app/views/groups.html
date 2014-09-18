@@ -14,7 +14,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
+                <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
                 <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
                 <button class="btn blue" ng-click="ok()" ng-disabled="!groupFormNew.$valid || (editGroup.groupTypeId==groupTypesArray['UNIT'] && editGroup.parentGroups.length == 0)">Create New</button>
             </div>
