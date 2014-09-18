@@ -123,7 +123,10 @@ public class ObservationHeadingServiceTest {
     @Test
     public void testSave() {
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setId(1L);
+
         when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
+        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
 
         try {
             observationHeadingService.save(observationHeading);
