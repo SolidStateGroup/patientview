@@ -71,7 +71,7 @@
         </div>
         <span class="saved-notification" ng-show="location.saved">&nbsp; Saved Successfully!</span>
     </div>
-    <div class="add-form" ng-model="editGroup.newLocation">
+    <div class="add-form add-location" ng-model="editGroup.newLocation">
         <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" ng-model="editGroup.newLocation.label"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="Name" name="newLocationName" ng-model="editGroup.newLocation.name"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="Phone" name="newLocationPhone" ng-model="editGroup.newLocation.phone"></div>
@@ -89,7 +89,7 @@
         <span class="error" ng-show="!hasAdminEmail(editGroup)"> * Must have PatientView Admin Email</span>
         <div ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points</div>
     </div>
-    <div class="link-list-item" ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
+    <div class="link-list-item clearfix" ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
         <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" ng-model="contactPoint.contactPointType.id" ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" ng-model="contactPoint.content" required></div>
@@ -100,6 +100,9 @@
         <span class="saved-notification" ng-show="contactPoint.saved">&nbsp; Saved Successfully!</span>
     </div>
     <div class="add-form" ng-model="newContactPoint">
+        <div class="col-md-12">
+            <label>Add Contact Points</label>
+        </div>
         <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" ng-model="newContactPoint.contactPointTypeId" ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
         <div class="col-md-3"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" ng-model="newContactPoint.content"></div>
         <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" ng-click="addContactPoint(groupForm, editGroup, newContactPoint)" ng-disabled="!(newContactPoint.content)">Add</button></div>
@@ -113,7 +116,7 @@
             <label>Links </label>
             <div ng-hide="editGroup.links.length > 0" class="no-items"> There are currently no links associated with this group</div>
         </div>
-        <div class="link-list-item" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
+        <div class="link-list-item clearfix" ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
             <div class="col-md-3"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="URL" name="link" ng-model="link.link" required></div>
             <div class="col-md-5"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="Description" name="name" ng-model="link.name" required></div>
             <div class="col-md-1">

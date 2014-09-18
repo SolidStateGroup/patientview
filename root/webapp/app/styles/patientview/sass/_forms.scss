@@ -371,3 +371,9 @@ label{
     position: absolute;
     width: 100%;
 }
+
+textarea.form-control{
+    &.article-content{
+        height:200px;
+    }
+}

@@ -1,23 +1,21 @@
 <h1>My Conditions</h1>
-<div class="content-panel">
-    <div class="content-inner">
-        <!-- patient details from FHIR -->
-        <div ng-show="!loading && specialties && specialties.length > 1">
-            <div ng-repeat="specialty in specialties">
-                <div><a href="" ng-click="changeSpecialty(specialty)" class="btn btn-primary">{{specialty.name}}</a></div>
+<div class="patient-details">
+    <div class="">
+        <div class="">
+
+            <div ng-show="!loading && currentSpecialty">
+                <h5 class="hidden">Your conditions as provided by the {{currentSpecialty.name}} specialty</h5>
+                <div ng-include src="'views/partials/myConditionsRenal.html'" ng-show="currentSpecialty.code === 'Renal'"></div>
+            </div>
+            <div ng-show="!loading && !currentSpecialty">
+                <p>Your conditions are not currently stored in PatientView.</p>
+            </div>
+
+
+            <div ng-show="loading" class="container"><br/>
+                <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
             </div>
         </div>
-        <div ng-show="!loading && currentSpecialty">
-            <h5 class="hidden">Your conditions as provided by the {{currentSpecialty.name}} specialty</h5>
-            <div ng-include src="'views/partials/myConditionsRenal.html'" ng-show="currentSpecialty.code === 'Renal'"></div>
-        </div>
-        <div ng-show="!loading && !currentSpecialty">
-            <p>Your conditions are not currently stored in PatientView.</p>
-        </div>
-
-
-        <div ng-show="loading" class="container"><br/>
-            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
-        </div>
     </div>
+
 </div>
