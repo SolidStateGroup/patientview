@@ -4,7 +4,6 @@ angular.module('patientviewApp').controller('ObservationHeadingDetailsCtrl', ['$
     function ($scope, ObservationHeadingService) {
 
     $scope.createSpecialtyOrder = function(observationHeadingGroup) {
-        console.log(observationHeadingGroup);
         if ($scope.editMode) {
             ObservationHeadingService.addObservationHeadingGroup($scope.observationHeading.id, observationHeadingGroup.groupId,
                 observationHeadingGroup.panel, observationHeadingGroup.panelOrder).then(function () {
@@ -15,7 +14,13 @@ angular.module('patientviewApp').controller('ObservationHeadingDetailsCtrl', ['$
                     alert('Could not save specialty specific order');
                 });
         } else {
-
+            for (var i=0;i<$scope.groups.length;i++) {
+                if ($scope.groups[i].id === observationHeadingGroup.groupId) {
+                    observationHeadingGroup.group = _.clone($scope.groups[i]);
+                }
+            }
+            observationHeadingGroup.id = Math.floor(Math.random() * (9999)) -10000;
+            $scope.editObservationHeading.observationHeadingGroups.push(_.clone(observationHeadingGroup));
         }
     };
 
@@ -33,8 +38,6 @@ angular.module('patientviewApp').controller('ObservationHeadingDetailsCtrl', ['$
             }, function () {
                 alert('Could not save specialty specific order');
             });
-        } else {
-
         }
     };
 
@@ -48,7 +51,11 @@ angular.module('patientviewApp').controller('ObservationHeadingDetailsCtrl', ['$
                 alert('Could not save specialty specific order');
             });
         } else {
-
+            for (var i=0;i<$scope.editObservationHeading.observationHeadingGroups.length;i++) {
+                if ($scope.editObservationHeading.observationHeadingGroups[i].id === observationHeadingGroup.id) {
+                    $scope.editObservationHeading.observationHeadingGroups.splice(i, 1);
+                }
+            }
         }
     };
 }]);

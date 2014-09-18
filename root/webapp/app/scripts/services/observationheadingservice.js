@@ -23,6 +23,14 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
         },
         // create new observation heading
         create: function (observationHeading) {
+            observationHeading = UtilService.cleanObject(observationHeading, 'observationHeading');
+
+            for (var i=0;i<observationHeading.observationHeadingGroups.length;i++) {
+                observationHeading.observationHeadingGroups[i]
+                    = UtilService.cleanObject(observationHeading.observationHeadingGroups[i], 'observationHeadingGroup');
+                delete observationHeading.observationHeadingGroups[i].id;
+            }
+
             var deferred = $q.defer();
             Restangular.all('observationheading').post(observationHeading).then(function(successResult) {
                 deferred.resolve(successResult);
@@ -32,10 +40,12 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
             return deferred.promise;
         },
         // save observation heading
-        save: function (inputObservationHeading) {
+        save: function (observationHeading) {
             var deferred = $q.defer();
-            var observationHeading = UtilService.cleanObject(inputObservationHeading, 'observationHeading');
-            Restangular.all('observationheading').customPUT(observationHeading).then(function(successResult) {
+
+            Restangular.all('observationheading')
+                .customPUT(UtilService.cleanObject(observationHeading, 'observationHeading'))
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
