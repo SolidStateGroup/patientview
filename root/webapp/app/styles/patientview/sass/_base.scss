@@ -38,6 +38,15 @@ body {
     @include bootstrap-box-shadow($content-panel);
     overflow: hidden;
 
+    &.chart-container{
+        margin-top:20px;
+        .panel-intro{
+            h3{
+                margin:0;
+            }
+        }
+    }
+
     &.lowlight {
         background: $lowlight;
     }

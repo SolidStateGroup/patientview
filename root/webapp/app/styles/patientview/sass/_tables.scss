@@ -68,6 +68,14 @@
         background:#fff;
         border-bottom:1px solid $border-default;
 
+        &.dull{
+            @include bootstrap-opacity(50);
+        }
+
+        &.highlight{
+            @include bootstrap-opacity(100);
+        }
+
         .row-item{
             display:table-cell;
             text-align:left;
@@ -77,6 +85,15 @@
             vertical-align: middle;
             word-break: break-word;
             font-family: 'Lato', sans-serif;
+
+            /*temp wrapping fix */
+            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            white-space: pre-wrap; /* css-3 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            word-break: break-all;
+            white-space: normal;
 
             &.plot-this{
                 width:40px;
