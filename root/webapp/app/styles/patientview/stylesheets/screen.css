@@ -2001,6 +2001,11 @@ textarea.form-control.article-content {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='white', GradientType=0);
 }
 
+/* line 264, ../sass/_results.scss */
+.result-graph .container {
+  width: auto;
+}
+
 /* line 2, ../sass/_components.scss */
 .pagination.results {
   margin: 0;

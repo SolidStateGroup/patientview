@@ -56,8 +56,10 @@
         </div>
 
         <div class="result-graph" ng-show="!chartLoading">
-            <div class=" content-panel">
-                <div google-chart chart="chart" on-select="graphClicked()" on-ready="readyHandler(chartWrapper)"></div>
+            <div class="content-panel">
+                <div class="content-inner">
+                    <div google-chart chart="chart" on-select="graphClicked()" on-ready="readyHandler(chartWrapper)"></div>
+                </div>
             </div>
         </div>
     </div>
