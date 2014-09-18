@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,7 +48,7 @@ public class Conversation extends AuditModel {
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
     @OrderBy("created ASC")
-    private Set<Message> messages;
+    private List<Message> messages;
 
     // used when contacting unit, staff with staff feature typically UNIT_TECHNICAL_CONTACT or PATIENT_SUPPORT_CONTACT
     @Transient
@@ -114,11 +115,11 @@ public class Conversation extends AuditModel {
         this.conversationUsers = conversationUsers;
     }
 
-    public Set<Message> getMessages() {
+    public List<Message> getMessages() {
         return messages;
     }
 
-    public void setMessages(Set<Message> messages) {
+    public void setMessages(List<Message> messages) {
         this.messages = messages;
     }
 

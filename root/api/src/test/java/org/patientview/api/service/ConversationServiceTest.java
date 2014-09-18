@@ -94,9 +94,9 @@ public class ConversationServiceTest {
         message.setUser(user1);
         message.setType(MessageTypes.MESSAGE);
 
-        Set<Message> messageSet = new HashSet<>();
-        messageSet.add(message);
-        conversation.setMessages(messageSet);
+        List<Message> messageList = new ArrayList<>();
+        messageList.add(message);
+        conversation.setMessages(messageList);
 
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
         when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
@@ -147,9 +147,9 @@ public class ConversationServiceTest {
         message.setType(MessageTypes.MESSAGE);
         message.setReadReceipts(new HashSet<MessageReadReceipt>());
 
-        Set<Message> messageSet = new HashSet<>();
-        messageSet.add(message);
-        conversation.setMessages(messageSet);
+        List<Message> messageList = new ArrayList<>();
+        messageList.add(message);
+        conversation.setMessages(messageList);
 
         List<Conversation> conversationList = new ArrayList<>();
         conversationList.add(conversation);
