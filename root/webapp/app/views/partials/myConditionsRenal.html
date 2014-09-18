@@ -3,13 +3,23 @@
     <p>Your conditions are not currently stored in PatientView.</p>
 </div>
 
-<div ng-show="patientDetails.length">
-    <p>Information provided by: &nbsp;&nbsp;
+<div class="details-filter clearfix">
+    <div class="pull-right">Information provided by: &nbsp;&nbsp;
         <label ng-repeat="patient in patientDetails">
             <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">
-            {{patient.group.name}}
+            <span class="checkbox-label">{{patient.group.name}}</span>
         </label>
-    </p>
+    </div>
+    <!-- patient details from FHIR -->
+    <div ng-show="!loading && specialties && specialties.length > 1">
+        <div class="specialty-switcher">
+            <a href="" ng-repeat="specialty in specialties" ng-click="changeSpecialty(specialty)" class="btn blue">{{specialty.name}}</a>
+        </div>
+    </div>
+</div>
+
+<div ng-show="patientDetails.length">
+
     <div ng-repeat="patient in patientDetails" ng-show="patient.group.selected">
         <div class="panel panel-default">
             <div class="panel-heading"><h5>{{patient.group.name}}</h5></div>

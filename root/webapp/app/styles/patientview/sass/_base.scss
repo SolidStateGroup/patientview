@@ -88,17 +88,26 @@ body {
 }
 
 .patient-details{
-    .details-filter{
-        width:100%;
-
-        .checkbox-label{
-            margin:0 10px 0 5px;
-        }
-    }
     .content-panel{
         margin-bottom:20px;
     }
 }
+
+.details-filter{
+    width:100%;
+    margin-bottom:5px;
+
+    .checkbox-label{
+        margin:0 10px 0 5px;
+    }
+    .specialty-switcher{
+        .btn{
+            margin-right:5px;
+        }
+    }
+}
+
+
 
 .edit-code-input{
     margin-bottom:20px;

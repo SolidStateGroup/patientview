@@ -18,53 +18,57 @@
 </script>
 
 <h1>Contact Your Unit</h1>
-<div class="content-panel">
-    <div class="content-inner">
-        <div ng-show="!loading && groups.length">
-            <p>Showing details provided by: &nbsp;&nbsp;
-            <label ng-repeat="group in groups">
-                <input type="checkbox" value="{{group.name}}" ng-model="group.selected">
-                {{group.name}}
-            </label>
-            </p>
-            <div ng-repeat="group in groups" ng-show="group.selected">
-                <div class="panel panel-default">
-                    <div class="panel-heading"><h5>{{group.name}}</h5></div>
-                    <div class="panel-body">
-                        <p>Refer to contact details below or <a href="" ng-click="openModalContactUnit(group)">send a message now</a>.</p>
+<div class="patient-details">
+    <div class="">
+        <div class="">
+            <div ng-show="!loading && groups.length">
+                <div class="details-filter clearfix">
+                    <div class="pull-right">Showing details provided by: &nbsp;&nbsp;
+                    <label ng-repeat="group in groups">
+                        <input type="checkbox" value="{{group.name}}" ng-model="group.selected">
+                        <span class="checkbox-label">{{group.name}}</span>
+                    </label>
+                    </div>
+                </div>
+                <div ng-repeat="group in groups" ng-show="group.selected">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><h5>{{group.name}}</h5></div>
+                        <div class="panel-body">
+                            <p>Refer to contact details below or <a href="" ng-click="openModalContactUnit(group)">send a message now</a>.</p>
 
-                        <h5>Address</h5>
-                        <ul class="unstyled">
-                            <li>Address 1: {{group.address1}}</li>
-                            <li>Address 2: {{group.address2}}</li>
-                            <li>Address 3: {{group.address3}}</li>
-                            <li>Postcode: {{group.postcode}}</li>
-                        </ul>
-                        <h5>Contact Points</h5>
-                        <ul class="unstyled">
-                            <li ng-repeat="contactPoint in group.contactPoints">
-                                {{contactPoint.contactPointType.description}}: {{contactPoint.content}}
-                            </li>
-                        </ul>
-                        <h5 ng-show="group.locations">Additional Locations</h5>
-                        <ul class="unstyled" ng-show="group.locations">
-                            <li ng-repeat="location in group.locations">
-                                <strong>{{location.name}}</strong><br/>
-                                Phone: {{location.phone}}<br/>
-                                Address: {{location.address}}<br/>
-                                Web: {{location.web}}<br/>
-                                Email: {{location.email}}
-                            </li>
-                        </ul>
+                            <h5>Address</h5>
+                            <ul class="unstyled">
+                                <li>Address 1: {{group.address1}}</li>
+                                <li>Address 2: {{group.address2}}</li>
+                                <li>Address 3: {{group.address3}}</li>
+                                <li>Postcode: {{group.postcode}}</li>
+                            </ul>
+                            <h5>Contact Points</h5>
+                            <ul class="unstyled">
+                                <li ng-repeat="contactPoint in group.contactPoints">
+                                    {{contactPoint.contactPointType.description}}: {{contactPoint.content}}
+                                </li>
+                            </ul>
+                            <h5 ng-show="group.locations">Additional Locations</h5>
+                            <ul class="unstyled" ng-show="group.locations">
+                                <li ng-repeat="location in group.locations">
+                                    <strong>{{location.name}}</strong><br/>
+                                    Phone: {{location.phone}}<br/>
+                                    Address: {{location.address}}<br/>
+                                    Web: {{location.web}}<br/>
+                                    Email: {{location.email}}
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div ng-show="!loading && !groups.length">
+                <p>You are not a member of any groups you can contact directly.</p>
+            </div>
         </div>
-        <div ng-show="!loading && !groups.length">
-            <p>You are not a member of any groups you can contact directly.</p>
+        <div ng-show="loading" class="container"><br/>
+            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
         </div>
-    </div>
-    <div ng-show="loading" class="container"><br/>
-        <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
     </div>
 </div>
