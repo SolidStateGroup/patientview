@@ -35,7 +35,9 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
     $scope.initialiseChart = function() {
         var chart1 = {};
-        chart1.type = 'LineChart';
+        //chart1.type = 'LineChart';
+        chart1.type = 'AnnotationChart';
+
         chart1.data = [
             ['date', 'Result']
         ];
@@ -64,7 +66,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
         // get most recent statistics of user locked and inactive
         $scope.chartData = chart1.data;
-        chart1.data = new google.visualization.arrayToDataTable(chart1.data);
+        $scope.chartDataTable = new google.visualization.arrayToDataTable(chart1.data);
+        chart1.data = $scope.chartDataTable;
 
         if ($scope.observationHeading.minGraph) {
             if (minValue > $scope.observationHeading.minGraph) {
@@ -79,6 +82,11 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         }
 
         chart1.options = {
+            min: minValue,
+            max: maxValue
+        };
+
+        /*chart1.options = {
             'title': null,
             'isStacked': 'true',
             'fill': 20,
@@ -105,7 +113,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             'legend': {position: 'none'}
         };
 
-        chart1.formatters = {};
+        chart1.formatters = {};*/
         $scope.chart = chart1;
         $scope.chartLoading = false;
     };
@@ -146,22 +154,24 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     $scope.observationClicked = function (observation) {
         $scope.selectedObservation = observation;
 
-        for (var i=0;i<$scope.chartData.length;i++) {
-            var date = new Date($scope.chartData[i][0]);
-            if (observation.applies === date.getTime()) {
-                $scope.chartWrapper.getChart().setSelection([{'row':i-1, 'column':1}]);
-            }
-        }
     };
 
-    $scope.graphClicked = function (selectedItem) {
-        var date = new Date($scope.chartData[selectedItem.row+1][0]).getTime();
+    $scope.graphClicked = function () {
+        var selection = $scope.chartWrapper.getChart().getSelection();
+        var range = $scope.chartWrapper.getChart().getVisibleChartRange();
+        var startIndex, startFound = false;
 
-        for(var i=0;i<$scope.observations.length;i++) {
-            if (date === $scope.observations[i].applies) {
-                $scope.selectedObservation = $scope.observations[i];
+        for(var i=$scope.observations.length-1;i>0;i--) {
+            if (!startFound) {
+                if ($scope.observations[i].applies >= range.start.getTime()) {
+                    startIndex = $scope.observations.length - i - 1;
+                    startFound = true;
+                }
             }
         }
+
+        var index = $scope.observations.length - startIndex - 1 - selection[0].row;
+        $scope.selectedObservation = $scope.observations[index];
     };
 
     $scope.readyHandler = function (chartWrapper) {
