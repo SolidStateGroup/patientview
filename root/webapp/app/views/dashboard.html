@@ -39,29 +39,34 @@
                     </div>
                 </div>
             </div>
-            <h3 ng-hide="graphGroups.length > 2 || permissions.isPatient" ng-cloak>{{graphGroups[0].name}}
-                <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
-            <div class="graph-selector clearfix">
-                <div class="col-md-2" ng-show="graphGroups.length > 2 && !permissions.isPatient">
-                    <h3 class="" for="graph-select">Activity</h3>
-                </div>
-                <div class="col-md-6">
-                    <select class="form-control" id="graph-select" ng-model="graphGroupId"
-                            ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
-                            ng-show="graphGroups.length > 2 && !permissions.isPatient" ng-cloak>
-                    </select>
-                </div>
-            </div>
+
             <div class="content-panel" ng-show="!chartLoading && !permissions.isPatient">
+                <div class="panel-intro">
+                    <h3 ng-hide="graphGroups.length > 2 || permissions.isPatient" ng-cloak>{{graphGroups[0].name}}
+                        <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
+                    <div class="graph-selector clearfix">
+                        <div class="col-md-2" ng-show="graphGroups.length > 2 && !permissions.isPatient">
+                            <h3 class="" for="graph-select">Activity</h3>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-control" id="graph-select" ng-model="graphGroupId"
+                                    ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
+                                    ng-show="graphGroups.length > 2 && !permissions.isPatient" ng-cloak>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
             </div>
             <div class="content-panel" ng-show="chartLoading && !permissions.isPatient">
                 <div class="loading"><img src="images/loading.gif" alt="Loading"/></div>
             </div>
-            <div class="chart-container" ng-show="!chartLoading && !permissions.isPatient">
-                <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
+            <div class="chart-container content-panel" ng-show="!chartLoading && !permissions.isPatient">
+                <div class="panel-intro">
+                    <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
+                </div>
                 <div class="tab-panel-item">
-                    <div class="content-panel user-details">
+                    <div class="user-details">
                         <div class="row">
                             <dl class="col-md-4">
                                 <dt>Locked Users</dt>

@@ -68,6 +68,14 @@
         background:#fff;
         border-bottom:1px solid $border-default;
 
+        &.dull{
+            @include bootstrap-opacity(50);
+        }
+
+        &.highlight{
+            @include bootstrap-opacity(100);
+        }
+
         .row-item{
             display:table-cell;
             text-align:left;

@@ -8,6 +8,11 @@
     form{
         padding:10px;
     }
+
+    .panel-body-footer{
+        width:100%;
+        padding:0 10px;
+    }
 }
 input[type="text"],
 input[type="password"],
@@ -46,10 +51,6 @@ label{
 
 .edit-code{
     background:$white;
-
-    .links-container{
-        margin-top:20px;
-    }
 }
 
 
@@ -114,6 +115,15 @@ label{
         margin-top:0;
         overflow-y: scroll;
         max-height: 200px;
+
+        li{
+            a{
+                cursor:pointer;
+                span{
+                    cursor:pointer;
+                }
+            }
+        }
     }
 }
 

@@ -339,4 +339,23 @@ $('html').click(function(e){
             dropdownContainer.removeClass('open');
         }
     }
+
+    var rowElement = target.closest('.faux-row');
+    var tableElement = target.closest('.faux-table');
+
+    if(target.hasClass('edit-button')){
+        if(!target.hasClass('editing')){
+            target.addClass('editing');
+            rowElement.addClass('highlight');
+            tableElement.find('.faux-row').addClass('dull');
+        } else{
+            target.removeClass('editing');
+            tableElement.find('.highlight').removeClass('highlight');
+            tableElement.find('.faux-row').removeClass('dull');
+        }
+    } else if(target.hasClass('close-edit')){
+        tableElement.find('.highlight').removeClass('highlight');
+        tableElement.find('.faux-row').removeClass('dull');
+        target.removeClass('editing');
+    }
 });
