@@ -87,6 +87,10 @@
         dt{
             font-size:50px;
             float:left;
+
+            span{
+                font-size:14px;
+            }
         }
 
         dd{
@@ -269,3 +273,19 @@
     }
 }
 
+@media (max-width: $screen-xs-max) {
+    .results-header{
+        height:185px;
+        .header-icon{
+            display:none;
+        }
+
+        .form-row{
+            width:100%;
+            label, select{
+                text-align:center;
+                width:100%;
+            }
+        }
+    }
+}
