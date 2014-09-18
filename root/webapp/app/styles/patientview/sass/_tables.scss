@@ -54,6 +54,18 @@
                 margin-top:10px;
             }
         }
+
+        .link-list-item{
+            margin-top:5px;
+        }
+
+        .location-list-item, .add-location{
+            div[class*='col-md-']{
+                padding-left:5px;
+                padding-right:5px;
+                width:160px;
+            }
+        }
     }
 
     .accordion-toggle{

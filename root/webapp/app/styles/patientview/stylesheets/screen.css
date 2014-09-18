@@ -991,11 +991,21 @@ i.icon-plot-this {
   clear: left;
   margin-top: 10px;
 }
-/* line 59, ../sass/_tables.scss */
+/* line 58, ../sass/_tables.scss */
+.faux-table .panel-body .link-list-item {
+  margin-top: 5px;
+}
+/* line 63, ../sass/_tables.scss */
+.faux-table .panel-body .location-list-item div[class*='col-md-'], .faux-table .panel-body .add-location div[class*='col-md-'] {
+  padding-left: 5px;
+  padding-right: 5px;
+  width: 160px;
+}
+/* line 71, ../sass/_tables.scss */
 .faux-table .accordion-toggle {
   text-decoration: none;
 }
-/* line 63, ../sass/_tables.scss */
+/* line 75, ../sass/_tables.scss */
 .faux-table .faux-row {
   display: table;
   width: 100%;
@@ -1004,17 +1014,17 @@ i.icon-plot-this {
   background: #fff;
   border-bottom: 1px solid #e4e9f0;
 }
-/* line 71, ../sass/_tables.scss */
+/* line 83, ../sass/_tables.scss */
 .faux-table .faux-row.dull {
   opacity: 0.5;
   filter: alpha(opacity=50);
 }
-/* line 75, ../sass/_tables.scss */
+/* line 87, ../sass/_tables.scss */
 .faux-table .faux-row.highlight {
   opacity: 1;
   filter: alpha(opacity=100);
 }
-/* line 79, ../sass/_tables.scss */
+/* line 91, ../sass/_tables.scss */
 .faux-table .faux-row .row-item {
   display: table-cell;
   text-align: left;
@@ -1038,59 +1048,59 @@ i.icon-plot-this {
   word-break: break-all;
   white-space: normal;
 }
-/* line 98, ../sass/_tables.scss */
+/* line 110, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.plot-this {
   width: 40px;
 }
-/* line 102, ../sass/_tables.scss */
+/* line 114, ../sass/_tables.scss */
 .faux-table .faux-row .row-item span {
   display: block;
   float: right;
 }
-/* line 108, ../sass/_tables.scss */
+/* line 120, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions {
   text-align: center;
 }
-/* line 111, ../sass/_tables.scss */
+/* line 123, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions .button-dropdown-group {
   width: 120px;
   margin: 0 auto;
 }
-/* line 120, ../sass/_tables.scss */
+/* line 132, ../sass/_tables.scss */
 .faux-table.three-col .row-item, .faux-table.three-col .head-item {
   width: 33.33%;
 }
-/* line 126, ../sass/_tables.scss */
+/* line 138, ../sass/_tables.scss */
 .faux-table.four-col .row-item, .faux-table.four-col .head-item {
   width: 25%;
 }
-/* line 132, ../sass/_tables.scss */
+/* line 144, ../sass/_tables.scss */
 .faux-table.five-col .row-item, .faux-table.five-col .head-item {
   width: 20%;
 }
-/* line 138, ../sass/_tables.scss */
+/* line 150, ../sass/_tables.scss */
 .faux-table.six-col .row-item, .faux-table.six-col .head-item {
   width: 16.66%;
 }
-/* line 143, ../sass/_tables.scss */
+/* line 155, ../sass/_tables.scss */
 .faux-table.seven-col .row-item, .faux-table.seven-col .head-item {
   width: 14.44%;
 }
-/* line 148, ../sass/_tables.scss */
+/* line 160, ../sass/_tables.scss */
 .faux-table.eight-col .row-item, .faux-table.eight-col .head-item {
   width: 12.5%;
 }
 
-/* line 154, ../sass/_tables.scss */
+/* line 166, ../sass/_tables.scss */
 .visible-for-col {
   padding-top: 20px;
 }
-/* line 156, ../sass/_tables.scss */
+/* line 168, ../sass/_tables.scss */
 .visible-for-col h5 {
   text-align: left;
   float: left;
 }
-/* line 160, ../sass/_tables.scss */
+/* line 172, ../sass/_tables.scss */
 .visible-for-col input[type="checkbox"] {
   height: auto;
   float: left;
@@ -1520,6 +1530,11 @@ label {
   width: 100%;
 }
 
+/* line 376, ../sass/_forms.scss */
+textarea.form-control.article-content {
+  height: 200px;
+}
+
 /* line 1, ../sass/_lists.scss */
 .aside-actions {
   height: 140px;
@@ -1808,7 +1823,7 @@ label {
 }
 /* line 87, ../sass/_results.scss */
 .result-item-container .result-change dt {
-  font-size: 65px;
+  font-size: 50px;
   float: left;
 }
 /* line 92, ../sass/_results.scss */
@@ -1849,64 +1864,65 @@ label {
   padding: 4px 10px;
 }
 /* line 128, ../sass/_results.scss */
-.result-item-container .result-footer p {
-  font-size: 20px;
+.result-item-container .result-footer a {
+  font-size: 18px;
   color: #aebccf;
+  text-decoration: none;
 }
 
-/* line 136, ../sass/_results.scss */
+/* line 137, ../sass/_results.scss */
 .specialty-manager .add-container {
   padding-top: 0;
   border-top: 0;
   margin-top: 0;
 }
-/* line 142, ../sass/_results.scss */
+/* line 143, ../sass/_results.scss */
 .specialty-manager .no-label {
   padding-top: 29px;
 }
 
-/* line 150, ../sass/_results.scss */
+/* line 151, ../sass/_results.scss */
 .result-detail-panel .result-item-container {
   width: 100%;
 }
-/* line 153, ../sass/_results.scss */
+/* line 154, ../sass/_results.scss */
 .result-detail-panel .result-item-container .result-value {
   width: 50%;
   float: left;
 }
-/* line 159, ../sass/_results.scss */
+/* line 160, ../sass/_results.scss */
 .result-detail-panel .result-item-container .result-change dd {
   float: left;
 }
-/* line 164, ../sass/_results.scss */
+/* line 165, ../sass/_results.scss */
 .result-detail-panel .result-item-container .result-comment {
   width: 50%;
   padding-top: 15px;
 }
-/* line 168, ../sass/_results.scss */
+/* line 169, ../sass/_results.scss */
 .result-detail-panel .result-item-container .result-comment label {
   margn-bottom: 0;
 }
-/* line 174, ../sass/_results.scss */
+/* line 175, ../sass/_results.scss */
 .result-detail-panel .info-list {
   width: 50%;
   clear: left;
 }
-/* line 178, ../sass/_results.scss */
+/* line 179, ../sass/_results.scss */
 .result-detail-panel .info-list.inline {
   margin-top: 20px;
 }
-/* line 182, ../sass/_results.scss */
+/* line 183, ../sass/_results.scss */
 .result-detail-panel .info-list li {
   width: auto;
   margin-right: 20px;
   font-size: 18px;
 }
-/* line 187, ../sass/_results.scss */
+/* line 188, ../sass/_results.scss */
 .result-detail-panel .info-list li strong {
   color: #585858;
 }
-/* line 195, ../sass/_results.scss */
+/* line 196, ../sass/_results.scss */
 .result-detail-panel .info-header {
   text-align: center;
   padding: 10px;
@@ -1915,47 +1931,74 @@ label {
   border-radius: 4px 4px 0 0;
   overflow: hidden;
 }
-/* line 200, ../sass/_results.scss */
+/* line 201, ../sass/_results.scss */
 .result-detail-panel .info-header p {
   padding: 0;
   margin: 0;
   color: white;
   font-weight: bold;
 }
-/* line 208, ../sass/_results.scss */
+/* line 209, ../sass/_results.scss */
 .result-detail-panel .faux-table {
   margin-top: 0;
 }
-/* line 212, ../sass/_results.scss */
+/* line 213, ../sass/_results.scss */
 .result-detail-panel .faux-table.three-col .row-item, .result-detail-panel .faux-table.three-col .head-item {
   width: 30.5%;
   text-align: center;
 }
-/* line 216, ../sass/_results.scss */
+/* line 217, ../sass/_results.scss */
 .result-detail-panel .faux-table.three-col .row-item.plot-this, .result-detail-panel .faux-table.three-col .head-item.plot-this {
   width: 40px;
   padding: 0;
   text-align: center;
 }
-/* line 221, ../sass/_results.scss */
+/* line 222, ../sass/_results.scss */
 .result-detail-panel .faux-table.three-col .row-item.plot-this i, .result-detail-panel .faux-table.three-col .head-item.plot-this i {
   margin: 0 auto;
 }
 
-/* line 230, ../sass/_results.scss */
+/* line 231, ../sass/_results.scss */
 .result-graph {
   float: left;
   width: 100%;
   padding: 5px;
 }
 
-/* line 238, ../sass/_results.scss */
+/* line 239, ../sass/_results.scss */
 .header-select > div {
   height: 75px;
 }
-/* line 241, ../sass/_results.scss */
+/* line 242, ../sass/_results.scss */
 .header-select select {
   margin-top: 20px;
+}
+
+/* line 247, ../sass/_results.scss */
+.historical-data {
+  max-height: 600px;
+  overflow: hidden;
+  position: relative;
+}
+/* line 252, ../sass/_results.scss */
+.historical-data .overlay {
+  position: absolute;
+  bottom: 0;
+  left: 15px;
+  right: 15px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  height: 50px;
+  background-color: rgba(255, 255, 255, 0.4);
+  background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0), white);
+  background-image: -ms-linear-gradient(top, rgba(255, 255, 255, 0), white);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(rgba(255, 255, 255, 0)), to(white));
+  background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0), white);
+  background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0), white);
+  background-image: linear-gradient(top, rgba(255, 255, 255, 0), #ffffff);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='white', GradientType=0);
 }
 
 /* line 2, ../sass/_components.scss */

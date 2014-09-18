@@ -10,7 +10,7 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
             <label for="news-story" class="control-label">Article <span class="error" ng-show="newsFormNew.story.$error.required && !newsFormNew.$pristine"> *required</span></label>
-            <div class=""><textarea class="form-control" id="news-story" placeholder="Story" name="story" ng-model="newNews.story" required /></div>
+            <textarea class="form-control article-content" id="news-story" placeholder="Story" name="story" ng-model="newNews.story" required />
         </div>
     </div>
 </div>
@@ -47,7 +47,11 @@
                 <span class="group-list-role" ng-show="newsLink.role">{{newsLink.role.description}}</span>
                 <span class="group-list-role" ng-show="!newsLink.role.id">All Roles</span>
             </li>
-            <li class="group-list-delete negative pull-left"><span class="group-list-delete"><a id="remove-group-{{newsLink.group.id}}" href="" ng-click="removeNewsLink(newsFormNew, newNews, newsLink)" >Delete</a></span></li>
+            <li class="group-list-delete pull-left">
+                <span class="group-list-delete">
+                    <button class="btn negative" id="remove-group-{{newsLink.group.id}}" href="" ng-click="removeNewsLink(newsFormNew, newNews, newsLink)" >Delete</button>
+                </span>
+            </li>
         </ul>
         <div class="group-add-container">
             <div class="select-add-group">
