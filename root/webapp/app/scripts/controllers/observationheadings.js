@@ -1,15 +1,16 @@
 'use strict';
 
-// new resultHeading modal instance controller
-var NewResultHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editResultHeading', 'ObservationHeadingService',
-    function ($scope, $rootScope, $modalInstance, editResultHeading, ObservationHeadingService) {
-        $scope.editResultHeading = editResultHeading;
+// new observationHeading modal instance controller
+var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editObservationHeading', 'ObservationHeadingService',
+    function ($scope, $rootScope, $modalInstance, editObservationHeading, ObservationHeadingService) {
+        $scope.editObservationHeading = editObservationHeading;
         $scope.editMode = false;
+        $scope.editObservationHeading.groupId = editObservationHeading.groups[0].id;
 
         $scope.ok = function () {
-            ObservationHeadingService.create($scope.editResultHeading).then(function(result) {
-                $scope.editResultHeading = result;
-                $modalInstance.close($scope.editResultHeading);
+            ObservationHeadingService.create($scope.editObservationHeading).then(function(result) {
+                $scope.editObservationHeading = result;
+                $modalInstance.close($scope.editObservationHeading);
             }, function(result) {
                 if (result.data) {
                     $scope.errorMessage = ' - ' + result.data;
@@ -24,8 +25,8 @@ var NewResultHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance
         };
     }];
 
-angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$timeout', '$modal', 'ObservationHeadingService', 'UserService',
-    function ($scope, $timeout, $modal, ObservationHeadingService, UserService) {
+angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope', '$timeout', '$modal', 'ObservationHeadingService', 'UserService', 'GroupService',
+    function ($scope, $timeout, $modal, ObservationHeadingService, UserService, GroupService) {
 
         $scope.itemsPerPage = 999;
         $scope.currentPage = 0;
@@ -40,14 +41,30 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
 
         // Init
         $scope.init = function () {
+            $scope.loading = true;
             $scope.permissions = {};
+            $scope.groups = [];
 
             // check if user is GLOBAL_ADMIN
             $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
 
             if ($scope.permissions.isSuperAdmin) {
-                $scope.permissions.canCreateResultHeading = true;
+                $scope.permissions.canCreateObservationHeading = true;
             }
+
+            GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+                var groups = groups.content;
+                for (var i=0;i<groups.length;i++) {
+                    if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
+                        $scope.groups.push(groups[i]);
+                    }
+                }
+
+                $scope.loading = false;
+            }, function() {
+                alert('Could not retrieve user groups')
+                $scope.loading = false;
+            });
         };
 
         $scope.sortBy = function(sortField) {
@@ -139,52 +156,55 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
         };
 
         // Opened for edit
-        $scope.opened = function (openedResultHeading) {
+        $scope.opened = function (openedObservationHeading) {
             var i;
 
-            if (openedResultHeading.showEdit) {
-                $scope.editResultHeading = '';
-                openedResultHeading.showEdit = false;
+            if (openedObservationHeading.showEdit) {
+                $scope.editObservationHeading = '';
+                openedObservationHeading.showEdit = false;
             } else {
                 // close others
                 for (i = 0; i < $scope.pagedItems.length; i++) {
                     $scope.pagedItems[i].showEdit = false;
                 }
 
-                openedResultHeading.editLoading = true;
+                openedObservationHeading.editLoading = true;
 
-                $scope.editResultHeading = '';
-                openedResultHeading.showEdit = true;
+                $scope.editObservationHeading = '';
+                openedObservationHeading.showEdit = true;
 
-                // using lightweight list, do GET on id to get full resultHeading and populate editResultHeading
-                ObservationHeadingService.get(openedResultHeading.id).then(function (resultHeading) {
+                // using lightweight list, do GET on id to get full observationHeading and populate editObservationHeading
+                ObservationHeadingService.get(openedObservationHeading.id).then(function (observationHeading) {
                     $scope.successMessage = '';
                     $scope.saved = '';
-                    $scope.editResultHeading = _.clone(resultHeading);
+                    $scope.editObservationHeading = _.clone(observationHeading);
+                    $scope.editObservationHeading.groups = $scope.groups;
+                    $scope.editObservationHeading.groupId = $scope.groups[0].id;
                     $scope.editMode = true;
-                    openedResultHeading.editLoading = false;
+                    openedObservationHeading.editLoading = false;
                 });
             }
         };
 
-        // open modal for new resultHeading
-        $scope.openModalNewResultHeading = function (size) {
+        // open modal for new observationHeading
+        $scope.openModalNewObservationHeading = function (size) {
             // close any open edit panels
             for (var i = 0; i < $scope.pagedItems.length; i++) {
                 $scope.pagedItems[i].showEdit = false;
             }
             $scope.errorMessage = '';
             $scope.successMessage = '';
-            $scope.resultHeadingCreated = '';
-            $scope.editResultHeading = {};
+            $scope.observationHeadingCreated = '';
+            $scope.editObservationHeading = {};
+            $scope.editObservationHeading.groups = $scope.groups;
 
             var modalInstance = $modal.open({
-                templateUrl: 'newResultHeadingModal.html',
-                controller: NewResultHeadingModalInstanceCtrl,
+                templateUrl: 'newObservationHeadingModal.html',
+                controller: NewObservationHeadingModalInstanceCtrl,
                 size: size,
                 resolve: {
-                    editResultHeading: function(){
-                        return $scope.editResultHeading;
+                    editObservationHeading: function(){
+                        return $scope.editObservationHeading;
                     },
                     ObservationHeadingService: function(){
                         return ObservationHeadingService;
@@ -195,19 +215,19 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
             modalInstance.result.then(function () {
                 $scope.getItems();
                 $scope.successMessage = 'Result Heading successfully created';
-                $scope.resultHeadingCreated = true;
+                $scope.observationHeadingCreated = true;
             }, function () {
-                $scope.editResultHeading = '';
+                $scope.editObservationHeading = '';
             });
         };
 
-        // Save resultHeading details from edit
-        $scope.save = function (editResultHeadingForm, resultHeading) {
+        // Save observationHeading details from edit
+        $scope.save = function (editObservationHeadingForm, observationHeading) {
 
-            ObservationHeadingService.save(resultHeading).then(function() {
-                ObservationHeadingService.get(resultHeading.id).then(function (entity) {
+            ObservationHeadingService.save(observationHeading).then(function() {
+                ObservationHeadingService.get(observationHeading.id).then(function (entity) {
                     for (var i = 0; i < $scope.pagedItems.length; i++) {
-                        if ($scope.pagedItems[i].id === resultHeading.id) {
+                        if ($scope.pagedItems[i].id === observationHeading.id) {
                             var headerDetails = $scope.pagedItems[i];
                             headerDetails.code = entity.code;
                             headerDetails.heading = entity.heading;
@@ -220,7 +240,7 @@ angular.module('patientviewApp').controller('ResultheadingsCtrl', ['$scope', '$t
                     }
                 });
 
-                editResultHeadingForm.$setPristine(true);
+                editObservationHeadingForm.$setPristine(true);
                 $scope.saved = true;
                 $scope.successMessage = 'Result Heading saved';
             });

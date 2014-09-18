@@ -137,12 +137,10 @@ public class ObservationHeadingControllerTest {
             when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
             mockMvc.perform(MockMvcRequestBuilders.post("/observationheading/" + observationHeading.getId() + "/group/"
-                    + group.getId())
-                    .param("panel", "3")
-                    .param("panelOrder", "4"))
+                    + group.getId() + "/panel/3/panelorder/4"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
 
-            verify(observationHeadingService, Mockito.times(1)).addOrUpdateGroup(eq(observationHeading.getId()),
+            verify(observationHeadingService, Mockito.times(1)).addObservationHeadingGroup(eq(observationHeading.getId()),
                     eq(group.getId()), eq(3L), eq(4L));
         } catch (Exception e) {
             fail("Exception thrown" + e.getMessage());
@@ -162,12 +160,10 @@ public class ObservationHeadingControllerTest {
             when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
             mockMvc.perform(MockMvcRequestBuilders.post("/observationheading/" + observationHeading.getId() + "/group/"
-                    + group.getId())
-                    .param("panel", "3")
-                    .param("panelOrder", "4"))
+                    + group.getId() + "/panel/3/panelorder/4"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
 
-            verify(observationHeadingService, Mockito.times(1)).addOrUpdateGroup(eq(observationHeading.getId()),
+            verify(observationHeadingService, Mockito.times(1)).addObservationHeadingGroup(eq(observationHeading.getId()),
                     eq(group.getId()), eq(3L), eq(4L));
         } catch (Exception e) {
             fail("Exception thrown" + e.getMessage());
@@ -181,23 +177,21 @@ public class ObservationHeadingControllerTest {
         Group group = TestUtils.createGroup("GROUP1");
         group.setId(2L);
 
-        observationHeading.getObservationHeadingGroups().add(
-                new ObservationHeadingGroup(observationHeading, group, 3L, 4L));
+        ObservationHeadingGroup observationHeadingGroup
+                = new ObservationHeadingGroup(observationHeading, group, 3L, 4L);
+        observationHeadingGroup.setId(3L);
+        observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
 
         try {
             when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
             when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
             when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/observationheading/"
-                    + observationHeading.getId() + "/group/"
-                    + group.getId())
-                    .param("panel", "3")
-                    .param("panelOrder", "4"))
+            mockMvc.perform(MockMvcRequestBuilders.delete("/observationheadinggroup/"
+                    + observationHeadingGroup.getId()))
                     .andExpect(MockMvcResultMatchers.status().isOk());
 
-            verify(observationHeadingService, Mockito.times(1)).removeGroup(eq(observationHeading.getId()),
-                    eq(group.getId()));
+            verify(observationHeadingService, Mockito.times(1)).removeObservationHeadingGroup(eq(observationHeadingGroup.getId()));
         } catch (Exception e) {
             fail("Exception thrown" + e.getMessage());
         }

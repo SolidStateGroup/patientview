@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
@@ -22,8 +23,10 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     ObservationHeading add(ObservationHeading observationHeading);
 
-    void addOrUpdateGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
+    void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
             throws ResourceNotFoundException;
 
-    void removeGroup(Long observationHeadingId, Long groupId) throws ResourceNotFoundException;
+    void updateObservationHeadingGroup(ObservationHeadingGroup observationHeadingGroup) throws ResourceNotFoundException;
+
+    void removeObservationHeadingGroup(Long observationHeadingGroupId) throws ResourceNotFoundException;
 }

@@ -9,6 +9,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,9 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     private ObservationHeadingRepository observationHeadingRepository;
+
+    @Inject
+    private ObservationHeadingGroupRepository observationHeadingGroupRepository;
 
     @Inject
     private GroupRepository groupRepository;
@@ -60,7 +64,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.save(observationHeading);
     }
 
-    public void addOrUpdateGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
+    public void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
             throws ResourceNotFoundException {
         ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
 
@@ -73,26 +77,46 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             throw new ResourceNotFoundException("Group does not exist");
         }
 
-        ObservationHeadingGroup toRemove = null;
-
-        for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
-            if (observationHeadingGroup.getGroup().equals(group)
-                    && observationHeadingGroup.getObservationHeading().equals(observationHeading)) {
-                toRemove = observationHeadingGroup;
-            }
-        }
-
-        if (toRemove != null) {
-            observationHeading.getObservationHeadingGroups().remove(toRemove);
-        }
-
         observationHeading.getObservationHeadingGroups().add(
                 new ObservationHeadingGroup(observationHeading, group, panel, panelOrder));
 
         observationHeadingRepository.save(observationHeading);
     }
 
-    public void removeGroup(Long observationHeadingId, Long groupId) throws ResourceNotFoundException {
+    public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
+            throws ResourceNotFoundException {
+        ObservationHeading observationHeading
+                = observationHeadingRepository.findOne(observationHeadingGroup.getObservationHeadingId());
+
+        if (observationHeading == null) {
+            throw new ResourceNotFoundException("Observation Heading does not exist");
+        }
+
+        Group group = groupRepository.findOne(observationHeadingGroup.getGroupId());
+        if (group == null) {
+            throw new ResourceNotFoundException("Group does not exist");
+        }
+
+        for (ObservationHeadingGroup oldObservationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+            if (oldObservationHeadingGroup.getId().equals(observationHeadingGroup.getId())) {
+                oldObservationHeadingGroup.setGroup(group);
+                oldObservationHeadingGroup.setPanel(observationHeadingGroup.getPanel());
+                oldObservationHeadingGroup.setPanelOrder(observationHeadingGroup.getPanelOrder());
+            }
+        }
+
+        observationHeadingRepository.save(observationHeading);
+    }
+
+    public void removeObservationHeadingGroup(Long observationHeadingGroupId) throws ResourceNotFoundException {
+        ObservationHeadingGroup observationHeadingGroup = observationHeadingGroupRepository.findOne(observationHeadingGroupId);
+        if (observationHeadingGroup == null) {
+            throw new ResourceNotFoundException("Observation Heading Group does not exist");
+        }
+        observationHeadingGroupRepository.delete(observationHeadingGroup);
+    }
+
+    /*public void removeObservationHeadingGroup(Long observationHeadingId, Long groupId) throws ResourceNotFoundException {
         ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
         if (observationHeading == null) {
             throw new ResourceNotFoundException("Observation Heading does not exist");
@@ -105,7 +129,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         ObservationHeadingGroup toRemove = null;
 
         for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
-            if (observationHeadingGroup.getGroup().equals(group)
+            if (observationHeadingGroup.getGroup().getId().equals(group.getId())
                     && observationHeadingGroup.getObservationHeading().equals(observationHeading)) {
                 toRemove = observationHeadingGroup;
             }
@@ -113,9 +137,10 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
         if (toRemove != null) {
             observationHeading.getObservationHeadingGroups().remove(toRemove);
+            //toRemove.setObservationHeading(null);
             observationHeadingRepository.save(observationHeading);
         }
-    }
+    }*/
 
     public void delete(final Long observationHeadingId) {
         observationHeadingRepository.delete(observationHeadingId);

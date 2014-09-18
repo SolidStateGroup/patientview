@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -64,18 +64,27 @@ public class ObservationHeadingController extends BaseController<ObservationHead
         }
     }
 
-    @RequestMapping(value = "/observationheading/{observationHeadingId}/group/{groupId}", method = RequestMethod.POST)
+    @RequestMapping(
+            value = "/observationheading/{observationHeadingId}/group/{groupId}/panel/{panel}/panelorder/{panelOrder}",
+            method = RequestMethod.POST)
     @ResponseBody
-    public void addOrUpdateGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
-            @PathVariable("groupId") Long groupId, @RequestParam Long panel, @RequestParam Long panelOrder)
-            throws ResourceNotFoundException {
-        observationHeadingService.addOrUpdateGroup(observationHeadingId, groupId, panel, panelOrder);
+    public void addObservationHeadingGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
+            @PathVariable("groupId") Long groupId, @PathVariable("panel") Long panel,
+            @PathVariable("panelOrder") Long panelOrder) throws ResourceNotFoundException {
+        observationHeadingService.addObservationHeadingGroup(observationHeadingId, groupId, panel, panelOrder);
     }
 
-    @RequestMapping(value = "/observationheading/{observationHeadingId}/group/{groupId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/observationheadinggroup", method = RequestMethod.PUT)
     @ResponseBody
-    public void removeGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
-            @PathVariable("groupId") Long groupId) throws ResourceNotFoundException {
-        observationHeadingService.removeGroup(observationHeadingId, groupId);
+    public void updateObservationHeadingGroup(@RequestBody ObservationHeadingGroup observationHeadingGroup)
+            throws ResourceNotFoundException {
+        observationHeadingService.updateObservationHeadingGroup(observationHeadingGroup);
+    }
+
+    @RequestMapping(value = "/observationheadinggroup/{observationHeadingGroupId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void removeObservationHeadingGroup(@PathVariable("observationHeadingGroupId") Long observationHeadingGroupId)
+            throws ResourceNotFoundException {
+        observationHeadingService.removeObservationHeadingGroup(observationHeadingGroupId);
     }
 }
