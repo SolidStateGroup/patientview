@@ -245,9 +245,12 @@
 }
 
 .historical-data{
-    max-height:600px;
-    overflow:hidden;
     position: relative;
+
+    .faux-table{
+        max-height:600px;
+        overflow-y:scroll;
+    }
 
     .overlay{
         position:absolute;

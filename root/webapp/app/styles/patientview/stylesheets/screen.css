@@ -1976,11 +1976,14 @@ textarea.form-control.article-content {
 
 /* line 247, ../sass/_results.scss */
 .historical-data {
-  max-height: 600px;
-  overflow: hidden;
   position: relative;
 }
-/* line 252, ../sass/_results.scss */
+/* line 250, ../sass/_results.scss */
+.historical-data .faux-table {
+  max-height: 600px;
+  overflow-y: scroll;
+}
+/* line 255, ../sass/_results.scss */
 .historical-data .overlay {
   position: absolute;
   bottom: 0;
@@ -2001,7 +2004,7 @@ textarea.form-control.article-content {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='white', GradientType=0);
 }
 
-/* line 264, ../sass/_results.scss */
+/* line 267, ../sass/_results.scss */
 .result-graph .container {
   width: auto;
 }
