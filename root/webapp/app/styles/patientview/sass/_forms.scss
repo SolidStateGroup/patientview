@@ -4,6 +4,21 @@
     height:40px;
 }
 
+.dob-row{
+    div[class*='col-md-'] {
+        padding-left:5px;
+        padding-right:5px;
+
+        &.day{
+            padding-left:0;
+        }
+
+        &.year{
+            padding-right:0;
+        }
+    }
+}
+
 .panel-body{
     form{
         padding:10px;

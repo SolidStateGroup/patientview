@@ -36,7 +36,7 @@
                 </div>
                 <div class="result-value clearfix">
                     <dl class="result-change">
-                        <dt>{{selectedObservation.value}}</dt>
+                        <dt>{{selectedObservation.value}}<span ng-show="result.units">{{selectedObservation.units}}</span></dt>
                         <!--<dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>-->
                     </dl>
                 </div>
@@ -47,6 +47,8 @@
                 <div class="result-comment pull-left" ng-show="selectedObservation.comments">
                     <label>Comments</label>
                     <p ng-show="selectedObservation.comments">{{selectedObservation.comments}}</p>
+                    <!--todo: james need to hookup this so it shows when there are no comments-->
+                    <p ng-show="selectedObservation.comments.length == 0">There are no associated comments to show</p>
                 </div>
                 <!--<div class="result-footer">
                     <i class="icon-circle-arrow pull-right"></i>
