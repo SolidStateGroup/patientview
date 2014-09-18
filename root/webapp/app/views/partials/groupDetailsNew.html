@@ -80,6 +80,7 @@
     <hr />
     <div class="col-md-12">
         <label>Additional Contact Points</label>
+        <span class="error" ng-show="!hasAdminEmail(editGroup)"> * Must have PatientView Admin Email</span>
         <div ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points</div>
     </div>
     <div class="link-list-item" ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
@@ -167,7 +168,6 @@
         <div class="parent-group-add-container item-add-container" ng-show="editGroup.availableParentGroups.length > 0 && permissions.canEditParentGroups">
             <div class="custom-select">
                 <select class="form-control parent-group-select group-select" ng-model="parentGroupToAdd" ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select>
-                <!--<span class="caret-container"><span class="caret"></span></span>-->
             </div>
             <button type="button" class="btn blue parent-group-add-button pull-left" ng-click="addParentGroup(groupFormNew, editGroup, parentGroupToAdd)">Add</button>
         </div>

@@ -194,6 +194,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.permissions.canEditParentGroups = true;
         }
 
+        if ($scope.permissions.isSuperAdmin) {
+            $scope.permissions.sortByGroupType = true;
+        }
+
         $scope.getAllowedRelationshipGroups();
         $scope.getAllowedAddEditFilterGroups();
 
