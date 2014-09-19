@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('ResultsDetailCtrl',['$scope', '$routeParams', '$location',
-    'ObservationHeadingService', 'ObservationService', '$modal',
-function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, $modal) {
+    'ObservationHeadingService', 'ObservationService', '$modal', '$timeout',
+function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, $modal, $timeout) {
 
     $scope.init = function() {
         $scope.loading = true;
@@ -34,10 +34,9 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.initialiseChart = function() {
-        var chart1 = {};
-        chart1.type = 'AnnotationChart';
-
-        chart1.data = [
+        // now using standard google charts (not angular-google-chart)
+        var chart = new google.visualization.AnnotationChart(document.querySelector('#chart_div'));
+        var data = [
             ['date', 'Result']
         ];
 
@@ -51,7 +50,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             var row = [];
             row[0] = new Date(observation.applies);
             row[1] = observation.value;
-            chart1.data.push(row);
+            data.push(row);
 
             // get min/max values for y-axis
             if (observation.value > maxValue) {
@@ -63,28 +62,26 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             }
         }
 
-        chart1.data = new google.visualization.arrayToDataTable(chart1.data);
+        data = new google.visualization.arrayToDataTable(data);
 
-        if ($scope.observationHeading.minGraph) {
-            if (minValue > $scope.observationHeading.minGraph) {
-                minValue = $scope.observationHeading.minGraph;
-            }
-        }
-
-        if ($scope.observationHeading.maxGraph) {
-            if (maxValue < $scope.observationHeading.maxGraph) {
-                maxValue = $scope.observationHeading.maxGraph;
-            }
-        }
-
-        chart1.options = {
+        var options = {
             min: minValue,
             max: maxValue,
             displayZoomButtons: false,
             annotationsWidth: '0'
         };
 
-        $scope.chart = chart1;
+        chart.draw(data, options);
+
+        google.visualization.events.addListener(chart, 'rangechange', function(e) {
+            $scope.rangeChanged(e);
+        });
+        google.visualization.events.addListener(chart, 'select', function(e) {
+            $scope.graphClicked();
+        });
+
+        $scope.chart = chart;
+        $scope.setRangeInDays(1094.75);
         $scope.chartLoading = false;
     };
 
@@ -127,40 +124,55 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.graphClicked = function () {
-        var selection = $scope.chartWrapper.getChart().getSelection();
-        var range = $scope.chartWrapper.getChart().getVisibleChartRange();
+        var selection = $scope.chart.getSelection();
+        var range = $scope.chart.getVisibleChartRange();
         var startIndex, startFound = false;
 
-        for(var i=$scope.observations.length-1;i>0;i--) {
+        for(var i=$scope.tableObservations.length-1;i>0;i--) {
             if (!startFound) {
-                if ($scope.observations[i].applies >= range.start.getTime()) {
-                    startIndex = $scope.observations.length - i - 1;
+                if ($scope.tableObservations[i].applies >= range.start.getTime()) {
+                    startIndex = $scope.tableObservations.length - i - 1;
                     startFound = true;
                 }
             }
         }
 
-        var index = $scope.observations.length - startIndex - 1 - selection[0].row;
-        $scope.selectedObservation = $scope.observations[index];
+        var index = $scope.tableObservations.length - startIndex - 1 - selection[0].row;
+        $scope.selectedObservation = $scope.tableObservations[index];
+
+        $timeout(function() {
+            $scope.$apply();
+        });
     };
 
-    $scope.readyHandler = function (chartWrapper) {
-        if (!$scope.chartReady) {
-            $scope.chartWrapper = chartWrapper;
-            $scope.setRangeInDays(1094.75);
-            $scope.chartReady = true;
-        }
+    $scope.rangeChanged = function (range) {
+        $scope.showHideObservationsInTable(range.start, range.end);
     };
 
     $scope.setRangeInDays = function (days) {
         $scope.range = days;
         var now = new Date();
         var start = new Date(now.getTime() - days * 86400000);
-        $scope.chartWrapper.getChart().setVisibleChartRange(start, now);
+        $scope.chart.setVisibleChartRange(start, now);
+        $scope.showHideObservationsInTable(start, now);
+    };
+
+    $scope.showHideObservationsInTable = function(start, end) {
+        $scope.tableObservations = false;
+        $scope.tableObservations = [];
+
+        for (var i=0;i<$scope.observations.length;i++) {
+            if (start.getTime() < $scope.observations[i].applies && end.getTime() > $scope.observations[i].applies) {
+                $scope.tableObservations.push($scope.observations[i]);
+            }
+        }
+
+        $timeout(function() {
+            $scope.$apply();
+        });
     };
 
     $scope.openObservationHeadingInformation = function (result) {
-
         var modalInstance = $modal.open({
             templateUrl: 'views/partials/observationHeadingInfoModal.html',
             controller: ObservationHeadingInfoModalInstanceCtrl,
@@ -172,7 +184,6 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         });
 
         modalInstance.result.then(function () {
-            // ok (not used)
         }, function () {
             // closed
         });
