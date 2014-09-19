@@ -2111,22 +2111,44 @@ textarea.form-control.article-content {
 }
 
 @media (max-width: 767px) {
-  /* line 278, ../sass/_results.scss */
+  /* line 280, ../sass/_results.scss */
+  .header-select > div {
+    height: auto;
+  }
+  /* line 284, ../sass/_results.scss */
+  .header-select h1 {
+    font-size: 30px;
+  }
+  /* line 288, ../sass/_results.scss */
+  .header-select select {
+    margin-bottom: 10px;
+  }
+
+  /* line 292, ../sass/_results.scss */
   .results-header {
     height: 185px;
   }
-  /* line 280, ../sass/_results.scss */
+  /* line 294, ../sass/_results.scss */
   .results-header .header-icon {
     display: none;
   }
-  /* line 284, ../sass/_results.scss */
+  /* line 298, ../sass/_results.scss */
   .results-header .form-row {
     width: 100%;
   }
-  /* line 286, ../sass/_results.scss */
+  /* line 300, ../sass/_results.scss */
   .results-header .form-row label, .results-header .form-row select {
     text-align: center;
     width: 100%;
+  }
+
+  /* line 309, ../sass/_results.scss */
+  .result-detail-panel .result-item-container .info-list {
+    width: auto;
+  }
+  /* line 312, ../sass/_results.scss */
+  .result-detail-panel .result-item-container .info-list.inline {
+    margin-top: 10px;
   }
 }
 /* line 2, ../sass/_components.scss */

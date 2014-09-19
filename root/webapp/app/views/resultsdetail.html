@@ -27,10 +27,10 @@
             <div class="content-panel result-item">
                 <div class="result-header">
                     <a href="{{observationHeading.infoLink | addhttpFilter}}" target="_blank"
-                       ng-show="observationHeading.infoLink">
+                       ng-show="observationHeading.infoLink" class="pull-right">
                         <i class="icon-result-info pull-right"></i>
                     </a>
-                    <ul class="unstyled info-list pull-left">
+                    <ul class="unstyled info-list">
                         <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
                     </ul>
                 </div>

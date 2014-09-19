@@ -275,6 +275,20 @@
 }
 
 @media (max-width: $screen-xs-max) {
+
+    .header-select{
+        > div{
+            height:auto;
+        }
+
+        h1{
+            font-size:30px;
+        }
+
+        select{
+            margin-bottom:10px;
+        }
+    }
     .results-header{
         height:185px;
         .header-icon{
@@ -286,6 +300,18 @@
             label, select{
                 text-align:center;
                 width:100%;
+            }
+        }
+    }
+
+    .result-detail-panel {
+        .result-item-container {
+            .info-list{
+                width:auto;
+
+                &.inline{
+                    margin-top:10px;
+                }
             }
         }
     }
