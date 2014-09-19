@@ -285,14 +285,10 @@ function ($scope, UserService, IdentifierService) {
                         });
                     });
                 } else {
-                    UserService.getIdentifierByValue(identifier.identifier).then(function () {
-                        alert('Identifier already exists for another patient, please choose another');
-                    }, function () {
-                        identifier.id = Math.floor(Math.random() * (9999)) - 10000;
-                        user.identifiers.push(_.clone(identifier));
-                        identifier.identifier = '';
-                        form.$setDirty(true);
-                    });
+                    identifier.id = Math.floor(Math.random() * (9999)) - 10000;
+                    user.identifiers.push(_.clone(identifier));
+                    identifier.identifier = '';
+                    form.$setDirty(true);
                 }
             } else {
                 identifier.identifierType = identifier.identifierType.id;
