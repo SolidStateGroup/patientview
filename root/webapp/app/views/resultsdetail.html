@@ -44,16 +44,11 @@
                     <li><strong>Source:</strong> {{selectedObservation.group.name}}</li>
                     <li ng-show="selectedObservation.units"><strong>Units:</strong> {{selectedObservation.units}}</li>
                 </ul>
-                <div class="result-comment pull-left" ng-show="selectedObservation.comments">
+                <div class="result-comment pull-left">
                     <label>Comments</label>
                     <p ng-show="selectedObservation.comments">{{selectedObservation.comments}}</p>
-                    <!--todo: james need to hookup this so it shows when there are no comments-->
-                    <p ng-show="selectedObservation.comments.length == 0">There are no associated comments to show</p>
+                    <p ng-show="!selectedObservation.comments">There are no associated comments to show</p>
                 </div>
-                <!--<div class="result-footer">
-                    <i class="icon-circle-arrow pull-right"></i>
-                    <p>View More Details</p>
-                </div>-->
             </div>
         </div>
 

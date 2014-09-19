@@ -83,7 +83,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
         chart1.options = {
             min: minValue,
-            max: maxValue
+            max: maxValue,
+            displayZoomButtons: false
         };
 
         /*chart1.options = {
@@ -175,7 +176,14 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.readyHandler = function (chartWrapper) {
-        $scope.chartWrapper = chartWrapper;
+
+        if (!$scope.chartReady) {
+            $scope.chartWrapper = chartWrapper;
+            var start = new Date().getTime();
+            start -= (31557600000 * 3);
+            $scope.chartWrapper.getChart().setVisibleChartRange(new Date(start), new Date());
+            $scope.chartReady = true;
+        }
     };
 
     $scope.init();
