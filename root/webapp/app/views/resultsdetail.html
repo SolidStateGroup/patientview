@@ -7,6 +7,12 @@
     .faux-row {
         cursor: pointer;
     }
+    #_AnnotationChart_annotationsTd {
+        display: none;
+    }
+    .google-visualization-atl.container {
+        border: none;
+    }
 </style>
 
 <div class="header-select row">
@@ -26,8 +32,7 @@
         <div class="result-item-container" ng-show="selectedObservation">
             <div class="content-panel result-item">
                 <div class="result-header">
-                    <a href="{{observationHeading.infoLink | addhttpFilter}}" target="_blank"
-                       ng-show="observationHeading.infoLink">
+                    <a href="" ng-click="openObservationHeadingInformation(observationHeading)">
                         <i class="icon-result-info pull-right"></i>
                     </a>
                     <ul class="unstyled info-list pull-left">

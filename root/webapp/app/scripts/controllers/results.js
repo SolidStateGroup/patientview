@@ -1,7 +1,16 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', 'ObservationService',
-function ($scope, ObservationService) {
+// observation heading information modal instance controller
+var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result',
+    function ($scope, $modalInstance, result) {
+        $scope.result = result;
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }];
+
+angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService',
+function ($scope, $modal, ObservationService) {
 
     $scope.init = function() {
 
@@ -67,6 +76,25 @@ function ($scope, ObservationService) {
     $scope.removeMinus = function(value) {
         value = Math.abs(value);
         return value;
+    };
+
+    $scope.openObservationHeadingInformation = function (result) {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/observationHeadingInfoModal.html',
+            controller: ObservationHeadingInfoModalInstanceCtrl,
+            resolve: {
+                result: function(){
+                    return result;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
     };
 
     $scope.init();

@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ResultsDetailCtrl',['$scope', '$routeParams', '$location', 'ObservationHeadingService', 'ObservationService',
-function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService) {
+angular.module('patientviewApp').controller('ResultsDetailCtrl',['$scope', '$routeParams', '$location',
+    'ObservationHeadingService', 'ObservationService', '$modal',
+function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, $modal) {
 
     $scope.init = function() {
         $scope.loading = true;
@@ -156,6 +157,25 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         var now = new Date();
         var start = new Date(now.getTime() - days * 86400000);
         $scope.chartWrapper.getChart().setVisibleChartRange(start, now);
+    };
+
+    $scope.openObservationHeadingInformation = function (result) {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/observationHeadingInfoModal.html',
+            controller: ObservationHeadingInfoModalInstanceCtrl,
+            resolve: {
+                result: function(){
+                    return result;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
     };
 
     $scope.init();
