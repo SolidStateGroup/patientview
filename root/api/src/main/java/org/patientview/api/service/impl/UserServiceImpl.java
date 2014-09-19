@@ -471,6 +471,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return userInformationRepository.findByUser(user);
     }
 
+    public Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException {
+        Identifier identifier = identifierRepository.findByValue(identifierValue);
+        if (identifier == null){
+            throw new ResourceNotFoundException(String.format("Could not find identifier with value %s",
+                    identifierValue));
+        }
+        return identifier;
+    }
+
     private User findUser(Long userId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {

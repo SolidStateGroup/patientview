@@ -157,6 +157,24 @@ public class UserServiceTest {
     }
 
     /**
+     * Test: Get identifier by value
+     * Fail: Service is not called
+     *
+     */
+    @Test
+    public void testGetIdentifierByValue() throws ResourceNotFoundException {
+        String identifierValue = "1111111111";
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier(identifierValue);
+        identifier.setId(1L);
+
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifier);
+        Identifier foundIdentifier = userService.getIdentifierByValue(identifier.getIdentifier());
+        verify(identifierRepository, Mockito.times(1)).findByValue(eq(identifier.getIdentifier()));
+        Assert.assertTrue("Identifier should be found", foundIdentifier != null);
+    }
+
+    /**
      * Test: Password reset check
      * Fail: Service is not called and the change password flag is not set
      *

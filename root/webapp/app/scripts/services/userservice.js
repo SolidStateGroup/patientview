@@ -227,6 +227,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // get identifier by value
+        getIdentifierByValue: function (identifierValue) {
+            var deferred = $q.defer();
+            // GET /identifier/value/{identifierValue}
+            Restangular.one('identifier/value', identifierValue).get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Save More About Me details (currently SHOULD_KNOW and TALK_ABOUT fields)
         saveMoreAboutMe: function (user, moreAboutMe) {
 

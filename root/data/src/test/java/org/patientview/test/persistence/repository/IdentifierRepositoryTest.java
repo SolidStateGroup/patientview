@@ -61,7 +61,28 @@ public class IdentifierRepositoryTest {
         identifier = identifierRepository.findByTypeAndValue(testNhsNumber, lookup);
 
         Assert.assertTrue("There is 1 identifier returned", identifier != null);
-
     }
 
+    @Test
+    public void testFindByValue() {
+
+        String testNhsNumber = "324234234";
+
+        User user = dataTestUtils.createUser("testUser");
+        Lookup lookup = dataTestUtils.createLookup("NHS_NUMBER", LookupTypes.IDENTIFIER);
+
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier(testNhsNumber);
+        identifier.setIdentifierType(lookup);
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+
+        userRepository.save(user);
+
+        identifier = identifierRepository.findByValue(testNhsNumber);
+
+        Assert.assertTrue("There is 1 identifier returned", identifier != null);
+    }
 }

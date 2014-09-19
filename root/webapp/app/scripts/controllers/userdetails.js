@@ -257,36 +257,42 @@ function ($scope, UserService, IdentifierService) {
 
             if (valid) {
                 if ($scope.editMode) {
-                    delete identifier.id;
-                    UserService.addIdentifier(user, identifier).then(function (successResult) {
-                        // added identifier
-                        identifier.id = successResult.id;
+                    UserService.getIdentifierByValue(identifier.identifier).then(function () {
+                        alert('Identifier already exists for another patient, please choose another');
+                    }, function () {
+                        delete identifier.id;
+                        UserService.addIdentifier(user, identifier).then(function (successResult) {
+                            // added identifier
+                            identifier.id = successResult.id;
+                            user.identifiers.push(_.clone(identifier));
+                            identifier.identifier = '';
+                            form.$setDirty(true);
+
+                            // update accordion header with data from GET
+                            UserService.get(user.id).then(function (successResult) {
+                                for (var i = 0; i < $scope.pagedItems.length; i++) {
+                                    if ($scope.pagedItems[i].id === user.id) {
+                                        var headerDetails = $scope.pagedItems[i];
+                                        headerDetails.identifiers = successResult.identifiers;
+                                    }
+                                }
+                            }, function () {
+                                alert('Error updating header (saved successfully)');
+                            });
+
+                        }, function () {
+                            alert('Error adding identifier');
+                        });
+                    });
+                } else {
+                    UserService.getIdentifierByValue(identifier.identifier).then(function () {
+                        alert('Identifier already exists for another patient, please choose another');
+                    }, function () {
+                        identifier.id = Math.floor(Math.random() * (9999)) - 10000;
                         user.identifiers.push(_.clone(identifier));
                         identifier.identifier = '';
                         form.$setDirty(true);
-
-                        // update accordion header with data from GET
-                        UserService.get(user.id).then(function (successResult) {
-                            for(var i=0;i<$scope.pagedItems.length;i++) {
-                                if($scope.pagedItems[i].id === user.id) {
-                                    var headerDetails = $scope.pagedItems[i];
-                                    headerDetails.identifiers = successResult.identifiers;
-                                }
-                            }
-                        }, function () {
-                            // failure
-                            alert('Error updating header (saved successfully)');
-                        });
-
-                    }, function () {
-                        // failure
-                        alert('Error adding identifier');
                     });
-                } else {
-                    identifier.id = Math.floor(Math.random() * (9999)) - 10000;
-                    user.identifiers.push(_.clone(identifier));
-                    identifier.identifier = '';
-                    form.$setDirty(true);
                 }
             } else {
                 identifier.identifierType = identifier.identifierType.id;

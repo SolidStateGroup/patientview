@@ -64,4 +64,6 @@ public interface UserService extends CrudService<User> {
     void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;
 
     List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException;
+
+    Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException;
 }

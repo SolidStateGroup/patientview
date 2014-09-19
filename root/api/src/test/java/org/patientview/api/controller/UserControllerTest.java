@@ -152,7 +152,7 @@ public class UserControllerTest {
     }
 
     /**
-     * Test: Call for a User identifier
+     * Test: Call for creating a User identifier
      * Fail: The identifier does not get passed to the service
      *
      */
@@ -175,6 +175,27 @@ public class UserControllerTest {
         catch (Exception e) {
             fail("The post request all should not fail " + e.getCause());
         }
+    }
+
+    /**
+     * Test: Call for getting an existing identifier by value
+     * Fail: The identifier value does not get passed to the service
+     *
+     */
+    @Test
+    public void testGetIdentifierByValue() throws ResourceNotFoundException  {
+
+        String identifierValue = "111111111";
+
+        when(userService.getIdentifierByValue(eq(identifierValue))).thenReturn(new Identifier());
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/identifier/value/" + identifierValue))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw");
+        }
+
+        verify(userService, Mockito.times(1)).getIdentifierByValue(Matchers.eq(identifierValue));
     }
 
     /**
