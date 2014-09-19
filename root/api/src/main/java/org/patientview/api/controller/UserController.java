@@ -72,8 +72,7 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Void> deleteUserGroupRole(@PathVariable("userId") Long userId,
-                                                      @PathVariable("groupId") Long groupId,
-                                                      @PathVariable("roleId") Long roleId) {
+          @PathVariable("groupId") Long groupId, @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
         groupService.deleteGroupRole(userId, groupId, roleId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

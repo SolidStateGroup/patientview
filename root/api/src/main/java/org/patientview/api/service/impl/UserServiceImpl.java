@@ -122,6 +122,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         user.setCreator(userRepository.findOne(1L));
+        // Everyone should change their password at login
+        user.setChangePassword(Boolean.TRUE);
+
         newUser = userRepository.save(user);
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
@@ -138,12 +141,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setRole(entityRole);
                     groupRole.setUser(newUser);
                     groupRole.setCreator(userRepository.findOne(1L));
-                    groupRoleRepository.save(groupRole);
+                    groupRole = groupRoleRepository.save(groupRole);
+                    addParentGroupRoles(groupRole);
                 }
-
-                addParentGroupRoles(groupRole);
             }
         }
+
+        // Everyone should be in the generic group.
+        addUserToGenericGroup(newUser);
 
         entityManager.flush();
 
@@ -170,13 +175,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         entityManager.flush();
 
-        user.setId(newUser.getId());
-        // Everyone should change their password at login
-        user.setChangePassword(Boolean.TRUE);
-        // Everyone should be in the generic group.
-        addUserToGenericGroup(newUser);
-
-        return userRepository.save(user);
+        return userRepository.getOne(newUser.getId());
     }
 
     // We do this so early one gets the generic group

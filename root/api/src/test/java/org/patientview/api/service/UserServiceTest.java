@@ -130,13 +130,10 @@ public class UserServiceTest {
         when(userRepository.save(Matchers.eq(newUser))).thenReturn(newUser);
         when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
         when(roleRepository.findOne(Matchers.eq(role.getId()))).thenReturn(role);
+        when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
+                .thenReturn(groupRole);
 
         userService.createUserWithPasswordEncryption(newUser);
-
-//        verify(userFeatureRepository, Mockito.times(1)).save(Matchers.eq(userFeature));
- //       verify(groupRoleRepository, Mockito.times(1)).save(Matchers.eq(groupRole));
- //       verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
-
     }
 
     /**

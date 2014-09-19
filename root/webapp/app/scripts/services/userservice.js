@@ -103,13 +103,11 @@ function ($q, Restangular, UtilService) {
         create: function (inputUser) {
             var deferred = $q.defer();
 
-            // clean group roles (clean role and group then add to groupRoles)
-            inputUser.groupRoles = [];
-            for (var i=0;i<inputUser.groups.length;i++) {
-                var inputGroup = inputUser.groups[i];
-                var role = UtilService.cleanObject(inputGroup.role, 'role');
-                var group = UtilService.cleanObject(inputGroup, 'group');
-                inputUser.groupRoles.push({'group':group,'role':role});
+            // clean group roles
+            for (var i=0;i<inputUser.groupRoles.length;i++) {
+                delete inputUser.groupRoles[i].id;
+                inputUser.groupRoles[i].group = UtilService.cleanObject(inputUser.groupRoles[i].group, 'group');
+                inputUser.groupRoles[i].role = UtilService.cleanObject(inputUser.groupRoles[i].role, 'role');
             }
 
             // clean user features
