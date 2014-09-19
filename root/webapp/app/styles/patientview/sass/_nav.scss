@@ -106,13 +106,12 @@
     background: $white;
     height: 70px;
     position:relative;
-    padding-top:15px;
 
     .brand{
         @include bootstrap-opacity(50);
         float:left;
-        width:300px;
         line-height:40px;
+        padding-top:15px;
 
         img{
             height:50%;
@@ -122,6 +121,7 @@
 
     .partner-links{
         margin:0 auto;
+        padding-top:15px;
 
         a{
             margin-right:20px
@@ -129,6 +129,7 @@
     }
 
     .legal-links{
+        padding-top:15px;
         li{
             line-height:40px;
             padding:0 10px;
@@ -144,6 +145,12 @@
                 }
             }
 
+        }
+
+        &.partner-list{
+            li{
+                line-height:5px;
+            }
         }
     }
 
