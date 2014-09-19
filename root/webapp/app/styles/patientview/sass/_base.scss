@@ -9,6 +9,24 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
+.back-to-admin{
+    margin-bottom:20px;
+    background:#fff;
+    a{
+        padding:10px 20px;
+        width:200px;
+
+        i{
+            margin-right:10px;
+        }
+
+        &:hover{
+            color:white;
+            cursor:pointer;
+        }
+    }
+}
+
 .page-content {
     padding-bottom: 60px;
 }
@@ -515,6 +533,14 @@ i.icon-plot-this{
     width: 30px;
     display:block;
 }
+
+i.icon-back-to{
+    background: url('../../../images/icons/back-to.png') 0 0 no-repeat;
+    height: 22px;
+    width: 23px;
+    display:block;
+}
+
 
 
 @media only screen

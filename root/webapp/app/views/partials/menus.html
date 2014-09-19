@@ -1,13 +1,14 @@
 <div ng-show="previousAuthToken" class="container">
-    <a href="" class="btn btn-primary pull-right" ng-click="switchUserBack()">Back to Admin Area</a>
-    <br/><br/>
+    <div class="back-to-admin clearfix">
+        <a href="" class="blue pull-left" ng-click="switchUserBack()"> <i class="icon-back-to pull-left"></i> Back to Admin Area</a>
+    </div>
 </div>
 
 <div class="container">
     <div class="navbar navbar-default content-panel" role="navigation">
         <div class="navbar-header">
             <a ng-hide="!authToken" class="navbar-brand" href="#/dashboard"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
-            <a class="navbar-brand" href="/"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
+            <a ng-hide="authToken" class="navbar-brand" href="/"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
             <div class="temp-mobile-nav visible-xs pull-right">
                 <ul class="unstyled" ng-hide="!authToken">
                     <li><a ng-href="#/conversations">Messages</a></li>

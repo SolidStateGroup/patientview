@@ -18,25 +18,25 @@
                     <div class="panel-body">
                         <table class="table table-bordered">
                             <tbody>
-                                <tr><td colspan="2"><h5>Patient Details</h5></td></tr>
+                                <tr><td colspan="2"><h4>Patient Details</h4></td></tr>
                                 <tr>
-                                    <td>Surname</td>
+                                    <td class="forced-width">Surname</td>
                                     <td>{{patient.fhirPatient.surname}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Forename(s)</td>
+                                    <td class="forced-width">Forename(s)</td>
                                     <td>{{patient.fhirPatient.forename}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Sex</td>
+                                    <td class="forced-width">Sex</td>
                                     <td>{{patient.fhirPatient.gender}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Date of Birth</td>
+                                    <td class="forced-width">Date of Birth</td>
                                     <td>{{patient.fhirPatient.dateOfBirth | date:'dd-MMM-yyyy'}}</td>
                                 </tr>
                                 <tr>
-                                    <td>NHS Number</td>
+                                    <td class="forced-width">NHS Number</td>
                                     <td>
                                         <span ng-repeat="identifier in patient.fhirPatient.identifiers" ng-show="identifier.label === 'NHS_NUMBER'">
                                             {{identifier.value}}
@@ -44,7 +44,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Hospital Number</td>
+                                    <td class="forced-width">Hospital Number</td>
                                     <td>
                                         <span ng-repeat="identifier in patient.fhirPatient.identifiers" ng-show="identifier.label === 'HOSPITAL_NUMBER'">
                                             {{identifier.value}}
@@ -52,7 +52,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Address</td>
+                                    <td class="forced-width">Address</td>
                                     <td>
                                         {{patient.fhirPatient.address1}},
                                         {{patient.fhirPatient.address2}},
@@ -62,7 +62,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Phone Number(s)</td>
+                                    <td class="forced-width">Phone Number(s)</td>
                                     <td>
                                         <span ng-repeat="phoneNumber in patient.fhirPatient.phoneNumbers">
                                             {{phoneNumber}}<br/>
@@ -73,9 +73,9 @@
                         </table>
                         <table ng-show="patient.fhirPractitioner" class="table table-bordered">
                             <tbody>
-                                <tr><td colspan="2"><h5>GP Details</h5></td></tr>
+                                <tr><td colspan="2"><h4>GP Details</h4></td></tr>
                                 <tr>
-                                    <td>Name</td>
+                                    <td class="forced-width">Name</td>
                                     <td>{{patient.fhirPractitioner.name}}</td>
                                 </tr>
                                 <tr>
@@ -89,7 +89,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Phone Number (s)</td>
+                                    <td class="forced-width">Phone Number (s)</td>
                                     <td>
                                         <span ng-repeat="phoneNumber in patient.fhirPractitioner.phoneNumbers">
                                             {{phoneNumber}}<br/>

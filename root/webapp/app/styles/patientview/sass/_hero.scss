@@ -10,17 +10,42 @@
     .hero-pane {
         height: 100%;
         color: $white;
+        -webkit-transition: all 0.5s ease-in-out;
+        -moz-transition: all 0.5s ease-in-out;
+        -o-transition: all 0.5s ease-in-out;
+        transition: all 0.5s ease-in-out;
 
         &.aquamarine {
             @include bootstrap-color-opacity($aquamarine, 70);
+            &:hover{
+                @include bootstrap-color-opacity($aquamarine, 100);
+                -webkit-transition: all 0.5s ease-in-out;
+                -moz-transition: all 0.5s ease-in-out;
+                -o-transition: all 0.5s ease-in-out;
+                transition: all 0.5s ease-in-out;
+            }
         }
 
         &.aqua {
             @include bootstrap-color-opacity($aqua, 70);
+            &:hover{
+                @include bootstrap-color-opacity($aqua, 100);
+                -webkit-transition: all 0.5s ease-in-out;
+                -moz-transition: all 0.5s ease-in-out;
+                -o-transition: all 0.5s ease-in-out;
+                transition: all 0.5s ease-in-out;
+            }
         }
 
         &.blue {
             @include bootstrap-color-opacity($primary, 70);
+            &:hover{
+                @include bootstrap-color-opacity($primary, 100);
+                -webkit-transition: all 0.5s ease-in-out;
+                -moz-transition: all 0.5s ease-in-out;
+                -o-transition: all 0.5s ease-in-out;
+                transition: all 0.5s ease-in-out;
+            }
         }
 
         .pane-content{
