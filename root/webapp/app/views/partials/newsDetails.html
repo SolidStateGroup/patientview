@@ -51,7 +51,11 @@
                 <span class="group-list-role" ng-show="newsLink.role">{{newsLink.role.description}}</span>
                 <span class="group-list-role" ng-show="!newsLink.role.id">All Roles</span>
             </li>
-            <li class="group-list-delete negative pull-left"><span class="group-list-delete"><a id="remove-group-{{newsLink.group.id}}" href="" ng-click="removeNewsLink(newsForm, editNews, newsLink)" >Delete</a></span></li>
+            <li class="group-list-delete pull-left">
+                <span class="group-list-delete">
+                    <button class="btn negative" id="remove-group-{{newsLink.group.id}}" href="" ng-click="removeNewsLink(newsForm, editNews, newsLink)" >Delete</button>
+                </span>
+            </li>
         </ul>
         <div class="group-add-container">
             <div class="select-add-group">

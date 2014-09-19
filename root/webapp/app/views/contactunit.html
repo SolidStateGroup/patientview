@@ -14,7 +14,7 @@
             </div>
 
             <div class="form-group">
-                <label for="forename" class="col-sm-3 control-label">Forename:</label>
+                <label for="forename" class="col-sm-2 control-label">Forename:</label>
                 <div class="col-sm-4">
                     <input id="forename" name=forename" type="text" class="form-control" ng-model="joinRequest.forename"
                            required=""/>
@@ -22,7 +22,7 @@
             </div>
 
             <div class="form-group">
-                <label for="forename" class="col-sm-3 control-label">Surname:</label>
+                <label for="forename" class="col-sm-2 control-label">Surname:</label>
                 <div class="col-sm-4">
                     <input id="surname" name=surname" type="text" class="form-control" ng-model="joinRequest.surname"
                            required=""/>
@@ -30,7 +30,7 @@
             </div>
 
             <div class="form-group">
-                <label class="col-sm-3 control-label">Date Of Birth:</label>
+                <label class="col-sm-2 control-label">Date Of Birth:</label>
                 <div class="col-sm-4">
 
                     Day:<select required="required"
@@ -52,14 +52,14 @@
             </div>
 
             <div class="form-group">
-                <label for="nhsNumber" class="col-sm-3 control-label">NHS Number:</label>
+                <label for="nhsNumber" class="col-sm-2 control-label">NHS Number:</label>
                 <div class="col-sm-4">
                     <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" ng-model="joinRequest.nhsNumber" required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-3 control-label">Specialty:</label>
+                <label class="col-sm-2 control-label">Specialty:</label>
                 <div class="col-sm-4">
                     <select required="required"
                             ng-model="joinRequest.specialty"
@@ -71,7 +71,7 @@
             </div>
 
             <div class="form-group">
-                <label class="col-sm-3 control-label">Unit:</label>
+                <label class="col-sm-2 control-label">Unit:</label>
                 <div class="col-sm-4">
 
                     <select required="required"
@@ -83,14 +83,14 @@
             </div>
 
             <div class="form-group">
-                <label for="email" class="col-sm-3 control-label">Email:</label>
+                <label for="email" class="col-sm-2 control-label">Email:</label>
                 <div class="col-sm-4">
                     <input id="email" name="email" type="text" class="form-control" ng-model="joinRequest.email" required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <div class="col-sm-9 col-sm-offset-3">
+                <div class="col-sm-9 col-sm-offset-2">
                     <button ng-click="submit()" class="btn blue"
                             ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear">
                         Submit Request</button>

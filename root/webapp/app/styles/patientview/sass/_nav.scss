@@ -104,8 +104,9 @@
 .footer{
     margin-top:40px;
     background: $white;
-    height: 50px;
+    height: 70px;
     position:relative;
+    padding-top:15px;
 
     .brand{
         @include bootstrap-opacity(50);
@@ -116,6 +117,14 @@
         img{
             height:50%;
             width:50%;
+        }
+    }
+
+    .partner-links{
+        margin:0 auto;
+
+        a{
+            margin-right:20px
         }
     }
 

@@ -6,7 +6,8 @@
 <div class="container">
     <div class="navbar navbar-default content-panel" role="navigation">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
+            <a ng-hide="!authToken" class="navbar-brand" href="#/dashboard"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
+            <a class="navbar-brand" href="/"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
             <div class="temp-mobile-nav visible-xs pull-right">
                 <ul class="unstyled" ng-hide="!authToken">
                     <li><a ng-href="#/conversations">Messages</a></li>
