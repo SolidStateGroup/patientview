@@ -36,15 +36,14 @@
                 </div>
                 <div class="result-value clearfix">
                     <dl class="result-change">
-                        <dt>{{selectedObservation.value}}<span ng-show="result.units">{{selectedObservation.units}}</span></dt>
+                        <dt>{{selectedObservation.value}}<span ng-show="observationHeading.units">{{observationHeading.units}}</span></dt>
                         <!--<dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>-->
                     </dl>
                 </div>
                 <ul class="unstyled inline info-list pull-left">
                     <li><strong>Source:</strong> {{selectedObservation.group.name}}</li>
-                    <li ng-show="selectedObservation.units"><strong>Units:</strong> {{selectedObservation.units}}</li>
                 </ul>
-                <div class="result-comment pull-left">
+                <div class="result-comment pull-left" >
                     <label>Comments</label>
                     <p ng-show="selectedObservation.comments">{{selectedObservation.comments}}</p>
                     <p ng-show="!selectedObservation.comments">There are no associated comments to show</p>
@@ -52,6 +51,15 @@
             </div>
         </div>
 
+        <div class="info-header">
+            <div class="btn-group pull-right">
+                <a href="" ng-click="setRangeInDays(30)" class="btn blue" ng-class="{active: range==30}">30 Days</a>
+                <a href="" ng-click="setRangeInDays(90)" class="btn blue" ng-class="{active: range==90}">3 Months</a>
+                <a href="" ng-click="setRangeInDays(365.25)" class="btn blue" ng-class="{active: range==365.25}">1 Year</a>
+                <a href="" ng-click="setRangeInDays(1094.75)" class="btn blue" ng-class="{active: range==1094.75}">3 Years</a>
+                <a href="" ng-click="setRangeInDays(999999)" class="btn blue" ng-class="{active: range==999999}">All</a>
+            </div>
+        </div>
         <div class="result-graph" ng-show="!chartLoading">
             <div class="content-panel">
                 <div class="content-inner">

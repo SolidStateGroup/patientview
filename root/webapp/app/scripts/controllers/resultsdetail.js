@@ -4,7 +4,6 @@ angular.module('patientviewApp').controller('ResultsDetailCtrl',['$scope', '$rou
 function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService) {
 
     $scope.init = function() {
-        var i;
         $scope.loading = true;
 
         // if query parameters not set redirect to results
@@ -35,7 +34,6 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
     $scope.initialiseChart = function() {
         var chart1 = {};
-        //chart1.type = 'LineChart';
         chart1.type = 'AnnotationChart';
 
         chart1.data = [
@@ -64,10 +62,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             }
         }
 
-        // get most recent statistics of user locked and inactive
-        $scope.chartData = chart1.data;
-        $scope.chartDataTable = new google.visualization.arrayToDataTable(chart1.data);
-        chart1.data = $scope.chartDataTable;
+        chart1.data = new google.visualization.arrayToDataTable(chart1.data);
 
         if ($scope.observationHeading.minGraph) {
             if (minValue > $scope.observationHeading.minGraph) {
@@ -84,37 +79,10 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         chart1.options = {
             min: minValue,
             max: maxValue,
-            displayZoomButtons: false
+            displayZoomButtons: false,
+            annotationsWidth: '0'
         };
 
-        /*chart1.options = {
-            'title': null,
-            'isStacked': 'true',
-            'fill': 20,
-            'displayExactValues': true,
-            'vAxis': {
-                baseline: 0,
-                viewWindow: {min: minValue, max: maxValue},
-                title: null,
-                'pointSize': 5,
-                'gridlines': {
-                    'count': 10,
-                    'color': '#ffffff'
-                }
-            },
-            'hAxis': {
-                'title': null
-            },
-            'chartArea': {
-                left: '7%',
-                top: '7%',
-                width: '90%',
-                height: '85%'
-            },
-            'legend': {position: 'none'}
-        };
-
-        chart1.formatters = {};*/
         $scope.chart = chart1;
         $scope.chartLoading = false;
     };
@@ -176,14 +144,18 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.readyHandler = function (chartWrapper) {
-
         if (!$scope.chartReady) {
             $scope.chartWrapper = chartWrapper;
-            var start = new Date().getTime();
-            start -= (31557600000 * 3);
-            $scope.chartWrapper.getChart().setVisibleChartRange(new Date(start), new Date());
+            $scope.setRangeInDays(1094.75);
             $scope.chartReady = true;
         }
+    };
+
+    $scope.setRangeInDays = function (days) {
+        $scope.range = days;
+        var now = new Date();
+        var start = new Date(now.getTime() - days * 86400000);
+        $scope.chartWrapper.getChart().setVisibleChartRange(start, now);
     };
 
     $scope.init();
