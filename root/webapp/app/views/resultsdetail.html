@@ -38,10 +38,10 @@
         <div class="result-item-container" ng-show="selectedObservation && !loading && observations">
             <div class="content-panel result-item">
                 <div class="result-header">
-                    <a href="" ng-click="openObservationHeadingInformation(observationHeading)">
+                    <a href="" ng-click="openObservationHeadingInformation(observationHeading)" class="pull-right">
                         <i class="icon-result-info pull-right"></i>
                     </a>
-                    <ul class="unstyled info-list pull-left">
+                    <ul class="unstyled info-list">
                         <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
                     </ul>
                 </div>
