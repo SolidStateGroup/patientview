@@ -20,6 +20,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
+import javax.persistence.EntityExistsException;
 
 /**
  * Restful interface for the basic Crud operation for codes.
@@ -35,20 +36,9 @@ public class CodeController extends BaseController<CodeController> {
 
     @RequestMapping(value = "/code", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Code> newCode(@RequestBody Code code, UriComponentsBuilder uriComponentsBuilder)
-        throws ResourceNotFoundException {
-
-        // create new code
-        code = codeService.add(code);
-        LOG.info("Created new code with id " + code.getId());
-
-        // set header with location
-        UriComponents uriComponents = uriComponentsBuilder.path("/code/{id}").buildAndExpand(code.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
-        // return created code
-        return new ResponseEntity<>(code, HttpStatus.CREATED);
+    public ResponseEntity<Code> newCode(@RequestBody Code code)
+        throws ResourceNotFoundException, EntityExistsException {
+        return new ResponseEntity<>(codeService.add(code), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/code", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,13 +55,8 @@ public class CodeController extends BaseController<CodeController> {
 
     @RequestMapping(value = "/code", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Code> saveCode(@RequestBody Code code, UriComponentsBuilder uriComponentsBuilder)
-            throws ResourceNotFoundException {
-        LOG.info("Updated code with id " + code.getId());
-        UriComponents uriComponents = uriComponentsBuilder.path("/code/{id}").buildAndExpand(code.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<>(codeService.save(code), headers, HttpStatus.OK);
+    public ResponseEntity<Code> saveCode(@RequestBody Code code) throws ResourceNotFoundException {
+        return new ResponseEntity<>(codeService.save(code), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/code/{codeId}", method = RequestMethod.DELETE)

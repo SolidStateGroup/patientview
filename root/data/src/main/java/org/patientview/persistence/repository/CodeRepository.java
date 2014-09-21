@@ -81,4 +81,7 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
                                                        @Param("description") String description,
                                                        @Param("codeType") Lookup codeType,
                                                        @Param("standardType") Lookup standardType);
+
+    @Query("SELECT c FROM Code c WHERE c.code = :code")
+    public Code findOneByCode(@Param("code") String code);
 }

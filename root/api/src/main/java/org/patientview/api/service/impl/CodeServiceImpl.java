@@ -19,7 +19,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -89,11 +88,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     }
 
     private boolean codeExists(Code code) {
-        return codeRepository.findAllByExistingCodeDetails(
-             code.getCode(), code.getDescription(), code.getCodeType(), code.getStandardType()).iterator().hasNext();
+        return codeRepository.findOneByCode(code.getCode()) != null;
     }
 
-    public Code add(final Code code) throws EntityExistsException{
+    public Code add(final Code code) throws EntityExistsException {
         Code newCode;
 
         Set<Link> links;
@@ -126,7 +124,14 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return codeRepository.findOne(codeId);
     }
 
-    public Code save(final Code code) {
+    public Code save(final Code code) throws EntityExistsException {
+
+        // check if another code with this code exists
+        Code entityCode = codeRepository.findOneByCode(code.getCode());
+        if (codeExists(code) && !(entityCode.getId() == code.getId())) {
+            throw new EntityExistsException("Code already exists with this code");
+        }
+
         return codeRepository.save(code);
     }
 

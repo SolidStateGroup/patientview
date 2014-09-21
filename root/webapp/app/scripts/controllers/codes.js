@@ -358,6 +358,13 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             }
 
             $scope.successMessage = 'Code saved';
+        }, function(failureResult) {
+            if (failureResult.status === 409) {
+                // conflict, code already exists
+                alert('Cannot save Code, another Code with the same code exists')
+            } else {
+                alert('There has been an error saving');
+            }
         });
     };
 
