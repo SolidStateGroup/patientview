@@ -67,7 +67,7 @@ function ($scope, $modal, ObservationService) {
             return null;
         }
 
-        if (result.valueChange === -1) {
+        if (result.valueChange < 0) {
             return 'icon-result-down';
         }
         return 'icon-result-up';

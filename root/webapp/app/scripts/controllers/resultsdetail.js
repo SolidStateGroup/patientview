@@ -104,6 +104,29 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         });
     };
 
+    $scope.getResultIcon = function(value) {
+        if (value === undefined) {
+            return null;
+        }
+        if (value === 0) {
+            return null;
+        }
+
+        if (value < 0) {
+            return 'icon-result-down';
+        }
+        return 'icon-result-up';
+    };
+
+    $scope.removeMinus = function(value) {
+        if (value !== undefined) {
+            value = Math.abs(value);
+            return value;
+        } else {
+            return null;
+        }
+    };
+
     $scope.findObservationHeadingByCode = function(code) {
         for (var i=0;i<$scope.observationHeadings.length;i++) {
             if ($scope.observationHeadings[i].code === code) {
@@ -120,7 +143,6 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
     $scope.observationClicked = function (observation) {
         $scope.selectedObservation = observation;
-
     };
 
     $scope.graphClicked = function () {
@@ -145,6 +167,16 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         });
     };
 
+    $scope.getValueChanged = function(observation) {
+        if (observation !== undefined) {
+            var index = $scope.tableObservationsKey[observation.applies];
+            if ($scope.tableObservations.length > index) {
+                return $scope.tableObservations[index].value - $scope.tableObservations[index + 1].value;
+            }
+        }
+        return null;
+    };
+
     $scope.rangeChanged = function (range) {
         $scope.showHideObservationsInTable(range.start, range.end);
     };
@@ -160,10 +192,12 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     $scope.showHideObservationsInTable = function(start, end) {
         $scope.tableObservations = false;
         $scope.tableObservations = [];
+        $scope.tableObservationsKey = [];
 
         for (var i=0;i<$scope.observations.length;i++) {
             if (start.getTime() < $scope.observations[i].applies && end.getTime() > $scope.observations[i].applies) {
                 $scope.tableObservations.push($scope.observations[i]);
+                $scope.tableObservationsKey[$scope.observations[i].applies] = $scope.tableObservations.length - 1;
             }
         }
 

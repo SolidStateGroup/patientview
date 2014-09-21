@@ -47,8 +47,13 @@
                 </div>
                 <div class="result-value clearfix">
                     <dl class="result-change">
-                        <dt>{{selectedObservation.value}}<span ng-show="observationHeading.units">{{observationHeading.units}}</span></dt>
-                        <!--<dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>-->
+                        <dt>{{selectedObservation.value}}
+                            <span ng-show="observationHeading.units">{{observationHeading.units}}</span>
+                        </dt>
+                        <dd ng-show="getResultIcon(getValueChanged(selectedObservation))">
+                            <i class="{{getResultIcon(getValueChanged(selectedObservation))}} pull-left"></i>
+                            <span class="pull-left">{{removeMinus(getValueChanged(selectedObservation))}}</span>
+                        </dd>
                     </dl>
                 </div>
                 <ul class="unstyled inline info-list pull-left">
