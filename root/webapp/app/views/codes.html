@@ -107,12 +107,15 @@
                         </div>
                     </div>
                 </div>
+                <!-- edit pane -->
                 <div class="panel-body" ng-show="code.showEdit">
-                    <!-- edit pane -->
-                    <form name="codeForm" class="edit-code">
-                        <div ng-include src="'views/partials/codeDetails.html'" ng-controller="CodeDetailsCtrl"></div>
-                    </form>
-                    <div class="panel-body-footer"><button class="btn btn-grey pull-right" ng-click="code.showEdit = false">Close</button></div>
+                    <div ng-show="code.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div ng-show="!code.editLoading">
+                        <form name="codeForm" class="edit-code">
+                            <div ng-include src="'views/partials/codeDetails.html'" ng-controller="CodeDetailsCtrl"></div>
+                        </form>
+                        <div class="panel-body-footer"><button class="btn btn-grey pull-right" ng-click="code.showEdit = false">Close</button></div>
+                    </div>
                 </div>
             </div>
         </div>

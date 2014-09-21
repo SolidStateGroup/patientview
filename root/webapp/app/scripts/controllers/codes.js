@@ -246,6 +246,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
             $scope.editCode = '';
             openedCode.showEdit = true;
+            openedCode.editLoading = true;
 
             // using lightweight list, do GET on id to get full code and populate editCode
             CodeService.get(openedCode.id).then(function (code) {
@@ -255,6 +256,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
                 code.standardTypeId = code.standardType.id;
                 $scope.editCode = _.clone(code);
                 $scope.editMode = true;
+                openedCode.editLoading = false;
             });
         }
     };

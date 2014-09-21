@@ -12,14 +12,11 @@ import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
-import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.repository.ContactPointRepository;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -127,12 +124,15 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             throw new ResourceNotFoundException(String.format("Could not find group %s", group.getId()));
         }
 
-        if (groupExists(group)) {
+        // check if another group with this code exists
+        Group existingGroup = groupRepository.findByCode(group.getCode());
+        if (groupExists(group) && !(entityGroup.getId() == existingGroup.getId())) {
             throw new EntityExistsException("Group already exists with this code");
         }
 
         entityGroup.setCode(group.getCode());
         entityGroup.setName(group.getName());
+        entityGroup.setShortName(group.getShortName());
         entityGroup.setGroupType(lookupRepository.findOne(group.getGroupType().getId()));
         entityGroup.setSftpUser(group.getSftpUser());
         entityGroup.setAddress1(group.getAddress1());

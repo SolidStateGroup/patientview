@@ -154,13 +154,16 @@
                 </div>
                 <!-- edit pane -->
                 <div class="panel-body" ng-show="user.showEdit">
-                    <form name="userForm">
-                        <div ng-include src="'views/partials/patientDetails.html'" ng-controller="UserDetailsCtrl"></div>
-                    </form>
-                    <hr>
-                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
-                    <div class="user-save-cancel pull-right">
-                        <button type="button" class="btn btn-grey" ng-click="user.showEdit = false">Close</button>
+                    <div ng-show="user.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div ng-show="!user.editLoading">
+                        <form name="userForm">
+                            <div ng-include src="'views/partials/patientDetails.html'" ng-controller="UserDetailsCtrl"></div>
+                        </form>
+                        <hr>
+                        <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                        <div class="user-save-cancel pull-right">
+                            <button type="button" class="btn btn-grey" ng-click="user.showEdit = false">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>

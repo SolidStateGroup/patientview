@@ -526,6 +526,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             $scope.editCode = '';
             openedUser.showEdit = true;
+            openedUser.editLoading = true;
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             UserService.get(openedUser.id).then(function (user) {
@@ -549,6 +550,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
                 // set the patient member being edited to a clone of the existing patient member (so only updated in UI on save)
                 $scope.editUser = _.clone(user);
+                openedUser.editLoading = false;
             });
         }
     };
