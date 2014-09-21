@@ -267,7 +267,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
         CodeService.clone(codeId).then(function(code) {
             $scope.successMessage = 'Successfully copied code';
-            $scope.list.push(code);
+            $scope.getItems();
         });
     };
 

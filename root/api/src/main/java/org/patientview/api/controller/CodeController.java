@@ -68,17 +68,11 @@ public class CodeController extends BaseController<CodeController> {
 
     @RequestMapping(value = "/code/{codeId}/clone", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Code> cloneCode(@PathVariable("codeId") Long codeId
-            , UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Code> cloneCode(@PathVariable("codeId") Long codeId) {
 
         // create new code
         Code code = codeService.cloneCode(codeId);
         LOG.info("Cloned code with id " + codeId + " to create new code with id " + code.getId());
-
-        // set header with location
-        UriComponents uriComponents = uriComponentsBuilder.path("/code/{id}").buildAndExpand(code.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
 
         // return created code
         return new ResponseEntity<>(code, HttpStatus.CREATED);
