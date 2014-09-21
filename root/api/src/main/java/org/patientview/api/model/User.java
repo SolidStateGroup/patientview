@@ -1,11 +1,12 @@
 package org.patientview.api.model;
 
+import org.hl7.fhir.instance.model.*;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.UserFeature;
 
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,10 +23,13 @@ public class User extends BaseModel{
     private Date lastLogin;
     private Set identifiers;
 
+    // FHIR
+    private Date dateOfBirth;
+
     public User() {
     }
 
-    public User(org.patientview.persistence.model.User user) {
+    public User(org.patientview.persistence.model.User user, org.hl7.fhir.instance.model.Patient patient) {
         setId(user.getId());
         setForename(user.getForename());
         setSurname(user.getSurname());
@@ -35,6 +39,16 @@ public class User extends BaseModel{
 
         for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
             getGroupRoles().add(new GroupRole(groupRole));
+        }
+
+        // if user has fhirPatient data (is a patient)
+        if (patient != null) {
+            // set date of birth
+            if (patient.getBirthDateSimple() != null) {
+                DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
+                    setDateOfBirth(new Date(new GregorianCalendar(fhirDateOfBirth.getYear(),
+                        fhirDateOfBirth.getMonth()-1, fhirDateOfBirth.getDay()).getTimeInMillis()));
+            }
         }
 
         setIdentifiers(user.getIdentifiers());
@@ -94,5 +108,13 @@ public class User extends BaseModel{
 
     public void setIdentifiers(Set identifiers) {
         this.identifiers = identifiers;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 }

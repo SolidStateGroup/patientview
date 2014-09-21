@@ -2,14 +2,18 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Patient;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
@@ -61,6 +65,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private GroupService groupService;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private FeatureRepository featureRepository;
@@ -323,7 +330,29 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
 
         for (User user : users) {
-            transportUsers.add(new org.patientview.api.model.User(user));
+            // if patient, add patient specific FHIR details
+            Set<FhirLink> fhirLinks = user.getFhirLinks();
+            if (fhirLinks.isEmpty()) {
+                transportUsers.add(new org.patientview.api.model.User(user, null));
+            } else {
+                // is a patient (has FHIR content), get most recent FHIR data and populate transport object
+                FhirLink recentFhirData = fhirLinks.iterator().next();
+                for (FhirLink fhirLink : fhirLinks) {
+                    if (fhirLink.getCreated().after(recentFhirData.getCreated())) {
+                        recentFhirData = fhirLink;
+                    }
+                }
+
+                try {
+                    Patient fhirPatient = patientService.get(recentFhirData.getResourceId());
+                    transportUsers.add(new org.patientview.api.model.User(user, fhirPatient));
+
+                } catch(FhirResourceException fre) {
+                    LOG.error("FhirResourceException on retrieving patient data");
+                }
+
+                transportUsers.add(new org.patientview.api.model.User(user, null));
+            }
         }
 
         return transportUsers;
