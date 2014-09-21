@@ -256,4 +256,28 @@ public class UserServiceTest {
         Assert.assertTrue("The set change password is set", user.getChangePassword() == Boolean.TRUE);
     }
 
+
+    /**
+     * Test: To save a Group with Role to a user
+     * Fail: The repository does not get called
+     *
+     * Matching is required on the save call
+     */
+    @Test
+    public void testAddGroupRole() {
+        User testUser = TestUtils.createUser("testUser");
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Role testRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(testRole, testGroup, testUser);
+
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(roleRepository.findOne(Matchers.eq(testRole.getId()))).thenReturn(testRole);
+        when(groupRoleRepository.save(Matchers.any(GroupRole.class))).thenReturn(groupRole);
+
+        groupRole = userService.addGroupRole(testUser.getId(), testGroup.getId(), testRole.getId());
+
+        Assert.assertNotNull("The returned object should not be null", groupRole);
+        verify(groupRoleRepository, Mockito.times(1)).save(Matchers.any(GroupRole.class));
+    }
 }

@@ -65,7 +65,7 @@ public class UserController extends BaseController<UserController> {
     public ResponseEntity<Void> addUserGroupRole(@PathVariable("userId") Long userId,
                                                       @PathVariable("groupId") Long groupId,
                                                       @PathVariable("roleId") Long roleId) {
-        groupService.addGroupRole(userId, groupId, roleId);
+        userService.addGroupRole(userId, groupId, roleId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -73,7 +73,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Void> deleteUserGroupRole(@PathVariable("userId") Long userId,
           @PathVariable("groupId") Long groupId, @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
-        groupService.deleteGroupRole(userId, groupId, roleId);
+        userService.deleteGroupRole(userId, groupId, roleId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

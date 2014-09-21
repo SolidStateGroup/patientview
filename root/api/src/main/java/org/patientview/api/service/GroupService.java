@@ -6,7 +6,6 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
@@ -38,10 +37,6 @@ public interface GroupService {
 
     @AuditTrail(value = AuditActions.CREATE, objectType = Group.class)
     Group add(Group group);
-
-    GroupRole addGroupRole(Long userId, Long groupId, Long roleId) throws EntityExistsException;
-
-    void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException;
 
     void addParentGroup(Long groupId, Long parentGroupId);
 

@@ -16,6 +16,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
@@ -240,80 +241,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addSingleParentAndChildGroup(newGroup);
     }
 
-    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId) throws EntityExistsException {
-        if (groupRoleRepository.findByUserGroupRole(userRepository.findOne(userId),
-                groupRepository.findOne(groupId), roleRepository.findOne(roleId)) != null) {
-            throw new EntityExistsException();
-        }
-
-        GroupRole groupRole = new GroupRole();
-        groupRole.setUser(userRepository.findOne(userId));
-        groupRole.setGroup(groupRepository.findOne(groupId));
-        groupRole.setRole(roleRepository.findOne(roleId));
-        groupRole.setCreator(userRepository.findOne(1L));
-        return groupRoleRepository.save(groupRole);
-    }
-
-    public void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException{
-
-        deleteGroupRoleRelationship(userId, groupId, roleId);
-
-        // if a user is removed from all child groups the parent group (if present) is also removed
-        // e.g. remove Renal (specialty) if RenalA (unit) is removed and these are the only 2 groups present
-        User user = userRepository.findOne(userId);
-        Group removedGroup = groupRepository.findOne(groupId);
-
-        Set<GroupRole> toRemove = new HashSet<>();
-        Set<GroupRole> userGroupRoles = new HashSet<>();
-
-        // remove from user.getGroupRoles as not deleted in this transaction yet
-        for (GroupRole groupRole : user.getGroupRoles()) {
-            if (groupRole.getGroup().getId() != groupId) {
-                userGroupRoles.add(groupRole);
-            }
-        }
-
-        // identify specialty groups with no children
-        for (GroupRole groupRole : userGroupRoles) {
-            if (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
-
-                List<Group> children = findChildren(groupRole.getGroup().getId());
-                boolean childInGroupRoles = false;
-                boolean removedGroupInChildren = children.contains(removedGroup);
-
-                for (Group group : children) {
-                    if (groupRolesContainsGroup(userGroupRoles, group)) {
-                        childInGroupRoles = true;
-                    }
-                }
-
-                if (!childInGroupRoles && removedGroupInChildren) {
-                    toRemove.add(groupRole);
-                }
-            }
-        }
-
-        // remove any specialty groups with no children
-        for (GroupRole groupRole : toRemove) {
-            deleteGroupRoleRelationship(groupRole.getUser().getId(), groupRole.getGroup().getId(),
-                    groupRole.getRole().getId());
-        }
-    }
-
-    private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException {
-        groupRoleRepository.delete(groupRoleRepository.findByUserGroupRole(
-                userRepository.findOne(userId), groupRepository.findOne(groupId), roleRepository.findOne(roleId)
-        ));
-    }
-
-    private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
-        for (GroupRole groupRole : groupRoles) {
-            if (groupRole.getGroup().equals(group)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void saveGroupRelationships(Group group) {
 
@@ -457,7 +384,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public List<Group> findChildren(Long groupId) throws ResourceNotFoundException {
-
         Group group = groupRepository.findOne(groupId);
 
         if (group == null) {
@@ -465,7 +391,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         }
 
         return Util.convertIterable(groupRepository.findChildren(group));
-
     }
 
     public void contactUnit(Long groupId, UnitRequest unitRequest)

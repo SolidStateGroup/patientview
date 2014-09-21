@@ -148,7 +148,7 @@ public class UserControllerTest {
             fail("The put request all should not fail " + e.getCause());
         }
 
-        verify(groupService, Mockito.times(1)).addGroupRole(Matchers.eq(userId), Matchers.eq(groupId), Matchers.eq(roleId));
+        verify(userService, Mockito.times(1)).addGroupRole(Matchers.eq(userId), Matchers.eq(groupId), Matchers.eq(roleId));
     }
 
     /**
