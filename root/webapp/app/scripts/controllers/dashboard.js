@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService', 'ObservationService',
-function (UserService, $scope, GroupService, NewsService, ObservationService) {
+angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService',
+function (UserService, $scope, GroupService, NewsService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -22,7 +22,9 @@ function (UserService, $scope, GroupService, NewsService, ObservationService) {
 
                     for (i = 0; i < data.length; i++) {
                         var row = [];
-                        row[0] = new Date(data[i].endDate);
+                        var date = new Date(data[i].endDate);
+                        //row[0] = date;
+                        row[0] = new Date(date.getFullYear(),date.getMonth()+1,null,null,null,null,null);
                         row[1] = data[i].countOfPatients;
                         row[2] = data[i].countOfUniqueLogons;
                         row[3] = data[i].countOfLogons;
@@ -117,18 +119,6 @@ function (UserService, $scope, GroupService, NewsService, ObservationService) {
         }, function() {
             $scope.loading = false;
         });
-
-        /*if ($scope.permissions.isPatient) {
-            // testing only
-            //ObservationService.getByCode($scope.loggedInUser.id, 'HB').then(function (patientDetails) {
-            ObservationService.getAll($scope.loggedInUser.id).then(function (patientDetails) {
-                $scope.patientDetails = patientDetails;
-                $scope.loading = false;
-            }, function () {
-                $scope.loading = false;
-                alert('Error getting patient details');
-            });
-        }*/
     };
 
     $scope.init();
