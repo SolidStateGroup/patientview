@@ -433,34 +433,13 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
             $scope.editCode = '';
             openedUser.showEdit = true;
+            openedUser.editLoading = true;
 
             // now using lightweight group list, do GET on id to get full group and populate editGroup
             UserService.get(openedUser.id).then(function (user) {
 
                 $scope.editing = true;
                 user.roles = $scope.allowedRoles;
-
-                // for REST compatibility, convert staff member groupRoles to objects suitable for UI
-                user.groups = [];
-                for (var h = 0; h < user.groupRoles.length; h++) {
-                    if (user.groupRoles[h].role.name !== 'MEMBER') {
-                        var groupRole = user.groupRoles[h];
-                        var group = groupRole.group;
-                        group.role = groupRole.role;
-                        user.groups.push(group);
-                    }
-                }
-
-                // create list of available groups (all - staff members existing groups)
-                user.availableGroups = $scope.allGroups;
-                if (user.groups) {
-                    for (var i = 0; i < user.groups.length; i++) {
-                        user.availableGroups = _.without(user.availableGroups, _.findWhere(user.availableGroups, {id: user.groups[i].id}));
-                    }
-                }
-                else {
-                    user.groups = [];
-                }
 
                 // create list of available features (all - staff members existing features)
                 user.availableFeatures = _.clone($scope.allFeatures);
@@ -478,14 +457,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
                 // set the staff member being edited to a clone of the existing staff member (so only updated in UI on save)
                 $scope.editUser = _.clone(user);
-
-                // set initial group and feature (avoid blank <select> option)
-                if ($scope.editUser.availableGroups[0]) {
-                    $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
-                }
-                if ($scope.editUser.availableFeatures[0]) {
-                    $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
-                }
+                openedUser.editLoading = false;
             });
         }
     };
@@ -530,9 +502,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
         // create new user with list of available roles, groups and features
         $scope.editUser = {};
-        $scope.editUser.roles = $scope.allowedRoles;
-        $scope.editUser.availableGroups = $scope.allGroups;
-        $scope.editUser.groups = [];
+        $scope.editUser.groupRoles = [];
         $scope.editUser.availableFeatures = _.clone($scope.allFeatures);
         $scope.editUser.userFeatures = [];
         $scope.editUser.selectedRole = '';

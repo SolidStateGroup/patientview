@@ -65,16 +65,15 @@ public class UserController extends BaseController<UserController> {
     public ResponseEntity<Void> addUserGroupRole(@PathVariable("userId") Long userId,
                                                       @PathVariable("groupId") Long groupId,
                                                       @PathVariable("roleId") Long roleId) {
-        groupService.addGroupRole(userId, groupId, roleId);
+        userService.addGroupRole(userId, groupId, roleId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Void> deleteUserGroupRole(@PathVariable("userId") Long userId,
-                                                      @PathVariable("groupId") Long groupId,
-                                                      @PathVariable("roleId") Long roleId) {
-        groupService.deleteGroupRole(userId, groupId, roleId);
+          @PathVariable("groupId") Long groupId, @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
+        userService.deleteGroupRole(userId, groupId, roleId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -294,5 +293,13 @@ public class UserController extends BaseController<UserController> {
     public ResponseEntity<List<UserInformation>> getInformation(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(userService.getInformation(userId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/identifier/value/{identifierValue}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Identifier> getIdentifierByValue(@PathVariable("identifierValue") String identifierValue)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(userService.getIdentifierByValue(identifierValue), HttpStatus.OK);
     }
 }

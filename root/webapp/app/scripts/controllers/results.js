@@ -1,7 +1,16 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', 'ObservationService',
-function ($scope, ObservationService) {
+// observation heading information modal instance controller
+var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result',
+    function ($scope, $modalInstance, result) {
+        $scope.result = result;
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }];
+
+angular.module('patientviewApp').controller('ResultsCtrl', ['$scope', '$modal', 'ObservationService',
+function ($scope, $modal, ObservationService) {
 
     $scope.init = function() {
 
@@ -58,7 +67,7 @@ function ($scope, ObservationService) {
             return null;
         }
 
-        if (result.valueChange === -1) {
+        if (result.valueChange < 0) {
             return 'icon-result-down';
         }
         return 'icon-result-up';
@@ -67,6 +76,38 @@ function ($scope, ObservationService) {
     $scope.removeMinus = function(value) {
         value = Math.abs(value);
         return value;
+    };
+
+    $scope.openObservationHeadingInformation = function (result) {
+
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/observationHeadingInfoModal.html',
+            controller: ObservationHeadingInfoModalInstanceCtrl,
+            size: 'sm',
+            resolve: {
+                result: function(){
+                    return result;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
+    };
+
+    $scope.getPanelResultTitles = function(panel) {
+        var text = "", i;
+        for (i=0;i<panel.length;i++) {
+            text += panel[i].heading;
+            if (i !== panel.length-1) {
+                text+= ", ";
+            }
+        }
+
+        return text;
     };
 
     $scope.init();

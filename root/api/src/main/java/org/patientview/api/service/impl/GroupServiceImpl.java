@@ -12,7 +12,6 @@ import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
@@ -125,12 +124,15 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             throw new ResourceNotFoundException(String.format("Could not find group %s", group.getId()));
         }
 
-        if (groupExists(group)) {
+        // check if another group with this code exists
+        Group existingGroup = groupRepository.findByCode(group.getCode());
+        if (groupExists(group) && !(entityGroup.getId() == existingGroup.getId())) {
             throw new EntityExistsException("Group already exists with this code");
         }
 
         entityGroup.setCode(group.getCode());
         entityGroup.setName(group.getName());
+        entityGroup.setShortName(group.getShortName());
         entityGroup.setGroupType(lookupRepository.findOne(group.getGroupType().getId()));
         entityGroup.setSftpUser(group.getSftpUser());
         entityGroup.setAddress1(group.getAddress1());
@@ -239,20 +241,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addSingleParentAndChildGroup(newGroup);
     }
 
-    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId) {
-        GroupRole groupRole = new GroupRole();
-        groupRole.setUser(userRepository.findOne(userId));
-        groupRole.setGroup(groupRepository.findOne(groupId));
-        groupRole.setRole(roleRepository.findOne(roleId));
-        groupRole.setCreator(userRepository.findOne(1L));
-        return groupRoleRepository.save(groupRole);
-    }
-
-    public void deleteGroupRole(Long userId, Long groupId, Long roleId) {
-        groupRoleRepository.delete(groupRoleRepository.findByUserGroupRole(
-                userRepository.findOne(userId), groupRepository.findOne(groupId), roleRepository.findOne(roleId)
-        ));
-    }
 
     private void saveGroupRelationships(Group group) {
 
@@ -396,7 +384,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public List<Group> findChildren(Long groupId) throws ResourceNotFoundException {
-
         Group group = groupRepository.findOne(groupId);
 
         if (group == null) {
@@ -404,7 +391,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         }
 
         return Util.convertIterable(groupRepository.findChildren(group));
-
     }
 
     public void contactUnit(Long groupId, UnitRequest unitRequest)

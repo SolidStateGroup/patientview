@@ -52,6 +52,7 @@ CREATE TABLE PV_Group
 (
   Id               BIGINT    NOT NULL,
   Group_Name       VARCHAR(200) UNIQUE,
+  Group_Short_Name VARCHAR(200),
   Code             VARCHAR(50),
   Sftp_User        VARCHAR(255),
   Type_Id          BIGINT REFERENCES PV_Lookup_Value (Id) NOT NULL,

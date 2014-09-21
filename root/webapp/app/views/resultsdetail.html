@@ -7,8 +7,20 @@
     .faux-row {
         cursor: pointer;
     }
+    #_AnnotationChart_annotationsTd, #annotationsTdContainer, .google-visualization-atl .containerTable .td {
+        display: none;
+    }
+    .google-visualization-atl.container, #chart_div_AnnotationChart_annotationsTd {
+        border: none;
+    }
+    .google-visualization-atl .annotationsTdContainer {
+        border-left: 1px solid #fff;
+    }
+    #chart_div {
+        border:none;
+        width:100%;
+    }
 </style>
-
 <div class="header-select row">
     <div class=" col-md-7">
         <h1>Showing results: <span class="blue-text">{{observationHeading.heading}}</span></h1>
@@ -21,51 +33,57 @@
     </div>
 </div>
 
-<div class="row result-detail-panel" ng-show="!loading && observations">
+<div class="row result-detail-panel">
     <div class="col-md-7 result-container clearfix">
-        <div class="result-item-container" ng-show="selectedObservation">
+        <div class="result-item-container" ng-show="selectedObservation && !loading && observations">
             <div class="content-panel result-item">
                 <div class="result-header">
-                    <a href="{{observationHeading.infoLink | addhttpFilter}}" target="_blank"
-                       ng-show="observationHeading.infoLink" class="pull-right">
+                    <a href="" ng-click="openObservationHeadingInformation(observationHeading)">
                         <i class="icon-result-info pull-right"></i>
                     </a>
-                    <ul class="unstyled info-list">
+                    <ul class="unstyled info-list pull-left">
                         <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
                     </ul>
                 </div>
                 <div class="result-value clearfix">
                     <dl class="result-change">
-                        <dt>{{selectedObservation.value}}<span ng-show="result.units">{{selectedObservation.units}}</span></dt>
-                        <!--<dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>-->
+                        <dt>{{selectedObservation.value}}
+                            <span ng-show="observationHeading.units">{{observationHeading.units}}</span>
+                        </dt>
+                        <dd ng-show="getResultIcon(getValueChanged(selectedObservation))">
+                            <i class="{{getResultIcon(getValueChanged(selectedObservation))}} pull-left"></i>
+                            <span class="pull-left">{{removeMinus(getValueChanged(selectedObservation))}}</span>
+                        </dd>
                     </dl>
                 </div>
                 <ul class="unstyled inline info-list pull-left">
                     <li><strong>Source:</strong> {{selectedObservation.group.name}}</li>
-                    <li ng-show="selectedObservation.units"><strong>Units:</strong> {{selectedObservation.units}}</li>
                 </ul>
-                <div class="result-comment pull-left" ng-show="selectedObservation.comments">
+                <div class="result-comment pull-left" >
                     <label>Comments</label>
                     <p ng-show="selectedObservation.comments">{{selectedObservation.comments}}</p>
-                    <!--todo: james need to hookup this so it shows when there are no comments-->
-                    <p ng-show="selectedObservation.comments.length == 0">There are no associated comments to show</p>
+                    <p ng-show="!selectedObservation.comments">There are no associated comments to show</p>
                 </div>
-                <!--<div class="result-footer">
-                    <i class="icon-circle-arrow pull-right"></i>
-                    <p>View More Details</p>
-                </div>-->
             </div>
         </div>
 
-        <div class="result-graph" ng-show="!chartLoading">
-            <div class="content-panel">
-                <div class="content-inner">
-                    <div google-chart chart="chart" on-select="graphClicked()" on-ready="readyHandler(chartWrapper)"></div>
-                </div>
+        <div class="info-header" ng-show="!loading && observations">
+            <div class="btn-group pull-right">
+                <a href="" ng-click="setRangeInDays(30)" class="btn blue" ng-class="{active: range==30}">30 Days</a>
+                <a href="" ng-click="setRangeInDays(90)" class="btn blue" ng-class="{active: range==90}">3 Months</a>
+                <a href="" ng-click="setRangeInDays(365.25)" class="btn blue" ng-class="{active: range==365.25}">1 Year</a>
+                <a href="" ng-click="setRangeInDays(1094.75)" class="btn blue" ng-class="{active: range==1094.75}">3 Years</a>
+                <a href="" ng-click="setRangeInDays(999999)" class="btn blue" ng-class="{active: range==999999}">All</a>
+            </div>
+        </div>
+
+        <div class="content-panel">
+            <div class="content-inner">
+                <div id="chart_div"></div>
             </div>
         </div>
     </div>
-    <aside class="col-md-5 historical-data">
+    <aside class="col-md-5 historical-data" ng-show="!loading && observations">
         <div class="info-header blue">
             <p>Click <i class="icon-graph-tiny"></i> to highlight result</p>
         </div>
@@ -79,8 +97,13 @@
             </div>
             <!--Table Body-->
             <div class="item-header">
-                <div class="faux-row" ng-repeat="observation in observations" ng-click="observationClicked(observation)"
-                     ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
+                <div class="faux-row" ng-show="!tableObservations.length">
+                    <div class="row-item">
+                        <p><br/><br/>No results available for this date range<br/><br/><br/><p>
+                    </div>
+                </div>
+                <div class="faux-row" ng-repeat="observation in tableObservations" ng-click="observationClicked(observation)"
+                        ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
                     <div class="row-item hidden">{{observation.id}}</div>
                     <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
                     <div class="row-item accordion-heading-text">{{observation.applies | date: 'dd-MMM-yyyy'}}</div>

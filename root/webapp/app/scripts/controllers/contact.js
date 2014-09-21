@@ -79,7 +79,11 @@ function ($scope, $modal, GroupService, ConversationService) {
             // set checkboxes
             for (var i=0;i<$scope.groups.length;i++) {
                 $scope.groups[i].selected = true;
+                if ($scope.groups[i].groupType.value !== 'UNIT') {
+                    $scope.groups.splice(i, 1);
+                }
             }
+
 
             $scope.loading = false;
         }, function () {

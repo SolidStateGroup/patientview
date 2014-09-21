@@ -162,7 +162,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             Long panel = getPanel(observationHeading, group);
             Long panelOrder = getPanelOrder(observationHeading, group);
 
-            if (panel != null) {
+            // don't include any observation heading with panel = 0
+            if (panel != null && panel != 0L) {
                 org.patientview.api.model.ObservationHeading summaryHeading =
                         buildSummaryHeading(panel, panelOrder, observationHeading);
 

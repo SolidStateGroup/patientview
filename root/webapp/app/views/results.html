@@ -27,7 +27,7 @@
 
 <ul class="pagination results pull-right" ng-show="!loading">
     <li ng-repeat="(key, panel) in panels" ng-class="{active: currentPage == key}" ng-click="changePanel(key)">
-        <a href>{{key}}</a>
+        <a href="" data-toggle="tooltip" data-placement="top" title="{{getPanelResultTitles(panel)}}">{{key}}</a>
     </li>
 </ul>
 
@@ -37,7 +37,7 @@
             <div class="content-panel result-item">
                 <div class="result-header">
                     <h4>
-                        <a href="{{result.infoLink | addhttpFilter}}" target="_blank" ng-show="result.infoLink">
+                        <a href="" ng-click="openObservationHeadingInformation(result)">
                         <i class="icon-result-info pull-right"></i>
                         </a> {{result.heading}}
                     </h4>

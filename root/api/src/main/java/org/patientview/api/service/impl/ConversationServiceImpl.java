@@ -245,7 +245,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
 
             if (staffUsers.isEmpty()) {
-                throw new ResourceNotFoundException("No staff available to send message");
+                throw new ResourceNotFoundException("No support staff available to send message");
             }
 
             // add found staff to conversation

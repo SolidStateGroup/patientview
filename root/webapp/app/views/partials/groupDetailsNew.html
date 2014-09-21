@@ -7,12 +7,19 @@
         <div class="col-md-3">
             <label for="group-name" class="control-label">Name <span class="error" ng-show="groupFormNew.name.$error.required"> *required</span></label>
             <div class=""><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" ng-model="editGroup.name" required></div>
-
+        </div>
+        <div class="col-md-3">
+            <label for="group-short-name" class="control-label">Short Name (20 characters)</label>
+            <div class=""><input type="text" class="form-control" id="group-short-name" placeholder="Short Name" name="shortName" ng-model="editGroup.shortName"></div>
         </div>
         <div class="col-md-3">
             <label for="group-groupType" class="ccontrol-label">Group Type <span class="error" ng-show="!editGroup.groupTypeId"> *required</span></label>
             <div class=""><select id="group-groupType" class="form-control groupType-select" ng-model="editGroup.groupTypeId" ng-options="groupType.id as groupType.value for groupType in editGroup.groupTypes"></select></div>
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="group-sftp-user" class="control-label">SFTP User</label>
             <input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" ng-model="editGroup.sftpUser">

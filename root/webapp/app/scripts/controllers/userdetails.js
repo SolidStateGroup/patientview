@@ -5,89 +5,9 @@ function ($scope, UserService, IdentifierService) {
     var i;
 
     // add group to current group, remove from allowed
-    $scope.addGroup = function (form, user, groupId) {
-        if(_.findWhere(user.availableGroups, {id: groupId}) && _.findWhere($scope.allowedRoles, {id: user.selectedRole})) {
-            var newGroup = _.findWhere($scope.allGroups, {id: groupId});
-            newGroup.role = _.findWhere($scope.allowedRoles, {id: user.selectedRole});
-
-            if ($scope.editMode) {
-                UserService.addGroupRole(user, newGroup.id, newGroup.role.id).then(function () {
-                    user.groups.push(newGroup);
-                    user.availableGroups = _.without(user.availableGroups,
-                        _.findWhere(user.availableGroups, {id: groupId}));
-
-                    // for REST compatibility
-                    user.groupRoles = [];
-                    for (i = 0; i < user.groups.length; i++) {
-                        var group = user.groups[i];
-                        user.groupRoles.push({'group': group, 'role': group.role});
-                    }
-
-                    if (user.availableGroups && user.availableGroups.length > 0) {
-                        user.groupToAdd = user.availableGroups[0].id;
-                    }
-
-                    // update accordion header with data from GET
-                    UserService.get(user.id).then(function (successResult) {
-                        for(i=0;i<$scope.pagedItems.length;i++) {
-                            if($scope.pagedItems[i].id === user.id) {
-                                var headerDetails = $scope.pagedItems[i];
-                                headerDetails.groupRoles = successResult.groupRoles;
-                            }
-                        }
-                    }, function () {
-                        // failure
-                        alert('Error updating header (saved successfully)');
-                    });
-
-                    form.$setDirty(true);
-                }, function () {
-                    // failure
-                    alert('Error adding group role');
-                });
-            } else {
-                user.groups.push(newGroup);
-                user.availableGroups = _.without(user.availableGroups,
-                    _.findWhere(user.availableGroups, {id: groupId}));
-
-                // for REST compatibility
-                user.groupRoles = [];
-                for (i = 0; i < user.groups.length; i++) {
-                    var group = user.groups[i];
-                    user.groupRoles.push({'group': group, 'role': group.role});
-                }
-
-                if (user.availableGroups && user.availableGroups.length > 0) {
-                    user.groupToAdd = user.availableGroups[0].id;
-                }
-
-                form.$setDirty(true);
-            }
-        }
-    };
-
-    // remove group from current groups, add to allowed groups
-    $scope.removeGroup = function (form, user, group) {
+    $scope.addGroupRole = function (form, user, groupId, roleId) {
         if ($scope.editMode) {
-            UserService.deleteGroupRole(user, group.id, group.role.id).then(function () {
-
-                user.groups = _.without(user.groups, _.findWhere(user.groups, {id: group.id}));
-                user.availableGroups.push(group);
-                user.availableGroups = _.sortBy(user.availableGroups, 'name');
-
-                if (user.availableGroups && user.availableGroups.length > 0) {
-                    $scope.groupToAdd = user.availableGroups[0].id;
-                }
-
-                // for REST compatibility
-                user.groupRoles = [];
-                for (i = 0; i < user.groups.length; i++) {
-                    var tempGroup = user.groups[i];
-                    user.groupRoles.push({'group': tempGroup, 'role': tempGroup.role});
-                }
-
-                form.$setDirty(true);
-
+            UserService.addGroupRole(user, groupId, roleId).then(function () {
                 // update accordion header with data from GET
                 UserService.get(user.id).then(function (successResult) {
                     for(i=0;i<$scope.pagedItems.length;i++) {
@@ -96,30 +16,70 @@ function ($scope, UserService, IdentifierService) {
                             headerDetails.groupRoles = successResult.groupRoles;
                         }
                     }
+                    user.groupRoles = successResult.groupRoles;
                 }, function () {
-                    // failure
+                    alert('Error updating header (saved successfully)');
+                });
+
+                form.$setDirty(true);
+            }, function () {
+                alert('Error adding group role, may already exist');
+            });
+        } else {
+            var groupRole = {};
+
+            for (i=0;i<$scope.allGroups.length;i++){
+                if ($scope.allGroups[i].id === groupId) {
+                    groupRole.group = $scope.allGroups[i];
+                }
+            }
+
+            for (i=0;i<$scope.allowedRoles.length;i++){
+                if ($scope.allowedRoles[i].id === roleId) {
+                    groupRole.role = $scope.allowedRoles[i];
+                }
+            }
+
+            var canAddGroupRole = true;
+
+            for (i=0;i<user.groupRoles.length;i++) {
+                var existingGroupRole = user.groupRoles[i];
+                if (groupRole.group.id === existingGroupRole.group.id &&
+                    groupRole.role.id === existingGroupRole.role.id) {
+                    canAddGroupRole = false
+                }
+            }
+
+            if (canAddGroupRole) {
+                groupRole.id = Math.floor(Math.random() * (9999)) -10000;
+                user.groupRoles.push(groupRole);
+                form.$setDirty(true)
+            } else {
+                alert("Group and Role already exist and cannot be added again")
+            }
+        }
+    };
+
+    // remove group from current groups, add to allowed groups
+    $scope.removeGroupRole = function (form, user, groupRole) {
+        if ($scope.editMode) {
+            UserService.deleteGroupRole(user, groupRole.group.id, groupRole.role.id).then(function () {
+                UserService.get(user.id).then(function (successResult) {
+                    for(i=0;i<$scope.pagedItems.length;i++) {
+                        if($scope.pagedItems[i].id === user.id) {
+                            var headerDetails = $scope.pagedItems[i];
+                            headerDetails.groupRoles = successResult.groupRoles;
+                        }
+                    }
+                    user.groupRoles = successResult.groupRoles;
+                }, function () {
                     alert('Error updating header (saved successfully)');
                 });
             }, function () {
-                // failure
                 alert('Error deleting group role');
             });
         } else {
-            user.groups = _.without(user.groups, _.findWhere(user.groups, {id: group.id}));
-            user.availableGroups.push(group);
-            user.availableGroups = _.sortBy(user.availableGroups, 'name');
-
-            if (user.availableGroups && user.availableGroups.length > 0) {
-                $scope.groupToAdd = user.availableGroups[0].id;
-            }
-
-            // for REST compatibility
-            user.groupRoles = [];
-            for (i = 0; i < user.groups.length; i++) {
-                var tempGroup = user.groups[i];
-                user.groupRoles.push({'group': tempGroup, 'role': tempGroup.role});
-            }
-
+            user.groupRoles = _.without(user.groupRoles, _.findWhere(user.groupRoles, {id: groupRole.id}));
             form.$setDirty(true);
         }
     };
@@ -257,30 +217,32 @@ function ($scope, UserService, IdentifierService) {
 
             if (valid) {
                 if ($scope.editMode) {
-                    delete identifier.id;
-                    UserService.addIdentifier(user, identifier).then(function (successResult) {
-                        // added identifier
-                        identifier.id = successResult.id;
-                        user.identifiers.push(_.clone(identifier));
-                        identifier.identifier = '';
-                        form.$setDirty(true);
-
-                        // update accordion header with data from GET
-                        UserService.get(user.id).then(function (successResult) {
-                            for(var i=0;i<$scope.pagedItems.length;i++) {
-                                if($scope.pagedItems[i].id === user.id) {
-                                    var headerDetails = $scope.pagedItems[i];
-                                    headerDetails.identifiers = successResult.identifiers;
-                                }
-                            }
-                        }, function () {
-                            // failure
-                            alert('Error updating header (saved successfully)');
-                        });
-
+                    UserService.getIdentifierByValue(identifier.identifier).then(function () {
+                        alert('Identifier already exists for another patient, please choose another');
                     }, function () {
-                        // failure
-                        alert('Error adding identifier');
+                        delete identifier.id;
+                        UserService.addIdentifier(user, identifier).then(function (successResult) {
+                            // added identifier
+                            identifier.id = successResult.id;
+                            user.identifiers.push(_.clone(identifier));
+                            identifier.identifier = '';
+                            form.$setDirty(true);
+
+                            // update accordion header with data from GET
+                            UserService.get(user.id).then(function (successResult) {
+                                for (var i = 0; i < $scope.pagedItems.length; i++) {
+                                    if ($scope.pagedItems[i].id === user.id) {
+                                        var headerDetails = $scope.pagedItems[i];
+                                        headerDetails.identifiers = successResult.identifiers;
+                                    }
+                                }
+                            }, function () {
+                                alert('Error updating header (saved successfully)');
+                            });
+
+                        }, function () {
+                            alert('Error adding identifier');
+                        });
                     });
                 } else {
                     identifier.id = Math.floor(Math.random() * (9999)) - 10000;

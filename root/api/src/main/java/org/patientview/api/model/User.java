@@ -5,6 +5,7 @@ import org.patientview.persistence.model.UserFeature;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,6 +20,7 @@ public class User extends BaseModel{
     private Set<UserFeature> userFeatures = new HashSet<>();
     private Set<GroupRole> groupRoles = new HashSet<>();
     private Date lastLogin;
+    private Set identifiers;
 
     public User() {
     }
@@ -34,6 +36,8 @@ public class User extends BaseModel{
         for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
             getGroupRoles().add(new GroupRole(groupRole));
         }
+
+        setIdentifiers(user.getIdentifiers());
     }
 
     public String getForename() {
@@ -82,5 +86,13 @@ public class User extends BaseModel{
 
     public void setLastLogin(Date lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    public Set getIdentifiers() {
+        return identifiers;
+    }
+
+    public void setIdentifiers(Set identifiers) {
+        this.identifiers = identifiers;
     }
 }
