@@ -97,5 +97,17 @@ function ($scope, $modal, ObservationService) {
         });
     };
 
+    $scope.getPanelResultTitles = function(panel) {
+        var text = "", i;
+        for (i=0;i<panel.length;i++) {
+            text += panel[i].heading;
+            if (i !== panel.length-1) {
+                text+= ", ";
+            }
+        }
+
+        return text;
+    };
+
     $scope.init();
 }]);
