@@ -25,14 +25,6 @@
             <td><span ng-show="result.normalRange">{{result.normalRange}}</span>
                 <span ng-show="!result.normalRange">Not Available</span></td>
         </tr><tr>
-            <td>Minimum Value</td>
-            <td><span ng-show="result.minGraph">{{result.minGraph}}</span>
-                <span ng-show="!result.minGraph">Not Available</span></td>
-        </tr><tr>
-            <td>Maximum Value&nbsp;&nbsp;&nbsp;</td>
-            <td><span ng-show="result.maxGraph">{{result.maxGraph}}</span>
-                <span ng-show="!result.maxGraph">Not Available</span></td>
-        </tr><tr>
             <td>Information</td>
             <td>
                 <a href="{{result.infoLink | addhttpFilter}}" target="_blank" ng-show="result.infoLink">

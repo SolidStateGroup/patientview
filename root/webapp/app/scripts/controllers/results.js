@@ -83,6 +83,7 @@ function ($scope, $modal, ObservationService) {
         var modalInstance = $modal.open({
             templateUrl: 'views/partials/observationHeadingInfoModal.html',
             controller: ObservationHeadingInfoModalInstanceCtrl,
+            size: 'sm',
             resolve: {
                 result: function(){
                     return result;
