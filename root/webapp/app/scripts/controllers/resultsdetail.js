@@ -19,6 +19,16 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             code = $scope.code[0];
         }
 
+        var chart = new google.visualization.AnnotationChart(document.querySelector('#chart_div'));
+
+        google.visualization.events.addListener(chart, 'rangechange', function(e) {
+            $scope.rangeChanged(e);
+        });
+        google.visualization.events.addListener(chart, 'select', function(e) {
+            $scope.graphClicked();
+        });
+        $scope.chart = chart;
+
         $scope.getObservationHeadings(code);
         $scope.getObservations(code);
     };
@@ -35,7 +45,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
     $scope.initialiseChart = function() {
         // now using standard google charts (not angular-google-chart)
-        var chart = new google.visualization.AnnotationChart(document.querySelector('#chart_div'));
+        $('.chart-content-panel').show();
+
         var data = [
             ['date', 'Result']
         ];
@@ -71,16 +82,9 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             annotationsWidth: '0'
         };
 
-        chart.draw(data, options);
+        $scope.chart.draw(data, options);
 
-        google.visualization.events.addListener(chart, 'rangechange', function(e) {
-            $scope.rangeChanged(e);
-        });
-        google.visualization.events.addListener(chart, 'select', function(e) {
-            $scope.graphClicked();
-        });
-
-        $scope.chart = chart;
+        //$scope.chart = chart;
         $scope.setRangeInDays(1094.75);
         $scope.chartLoading = false;
     };
@@ -136,6 +140,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.changeObservationHeading = function(code) {
+        $('.chart-content-panel').hide();
         $scope.observationHeading = $scope.findObservationHeadingByCode(code);
         $scope.selectedCode = $scope.observationHeading.code;
         $scope.getObservations(code);

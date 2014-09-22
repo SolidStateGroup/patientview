@@ -1,9 +1,8 @@
-<div class="hider" ng-show="status.open"></div>
+<div class="container"><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+</div>
 
-<div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
-    <div class="" ng-show="!loading" ng-cloak>
-    <h1></h1>
+<div class="" ng-show="!loading" ng-cloak>
     <div class="row">
         <div class="col-md-8">
             <div class="tab-panel-item">
@@ -56,8 +55,14 @@
                         </div>
                     </div>
                 </div>
-                <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
             </div>
+
+            <div class="content-panel" ng-hide="permissions.isPatient">
+                <div class="content-inner">
+                    <div id="chart_div"></div>
+                </div>
+            </div>
+
             <div class="content-panel" ng-show="chartLoading && !permissions.isPatient">
                 <div class="loading"><img src="images/loading.gif" alt="Loading"/></div>
             </div>
