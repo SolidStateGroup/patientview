@@ -14,7 +14,7 @@ function (UserService, $scope, GroupService, NewsService) {
                 GroupService.getStatistics(newValue).then(function (data) {
 
                     // now using standard google charts (not angular-google-chart)
-                    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
                     var chartData = [
                         ['date', 'Patients', 'Unique Logons', 'Logons']
                     ];
@@ -80,7 +80,7 @@ function (UserService, $scope, GroupService, NewsService) {
                             }
                         };
 
-                        chart.draw(chartData, options);
+                        $scope.chart.draw(chartData, options);
                     }
 
                     $scope.chartLoading = false;
@@ -91,6 +91,10 @@ function (UserService, $scope, GroupService, NewsService) {
 
     $scope.init = function() {
         $scope.loading = true;
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        $scope.chart = chart;
+
         $scope.allGroups = [];
         $scope.permissions = {};
         var i;
