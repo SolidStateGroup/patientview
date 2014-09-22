@@ -46,8 +46,8 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
     $scope.filterText = '';
-    $scope.sortField = '';
-    $scope.sortDirection = '';
+    $scope.sortField = 'code';
+    $scope.sortDirection = 'ASC';
 
     var tempFilterText = '';
     var filterTextTimeout;
