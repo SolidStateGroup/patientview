@@ -126,13 +126,9 @@ public class ConversationController extends BaseController<ConversationControlle
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> newConversation(@PathVariable("userId") Long userId,
-                                            @RequestBody Conversation conversation) {
-        try {
-            conversationService.addConversation(userId, conversation);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+                                            @RequestBody Conversation conversation) throws ResourceNotFoundException {
+        conversationService.addConversation(userId, conversation);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.PUT)

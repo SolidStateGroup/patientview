@@ -130,13 +130,10 @@ public class UserServiceTest {
         when(userRepository.save(Matchers.eq(newUser))).thenReturn(newUser);
         when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
         when(roleRepository.findOne(Matchers.eq(role.getId()))).thenReturn(role);
+        when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
+                .thenReturn(groupRole);
 
         userService.createUserWithPasswordEncryption(newUser);
-
-//        verify(userFeatureRepository, Mockito.times(1)).save(Matchers.eq(userFeature));
- //       verify(groupRoleRepository, Mockito.times(1)).save(Matchers.eq(groupRole));
- //       verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
-
     }
 
     /**
@@ -154,6 +151,24 @@ public class UserServiceTest {
         when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user);
         userService.addIdentifier(userId, identifier);
         verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
+    }
+
+    /**
+     * Test: Get identifier by value
+     * Fail: Service is not called
+     *
+     */
+    @Test
+    public void testGetIdentifierByValue() throws ResourceNotFoundException {
+        String identifierValue = "1111111111";
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier(identifierValue);
+        identifier.setId(1L);
+
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifier);
+        Identifier foundIdentifier = userService.getIdentifierByValue(identifier.getIdentifier());
+        verify(identifierRepository, Mockito.times(1)).findByValue(eq(identifier.getIdentifier()));
+        Assert.assertTrue("Identifier should be found", foundIdentifier != null);
     }
 
     /**
@@ -241,4 +256,28 @@ public class UserServiceTest {
         Assert.assertTrue("The set change password is set", user.getChangePassword() == Boolean.TRUE);
     }
 
+
+    /**
+     * Test: To save a Group with Role to a user
+     * Fail: The repository does not get called
+     *
+     * Matching is required on the save call
+     */
+    @Test
+    public void testAddGroupRole() {
+        User testUser = TestUtils.createUser("testUser");
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Role testRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(testRole, testGroup, testUser);
+
+        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(roleRepository.findOne(Matchers.eq(testRole.getId()))).thenReturn(testRole);
+        when(groupRoleRepository.save(Matchers.any(GroupRole.class))).thenReturn(groupRole);
+
+        groupRole = userService.addGroupRole(testUser.getId(), testGroup.getId(), testRole.getId());
+
+        Assert.assertNotNull("The returned object should not be null", groupRole);
+        verify(groupRoleRepository, Mockito.times(1)).save(Matchers.any(GroupRole.class));
+    }
 }

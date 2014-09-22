@@ -329,7 +329,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             }
 
             $scope.editGroup = '';
-            $scope.editGroup.editLoading = true;
+            openedGroup.editLoading = true;
             $scope.editGroup.editError = '';
 
             openedGroup.showEdit = true;
@@ -414,7 +414,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                     $scope.featureToAdd = $scope.editGroup.availableFeatures[0].feature.id;
                 }
 
-                $scope.editGroup.editLoading = false;
+                openedGroup.editLoading = false;
             }, function () {
                 $scope.editGroup.errorMessage = 'There has been a problem retrieving this group';
             });

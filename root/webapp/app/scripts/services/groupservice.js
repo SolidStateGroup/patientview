@@ -78,6 +78,12 @@ function ($q, Restangular, UtilService) {
 
             group.groupType = groupType;
 
+            // only saving core group fields
+            delete group.contactPoints;
+            delete group.groupFeatures;
+            delete group.locations;
+            delete group.links;
+
             // PUT /group
             Restangular.all('group').customPUT(group).then(function(successResult) {
                 deferred.resolve(successResult);

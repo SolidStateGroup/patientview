@@ -4,6 +4,7 @@ import org.patientview.api.annotation.AuditTrail;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserInformation;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityExistsException;
 import java.util.List;
 
 /**
@@ -39,6 +41,10 @@ public interface UserService extends CrudService<User> {
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId);
 
+    GroupRole addGroupRole(Long userId, Long groupId, Long roleId) throws EntityExistsException;
+
+    void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException;
+
     Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters);
 
     Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters);
@@ -64,4 +70,6 @@ public interface UserService extends CrudService<User> {
     void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;
 
     List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException;
+
+    Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException;
 }

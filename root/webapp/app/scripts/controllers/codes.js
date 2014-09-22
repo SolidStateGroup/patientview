@@ -46,8 +46,8 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
     $scope.filterText = '';
-    $scope.sortField = '';
-    $scope.sortDirection = '';
+    $scope.sortField = 'code';
+    $scope.sortDirection = 'ASC';
 
     var tempFilterText = '';
     var filterTextTimeout;
@@ -246,6 +246,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
             $scope.editCode = '';
             openedCode.showEdit = true;
+            openedCode.editLoading = true;
 
             // using lightweight list, do GET on id to get full code and populate editCode
             CodeService.get(openedCode.id).then(function (code) {
@@ -255,6 +256,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
                 code.standardTypeId = code.standardType.id;
                 $scope.editCode = _.clone(code);
                 $scope.editMode = true;
+                openedCode.editLoading = false;
             });
         }
     };
@@ -265,7 +267,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
 
         CodeService.clone(codeId).then(function(code) {
             $scope.successMessage = 'Successfully copied code';
-            $scope.list.push(code);
+            $scope.getItems();
         });
     };
 
@@ -356,6 +358,13 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             }
 
             $scope.successMessage = 'Code saved';
+        }, function(failureResult) {
+            if (failureResult.status === 409) {
+                // conflict, code already exists
+                alert('Cannot save Code, another Code with the same code exists')
+            } else {
+                alert('There has been an error saving');
+            }
         });
     };
 

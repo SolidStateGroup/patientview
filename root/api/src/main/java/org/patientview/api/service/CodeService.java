@@ -27,4 +27,6 @@ public interface CodeService extends CrudService<Code> {
     Link addLink(Long codeId, Link link);
 
     List<Code> findAllByCodeAndType(String code, Lookup codeType);
+
+    Code save(Code code) throws EntityExistsException;
 }

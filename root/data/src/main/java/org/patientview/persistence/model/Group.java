@@ -27,6 +27,9 @@ public class Group extends AuditModel {
     @Column(name = "group_name")
     private String name;
 
+    @Column(name = "group_short_name")
+    private String shortName;
+
     @Column(name = "code")
     private String code;
 
@@ -258,5 +261,13 @@ public class Group extends AuditModel {
 
     public void setFhirLinks(final Set<FhirLink> fhirLinks) {
         this.fhirLinks = fhirLinks;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 }

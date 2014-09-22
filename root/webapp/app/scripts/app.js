@@ -56,7 +56,7 @@ patientviewApp.filter('startFrom', function() {
 
 // load google charts
 google.load('visualization', '1', {
-    packages: ['corechart','table']
+    packages: ['corechart','annotationChart','table']
 });
 
 patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider','ENV',

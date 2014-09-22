@@ -1,7 +1,7 @@
 <div class="hider" ng-show="status.open"></div>
 
 <div>
-    <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')" ng-show="!loading">Create New</button></h1>
+    <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')" ng-show="!loading && permissions.canCreatePatients">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
@@ -109,8 +109,8 @@
             <div class="table-head accordion-title-row">
                 <div class="hidden">ID</div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
-                <div class="head-item accordion-title-text ">Identities&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Date Of Birth</a></div>
+                <div class="head-item accordion-title-text ">Identifiers&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
+                <div class="head-item accordion-title-text ">Date Of Birth</div>
                 <div class="head-item accordion-title-text ">Groups</div>
                 <div class="head-item accordion-title-text ">Treatment</div>
                 <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
@@ -122,7 +122,7 @@
                     <div class="row-item hidden">{{user.id}}</div>
                     <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
-                    <div class="row-item accordion-heading-text">DOB</div>
+                    <div class="row-item accordion-heading-text">{{user.dateOfBirth}}</div>
                     <div class="row-item accordion-heading-text">
                         <ul class="unstyled patient-groups">
                             <li ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']">
@@ -137,7 +137,7 @@
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="button-dropdown-group">
-                            <button type="button" class="btn blue pull-left" ng-click="opened(user)">Edit</button>
+                            <button type="button" class="btn blue pull-left" ng-click="opened(user)" ng-show="permissions.canEditPatients">Edit</button>
                             <div class="dropdown pull-left">
                                 <button type="button" class="btn blue dropdown-toggle" id="dropdown-toggle-{{user.id}}">
                                     <span class="caret"></span>
@@ -145,8 +145,8 @@
                                 <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
                                     <li><a ng-click="viewUser(user.id)" class="dropdown-menu-accordion-item">View As Patient</a></li>
                                     <li ng-show="permissions.showDeleteMenuOption"><a ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
-                                    <li><a ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
-                                    <li ng-hide="user.emailVerified" id="li-email-verified-{{user.id}}"><a ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
+                                    <li ng-show="permissions.canResetPasswords"><a ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
+                                    <li ng-hide="user.emailVerified || !$scope.canSendVerificationEmails" id="li-email-verified-{{user.id}}"><a ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -154,13 +154,16 @@
                 </div>
                 <!-- edit pane -->
                 <div class="panel-body" ng-show="user.showEdit">
-                    <form name="userForm">
-                        <div ng-include src="'views/partials/patientDetails.html'" ng-controller="UserDetailsCtrl"></div>
-                    </form>
-                    <hr>
-                    <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
-                    <div class="user-save-cancel pull-right">
-                        <button type="button" class="btn btn-grey" ng-click="user.showEdit = false">Close</button>
+                    <div ng-show="user.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div ng-show="!user.editLoading">
+                        <form name="userForm">
+                            <div ng-include src="'views/partials/patientDetails.html'" ng-controller="UserDetailsCtrl"></div>
+                        </form>
+                        <hr>
+                        <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                        <div class="user-save-cancel pull-right">
+                            <button type="button" class="btn btn-grey" ng-click="user.showEdit = false">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>

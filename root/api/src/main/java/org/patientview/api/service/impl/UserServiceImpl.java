@@ -2,13 +2,18 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Patient;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.EmailService;
+import org.patientview.api.service.GroupService;
+import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
@@ -18,6 +23,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -39,8 +45,10 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by james@solidstategroup.com
@@ -54,6 +62,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private GroupRepository groupRepository;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private FeatureRepository featureRepository;
@@ -109,6 +123,83 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
+    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId) throws EntityExistsException {
+        if (groupRoleRepository.findByUserGroupRole(userRepository.findOne(userId),
+                groupRepository.findOne(groupId), roleRepository.findOne(roleId)) != null) {
+            throw new EntityExistsException();
+        }
+
+        GroupRole groupRole = new GroupRole();
+        groupRole.setUser(userRepository.findOne(userId));
+        groupRole.setGroup(groupRepository.findOne(groupId));
+        groupRole.setRole(roleRepository.findOne(roleId));
+        groupRole.setCreator(userRepository.findOne(1L));
+        groupRole = groupRoleRepository.save(groupRole);
+        addParentGroupRoles(groupRole);
+        return groupRole;
+    }
+
+    public void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException{
+
+        deleteGroupRoleRelationship(userId, groupId, roleId);
+
+        // if a user is removed from all child groups the parent group (if present) is also removed
+        // e.g. remove Renal (specialty) if RenalA (unit) is removed and these are the only 2 groups present
+        User user = userRepository.findOne(userId);
+        Group removedGroup = groupRepository.findOne(groupId);
+
+        Set<GroupRole> toRemove = new HashSet<>();
+        Set<GroupRole> userGroupRoles = new HashSet<>();
+
+        // remove from user.getGroupRoles as not deleted in this transaction yet
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (groupRole.getGroup().getId() != groupId) {
+                userGroupRoles.add(groupRole);
+            }
+        }
+
+        // identify specialty groups with no children
+        for (GroupRole groupRole : userGroupRoles) {
+            if (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+
+                List<Group> children = groupService.findChildren(groupRole.getGroup().getId());
+                boolean childInGroupRoles = false;
+                boolean removedGroupInChildren = children.contains(removedGroup);
+
+                for (Group group : children) {
+                    if (groupRolesContainsGroup(userGroupRoles, group)) {
+                        childInGroupRoles = true;
+                    }
+                }
+
+                if (!childInGroupRoles && removedGroupInChildren) {
+                    toRemove.add(groupRole);
+                }
+            }
+        }
+
+        // remove any specialty groups with no children
+        for (GroupRole groupRole : toRemove) {
+            deleteGroupRoleRelationship(groupRole.getUser().getId(), groupRole.getGroup().getId(),
+                    groupRole.getRole().getId());
+        }
+    }
+
+    private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException {
+        groupRoleRepository.delete(groupRoleRepository.findByUserGroupRole(
+                userRepository.findOne(userId), groupRepository.findOne(groupId), roleRepository.findOne(roleId)
+        ));
+    }
+
+    private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
+        for (GroupRole groupRole : groupRoles) {
+            if (groupRole.getGroup().equals(group)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public User add(User user) {
 
         User newUser;
@@ -122,6 +213,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         user.setCreator(userRepository.findOne(1L));
+        // Everyone should change their password at login
+        user.setChangePassword(Boolean.TRUE);
+
         newUser = userRepository.save(user);
         Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
@@ -138,12 +232,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setRole(entityRole);
                     groupRole.setUser(newUser);
                     groupRole.setCreator(userRepository.findOne(1L));
-                    groupRoleRepository.save(groupRole);
+                    groupRole = groupRoleRepository.save(groupRole);
+                    addParentGroupRoles(groupRole);
                 }
-
-                addParentGroupRoles(groupRole);
             }
         }
+
+        // Everyone should be in the generic group.
+        addUserToGenericGroup(newUser);
 
         entityManager.flush();
 
@@ -170,13 +266,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         entityManager.flush();
 
-        user.setId(newUser.getId());
-        // Everyone should change their password at login
-        user.setChangePassword(Boolean.TRUE);
-        // Everyone should be in the generic group.
-        addUserToGenericGroup(newUser);
-
-        return userRepository.save(user);
+        return userRepository.getOne(newUser.getId());
     }
 
     // We do this so early one gets the generic group
@@ -240,7 +330,29 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
 
         for (User user : users) {
-            transportUsers.add(new org.patientview.api.model.User(user));
+            // if patient, add patient specific FHIR details
+            Set<FhirLink> fhirLinks = user.getFhirLinks();
+            if (fhirLinks.isEmpty()) {
+                transportUsers.add(new org.patientview.api.model.User(user, null));
+            } else {
+                // is a patient (has FHIR content), get most recent FHIR data and populate transport object
+                FhirLink recentFhirData = fhirLinks.iterator().next();
+                for (FhirLink fhirLink : fhirLinks) {
+                    if (fhirLink.getCreated().after(recentFhirData.getCreated())) {
+                        recentFhirData = fhirLink;
+                    }
+                }
+
+                try {
+                    Patient fhirPatient = patientService.get(recentFhirData.getResourceId());
+                    transportUsers.add(new org.patientview.api.model.User(user, fhirPatient));
+
+                } catch(FhirResourceException fre) {
+                    LOG.error("FhirResourceException on retrieving patient data");
+                }
+
+                transportUsers.add(new org.patientview.api.model.User(user, null));
+            }
         }
 
         return transportUsers;
@@ -469,6 +581,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException {
         User user = findUser(userId);
         return userInformationRepository.findByUser(user);
+    }
+
+    public Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException {
+        Identifier identifier = identifierRepository.findByValue(identifierValue);
+        if (identifier == null){
+            throw new ResourceNotFoundException(String.format("Could not find identifier with value %s",
+                    identifierValue));
+        }
+        return identifier;
     }
 
     private User findUser(Long userId) throws ResourceNotFoundException {

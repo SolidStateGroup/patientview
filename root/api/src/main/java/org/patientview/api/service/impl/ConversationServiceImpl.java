@@ -245,7 +245,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
 
             if (staffUsers.isEmpty()) {
-                throw new ResourceNotFoundException("No staff available to send message");
+                throw new ResourceNotFoundException("No support staff available to send message");
             }
 
             // add found staff to conversation
@@ -368,7 +368,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
 
         for (User user : users) {
-            transportUsers.add(new org.patientview.api.model.User(user));
+            transportUsers.add(new org.patientview.api.model.User(user, null));
         }
 
         return transportUsers;
