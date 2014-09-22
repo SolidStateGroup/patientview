@@ -346,7 +346,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 try {
                     Patient fhirPatient = patientService.get(recentFhirData.getResourceId());
                     transportUsers.add(new org.patientview.api.model.User(user, fhirPatient));
-
                 } catch(FhirResourceException fre) {
                     LOG.error("FhirResourceException on retrieving patient data");
                 }
