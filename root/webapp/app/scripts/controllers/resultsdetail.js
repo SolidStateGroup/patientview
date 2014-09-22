@@ -35,6 +35,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
     $scope.initialiseChart = function() {
         // now using standard google charts (not angular-google-chart)
+        $('.chart-content-panel').show();
         var chart = new google.visualization.AnnotationChart(document.querySelector('#chart_div'));
         var data = [
             ['date', 'Result']
@@ -136,6 +137,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.changeObservationHeading = function(code) {
+        $('.chart-content-panel').hide();
         $scope.observationHeading = $scope.findObservationHeadingByCode(code);
         $scope.selectedCode = $scope.observationHeading.code;
         $scope.getObservations(code);
