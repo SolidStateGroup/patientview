@@ -12,9 +12,10 @@ function (UserService, $scope, GroupService, NewsService) {
 
             if (newValue !== undefined) {
                 GroupService.getStatistics(newValue).then(function (data) {
-                    var chart1 = {};
-                    chart1.type = 'LineChart';
-                    chart1.data = [
+
+                    // now using standard google charts (not angular-google-chart)
+                    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+                    var chartData = [
                         ['date', 'Patients', 'Unique Logons', 'Logons']
                     ];
 
@@ -28,7 +29,7 @@ function (UserService, $scope, GroupService, NewsService) {
                         row[1] = data[i].countOfPatients;
                         row[2] = data[i].countOfUniqueLogons;
                         row[3] = data[i].countOfLogons;
-                        chart1.data.push(row);
+                        chartData.push(row);
 
                         if (row[0].getTime() < minDate.getTime()) {
                             minDate = row[0];
@@ -41,7 +42,7 @@ function (UserService, $scope, GroupService, NewsService) {
                         $scope.lockedUsers = data[0].countOfUserLocked;
                         $scope.inactiveUsers = data[0].countOfUserInactive;
 
-                        chart1.data = new google.visualization.arrayToDataTable(chart1.data);
+                        chartData = new google.visualization.arrayToDataTable(chartData);
 
                         // set min/max to one month either side of data
                         var minValue = new Date(minDate);
@@ -49,7 +50,7 @@ function (UserService, $scope, GroupService, NewsService) {
                         minValue = new Date(minValue.getTime() - 2592000000);
                         maxValue = new Date(maxValue.getTime() + 2592000000);
 
-                        chart1.options = {
+                        var options = {
                             'title': null,
                             'isStacked': 'true',
                             'fill': 20,
@@ -79,8 +80,7 @@ function (UserService, $scope, GroupService, NewsService) {
                             }
                         };
 
-                        chart1.formatters = {};
-                        $scope.chart = chart1;
+                        chart.draw(chartData, options);
                     }
 
                     $scope.chartLoading = false;
