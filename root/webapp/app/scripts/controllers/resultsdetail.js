@@ -175,7 +175,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     $scope.getValueChanged = function(observation) {
         if (observation !== undefined) {
             var index = $scope.tableObservationsKey[observation.applies];
-            if ($scope.tableObservations.length > index + 1) {
+            if ($scope.tableObservations[index + 1]) {
                 return $scope.tableObservations[index].value - $scope.tableObservations[index + 1].value;
             }
         }
