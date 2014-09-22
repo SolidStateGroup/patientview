@@ -154,7 +154,7 @@
 .result-detail-panel{
     .result-item-container{
         width:100%;
-        height:180px;
+        height:auto;
 
         .result-value{
             width:50%;
@@ -170,6 +170,7 @@
         .result-comment{
             width:50%;
             padding-top:15px;
+            clear:left;
 
             label{
                 margn-bottom:0;
@@ -179,7 +180,6 @@
 
     .info-list{
         width:50%;
-        clear:left;
 
         &.inline{
             margin-top:20px;
