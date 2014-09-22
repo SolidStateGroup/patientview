@@ -348,9 +348,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     transportUsers.add(new org.patientview.api.model.User(user, fhirPatient));
                 } catch(FhirResourceException fre) {
                     LOG.error("FhirResourceException on retrieving patient data");
+                    transportUsers.add(new org.patientview.api.model.User(user, null));
                 }
-
-                transportUsers.add(new org.patientview.api.model.User(user, null));
             }
         }
 
