@@ -128,7 +128,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
         // check if another code with this code exists
         Code entityCode = codeRepository.findOneByCode(code.getCode());
-        if (codeExists(code) && !(entityCode.getId() == code.getId())) {
+        if (codeExists(code) && !(entityCode.getId().equals(code.getId()))) {
             throw new EntityExistsException("Code already exists with this code");
         }
 
