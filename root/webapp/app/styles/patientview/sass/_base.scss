@@ -362,6 +362,13 @@ ul {
     color:$primary;
 }
 
+.modal-dialog{
+    &.modal-sm{
+        width:30%;
+    }
+}
+
+
 /** TODO add this in more appropriate place **/
 
 .showHideText {

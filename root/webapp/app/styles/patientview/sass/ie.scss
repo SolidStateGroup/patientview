@@ -3,3 +3,9 @@
  * <!--[if IE]>
  *   <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
  * <![endif]--> */
+
+.lt-ie9{
+    .historical-data .overlay{
+        -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";;
+    }
+}
