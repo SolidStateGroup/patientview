@@ -256,7 +256,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Identifier> addIdentifier(@PathVariable("userId") Long userId,
                                           @RequestBody Identifier identifier)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, EntityExistsException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, identifier);
         return new ResponseEntity<>(userService.addIdentifier(userId, identifier), HttpStatus.CREATED);
     }

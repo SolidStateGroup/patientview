@@ -68,7 +68,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     public UUID add(final Patientview patient, final ResourceReference practitionerReference)
             throws ResourceNotFoundException, FhirResourceException {
         // Find the identifier which the patient is linked to.
-        Identifier identifier = matchPatient(patient);
+        Identifier identifier = matchPatientByIdentifierValue(patient);
 
         // Find the group that is importing the data
         Group group = groupRepository.findByCode(patient.getCentredetails().getCentrecode());
@@ -110,10 +110,21 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
-    private Identifier matchPatient(Patientview patientview) throws ResourceNotFoundException {
+    private Identifier matchPatientByNhsNumber(Patientview patientview) throws ResourceNotFoundException {
         nhsIdentifier = lookupRepository.findByTypeAndValue(LookupTypes.IDENTIFIER, "NHS_NUMBER");
         Identifier identifier = identifierRepository.findByTypeAndValue(
                 patientview.getPatient().getPersonaldetails().getNhsno(), nhsIdentifier);
+
+        if (identifier == null) {
+            throw new ResourceNotFoundException("The NHS number is not linked with PatientView");
+        }
+
+        return identifier;
+    }
+
+    private Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException {
+        Identifier identifier = identifierRepository.findByValue(
+                patientview.getPatient().getPersonaldetails().getNhsno());
 
         if (identifier == null) {
             throw new ResourceNotFoundException("The NHS number is not linked with PatientView");

@@ -59,7 +59,8 @@ public interface UserService extends CrudService<User> {
 
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
 
-    Identifier addIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException;
+    Identifier addIdentifier(Long userId, Identifier identifier)
+            throws ResourceNotFoundException, EntityExistsException;
 
     void addFeature(Long userId, Long featureId);
 

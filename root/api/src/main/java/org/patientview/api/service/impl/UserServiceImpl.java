@@ -514,12 +514,26 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return false;
     }
 
-    public Identifier addIdentifier(Long userId, Identifier identifier) throws ResourceNotFoundException {
+    public Identifier addIdentifier(Long userId, Identifier identifier)
+            throws ResourceNotFoundException, EntityExistsException {
+
         User user = findUser(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        // check Identifier doesn't already exist for another user
+        Identifier entityIdentifier = identifierRepository.findByValue(identifier.getIdentifier());
+
+        if (entityIdentifier != null) {
+            if (!(user.getId().equals(entityIdentifier.getUser().getId()))) {
+                throw new EntityExistsException("Identifier already exists for another patient");
+            }
+        }
+
         identifier.setCreator(userRepository.findOne(1L));
         user.getIdentifiers().add(identifier);
         identifier.setUser(user);
-
         return identifierRepository.save(identifier);
     }
 

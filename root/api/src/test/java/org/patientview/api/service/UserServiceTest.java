@@ -33,6 +33,7 @@ import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.HashSet;
 
@@ -147,10 +148,41 @@ public class UserServiceTest {
         user.setIdentifiers(new HashSet<Identifier>());
         Identifier identifier = new Identifier();
         identifier.setId(3L);
+        identifier.setIdentifier("1111111111");
 
+        when(identifierRepository.findByValue(identifier.getIdentifier())).thenReturn(null);
         when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user);
         userService.addIdentifier(userId, identifier);
         verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
+    }
+
+    /**
+     * Test: To create a duplicate identifier on a user record
+     * Fail: Error not thrown
+     */
+    @Test(expected = EntityExistsException.class)
+    public void testAddDuplicateIdentifier() throws ResourceNotFoundException, EntityExistsException {
+        Long userId = 1L;
+        User user = TestUtils.createUser("testUser");
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        User user2 = TestUtils.createUser("testUser2");
+        user2.setIdentifiers(new HashSet<Identifier>());
+
+        Identifier identifier = new Identifier();
+        identifier.setId(3L);
+        identifier.setIdentifier("1111111111");
+        identifier.setUser(user);
+
+        Identifier identifier2 = new Identifier();
+        identifier2.setId(4L);
+        identifier2.setIdentifier("1111111111");
+        identifier2.setUser(user2);
+
+        when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user);
+        when(identifierRepository.findByValue(identifier.getIdentifier())).thenReturn(identifier2);
+
+        userService.addIdentifier(userId, identifier);
     }
 
     /**

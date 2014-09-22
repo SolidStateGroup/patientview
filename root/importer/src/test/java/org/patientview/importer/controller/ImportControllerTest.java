@@ -26,6 +26,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -51,9 +53,7 @@ public class ImportControllerTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(importController, uriComponentsBuilder).build();
-
     }
-
 
     /**
      * Test: Passing an xml in full to the import resource and see if the resource can pass it to the service
@@ -87,17 +87,39 @@ public class ImportControllerTest {
         post(getTestFile());
     }
 
+    // used to test the service once running (milestone 4 files)
+    @Test
+    @Ignore("IntegrationTest")
+    public void importIntegrationTestMilestone4() throws Exception {
+
+        List<String> files = new ArrayList<>();
+        //files.add("data/xml/milestone4/SAC02_01439_41737438900.xml");
+        files.add("data/xml/milestone4/SGC04_01436_57703939407.xml");
+        files.add("data/xml/milestone4/SGC04_01436_64098149107.xml");
+        files.add("data/xml/milestone4/SGC04_01456_12314191702.xml");
+        files.add("data/xml/milestone4/SGC04_01459_14018849809.xml");
+        files.add("data/xml/milestone4/SGC04_01459_28039602801.xml");
+        files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");
+
+        for (String file : files) {
+            post(getFileFromString(file));
+        }
+    }
 
     String getTestFile() throws IOException, URISyntaxException {
-
         URL xmlPath =
                 Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_1111111111a.xml");
         File file = new File(xmlPath.toURI());
-        return  new String(Files.readAllBytes(Paths.get(file.getPath())));
+        return new String(Files.readAllBytes(Paths.get(file.getPath())));
+    }
+
+    String getFileFromString(String fileLocation) throws IOException, URISyntaxException {
+        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileLocation);
+        File file = new File(xmlPath.toURI());
+        return new String(Files.readAllBytes(Paths.get(file.getPath())));
     }
 
     private static org.apache.http.HttpResponse post(String json) throws Exception {
-
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
         String postUrl="http://localhost:8081/importer/import";// put in your url
@@ -108,8 +130,5 @@ public class ImportControllerTest {
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/xml");
         return httpClient.execute(post);
-
     }
-
-
 }
