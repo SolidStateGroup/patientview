@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public interface ObservationService {
 
-    List<FhirObservation> get(Long userId, String code, String orderBy, Long limit)
+    List<FhirObservation> get(Long userId, String code, String orderBy, String orderDirection, Long limit)
             throws ResourceNotFoundException, FhirResourceException;
 
     List<Observation> get(UUID patientUuid);

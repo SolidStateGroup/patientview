@@ -54,7 +54,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private static final Logger LOG = LoggerFactory.getLogger(ObservationServiceImpl.class);
 
     @Override
-    public List<FhirObservation> get(final Long userId, final String code, final String orderBy, final Long limit)
+    public List<FhirObservation> get(final Long userId, final String code, final String orderBy,
+                                     final String orderDirection, final Long limit)
             throws ResourceNotFoundException, FhirResourceException {
 
         List<Observation> observations = new ArrayList<>();
@@ -90,6 +91,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("ORDER BY content-> '");
                 query.append(orderBy);
                 query.append("' ");
+            }
+
+            if (StringUtils.isNotEmpty(orderDirection)) {
+                query.append(orderDirection);
+                query.append(" ");
             }
 
             if (StringUtils.isNotEmpty(orderBy)) {
@@ -165,17 +171,17 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             // don't include any observation heading with panel = 0
             if (panel != null && panel != 0L) {
                 org.patientview.api.model.ObservationHeading summaryHeading =
-                        buildSummaryHeading(panel, panelOrder, observationHeading);
+                    buildSummaryHeading(panel, panelOrder, observationHeading);
 
                 List<FhirObservation> latestObservations = get(user.getId(), observationHeading.getCode().toUpperCase(),
-                        "appliesDateTime", 2L);
+                    "appliesDateTime", "DESC", 2L);
 
                 if (!latestObservations.isEmpty()) {
                     summaryHeading.setLatestObservation(latestObservations.get(0));
 
                     if (latestObservations.size() > 1) {
                         summaryHeading.setValueChange(
-                                latestObservations.get(0).getValue() - latestObservations.get(1).getValue());
+                            latestObservations.get(0).getValue() - latestObservations.get(1).getValue());
                     }
                 }
 
