@@ -104,14 +104,14 @@
 .footer{
     margin-top:40px;
     background: $white;
-    height: 70px;
+    height: 90px;
     position:relative;
 
     .brand{
         @include bootstrap-opacity(50);
         float:left;
-        line-height:40px;
-        padding-top:15px;
+        line-height:55px;
+        padding:15px;
 
         img{
             height:50%;
@@ -119,12 +119,23 @@
         }
     }
 
+    .partner-info{
+        & > h5{
+            float:left;
+        }
+    }
+
     .partner-links{
         margin:0 auto;
-        padding-top:15px;
+        padding:15px 35px;
 
         a{
-            margin-right:20px
+            margin-right:20px;
+            float:left;
+
+            &.other-partners{
+                clear:left;
+            }
         }
     }
 
