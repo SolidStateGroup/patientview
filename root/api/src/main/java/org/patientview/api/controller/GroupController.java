@@ -15,7 +15,6 @@ import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
-import org.patientview.persistence.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
@@ -109,14 +107,6 @@ public class GroupController extends BaseController<GroupController> {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<>(groupFeature, HttpStatus.CREATED);
-    }
-
-    //TODO, similar to /user?roleType=staff&groupId=111&groupId=222&groupId=333 in UserController.java but only for a single group
-    @RequestMapping(value = "/group/{groupId}/user", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<List<User>> getGroupStaff(@PathVariable("groupId") Long groupId,
-                                                    @RequestParam("roleType") String roleType) {
-        return new ResponseEntity<>(adminService.getGroupUserByRoleStaff(groupId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/type/{typeId}", method = RequestMethod.GET)

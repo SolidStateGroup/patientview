@@ -43,7 +43,6 @@ public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> impl
 
 
     public GroupFeature addGroupFeature(Long groupId, Long featureId) {
-
         GroupFeature groupFeature = new GroupFeature();
         groupFeature.setStartDate(new Date());
         groupFeature.setCreator(userRepository.findOne(1L));
@@ -58,18 +57,10 @@ public class AdminServiceImpl extends AbstractServiceImpl<AdminServiceImpl> impl
     }
 
     public List<Role> getRolesByType(RoleType type) {
-
         return Util.convertIterable(roleRepository.findByRoleType(type));
-
     }
-
 
     public GroupFeature createGroupFeature(GroupFeature groupFeature) {
         return groupFeatureRepository.save(groupFeature);
     }
-
-    public List<User> getGroupUserByRoleStaff(Long groupId) {
-        return Util.convertIterable(groupRepository.findGroupStaffByRole(groupId, "STAFF"));
-    }
-
 }
