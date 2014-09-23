@@ -51,8 +51,10 @@ public class Group extends BaseModel{
         }
 
         setLinks(new ArrayList<Link>());
-        for (Link link : group.getLinks()) {
-            getLinks().add(link);
+        if (group.getLinks() != null) {
+            for (Link link : group.getLinks()) {
+                getLinks().add(link);
+            }
         }
     }
 

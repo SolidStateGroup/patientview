@@ -296,7 +296,7 @@ public class UserServiceTest {
      * Matching is required on the save call
      */
     @Test
-    public void testAddGroupRole() {
+    public void testAddGroupRole() throws ResourceNotFoundException {
         User testUser = TestUtils.createUser("testUser");
         Group testGroup = TestUtils.createGroup("testGroup");
         Role testRole = TestUtils.createRole(RoleName.PATIENT);

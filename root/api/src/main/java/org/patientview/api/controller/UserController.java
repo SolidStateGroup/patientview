@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
-import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
@@ -46,44 +45,30 @@ public class UserController extends BaseController<UserController> {
     private UserService userService;
 
     @Inject
-    private GroupService groupService;
-
-    @Inject
     private AdminService adminService;
 
     final private static int MINIMUM_PASSWORD_LENGTH = 7;
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> getUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
-        User user = userService.get(userId);
-        user.setPassword(null);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    public ResponseEntity<org.patientview.api.model.User> getUser(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(new org.patientview.api.model.User(userService.get(userId), null), HttpStatus.OK);
 
     }
 
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Void> addUserGroupRole(@PathVariable("userId") Long userId,
-                                                      @PathVariable("groupId") Long groupId,
-                                                      @PathVariable("roleId") Long roleId) {
+    public void addUserGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
+            @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
         userService.addGroupRole(userId, groupId, roleId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteUserGroupRole(@PathVariable("userId") Long userId,
+    public void deleteUserGroupRole(@PathVariable("userId") Long userId,
           @PathVariable("groupId") Long groupId, @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
         userService.deleteGroupRole(userId, groupId, roleId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    //TODO Sprint 2
-    @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<User> getUserByUsername(@RequestParam("username") String username) {
-        return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
     }
 
     // handle getting users from multiple groups and roles using query parameters
@@ -94,27 +79,32 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.getUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    // TODO Sprint 2, required by migration
+    @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public  ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
-        userService.delete(userId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<User> getUserByUsername(@RequestParam("username") String username) {
+        return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
     }
 
-    // TODO Sprint 3 split this into different methods
+    @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
+        userService.delete(userId);
+    }
+
+    // TODO Sprint 3 split this into different methods as UI only needs transport user
     @RequestMapping(value = "/user", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> createUser(@RequestBody User user,
-                               @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword,
-                               UriComponentsBuilder uriComponentsBuilder) throws ResourceNotFoundException {
+       @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword)
+            throws ResourceNotFoundException {
 
         LOG.debug("Request has been received for userId : {}", user.getUsername());
         user.setCreator(userService.get(1L));
-        // Migration Only
 
         if (encryptPassword != null && encryptPassword.equals(Boolean.FALSE)) {
+            // Migration Only, are migrating passwords so create user with no password encryption
             try {
                 user = userService.createUserNoEncryption(user);
             }
@@ -129,7 +119,9 @@ public class UserController extends BaseController<UserController> {
                 }
             }
         }
+
         if (user.getId() == null) {
+            // creating new user in UI
             try {
                 user = userService.createUserWithPasswordEncryption(user);
             } catch (EntityExistsException eee) {
@@ -144,43 +136,23 @@ public class UserController extends BaseController<UserController> {
             }
         }
 
-        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<>(user, HttpStatus.CREATED);
-
     }
 
-    @RequestMapping(value = "/user", method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Void> updateUser(@RequestBody User user, UriComponentsBuilder uriComponentsBuilder) {
-
-        LOG.debug("Request has been received for userId : {}", user.getUsername());
-
-        try {
-            user = userService.save(user);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+    public void updateUser(@RequestBody User user) throws ResourceNotFoundException {
+        userService.save(user);
     }
 
     @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId,
-                                                         UriComponentsBuilder uriComponentsBuilder)
+    public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
 
         LOG.debug("Request has been received for userId : {}", userId);
         return new ResponseEntity<>(userService.getUserFeatures(userId), HttpStatus.OK);
-
     }
 
     @RequestMapping(value = "/user/{userId}/resetPassword", method = RequestMethod.POST,
@@ -201,7 +173,7 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/changePassword", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> changePassword(@PathVariable("userId") Long userId,
+    public ResponseEntity<Void> changePassword(@PathVariable("userId") Long userId,
                                               @RequestBody Credentials credentials) throws ResourceNotFoundException {
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
@@ -215,7 +187,8 @@ public class UserController extends BaseController<UserController> {
         }
 
         LOG.debug("Password reset requested for userId : {}", userId);
-        return new ResponseEntity<>(userService.changePassword(userId, credentials.getPassword()), HttpStatus.OK);
+        userService.changePassword(userId, credentials.getPassword());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
@@ -224,7 +197,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Boolean> sendVerificationEmail(@PathVariable("userId") Long userId) {
         LOG.debug("Email verification email requested for userId : {}", userId);
-        return new ResponseEntity<Boolean>(userService.sendVerificationEmail(userId), HttpStatus.OK);
+        return new ResponseEntity<>(userService.sendVerificationEmail(userId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/verify/{verificationCode}", method = RequestMethod.POST,

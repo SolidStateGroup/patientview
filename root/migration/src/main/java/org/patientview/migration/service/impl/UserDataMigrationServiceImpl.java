@@ -147,7 +147,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     private User callApiGetUser(String username) {
 
-        String url = JsonUtil.pvUrl + "/user?username=" + username;
+        String url = JsonUtil.pvUrl + "/user/username?username=" + username;
         try {
             User user = JsonUtil.jsonRequest(url, User.class, null, HttpPut.class);
             LOG.info("Found user");

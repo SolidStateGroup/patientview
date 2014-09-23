@@ -123,16 +123,25 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId) throws EntityExistsException {
-        if (groupRoleRepository.findByUserGroupRole(userRepository.findOne(userId),
-                groupRepository.findOne(groupId), roleRepository.findOne(roleId)) != null) {
+    public GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
+            throws ResourceNotFoundException, EntityExistsException {
+
+        User user = userRepository.findOne(userId);
+        Group group = groupRepository.findOne(groupId);
+        Role role = roleRepository.findOne(roleId);
+
+        if (user == null || group == null || role == null) {
+            throw new ResourceNotFoundException();
+        }
+
+        if (groupRoleRepository.findByUserGroupRole(user, group, role) != null) {
             throw new EntityExistsException();
         }
 
         GroupRole groupRole = new GroupRole();
-        groupRole.setUser(userRepository.findOne(userId));
-        groupRole.setGroup(groupRepository.findOne(groupId));
-        groupRole.setRole(roleRepository.findOne(roleId));
+        groupRole.setUser(user);
+        groupRole.setGroup(group);
+        groupRole.setRole(role);
         groupRole.setCreator(userRepository.findOne(1L));
         groupRole = groupRoleRepository.save(groupRole);
         addParentGroupRoles(groupRole);
@@ -319,6 +328,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public User save(User user) throws ResourceNotFoundException {
         User entityUser = findUser(user.getId());
+
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("User cannot be found");
+        }
+
         entityUser.setForename(user.getForename());
         entityUser.setSurname(user.getSurname());
         entityUser.setUsername(user.getUsername());
