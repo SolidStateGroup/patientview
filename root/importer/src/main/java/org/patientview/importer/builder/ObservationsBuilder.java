@@ -123,7 +123,7 @@ public class ObservationsBuilder {
         NumberFormat decimalFormat = DecimalFormat.getInstance();
         if (StringUtils.isNotEmpty(resultString)) {
             try {
-                decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).longValue()));
+                decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
             } catch (ParseException nfe) {
                 LOG.info("Check down for parsing extra characters needs adding");
             }
