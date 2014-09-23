@@ -301,8 +301,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return add(user);
     }
 
-    public User get(Long userId) {
-        return userRepository.findOne(userId);
+    public User get(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User with this ID does not exist");
+        }
+        return user;
     }
 
     public User getByUsername(String username) {

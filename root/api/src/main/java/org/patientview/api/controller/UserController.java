@@ -56,7 +56,9 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> getUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
-        return new ResponseEntity<>(userService.get(userId), HttpStatus.OK);
+        User user = userService.get(userId);
+        user.setPassword(null);
+        return new ResponseEntity<>(user, HttpStatus.OK);
 
     }
 

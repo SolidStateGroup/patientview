@@ -39,7 +39,7 @@ public interface UserService extends CrudService<User> {
     User save(User user) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
-    User get(Long userId);
+    User get(Long userId) throws ResourceNotFoundException;
 
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId) throws EntityExistsException;
 
