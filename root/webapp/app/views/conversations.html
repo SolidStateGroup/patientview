@@ -1,7 +1,7 @@
 <div class="hider" ng-show="status.open"></div>
 
 <div>
-    <h1>Conversations <button class="btn blue" ng-click="openModalNewConversation('lg')" ng-show="!loading">Create New</button></h1>
+    <h1>Messages <button class="btn blue" ng-click="openModalNewConversation('lg')" ng-show="!loading">Create New</button></h1>
     <!-- new conversation modal template -->
     <script type="text/ng-template" id="newConversationModal.html">
         <div class="modal-header">
@@ -51,7 +51,7 @@
                 <div class="message-summary">
                     <h2 class="message-title">
                         <span ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> New</span>
-                        {{conversation.title}}
+                        <a href="" ng-click="viewMessages(conversation)">{{conversation.title}}</a>
                         <span class="recipient">with: </span>
                         <span class="recipient" ng-repeat="conversationUser in conversation.conversationUsers" ng-show="conversationUser.user.id != loggedInUser.id">
                             <span class="label label-info">{{conversationUser.user.forename}} {{conversationUser.user.surname}}</span>&nbsp;
