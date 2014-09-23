@@ -13,6 +13,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.JoinRequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -60,9 +61,27 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         return statusList;
     }
 
+    private Page<org.patientview.api.model.JoinRequest> convertPageToTransport(
+            Page<JoinRequest> joinRequestPage, Pageable pageable, long total) {
+
+        List<org.patientview.api.model.JoinRequest> joinRequests = new ArrayList<>();
+
+        for (JoinRequest joinRequest : joinRequestPage.getContent()) {
+            joinRequests.add(new org.patientview.api.model.JoinRequest(joinRequest));
+        }
+
+        return new PageImpl<>(joinRequests, pageable, total);
+    }
+
     @Override
-    public Page<JoinRequest> getByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException {
+    public Page<org.patientview.api.model.JoinRequest> getByUser(Long userId, GetParameters getParameters)
+            throws ResourceNotFoundException {
+
         User user = findUser(userId);
+
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
 
         String size = getParameters.getSize();
         String page = getParameters.getPage();
@@ -90,15 +109,19 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
+        Page<JoinRequest> joinRequestPage;
+
         if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            return findByParentUser(user, statusList, groupIdList, pageable);
+            joinRequestPage = findByParentUser(user, statusList, groupIdList, pageable);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
-            return findByUser(user, statusList, groupIdList, pageable);
+            joinRequestPage = findByUser(user, statusList, groupIdList, pageable);
         } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            return findAll(statusList, groupIdList, pageable);
+            joinRequestPage = findAll(statusList, groupIdList, pageable);
         } else {
             throw new SecurityException("Invalid role for join requests");
         }
+
+        return convertPageToTransport(joinRequestPage, pageable, joinRequestPage.getTotalElements());
     }
 
     private Page<JoinRequest> findByParentUser (User user, List<JoinRequestStatus> statusList,
@@ -153,14 +176,14 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     }
 
     @Override
-    public JoinRequest get(Long joinRequestId) throws ResourceNotFoundException {
+    public org.patientview.api.model.JoinRequest get(Long joinRequestId) throws ResourceNotFoundException {
         JoinRequest entityJoinRequest = joinRequestRepository.findOne(joinRequestId);
 
         if (entityJoinRequest == null) {
             throw new ResourceNotFoundException("Join Request not found");
         }
 
-        return entityJoinRequest;
+        return new org.patientview.api.model.JoinRequest(entityJoinRequest);
     }
 
     @Override
@@ -206,7 +229,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
      * @throws ResourceNotFoundException
      */
     @Override
-    public JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException {
+    public org.patientview.api.model.JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException {
         JoinRequest entityJoinRequest = joinRequestRepository.findOne(joinRequest.getId());
 
         if (entityJoinRequest == null) {
@@ -221,6 +244,6 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
         entityJoinRequest.setStatus(joinRequest.getStatus());
         entityJoinRequest.setNotes(joinRequest.getNotes());
-        return joinRequestRepository.save(entityJoinRequest);
+        return new org.patientview.api.model.JoinRequest(joinRequestRepository.save(entityJoinRequest));
     }
 }

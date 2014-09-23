@@ -2,11 +2,11 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.model.Email;
 import org.patientview.api.model.UnitRequest;
-import org.patientview.config.exception.ResourceInvalidException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
@@ -23,11 +23,9 @@ import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
 import org.patientview.persistence.repository.GroupRelationshipRepository;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
-import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -75,12 +73,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Inject
     private GroupRelationshipRepository groupRelationshipRepository;
-
-    @Inject
-    private RoleRepository roleRepository;
-
-    @Inject
-    private GroupRoleRepository groupRoleRepository;
 
     @Inject
     private EmailService emailService;

@@ -39,22 +39,21 @@ public class JoinRequestController extends BaseController<JoinRequestController>
 
     @RequestMapping(value = "/user/{userId}/joinrequests", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Page<JoinRequest>> getByUser(@PathVariable("userId") Long userId
+    public ResponseEntity<Page<org.patientview.api.model.JoinRequest>> getByUser(@PathVariable("userId") Long userId
             , GetParameters getParameters) throws ResourceNotFoundException {
-        return new ResponseEntity(joinRequestService.getByUser(userId, getParameters), HttpStatus.OK);
+        return new ResponseEntity<>(joinRequestService.getByUser(userId, getParameters), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/joinrequest", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Void> save(@RequestBody JoinRequest joinRequest)
-        throws ResourceNotFoundException{
+    public ResponseEntity<Void> save(@RequestBody JoinRequest joinRequest) throws ResourceNotFoundException{
         joinRequestService.save(joinRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/joinrequest/{joinRequestId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<JoinRequest> get(@PathVariable("joinRequestId") Long joinRequestId)
+    public ResponseEntity<org.patientview.api.model.JoinRequest> get(@PathVariable("joinRequestId") Long joinRequestId)
             throws ResourceNotFoundException{
         return new ResponseEntity<>(joinRequestService.get(joinRequestId), HttpStatus.OK);
     }

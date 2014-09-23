@@ -27,6 +27,7 @@ public class User extends BaseModel{
     private Date dateOfBirth;
 
     public User() {
+
     }
 
     public User(org.patientview.persistence.model.User user, org.hl7.fhir.instance.model.Patient patient) {

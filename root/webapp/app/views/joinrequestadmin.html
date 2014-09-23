@@ -83,10 +83,13 @@
                 <button type="button" class="btn blue" ng-click="opened(joinRequest)">Edit</button>
             </div>
         </div>
-        <div class="quick-reply content-panel" ng-show="joinRequest.showEdit">
-            <form name="joinRequestForm">
-                <div ng-include src="'views/partials/joinrequestdetails.html'"></div>
-            </form>
+        <div class="panel-body" ng-show="joinRequest.showEdit">
+            <div ng-show="joinRequest.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+            <div ng-show="!joinRequest.editLoading">
+                <form name="joinRequestForm">
+                    <div ng-include src="'views/partials/joinrequestdetails.html'"></div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
