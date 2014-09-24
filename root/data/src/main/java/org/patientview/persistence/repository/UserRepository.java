@@ -29,11 +29,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT DISTINCT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
+           "LEFT JOIN u.identifiers i " +
            "WHERE gr.role.id IN :roleIds AND gr.group.id IN :groupIds " +
            "AND ((UPPER(u.username) LIKE :filterText) " +
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
-           "OR (UPPER(u.email) LIKE :filterText)) ")
+           "OR (UPPER(u.email) LIKE :filterText) " +
+           "OR (UPPER(i.identifier) LIKE :filterText)) ")
     Page<User> findByGroupsRoles(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
@@ -50,6 +52,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT DISTINCT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
+           "LEFT JOIN u.identifiers i " +
            "JOIN u.userFeatures uf " +
            "JOIN uf.feature f " +
            "WHERE gr.role.id IN :roleIds " +
@@ -58,7 +61,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "AND ((UPPER(u.username) LIKE :filterText) " +
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
-           "OR (UPPER(u.email) LIKE :filterText)) ")
+           "OR (UPPER(u.email) LIKE :filterText) " +
+           "OR (UPPER(i.identifier) LIKE :filterText)) ")
     Page<User> findByGroupsRolesFeatures(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
