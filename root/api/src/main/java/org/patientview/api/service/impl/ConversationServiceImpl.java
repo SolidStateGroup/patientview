@@ -188,6 +188,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setConversation(entityConversation);
         newMessage.setMessage(message.getMessage());
         newMessage.setType(message.getType());
+
+        messageRepository.save(newMessage);
+
         newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
         newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
 
