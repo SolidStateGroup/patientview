@@ -278,9 +278,12 @@ function ($scope, UserService, IdentifierService) {
                 // failure
                 alert('Error updating header (saved successfully)');
             });
-        }, function() {
-            // failure
-            alert('Error saving identifier');
+        }, function(failureResult) {
+            if (failureResult.status === 409) {
+                alert(failureResult.data)
+            } else {
+                alert('There has been an error saving');
+            }
         });
     };
 

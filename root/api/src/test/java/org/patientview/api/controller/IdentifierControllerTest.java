@@ -53,7 +53,7 @@ public class IdentifierControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.put("/identifier")
                     .content(mapper.writeValueAsString(testIdentifier)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(identifierService, Mockito.times(1)).save(eq(testIdentifier));
+            verify(identifierService, Mockito.times(1)).saveIdentifier(eq(testIdentifier));
         } catch (Exception e) {
             fail("This call should not fail");
         }
@@ -65,7 +65,7 @@ public class IdentifierControllerTest {
         String url = "/identifier/" + identifierId;
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isNoContent());
+            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
         }
