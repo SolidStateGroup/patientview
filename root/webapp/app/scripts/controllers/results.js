@@ -75,6 +75,10 @@ function ($scope, $modal, ObservationService) {
 
     $scope.removeMinus = function(value) {
         value = Math.abs(value);
+
+        // now round to at most 2 dp
+        value = +(Math.round(value + "e+2")  + "e-2");
+
         return value;
     };
 

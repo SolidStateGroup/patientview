@@ -19,7 +19,10 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.JoinRequestRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,6 +125,12 @@ public class JoinRequestServiceTest {
         joinRequest.setDateOfBirth(new Date());
         joinRequest.setGroup(group);
 
+        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        List<JoinRequest> joinRequests = new ArrayList<>();
+        joinRequests.add(joinRequest);
+        Page<JoinRequest> joinRequestPage = new PageImpl<>(joinRequests, pageableAll, joinRequests.size());
+        when(joinRequestRepository.findByUser(eq(user), any(Pageable.class))).thenReturn(joinRequestPage);
+
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
         GetParameters getParameters = new GetParameters();
@@ -162,6 +171,13 @@ public class JoinRequestServiceTest {
         joinRequest.setDateOfBirth(new Date());
         joinRequest.setGroup(group);
 
+        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        List<JoinRequest> joinRequests = new ArrayList<>();
+        joinRequests.add(joinRequest);
+        Page<JoinRequest> joinRequestPage = new PageImpl<>(joinRequests, pageableAll, joinRequests.size());
+        when(joinRequestRepository.findByUserAndStatuses(eq(user), any(new ArrayList<JoinRequest>().getClass()),
+                any(Pageable.class))).thenReturn(joinRequestPage);
+
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
         GetParameters getParameters = new GetParameters();
@@ -191,6 +207,12 @@ public class JoinRequestServiceTest {
         joinRequest.setSurname("User");
         joinRequest.setDateOfBirth(new Date());
         joinRequest.setGroup(group);
+
+        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        List<JoinRequest> joinRequests = new ArrayList<>();
+        joinRequests.add(joinRequest);
+        Page<JoinRequest> joinRequestPage = new PageImpl<>(joinRequests, pageableAll, joinRequests.size());
+        when(joinRequestRepository.findByParentUser(eq(user), any(Pageable.class))).thenReturn(joinRequestPage);
 
         when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
 
@@ -248,6 +270,8 @@ public class JoinRequestServiceTest {
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         when(joinRequestRepository.findOne(eq(joinRequest.getId()))).thenReturn(joinRequest);
+        when(joinRequestRepository.save(eq(joinRequest))).thenReturn(joinRequest);
+
         joinRequestService.save(joinRequest);
 
         verify(joinRequestRepository, Mockito.times(1)).save(eq(joinRequest));

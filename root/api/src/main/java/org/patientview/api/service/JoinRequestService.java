@@ -16,13 +16,14 @@ import java.math.BigInteger;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface JoinRequestService {
 
-    JoinRequest get(Long joinRequestId) throws ResourceNotFoundException;
+    org.patientview.api.model.JoinRequest get(Long joinRequestId) throws ResourceNotFoundException;
 
     BigInteger getCount(Long userId) throws ResourceNotFoundException;
 
     JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException;
 
-    Page<JoinRequest> getByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException;
+    Page<org.patientview.api.model.JoinRequest> getByUser(Long userId, GetParameters getParameters)
+            throws ResourceNotFoundException;
 
-    JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException ;
+    org.patientview.api.model.JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException ;
 }

@@ -4,6 +4,7 @@ import org.hl7.fhir.instance.model.*;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.UserFeature;
 
+import java.lang.Boolean;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import java.util.Set;
  */
 public class User extends BaseModel{
 
+    private String username;
     private String forename;
     private String surname;
     private String email;
@@ -22,20 +24,28 @@ public class User extends BaseModel{
     private Set<GroupRole> groupRoles = new HashSet<>();
     private Date lastLogin;
     private Set identifiers;
+    private Boolean locked;
+    private Boolean emailVerified;
+    private Boolean dummy;
 
     // FHIR
     private Date dateOfBirth;
 
     public User() {
+
     }
 
     public User(org.patientview.persistence.model.User user, org.hl7.fhir.instance.model.Patient patient) {
         setId(user.getId());
+        setUsername(user.getUsername());
         setForename(user.getForename());
         setSurname(user.getSurname());
         setEmail(user.getEmail());
         setUserFeatures(user.getUserFeatures());
         setLastLogin(user.getLastLogin());
+        setLocked(user.getLocked());
+        setEmailVerified(user.getEmailVerified());
+        setDummy(user.getDummy());
 
         for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
             getGroupRoles().add(new GroupRole(groupRole));
@@ -52,6 +62,14 @@ public class User extends BaseModel{
         }
 
         setIdentifiers(user.getIdentifiers());
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getForename() {
@@ -108,6 +126,30 @@ public class User extends BaseModel{
 
     public void setIdentifiers(Set identifiers) {
         this.identifiers = identifiers;
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
+    }
+
+    public Boolean getEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(Boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public Boolean getDummy() {
+        return dummy;
+    }
+
+    public void setDummy(Boolean dummy) {
+        this.dummy = dummy;
     }
 
     public Date getDateOfBirth() {

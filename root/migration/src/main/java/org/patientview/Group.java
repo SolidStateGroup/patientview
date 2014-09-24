@@ -25,6 +25,9 @@ public class Group extends AuditModel {
     @Column(name = "group_name")
     private String name;
 
+    @Column(name = "group_short_name")
+    private String shortName;
+
     @Column(name = "code")
     private String code;
 
@@ -90,6 +93,14 @@ public class Group extends AuditModel {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
     public String getCode() {

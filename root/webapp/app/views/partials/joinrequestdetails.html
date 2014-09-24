@@ -1,31 +1,37 @@
-<div class="row editJoinRequest">
+<div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
-            <div>
-                <label for="join-request-notes" class="control-label">Status</label>
-                <select ng-model="editItem.status"
-                        ng-options="status as status for status in statuses"
-                        class="form-control"></select>
-            </div>
-
-            <div class="">
-                <label for="join-request-notes" class="control-label">Notes</label>
-                <textarea cols="40" rows="5" type="text" class="form-control" id="join-request-notes" placeholder="Notes"
-                    name="notes" ng-model="editItem.notes"></textarea>
-            </div>
-
+            <label for="join-request-notes" class="control-label">Status</label>
+            <select ng-model="editItem.status"
+                    ng-options="status as status for status in statuses"
+                    class="form-control"></select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="join-request-notes" class="control-label">Notes</label>
+            <textarea cols="40" rows="5" type="text" class="form-control" id="join-request-notes" placeholder="Notes"
+                      name="notes" ng-model="editItem.notes"></textarea>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-3">
             <label class="control-label" ng-show="editItem.completedBy">Completed By</label>
-            <div ng-show="editItem.completedBy">{{joinRequest.completedBy.forename}} {{joinRequest.completedBy.surname}}</div>
-
+            <div ng-show="editItem.completedBy">{{editItem.completedBy.forename}} {{joinRequest.completedBy.surname}}</div>
+        </div>
+        <div class="col-md-3">
             <label class="control-label" ng-show="editItem.completedBy">Completed On</label>
-            <div ng-show="editItem.completedBy">{{joinRequest.completionDate | date:'dd-MMM-yyyy'}}</div>
+            <div ng-show="editItem.completedBy">{{editItem.completionDate | date:'dd-MMM-yyyy'}}</div>
         </div>
     </div>
 </div>
 <br/>
-
 <div class="user-save-cancel pull-right btn-group">
     <button type="button" class="btn blue" ng-click="save(joinRequestForm, editItem)" ng-disabled="joinRequestForm.$pristine">Save</button>
-    <button class="btn btn-grey" ng-click="joinRequest.showEdit = false">Close</button>
+    <button class="btn btn-grey" ng-click="editItem.showEdit = false">Close</button>
 </div>
 <span class="saved-notification pull-right" ng-show="saved">Saved Successfully! &nbsp;</span>

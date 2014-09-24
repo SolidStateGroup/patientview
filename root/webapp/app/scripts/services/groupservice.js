@@ -60,15 +60,6 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        getUsersByType: function (groupId, roleType) {
-            var deferred = $q.defer();
-            Restangular.one('group', groupId).all('user').getList({'roleType': roleType}).then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function (failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
         // save group
         save: function (inputGroup, groupTypes) {
             var deferred = $q.defer();

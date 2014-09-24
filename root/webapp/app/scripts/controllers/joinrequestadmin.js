@@ -222,6 +222,7 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
 
             $scope.editItem = '';
             openedItem.showEdit = true;
+            openedItem.editLoading = true;
 
             // using lightweight list, do GET on id to get full join request and populate editItem
             JoinRequestService.get(openedItem.id).then(function (item) {
@@ -229,6 +230,7 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
                 $scope.saved = '';
                 $scope.editItem = _.clone(item);
                 $scope.editMode = true;
+                openedItem.editLoading = false;
             });
         }
     };

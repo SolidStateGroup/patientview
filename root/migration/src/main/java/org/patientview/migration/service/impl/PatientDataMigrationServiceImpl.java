@@ -52,7 +52,7 @@ public class PatientDataMigrationServiceImpl implements PatientDataMigrationServ
 
             List<UserMapping> userMappings = userMappingDao.getAll(oldUser.getUsername());
 
-            String url = JsonUtil.pvUrl + "/user?username=" + oldUser.getUsername();
+            String url = JsonUtil.pvUrl + "/user/username?username=" + oldUser.getUsername();
             User newUser = null;
             try {
                 newUser = JsonUtil.jsonRequest(url, User.class, null, HttpGet.class);
