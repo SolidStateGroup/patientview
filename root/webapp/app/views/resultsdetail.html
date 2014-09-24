@@ -106,7 +106,7 @@
                         ng-class="{active: observation.temporaryUuid === selectedObservation.temporaryUuid}">
                     <div class="row-item hidden">{{observation.id}}</div>
                     <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
-                    <div class="row-item accordion-heading-text">{{observation.applies | date: 'dd-MMM-yyyy'}}</div>
+                    <div class="row-item accordion-heading-text">{{observation.applies | date: 'dd-MMM-yyyy'}}<br/>{{observation.applies | date: 'HH:ss'}}</div>
                     <div class="row-item accordion-heading-text">{{observation.value}}</div>
                     <div class="row-item accordion-heading-text">{{observation.group.shortName}}</div>
                 </div>
