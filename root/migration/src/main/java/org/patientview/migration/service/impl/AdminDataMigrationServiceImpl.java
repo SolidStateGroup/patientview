@@ -427,13 +427,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return null;
     }
 
-            /*INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (28, now(), 'UNIT_ENQUIRIES_PHONE','Unit Enquiries Phone','1','9');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (29, now(), 'UNIT_ENQUIRIES_EMAIL','Unit Enquiries Email','1','9');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (30, now(), 'APPOINTMENT_PHONE','Appointment Phone','1','9');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (31, now(), 'APPOINTMENT_EMAIL','Appointment Email','1','9');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (32, now(), 'OUT_OF_HOURS_INFO','Out of Hours Information','1','9');(*/
-
-
     private List<ContactPoint> createGroupContactPoints(Unit unit) {
         List<ContactPoint> contactPoints = new ArrayList<ContactPoint>();
 
@@ -470,11 +463,11 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
     private Group createGroup(Unit unit) {
         Group group = new Group();
-        group.setName(unit.getShortname());
+        group.setName(unit.getName());
+        group.setShortName(unit.getShortname());
         group.setCode(unit.getUnitcode());
         group.setVisibleToJoin(unit.isVisible());
         group.setVisible(true);
-        //group.setSftpUser(unit.ge);
 
         if (unit.getSourceType().equalsIgnoreCase("renalunit")) {
             group.setGroupType(getLookupByName("UNIT"));

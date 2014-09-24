@@ -18,6 +18,7 @@ import java.util.Set;
 public class Group extends BaseModel{
 
     private String name;
+    private String shortName;
     private String code;
     private Lookup groupType;
     private Set<GroupFeature> groupFeatures = new HashSet<>();
@@ -37,6 +38,7 @@ public class Group extends BaseModel{
         setGroupType(group.getGroupType());
         setGroupFeatures(group.getGroupFeatures());
         setName(group.getName());
+        setShortName(group.getShortName());
         setVisible(group.getVisible());
         setParentGroups(new ArrayList<Group>());
         setLocations(group.getLocations());
@@ -64,6 +66,14 @@ public class Group extends BaseModel{
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
     public String getCode() {
