@@ -63,10 +63,12 @@ public class ConversationControllerTest {
         conversationList.add(conversation);
 
         PageRequest pageable = new PageRequest(0, 5);
-        Page<Conversation> conversationPage = new PageImpl(conversationList, pageable, conversationList.size());
+        Page<org.patientview.api.model.Conversation> conversationPage
+                = new PageImpl(conversationList, pageable, conversationList.size());
 
         try {
-            when(conversationService.findByUserId(Matchers.eq(testUser.getId()), Matchers.eq(pageable))).thenReturn(conversationPage);
+            when(conversationService.findByUserId(Matchers.eq(testUser.getId()), Matchers.eq(pageable)))
+                    .thenReturn(conversationPage);
         } catch (ResourceNotFoundException rnf) {
             fail("Getting conversations should not fail.");
         }
