@@ -12,8 +12,9 @@ import java.util.Set;
  */
 public class Message {
 
+    private Long id;
     private MessageTypes type;
-    private User user;
+    private BaseUser user;
     private String message;
     private Date created;
     private Set<MessageReadReceipt> readReceipts;
@@ -23,8 +24,9 @@ public class Message {
     }
 
     public Message(org.patientview.persistence.model.Message message) {
+        setId(message.getId());
         setType(message.getType());
-        setUser(new User(message.getUser(), null));
+        setUser(new BaseUser(message.getUser()));
         setMessage(message.getMessage());
         setCreated(message.getCreated());
 
@@ -37,6 +39,14 @@ public class Message {
         }
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public MessageTypes getType() {
         return type;
     }
@@ -45,11 +55,11 @@ public class Message {
         this.type = type;
     }
 
-    public User getUser() {
+    public BaseUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(BaseUser user) {
         this.user = user;
     }
 

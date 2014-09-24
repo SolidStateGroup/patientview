@@ -1,7 +1,6 @@
 package org.patientview.api.model;
 
-import org.hl7.fhir.instance.model.*;
-import org.patientview.persistence.model.BaseModel;
+import org.hl7.fhir.instance.model.DateAndTime;
 import org.patientview.persistence.model.UserFeature;
 
 import java.lang.Boolean;
@@ -14,11 +13,8 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
  */
-public class User extends BaseModel{
+public class User extends BaseUser{
 
-    private String username;
-    private String forename;
-    private String surname;
     private String email;
     private Set<UserFeature> userFeatures = new HashSet<>();
     private Set<GroupRole> groupRoles = new HashSet<>();
@@ -62,30 +58,6 @@ public class User extends BaseModel{
         }
 
         setIdentifiers(user.getIdentifiers());
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getForename() {
-        return forename;
-    }
-
-    public void setForename(String forename) {
-        this.forename = forename;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
     }
 
     public String getEmail() {

@@ -46,7 +46,8 @@ import java.util.Set;
  * Created on 05/08/2014
  */
 @Service
-public class ConversationServiceImpl extends AbstractServiceImpl<ConversationServiceImpl> implements ConversationService {
+public class ConversationServiceImpl extends AbstractServiceImpl<ConversationServiceImpl>
+        implements ConversationService {
 
     @Inject
     private UserRepository userRepository;
@@ -74,6 +75,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     public Conversation get(Long conversationId) {
         return anonymiseConversation(conversationRepository.findOne(conversationId));
+    }
+
+    public org.patientview.api.model.Conversation findByConversationId(Long conversationId) {
+        return new org.patientview.api.model.Conversation(
+            anonymiseConversation(conversationRepository.findOne(conversationId)));
     }
 
     public Conversation add(Conversation conversation) {
@@ -155,20 +161,21 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return newConversation;
     }
 
-    public Page<Conversation> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
+    public Page<org.patientview.api.model.Conversation> findByUserId(Long userId, Pageable pageable)
+            throws ResourceNotFoundException {
         User entityUser = findEntityUser(userId);
         Page<Conversation> conversationPage = conversationRepository.findByUser(entityUser, pageable);
-        List<Conversation> conversations = new ArrayList<>();
+        List<org.patientview.api.model.Conversation> conversations = new ArrayList<>();
 
         // make anonymous if necessary
         for (Conversation conversation : conversationPage.getContent()) {
-            conversations.add(anonymiseConversation(conversation));
+            conversations.add(new org.patientview.api.model.Conversation(anonymiseConversation(conversation)));
         }
 
         return new PageImpl<>(conversations, pageable, conversations.size());
     }
 
-    public void addMessage(Long conversationId, Message message) throws ResourceNotFoundException {
+    public void addMessage(Long conversationId, org.patientview.api.model.Message message) throws ResourceNotFoundException {
         Conversation entityConversation = conversationRepository.findOne(conversationId);
         if (entityConversation == null) {
             throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversationId));
@@ -328,12 +335,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
-    private boolean conversationHasUnreadMessages(Conversation conversation, User user) {
+    private boolean conversationHasUnreadMessages(org.patientview.api.model.Conversation conversation, User user) {
         int unreadMessages = 0;
-        for (Message message : conversation.getMessages()) {
+        for (org.patientview.api.model.Message message : conversation.getMessages()) {
             boolean unread = true;
-            for (MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
-                if (messageReadReceipt.getUser().equals(user)) {
+            for (org.patientview.api.model.MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
+                if (messageReadReceipt.getUser().getId().equals(user.getId())) {
                     unread = false;
                 }
             }
@@ -347,7 +354,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     // todo: convert to native query, performance improvements etc
     public int getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
         User entityUser = findEntityUser(userId);
-        Page<Conversation> conversationPage = findByUserId(userId, new PageRequest(0, Integer.MAX_VALUE));
+        Page<org.patientview.api.model.Conversation> conversationPage
+                = findByUserId(userId, new PageRequest(0, Integer.MAX_VALUE));
 
         if (conversationPage.getContent().size() == 0) {
             return 0;
@@ -355,7 +363,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         int unreadConversations = 0;
 
-        for (Conversation conversation : conversationPage.getContent()) {
+        for (org.patientview.api.model.Conversation conversation : conversationPage.getContent()) {
             if (conversationHasUnreadMessages(conversation, entityUser)) {
                 unreadConversations++;
             }

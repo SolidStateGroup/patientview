@@ -709,6 +709,12 @@ module.exports = function (grunt) {
         'war'
     ]);
 
+    grunt.registerTask('minimalssgdev_nowar', [
+        'clean:dist',
+        'ngconstant:apiie',
+        'copy:minimal',
+    ]);
+
     grunt.registerTask('minimalssgstaging', [
         'clean:dist',
         'ngconstant:apissgstaging',

@@ -14,6 +14,7 @@ import java.util.Set;
  */
 public class Conversation {
 
+    private Long id;
     private ConversationTypes type;
     private String imageData;
     private Integer rating;
@@ -30,6 +31,7 @@ public class Conversation {
     }
 
     public Conversation (org.patientview.persistence.model.Conversation conversation) {
+        setId(conversation.getId());
         setType(conversation.getType());
         setImageData(conversation.getImageData());
         setRating(conversation.getRating());
@@ -56,6 +58,14 @@ public class Conversation {
 
         setStaffFeature(conversation.getStaffFeature());
         setGroupId(conversation.getGroupId());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public ConversationTypes getType() {

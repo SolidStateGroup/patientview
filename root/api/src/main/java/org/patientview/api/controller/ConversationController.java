@@ -1,12 +1,12 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.Conversation;
+import org.patientview.api.model.Message;
 import org.patientview.api.model.User;
 import org.patientview.api.service.ConversationService;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Conversation;
-import org.patientview.persistence.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -40,9 +39,9 @@ public class ConversationController extends BaseController<ConversationControlle
 
     @RequestMapping(value = "/conversation/{conversationId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Conversation> getConversation(@PathVariable("conversationId") Long conversationId)
-            throws ResourceNotFoundException, SecurityException {
-        return new ResponseEntity<>(conversationService.get(conversationId), HttpStatus.OK);
+    public ResponseEntity<org.patientview.api.model.Conversation> getConversation(
+            @PathVariable("conversationId") Long conversationId) throws ResourceNotFoundException, SecurityException {
+        return new ResponseEntity<>(conversationService.findByConversationId(conversationId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.GET,
@@ -105,7 +104,8 @@ public class ConversationController extends BaseController<ConversationControlle
 
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void newConversation(@PathVariable("userId") Long userId, @RequestBody Conversation conversation)
+    public void newConversation(@PathVariable("userId") Long userId,
+            @RequestBody org.patientview.persistence.model.Conversation conversation)
             throws ResourceNotFoundException {
         conversationService.addConversation(userId, conversation);
     }

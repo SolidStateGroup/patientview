@@ -8,7 +8,8 @@ import java.util.Date;
  */
 public class MessageReadReceipt {
 
-    private User user;
+    private Long id;
+    private BaseUser user;
     private Date created;
 
     public MessageReadReceipt() {
@@ -16,15 +17,24 @@ public class MessageReadReceipt {
     }
 
     public MessageReadReceipt(org.patientview.persistence.model.MessageReadReceipt readReceipt) {
-        setUser(new User(readReceipt.getUser(), null));
+        setId(readReceipt.getId());
+        setUser(new BaseUser(readReceipt.getUser()));
         setCreated(readReceipt.getCreated());
     }
 
-    public User getUser() {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public BaseUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(BaseUser user) {
         this.user = user;
     }
 

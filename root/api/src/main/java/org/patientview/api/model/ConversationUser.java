@@ -6,7 +6,8 @@ package org.patientview.api.model;
  */
 public class ConversationUser {
 
-    private User user;
+    private Long id;
+    private BaseUser user;
     private Boolean anonymous;
 
     public ConversationUser () {
@@ -14,15 +15,24 @@ public class ConversationUser {
     }
 
     public ConversationUser (org.patientview.persistence.model.ConversationUser conversationUser) {
-        setUser(new User(conversationUser.getUser(), null));
+        setId(conversationUser.getId());
+        setUser(new BaseUser(conversationUser.getUser()));
         setAnonymous(conversationUser.getAnonymous());
     }
 
-    public User getUser() {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public BaseUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(BaseUser user) {
         this.user = user;
     }
 
