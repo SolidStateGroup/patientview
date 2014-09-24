@@ -40,23 +40,17 @@ public class ConversationController extends BaseController<ConversationControlle
 
     @RequestMapping(value = "/conversation/{conversationId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Conversation> getConversation(@PathVariable("conversationId") Long conversationId) throws SecurityException {
-        try {
-            LOG.debug("Request has been received for conversation with id : {}", conversationId);
-            Conversation conversation = conversationService.get(conversationId);
-            return new ResponseEntity<>(conversation, HttpStatus.OK);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Conversation> getConversation(@PathVariable("conversationId") Long conversationId)
+            throws ResourceNotFoundException, SecurityException {
+        return new ResponseEntity<>(conversationService.get(conversationId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Page<Conversation>> getConversations(
-            @PathVariable("userId") Long userId, //Pageable pageable
-            @RequestParam(value = "size", required = false) String size,
-            @RequestParam(value = "page", required = false) String page) {
+            @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
+            @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException {
 
         Integer pageConverted = null, sizeConverted = null;
         PageRequest pageable;
@@ -75,25 +69,16 @@ public class ConversationController extends BaseController<ConversationControlle
             pageable = new PageRequest(0, Integer.MAX_VALUE);
         }
 
-        try {
-            LOG.debug("Request has been received for conversations of userId : {}", userId);
-            Page<Conversation> conversations = conversationService.findByUserId(userId, pageable);
-            return new ResponseEntity<>(conversations, HttpStatus.OK);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        LOG.debug("Request has been received for conversations of userId : {}", userId);
+        return new ResponseEntity<>(conversationService.findByUserId(userId, pageable), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/conversations/unreadcount", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Integer> getUnreadConversationCount(@PathVariable("userId") Long userId) {
-        try {
-            LOG.debug("Request has been received for conversations of userId : {}", userId);
-            return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Integer> getUnreadConversationCount(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET,
@@ -113,33 +98,22 @@ public class ConversationController extends BaseController<ConversationControlle
 
     @RequestMapping(value = "/conversation/{conversationId}/messages", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> addMessage(@PathVariable("conversationId") Long conversationId,
-                                            @RequestBody Message message, UriComponentsBuilder uriComponentsBuilder) {
-        try {
-            conversationService.addMessage(conversationId, message);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public void addMessage(@PathVariable("conversationId") Long conversationId, @RequestBody Message message)
+            throws ResourceNotFoundException {
+        conversationService.addMessage(conversationId, message);
     }
 
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> newConversation(@PathVariable("userId") Long userId,
-                                            @RequestBody Conversation conversation) throws ResourceNotFoundException {
+    public void newConversation(@PathVariable("userId") Long userId, @RequestBody Conversation conversation)
+            throws ResourceNotFoundException {
         conversationService.addConversation(userId, conversation);
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Void> addMessageReadReceipt(@PathVariable("messageId") Long messageId,
-                                              @PathVariable("userId") Long userId) {
-        try {
-            conversationService.addMessageReadReceipt(messageId, userId);
-            return new ResponseEntity<Void>(HttpStatus.OK);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public void addMessageReadReceipt(@PathVariable("messageId") Long messageId, @PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        conversationService.addMessageReadReceipt(messageId, userId);
     }
 }
