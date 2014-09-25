@@ -6,7 +6,7 @@ import org.patientview.api.model.ForgottenCredentials;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
-import org.patientview.persistence.model.UserToken;
+import org.patientview.api.model.UserToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -16,13 +16,18 @@
                             <dt>{{loggedInUser.forename}} {{loggedInUser.surname}}</dt>
                             <dd>Joined {{loggedInUser.created | date:'dd-MMM-yyyy HH:mm'}}</dd>
                         </dl>
-                        <dl class="col-md-4">
+                        <dl class="col-md-6">
                             <dt>Last Login</dt>
-                            <dd>{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
+                            <dd ng-show="loggedInUser.lastLogin">{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
                                 <span class="sub-text">from {{loggedInUser.lastLoginIpAddress}}</span>
                             </dd>
+                            <dd ng-show="!loggedInUser.lastLogin">
+                                Never logged in
+                            </dd>
                         </dl>
-                        <dl class="col-md-8">
+                    </div>
+                    <div class="item-detail row">
+                        <dl class="col-md-4">
                             <dt>You are a member of:</dt>
                             <dd>
                                 <ul class="unstyled groups-list">
@@ -33,6 +38,16 @@
                                         </span>
                                     </li>
                                 </ul>
+                            </dd>
+                        </dl>
+                        <dl class="col-md-6" ng-show="permissions.isPatient">
+                            <dt>Data last received:</dt>
+                            <dd ng-show="loggedInUser.latestDataReceivedDate && loggedInUser.latestDataReceivedBy">
+                                Data last received on {{loggedInUser.latestDataReceivedDate | date:'dd-MMM-yyyy HH:mm'}}
+                                from {{loggedInUser.latestDataReceivedBy.name}}
+                            </dd>
+                            <dd ng-show="!loggedInUser.latestDataReceivedDate || !loggedInUser.latestDataReceivedBy">
+                                Not Available
                             </dd>
                         </dl>
                     </div>

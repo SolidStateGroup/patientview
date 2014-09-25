@@ -53,8 +53,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<org.patientview.api.model.User> getUser(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
-        return new ResponseEntity<>(new org.patientview.api.model.User(userService.get(userId), null), HttpStatus.OK);
-
+        return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.PUT)

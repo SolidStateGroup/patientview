@@ -48,9 +48,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private UserTokenRepository userTokenRepository;
 
     @Inject
-    private RoleRepository roleRepository;
-
-    @Inject
     private AuditRepository auditRepository;
 
     @Inject
@@ -63,7 +60,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public UserToken switchUser(Long userId, String token) throws AuthenticationServiceException {
+    public org.patientview.api.model.UserToken switchUser(Long userId, String token)
+            throws AuthenticationServiceException {
 
         LOG.debug("Switching to user with ID: {}", userId);
         User user = userRepository.findOne(userId);
@@ -84,20 +82,20 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             userToken = userTokenRepository.save(userToken);
             userRepository.save(user);
 
-            return userToken;
+            return new org.patientview.api.model.UserToken(userToken);
 
         } else {
             UserToken userToken = getToken(token);
             if (userToken != null) {
-                return userToken;
+                return new org.patientview.api.model.UserToken(userToken);
             }
             throw new AuthenticationServiceException("Cannot switch user, token not found");
         }
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public UserToken authenticate(String username, String password) throws UsernameNotFoundException,
-            AuthenticationServiceException {
+    public org.patientview.api.model.UserToken authenticate(String username, String password)
+            throws UsernameNotFoundException, AuthenticationServiceException {
 
         LOG.debug("Authenticating user: {}", username);
 
@@ -131,7 +129,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 .getRequest().getRemoteAddr());
         userRepository.save(user);
 
-        return userToken;
+        return new org.patientview.api.model.UserToken(userToken);
 
     }
 
@@ -153,7 +151,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
-    public UserToken getToken(String token) {
+    private UserToken getToken(String token) {
         return userTokenRepository.findByToken(token);
     }
 

@@ -19,10 +19,17 @@ public class User extends BaseUser{
     private Set<UserFeature> userFeatures = new HashSet<>();
     private Set<GroupRole> groupRoles = new HashSet<>();
     private Date lastLogin;
+    private String lastLoginIpAddress;
     private Set identifiers;
     private Boolean locked;
     private Boolean emailVerified;
     private Boolean dummy;
+    private String contactNumber;
+    private Date created;
+
+    // from fhirLink
+    private Date latestDataReceivedDate;
+    private Group latestDataReceivedBy;
 
     // FHIR
     private Date dateOfBirth;
@@ -39,9 +46,12 @@ public class User extends BaseUser{
         setEmail(user.getEmail());
         setUserFeatures(user.getUserFeatures());
         setLastLogin(user.getLastLogin());
+        setLastLoginIpAddress(user.getLastLoginIpAddress());
         setLocked(user.getLocked());
         setEmailVerified(user.getEmailVerified());
         setDummy(user.getDummy());
+        setContactNumber(user.getContactNumber());
+        setCreated(user.getCreated());
 
         for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
             getGroupRoles().add(new GroupRole(groupRole));
@@ -92,6 +102,14 @@ public class User extends BaseUser{
         this.lastLogin = lastLogin;
     }
 
+    public String getLastLoginIpAddress() {
+        return lastLoginIpAddress;
+    }
+
+    public void setLastLoginIpAddress(String lastLoginIpAddress) {
+        this.lastLoginIpAddress = lastLoginIpAddress;
+    }
+
     public Set getIdentifiers() {
         return identifiers;
     }
@@ -122,6 +140,38 @@ public class User extends BaseUser{
 
     public void setDummy(Boolean dummy) {
         this.dummy = dummy;
+    }
+
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Date getLatestDataReceivedDate() {
+        return latestDataReceivedDate;
+    }
+
+    public void setLatestDataReceivedDate(Date latestDataReceivedDate) {
+        this.latestDataReceivedDate = latestDataReceivedDate;
+    }
+
+    public Group getLatestDataReceivedBy() {
+        return latestDataReceivedBy;
+    }
+
+    public void setLatestDataReceivedBy(Group latestDataReceivedBy) {
+        this.latestDataReceivedBy = latestDataReceivedBy;
     }
 
     public Date getDateOfBirth() {

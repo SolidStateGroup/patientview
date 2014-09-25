@@ -30,6 +30,7 @@ public class UserToken extends BaseModel {
     @Column(name = "expiration_date")
     private Date expiration;
 
+    // todo: not required?
     @OneToOne(optional = true)
     @JoinColumn(name = "parent_token_id")
     private UserToken userToken;

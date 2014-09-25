@@ -41,6 +41,9 @@ public interface UserService extends CrudService<User> {
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId) throws ResourceNotFoundException;
 
+    @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
+    org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException;
+
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, EntityExistsException;
 

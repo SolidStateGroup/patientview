@@ -26,6 +26,7 @@ import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
@@ -86,6 +87,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private IdentifierRepository identifierRepository;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
 
     @Inject
     private EmailService emailService;
@@ -316,6 +320,23 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceNotFoundException("User with this ID does not exist");
         }
         return user;
+    }
+
+    public org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User with this ID does not exist");
+        }
+        org.patientview.api.model.User transportUser = new org.patientview.api.model.User(user, null);
+
+        // get last data received if present
+        List<FhirLink> fhirLinks = fhirLinkRepository.findActiveByUser(user);
+        if (!fhirLinks.isEmpty()) {
+            transportUser.setLatestDataReceivedBy(new org.patientview.api.model.Group(fhirLinks.get(0).getGroup()));
+            transportUser.setLatestDataReceivedDate(fhirLinks.get(0).getCreated());
+        }
+
+        return transportUser;
     }
 
     public User getByUsername(String username) {
