@@ -334,5 +334,21 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         });
     };
 
+    $scope.removeDuplicateNewsLinks = function(newsLinks) {
+        var noDuplicates = [];
+        var seen = [];
+
+        if (newsLinks != undefined) {
+            for (var i = 0; i < newsLinks.length; i++) {
+                if (newsLinks[i].group && !seen[newsLinks[i].group.id]) {
+                    seen[newsLinks[i].group.id] = true;
+                    noDuplicates.push(newsLinks[i]);
+                }
+            }
+        }
+
+        return noDuplicates;
+    };
+
     $scope.init();
 }]);
