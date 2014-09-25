@@ -53,8 +53,10 @@ public class User extends BaseUser{
         setContactNumber(user.getContactNumber());
         setCreated(user.getCreated());
 
-        for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
-            getGroupRoles().add(new GroupRole(groupRole));
+        if (user.getGroupRoles() != null) {
+            for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
+                getGroupRoles().add(new GroupRole(groupRole));
+            }
         }
 
         // if user has fhirPatient data (is a patient)
