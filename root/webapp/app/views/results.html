@@ -47,7 +47,7 @@
                         <dt>
                             {{result.latestObservation.value}} <span ng-show="result.units">{{result.units}}</span>
                         </dt>
-                        <dd ng-show="getResultIcon(result)">
+                        <dd ng-show="getResultIcon(result)" class="hidden">
                             <i class="{{getResultIcon(result)}} pull-left"></i>
                             <span class="pull-left">{{removeMinus(result.valueChange)}}</span>
                         </dd>

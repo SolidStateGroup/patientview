@@ -163,7 +163,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     }
 
     // todo: develop optimised query, gets all latest observations in single query per fhirlink
-    private Map<String, Double> getLastObservations(final Long userId)
+    private Map<String, FhirObservation> getLastObservations(final Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -171,7 +171,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        Map<String, Double> latestObservations = new HashMap<>();
+        Map<String, FhirObservation> latestObservations = new HashMap<>();
         Map<String, Date> latestObservationDates = new HashMap<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
@@ -189,25 +189,30 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                 // convert to transport observations
                 for (String[] json : observationValues) {
+                    try {
+                        FhirObservation fhirObservation = new FhirObservation();
+                        Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS'+01:00'", Locale.ENGLISH)
+                                .parse(json[0].replace("\"", ""));
 
-                    if (json[0] != null) {
-                        try {
-                            Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS'+01:00'", Locale.ENGLISH).parse(json[0].replace("\"", ""));
-                            String code = json[1].replace("\"","");
-                            Double value = Double.valueOf(json[2]);
+                        fhirObservation.setApplies(date);
+                        fhirObservation.setName(json[1].replace("\"", ""));
+                        fhirObservation.setValue(Double.valueOf(json[2]));
+                        fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
 
-                            if (latestObservationDates.get(code) != null) {
-                                if (latestObservationDates.get(code).getTime() < date.getTime()) {
-                                    latestObservations.put(code, value);
-                                    latestObservationDates.put(code, date);
-                                }
-                            } else {
-                                latestObservations.put(code, value);
+                        String code = json[1].replace("\"", "").toUpperCase();
+
+                        if (latestObservationDates.get(code) != null) {
+                            if (latestObservationDates.get(code).getTime() < date.getTime()) {
+                                latestObservations.put(code, fhirObservation);
                                 latestObservationDates.put(code, date);
                             }
-                        } catch (ParseException pe) {
-                            LOG.error(pe.getMessage());
+                        } else {
+                            latestObservations.put(code, fhirObservation);
+                            latestObservationDates.put(code, date);
                         }
+
+                    } catch (ParseException e) {
+                        LOG.error(e.getMessage());
                     }
                 }
             }
@@ -241,21 +246,18 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         List<ObservationHeading> observationHeadings = observationHeadingService.findAll();
         List<ObservationSummary> observationData = new ArrayList<>();
 
+        // this works but is slow
         /*Map<Long, List<FhirObservation>> latestObservations = new HashMap<>();
         for (ObservationHeading observationHeading : observationHeadings) {
-
-            // testing
-            //latestObservations.put(observationHeading.getId(), getLastTwoObservations(user.getId(), observationHeading.getCode()));
-
             latestObservations.put(observationHeading.getId(), get(user.getId(), observationHeading.getCode().toUpperCase(), "appliesDateTime", "DESC", 2L));
-        }*/
+        }
 
-        /*for (Group specialty : specialties) {
+        for (Group specialty : specialties) {
             observationData.add(getObservationSummary(specialty, observationHeadings, latestObservations));
         }*/
 
-        // testing (todo: doesn't return change)
-        Map<String, Double> latestObservationMap = getLastObservations(user.getId());
+        // todo: testing (doesn't return change)
+        Map<String, FhirObservation> latestObservationMap = getLastObservations(user.getId());
 
         for (Group specialty : specialties) {
             observationData.add(getObservationSummaryMap(specialty, observationHeadings, latestObservationMap));
@@ -319,7 +321,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     }
 
     private ObservationSummary getObservationSummaryMap(Group group, List<ObservationHeading> observationHeadings,
-        Map<String, Double> latestObservations) throws ResourceNotFoundException, FhirResourceException {
+        Map<String, FhirObservation> latestObservations) throws ResourceNotFoundException, FhirResourceException {
 
         ObservationSummary observationSummary = new ObservationSummary();
         observationSummary.setPanels(new HashMap<Long, List<org.patientview.api.model.ObservationHeading>>());
@@ -346,9 +348,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                     buildSummaryHeading(panel, panelOrder, observationHeading);
 
                 // add latest observation
-                FhirObservation latest = new FhirObservation();
-                latest.setValue(latestObservations.get(observationHeading.getCode().toUpperCase()));
-                transportObservationHeading.setLatestObservation(latest);
+                transportObservationHeading.setLatestObservation(
+                        latestObservations.get(observationHeading.getCode().toUpperCase()));
 
                 // add panel if not present and add transport observation heading
                 if (observationSummary.getPanels().get(panel) == null) {
