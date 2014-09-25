@@ -27,6 +27,7 @@ public class FhirObservation extends BaseModel{
     public FhirObservation() {
     }
 
+    // if converting from actual Observation
     public FhirObservation(Observation observation) throws FhirResourceException {
 
         if (observation.getName() != null) {
