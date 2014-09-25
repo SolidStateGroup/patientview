@@ -1,7 +1,6 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirObservation;
@@ -115,54 +114,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         return fhirObservations;
     }
 
-    // todo: develop optimised query (avoid search depth in json field?), this is actually slower
-    private List<FhirObservation> getLastTwoObservations(final Long userId, final String code)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        List<FhirObservation> fhirObservations = new ArrayList<>();
-
-        for (FhirLink fhirLink : user.getFhirLinks()) {
-            if (fhirLink.getActive()) {
-                StringBuilder query = new StringBuilder();
-                query.append("SELECT  content -> 'valueQuantity' -> 'value' ");
-                query.append("FROM    observation ");
-                query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-                query.append(fhirLink.getVersionId().toString());
-                query.append("\", \"reference\": \"uuid\"}' ");
-
-                query.append("AND content-> 'name' = '{\"text\": \"");
-                query.append(code.toUpperCase());
-                query.append("\", \"coding\": [{\"display\": \"");
-                query.append(WordUtils.capitalize(code));
-                query.append("\"}]}' ");
-
-                query.append("ORDER BY content-> 'appliesDateTime' ");
-                query.append("DESC LIMIT 2 ");
-
-                List<String> observationValues = fhirResource.findObservationValuesByQuery(query.toString());
-
-                // convert to transport observations
-                for (String json : observationValues) {
-                    FhirObservation fhirObservation = new FhirObservation();
-                    fhirObservation.setValue(Double.valueOf(json));
-                    Group fhirGroup = fhirLink.getGroup();
-                    if (fhirGroup != null) {
-                        fhirObservation.setGroup(new org.patientview.api.model.Group(fhirGroup));
-                    }
-                    fhirObservations.add(fhirObservation);
-                }
-            }
-        }
-
-        return fhirObservations;
-    }
-
-    // todo: develop optimised query, gets all latest observations in single query per fhirlink
+    // gets all latest observations in single query per fhirlink
     private Map<String, FhirObservation> getLastObservations(final Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
@@ -250,17 +202,17 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         List<ObservationHeading> observationHeadings = observationHeadingService.findAll();
         List<ObservationSummary> observationData = new ArrayList<>();
 
-        // this works but is slow
+        // this works and does retrieve difference between most recent and last observation, but is very slow
         /*Map<Long, List<FhirObservation>> latestObservations = new HashMap<>();
         for (ObservationHeading observationHeading : observationHeadings) {
-            latestObservations.put(observationHeading.getId(), get(user.getId(), observationHeading.getCode().toUpperCase(), "appliesDateTime", "DESC", 2L));
+            latestObservations.put(observationHeading.getId(), get(user.getId(),
+                observationHeading.getCode().toUpperCase(), "appliesDateTime", "DESC", 2L));
         }
 
         for (Group specialty : specialties) {
             observationData.add(getObservationSummary(specialty, observationHeadings, latestObservations));
         }*/
 
-        // todo: testing (doesn't return change)
         Map<String, FhirObservation> latestObservationMap = getLastObservations(user.getId());
 
         for (Group specialty : specialties) {
@@ -324,6 +276,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         return observationSummary;
     }
 
+    // note: doesn't return change since last observation, must be retrieved separately
     private ObservationSummary getObservationSummaryMap(Group group, List<ObservationHeading> observationHeadings,
         Map<String, FhirObservation> latestObservations) throws ResourceNotFoundException, FhirResourceException {
 

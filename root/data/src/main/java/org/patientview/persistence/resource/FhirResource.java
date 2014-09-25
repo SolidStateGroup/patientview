@@ -1,7 +1,6 @@
 package org.patientview.persistence.resource;
 
 import org.hl7.fhir.instance.formats.JsonParser;
-import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
@@ -60,7 +59,6 @@ public class FhirResource {
             LOG.error("Could not retrieve resource");
             throw new FhirResourceException(e.getMessage());
         }
-
     }
 
     public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType) throws FhirResourceException {
@@ -89,25 +87,6 @@ public class FhirResource {
         return resources;
     }
 
-    public List<String> findObservationValuesByQuery(String sql) throws FhirResourceException {
-        try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(sql);
-
-            List<String> observations = new ArrayList<>();
-
-            while ((results.next())) {
-                observations.add(results.getString(1));
-            }
-
-            connection.close();
-            return observations;
-        } catch (SQLException e) {
-            throw new FhirResourceException(e);
-        }
-    }
-
     public List<String[]> findLatestObservationsByQuery(String sql) throws FhirResourceException {
         try {
             Connection connection = dataSource.getConnection();
@@ -115,7 +94,6 @@ public class FhirResource {
             ResultSet results = statement.executeQuery(sql);
 
             List<String[]> observations = new ArrayList<>();
-
 
             while ((results.next())) {
                 String[] res = {results.getString(1), results.getString(2), results.getString(3)};
