@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -43,9 +44,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private UserRepository userRepository;
 
     @Inject
-    private FhirLinkService fhirLinkService;
-
-    @Inject
     private GroupService groupService;
 
     @Inject
@@ -58,69 +56,58 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                                      final String orderDirection, final Long limit)
             throws ResourceNotFoundException, FhirResourceException {
 
-        List<Observation> observations = new ArrayList<>();
-        List<FhirObservation> fhirObservations = new ArrayList<>();
-        List<FhirLink> fhirLinks = new ArrayList<>();
-
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
+        List<FhirObservation> fhirObservations = new ArrayList<>();
+
         for (FhirLink fhirLink : user.getFhirLinks()) {
             if (fhirLink.getActive()) {
-                fhirLinks.add(fhirLink);
-            }
-        }
+                StringBuilder query = new StringBuilder();
+                query.append("SELECT  content::varchar ");
+                query.append("FROM    observation ");
+                query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+                query.append(fhirLink.getVersionId().toString());
+                query.append("\", \"reference\": \"uuid\"}' ");
 
-        for (FhirLink fhirLink : fhirLinks) {
-            StringBuilder query = new StringBuilder();
-            query.append("SELECT  content::varchar ");
-            query.append("FROM    observation ");
-            query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-            query.append(fhirLink.getVersionId().toString());
-            query.append("\", \"reference\": \"uuid\"}' ");
-
-            if (StringUtils.isNotEmpty(code)) {
-                query.append("AND content-> 'name' ->> 'text' = '");
-                query.append(code);
-                query.append("' ");
-            }
-
-            if (StringUtils.isNotEmpty(orderBy)) {
-                query.append("ORDER BY content-> '");
-                query.append(orderBy);
-                query.append("' ");
-            }
-
-            if (StringUtils.isNotEmpty(orderDirection)) {
-                query.append(orderDirection);
-                query.append(" ");
-            }
-
-            if (StringUtils.isNotEmpty(orderBy)) {
-                query.append("LIMIT ");
-                query.append(limit);
-            }
-
-            observations.addAll(fhirResource.findResourceByQuery(query.toString(), Observation.class));
-        }
-
-        // convert to transport observations
-        for (Observation observation : observations) {
-            try {
-                FhirObservation fhirObservation = new FhirObservation(observation);
-                FhirLink fhirLink = fhirLinkService.findByVersionId(observation.getSubject().getDisplaySimple());
-                if (fhirLink != null) {
-                    if (fhirLink.getGroup() != null) {
-                        fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
-                    }
+                if (StringUtils.isNotEmpty(code)) {
+                    query.append("AND content-> 'name' ->> 'text' = '");
+                    query.append(code);
+                    query.append("' ");
                 }
-                fhirObservations.add(fhirObservation);
-            } catch (FhirResourceException fre) {
-                LOG.debug(fre.getMessage());
+
+                if (StringUtils.isNotEmpty(orderBy)) {
+                    query.append("ORDER BY content-> '");
+                    query.append(orderBy);
+                    query.append("' ");
+                }
+
+                if (StringUtils.isNotEmpty(orderDirection)) {
+                    query.append(orderDirection);
+                    query.append(" ");
+                }
+
+                if (StringUtils.isNotEmpty(orderBy)) {
+                    query.append("LIMIT ");
+                    query.append(limit);
+                }
+
+                List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
+
+                // convert to transport observations
+                for (Observation observation : observations) {
+                    FhirObservation fhirObservation = new FhirObservation(observation);
+                    Group fhirGroup = fhirLink.getGroup();
+                    if (fhirGroup != null) {
+                        fhirObservation.setGroup(new org.patientview.api.model.Group(fhirGroup));
+                    }
+                    fhirObservations.add(fhirObservation);
+                }
             }
         }
+
         return fhirObservations;
     }
 
@@ -149,14 +136,22 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         List<ObservationHeading> observationHeadings = observationHeadingService.findAll();
         List<ObservationSummary> observationData = new ArrayList<>();
 
-        for (Group specialty : specialties) {
-            observationData.add(getObservationSummary(specialty, observationHeadings, user));
+        // get latest 2 observations for each result heading, if available
+        Map<Long, List<FhirObservation>> latestObservations = new HashMap<>();
+        for (ObservationHeading observationHeading : observationHeadings) {
+            latestObservations.put(observationHeading.getId(), get(user.getId(),
+                observationHeading.getCode().toUpperCase(), "appliesDateTime", "DESC", 2L));
         }
+
+        for (Group specialty : specialties) {
+            observationData.add(getObservationSummary(specialty, observationHeadings, latestObservations));
+        }
+
         return observationData;
     }
 
     private ObservationSummary getObservationSummary(Group group, List<ObservationHeading> observationHeadings,
-                                                 User user) throws ResourceNotFoundException, FhirResourceException {
+         Map<Long, List<FhirObservation>> latestObservations) throws ResourceNotFoundException, FhirResourceException {
 
         ObservationSummary observationSummary = new ObservationSummary();
         observationSummary.setPanels(new HashMap<Long, List<org.patientview.api.model.ObservationHeading>>());
@@ -164,62 +159,48 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         for (ObservationHeading observationHeading : observationHeadings) {
 
-            // get panel and panel order for this specialty if available
-            Long panel = getPanel(observationHeading, group);
-            Long panelOrder = getPanelOrder(observationHeading, group);
+            // get panel and panel order for this specialty if available, otherwise use default
+            Long panel = observationHeading.getDefaultPanel();
+            Long panelOrder = observationHeading.getDefaultPanelOrder();
+
+            for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+                if (observationHeadingGroup.getGroup().getId().equals(group.getId())) {
+                    panel = observationHeadingGroup.getPanel();
+                    panelOrder = observationHeadingGroup.getPanelOrder();
+                }
+            }
 
             // don't include any observation heading with panel = 0
             if (panel != null && panel != 0L) {
-                org.patientview.api.model.ObservationHeading summaryHeading =
+
+                // create transport observation heading
+                org.patientview.api.model.ObservationHeading transportObservationHeading =
                     buildSummaryHeading(panel, panelOrder, observationHeading);
 
-                List<FhirObservation> latestObservations = get(user.getId(), observationHeading.getCode().toUpperCase(),
-                    "appliesDateTime", "DESC", 2L);
-
-                if (!latestObservations.isEmpty()) {
-                    summaryHeading.setLatestObservation(latestObservations.get(0));
+                // add latest observation and value changed to transport observation heading if present
+                if (!latestObservations.get(observationHeading.getId()).isEmpty()) {
+                    transportObservationHeading.setLatestObservation(
+                        latestObservations.get(observationHeading.getId()).get(0));
 
                     if (latestObservations.size() > 1) {
-                        summaryHeading.setValueChange(
-                            latestObservations.get(0).getValue() - latestObservations.get(1).getValue());
+                        transportObservationHeading.setValueChange(
+                            latestObservations.get(observationHeading.getId()).get(0).getValue()
+                                - latestObservations.get(observationHeading.getId()).get(1).getValue());
                     }
                 }
 
+                // add panel if not present and add transport observation heading
                 if (observationSummary.getPanels().get(panel) == null) {
                     List<org.patientview.api.model.ObservationHeading> summaryHeadings = new ArrayList<>();
-                    summaryHeadings.add(summaryHeading);
+                    summaryHeadings.add(transportObservationHeading);
                     observationSummary.getPanels().put(panel, summaryHeadings);
                 } else {
-                    observationSummary.getPanels().get(panel).add(summaryHeading);
+                    observationSummary.getPanels().get(panel).add(transportObservationHeading);
                 }
             }
         }
 
         return observationSummary;
-    }
-
-    private Long getPanel(ObservationHeading observationHeading, Group group) {
-        Long panel = observationHeading.getDefaultPanel();
-
-        for (ObservationHeadingGroup observationHeadingGroup :
-                observationHeading.getObservationHeadingGroups()) {
-            if (observationHeadingGroup.getGroup().getId() == group.getId()) {
-                panel = observationHeadingGroup.getPanel();
-            }
-        }
-        return panel;
-    }
-
-    private Long getPanelOrder(ObservationHeading observationHeading, Group group) {
-        Long panelOrder = observationHeading.getDefaultPanelOrder();
-
-        for (ObservationHeadingGroup observationHeadingGroup :
-                observationHeading.getObservationHeadingGroups()) {
-            if (observationHeadingGroup.getGroup().getId() == group.getId()) {
-                panelOrder = observationHeadingGroup.getPanelOrder();
-            }
-        }
-        return panelOrder;
     }
 
     private org.patientview.api.model.ObservationHeading buildSummaryHeading(Long panel, Long panelOrder,
