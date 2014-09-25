@@ -5,12 +5,13 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.repository.AuditRepository;
-import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -129,8 +130,24 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 .getRequest().getRemoteAddr());
         userRepository.save(user);
 
-        return new org.patientview.api.model.UserToken(userToken);
+        org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken(userToken);
 
+        // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy
+        if (!user.getFhirLinks().isEmpty()) {
+            Date latestDataReceivedDate = new Date(1,1,1);
+            Group group = user.getFhirLinks().iterator().next().getGroup();
+
+            for (FhirLink fhirLink : user.getFhirLinks()) {
+                if (fhirLink.getCreated().after(latestDataReceivedDate)) {
+                    latestDataReceivedDate = fhirLink.getCreated();
+                }
+            }
+
+            transportUserToken.getUser().setLatestDataReceivedBy(new org.patientview.api.model.Group(group));
+            transportUserToken.getUser().setLatestDataReceivedDate(latestDataReceivedDate);
+        }
+
+        return transportUserToken;
     }
 
     public Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException {
