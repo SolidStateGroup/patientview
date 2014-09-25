@@ -189,32 +189,34 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                 // convert to transport observations
                 for (String[] json : observationValues) {
-                    try {
-                        FhirObservation fhirObservation = new FhirObservation();
+                    if (!StringUtils.isEmpty(json[0])) {
+                        try {
+                            FhirObservation fhirObservation = new FhirObservation();
 
-                        // remove timezone and parse date
-                        String dateString = json[0].replace("\"", "").split("\\+")[0];
-                        Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS", Locale.ENGLISH).parse(dateString);
+                            // remove timezone and parse date
+                            String dateString = json[0].replace("\"", "").split("\\+")[0];
+                            Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS", Locale.ENGLISH).parse(dateString);
 
-                        fhirObservation.setApplies(date);
-                        fhirObservation.setName(json[1].replace("\"", ""));
-                        fhirObservation.setValue(Double.valueOf(json[2]));
-                        fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
+                            fhirObservation.setApplies(date);
+                            fhirObservation.setName(json[1].replace("\"", ""));
+                            fhirObservation.setValue(Double.valueOf(json[2]));
+                            fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
 
-                        String code = json[1].replace("\"", "").toUpperCase();
+                            String code = json[1].replace("\"", "").toUpperCase();
 
-                        if (latestObservationDates.get(code) != null) {
-                            if (latestObservationDates.get(code).getTime() < date.getTime()) {
+                            if (latestObservationDates.get(code) != null) {
+                                if (latestObservationDates.get(code).getTime() < date.getTime()) {
+                                    latestObservations.put(code, fhirObservation);
+                                    latestObservationDates.put(code, date);
+                                }
+                            } else {
                                 latestObservations.put(code, fhirObservation);
                                 latestObservationDates.put(code, date);
                             }
-                        } else {
-                            latestObservations.put(code, fhirObservation);
-                            latestObservationDates.put(code, date);
-                        }
 
-                    } catch (ParseException e) {
-                        LOG.error(e.getMessage());
+                        } catch (ParseException e) {
+                            LOG.error(e.getMessage());
+                        }
                     }
                 }
             }
