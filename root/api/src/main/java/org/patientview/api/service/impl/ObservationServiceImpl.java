@@ -191,8 +191,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 for (String[] json : observationValues) {
                     try {
                         FhirObservation fhirObservation = new FhirObservation();
-                        Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS'+01:00'", Locale.ENGLISH)
-                                .parse(json[0].replace("\"", ""));
+
+                        // remove timezone and parse date
+                        String dateString = json[0].replace("\"", "").split("\\+")[0];
+                        Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS", Locale.ENGLISH).parse(dateString);
 
                         fhirObservation.setApplies(date);
                         fhirObservation.setName(json[1].replace("\"", ""));
