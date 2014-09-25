@@ -133,7 +133,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken(userToken);
 
         // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy
-        if (!user.getFhirLinks().isEmpty()) {
+        if (user.getFhirLinks() != null && !user.getFhirLinks().isEmpty()) {
             Date latestDataReceivedDate = new Date(1,1,1);
             Group group = user.getFhirLinks().iterator().next().getGroup();
 
