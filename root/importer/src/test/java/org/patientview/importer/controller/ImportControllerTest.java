@@ -108,7 +108,7 @@ public class ImportControllerTest {
 
     String getTestFile() throws IOException, URISyntaxException {
         URL xmlPath =
-                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_1111111111a.xml");
+                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_1111111111.xml");
         File file = new File(xmlPath.toURI());
         return new String(Files.readAllBytes(Paths.get(file.getPath())));
     }

@@ -3,6 +3,7 @@ package org.patientview.importer.service.impl;
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.ConditionsBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.ConditionService;
@@ -10,6 +11,8 @@ import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -29,6 +32,9 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
      */
     @Override
     public void add(final Patientview data, final ResourceReference patientReference) {
+
+        LOG.info("Starting Condition Process");
+
         ConditionsBuilder conditionsBuilder = new ConditionsBuilder(data, patientReference);
         int count = 0;
         for (Condition condition : conditionsBuilder.build()) {
@@ -41,6 +47,12 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
             LOG.trace("Finished creating condition " + count++);
         }
         LOG.info("Processed {} of {} conditions", conditionsBuilder.getSuccess(), conditionsBuilder.getCount());
+    }
+
+    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("condition", subjectId)) {
+            fhirResource.delete(uuid, ResourceType.Condition);
+        }
     }
 }
 
