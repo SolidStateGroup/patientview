@@ -20,8 +20,11 @@ import javax.inject.Named;
 import java.io.ByteArrayInputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -114,6 +117,40 @@ public class FhirResource {
 
     }
 
+
+    /**
+     *
+     * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
+     *
+     */
+    public JSONObject updateFhirObject(Resource resource, UUID resourceId, UUID versionId) throws FhirResourceException {
+
+        PGobject result;
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            CallableStatement proc = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resource.getResourceType().name());
+            proc.setObject(3, resourceId);
+            proc.setObject(4, versionId);
+            proc.setObject(5, Util.marshallFhirRecord(resource));
+            proc.setObject(6, null);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.execute();
+
+            result = (PGobject) proc.getObject(1);
+            JSONObject jsonObject = new JSONObject(result.getValue());
+            proc.close();
+            connection.close();
+            return jsonObject;
+
+        } catch (SQLException e) {
+            LOG.error("Unable to update resource {}", e);
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     /**
      * For FUNCTION fhir_delete(cfg jsonb, _type varchar, id uuid)
      *
@@ -153,7 +190,6 @@ public class FhirResource {
             LOG.error("Could not retrieve resource");
             throw new FhirResourceException(e.getMessage());
         }
-
     }
 
     public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
@@ -169,4 +205,46 @@ public class FhirResource {
         }
     }
 
+    private <T> List<T> convertResultSet(ResultSet resultSet) throws SQLException {
+        List<T> resources = new ArrayList<>();
+        while ((resultSet.next())) {
+            try {
+                T resource = (T) jsonParser.parse(new ByteArrayInputStream(resultSet.getString(1).getBytes()));
+                resources.add(resource);
+            } catch (Exception e) {
+                LOG.error("Cannot create resource");
+            }
+        }
+        return resources;
+    }
+
+    public List<UUID> getLogicalIdsBySubjectId(final String tableName, final UUID subjectId)
+            throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE   content ->> 'subject' = '{\"display\": \"");
+        query.append(subjectId);
+        query.append("\", \"reference\": \"uuid\"}' ");
+
+        // execute and return UUIDs
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
+    }
 }

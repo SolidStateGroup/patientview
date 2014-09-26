@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -67,11 +68,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     @Override
     public UUID add(final Patientview patient, final ResourceReference practitionerReference)
             throws ResourceNotFoundException, FhirResourceException {
+
+        LOG.info("Starting Patient Process");
+
         // Find the identifier which the patient is linked to.
         Identifier identifier = matchPatientByIdentifierValue(patient);
 
         // Find the group that is importing the data
         Group group = groupRepository.findByCode(patient.getCentredetails().getCentrecode());
+
 
         // Find and update the link between the existing User and Unit to the Fhir Record
         FhirLink fhirLink = retrieveLink(group, identifier);
@@ -87,17 +92,43 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return Util.getVersionId(jsonObject);
     }
 
+    public List<FhirLink> getInactivePatientFhirLinksByGroup(Patientview patientview) throws ResourceNotFoundException {
+        Identifier identifier = matchPatientByIdentifierValue(patientview);
+        Group group = groupRepository.findByCode(patientview.getCentredetails().getCentrecode());
+
+        if (group == null) {
+            throw new ResourceNotFoundException("Group not found in PatientView database from imported Centrecode");
+        }
+
+        return fhirLinkRepository.findInActiveByUserAndGroup(identifier.getUser(), group);
+    }
+
+    public void deleteByResourceId(UUID resourceId) throws FhirResourceException, SQLException {
+        fhirResource.delete(resourceId, ResourceType.Patient);
+    }
+
+    public void deleteFhirLink(FhirLink fhirlink) throws ResourceNotFoundException {
+        FhirLink entityFhirLink = fhirLinkRepository.findOne(fhirlink.getId());
+
+        if (entityFhirLink == null) {
+            throw new ResourceNotFoundException("FhirLink not found");
+        }
+
+        fhirLinkRepository.delete(entityFhirLink);
+    }
+
     private void update(FhirLink fhirLink) {
         if (fhirLink != null) {
-            try {
-                Resource resource = fhirResource.get(fhirLink.getResourceId(), ResourceType.valueOf(fhirLink.getResourceType()));
-                UUID versionId =  fhirResource.update(resource, fhirLink);
-                fhirLink.setVersionId(versionId);
+            //try {
+                // todo: do we want to update an existing patient record or create new? create new allows us to easily keep history
+                //Resource resource = fhirResource.get(fhirLink.getResourceId(), ResourceType.valueOf(fhirLink.getResourceType()));
+                //UUID versionId =  fhirResource.update(resource, fhirLink);
+                //fhirLink.setVersionId(versionId);
                 fhirLink.setActive(false);
                 fhirLinkRepository.save(fhirLink);
-            } catch (FhirResourceException e) {
-                LOG.error("Could update patient resource ", e);
-            }
+            //} catch (FhirResourceException e) {
+            //    LOG.error("Could update patient resource ", e);
+            //}
         }
     }
 
@@ -127,7 +158,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 patientview.getPatient().getPersonaldetails().getNhsno());
 
         if (identifier == null) {
-            throw new ResourceNotFoundException("The NHS number is not linked with PatientView");
+            throw new ResourceNotFoundException("The Identifier value is not linked with PatientView");
         }
 
         return identifier;
@@ -161,6 +192,4 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         identifier.getUser().getFhirLinks().add(fhirLink);
         userRepository.save(identifier.getUser());
     }
-
-
 }

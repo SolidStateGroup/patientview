@@ -14,4 +14,5 @@ public interface ImportManager {
 
     public void process(Patientview patientview) throws ImportResourceException;
 
+    public void removeOldData(Patientview patientview) throws ImportResourceException;
 }

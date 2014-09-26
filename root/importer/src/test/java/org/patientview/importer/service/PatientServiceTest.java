@@ -82,7 +82,7 @@ public class PatientServiceTest extends BaseTest {
      *
      * @throws Exception
      */
-    // TODO: fix these tests
+    // TODO: fix these tests see https://code.google.com/p/powermock/issues/detail?id=504
     @Test
     @Ignore("powermock fail for jdk 1.7.0_67")
     public void testPatientAdd() throws Exception {
@@ -110,7 +110,7 @@ public class PatientServiceTest extends BaseTest {
      *
      * @throws Exception
      */
-    // TODO: fix these tests
+    // TODO: fix these tests see https://code.google.com/p/powermock/issues/detail?id=504
     @Test
     @Ignore("powermock fail for jdk 1.7.0_67")
     public void testPatientAdd_WithUpdate() throws Exception {

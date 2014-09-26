@@ -16,6 +16,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -32,6 +33,9 @@ public class QueueProcessor extends DefaultConsumer {
 
     @Inject
     private ImportManager importManager;
+
+    @Inject
+    private Properties properties;
 
     private Channel channel;
 
@@ -65,18 +69,29 @@ public class QueueProcessor extends DefaultConsumer {
         }
 
         public void run() {
+
             try {
                 patient = Util.unmarshallPatientRecord(message);
             } catch (ImportResourceException e) {
                 LOG.error("Unable to recreate message");
             }
+
             try {
                 importManager.process(patient);
             } catch (ImportResourceException rnf) {
-                LOG.error("Could not add patient NHS Number {}", patient.getPatient().getPersonaldetails().getNhsno(), rnf);
+                LOG.error("Could not add patient NHS Number {}",
+                    patient.getPatient().getPersonaldetails().getNhsno(), rnf);
+            }
+
+            if (Boolean.parseBoolean(properties.getProperty("remove.old.data"))) {
+                try {
+                    importManager.removeOldData(patient);
+                } catch (ImportResourceException rnf) {
+                    LOG.error("Could not add remove old data for NHS Number {}",
+                        patient.getPatient().getPersonaldetails().getNhsno(), rnf);
+                }
             }
         }
-
     }
 
     public void handleDelivery(String customerTag, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] body) throws IOException {
