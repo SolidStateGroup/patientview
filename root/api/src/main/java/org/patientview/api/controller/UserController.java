@@ -2,9 +2,9 @@ package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AdminService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Identifier;
@@ -14,7 +14,6 @@ import org.patientview.persistence.model.UserInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
@@ -212,16 +209,8 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/role/{roleId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Role>> getUserByRoles(@PathVariable("roleId") Long roleId,
-                                                     UriComponentsBuilder uriComponentsBuilder) {
-
+    public ResponseEntity<List<Role>> getUserByRoles(@PathVariable("roleId") Long roleId) {
         LOG.debug("Request has been received for userId : {}", roleId);
-
-        UriComponents uriComponents = uriComponentsBuilder.path("/user/{id}").buildAndExpand(roleId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
         return new ResponseEntity<>(adminService.getAllRoles(), HttpStatus.OK);
     }
 
@@ -229,36 +218,29 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Identifier> addIdentifier(@PathVariable("userId") Long userId,
-                                          @RequestBody Identifier identifier)
-            throws ResourceNotFoundException, EntityExistsException {
+        @RequestBody Identifier identifier) throws ResourceNotFoundException, EntityExistsException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, identifier);
         return new ResponseEntity<>(userService.addIdentifier(userId, identifier), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Void> addFeature(@PathVariable("userId") Long userId,
-                                           @PathVariable("featureId") Long featureId) {
+    public void addFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId) {
         userService.addFeature(userId, featureId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteFeature(@PathVariable("userId") Long userId,
-                                              @PathVariable("featureId") Long featureId) {
+    public void deleteFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId) {
         userService.deleteFeature(userId, featureId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/information", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Void> addInformation(@PathVariable("userId") Long userId,
-                                               @RequestBody List<UserInformation> userInformation)
-            throws ResourceNotFoundException {
+    public void addInformation(@PathVariable("userId") Long userId,
+                               @RequestBody List<UserInformation> userInformation) throws ResourceNotFoundException {
         userService.addInformation(userId, userInformation);
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/user/{userId}/information", method = RequestMethod.GET,

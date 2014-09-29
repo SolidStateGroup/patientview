@@ -40,13 +40,15 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
         }
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
-            StringBuilder query = new StringBuilder();
-            query.append("SELECT  content::varchar ");
-            query.append("FROM    condition ");
-            query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-            query.append(fhirLink.getVersionId().toString());
-            query.append("\", \"reference\": \"uuid\"}'");
-            conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
+            if (fhirLink.getActive()) {
+                StringBuilder query = new StringBuilder();
+                query.append("SELECT  content::varchar ");
+                query.append("FROM    condition ");
+                query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+                query.append(fhirLink.getVersionId().toString());
+                query.append("\", \"reference\": \"uuid\"}'");
+                conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
+            }
         }
 
         return conditions;

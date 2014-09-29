@@ -61,6 +61,16 @@ public class FhirResource {
         }
     }
 
+    public <T extends Resource> Object getResourceConverted(UUID uuid, ResourceType resourceType)
+            throws FhirResourceException{
+        JSONObject object = getResource(uuid, resourceType);
+        try {
+            return (T) jsonParser.parse(new ByteArrayInputStream(object.toString().getBytes()));
+        } catch (Exception e) {
+            throw new FhirResourceException("Cannot convert resource");
+        }
+    }
+
     public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType) throws FhirResourceException {
         try {
             Connection connection = dataSource.getConnection();
