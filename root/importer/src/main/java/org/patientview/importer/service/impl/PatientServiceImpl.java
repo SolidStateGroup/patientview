@@ -2,7 +2,6 @@ package org.patientview.importer.service.impl;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.model.Patient;
-import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
@@ -153,7 +152,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return identifier;
     }
 
-    private Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException {
+    public Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException {
         Identifier identifier = identifierRepository.findByValue(
                 patientview.getPatient().getPersonaldetails().getNhsno());
 

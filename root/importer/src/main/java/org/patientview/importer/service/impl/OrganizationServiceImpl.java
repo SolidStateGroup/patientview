@@ -54,7 +54,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
         LOG.info("Starting Organization Process");
 
         // validate that group exists in patientview using persistence module, otherwise throw exception
-        if (groupRepository.findByCode(data.getCentredetails().getCentrecode()) == null) {
+        if (groupWithCodeExists(data.getCentredetails().getCentrecode())) {
             LOG.error("Unable to build organization, group not found");
             throw new ResourceNotFoundException("Unable to build organization, group not found");
         }
@@ -94,6 +94,10 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
             LOG.error("Unable to build organization");
             return null;
         }
+    }
+
+    public boolean groupWithCodeExists(String code) {
+        return (groupRepository.findByCode(code) != null);
     }
 
     private List<Map<String, UUID>> getUuidsByCode(final String code) throws FhirResourceException {

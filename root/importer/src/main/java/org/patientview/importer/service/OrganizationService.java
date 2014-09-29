@@ -15,4 +15,6 @@ import java.util.UUID;
 public interface OrganizationService {
 
     public UUID add(Patientview data) throws ResourceNotFoundException;
+
+    public boolean groupWithCodeExists(String code);
 }
