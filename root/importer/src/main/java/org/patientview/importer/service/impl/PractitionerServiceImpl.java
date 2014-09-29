@@ -2,7 +2,6 @@ package org.patientview.importer.service.impl;
 
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.hl7.fhir.instance.model.Organization;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -64,8 +63,9 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                         Resource practitioner = fhirResource.get(objectData.get("logicalId"), ResourceType.Practitioner);
                         JSONObject jsonObject = fhirResource.updateFhirObject(practitioner, objectData.get("logicalId"), objectData.get("versionId"));
                         updatedResourceId = Util.getResourceId(jsonObject);
+                        LOG.info("Processed updated Practitioner");
                     } catch (FhirResourceException e) {
-                        LOG.error("Could not update organization");
+                        LOG.error("Could not update practitioner");
                     }
                 }
 
@@ -74,7 +74,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
             } else {
                 // create new FHIR object
                 JSONObject jsonObject = create(importPractitioner);
-                LOG.info("Processed Organization");
+                LOG.info("Processed new Practitioner");
                 return Util.getResourceId(jsonObject);
             }
 

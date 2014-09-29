@@ -7,6 +7,7 @@ import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.ConditionService;
 import org.patientview.importer.service.EncounterService;
+import org.patientview.importer.service.MedicationService;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.service.OrganizationService;
 import org.patientview.importer.service.PatientService;
@@ -49,6 +50,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Inject
     private EncounterService encounterService;
+
+    @Inject
+    private MedicationService medicationService;
 
     @Inject
     private Properties properties;
@@ -98,7 +102,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             patientReference = createResourceReference(patientUuid);
 
             // observations (tests)
-            observationService.add(patientview, patientReference);
+            //observationService.add(patientview, patientReference);
 
             // conditions (diagnoses)
             conditionService.add(patientview, patientReference);
@@ -106,13 +110,17 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             // encounters (used for treatment and transplant status)
             encounterService.add(patientview, patientReference, organizationReference);
 
+            // medication (drugdetails)
+            medicationService.add(patientview, patientReference);
+
             Date end = new Date();
             LOG.info("Finished processing data for NHS number: "
                     + patientview.getPatient().getPersonaldetails().getNhsno()
                     + ". Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
 
         } catch (FhirResourceException | ResourceNotFoundException e) {
-            LOG.error("Unable to build patient {}", patientview.getPatient().getPersonaldetails().getNhsno());
+            LOG.error("Unable to build patient " + patientview.getPatient().getPersonaldetails().getNhsno()
+                + ". Message: " + e.getMessage());
             throw new ImportResourceException("Could not process patient data");
         }
     }

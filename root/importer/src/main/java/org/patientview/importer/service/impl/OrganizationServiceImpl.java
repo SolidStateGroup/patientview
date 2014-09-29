@@ -54,7 +54,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
         LOG.info("Starting Organization Process");
 
         // validate that group exists in patientview using persistence module, otherwise throw exception
-        if (groupWithCodeExists(data.getCentredetails().getCentrecode())) {
+        if (!groupWithCodeExists(data.getCentredetails().getCentrecode())) {
             LOG.error("Unable to build organization, group not found");
             throw new ResourceNotFoundException("Unable to build organization, group not found");
         }
