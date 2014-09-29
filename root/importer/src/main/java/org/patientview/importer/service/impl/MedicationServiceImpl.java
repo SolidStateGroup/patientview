@@ -5,6 +5,7 @@ import generated.Patientview.Patient.Drugdetails.Drug;
 import org.hl7.fhir.instance.model.Medication;
 import org.hl7.fhir.instance.model.MedicationStatement;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.importer.builder.MedicationBuilder;
 import org.patientview.importer.builder.MedicationStatementBuilder;
@@ -15,6 +16,7 @@ import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.sql.SQLException;
 import java.util.UUID;
 
 /**
@@ -71,7 +73,7 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
             LOG.trace("Finished creating medication statement " + count++);
         }
 
-        LOG.info("Processed {} of {} drugs", success, count);
+        LOG.info("Processed {} of {} medication", success, count);
     }
 
     private ResourceReference createResourceReference(UUID uuid) {
@@ -81,11 +83,19 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
         return resourceReference;
     }
 
-    /*public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("observation", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.Observation);
+    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
+        for (UUID uuid : fhirResource.getLogicalIdsByPatientId("medicationstatement", subjectId)) {
+
+            // delete medication associated with medication statement
+            MedicationStatement medicationStatement
+                    = (MedicationStatement) fhirResource.get(uuid, ResourceType.MedicationStatement);
+            fhirResource.delete(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
+                    ResourceType.Medication);
+
+            // delete medication statement
+            fhirResource.delete(uuid, ResourceType.MedicationStatement);
         }
-    }*/
+    }
 }
 
 

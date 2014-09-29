@@ -102,7 +102,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             patientReference = createResourceReference(patientUuid);
 
             // observations (tests)
-            //observationService.add(patientview, patientReference);
+            observationService.add(patientview, patientReference);
 
             // conditions (diagnoses)
             conditionService.add(patientview, patientReference);
@@ -148,6 +148,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                     observationService.deleteBySubjectId(fhirLink.getVersionId());
                     conditionService.deleteBySubjectId(fhirLink.getVersionId());
                     encounterService.deleteBySubjectId(fhirLink.getVersionId());
+                    medicationService.deleteBySubjectId(fhirLink.getVersionId());
                 }
 
                 LOG.info("Finished removing old data for NHS number: "

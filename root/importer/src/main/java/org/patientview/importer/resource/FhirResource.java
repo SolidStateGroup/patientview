@@ -247,4 +247,34 @@ public class FhirResource {
             throw new FhirResourceException(e);
         }
     }
+
+    public List<UUID> getLogicalIdsByPatientId(final String tableName, final UUID subjectId)
+            throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE   content ->> 'patient' = '{\"display\": \"");
+        query.append(subjectId);
+        query.append("\", \"reference\": \"uuid\"}' ");
+
+        // execute and return UUIDs
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
+    }
 }

@@ -18,5 +18,5 @@ public interface MedicationService {
 
     public void add(Patientview data, ResourceReference patientReference);
 
-    //public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException;
+    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException;
 }
