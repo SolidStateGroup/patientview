@@ -32,10 +32,17 @@ public class MedicationBuilder {
         code.setTextSimple(data.getDrugname());
         medication.setCode(code);
 
-        Narrative narrative = new Narrative();
-        narrative.setDiv(new XhtmlNode(NodeType.Text, data.getDrugdose()));
-        narrative.getDiv().setContent(data.getDrugdose());
-        medication.setText(narrative);
+        medication.setNameSimple(data.getDrugdose());
+
+        /*Narrative narrative = new Narrative();
+        narrative.setStatusSimple(Narrative.NarrativeStatus.generated);
+        narrative.setDiv(new XhtmlNode(NodeType.Text, "div"));
+        narrative.getDiv().setContent(null);
+
+        //narrative.setDiv(new XhtmlNode(NodeType.Comment, "<div xmlns=\"http://www.w3.org/1999/xhtml\"></div>"));
+        //narrative.getDiv().setContent(data.getDrugdose());
+        //narrative.getDiv().setContent("<div>x</div>");
+        medication.setText(narrative);*/
 
         return medication;
     }

@@ -4,7 +4,6 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.Medication;
 import org.hl7.fhir.instance.model.MedicationStatement;
 import org.patientview.persistence.exception.FhirResourceException;
-import org.patientview.persistence.model.BaseModel;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -13,7 +12,7 @@ import java.util.GregorianCalendar;
  * Created by jamesr@solidstategroup.com
  * Created on 29/09/2014
  */
-public class FhirMedicationStatement extends BaseModel{
+public class FhirMedicationStatement {
 
     private Date start;
     private String name;
@@ -42,13 +41,17 @@ public class FhirMedicationStatement extends BaseModel{
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication");
         }
 
-        if (medication.getCode() == null || medication.getText() == null) {
-            throw new FhirResourceException(
-                    "Cannot convert FHIR medication statement, missing medication code or text");
+        if (medication.getCode() == null) {
+            throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication code");
         }
 
         setName(medication.getCode().getTextSimple());
-        setDose(medication.getText().toString());
+
+        /*if (medication.getText() == null) {
+            throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication text");
+        }
+
+        setDose(medication.getText().toString());*/
     }
 
     public Date getStart() {
