@@ -24,7 +24,7 @@ public class UtilTest extends BaseTest {
         Patient patient = FhirTestUtil.createTestPatient(nhsNumber);
         String content = null;
         try {
-            content = Util.marshallFhirRecord(patient);
+            content = org.patientview.importer.util.Util.marshallFhirRecord(patient);
         } catch (FhirResourceException e) {
             e.printStackTrace();
             org.junit.Assert.fail("An exception should not be raised");        }
