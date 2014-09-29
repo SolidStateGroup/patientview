@@ -14,6 +14,7 @@ import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.Identifier;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -51,6 +52,26 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Inject
     private Properties properties;
+
+
+    @Override
+    public boolean validate(Patientview patientview) {
+
+        // patient exists
+        try {
+            Identifier identifier = patientService.matchPatientByIdentifierValue(patientview);
+        } catch (ResourceNotFoundException rnf) {
+            return false;
+        }
+
+        // organization/unit/group exists
+        if ((patientview.getCentredetails() == null) ||
+                !organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
+            return false;
+        }
+
+        return true;
+    }
 
     @Override
     public void process(Patientview patientview) throws ImportResourceException {
@@ -106,7 +127,6 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             List<FhirLink> inactiveFhirlinks = patientService.getInactivePatientFhirLinksByGroup(patientview);
 
             if (inactiveFhirlinks.size() > maxFhirLinkStored -1) {
-
 
                 // remove all old FHIR data and fhirlink leaving only maximum.fhirlink.stored remaining
                 for(int i = inactiveFhirlinks.size() - 1;i > maxFhirLinkStored - 2; i--) {

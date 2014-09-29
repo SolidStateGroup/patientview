@@ -76,20 +76,26 @@ public class QueueProcessor extends DefaultConsumer {
                 LOG.error("Unable to recreate message");
             }
 
-            try {
-                importManager.process(patient);
-            } catch (ImportResourceException rnf) {
-                LOG.error("Could not add patient NHS Number {}",
-                    patient.getPatient().getPersonaldetails().getNhsno(), rnf);
-            }
+            LOG.info(patient.getPatient().getPersonaldetails().getNhsno() + " received");
 
-            if (Boolean.parseBoolean(properties.getProperty("remove.old.data"))) {
+            if (importManager.validate(patient)) {
                 try {
-                    importManager.removeOldData(patient);
+                    importManager.process(patient);
                 } catch (ImportResourceException rnf) {
-                    LOG.error("Could not add remove old data for NHS Number {}",
-                        patient.getPatient().getPersonaldetails().getNhsno(), rnf);
+                    LOG.error("Could not add patient NHS Number {}",
+                            patient.getPatient().getPersonaldetails().getNhsno(), rnf);
                 }
+
+                if (Boolean.parseBoolean(properties.getProperty("remove.old.data"))) {
+                    try {
+                        importManager.removeOldData(patient);
+                    } catch (ImportResourceException rnf) {
+                        LOG.error("Could not remove old data for NHS Number {}",
+                                patient.getPatient().getPersonaldetails().getNhsno(), rnf);
+                    }
+                }
+            } else {
+                LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + " failed validation");
             }
         }
     }

@@ -5,6 +5,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.Identifier;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,4 +28,7 @@ public interface PatientService {
     public void deleteByResourceId(UUID resourceId) throws FhirResourceException, SQLException;
 
     public void deleteFhirLink(FhirLink fhirlink) throws ResourceNotFoundException;
+
+    public Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException;
+
 }
