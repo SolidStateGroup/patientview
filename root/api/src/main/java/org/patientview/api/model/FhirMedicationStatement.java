@@ -14,7 +14,7 @@ import java.util.GregorianCalendar;
  */
 public class FhirMedicationStatement {
 
-    private Date start;
+    private Date startDate;
     private String name;
     private String dose;
 
@@ -30,11 +30,11 @@ public class FhirMedicationStatement {
         }
 
         if (medicationStatement.getWhenGiven().getStartSimple() == null) {
-            throw new FhirResourceException("Cannot convert FHIR medication statement, missing start date");
+            throw new FhirResourceException("Cannot convert FHIR medication statement, missing start date (startDate)");
         }
 
         DateAndTime date = medicationStatement.getWhenGiven().getStartSimple();
-        setStart(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+        setStartDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
             date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
 
         if (medication == null) {
@@ -42,24 +42,24 @@ public class FhirMedicationStatement {
         }
 
         if (medication.getCode() == null) {
-            throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication code");
+            throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication code (name)");
         }
 
         setName(medication.getCode().getTextSimple());
 
-        /*if (medication.getText() == null) {
-            throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication text");
+        if (medicationStatement.getDosage().isEmpty() || medicationStatement.getDosage().get(0).getRoute() == null) {
+            throw new FhirResourceException("Cannot convert FHIR medication statement, missing dosage (dose)");
         }
 
-        setDose(medication.getText().toString());*/
+        setDose(medicationStatement.getDosage().get(0).getRoute().getTextSimple());
     }
 
-    public Date getStart() {
-        return start;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setStart(Date start) {
-        this.start = start;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
     public String getName() {

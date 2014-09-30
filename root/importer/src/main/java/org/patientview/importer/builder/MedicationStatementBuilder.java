@@ -1,11 +1,11 @@
 package org.patientview.importer.builder;
 
 import generated.Patientview.Patient.Drugdetails.Drug;
+import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.MedicationStatement;
+import org.hl7.fhir.instance.model.MedicationStatement.MedicationStatementDosageComponent;
 import org.hl7.fhir.instance.model.Period;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -16,8 +16,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * Created on 29/09/2014
  */
 public class MedicationStatementBuilder {
-
-    private final Logger LOG = LoggerFactory.getLogger(MedicationStatementBuilder.class);
 
     private Drug data;
 
@@ -34,6 +32,13 @@ public class MedicationStatementBuilder {
         period.setStartSimple(dateAndTime);
         period.setEndSimple(dateAndTime);
         medicationStatement.setWhenGiven(period);
+
+        MedicationStatementDosageComponent dosageComponent = new MedicationStatementDosageComponent();
+        CodeableConcept concept = new CodeableConcept();
+        concept.setTextSimple(data.getDrugdose());
+        dosageComponent.setRoute(concept);
+
+        medicationStatement.getDosage().add(dosageComponent);
 
         return medicationStatement;
     }
