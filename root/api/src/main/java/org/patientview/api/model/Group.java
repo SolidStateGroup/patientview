@@ -15,11 +15,8 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
  */
-public class Group extends BaseModel{
+public class Group extends BaseGroup{
 
-    private String name;
-    private String shortName;
-    private String code;
     private Lookup groupType;
     private Set<GroupFeature> groupFeatures = new HashSet<>();
     private List<Group> parentGroups = new ArrayList<>();
@@ -58,30 +55,6 @@ public class Group extends BaseModel{
                 getLinks().add(link);
             }
         }
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(final String code) {
-        this.code = code;
     }
 
     public Lookup getGroupType() {

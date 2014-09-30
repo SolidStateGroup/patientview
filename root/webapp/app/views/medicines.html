@@ -1,1 +1,56 @@
 <h1>Medicines</h1>
+<div class="content-panel">
+    <div class="content-inner">
+        <p>Medicine lists come from a hospital or your GP’s computer system. Please read the cautions and explanation:</p>
+        <h5>Important</h5>
+        <p>
+            The list of medicines may not be complete or accurate, because (1) Some hospitals do not yet keep full records of
+            medicines for all patients, (2) Changes made in one place may not quickly get to every list. Please point out
+            changes when you next attend an appointment, or send a note or message if it is important. (We may create an easy
+            way to do this).
+        </p>
+        <h5>Two Kinds of List</h5>
+        <p>
+            Most are supposed to list all the different medicines you’re on.  In these lists DOSE shows how to take it,
+            something like “1 daily oral”.  The other kind of list shows all prescriptions written by your GP, so things may
+            appear twice if they have been dispensed twice.  You can spot these because DOSE also has a number in brackets like
+            this: “(20) 1 capsule four times daily”.  The number in brackets is the number of tablets written on the
+            prescription.
+        </p>
+        <p>
+            This link to <a href="http://www.nlm.nih.gov/medlineplus/druginformation.html" target="_blank">Medline Plus</a> is
+            good if you want more information on individual drugs, or on herbs and supplements.
+        </p>
+
+        <div ng-show="!loading">
+            <h3>From Your Units</h3>
+            <table class="table" ng-show="medicationStatements">
+                <thead class="table-head">
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Dose</th>
+                        <th>Provided By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="medicationStatement in medicationStatements">
+                        <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
+                        <td>{{medicationStatement.name}}</td>
+                        <td>{{medicationStatement.dose}}</td>
+                        <td>{{medicationStatement.group.name}}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-warning" ng-show="!medicationStatements">
+                <p>No medicine information from your units is currently stored in PatientView</p>
+            </div>
+        </div>
+
+        <div ng-show="loading" class="container"><br/>
+            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+        </div>
+
+    </div>
+</div>

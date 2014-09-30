@@ -20,7 +20,7 @@ public class FhirMedicationStatement {
     private String dose;
 
     // set from FhirLink
-    private Group group;
+    private BaseGroup group;
 
     public FhirMedicationStatement() {
     }
@@ -61,7 +61,7 @@ public class FhirMedicationStatement {
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing group");
         }
 
-        setGroup(new Group(group));
+        setGroup(new BaseGroup(group));
     }
 
     public Date getStartDate() {
@@ -88,11 +88,11 @@ public class FhirMedicationStatement {
         this.dose = dose;
     }
 
-    public Group getGroup() {
+    public BaseGroup getGroup() {
         return group;
     }
 
-    public void setGroup(Group group) {
+    public void setGroup(BaseGroup group) {
         this.group = group;
     }
 }
