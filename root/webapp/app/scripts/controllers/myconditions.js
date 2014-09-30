@@ -52,7 +52,7 @@ function ($scope, PatientService, GroupService) {
             }
         }
 
-        // get conditions based on renal or first specialty
+        // get conditions based on first specialty
         if ($scope.specialties.length) {
             $scope.currentSpecialty = $scope.specialties[0];
             getMyConditions();

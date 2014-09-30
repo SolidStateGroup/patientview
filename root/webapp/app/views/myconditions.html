@@ -12,7 +12,8 @@
             <div ng-show="!loading && currentSpecialty">
                 <h5 class="hidden">Your conditions as provided by the {{currentSpecialty.name}} specialty</h5>
                 <div ng-include src="'views/partials/myConditionsRenal.html'" ng-show="currentSpecialty.code === 'Renal'"></div>
-                <div ng-show="currentSpecialty.code !== 'Renal'">
+                <div ng-include src="'views/partials/myConditionsDiabetes.html'" ng-show="currentSpecialty.code === 'Diabetes'"></div>
+                <div ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes'">
                     <br/>My Conditions is not currently available for the {{currentSpecialty.name}} specialty
                 </div>
             </div>
