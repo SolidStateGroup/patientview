@@ -338,12 +338,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
-    private boolean conversationHasUnreadMessages(org.patientview.api.model.Conversation conversation, User user) {
+    private boolean conversationHasUnreadMessages(org.patientview.api.model.Conversation conversation, Long userId) {
         int unreadMessages = 0;
         for (org.patientview.api.model.Message message : conversation.getMessages()) {
             boolean unread = true;
             for (org.patientview.api.model.MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
-                if (messageReadReceipt.getUser().getId().equals(user.getId())) {
+                if (messageReadReceipt.getUser().getId().equals(userId)) {
                     unread = false;
                 }
             }
@@ -356,7 +356,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     // todo: convert to native query, performance improvements etc
     public int getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
-        User entityUser = findEntityUser(userId);
+
+        if (!userRepository.exists(userId)) {
+            throw new ResourceNotFoundException("User does not exist");
+        }
+
         Page<org.patientview.api.model.Conversation> conversationPage
                 = findByUserId(userId, new PageRequest(0, Integer.MAX_VALUE));
 
@@ -367,7 +371,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         int unreadConversations = 0;
 
         for (org.patientview.api.model.Conversation conversation : conversationPage.getContent()) {
-            if (conversationHasUnreadMessages(conversation, entityUser)) {
+            if (conversationHasUnreadMessages(conversation, userId)) {
                 unreadConversations++;
             }
         }
