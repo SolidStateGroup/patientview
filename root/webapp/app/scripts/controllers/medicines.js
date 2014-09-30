@@ -1,4 +1,5 @@
 'use strict';
+
 // medicine filter
 angular.module('patientviewApp').filter('nameAndDoseFilter', [function () {
     return function (medicationStatements, searchText) {
@@ -18,6 +19,25 @@ angular.module('patientviewApp').filter('nameAndDoseFilter', [function () {
     };
 }]);
 
+// group filter
+angular.module('patientviewApp').filter('sourceGroupFilter', [function () {
+    return function (medicationStatements, selectedGroups) {
+        if (selectedGroups.length) {
+            var filteredMedicationStatements = [];
+            angular.forEach(medicationStatements, function (medicationStatement) {
+                if (_.contains(selectedGroups, medicationStatement.group.id)) {
+                    filteredMedicationStatements.push(medicationStatement);
+                }
+            });
+
+            return filteredMedicationStatements;
+        } else {
+            return medicationStatements;
+        }
+    };
+}]);
+
+// TODO: ECS functionality following discussion
 angular.module('patientviewApp').controller('MedicinesCtrl', ['$scope', '$timeout', 'MedicationService',
 function ($scope, $timeout, MedicationService) {
 
@@ -48,9 +68,20 @@ function ($scope, $timeout, MedicationService) {
         $scope.allMedicationStatementsEcs = getECS(medicationStatements);
     };
 
+    var getSourceGroups = function(medicationStatements) {
+        var groups = [];
+        angular.forEach(medicationStatements, function (medicationStatement) {
+            if (!_.findWhere(groups, {id: medicationStatement.group.id})) {
+                groups.push(medicationStatement.group);
+            }
+        });
+        return groups;
+    };
+
     var init = function() {
         $scope.loading = true;
         MedicationService.getByUserId($scope.loggedInUser.id).then(function(medicationStatements) {
+            $scope.filterGroups = getSourceGroups(medicationStatements);
             separateMedicationStatements(medicationStatements);
             $scope.predicate = 'date';
             $scope.loading = false;
@@ -62,6 +93,26 @@ function ($scope, $timeout, MedicationService) {
     $scope.sortBy = function(predicate) {
         $scope.predicate = predicate;
         $scope.reverse = !$scope.reverse;
+    };
+
+    // filter by group
+    $scope.selectedGroups = [];
+    $scope.setSelectedGroup = function (group) {
+        var id = group.id;
+        if (_.contains($scope.selectedGroups, id)) {
+            $scope.selectedGroups = _.without($scope.selectedGroups, id);
+        } else {
+            $scope.selectedGroups.push(id);
+        }
+    };
+    $scope.isGroupChecked = function (id) {
+        if (_.contains($scope.selectedGroups, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+    $scope.removeAllGroups = function () {
+        $scope.selectedGroups = [];
     };
 
     init();
