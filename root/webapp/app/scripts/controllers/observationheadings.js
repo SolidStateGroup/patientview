@@ -5,12 +5,11 @@ var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalIns
     function ($scope, $rootScope, $modalInstance, editObservationHeading, ObservationHeadingService, GroupService) {
         $scope.editObservationHeading = editObservationHeading;
         $scope.editMode = false;
-        //$scope.editObservationHeading.groupId = editObservationHeading.groups[0].id;
         $scope.editObservationHeading.observationHeadingGroups = [];
         $scope.groups = [];
 
         GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            var groups = groups.content;
+            groups = groups.content;
             for (var i=0;i<groups.length;i++) {
                 if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
                     $scope.groups.push(groups[i]);

@@ -188,12 +188,14 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
     @Override
     public BigInteger getCount(Long userId) throws ResourceNotFoundException {
-        User user = findUser(userId);
+        if (!userRepository.exists(userId)) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
 
         if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            return joinRequestRepository.countSubmittedByParentUser(user);
+            return joinRequestRepository.countSubmittedByParentUser(userId);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
-            return joinRequestRepository.countSubmittedByUser(user);
+            return joinRequestRepository.countSubmittedByUser(userId);
         } else if (doesContainRoles( RoleName.GLOBAL_ADMIN)) {
             return joinRequestRepository.countSubmitted();
         }
