@@ -14,16 +14,20 @@ import java.util.GregorianCalendar;
  */
 public class FhirMedicationStatement {
 
+    // set from FHIR
     private Date startDate;
     private String name;
     private String dose;
+
+    // set from FhirLink
+    private Group group;
 
     public FhirMedicationStatement() {
     }
 
     // if converting from actual MedicationStatement
-    public FhirMedicationStatement(MedicationStatement medicationStatement, Medication medication)
-            throws FhirResourceException {
+    public FhirMedicationStatement(MedicationStatement medicationStatement,
+        Medication medication, org.patientview.persistence.model.Group group) throws FhirResourceException {
 
         if (medicationStatement.getWhenGiven() == null) {
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing when given");
@@ -35,7 +39,7 @@ public class FhirMedicationStatement {
 
         DateAndTime date = medicationStatement.getWhenGiven().getStartSimple();
         setStartDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
-            date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+                date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
 
         if (medication == null) {
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication");
@@ -52,6 +56,12 @@ public class FhirMedicationStatement {
         }
 
         setDose(medicationStatement.getDosage().get(0).getRoute().getTextSimple());
+
+        if (group == null) {
+            throw new FhirResourceException("Cannot convert FHIR medication statement, missing group");
+        }
+
+        setGroup(new Group(group));
     }
 
     public Date getStartDate() {
@@ -76,5 +86,13 @@ public class FhirMedicationStatement {
 
     public void setDose(String dose) {
         this.dose = dose;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

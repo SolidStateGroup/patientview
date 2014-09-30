@@ -10,16 +10,9 @@
             <span class="checkbox-label">{{patient.group.name}}</span>
         </label>
     </div>
-    <!-- patient details from FHIR -->
-    <div ng-show="!loading && specialties && specialties.length > 1">
-        <div class="specialty-switcher">
-            <a href="" ng-repeat="specialty in specialties" ng-click="changeSpecialty(specialty)" class="btn blue">{{specialty.name}}</a>
-        </div>
-    </div>
 </div>
 
 <div ng-show="patientDetails.length">
-
     <div ng-repeat="patient in patientDetails" ng-show="patient.group.selected">
         <div class="panel panel-default">
             <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>

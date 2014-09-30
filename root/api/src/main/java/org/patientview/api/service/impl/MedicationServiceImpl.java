@@ -60,7 +60,7 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
 
                 // get list of medication statements
                 List<MedicationStatement> medicationStatements
-                        = fhirResource.findResourceByQuery(query.toString(), MedicationStatement.class);
+                    = fhirResource.findResourceByQuery(query.toString(), MedicationStatement.class);
 
                 // for each, create new transport object with medication found from resource reference
                 for (MedicationStatement medicationStatement : medicationStatements) {
@@ -71,7 +71,8 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
                             ResourceType.Medication);
 
                         Medication medication = (Medication) DataUtils.getResource(medicationJson);
-                        fhirMedications.add(new FhirMedicationStatement(medicationStatement, medication));
+                        fhirMedications.add(new FhirMedicationStatement(
+                            medicationStatement, medication, fhirLink.getGroup()));
 
                     } catch (Exception e) {
                         throw new FhirResourceException(e.getMessage());
