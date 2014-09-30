@@ -3,41 +3,8 @@
 angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
 function ($scope, PatientService, GroupService) {
 
-    $scope.init = function(){
-        var i;
-        $scope.specialties = [];
-        $scope.currentSpecialty = '';
-        $scope.loading = true;
-
-        // get list of specialties for logged in user
-        for (i=0;i<$scope.loggedInUser.groupRoles.length;i++) {
-            if ($scope.loggedInUser.groupRoles[i].group.groupType.value === 'SPECIALTY' &&
-                $scope.loggedInUser.groupRoles[i].group.code !== 'Generic') {
-                $scope.specialties.push($scope.loggedInUser.groupRoles[i].group);
-            }
-        }
-
-        // get conditions based on first specialty
-        if ($scope.specialties.length) {
-            $scope.currentSpecialty = $scope.specialties[0];
-
-            if ($scope.currentSpecialty.code === 'Renal') {
-                $scope.getMyConditionsRenal();
-            } else {
-                $scope.loading = false;
-            }
-        }
-    };
-
-    $scope.changeSpecialty = function() {
-        $scope.loading = true;
-        if ($scope.currentSpecialty.code === 'Renal') {
-            $scope.getMyConditionsRenal();
-        }
-    };
-
-    $scope.getMyConditionsRenal = function() {
-        // get conditions (diagnosis etc) from groups under Renal specialty
+    var getMyConditions = function() {
+        // get conditions (diagnosis etc) from groups under current specialty
         var childGroupIds = [], i;
 
         GroupService.getChildren($scope.currentSpecialty.id).then(function (childGroups) {
@@ -69,6 +36,35 @@ function ($scope, PatientService, GroupService) {
             $scope.loading = false;
             alert('Error getting Renal groups');
         });
+    };
+
+    $scope.init = function(){
+        var i;
+        $scope.specialties = [];
+        $scope.currentSpecialty = '';
+        $scope.loading = true;
+
+        // get list of specialties for logged in user
+        for (i=0;i<$scope.loggedInUser.groupRoles.length;i++) {
+            if ($scope.loggedInUser.groupRoles[i].group.groupType.value === 'SPECIALTY' &&
+                $scope.loggedInUser.groupRoles[i].group.code !== 'Generic') {
+                $scope.specialties.push($scope.loggedInUser.groupRoles[i].group);
+            }
+        }
+
+        // get conditions based on first specialty
+        if ($scope.specialties.length) {
+            $scope.currentSpecialty = $scope.specialties[0];
+            getMyConditions();
+        } else {
+            alert("Error getting specialties");
+        }
+    };
+
+    $scope.changeSpecialty = function(specialty) {
+        $scope.currentSpecialty = specialty;
+        $scope.loading = true;
+        getMyConditions();
     };
 
     $scope.init();

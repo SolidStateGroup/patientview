@@ -140,6 +140,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             for (FhirLink fhirLink : user.getFhirLinks()) {
                 if (fhirLink.getCreated().after(latestDataReceivedDate)) {
                     latestDataReceivedDate = fhirLink.getCreated();
+                    group = fhirLink.getGroup();
                 }
             }
 

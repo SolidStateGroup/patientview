@@ -42,13 +42,15 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
         }
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
-            StringBuilder query = new StringBuilder();
-            query.append("SELECT  content::varchar ");
-            query.append("FROM    encounter ");
-            query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-            query.append(fhirLink.getVersionId().toString());
-            query.append("\", \"reference\": \"uuid\"}'");
-            encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
+            if (fhirLink.getActive()) {
+                StringBuilder query = new StringBuilder();
+                query.append("SELECT  content::varchar ");
+                query.append("FROM    encounter ");
+                query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+                query.append(fhirLink.getVersionId().toString());
+                query.append("\", \"reference\": \"uuid\"}'");
+                encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
+            }
         }
 
         // convert to transport encounters

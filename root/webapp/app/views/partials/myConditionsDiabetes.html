@@ -1,9 +1,10 @@
 
 <div ng-show="!patientDetails.length">
-    <p>Your conditions are not currently stored in PatientView.</p>
+    <br/>
+    <p>Your conditions have not yet been added to PatientView by the {{currentSpecialty.name}} specialty.</p>
 </div>
 
-<div class="details-filter clearfix">
+<div class="details-filter clearfix" ng-show="patientDetails.length">
     <div class="pull-right">Information provided by: &nbsp;&nbsp;
         <label ng-repeat="patient in patientDetails">
             <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">

@@ -2,16 +2,24 @@
 <div class="patient-details">
     <div class="">
         <div class="">
-
+            <!-- patient details from FHIR -->
+            <div ng-show="!loading && specialties && specialties.length > 1">
+                <div class="specialty-switcher btn-group">
+                    <a href="" ng-repeat="specialty in specialties" ng-click="changeSpecialty(specialty)"
+                       class="btn blue" ng-class="{active:currentSpecialty.code === specialty.code}">{{specialty.name}}</a>
+                </div>
+            </div>
             <div ng-show="!loading && currentSpecialty">
                 <h5 class="hidden">Your conditions as provided by the {{currentSpecialty.name}} specialty</h5>
                 <div ng-include src="'views/partials/myConditionsRenal.html'" ng-show="currentSpecialty.code === 'Renal'"></div>
+                <div ng-include src="'views/partials/myConditionsDiabetes.html'" ng-show="currentSpecialty.code === 'Diabetes'"></div>
+                <div ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes'">
+                    <br/>My Conditions is not currently available for the {{currentSpecialty.name}} specialty
+                </div>
             </div>
             <div ng-show="!loading && !currentSpecialty">
                 <p>Your conditions are not currently stored in PatientView.</p>
             </div>
-
-
             <div ng-show="loading" class="container"><br/>
                 <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
             </div>
