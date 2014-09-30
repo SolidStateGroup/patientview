@@ -21,20 +21,63 @@
             This link to <a href="http://www.nlm.nih.gov/medlineplus/druginformation.html" target="_blank">Medline Plus</a> is
             good if you want more information on individual drugs, or on herbs and supplements.
         </p>
+    </div>
+</div>
+        <br/>
+<!-- Filter -->
+<div class="content-panel filter-panel">
+    <div class="search-container">
+        <i class="icon-search-black"></i>
+        <input type="text" ng-model="searchText" placeholder="Search by medicine name or dose..." class="form-control input-block-level" />
+    </div>
+    <div class="panel-footer clearfix">
+        <div class="content-inner">
 
+            <!-- filter by source group -->
+            <div class="form-horizontal" role="form">
+                <div class="select-container pull-left">
+                    <div class="btn-group filter-select" id="filter-group-type" data-ng-class="{open: open1}">
+                        <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Source
+                            <span class="caret-container"><span class="caret"></span></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                            <li>
+                                <a data-ng-click="removeAllGroups()" class="a-filter-role">
+                                    <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li data-ng-repeat="group in filterGroups">
+                                <a data-ng-click="setSelectedGroup()" class="a-filter-group-type clearfix">
+                                    <span class="pull-left">{{group.name}}</span>
+                                    <span data-ng-class="isGroupChecked(group.id)"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <span data-ng-repeat="group in filterGroups" ng-show="isGroupChecked(group.id)">
+                    <span class="label label-info">{{group.name}}</span>&nbsp;
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content-panel">
+    <div class="content-inner">
         <div ng-show="!loading">
             <h3>From Your Units</h3>
-            <table class="table" ng-show="medicationStatements">
+            <table class="table" ng-show="nonEcsFiltered.length">
                 <thead class="table-head">
                     <tr>
-                        <th>Date</th>
-                        <th>Name</th>
+                        <th>Start Date</th>
+                        <th>Medicine Name</th>
                         <th>Dose</th>
-                        <th>Provided By</th>
+                        <th>Source</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="medicationStatement in medicationStatements">
+                    <tr ng-repeat="medicationStatement in nonEcsFiltered = (medicationStatementsNonEcs | nameAndDoseFilter:searchText)">
                         <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
                         <td>{{medicationStatement.name}}</td>
                         <td>{{medicationStatement.dose}}</td>
@@ -43,8 +86,32 @@
                 </tbody>
             </table>
 
-            <div class="alert alert-warning" ng-show="!medicationStatements">
-                <p>No medicine information from your units is currently stored in PatientView</p>
+            <div class="alert alert-warning" ng-show="!nonEcsFiltered.length">
+                <p>No medicine information from your units available</p>
+            </div>
+
+            <h3>From Your GP Records</h3>
+            <table class="table" ng-show="ecsFiltered.length">
+                <thead class="table-head">
+                    <tr>
+                        <th>Start Date</th>
+                        <th>Medicine Name</th>
+                        <th>Dose</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="medicationStatement in ecsFiltered = (medicationStatementsEcs | nameAndDoseFilter:searchText)">
+                        <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
+                        <td>{{medicationStatement.name}}</td>
+                        <td>{{medicationStatement.dose}}</td>
+                        <td>{{medicationStatement.group.name}}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-warning" ng-show="!ecsFiltered.length">
+                <p>No medicine information from your GP records available</p>
             </div>
         </div>
 
