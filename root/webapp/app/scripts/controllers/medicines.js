@@ -52,11 +52,16 @@ function ($scope, $timeout, MedicationService) {
         $scope.loading = true;
         MedicationService.getByUserId($scope.loggedInUser.id).then(function(medicationStatements) {
             separateMedicationStatements(medicationStatements);
+            $scope.predicate = 'date';
             $scope.loading = false;
-
         }, function () {
             alert('Cannot get medication');
         })
+    };
+
+    $scope.sortBy = function(predicate) {
+        $scope.predicate = predicate;
+        $scope.reverse = !$scope.reverse;
     };
 
     init();
