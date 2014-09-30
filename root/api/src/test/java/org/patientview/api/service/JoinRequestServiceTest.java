@@ -285,15 +285,15 @@ public class JoinRequestServiceTest {
     public void testGetJoinRequestCountUnitAdmin_validGroup() throws ResourceNotFoundException {
 
         User user = TestUtils.createUser( "testUser");
+        user.setId(1L);
         TestUtils.authenticateTest(user, RoleName.UNIT_ADMIN);
 
         Group group = TestUtils.createGroup( "TestGroup");
-        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+        when(userRepository.exists(eq(user.getId()))).thenReturn(true);
 
-        joinRequestService.getCount(group.getId());
+        joinRequestService.getCount(user.getId());
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(1)).countSubmittedByUser(eq(user));
+        verify(joinRequestRepository, Mockito.times(1)).countSubmittedByUser(eq(user.getId()));
     }
 
     /**
@@ -304,14 +304,14 @@ public class JoinRequestServiceTest {
     public void testGetJoinRequestCountSpecialtyAdmin_validGroup() throws ResourceNotFoundException {
 
         User user = TestUtils.createUser("testUser");
+        user.setId(1L);
         TestUtils.authenticateTest(user, RoleName.SPECIALTY_ADMIN);
 
         Group group = TestUtils.createGroup("TestGroup");
-        when(userRepository.findOne(eq(group.getId()))).thenReturn(user);
+        when(userRepository.exists(eq(user.getId()))).thenReturn(true);
 
-        joinRequestService.getCount(group.getId());
+        joinRequestService.getCount(user.getId());
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(group.getId()));
-        verify(joinRequestRepository, Mockito.times(1)).countSubmittedByParentUser(eq(user));
+        verify(joinRequestRepository, Mockito.times(1)).countSubmittedByParentUser(eq(user.getId()));
     }
 }
