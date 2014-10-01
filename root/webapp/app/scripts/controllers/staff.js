@@ -340,78 +340,66 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         // A unit admin cannot remove staff from groups to which the unit admin is not assigned.
         $scope.permissions.allGroupsIds = [];
 
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            $scope.initFinished = false;
-            groups = groups.content;
-            // sort groups by name
-            groups = _.sortBy(groups, 'name' );
+        $scope.initFinished = false;
+        var groups = $scope.loggedInUser.userGroups;
 
-            // show error if user is not a member of any groups
-            if (groups.length !== 0) {
+        // show error if user is not a member of any groups
+        if (groups.length !== 0) {
 
-                // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
-                for (i = 0; i < groups.length; i++) {
-                    group = groups[i];
-                    if (group.visible === true) {
-                        $scope.allGroups.push(group);
-                        $scope.groupIds.push(group.id);
-                        $scope.permissions.allGroupsIds[group.id] = group.id;
+            // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
+            for (i = 0; i < groups.length; i++) {
+                group = groups[i];
+                if (group.visible === true) {
+                    $scope.allGroups.push(group);
+                    $scope.groupIds.push(group.id);
+                    $scope.permissions.allGroupsIds[group.id] = group.id;
+                }
+            }
+
+            // get staff type roles
+            RoleService.getByType('STAFF').then(function(roles) {
+                // set roles that can be chosen in UI, only show visible roles
+                for (i = 0; i < roles.length; i++) {
+                    role = roles[i];
+                    if (role.visible === true) {
+                        $scope.allRoles.push(role);
+                        $scope.roleIds.push(role.id);
                     }
                 }
 
-                // get staff type roles
-                RoleService.getByType('STAFF').then(function(roles) {
-
-                    // set roles that can be chosen in UI, only show visible roles
-                    for (i = 0; i < roles.length; i++) {
-                        role = roles[i];
-                        if (role.visible === true) {
-                            $scope.allRoles.push(role);
-                            $scope.roleIds.push(role.id);
-                        }
+                // get list of roles available when user is adding a new Group & Role to staff member
+                // e.g. unit admins cannot add specialty admin roles to staff members
+                roles = $scope.loggedInUser.securityRoles;
+                // filter by roleId found previously as STAFF
+                var allowedRoles = [];
+                for (i = 0; i < roles.length; i++) {
+                    if ($scope.roleIds.indexOf(roles[i].id) != -1) {
+                        allowedRoles.push(roles[i]);
                     }
+                }
+                $scope.allowedRoles = allowedRoles;
 
-                    // get list of roles available when user is adding a new Group & Role to staff member
-                    // e.g. unit admins cannot add specialty admin roles to staff members
-                    SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (roles) {
-                        // filter by roleId found previously as STAFF
-                        var allowedRoles = [];
-                        for (i = 0; i < roles.length; i++) {
-                            if ($scope.roleIds.indexOf(roles[i].id) != -1) {
-                                allowedRoles.push(roles[i]);
-                            }
-                        }
-                        $scope.allowedRoles = allowedRoles;
-                    });
-
-                    // get list of features available when user is adding a new Feature to staff members
-                    FeatureService.getAllStaffFeatures().then(function (allFeatures) {
-                        $scope.allFeatures = [];
-                        for (var i = 0; i < allFeatures.length; i++) {
-                            $scope.allFeatures.push({'feature': allFeatures[i]});
-                        }
-                    });
-
-                    // only applies to patients
-                    $scope.identifierTypes = [];
-
-                    $scope.initFinished = true;
-                    $scope.getItems();
+                // get list of features available when user is adding a new Feature to staff members
+                FeatureService.getAllStaffFeatures().then(function (allFeatures) {
+                    $scope.allFeatures = [];
+                    for (var i = 0; i < allFeatures.length; i++) {
+                        $scope.allFeatures.push({'feature': allFeatures[i]});
+                    }
                 });
 
+                // only applies to patients
+                $scope.identifierTypes = [];
 
-            } else {
-                // no groups found
-                delete $scope.loading;
-                $scope.fatalErrorMessage = 'No user groups found, cannot retrieve staff';
-            }
-        }, function () {
-            // error retrieving groups
+                $scope.initFinished = true;
+                $scope.getItems();
+            });
+
+
+        } else {
+            // no groups found
             delete $scope.loading;
-            $scope.fatalErrorMessage = 'Error retrieving user groups, cannot retrieve staff';
-        });
-
-
+            $scope.fatalErrorMessage = 'No user groups found, cannot retrieve staff';
+        }
     };
 
     // Opened for edit

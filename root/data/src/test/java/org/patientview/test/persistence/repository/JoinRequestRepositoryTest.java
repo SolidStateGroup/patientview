@@ -125,7 +125,7 @@ public class JoinRequestRepositoryTest {
         user.getGroupRoles().add(dataTestUtils.createGroupRole(user, parentGroup, role));
         userRepository.save(user);
 
-        BigInteger count = joinRequestRepository.countSubmittedByParentUser(user);
+        BigInteger count = joinRequestRepository.countSubmittedByParentUser(user.getId());
 
         Assert.assertTrue("The is one join request", count == BigInteger.ONE);
     }
@@ -149,7 +149,7 @@ public class JoinRequestRepositoryTest {
         user.getGroupRoles().add(dataTestUtils.createGroupRole(user, group, role));
         userRepository.save(user);
 
-        BigInteger count = joinRequestRepository.countSubmittedByUser(user);
+        BigInteger count = joinRequestRepository.countSubmittedByUser(user.getId());
 
         Assert.assertTrue("The is one join request", count == BigInteger.ONE);
     }

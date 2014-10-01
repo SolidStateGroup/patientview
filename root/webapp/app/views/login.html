@@ -1,6 +1,6 @@
-<h1 ng-hide="authToken" ng-cloak>Login</h1>
+<h1 ng-hide="authToken || loading" ng-cloak>Login</h1>
 <div class="content-panel user-settings">
-    <div class="content-inner">
+    <div class="content-inner" ng-show="!loading">
         <form class="form-horizontal"  ng-hide="authToken" ng-cloak id="login-form" >
             <div class="form-group">
                 <label for="username" class="col-sm-2 control-label">User Name:</label>
@@ -30,5 +30,14 @@
                 </div>
             </div>
         </form>
+    </div>
+    <div class="content-inner" ng-show="loading">
+        <div class="container"><br/><br/>
+            <div class="loading">
+                <img src="images/loading.gif" alt="Loading"/>
+                <h3>Logging In</h3>
+            </div>
+            <br/>
+        </div>
     </div>
 </div>

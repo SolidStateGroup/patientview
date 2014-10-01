@@ -2,7 +2,11 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.BaseGroup;
+import org.patientview.api.model.Role;
 import org.patientview.api.service.AuthenticationService;
+import org.patientview.api.service.SecurityService;
+import org.patientview.api.util.Util;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirLink;
@@ -27,8 +31,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -52,6 +58,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private AuditRepository auditRepository;
 
     @Inject
+    private SecurityService securityService;
+
+    @Inject
     private Properties properties;
 
     @PostConstruct
@@ -61,8 +70,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public org.patientview.api.model.UserToken switchUser(Long userId, String token)
-            throws AuthenticationServiceException {
+    public String switchUser(Long userId, String token) throws AuthenticationServiceException {
 
         LOG.debug("Switching to user with ID: {}", userId);
         User user = userRepository.findOne(userId);
@@ -71,11 +79,12 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("Cannot switch user, user not found");
         }
 
-        // if no token, assume switching to another user, if token then switching back
+        // if no token, assume switching to a patient, if token then switching back
         if (StringUtils.isEmpty(token)) {
 
             // TODO handled with aspects
             createAudit(AuditActions.SWITCH_USER, user.getUsername());
+
             UserToken userToken = new UserToken();
             userToken.setUser(user);
             userToken.setToken(CommonUtils.getAuthToken());
@@ -83,19 +92,19 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             userToken = userTokenRepository.save(userToken);
             userRepository.save(user);
 
-            return new org.patientview.api.model.UserToken(userToken);
+            return userToken.getToken();
 
         } else {
             UserToken userToken = getToken(token);
             if (userToken != null) {
-                return new org.patientview.api.model.UserToken(userToken);
+                return userToken.getToken();
             }
             throw new AuthenticationServiceException("Cannot switch user, token not found");
         }
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public org.patientview.api.model.UserToken authenticate(String username, String password)
+    public String authenticate(String username, String password)
             throws UsernameNotFoundException, AuthenticationServiceException {
 
         LOG.debug("Authenticating user: {}", username);
@@ -130,23 +139,38 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 .getRequest().getRemoteAddr());
         userRepository.save(user);
 
+        return userToken.getToken();
+    }
+
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username);
+    }
+
+    public void logout(String token) throws AuthenticationServiceException {
+        UserToken userToken = userTokenRepository.findByToken(token);
+
+        if (userToken == null) {
+            throw new AuthenticationServiceException("User is not currently logged in");
+        }
+        createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername());
+        userTokenRepository.delete(userToken.getId());
+    }
+
+    @Override
+    public org.patientview.api.model.UserToken getUserInformation(String token) {
+        UserToken userToken = userTokenRepository.findByToken(token);
+
+        if (userToken == null) {
+            throw new AuthenticationServiceException("User is not currently logged in");
+        }
+
         org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken(userToken);
 
-        // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy
-        if (user.getFhirLinks() != null && !user.getFhirLinks().isEmpty()) {
-            Date latestDataReceivedDate = new Date(1,1,1);
-            Group group = user.getFhirLinks().iterator().next().getGroup();
-
-            for (FhirLink fhirLink : user.getFhirLinks()) {
-                if (fhirLink.getCreated().after(latestDataReceivedDate)) {
-                    latestDataReceivedDate = fhirLink.getCreated();
-                    group = fhirLink.getGroup();
-                }
-            }
-
-            transportUserToken.getUser().setLatestDataReceivedBy(new org.patientview.api.model.Group(group));
-            transportUserToken.getUser().setLatestDataReceivedDate(latestDataReceivedDate);
-        }
+        // get information about user's available roles and groups as used in staff and patient views
+        transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
+        transportUserToken = setSecurityRoles(transportUserToken);
+        transportUserToken = setUserGroups(transportUserToken);
+        transportUserToken = setRoutes(transportUserToken);
 
         return transportUserToken;
     }
@@ -169,22 +193,57 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
+    private org.patientview.api.model.UserToken setFhirInformation(org.patientview.api.model.UserToken userToken,
+                                                                   User user)  {
+        // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy
+        if (user.getFhirLinks() != null && !user.getFhirLinks().isEmpty()) {
+            Date latestDataReceivedDate = new Date(1,1,1);
+            Group group = user.getFhirLinks().iterator().next().getGroup();
+
+            for (FhirLink fhirLink : user.getFhirLinks()) {
+                if (fhirLink.getCreated().after(latestDataReceivedDate)) {
+                    latestDataReceivedDate = fhirLink.getCreated();
+                    group = fhirLink.getGroup();
+                }
+            }
+
+            userToken.getUser().setLatestDataReceivedBy(new org.patientview.api.model.Group(group));
+            userToken.getUser().setLatestDataReceivedDate(latestDataReceivedDate);
+        }
+        return userToken;
+    }
+
+    private org.patientview.api.model.UserToken setSecurityRoles(org.patientview.api.model.UserToken userToken) {
+        List<org.patientview.persistence.model.Role> availableRoles
+                = Util.convertIterable(securityService.getUserRoles(userToken.getUser().getId()));
+
+        userToken.setSecurityRoles(new ArrayList<Role>());
+
+        for (org.patientview.persistence.model.Role availableRole : availableRoles) {
+            userToken.getSecurityRoles().add(new Role(availableRole));
+        }
+        return userToken;
+    }
+
+    private org.patientview.api.model.UserToken setUserGroups(org.patientview.api.model.UserToken userToken) {
+        List<org.patientview.persistence.model.Group> userGroups
+                = securityService.getAllUserGroupsAllDetails(userToken.getUser().getId());
+
+        userToken.setUserGroups(new ArrayList<BaseGroup>());
+
+        for (org.patientview.persistence.model.Group userGroup : userGroups) {
+            userToken.getUserGroups().add(new BaseGroup(userGroup));
+        }
+        return userToken;
+    }
+
+    private org.patientview.api.model.UserToken setRoutes(org.patientview.api.model.UserToken userToken) {
+        userToken.setRoutes(securityService.getUserRoutes(userToken.getUser().getId()));
+        return userToken;
+    }
+
     private UserToken getToken(String token) {
         return userTokenRepository.findByToken(token);
-    }
-
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
-    }
-
-    public void logout(String token) throws AuthenticationServiceException {
-        UserToken userToken = userTokenRepository.findByToken(token);
-
-        if (userToken == null) {
-            throw new AuthenticationServiceException("User is not currently logged in");
-        }
-        createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername());
-        userTokenRepository.delete(userToken.getId());
     }
 
     // TODO sprint 3 manage this with annotation

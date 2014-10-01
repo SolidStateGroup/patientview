@@ -26,21 +26,16 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
         });
 
         // get logged in user's groups
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            var i, group;
-            groups = groups.content;
-            groups = _.sortBy(groups, 'name' );
+        var groups = $scope.loggedInUser.userGroups;
+        var i, group;
 
-            // set groups that can be chosen in UI, only show visible groups
-            for (i = 0; i < groups.length; i++) {
-                group = groups[i];
-                if (group.visible === true) {
-                    $scope.allGroups.push(group);
-                }
+        // set groups that can be chosen in UI, only show visible groups
+        for (i = 0; i < groups.length; i++) {
+            group = groups[i];
+            if (group.visible === true) {
+                $scope.allGroups.push(group);
             }
-        }, function() {
-            alert('Error getting groups');
-        })
+        }
     };
 
     $scope.getItems = function() {

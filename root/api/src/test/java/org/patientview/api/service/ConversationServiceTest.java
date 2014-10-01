@@ -160,6 +160,9 @@ public class ConversationServiceTest {
         when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
         when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
 
+        when(userRepository.exists(Matchers.eq(user1.getId()))).thenReturn(true);
+        when(userRepository.exists(Matchers.eq(user2.getId()))).thenReturn(true);
+
         when(conversationRepository.findByUser(eq(user1), eq(pageRequestAll))).thenReturn(conversationPage);
 
         TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);

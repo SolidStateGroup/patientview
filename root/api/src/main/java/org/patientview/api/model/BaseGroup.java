@@ -10,7 +10,7 @@ public class BaseGroup {
     private String name;
     private String shortName;
     private String code;
-
+    private Boolean visible;
 
     public BaseGroup() {
 
@@ -21,6 +21,7 @@ public class BaseGroup {
         setId(group.getId());
         setName(group.getName());
         setShortName(group.getShortName());
+        setVisible(group.getVisible());
     }
 
     public Long getId() {
@@ -55,4 +56,11 @@ public class BaseGroup {
         this.code = code;
     }
 
+    public Boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
+    }
 }

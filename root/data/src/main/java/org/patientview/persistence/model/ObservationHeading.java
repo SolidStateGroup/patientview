@@ -49,6 +49,22 @@ public class ObservationHeading extends AuditModel {
     @OneToMany(mappedBy = "observationHeading", cascade = {CascadeType.ALL})
     private Set<ObservationHeadingGroup> observationHeadingGroups = new HashSet<>();
 
+    public ObservationHeading() {
+
+    }
+
+    public ObservationHeading(Long id, String code, String heading, String name, String normalRange, String units,
+                              Double minGraph, Double maxGraph) {
+        setId(id);
+        setCode(code);
+        setHeading(heading);
+        setName(name);
+        setNormalRange(normalRange);
+        setUnits(units);
+        setMinGraph(minGraph);
+        setMaxGraph(maxGraph);
+    }
+
     public String getCode() {
         return code;
     }

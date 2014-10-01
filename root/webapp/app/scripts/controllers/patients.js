@@ -452,66 +452,57 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             }
 
             // get logged in user's groups
-            GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-                $scope.initFinished = false;
-                groups = groups.content;
-                // sort groups by name
-                groups = _.sortBy(groups, 'name' );
+            var groups = $scope.loggedInUser.userGroups;
+            $scope.initFinished = false;
 
-                // show error if user is not a member of any groups
-                if (groups.length !== 0) {
+            // show error if user is not a member of any groups
+            if (groups.length !== 0) {
 
-                    // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
-                    for (i = 0; i < groups.length; i++) {
-                        group = groups[i];
-                        if (group.visible === true) {
-                            $scope.allGroups.push(group);
-                            $scope.groupIds.push(group.id);
-                            $scope.permissions.allGroupsIds[group.id] = group.id;
-                        }
+                // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
+                for (i = 0; i < groups.length; i++) {
+                    group = groups[i];
+                    if (group.visible === true) {
+                        $scope.allGroups.push(group);
+                        $scope.groupIds.push(group.id);
+                        $scope.permissions.allGroupsIds[group.id] = group.id;
                     }
-
-                    // get list of roles available when user is adding a new Group & Role to patient member
-                    // e.g. unit admins cannot add specialty admin roles to patient members
-                    SecurityService.getSecurityRolesByUser($rootScope.loggedInUser.id).then(function (roles) {
-                        // filter by roleId found previously as PATIENT
-                        var allowedRoles = [];
-                        for (i = 0; i < roles.length; i++) {
-                            if ($scope.roleIds.indexOf(roles[i].id) != -1) {
-                                allowedRoles.push(roles[i]);
-                            }
-                        }
-                        $scope.allowedRoles = allowedRoles;
-                    });
-
-                    // get list of features available when user is adding a new Feature to patient members
-                    FeatureService.getAllPatientFeatures().then(function (allFeatures) {
-                        $scope.allFeatures = [];
-                        for (var i = 0; i < allFeatures.length; i++) {
-                            $scope.allFeatures.push({'feature': allFeatures[i]});
-                        }
-                    });
-
-                    // get list of identifier types when user adding identifiers to patient members
-                    $scope.identifierTypes = [];
-                    StaticDataService.getLookupsByType('IDENTIFIER').then(function(identifierTypes) {
-                        if (identifierTypes.length > 0) {
-                            $scope.identifierTypes = identifierTypes;
-                        }
-                    });
-
-                    $scope.initFinished = true;
-                    $scope.getItems();
-                } else {
-                    // no groups found
-                    delete $scope.loading;
-                    $scope.fatalErrorMessage = 'No user groups found, cannot retrieve patient';
                 }
-            }, function () {
-                // error retrieving groups
+
+                // get list of roles available when user is adding a new Group & Role to patient member
+                // e.g. unit admins cannot add specialty admin roles to patient members
+                roles = $scope.loggedInUser.securityRoles;
+                // filter by roleId found previously as PATIENT
+                var allowedRoles = [];
+                for (i = 0; i < roles.length; i++) {
+                    if ($scope.roleIds.indexOf(roles[i].id) != -1) {
+                        allowedRoles.push(roles[i]);
+                    }
+                }
+                $scope.allowedRoles = allowedRoles;
+
+                // get list of features available when user is adding a new Feature to patient members
+                FeatureService.getAllPatientFeatures().then(function (allFeatures) {
+                    $scope.allFeatures = [];
+                    for (var i = 0; i < allFeatures.length; i++) {
+                        $scope.allFeatures.push({'feature': allFeatures[i]});
+                    }
+                });
+
+                // get list of identifier types when user adding identifiers to patient members
+                $scope.identifierTypes = [];
+                StaticDataService.getLookupsByType('IDENTIFIER').then(function(identifierTypes) {
+                    if (identifierTypes.length > 0) {
+                        $scope.identifierTypes = identifierTypes;
+                    }
+                });
+
+                $scope.initFinished = true;
+                $scope.getItems();
+            } else {
+                // no groups found
                 delete $scope.loading;
-                $scope.fatalErrorMessage = 'Error retrieving user groups, cannot retrieve patient';
-            });
+                $scope.fatalErrorMessage = 'No user groups found, cannot retrieve patient';
+            }
         });
     };
 
@@ -723,13 +714,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // view patient
     $scope.viewUser = function (userId) {
+        $scope.loading = true;
         $scope.successMessage = '';
         var currentToken = $rootScope.authToken;
 
-        AuthService.switchUser(userId, null).then(function(authenticationResult) {
-
-            var authToken = authenticationResult.token;
-            var user = authenticationResult.user;
+        AuthService.switchUser(userId, null).then(function(authToken) {
 
             $rootScope.previousAuthToken = currentToken;
             localStorageService.set('previousAuthToken', currentToken);
@@ -740,15 +729,26 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $rootScope.authToken = authToken;
             localStorageService.set('authToken', authToken);
 
-            // get user details, store in session
-            $rootScope.loggedInUser = user;
-            localStorageService.set('loggedInUser', user);
+            // get user information, store in session
+            AuthService.getUserInformation(authToken).then(function (userInformation) {
 
-            RouteService.getRoutes(user.id).then(function (data) {
-                $rootScope.routes = data;
-                localStorageService.set('routes', data);
+                var user = userInformation.user;
+                user.securityRoles = userInformation.securityRoles;
+                user.userGroups = userInformation.userGroups;
+
+                $rootScope.loggedInUser = user;
+                localStorageService.set('loggedInUser', user);
+
+                $rootScope.routes = userInformation.routes;
+                localStorageService.set('routes', userInformation.routes);
+
+                $scope.loading = false;
                 $location.path('/dashboard');
+
+            }, function() {
+                alert("Error receiving user information");
             });
+
         }, function() {
             alert("Cannot view patient");
         });

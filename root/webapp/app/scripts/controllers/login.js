@@ -2,25 +2,31 @@
 
 angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService','$scope', '$rootScope','$routeParams','$location','AuthService','RouteService',
     function (localStorageService, $scope, $rootScope, $routeParams, $location, AuthService, RouteService) {
+
     $scope.login = function() {
         $scope.errorMessage = '';
+        $scope.loading = true;
 
         // workaround for https://github.com/angular/angular.js/issues/1460
         $scope.username = $('#username').val();
         $scope.password = $('#password').val();
 
-        AuthService.login({'username': $scope.username, 'password': $scope.password}).then(function (authenticationResult) {
+        AuthService.login({'username': $scope.username, 'password': $scope.password}).then(function (authToken) {
 
-            var authToken = authenticationResult.token;
-            var user = authenticationResult.user;
             $rootScope.authToken = authToken;
             localStorageService.set('authToken', authToken);
 
-            // get user details, store in session
-            $rootScope.loggedInUser = user;
-            localStorageService.set('loggedInUser', user);
+            AuthService.getUserInformation(authToken).then(function (userInformation) {
 
-            RouteService.getRoutes(user.id).then(function (data) {
+                // get user information (securityroles, userGroups), store in session
+                var user = userInformation.user;
+                user.securityRoles = userInformation.securityRoles;
+                user.userGroups = userInformation.userGroups;
+
+                $rootScope.loggedInUser = user;
+                localStorageService.set('loggedInUser', user);
+
+                $scope.loading = false;
 
                 if (user.changePassword) {
                     $rootScope.routes = [];
@@ -28,27 +34,34 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                     $location.path('/changepassword');
                     localStorageService.set('routes', $rootScope.routes);
                 } else {
-                    $rootScope.routes = data;
-                    localStorageService.set('routes', data);
+                    $rootScope.routes = userInformation.routes;
+                    localStorageService.set('routes', userInformation.routes);
                     $location.path('/dashboard');
                 }
+
+            }, function(result) {
+                if (result.data) {
+                    $scope.errorMessage = ' - ' + result.data;
+                } else {
+                    $scope.errorMessage = ' ';
+                }
+                $scope.loading = false;
             });
-
-
         }, function(result) {
             if (result.data) {
                 $scope.errorMessage = ' - ' + result.data;
             } else {
                 $scope.errorMessage = ' ';
             }
+            $scope.loading = false;
         });
     };
 
-    $scope.init = function() {
+    var init = function() {
         if ($rootScope.authToken) {
             $location.path('/dashboard');
         }
     };
 
-    $scope.init();
+    init();
 }]);

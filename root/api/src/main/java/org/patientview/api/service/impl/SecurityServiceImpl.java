@@ -62,7 +62,6 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         routes.addAll(Util.convertIterable(routeRepository.findGroupRoutesByUser(user)));
         routes.addAll(Util.convertIterable(routeRepository.findRoleRoutesByUser(user)));
         return routes;
-
     }
 
     public List<Group> getGroupByUserAndRole(Long userId, Long roleId) {
@@ -203,6 +202,18 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         // add parent and child groups
         List<Group> content = groupService.addParentAndChildGroups(groupPage.getContent());
         return new PageImpl<>(content, pageable, groupPage.getTotalElements());
+    }
+
+    public List<Group> getAllUserGroupsAllDetails(Long userId) {
+
+        Page<Group> groupPage = getUserGroupsData(userId, new GetParameters());
+        if (groupPage == null) {
+            return new ArrayList<>();
+        }
+
+        // add parent and child groups
+        List<Group> content = groupService.addParentAndChildGroups(groupPage.getContent());
+        return content;
     }
 
     // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups

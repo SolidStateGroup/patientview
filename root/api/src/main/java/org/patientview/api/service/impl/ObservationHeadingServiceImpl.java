@@ -141,7 +141,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
-        return observationHeadingRepository.findAll(pageable);
+        return observationHeadingRepository.findAllMinimal(pageable);
     }
 
     public List<ObservationHeading> findAll() {

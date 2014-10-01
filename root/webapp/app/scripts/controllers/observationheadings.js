@@ -1,13 +1,24 @@
 'use strict';
 
 // new observationHeading modal instance controller
-var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editObservationHeading', 'ObservationHeadingService', 'groups',
-    function ($scope, $rootScope, $modalInstance, editObservationHeading, ObservationHeadingService, groups) {
+var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editObservationHeading', 'ObservationHeadingService', 'GroupService',
+    function ($scope, $rootScope, $modalInstance, editObservationHeading, ObservationHeadingService, GroupService) {
         $scope.editObservationHeading = editObservationHeading;
         $scope.editMode = false;
-        $scope.editObservationHeading.groupId = editObservationHeading.groups[0].id;
         $scope.editObservationHeading.observationHeadingGroups = [];
-        $scope.groups = groups;
+        $scope.groups = [];
+
+        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+            groups = groups.content;
+            for (var i=0;i<groups.length;i++) {
+                if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
+                    $scope.groups.push(groups[i]);
+                }
+            }
+            $scope.editObservationHeading.groups = $scope.groups;
+        }, function() {
+            alert('Could not retrieve user groups');
+        });
 
         $scope.ok = function () {
             ObservationHeadingService.create($scope.editObservationHeading).then(function(result) {
@@ -54,20 +65,6 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                 $scope.permissions.canCreateObservationHeading = true;
                 $scope.permissions.canEdit = true;
             }
-
-            GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-                var groups = groups.content;
-                for (var i=0;i<groups.length;i++) {
-                    if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
-                        $scope.groups.push(groups[i]);
-                    }
-                }
-
-                $scope.loading = false;
-            }, function() {
-                alert('Could not retrieve user groups')
-                $scope.loading = false;
-            });
         };
 
         $scope.sortBy = function(sortField) {
@@ -206,8 +203,8 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                 controller: NewObservationHeadingModalInstanceCtrl,
                 size: size,
                 resolve: {
-                    groups: function() {
-                        return $scope.groups;
+                    GroupService: function() {
+                        return GroupService;
                     },
                     editObservationHeading: function(){
                         return $scope.editObservationHeading;

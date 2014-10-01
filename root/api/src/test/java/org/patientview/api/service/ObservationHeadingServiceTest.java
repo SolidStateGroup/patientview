@@ -86,11 +86,11 @@ public class ObservationHeadingServiceTest {
         Page<ObservationHeading> observationHeadingsPage =
                 new PageImpl<>(observationHeadings, pageableAll, observationHeadings.size());
 
-        when(observationHeadingRepository.findAll(eq(pageableAll))).thenReturn(observationHeadingsPage);
+        when(observationHeadingRepository.findAllMinimal(eq(pageableAll))).thenReturn(observationHeadingsPage);
 
         Page<ObservationHeading> result = observationHeadingService.findAll(new GetParameters());
         Assert.assertEquals("Should have 2 observation headings", 2, result.getNumberOfElements());
-        verify(observationHeadingRepository, Mockito.times(1)).findAll(Matchers.eq(pageableAll));
+        verify(observationHeadingRepository, Mockito.times(1)).findAllMinimal(Matchers.eq(pageableAll));
     }
 
     @Test

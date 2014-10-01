@@ -46,6 +46,8 @@ public interface SecurityService {
      */
     Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters);
 
+    List<Group> getAllUserGroupsAllDetails(Long userId);
+
     Page<Group> getUserGroupsAllDetails(Long userId, GetParameters getParameters);
 
     // allowed relationship groups are those that can be added as parents or children to existing groups

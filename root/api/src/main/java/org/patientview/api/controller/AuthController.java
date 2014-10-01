@@ -44,20 +44,20 @@ public class AuthController extends BaseController<AuthController> {
 
     // switch to previous user using previous auth token, todo: requires security
     @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<UserToken> switchToPreviousUser(@PathVariable("token") String token,
+    public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
             @PathVariable("userId") Long userId) throws AuthenticationServiceException {
         return new ResponseEntity<>(authenticationService.switchUser(userId, token), HttpStatus.OK);
     }
 
     // switch to another user by authenticating and returning token, todo: requires security
     @RequestMapping(value = "/auth/switchuser/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<UserToken> switchUser(@PathVariable("userId") Long userId)
+    public ResponseEntity<String> switchUser(@PathVariable("userId") Long userId)
             throws AuthenticationServiceException {
         return new ResponseEntity<>(authenticationService.switchUser(userId, null), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserToken> authenticate(@RequestBody Credentials credentials)
+    public ResponseEntity<String> authenticate(@RequestBody Credentials credentials)
             throws UsernameNotFoundException, AuthenticationServiceException {
 
         if (StringUtils.isEmpty(credentials.getUsername())) {
@@ -70,9 +70,16 @@ public class AuthController extends BaseController<AuthController> {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(authenticationService.authenticate(credentials.getUsername(),
-                credentials.getPassword()), HttpStatus.OK);
+        return new ResponseEntity<>(authenticationService.authenticate(
+                credentials.getUsername(), credentials.getPassword()), HttpStatus.OK);
+    }
 
+    // populate userToken with user information (security roles, groups etc) performed after login
+    // todo: requires security
+    @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
+    public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
+            throws AuthenticationServiceException {
+        return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)

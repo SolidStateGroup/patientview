@@ -66,7 +66,7 @@ public class AuthControllerTest {
 
         try {
             when(authenticationService.authenticate(eq(credentials.getUsername()),
-                    eq(credentials.getPassword()))).thenReturn(new UserToken());
+                    eq(credentials.getPassword()))).thenReturn("");
             mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                     .content(mapper.writeValueAsString(credentials)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
