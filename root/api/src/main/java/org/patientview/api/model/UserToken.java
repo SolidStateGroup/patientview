@@ -1,6 +1,10 @@
 package org.patientview.api.model;
 
+import org.patientview.persistence.model.Route;
+
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -12,6 +16,11 @@ public class UserToken {
     private String token;
     private Date expiration;
     private Date created;
+
+    // set separately after authentication
+    private List<Role> securityRoles;
+    private List<BaseGroup> userGroups;
+    private Set<Route> routes;
 
     public UserToken () {
 
@@ -56,5 +65,29 @@ public class UserToken {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public List<Role> getSecurityRoles() {
+        return securityRoles;
+    }
+
+    public void setSecurityRoles(List<Role> securityRoles) {
+        this.securityRoles = securityRoles;
+    }
+
+    public List<BaseGroup> getUserGroups() {
+        return userGroups;
+    }
+
+    public void setUserGroups(List<BaseGroup> userGroups) {
+        this.userGroups = userGroups;
+    }
+
+    public Set<Route> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(Set<Route> routes) {
+        this.routes = routes;
     }
 }

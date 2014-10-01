@@ -256,10 +256,7 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
 
     $rootScope.switchUserBack = function() {
         AuthService.switchUser($rootScope.previousLoggedInUser.id, $rootScope.previousAuthToken).then(
-        function(authenticationResult) {
-
-            var authToken = authenticationResult.token;
-            var user = authenticationResult.user;
+        function(authToken) {
 
             delete $rootScope.previousAuthToken;
             localStorageService.remove('previousAuthToken');
@@ -270,14 +267,23 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
             $rootScope.authToken = authToken;
             localStorageService.set('authToken', authToken);
 
-            // get user details, store in session
-            $rootScope.loggedInUser = user;
-            localStorageService.set('loggedInUser', user);
 
-            RouteService.getRoutes(user.id).then(function (data) {
-                $rootScope.routes = data;
-                localStorageService.set('routes', data);
+            // get user information, store in session
+            AuthService.getUserInformation(authToken).then(function (userInformation) {
+
+                var user = userInformation.user;
+                user.securityRoles = userInformation.securityRoles;
+                user.userGroups = userInformation.userGroups;
+
+                $rootScope.loggedInUser = user;
+                localStorageService.set('loggedInUser', user);
+
+                $rootScope.routes = userInformation.routes;
+                localStorageService.set('routes', userInformation.routes);
                 $location.path('/dashboard');
+
+            }, function() {
+                alert("Error receiving user information");
             });
         }, function() {
             alert("Cannot view patient");

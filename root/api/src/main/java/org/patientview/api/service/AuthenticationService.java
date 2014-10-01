@@ -15,12 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface AuthenticationService extends UserDetailsService {
 
-    UserToken switchUser(Long userId, String token) throws AuthenticationServiceException;
+    String switchUser(Long userId, String token) throws AuthenticationServiceException;
 
-    UserToken authenticate(String username, String password)
+    String authenticate(String username, String password)
             throws AuthenticationServiceException, UsernameNotFoundException;
 
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
 
     void logout(String token) throws AuthenticationServiceException;
+
+    UserToken getUserInformation(String token);
 }

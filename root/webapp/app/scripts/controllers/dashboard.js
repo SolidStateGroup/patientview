@@ -101,21 +101,17 @@ function (UserService, $scope, GroupService, NewsService) {
 
         $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
 
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function(page) {
-            // set the list of groups to show in the data grid
-            $scope.graphGroups = page.content;
+        // set the list of groups to show in the data grid
+        $scope.graphGroups = $scope.loggedInUser.userGroups;
 
-            for(i=0;i<page.content.length;i++) {
-                $scope.allGroups[page.content[i].id] = page.content[i];
-            }
+        for(i=0;i<$scope.graphGroups.length;i++) {
+            $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
+        }
 
-            // set feature (avoid blank option)
-            if ($scope.graphGroups && $scope.graphGroups.length > 0) {
-                $scope.graphGroupId = $scope.graphGroups[0].id;
-            }
-        }, function () {
-            alert('Error retrieving groups');
-        });
+        // set feature (avoid blank option)
+        if ($scope.graphGroups && $scope.graphGroups.length > 0) {
+            $scope.graphGroupId = $scope.graphGroups[0].id;
+        }
 
         NewsService.getByUser($scope.loggedInUser.id, 0, 5).then(function(page) {
             $scope.newsItems = page.content;

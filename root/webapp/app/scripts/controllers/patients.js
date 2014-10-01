@@ -723,13 +723,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // view patient
     $scope.viewUser = function (userId) {
+        $scope.loading = true;
         $scope.successMessage = '';
         var currentToken = $rootScope.authToken;
 
-        AuthService.switchUser(userId, null).then(function(authenticationResult) {
-
-            var authToken = authenticationResult.token;
-            var user = authenticationResult.user;
+        AuthService.switchUser(userId, null).then(function(authToken) {
 
             $rootScope.previousAuthToken = currentToken;
             localStorageService.set('previousAuthToken', currentToken);
@@ -740,15 +738,26 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $rootScope.authToken = authToken;
             localStorageService.set('authToken', authToken);
 
-            // get user details, store in session
-            $rootScope.loggedInUser = user;
-            localStorageService.set('loggedInUser', user);
+            // get user information, store in session
+            AuthService.getUserInformation(authToken).then(function (userInformation) {
 
-            RouteService.getRoutes(user.id).then(function (data) {
-                $rootScope.routes = data;
-                localStorageService.set('routes', data);
+                var user = userInformation.user;
+                user.securityRoles = userInformation.securityRoles;
+                user.userGroups = userInformation.userGroups;
+
+                $rootScope.loggedInUser = user;
+                localStorageService.set('loggedInUser', user);
+
+                $rootScope.routes = userInformation.routes;
+                localStorageService.set('routes', userInformation.routes);
+
+                $scope.loading = false;
                 $location.path('/dashboard');
+
+            }, function() {
+                alert("Error receiving user information");
             });
+
         }, function() {
             alert("Cannot view patient");
         });
