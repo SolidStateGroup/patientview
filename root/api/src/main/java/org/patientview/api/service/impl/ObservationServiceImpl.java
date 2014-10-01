@@ -1,10 +1,12 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.ObservationSummary;
+import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
@@ -220,6 +222,16 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         }
 
         return observationData;
+    }
+
+    @Override
+    public void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
+            throws ResourceNotFoundException {
+        if (!userRepository.exists(userId)) {
+            throw new ResourceNotFoundException("User does not exist");
+        }
+
+        // todo: implement
     }
 
     private ObservationSummary getObservationSummary(Group group, List<ObservationHeading> observationHeadings,

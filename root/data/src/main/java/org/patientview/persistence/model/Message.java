@@ -1,6 +1,5 @@
 package org.patientview.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.MessageTypes;
 

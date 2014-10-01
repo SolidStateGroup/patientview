@@ -4,7 +4,6 @@ import org.patientview.api.service.AdminService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Role;
-import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;

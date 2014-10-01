@@ -1,18 +1,110 @@
-<h1>Enter Your Own Results <a href="/#/results" class="btn blue pull-right" data-ng-show="!loading">Back to Results</a></h1>
+<style>
+    .select-datetime {
+        width: 80px;
+    }
+    .input-comments {
+        width: 100%;
+    }
+</style>
 
-<div class="content-panel" data-ng-show="resultClusters && !loading">
-    <div class="content-inner">
-        <!-- patient result entry form -->
-        <div>
+<div data-ng-show="!loading">
+    <h1>Enter Your Own Results <a href="/#/results" class="btn blue pull-right" data-ng-show="!loading">Back to Results</a></h1>
+
+    <div class="content-panel" data-ng-show="resultClusters.length && !loading">
+        <div class="content-inner">
+
+            <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+
+            <!-- patient result entry form -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Step 1: Select the cluster of results you wish to enter</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <select class="form-control" data-ng-model="selectedResultCluster"
+                            data-ng-options="resultCluster as resultCluster.name for resultCluster in resultClusters">
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <a href="" data-ng-click="addResultCluster(selectedResultCluster)" class="btn blue">Add</a>
+                </div>
+            </div>
+
+            <div class="row" ng-show="userResultClusters.length">
+                <div class="col-md-12">
+                    <h4>Step 2: Enter result(s) along with the date/time of each result.
+                        <br/>Not all values need to be entered if they aren't available.</h4>
+                </div>
+            </div>
+
+            <div data-ng-repeat="userResultCluster in userResultClusters">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>{{userResultCluster.resultCluster.name}} &nbsp;
+                            <a href="" data-ng-click="removeUserResultCluster(userResultCluster)" class="btn negative">Remove</a>
+                        </h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        Date: &nbsp;
+                        <select class="select-datetime" data-ng-model="userResultCluster.day"
+                            data-ng-options="day as day for day in days">
+                        </select>
+                        <select class="select-datetime" data-ng-model="userResultCluster.month"
+                            data-ng-options="month as month for month in months">
+                        </select>
+                        <select class="select-datetime" data-ng-model="userResultCluster.year"
+                            data-ng-options="year as year for year in years">
+                        </select>
+                        &nbsp;&nbsp;&nbsp;Time: &nbsp;
+                        <select class="select-datetime" data-ng-model="userResultCluster.hour"
+                            data-ng-options="hour as hour for hour in hours">
+                        </select>
+                        <select class="select-datetime" data-ng-model="userResultCluster.minute"
+                            data-ng-options="minute as minute for minute in minutes">
+                    </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        Values: &nbsp;
+                        <span data-ng-repeat="observationHeading in userResultCluster.resultCluster.observationHeadings">
+                            <input type="text" data-ng-model="userResultCluster.values[observationHeading.id]"
+                                placeholder="{{observationHeading.heading}}"/>
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="text" data-ng-model="userResultCluster.comments" placeholder="Comments" class="input-comments"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" ng-show="userResultClusters.length">
+                <div class="col-md-12">
+                    <h4>Step 3: Once you have finished adding your results, you must click Save to submit your results
+                        or Cancel to discard them.</h4>
+                </div>
+                <div class="col-md-12">
+                    <a href="" data-ng-click="save()" class="btn blue" data-ng-disabled="!userDataValid()">Save</a> &nbsp;
+                    <a href="" data-ng-click="cancel()" class="btn negative">Cancel</a>
+                </div>
+            </div>
 
         </div>
     </div>
-</div>
 
-<div data-ng-show="!resultClusters && !loading">
-    <h4>You cannot currently enter your own results</h4>
+    <div data-ng-show="!resultClusters.length && !loading">
+        <h4>You cannot currently enter your own results</h4>
+    </div>
 </div>
 
 <div data-ng-show="loading" class="container"><br/><br/>
-    <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Enter Your Own Results</h3>
+    </div>
 </div>

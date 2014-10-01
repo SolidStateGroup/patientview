@@ -2,12 +2,16 @@ package org.patientview.api.controller;
 
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.ObservationSummary;
+import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ObservationService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.ObservationHeading;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -46,5 +50,13 @@ public class ObservationController extends BaseController<ObservationController>
     public ResponseEntity<List<ObservationSummary>> getObservationSummary(
             @PathVariable("userId") Long userId) throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(observationService.getObservationSummary(userId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/observations/resultclusters", method = RequestMethod.POST
+            , consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void addResultClusters(@PathVariable("userId") Long userId, @RequestBody List<UserResultCluster> userResultClusters)
+            throws ResourceNotFoundException {
+        observationService.addUserResultClusters(userId, userResultClusters);
     }
 }

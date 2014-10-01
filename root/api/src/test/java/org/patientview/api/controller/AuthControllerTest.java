@@ -13,7 +13,6 @@ import org.patientview.api.model.ForgottenCredentials;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.api.model.UserToken;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
