@@ -28,7 +28,7 @@
 <div class="content-panel filter-panel">
     <div class="search-container">
         <i class="icon-search-black"></i>
-        <input type="text" ng-model="searchText" placeholder="Search by medicine name or dose..." class="form-control input-block-level" />
+        <input type="text" data-ng-model="searchText" placeholder="Search by medicine name or dose..." class="form-control input-block-level" />
     </div>
     <div class="panel-footer clearfix">
         <div class="content-inner">
@@ -56,7 +56,7 @@
                         </ul>
                     </div>
                 </div>
-                <span data-ng-repeat="group in filterGroups" ng-show="isGroupChecked(group.id)">
+                <span data-ng-repeat="group in filterGroups" data-ng-show="isGroupChecked(group.id)">
                     <span class="label label-info">{{group.name}}</span>&nbsp;
                 </span>
             </div>
@@ -65,19 +65,19 @@
 </div>
 <div class="content-panel">
     <div class="content-inner">
-        <div ng-show="!loading">
+        <div data-ng-show="!loading">
             <h3 class="hidden">From Your Units</h3>
-            <table class="table" ng-show="nonEcsFiltered.length">
+            <table class="table" data-ng-show="nonEcsFiltered.length">
                 <thead class="table-head">
                     <tr>
-                        <th><a href="" ng-click="sortBy('date');" class="sort-title">Start Date</a></th>
-                        <th><a href="" ng-click="sortBy('name');" class="sort-title">Medicine Name</a></th>
-                        <th><a href="" ng-click="sortBy('dose');" class="sort-title">Dose</a></th>
+                        <th><a href="" data-ng-click="sortBy('date');" class="sort-title">Start Date</a></th>
+                        <th><a href="" data-ng-click="sortBy('name');" class="sort-title">Medicine Name</a></th>
+                        <th><a href="" data-ng-click="sortBy('dose');" class="sort-title">Dose</a></th>
                         <th>Source</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="medicationStatement in nonEcsFiltered =
+                    <tr data-ng-repeat="medicationStatement in nonEcsFiltered =
                         (medicationStatementsNonEcs | nameAndDoseFilter:searchText | sourceGroupFilter:selectedGroups | orderBy: predicate :reverse)">
                         <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
                         <td>{{medicationStatement.name}}</td>
@@ -87,24 +87,24 @@
                 </tbody>
             </table>
 
-            <div class="alert alert-warning" ng-show="!nonEcsFiltered.length">
+            <div class="alert alert-warning" data-ng-show="!nonEcsFiltered.length">
                 <p>No medicine information from your units available</p>
             </div>
 
             <!-- todo: hidden pending discussions on ECS modelling -->
             <div class="hidden">
                 <h3>From Your GP Records</h3>
-                <table class="table" ng-show="ecsFiltered.length">
+                <table class="table" data-ng-show="ecsFiltered.length">
                     <thead class="table-head">
                         <tr>
-                            <th><a href="" ng-click="sortBy('date');" class="sort-title">Start Date</a></th>
-                            <th><a href="" ng-click="sortBy('name');" class="sort-title">Medicine Name</a></th>
-                            <th><a href="" ng-click="sortBy('dose');" class="sort-title">Dose</a></th>
+                            <th><a href="" data-ng-click="sortBy('date');" class="sort-title">Start Date</a></th>
+                            <th><a href="" data-ng-click="sortBy('name');" class="sort-title">Medicine Name</a></th>
+                            <th><a href="" data-ng-click="sortBy('dose');" class="sort-title">Dose</a></th>
                             <th>Source</th>
                         </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="medicationStatement in ecsFiltered = (medicationStatementsEcs | nameAndDoseFilter:searchText | orderBy: predicate :reverse)">
+                    <tr data-ng-repeat="medicationStatement in ecsFiltered = (medicationStatementsEcs | nameAndDoseFilter:searchText | orderBy: predicate :reverse)">
                             <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
                             <td>{{medicationStatement.name}}</td>
                             <td>{{medicationStatement.dose}}</td>
@@ -113,14 +113,14 @@
                     </tbody>
                 </table>
 
-                <div class="alert alert-warning" ng-show="!ecsFiltered.length">
+                <div class="alert alert-warning" data-ng-show="!ecsFiltered.length">
                     <p>No medicine information from your GP records available</p>
                 </div>
             </div>
         </div>
 
-        <div ng-show="loading" class="container"><br/>
-            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+        <div data-ng-show="loading" class="container"><br/>
+            <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
         </div>
 
     </div>

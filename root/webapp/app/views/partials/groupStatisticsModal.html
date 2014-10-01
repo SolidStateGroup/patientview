@@ -40,7 +40,7 @@
             </th>
         </tr>
         <tbody>
-            <tr ng-repeat="statistic in statistics">
+            <tr data-ng-repeat="statistic in statistics">
                 <td>
                     {{statistic.startDate}}-{{statistic.endDate}}
                 </td>
@@ -79,6 +79,6 @@
     </table>
 </div>
 <div class="modal-footer">
-    <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
-    <button class="btn btn-grey" ng-click="cancel()">Back</button>
+    <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+    <button class="btn btn-grey" data-ng-click="cancel()">Back</button>
 </div>

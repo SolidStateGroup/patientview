@@ -33,7 +33,7 @@
         <p>Yes you can. If you do, we remove all medical data about you.</p>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-grey" ng-click="close()">Close</button>
+        <button class="btn btn-grey" data-ng-click="close()">Close</button>
     </div>
 </script>
 
@@ -69,7 +69,7 @@
             patients in the UK, but can now work for others too.</p>
         <p>Information comes directly from existing records, for example hospital and GP records, or may be entered
             directly or via other apps. Secure messaging functionality is included.</p>
-        <p><a href="" class="btn blue" ng-click="furtherInformation();"> Tell Me More</a></p>
+        <p><a href="" class="btn blue" data-ng-click="furtherInformation();"> Tell Me More</a></p>
     </div>
     <div class="row">
         <div class="user-info col-md-4">
@@ -111,20 +111,20 @@
             <div class="panel-header content-panel lowlight">
                 <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
             </div>
-            <ul class="unstyled" ng-show="newsItems">
-                <li class="news-item content-panel" ng-repeat="news in newsItems | orderBy: '-created'">
+            <ul class="unstyled" data-ng-show="newsItems">
+                <li class="news-item content-panel" data-ng-repeat="news in newsItems | orderBy: '-created'">
                     <div class="content-inner">
                         <h4>{{news.heading}}</h4>
                         <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                         <div>
-                            <div class="showHideText" ng-class="{show: show}" ng-bind-html="parseHTMLText(news.story)"></div>
-                            <a href="" class="showHideLink" ng-click="show = true" ng-show="!show">show more</a>
-                            <a href="" class="showHideLink" ng-click="show = false" ng-show="show">show less</a>
+                            <div class="showHideText" data-ng-class="{show: show}" data-ng-bind-html="parseHTMLText(news.story)"></div>
+                            <a href="" class="showHideLink" data-ng-click="show = true" data-ng-show="!show">show more</a>
+                            <a href="" class="showHideLink" data-ng-click="show = false" data-ng-show="show">show less</a>
                         </div>
                     </div>
                 </li>
             </ul>
-            <ul class="unstyled" ng-hide="newsItems">
+            <ul class="unstyled" data-ng-hide="newsItems">
                 <li class="news-item content-panel">
                     <div class="content-inner">
                         <h4>No Current News</h4>

@@ -1,18 +1,18 @@
 <!-- new contact unit modal template -->
 <script type="text/ng-template" id="contactUnitModal.html">
-    <div ng-controller="ContactUnitDetailsCtrl">
+    <div data-ng-controller="ContactUnitDetailsCtrl">
         <div class="modal-header">
             <h3 class="modal-title">Send a Message to {{group.name}}</h3>
         </div>
         <div class="modal-body">
-            <form name="contactUnitForm" ng-model="conversation">
-                <div ng-include src="'views/partials/contactUnitDetails.html'"></div>
+            <form name="contactUnitForm" data-ng-model="conversation">
+                <div data-ng-include src="'views/partials/contactUnitDetails.html'"></div>
             </form>
         </div>
         <div class="modal-footer">
-            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
-            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!contactUnitForm.$valid">Contact Unit</button>
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()" data-ng-disabled="!contactUnitForm.$valid">Contact Unit</button>
         </div>
     </div>
 </script>
@@ -21,20 +21,20 @@
 <div class="patient-details">
     <div class="">
         <div class="">
-            <div ng-show="!loading && groups.length">
+            <div data-ng-show="!loading && groups.length">
                 <div class="details-filter clearfix">
                     <div class="pull-right">Showing details provided by: &nbsp;&nbsp;
-                    <label ng-repeat="group in groups">
-                        <input type="checkbox" value="{{group.name}}" ng-model="group.selected">
+                    <label data-ng-repeat="group in groups">
+                        <input type="checkbox" value="{{group.name}}" data-ng-model="group.selected">
                         <span class="checkbox-label">{{group.name}}</span>
                     </label>
                     </div>
                 </div>
-                <div ng-repeat="group in groups" ng-show="group.selected">
+                <div data-ng-repeat="group in groups" data-ng-show="group.selected">
                     <div class="panel panel-default">
                         <div class="panel-heading"><h3>{{group.name}}</h3></div>
                         <div class="panel-body">
-                            <p>Refer to contact details below or <a href="" ng-click="openModalContactUnit(group)">send a message now</a>.</p>
+                            <p>Refer to contact details below or <a href="" data-ng-click="openModalContactUnit(group)">send a message now</a>.</p>
 
                             <h4>Address</h4>
                             <ul class="unstyled">
@@ -45,13 +45,13 @@
                             </ul>
                             <h4>Contact Points</h4>
                             <ul class="unstyled">
-                                <li ng-repeat="contactPoint in group.contactPoints">
+                                <li data-ng-repeat="contactPoint in group.contactPoints">
                                     {{contactPoint.contactPointType.description}}: {{contactPoint.content}}
                                 </li>
                             </ul>
-                            <h4 ng-show="group.locations">Additional Locations</h4>
-                            <ul class="unstyled" ng-show="group.locations">
-                                <li class="locations-list" ng-repeat="location in group.locations">
+                            <h4 data-ng-show="group.locations">Additional Locations</h4>
+                            <ul class="unstyled" data-ng-show="group.locations">
+                                <li class="locations-list" data-ng-repeat="location in group.locations">
                                     <strong>{{location.name}}</strong><br/>
                                     Phone: {{location.phone}}<br/>
                                     Address: {{location.address}}<br/>
@@ -63,12 +63,12 @@
                     </div>
                 </div>
             </div>
-            <div ng-show="!loading && !groups.length">
+            <div data-ng-show="!loading && !groups.length">
                 <p>You are not a member of any groups you can contact directly.</p>
             </div>
         </div>
-        <div ng-show="loading" class="container"><br/>
-            <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+        <div data-ng-show="loading" class="container"><br/>
+            <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
         </div>
     </div>
 </div>

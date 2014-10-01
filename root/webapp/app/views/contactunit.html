@@ -1,9 +1,9 @@
 <h1>Forgotten Password</h1>
 <div class="content-panel user-settings">
     <div class="content-inner">
-        <form class="form-horizontal" ng-cloak id="account-settings-form">
+        <form class="form-horizontal" data-ng-cloak id="account-settings-form">
 
-            <div class="alert alert-success" ng-show="successMessage">
+            <div class="alert alert-success" data-ng-show="successMessage">
                 <strong>Reset Password Request Submitted</strong><p>Thanks for your request. The administrator at your
                 unit has been notified of your wish to reset your password.</p>
             </div>
@@ -16,7 +16,7 @@
             <div class="form-group">
                 <label for="forename" class="col-sm-2 control-label">Forename:</label>
                 <div class="col-sm-4">
-                    <input id="forename" name=forename" type="text" class="form-control" ng-model="joinRequest.forename"
+                    <input id="forename" name=forename" type="text" class="form-control" data-ng-model="joinRequest.forename"
                            required=""/>
                 </div>
             </div>
@@ -24,7 +24,7 @@
             <div class="form-group">
                 <label for="forename" class="col-sm-2 control-label">Surname:</label>
                 <div class="col-sm-4">
-                    <input id="surname" name=surname" type="text" class="form-control" ng-model="joinRequest.surname"
+                    <input id="surname" name=surname" type="text" class="form-control" data-ng-model="joinRequest.surname"
                            required=""/>
                 </div>
             </div>
@@ -34,18 +34,18 @@
                 <div class="col-sm-4">
 
                     Day:<select required="required"
-                                ng-model="joinRequest.selectedDay"
-                                ng-options="option as option for option in days"
+                                data-ng-model="joinRequest.selectedDay"
+                                data-ng-options="option as option for option in days"
                                 class="form-control"></select>
 
                     Month:<select required="required"
-                                  ng-model="joinRequest.selectedMonth"
-                                  ng-options="option as option for option in months"
+                                  data-ng-model="joinRequest.selectedMonth"
+                                  data-ng-options="option as option for option in months"
                                   class="form-control"></select>
 
                     Year:<select required="required"
-                                 ng-model="joinRequest.selectedYear"
-                                 ng-options="option as option for option in years"
+                                 data-ng-model="joinRequest.selectedYear"
+                                 data-ng-options="option as option for option in years"
                                  class="form-control">
                 </select>
                 </div>
@@ -54,7 +54,7 @@
             <div class="form-group">
                 <label for="nhsNumber" class="col-sm-2 control-label">NHS Number:</label>
                 <div class="col-sm-4">
-                    <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" ng-model="joinRequest.nhsNumber" required=""/>
+                    <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" data-ng-model="joinRequest.nhsNumber" required=""/>
                 </div>
             </div>
 
@@ -62,9 +62,9 @@
                 <label class="col-sm-2 control-label">Specialty:</label>
                 <div class="col-sm-4">
                     <select required="required"
-                            ng-model="joinRequest.specialty"
-                            ng-change="refreshUnits()"
-                            ng-options="obj.id as obj.name for obj in specialties"
+                            data-ng-model="joinRequest.specialty"
+                            data-ng-change="refreshUnits()"
+                            data-ng-options="obj.id as obj.name for obj in specialties"
                             class="form-control">
                     </select>
                 </div>
@@ -75,8 +75,8 @@
                 <div class="col-sm-4">
 
                     <select required="required"
-                            ng-model="joinRequest.unit"
-                            ng-options="obj.id as obj.name for obj in units"
+                            data-ng-model="joinRequest.unit"
+                            data-ng-options="obj.id as obj.name for obj in units"
                             class="form-control">
                     </select>
                 </div>
@@ -85,19 +85,19 @@
             <div class="form-group">
                 <label for="email" class="col-sm-2 control-label">Email:</label>
                 <div class="col-sm-4">
-                    <input id="email" name="email" type="text" class="form-control" ng-model="joinRequest.email" required=""/>
+                    <input id="email" name="email" type="text" class="form-control" data-ng-model="joinRequest.email" required=""/>
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="col-sm-9 col-sm-offset-2">
-                    <button ng-click="submit()" class="btn blue"
-                            ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear">
+                    <button data-ng-click="submit()" class="btn blue"
+                            data-ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear">
                         Submit Request</button>
                 </div>
             </div>
 
-            <div class="form-group" ng-show="errorMessage">
+            <div class="form-group" data-ng-show="errorMessage">
                 <div class="col-sm-9 col-sm-offset-3 alert alert-danger">
                     <p><strong>Error submitting request</strong>{{errorMessage}}</p>
                 </div>
@@ -106,5 +106,5 @@
     </div>
 </div>
 
-<div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>

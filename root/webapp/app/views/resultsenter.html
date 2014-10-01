@@ -1,6 +1,6 @@
-<h1>Enter Your Own Results <a href="/#/results" class="btn blue pull-right" ng-show="!loading">Back to Results</a></h1>
+<h1>Enter Your Own Results <a href="/#/results" class="btn blue pull-right" data-ng-show="!loading">Back to Results</a></h1>
 
-<div class="content-panel" ng-show="resultClusters && !loading">
+<div class="content-panel" data-ng-show="resultClusters && !loading">
     <div class="content-inner">
         <!-- patient result entry form -->
         <div>
@@ -9,10 +9,10 @@
     </div>
 </div>
 
-<div ng-show="!resultClusters && !loading">
+<div data-ng-show="!resultClusters && !loading">
     <h4>You cannot currently enter your own results</h4>
 </div>
 
-<div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
 </div>

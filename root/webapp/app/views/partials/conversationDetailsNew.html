@@ -2,11 +2,11 @@
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
-            <label for="conversation-add-recipient" class="control-label">Recipients <span class="error" ng-show="newConversation.recipients.length < 1 && !conversationFormNew.$pristine"> *required</span></label>
+            <label for="conversation-add-recipient" class="control-label">Recipients <span class="error" data-ng-show="newConversation.recipients.length < 1 && !conversationFormNew.$pristine"> *required</span></label>
             <ul class="feature-list unstyled">
-                <li class="feature-list-item" ng-repeat="user in newConversation.recipients">
+                <li class="feature-list-item" data-ng-repeat="user in newConversation.recipients">
                     <div class="feature-list-name"><span class="feature-list-name">{{user.forename}} {{user.surname}}</span> &nbsp;
-                        <a id="remove-recipient-{{user.id}}" href="" ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
+                        <a id="remove-recipient-{{user.id}}" href="" data-ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
                     </div>
                 </li>
             </ul>
@@ -15,34 +15,34 @@
 </div>
 
 <div class="row">
-    <div class="form-horizontal" role="form" ng-show="!modalLoading">
-        <div class="custom-select col-md-3" ng-show="!newConversation.allRecipients.length" ng-cloak>
+    <div class="form-horizontal" role="form" data-ng-show="!modalLoading">
+        <div class="custom-select col-md-3" data-ng-show="!newConversation.allRecipients.length" data-ng-cloak>
             <p>No message recipients available, cannot send a new message</p>
         </div>
-        <div ng-show="newConversation.allRecipients.length">
-            <div class="custom-select col-md-3" ng-show="newConversation.availableRecipients.length" >
-                <select class="form-control recipient-select" id="conversation-add-recipient" ng-model="recipientToAdd" ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
+        <div data-ng-show="newConversation.allRecipients.length">
+            <div class="custom-select col-md-3" data-ng-show="newConversation.availableRecipients.length" >
+                <select class="form-control recipient-select" id="conversation-add-recipient" data-ng-model="recipientToAdd" data-ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
             </div>
-            <button type="button" class="btn blue recipient-add-button pull-left" ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)" ng-show="newConversation.availableRecipients.length">
+            <button type="button" class="btn blue recipient-add-button pull-left" data-ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)" data-ng-show="newConversation.availableRecipients.length">
                 <i class="glyphicon glyphicon-plus-sign"></i> &nbsp;&nbsp;Add Recipient</button>
         </div>
     </div>
-    <div class="loading" ng-show="modalLoading"><img src="images/loading.gif" alt="Loading"/></div>
+    <div class="loading" data-ng-show="modalLoading"><img src="images/loading.gif" alt="Loading"/></div>
 </div>
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
-            <label for="conversation-title" class="control-label">Title <span class="error" ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" ng-model="newConversation.title" required></div>
+            <label for="conversation-title" class="control-label">Title <span class="error" data-ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" data-ng-model="newConversation.title" required></div>
         </div>
     </div>
 </div>
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
-            <label for="conversation-message" class="control-label">Message <span class="error" ng-show="conversationFormNew.message.$error.required && !conversationFormNew.$pristine"> *required</span></label>
-            <textarea class="form-control article-content" id="conversation-message" placeholder="Messasge" name="message" ng-model="newConversation.message" required />
+            <label for="conversation-message" class="control-label">Message <span class="error" data-ng-show="conversationFormNew.message.$error.required && !conversationFormNew.$pristine"> *required</span></label>
+            <textarea class="form-control article-content" id="conversation-message" placeholder="Messasge" name="message" data-ng-model="newConversation.message" required></textarea>
         </div>
     </div>
 </div>
-<div ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+<div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
