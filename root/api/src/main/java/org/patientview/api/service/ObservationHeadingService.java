@@ -4,6 +4,7 @@ import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.ResultCluster;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,4 +30,6 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
     void updateObservationHeadingGroup(ObservationHeadingGroup observationHeadingGroup) throws ResourceNotFoundException;
 
     void removeObservationHeadingGroup(Long observationHeadingGroupId) throws ResourceNotFoundException;
+
+    List<ResultCluster> getResultClusters();
 }

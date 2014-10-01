@@ -196,6 +196,18 @@ public class ObservationHeadingControllerTest {
             fail("Exception thrown" + e.getMessage());
         }
     }
+
+    @Test
+    public void testGetResultClusters() {
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/resultclusters")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw");
+        }
+        verify(observationHeadingService, Mockito.times(1)).getResultClusters();
+    }
 }
 
 
