@@ -1,6 +1,5 @@
 package org.patientview.api.model;
 
-import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
@@ -21,7 +20,6 @@ public class Group extends BaseGroup{
     private Set<GroupFeature> groupFeatures = new HashSet<>();
     private List<Group> parentGroups = new ArrayList<>();
     private List<Group> childGroups = new ArrayList<>();
-    private Boolean visible;
     private List<Link> links;
     private Set<Location> locations;
 
@@ -87,14 +85,6 @@ public class Group extends BaseGroup{
 
     public void setChildGroups(List<Group> childGroups) {
         this.childGroups = childGroups;
-    }
-
-    public Boolean getVisible() {
-        return visible;
-    }
-
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
     }
 
     public List<Link> getLinks() {

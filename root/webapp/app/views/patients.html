@@ -1,7 +1,5 @@
-<div class="hider" ng-show="status.open"></div>
-
-<div>
-    <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')" ng-show="!loading && permissions.canCreatePatients">Create New</button></h1>
+<div ng-show="!loading">
+    <h1>Patients <button class="btn blue" ng-click="openModalNewPatient('lg')" ng-show="permissions.canCreatePatients">Create New</button></h1>
 
     <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
@@ -192,4 +190,7 @@
 </div>
 
 <div ng-show="loading" class="container"><br/><br/>
-<div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
+    <div ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Patients</h3>
+    </div>
+</div>

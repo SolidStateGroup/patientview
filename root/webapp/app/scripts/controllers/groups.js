@@ -113,9 +113,9 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.pagedItems = page.content;
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
-            delete $scope.loading;
+            $scope.loading = false;
         }, function () {
-            delete $scope.loading;
+            $scope.loading = false;
             $scope.fatalErrorMessage = 'Error retrieving groups';
         });
     };
@@ -174,7 +174,6 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 $scope.groupTypes = allowedGroupTypes;
                 $scope.filterGroupTypes = allowedFilterGroupTypes;
             }
-            delete $scope.loading;
         });
     };
 

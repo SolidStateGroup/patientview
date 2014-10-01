@@ -1,4 +1,4 @@
-<h1>Join Request Admin</h1>
+<h1 ng-show="!loading">Join Request Admin</h1>
 <div class="content-panel filter-panel" data-ng-show="pagedItems.length > 0 && !loading" ng-cloak>
     <div class="">
         <p class="intro-block">Filter join requests by selecting a status from the options below.</p>
@@ -100,11 +100,6 @@
     </div>
 </div>
 
-<div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-</div>
-
-
 <!-- pagination -->
 <div class="col-md-12" data-ng-show="pagedItems.length > 0">
     <div ng-show="pagedItems.length > 0 && totalPages > 1">
@@ -119,5 +114,11 @@
                 <a href ng-click="nextPage()">Next »</a>
             </li>
         </ul>
+    </div>
+</div>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Join Requests</h3>
     </div>
 </div>
