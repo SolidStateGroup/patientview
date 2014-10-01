@@ -359,6 +359,21 @@ CREATE TABLE PV_Observation_Heading_Group (
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_Result_Cluster
+(
+  Id      BIGINT NOT NULL,
+  Name    TEXT NOT NULL,
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_Result_Cluster_Observation_Heading
+(
+  Id                        BIGINT NOT NULL,
+  Result_Cluster_Id         BIGINT REFERENCES PV_Result_Cluster (Id) NOT NULL,
+  Observation_Heading_Id    BIGINT REFERENCES PV_Observation_Heading (Id) NOT NULL,
+  PRIMARY KEY (Id)
+);
+
 CREATE TABLE PV_Module (
   Id               BIGINT    NOT NULL,
   Name             VARCHAR(200),
