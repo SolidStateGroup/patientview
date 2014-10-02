@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.enums.GroupCode;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.util.Util;
@@ -74,10 +75,20 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         List<org.patientview.api.model.Group> transportGroups = new ArrayList<>();
 
         for (Group group : groups) {
-            transportGroups.add(new org.patientview.api.model.Group(group));
+            // do not add groups that have code in GroupCode enum as these are used for patient entered results etc
+            if(!isInEnum(group.getCode(), GroupCode.class)) {
+                transportGroups.add(new org.patientview.api.model.Group(group));
+            }
         }
 
         return transportGroups;
+    }
+
+    public <E extends Enum<E>> boolean isInEnum(String value, Class<E> enumClass) {
+        for (E e : enumClass.getEnumConstants()) {
+            if(e.name().equals(value)) { return true; }
+        }
+        return false;
     }
 
     private Page<Group> getUserGroupsData(Long userId, GetParameters getParameters) {
@@ -212,8 +223,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         }
 
         // add parent and child groups
-        List<Group> content = groupService.addParentAndChildGroups(groupPage.getContent());
-        return content;
+        return groupService.addParentAndChildGroups(groupPage.getContent());
     }
 
     // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups
