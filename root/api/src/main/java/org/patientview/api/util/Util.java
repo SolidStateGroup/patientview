@@ -57,6 +57,14 @@ public class Util {
 
     }
 
+    // check string appears in enum
+    public static <E extends Enum<E>> boolean isInEnum(String value, Class<E> enumClass) {
+        for (E e : enumClass.getEnumConstants()) {
+            if(e.name().equals(value)) { return true; }
+        }
+        return false;
+    }
+
     // Retrieve the list of Roles from the annotation.
     public static RoleName[] getRoles(JoinPoint joinPoint) {
         final org.aspectj.lang.Signature signature = joinPoint.getStaticPart().getSignature();

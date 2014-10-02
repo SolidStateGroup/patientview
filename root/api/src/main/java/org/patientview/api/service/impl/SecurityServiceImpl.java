@@ -76,19 +76,12 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
 
         for (Group group : groups) {
             // do not add groups that have code in GroupCode enum as these are used for patient entered results etc
-            if(!isInEnum(group.getCode(), GroupCode.class)) {
+            if(!Util.isInEnum(group.getCode(), GroupCode.class)) {
                 transportGroups.add(new org.patientview.api.model.Group(group));
             }
         }
 
         return transportGroups;
-    }
-
-    public <E extends Enum<E>> boolean isInEnum(String value, Class<E> enumClass) {
-        for (E e : enumClass.getEnumConstants()) {
-            if(e.name().equals(value)) { return true; }
-        }
-        return false;
     }
 
     private Page<Group> getUserGroupsData(Long userId, GetParameters getParameters) {

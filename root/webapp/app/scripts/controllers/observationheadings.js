@@ -8,17 +8,13 @@ var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalIns
         $scope.editObservationHeading.observationHeadingGroups = [];
         $scope.groups = [];
 
-        GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-            groups = groups.content;
-            for (var i=0;i<groups.length;i++) {
-                if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
-                    $scope.groups.push(groups[i]);
-                }
+        var groups = $scope.loggedInUser.userGroups;
+        for (var i=0;i<groups.length;i++) {
+            if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
+                $scope.groups.push(groups[i]);
             }
-            $scope.editObservationHeading.groups = $scope.groups;
-        }, function() {
-            alert('Could not retrieve user groups');
-        });
+        }
+        $scope.editObservationHeading.groups = $scope.groups;
 
         $scope.ok = function () {
             ObservationHeadingService.create($scope.editObservationHeading).then(function(result) {
@@ -64,6 +60,13 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
             if ($scope.permissions.isSuperAdmin) {
                 $scope.permissions.canCreateObservationHeading = true;
                 $scope.permissions.canEdit = true;
+            }
+
+            var groups = $scope.loggedInUser.userGroups;
+            for (var i=0;i<groups.length;i++) {
+                if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
+                    $scope.groups.push(groups[i]);
+                }
             }
         };
 
@@ -179,7 +182,7 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                     $scope.saved = '';
                     $scope.editObservationHeading = _.clone(observationHeading);
                     $scope.editObservationHeading.groups = $scope.groups;
-                    $scope.editObservationHeading.groupId = $scope.groups[0].id;
+                    //$scope.editObservationHeading.groupId = $scope.groups[0].id;
                     $scope.editMode = true;
                     openedObservationHeading.editLoading = false;
                 });
