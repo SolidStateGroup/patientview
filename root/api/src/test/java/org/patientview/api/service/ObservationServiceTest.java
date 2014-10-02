@@ -50,7 +50,7 @@ public class ObservationServiceTest {
     ObservationHeadingGroupRepository observationHeadingGroupRepository;
 
     @Mock
-    GroupRepository groupRepository;
+    GroupService groupService;
 
     @Mock
     UserRepository userRepository;
@@ -94,6 +94,9 @@ public class ObservationServiceTest {
         observationHeading1.setId(3L);
         observationHeading1.setCode("OBS1");
 
+        List<ObservationHeading> observationHeadings = new ArrayList<>();
+        observationHeadings.add(observationHeading1);
+
         List<UserResultCluster> userResultClusters = new ArrayList<>();
 
         IdValue value = new IdValue();
@@ -129,7 +132,8 @@ public class ObservationServiceTest {
         try {
             when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
             when(observationHeadingService.get(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
-            when(groupRepository.findByCode(eq(GroupCode.PATIENT_ENTERED.toString()))).thenReturn(patientEnteredGroup);
+            when(observationHeadingService.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
+            when(groupService.findByCode(eq(GroupCode.PATIENT_ENTERED.toString()))).thenReturn(patientEnteredGroup);
             when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
             when(fhirResource.create(eq(fhirPatient))).thenReturn(fhirPatientJson);
 

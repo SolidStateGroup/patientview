@@ -355,9 +355,18 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
 
-        Quantity quantity = new Quantity();
-        quantity.setValue(createDecimal(value));
-        quantity.setUnitsSimple(observationHeading.getUnits());
+        try {
+            Quantity quantity = new Quantity();
+            quantity.setValue(createDecimal(value));
+            quantity.setUnitsSimple(observationHeading.getUnits());
+            observation.setValue(quantity);
+        } catch (ParseException pe) {
+            // parse exception, likely to be a string, e.g. comments store as text
+            CodeableConcept comment = new CodeableConcept();
+            comment.setTextSimple(observationHeading.getCode().toUpperCase());
+            comment.addCoding().setDisplaySimple(observationHeading.getHeading());
+            observation.setValue(comment);
+        }
 
         CodeableConcept name = new CodeableConcept();
         name.setTextSimple(observationHeading.getCode().toUpperCase());
@@ -365,7 +374,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         observation.setName(name);
         observation.setIdentifier(createIdentifier(observationHeading.getCode()));
-        observation.setValue(quantity);
 
         return observation;
     }
@@ -396,19 +404,20 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         }
     }
 
-    private Decimal createDecimal(String result) throws FhirResourceException {
+    private Decimal createDecimal(String result) throws ParseException {
         Decimal decimal = new Decimal();
         String resultString = result.replaceAll("[^.\\d]", "");
         NumberFormat decimalFormat = DecimalFormat.getInstance();
-        if (StringUtils.isNotEmpty(resultString)) {
-            try {
+
+        try {
+            if (StringUtils.isNotEmpty(resultString)) {
                 decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
-            } catch (ParseException nfe) {
-                LOG.info("Check down for parsing extra characters needs adding");
             }
-        } else {
-            throw new FhirResourceException("Invalid value for observation");
+        } catch (ParseException nfe) {
+            LOG.info("Check down for parsing extra characters needs adding");
+            throw new ParseException("Invalid value for observation", nfe.getErrorOffset());
         }
+
         return decimal;
     }
 
