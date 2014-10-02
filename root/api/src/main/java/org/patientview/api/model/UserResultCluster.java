@@ -14,7 +14,7 @@ public class UserResultCluster {
     private String hour;
     private String minute;
     private List<IdValue> values;
-    private String comment;
+    private String comments;
 
     public String getDay() {
         return day;
@@ -64,11 +64,11 @@ public class UserResultCluster {
         this.values = values;
     }
 
-    public String getComment() {
-        return comment;
+    public String getComments() {
+        return comments;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setComment(String comments) {
+        this.comments = comments;
     }
 }

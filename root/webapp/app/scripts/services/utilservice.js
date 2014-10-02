@@ -78,7 +78,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.unitRequest = ['forename','surname', 'nhsNumber','dateOfBirth', 'email'];
             fields.observationHeading = ['id', 'code','heading', 'name','normalRange', 'units', 'minGraph', 'maxGraph', 'infoLink', 'defaultPanel', 'defaultPanelOrder', 'observationHeadingGroups'];
             fields.observationHeadingGroup = ['id', 'group','panel', 'panelOrder'];
-            fields.resultCluster = ['id', 'day','month', 'year', 'hour', 'minute', 'values'];
+            fields.resultCluster = ['id', 'day','month', 'year', 'hour', 'minute', 'values', 'comments'];
             return fields[objectType];
         },
         // used when converting from angular objects to those suitable for REST

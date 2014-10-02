@@ -291,7 +291,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             }
 
             if (!fhirObservations.isEmpty() ||
-                    !(userResultCluster.getComment() == null || userResultCluster.getComment().isEmpty())) {
+                    !(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
                 // create FHIR Patient
                 Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
                 JSONObject fhirPatient = fhirResource.create(patient);
@@ -318,15 +318,22 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 // save observations
                 for (Observation fhirObservation : fhirObservations) {
                     fhirObservation.setSubject(patientReference);
+
+                    if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
+                        fhirObservation.setCommentsSimple(userResultCluster.getComments());
+                    }
+
                     fhirResource.create(fhirObservation);
                 }
 
-                if (!(userResultCluster.getComment() == null || userResultCluster.getComment().isEmpty())) {
+                /*
+                // todo: discuss, do we need to store separately? if so how?
+                if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
                     Observation commentObservation =
-                        buildObservation(applies, userResultCluster.getComment(), commentObservationHeadings.get(0));
+                        buildObservation(applies, userResultCluster.getComments(), commentObservationHeadings.get(0));
                     commentObservation.setSubject(patientReference);
                     fhirResource.create(commentObservation);
-                }
+                }*/
             }
         }
     }
@@ -344,7 +351,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         JSONArray resultArray = (JSONArray) bundle.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
         return UUID.fromString(resource.get("id").toString());
-
     }
 
     private Observation buildObservation(DateTime applies, String value, ObservationHeading observationHeading)
