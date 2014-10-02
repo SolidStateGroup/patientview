@@ -1,5 +1,6 @@
 package org.patientview.persistence.resource;
 
+import org.hl7.fhir.instance.formats.JsonComposer;
 import org.hl7.fhir.instance.formats.JsonParser;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -14,6 +15,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -37,6 +40,40 @@ public class FhirResource {
     @Inject
     @Named("fhir")
     private DataSource dataSource;
+
+    /**
+     * For FUNCTION fhir_create(cfg jsonb, _type varchar, resource jsonb, tags jsonb)
+     *
+     * @param resource Resource to create
+     * @return JSONObject JSON version of saved Resource
+     * @throws FhirResourceException
+     */
+    public JSONObject create(Resource resource) throws FhirResourceException {
+
+        PGobject result;
+        Connection connection;
+        try {
+            connection = dataSource.getConnection();
+            CallableStatement proc = connection.prepareCall("{call fhir_create( ?::jsonb, ?, ?::jsonb, ?::jsonb)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resource.getResourceType().name());
+            proc.setObject(3, marshallFhirRecord(resource));
+            proc.setObject(4, null);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.execute();
+
+            result = (PGobject) proc.getObject(1);
+            connection.close();
+            return new JSONObject(result.getValue());
+
+        } catch (SQLException e) {
+            LOG.error("Unable to build resource {}", e);
+            throw new FhirResourceException(e.getMessage());
+        } catch (Exception e) {
+            throw new FhirResourceException(e);
+        }
+
+    }
 
     public JSONObject getResource(UUID uuid, ResourceType resourceType) throws FhirResourceException {
         LOG.debug("Getting resource {}", uuid.toString());
@@ -115,5 +152,17 @@ public class FhirResource {
         } catch (SQLException e) {
             throw new FhirResourceException(e);
         }
+    }
+
+    private String marshallFhirRecord(Resource resource) throws FhirResourceException {
+        JsonComposer jsonComposer = new JsonComposer();
+        OutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            jsonComposer.compose(outputStream, resource, false);
+        } catch (Exception e) {
+            LOG.error("Unable to handle Fhir resource record", e);
+            throw new FhirResourceException("Cannot build JSON", e);
+        }
+        return outputStream.toString();
     }
 }

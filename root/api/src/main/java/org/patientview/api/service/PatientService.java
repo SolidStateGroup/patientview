@@ -3,6 +3,8 @@ package org.patientview.api.service;
 import org.hl7.fhir.instance.model.Patient;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,4 +20,5 @@ public interface PatientService {
 
     Patient get(UUID uuid) throws FhirResourceException;
 
+    Patient buildPatient(User user, Identifier identifier);
 }

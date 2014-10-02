@@ -153,6 +153,10 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.findAllMinimal(pageable);
     }
 
+    public List<ObservationHeading> findByCode(final String code) {
+        return observationHeadingRepository.findByCode(code);
+    }
+
     public List<ObservationHeading> findAll() {
         return Util.convertIterable(observationHeadingRepository.findAll());
     }

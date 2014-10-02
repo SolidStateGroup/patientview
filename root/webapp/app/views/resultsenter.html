@@ -1,10 +1,33 @@
 <style>
-    .select-datetime {
-        width: 80px;
-    }
     .input-comments {
         width: 100%;
     }
+
+    .row.inline-row {
+        margin-bottom: 3px;
+    }
+
+    .row.inline-row .form-control, .row.inline-row .inline-span {
+        float:left;
+    }
+
+    .row.inline-row .inline-span {
+        width: 80px;
+    }
+
+    .row.inline-row .form-control {
+        width: 80px
+    }
+
+    .row.inline-row .form-control.input-value {
+        width: 160px
+    }
+
+    .row.inline-row .form-control.input-comments {
+        width: 100%;
+    }
+
+
 </style>
 
 <div data-ng-show="!loading">
@@ -47,44 +70,51 @@
                         </h5>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row inline-row">
                     <div class="col-md-12">
-                        Date: &nbsp;
-                        <select class="select-datetime" data-ng-model="userResultCluster.day"
+                        <span class="inline-span"> Date: &nbsp;</span>
+                        <select class="form-control" data-ng-model="userResultCluster.day"
                             data-ng-options="day as day for day in days">
                         </select>
-                        <select class="select-datetime" data-ng-model="userResultCluster.month"
+                        <select class="form-control" data-ng-model="userResultCluster.month"
                             data-ng-options="month as month for month in months">
                         </select>
-                        <select class="select-datetime" data-ng-model="userResultCluster.year"
+                        <select class="form-control" data-ng-model="userResultCluster.year"
                             data-ng-options="year as year for year in years">
                         </select>
-                        &nbsp;&nbsp;&nbsp;Time: &nbsp;
-                        <select class="select-datetime" data-ng-model="userResultCluster.hour"
+                        <span class="inline-span"> &nbsp; &nbsp; Time: &nbsp;</span>
+                        <select class="form-control" data-ng-model="userResultCluster.hour"
                             data-ng-options="hour as hour for hour in hours">
                         </select>
-                        <select class="select-datetime" data-ng-model="userResultCluster.minute"
+                        <select class="form-control" data-ng-model="userResultCluster.minute"
                             data-ng-options="minute as minute for minute in minutes">
                     </select>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row inline-row">
                     <div class="col-md-12">
-                        Values: &nbsp;
                         <span data-ng-repeat="observationHeading in userResultCluster.resultCluster.observationHeadings">
                             <input type="text" data-ng-model="userResultCluster.values[observationHeading.id]"
-                                placeholder="{{observationHeading.heading}}"/>
+                                placeholder="{{observationHeading.heading}}" class="form-control input-value" only-num-decimal/>
                         </span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <input type="text" data-ng-model="userResultCluster.comments" placeholder="Comments" class="input-comments"/>
+                        <input type="text" data-ng-model="userResultCluster.comments"
+                               placeholder="Comments"
+                               class="form-control input-comments"/>
                     </div>
                 </div>
             </div>
+            <br/>
+            <div class="row" ng-show="!userDataValid()">
+                <div class="col-md-12">
+                    <h4>Please make sure you have entered a correct date and at least one result for each set of results</h4>
+                </div>
+            </div>
 
-            <div class="row" ng-show="userResultClusters.length">
+            <div class="row" ng-show="userResultClusters.length && userDataValid()">
                 <div class="col-md-12">
                     <h4>Step 3: Once you have finished adding your results, you must click Save to submit your results
                         or Cancel to discard them.</h4>
@@ -92,6 +122,7 @@
                 <div class="col-md-12">
                     <a href="" data-ng-click="save()" class="btn blue" data-ng-disabled="!userDataValid()">Save</a> &nbsp;
                     <a href="" data-ng-click="cancel()" class="btn negative">Cancel</a>
+
                 </div>
             </div>
 

@@ -6,7 +6,6 @@ import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ObservationService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
-import org.patientview.persistence.model.ObservationHeading;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +55,7 @@ public class ObservationController extends BaseController<ObservationController>
             , consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void addResultClusters(@PathVariable("userId") Long userId, @RequestBody List<UserResultCluster> userResultClusters)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, FhirResourceException {
         observationService.addUserResultClusters(userId, userResultClusters);
     }
 }

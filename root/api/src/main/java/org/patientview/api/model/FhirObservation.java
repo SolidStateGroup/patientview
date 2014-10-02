@@ -4,6 +4,7 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Decimal;
 import org.hl7.fhir.instance.model.Observation;
+import org.hl7.fhir.instance.model.Property;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.BaseModel;
 
@@ -19,7 +20,7 @@ public class FhirObservation extends BaseModel{
 
     private Date applies;
     private String name;
-    private Double value;
+    private String value;
     private String comments;
     private Group group;
     private String temporaryUuid;
@@ -37,8 +38,12 @@ public class FhirObservation extends BaseModel{
 
             try {
                 if (observation.getValue() != null) {
-                    Decimal dec = (Decimal) observation.getValue().getChildByName("value").getValues().get(0);
-                    setValue(Double.valueOf(dec.getStringValue()));
+                    Property valueProperty = observation.getValue().getChildByName("value");
+
+                    if (valueProperty.getTypeCode().equals("decimal")) {
+                        Decimal element = (Decimal)valueProperty.getValues().get(0);
+                        setValue(element.getStringValue());
+                    }
                 }
             } catch (NumberFormatException nfe) {
                 throw new FhirResourceException("Cannot convert FHIR observation, missing Value");
@@ -63,11 +68,11 @@ public class FhirObservation extends BaseModel{
         this.name = name;
     }
 
-    public Double getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(Double value) {
+    public void setValue(String value) {
         this.value = value;
     }
 

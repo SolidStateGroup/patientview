@@ -24,5 +24,6 @@ public interface ObservationService {
     List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException;
 
-    void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters) throws ResourceNotFoundException;
+    void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
+            throws ResourceNotFoundException, FhirResourceException;
 }

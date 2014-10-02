@@ -6,6 +6,7 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
     $scope.addResultCluster = function(resultCluster) {
         if (resultCluster !== undefined) {
 
+            delete $scope.successMessage;
             var userResultCluster = {};
             userResultCluster.resultCluster = resultCluster;
             userResultCluster.day = $scope.days[0];
@@ -40,11 +41,21 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
         for (var i=0;i<$scope.userResultClusters.length;i++) {
             var resultCluster = $scope.userResultClusters[i];
 
+            // check date is ok
             if (!UtilService.validationDate(resultCluster.day, resultCluster.month, resultCluster.year)) {
                 return false;
             }
+
+            // check at least one entry in results
+            for(var prop in resultCluster.values) {
+                if (resultCluster.values.hasOwnProperty(prop)) {
+                    if (resultCluster.values[prop] !== null) {
+                        return true;
+                    }
+                }
+            }
         }
-        return true;
+        return false;
     };
 
     var init = function() {

@@ -22,6 +22,8 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     Page<ObservationHeading> findAll(GetParameters getParameters);
 
+    List<ObservationHeading> findByCode(String code);
+
     ObservationHeading add(ObservationHeading observationHeading);
 
     void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)

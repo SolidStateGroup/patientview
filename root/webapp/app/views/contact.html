@@ -17,58 +17,62 @@
     </div>
 </script>
 
-<h1>Contact Your Unit</h1>
-<div class="patient-details">
-    <div class="">
+<div data-ng-show="!loading">
+    <h1>Contact Your Unit</h1>
+    <div class="patient-details">
         <div class="">
-            <div data-ng-show="!loading && groups.length">
-                <div class="details-filter clearfix">
-                    <div class="pull-right">Showing details provided by: &nbsp;&nbsp;
-                    <label data-ng-repeat="group in groups">
-                        <input type="checkbox" value="{{group.name}}" data-ng-model="group.selected">
-                        <span class="checkbox-label">{{group.name}}</span>
-                    </label>
+            <div class="">
+                <div data-ng-show="groups.length">
+                    <div class="details-filter clearfix">
+                        <div class="pull-right">Showing details provided by: &nbsp;&nbsp;
+                        <label data-ng-repeat="group in groups">
+                            <input type="checkbox" value="{{group.name}}" data-ng-model="group.selected">
+                            <span class="checkbox-label">{{group.name}}</span>
+                        </label>
+                        </div>
                     </div>
-                </div>
-                <div data-ng-repeat="group in groups" data-ng-show="group.selected">
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><h3>{{group.name}}</h3></div>
-                        <div class="panel-body">
-                            <p>Refer to contact details below or <a href="" data-ng-click="openModalContactUnit(group)">send a message now</a>.</p>
+                    <div data-ng-repeat="group in groups" data-ng-show="group.selected">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><h3>{{group.name}}</h3></div>
+                            <div class="panel-body">
+                                <p>Refer to contact details below or <a href="" data-ng-click="openModalContactUnit(group)">send a message now</a>.</p>
 
-                            <h4>Address</h4>
-                            <ul class="unstyled">
-                                <li>Address 1: {{group.address1}}</li>
-                                <li>Address 2: {{group.address2}}</li>
-                                <li>Address 3: {{group.address3}}</li>
-                                <li>Postcode: {{group.postcode}}</li>
-                            </ul>
-                            <h4>Contact Points</h4>
-                            <ul class="unstyled">
-                                <li data-ng-repeat="contactPoint in group.contactPoints">
-                                    {{contactPoint.contactPointType.description}}: {{contactPoint.content}}
-                                </li>
-                            </ul>
-                            <h4 data-ng-show="group.locations">Additional Locations</h4>
-                            <ul class="unstyled" data-ng-show="group.locations">
-                                <li class="locations-list" data-ng-repeat="location in group.locations">
-                                    <strong>{{location.name}}</strong><br/>
-                                    Phone: {{location.phone}}<br/>
-                                    Address: {{location.address}}<br/>
-                                    Web: {{location.web}}<br/>
-                                    Email: {{location.email}}
-                                </li>
-                            </ul>
+                                <h4>Address</h4>
+                                <ul class="unstyled">
+                                    <li>Address 1: {{group.address1}}</li>
+                                    <li>Address 2: {{group.address2}}</li>
+                                    <li>Address 3: {{group.address3}}</li>
+                                    <li>Postcode: {{group.postcode}}</li>
+                                </ul>
+                                <h4>Contact Points</h4>
+                                <ul class="unstyled">
+                                    <li data-ng-repeat="contactPoint in group.contactPoints">
+                                        {{contactPoint.contactPointType.description}}: {{contactPoint.content}}
+                                    </li>
+                                </ul>
+                                <h4 data-ng-show="group.locations">Additional Locations</h4>
+                                <ul class="unstyled" data-ng-show="group.locations">
+                                    <li class="locations-list" data-ng-repeat="location in group.locations">
+                                        <strong>{{location.name}}</strong><br/>
+                                        Phone: {{location.phone}}<br/>
+                                        Address: {{location.address}}<br/>
+                                        Web: {{location.web}}<br/>
+                                        Email: {{location.email}}
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div data-ng-show="!loading && !groups.length">
-                <p>You are not a member of any groups you can contact directly.</p>
+                <div data-ng-show="!groups.length">
+                    <p>You are not a member of any groups you can contact directly.</p>
+                </div>
             </div>
         </div>
-        <div data-ng-show="loading" class="container"><br/>
-            <div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
-        </div>
+    </div>
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
     </div>
 </div>

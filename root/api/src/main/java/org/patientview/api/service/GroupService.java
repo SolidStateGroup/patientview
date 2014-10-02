@@ -28,6 +28,8 @@ public interface GroupService {
 
     List<Group> findAll();
 
+    Group findByCode(String code);
+
     List<Group> findGroupByUser(User user);
 
     List<Group> findGroupByType(Long lookupId);

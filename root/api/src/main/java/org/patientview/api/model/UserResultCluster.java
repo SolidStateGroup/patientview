@@ -1,7 +1,6 @@
 package org.patientview.api.model;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -9,50 +8,51 @@ import java.util.Map;
  */
 public class UserResultCluster {
 
-    private Long day;
-    private Long month;
-    private Long year;
-    private Long hour;
-    private Long minute;
+    private String day;
+    private String month;
+    private String year;
+    private String hour;
+    private String minute;
     private List<IdValue> values;
+    private String comment;
 
-    public Long getDay() {
+    public String getDay() {
         return day;
     }
 
-    public void setDay(Long day) {
+    public void setDay(String day) {
         this.day = day;
     }
 
-    public Long getMonth() {
+    public String getMonth() {
         return month;
     }
 
-    public void setMonth(Long month) {
+    public void setMonth(String month) {
         this.month = month;
     }
 
-    public Long getYear() {
+    public String getYear() {
         return year;
     }
 
-    public void setYear(Long year) {
+    public void setYear(String year) {
         this.year = year;
     }
 
-    public Long getHour() {
+    public String getHour() {
         return hour;
     }
 
-    public void setHour(Long hour) {
+    public void setHour(String hour) {
         this.hour = hour;
     }
 
-    public Long getMinute() {
+    public String getMinute() {
         return minute;
     }
 
-    public void setMinute(Long minute) {
+    public void setMinute(String minute) {
         this.minute = minute;
     }
 
@@ -62,5 +62,13 @@ public class UserResultCluster {
 
     public void setValues(List<IdValue> values) {
         this.values = values;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

@@ -1,19 +1,33 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.CodeableConcept;
+import org.hl7.fhir.instance.model.DateAndTime;
+import org.hl7.fhir.instance.model.DateTime;
+import org.hl7.fhir.instance.model.Decimal;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Observation;
+import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.Quantity;
+import org.hl7.fhir.instance.model.ResourceReference;
+import org.hl7.fhir.instance.model.ResourceType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirObservation;
+import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
+import org.patientview.api.model.enums.GroupCode;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
+import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.User;
@@ -23,13 +37,18 @@ import org.patientview.persistence.resource.FhirResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,6 +69,9 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     @Inject
     private GroupService groupService;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private ObservationHeadingService observationHeadingService;
@@ -153,7 +175,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                             fhirObservation.setApplies(date);
                             fhirObservation.setName(json[1].replace("\"", ""));
-                            fhirObservation.setValue(Double.valueOf(json[2]));
+                            fhirObservation.setValue(json[2]);
                             fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
 
                             String code = json[1].replace("\"", "").toUpperCase();
@@ -226,12 +248,182 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     @Override
     public void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
-            throws ResourceNotFoundException {
-        if (!userRepository.exists(userId)) {
+            throws ResourceNotFoundException, FhirResourceException {
+
+        User patientUser = userRepository.findOne(userId);
+        if (patientUser == null) {
             throw new ResourceNotFoundException("User does not exist");
         }
 
-        // todo: implement
+        Group patientEnteredResultsGroup = groupService.findByCode(GroupCode.PATIENT_ENTERED.toString());
+        if (patientEnteredResultsGroup == null) {
+            throw new ResourceNotFoundException("Group for patient entered results does not exist");
+        }
+
+        List<ObservationHeading> commentObservationHeadings = observationHeadingService.findByCode("resultcomment");
+        if (CollectionUtils.isEmpty(commentObservationHeadings)) {
+            throw new ResourceNotFoundException("Comment type observation heading does not exist");
+        }
+
+        if (CollectionUtils.isEmpty(patientUser.getIdentifiers())) {
+            throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
+        }
+
+        Identifier patientIdentifier = patientUser.getIdentifiers().iterator().next();
+
+        // saves results, only if observation values are present or comment found
+        for (UserResultCluster userResultCluster : userResultClusters) {
+
+            DateTime applies = createDateTime(userResultCluster);
+
+            List<Observation> fhirObservations = new ArrayList<>();
+
+            // build observations
+            for (IdValue idValue : userResultCluster.getValues()) {
+                ObservationHeading observationHeading = observationHeadingService.get(idValue.getId());
+                if (observationHeading == null) {
+                    throw new ResourceNotFoundException("Observation Heading not found");
+                }
+
+                if (!idValue.getValue().isEmpty()) {
+                    fhirObservations.add(buildObservation(applies, idValue.getValue(), observationHeading));
+                }
+            }
+
+            if (!fhirObservations.isEmpty() ||
+                    !(userResultCluster.getComment() == null || userResultCluster.getComment().isEmpty())) {
+                // create FHIR Patient
+                Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
+                JSONObject fhirPatient = fhirResource.create(patient);
+
+                // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
+                FhirLink fhirLink = new FhirLink();
+                fhirLink.setUser(patientUser);
+                fhirLink.setIdentifier(patientIdentifier);
+                fhirLink.setGroup(patientEnteredResultsGroup);
+                fhirLink.setResourceId(getResourceId(fhirPatient));
+                fhirLink.setVersionId(getVersionId(fhirPatient));
+                fhirLink.setResourceType(ResourceType.Patient.name());
+                fhirLink.setActive(true);
+
+                if (CollectionUtils.isEmpty(patientUser.getFhirLinks())) {
+                    patientUser.setFhirLinks(new HashSet<FhirLink>());
+                }
+
+                patientUser.getFhirLinks().add(fhirLink);
+                userRepository.save(patientUser);
+
+                ResourceReference patientReference = createResourceReference(getVersionId(fhirPatient));
+
+                // save observations
+                for (Observation fhirObservation : fhirObservations) {
+                    fhirObservation.setSubject(patientReference);
+                    fhirResource.create(fhirObservation);
+                }
+
+                if (!(userResultCluster.getComment() == null || userResultCluster.getComment().isEmpty())) {
+                    Observation commentObservation =
+                        buildObservation(applies, userResultCluster.getComment(), commentObservationHeadings.get(0));
+                    commentObservation.setSubject(patientReference);
+                    fhirResource.create(commentObservation);
+                }
+            }
+        }
+    }
+
+    private UUID getVersionId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        JSONArray links = (JSONArray) resource.get("link");
+        JSONObject link = (JSONObject)  links.get(0);
+        String[] href = link.getString("href").split("/");
+        return UUID.fromString(href[href.length - 1]);
+    }
+
+    private UUID getResourceId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        return UUID.fromString(resource.get("id").toString());
+
+    }
+
+    private Observation buildObservation(DateTime applies, String value, ObservationHeading observationHeading)
+            throws FhirResourceException {
+
+        Observation observation = new Observation();
+        observation.setApplies(applies);
+        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+        observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+        Quantity quantity = new Quantity();
+        quantity.setValue(createDecimal(value));
+        quantity.setUnitsSimple(observationHeading.getUnits());
+
+        CodeableConcept name = new CodeableConcept();
+        name.setTextSimple(observationHeading.getCode().toUpperCase());
+        name.addCoding().setDisplaySimple(observationHeading.getHeading());
+
+        observation.setName(name);
+        observation.setIdentifier(createIdentifier(observationHeading.getCode()));
+        observation.setValue(quantity);
+
+        return observation;
+    }
+
+    private DateTime createDateTime(UserResultCluster resultCluster) throws FhirResourceException{
+
+        try {
+            DateTime dateTime = new DateTime();
+            DateAndTime dateAndTime = DateAndTime.now();
+            dateAndTime.setYear(Integer.parseInt(resultCluster.getYear()));
+            dateAndTime.setMonth(Integer.parseInt(resultCluster.getMonth()));
+            dateAndTime.setDay(Integer.parseInt(resultCluster.getDay()));
+            if (StringUtils.isNotEmpty(resultCluster.getHour())) {
+                dateAndTime.setHour(Integer.parseInt(resultCluster.getHour()));
+            } else {
+                dateAndTime.setHour(0);
+            }
+            if (StringUtils.isNotEmpty(resultCluster.getMinute())) {
+                dateAndTime.setMinute(Integer.parseInt(resultCluster.getMinute()));
+            } else {
+                dateAndTime.setMinute(0);
+            }
+            dateAndTime.setSecond(0);
+            dateTime.setValue(dateAndTime);
+            return dateTime;
+        } catch (Exception e) {
+            throw new FhirResourceException("Error converting date");
+        }
+    }
+
+    private Decimal createDecimal(String result) throws FhirResourceException {
+        Decimal decimal = new Decimal();
+        String resultString = result.replaceAll("[^.\\d]", "");
+        NumberFormat decimalFormat = DecimalFormat.getInstance();
+        if (StringUtils.isNotEmpty(resultString)) {
+            try {
+                decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
+            } catch (ParseException nfe) {
+                LOG.info("Check down for parsing extra characters needs adding");
+            }
+        } else {
+            throw new FhirResourceException("Invalid value for observation");
+        }
+        return decimal;
+    }
+
+    private org.hl7.fhir.instance.model.Identifier createIdentifier(String code) {
+        org.hl7.fhir.instance.model.Identifier identifier = new org.hl7.fhir.instance.model.Identifier();
+        identifier.setLabelSimple("resultcode");
+        identifier.setValueSimple(code);
+        return identifier;
+    }
+
+    private ResourceReference createResourceReference(UUID uuid) {
+        ResourceReference resourceReference = new ResourceReference();
+        resourceReference.setDisplaySimple(uuid.toString());
+        resourceReference.setReferenceSimple("uuid");
+        return resourceReference;
     }
 
     private ObservationSummary getObservationSummary(Group group, List<ObservationHeading> observationHeadings,
@@ -270,7 +462,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                     if (observationList.size() > 1) {
                         transportObservationHeading.setValueChange(
-                            latest.getValue() - observationList.get(1).getValue());
+                            Double.parseDouble(latest.getValue()) -
+                                    Double.parseDouble(observationList.get(1).getValue()));
                     }
                 }
 
