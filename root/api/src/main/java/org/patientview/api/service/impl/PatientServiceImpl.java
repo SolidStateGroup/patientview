@@ -1,6 +1,8 @@
 package org.patientview.api.service.impl;
 
 import org.hl7.fhir.instance.model.Encounter;
+import org.hl7.fhir.instance.model.Enumeration;
+import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -16,6 +18,7 @@ import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
@@ -158,5 +161,31 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         return fhirEncounters;
+    }
+
+    @Override
+    public Patient buildPatient(User user, Identifier identifier) {
+        Patient patient = new Patient();
+
+        patient = createHumanName(patient, user);
+        patient = addIdentifier(patient, identifier);
+
+        return patient;
+    }
+
+    private Patient createHumanName(Patient patient, User user) {
+        HumanName humanName = patient.addName();
+        humanName.addFamilySimple(user.getSurname());
+        humanName.addGivenSimple(user.getForename());
+        Enumeration<HumanName.NameUse> nameUse = new Enumeration(HumanName.NameUse.usual);
+        humanName.setUse(nameUse);
+        return patient;
+    }
+
+    private Patient addIdentifier(Patient patient, Identifier identifier) {
+        org.hl7.fhir.instance.model.Identifier fhirIdentifier = patient.addIdentifier();
+        fhirIdentifier.setLabelSimple(identifier.getIdentifierType().getValue());
+        fhirIdentifier.setValueSimple(identifier.getIdentifier());
+        return patient;
     }
 }

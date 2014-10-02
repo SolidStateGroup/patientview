@@ -63,7 +63,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
         // patient exists
         try {
-            Identifier identifier = patientService.matchPatientByIdentifierValue(patientview);
+            patientService.matchPatientByIdentifierValue(patientview);
         } catch (ResourceNotFoundException rnf) {
             return false;
         }
@@ -129,7 +129,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         int maxFhirLinkStored = Integer.parseInt(properties.getProperty("maximum.fhirlink.stored"));
         Date start = new Date();
 
-        LOG.info("Removing old data, no more than " + maxFhirLinkStored + " FHIR records per group.");
+        LOG.info("Removing old data, no more than " + (maxFhirLinkStored - 1) + " inactive FHIR records per group.");
 
         try {
             List<FhirLink> inactiveFhirlinks = patientService.getInactivePatientFhirLinksByGroup(patientview);

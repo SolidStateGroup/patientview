@@ -14,10 +14,12 @@ import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
+import org.patientview.persistence.model.ResultCluster;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
+import org.patientview.persistence.repository.ResultClusterRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -28,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.mockito.Matchers.eq;
@@ -57,6 +60,9 @@ public class ObservationHeadingServiceTest {
 
     @Mock
     RoleRepository roleRepository;
+
+    @Mock
+    ResultClusterRepository resultClusterRepository;
 
     @InjectMocks
     ObservationHeadingService observationHeadingService = new ObservationHeadingServiceImpl();
@@ -206,5 +212,34 @@ public class ObservationHeadingServiceTest {
         }
 
         verify(observationHeadingGroupRepository, Mockito.times(1)).delete(eq(observationHeadingGroup));
+    }
+
+    @Test
+    public void testGetResultClusters() {
+
+        ObservationHeading observationHeading1 = new ObservationHeading();
+        observationHeading1.setCode("OBS1");
+        ObservationHeading observationHeading2 = new ObservationHeading();
+        observationHeading2.setCode("OBS2");
+
+        List<ResultCluster> resultClusters = new ArrayList<>();
+
+        ResultCluster resultCluster = new ResultCluster();
+        resultCluster.setName("TEST_RESULT_CLUSTER");
+        resultCluster.setObservationHeadings(new HashSet<ObservationHeading>());
+        resultCluster.getObservationHeadings().add(observationHeading1);
+        resultCluster.getObservationHeadings().add(observationHeading2);
+
+        resultClusters.add(resultCluster);
+
+        when(resultClusterRepository.findAll()).thenReturn(resultClusters);
+
+        List<ResultCluster> results = observationHeadingService.getResultClusters();
+
+        Assert.assertEquals("Should have 1 result cluster", 1, results.size());
+        Assert.assertEquals("Should have 2 observation headings in result cluster", 2,
+                results.get(0).getObservationHeadings().size());
+
+        verify(resultClusterRepository, Mockito.times(1)).findAll();
     }
 }

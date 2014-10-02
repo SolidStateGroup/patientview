@@ -29,8 +29,14 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             // strip preceding 0 on dates if present
             day = parseInt(day.toString());
             month = parseInt(month.toString());
+            year = parseInt(year.toString());
 
             var valid = true;
+
+            if (isNaN(day) || isNaN(month) || isNaN(year)) {
+                valid = false;
+            }
+
             if ((month < 1) || (month > 12)) {
                 valid = false;
             }
@@ -72,6 +78,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.unitRequest = ['forename','surname', 'nhsNumber','dateOfBirth', 'email'];
             fields.observationHeading = ['id', 'code','heading', 'name','normalRange', 'units', 'minGraph', 'maxGraph', 'infoLink', 'defaultPanel', 'defaultPanelOrder', 'observationHeadingGroups'];
             fields.observationHeadingGroup = ['id', 'group','panel', 'panelOrder'];
+            fields.resultCluster = ['id', 'day','month', 'year', 'hour', 'minute', 'values', 'comments'];
             return fields[objectType];
         },
         // used when converting from angular objects to those suitable for REST
@@ -118,6 +125,24 @@ angular.module('patientviewApp').factory('UtilService', [function () {
                 years.push(i);
             }
             return years;
+        },
+
+        generateHours: function () {
+            var hours = [];
+            hours.push('');
+            for (var i=0;i<=24;i++) {
+                hours.push(i);
+            }
+            return hours;
+        },
+
+        generateMinutes: function () {
+            var minutes = [];
+            minutes.push('');
+            for (var i=0;i<=60;i++) {
+                minutes.push(i);
+            }
+            return minutes;
         }
     };
 }]);

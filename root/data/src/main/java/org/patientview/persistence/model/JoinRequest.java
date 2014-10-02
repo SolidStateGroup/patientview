@@ -1,6 +1,5 @@
 package org.patientview.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 
 import javax.persistence.Column;

@@ -2,7 +2,6 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
-import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

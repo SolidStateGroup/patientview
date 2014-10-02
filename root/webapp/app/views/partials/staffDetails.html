@@ -1,59 +1,59 @@
 <div class="row edit-staff">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
-            <label for="new-user-username" class="control-label">Username <span class="error" ng-show="userForm.userName.$error.required">required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-username" placeholder="Username" name="userName" ng-model="editUser.username" required></div>
+            <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userForm.userName.$error.required">required</span></label>
+            <div class=""><input type="text" class="form-control" id="new-user-username" placeholder="Username" name="userName" data-ng-model="editUser.username" required></div>
         </div>
         <div class="col-md-3">
-            <label for="new-user-email" class="control-label">Email <span class="error" ng-show="userForm.email.$error.required">required</span><span class="alert alert-warning" ng-show="userForm.email.$error.email && !userForm.$pristine">invalid</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-email" placeholder="Email" name="email" ng-model="editUser.email" required></div>
+            <label for="new-user-email" class="control-label">Email <span class="error" data-ng-show="userForm.email.$error.required">required</span><span class="alert alert-warning" data-ng-show="userForm.email.$error.email && !userForm.$pristine">invalid</span></label>
+            <div class=""><input type="text" class="form-control" id="new-user-email" placeholder="Email" name="email" data-ng-model="editUser.email" required></div>
         </div>
         <div class="col-md-3">
-            <label for="new-user-forename" class="control-label">Forename <span class="error" ng-show="userForm.forename.$error.required && !userForm.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename" name="forename" ng-model="editUser.forename" required></div>
+            <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userForm.forename.$error.required && !userForm.$pristine"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename" name="forename" data-ng-model="editUser.forename" required></div>
         </div>
         <div class="col-md-3">
-            <label for="new-user-surname" class="control-label">Surname <span class="error" ng-show="userForm.surname.$error.required && !userForm.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname" name="surname" ng-model="editUser.surname" required></div>
+            <label for="new-user-surname" class="control-label">Surname <span class="error" data-ng-show="userForm.surname.$error.required && !userForm.$pristine"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname" name="surname" data-ng-model="editUser.surname" required></div>
         </div>
-        <input type="hidden" ng-model="editUser.contactNumber">
+        <input type="hidden" data-ng-model="editUser.contactNumber">
     </div>
 </div>
 <br/>
-<button type="button" class="btn blue pull-right" ng-click="save(userForm, editUser)" ng-disabled="userForm.$pristine || !userForm.$valid">Save</button>
-<span class="saved-notification pull-right" ng-show="userForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+<button type="button" class="btn blue pull-right" data-ng-click="save(userForm, editUser)" data-ng-disabled="userForm.$pristine || !userForm.$valid">Save</button>
+<span class="saved-notification pull-right" data-ng-show="userForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <div class="row form-edit-row">
     <hr/>
     <div class="col-md-6 grey-right-border">
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles </label>
-            <ul class="group-list-item unstyled inline clearfix" ng-repeat="groupRole in editUser.groupRoles" ng-show="groupRole.group.visible === true">
+            <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles" data-ng-show="groupRole.group.visible === true">
                 <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span></li>
                 <li class="group-list-role pull-left">( <span class="group-list-role">{{groupRole.role.description}}</span> )</li>
-                <li class="group-list-delete pull-left" ng-show="permissions.allGroupsIds[groupRole.group.id]">
+                <li class="group-list-delete pull-left" data-ng-show="permissions.allGroupsIds[groupRole.group.id]">
                     <span class="group-list-delete">
                         <button class="btn negative" id="remove-group-{{groupRole.group.id}}"
-                            ng-click="removeGroupRole(userForm, editUser, groupRole)" >Delete</button>
+                            data-ng-click="removeGroupRole(userForm, editUser, groupRole)" >Delete</button>
                     </span>
                 </li>
             </ul>
         </div>
-        <div class="group-add-container add-container" ng-show="allGroups.length > 0 ">
+        <div class="group-add-container add-container" data-ng-show="allGroups.length > 0 ">
             <label class="inner-title">Add New Group &amp; Role </label>
             <div class="select-add-group">
-                <select class="form-control" ng-model="editUser.groupToAdd"
-                    ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in allGroups | orderBy:[orderGroups,'name']">
+                <select class="form-control" data-ng-model="editUser.groupToAdd"
+                    data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in allGroups | orderBy:[orderGroups,'name']">
                 </select>
                 <div class="bracket-input">
                     <span class="bracket pre">(</span>
-                    <select class="form-control" ng-model="editUser.selectedRole"
-                        ng-options="role.id as role.description for role in editUser.roles">
+                    <select class="form-control" data-ng-model="editUser.selectedRole"
+                        data-ng-options="role.id as role.description for role in editUser.roles">
                     </select>
                     <span class="bracket post">)</span>
                 </div>
                 <button type="button" class="btn blue group-add-button"
-                        ng-click="addGroupRole(userForm, editUser, editUser.groupToAdd, editUser.selectedRole)"
-                        ng-disabled="!editUser.selectedRole">Add</button>
+                        data-ng-click="addGroupRole(userForm, editUser, editUser.groupToAdd, editUser.selectedRole)"
+                        data-ng-disabled="!editUser.selectedRole">Add</button>
             </div>
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
@@ -61,16 +61,16 @@
     <div class="col-md-6">
         <div class="added-container">
             <label class="inner-title">Features</label>
-            <div class="feature-list-item" ng-repeat="feature in editUser.userFeatures">
+            <div class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures">
                 <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
-                <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" ng-click="removeFeature(userForm, editUser, feature)" >Delete</a></span></div>
+                <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userForm, editUser, feature)" >Delete</a></span></div>
             </div>
         </div>
-        <div class="feature-add-container add-container" ng-show="editUser.availableFeatures.length > 0 ">
+        <div class="feature-add-container add-container" data-ng-show="editUser.availableFeatures.length > 0 ">
             <label class="inner-title">Add New Feature </label>
             <div class="add-feature">
-                <select class="form-control feature-select" ng-model="editUser.featureToAdd" ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
-                <button type="button" class="btn blue feature-add-button" ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
+                <select class="form-control feature-select" data-ng-model="editUser.featureToAdd" data-ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
+                <button type="button" class="btn blue feature-add-button" data-ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
             </div>
         </div>
     </div>

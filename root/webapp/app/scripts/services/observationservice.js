@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').factory('ObservationService', ['$q', 'Restangular', function ($q, Restangular) {
+angular.module('patientviewApp').factory('ObservationService', ['$q', 'Restangular', 'UtilService',
+function ($q, Restangular, UtilService) {
     return {
         getObservation: function (uuid, typeName) {
             var deferred = $q.defer();
@@ -40,6 +41,33 @@ angular.module('patientviewApp').factory('ObservationService', ['$q', 'Restangul
             var deferred = $q.defer();
             // GET /user/{userId}/observations/summary
             Restangular.one('user', userId).one('observations').one('summary').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        saveResultClusters: function (userId, resultClusters) {
+            var toSend = [];
+
+            for (var i=0;i<resultClusters.length;i++) {
+                var userResultCluster = _.clone(resultClusters[i]);
+                var values = [];
+
+                for (var key in userResultCluster.values) {
+                    if (userResultCluster.values.hasOwnProperty(key)) {
+                        values.push({"id":key,"value":userResultCluster.values[key]});
+                    }
+                }
+
+                userResultCluster.values = values;
+                toSend.push(UtilService.cleanObject(userResultCluster, 'resultCluster'));
+            }
+
+            var deferred = $q.defer();
+            // POST /user/{userId}/observations/resultclusters
+            Restangular.one('user', userId).one('observations').one('resultclusters').customPOST(toSend)
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

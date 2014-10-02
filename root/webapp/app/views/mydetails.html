@@ -1,17 +1,17 @@
-<h1>My Details</h1>
+<h1 data-ng-show="!loading">My Details</h1>
 
-<div class="patient-details">
+<div class="patient-details" data-ng-show="!loading">
     <!-- patient details from FHIR -->
-    <div ng-show="!loading && patientDetails.length">
+    <div data-ng-show="patientDetails.length">
         <div class="details-filter clearfix">
             <div class="pull-right">Information provided by: &nbsp;&nbsp;
-                <label ng-repeat="patient in patientDetails">
-                    <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">
+                <label data-ng-repeat="patient in patientDetails">
+                    <input type="checkbox" value="{{patient.group.name}}" data-ng-model="patient.group.selected">
                     <span class="checkbox-label">{{patient.group.name}}</span>
                 </label>
             </div>
         </div>
-        <div ng-repeat="patient in patientDetails" ng-show="patient.group.selected" class="details-container">
+        <div data-ng-repeat="patient in patientDetails" data-ng-show="patient.group.selected" class="details-container">
 
                 <div class="panel panel-default">
                     <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
@@ -38,7 +38,7 @@
                                 <tr>
                                     <td class="forced-width">NHS Number</td>
                                     <td>
-                                        <span ng-repeat="identifier in patient.fhirPatient.identifiers" ng-show="identifier.label === 'NHS_NUMBER'">
+                                        <span data-ng-repeat="identifier in patient.fhirPatient.identifiers" data-ng-show="identifier.label === 'NHS_NUMBER'">
                                             {{identifier.value}}
                                         </span>
                                     </td>
@@ -46,7 +46,7 @@
                                 <tr>
                                     <td class="forced-width">Hospital Number</td>
                                     <td>
-                                        <span ng-repeat="identifier in patient.fhirPatient.identifiers" ng-show="identifier.label === 'HOSPITAL_NUMBER'">
+                                        <span data-ng-repeat="identifier in patient.fhirPatient.identifiers" data-ng-show="identifier.label === 'HOSPITAL_NUMBER'">
                                             {{identifier.value}}
                                         </span>
                                     </td>
@@ -64,14 +64,14 @@
                                 <tr>
                                     <td class="forced-width">Phone Number(s)</td>
                                     <td>
-                                        <span ng-repeat="phoneNumber in patient.fhirPatient.phoneNumbers">
+                                        <span data-ng-repeat="phoneNumber in patient.fhirPatient.phoneNumbers">
                                             {{phoneNumber}}<br/>
                                         </span>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
-                        <table ng-show="patient.fhirPractitioner" class="table table-bordered">
+                        <table data-ng-show="patient.fhirPractitioner" class="table table-bordered">
                             <tbody>
                                 <tr><td colspan="2"><h4>GP Details</h4></td></tr>
                                 <tr>
@@ -91,7 +91,7 @@
                                 <tr>
                                     <td class="forced-width">Phone Number (s)</td>
                                     <td>
-                                        <span ng-repeat="phoneNumber in patient.fhirPractitioner.phoneNumbers">
+                                        <span data-ng-repeat="phoneNumber in patient.fhirPractitioner.phoneNumbers">
                                             {{phoneNumber}}<br/>
                                         </span>
                                     </td>
@@ -106,14 +106,14 @@
             <div class="panel panel-default">
                 <!-- More About Me -->
                 <div class="panel-heading"><h3>More About Me</h3></div>
-                <div ng-show="!loading">
+                <div data-ng-show="!loading">
                     <div class="panel-body">
                         <div class="row">
                             <div class="form-horizontal" role="form">
                                 <div class="col-md-12">
                                     <label for="should-know-input" class="control-label">Things people should know about me</label>
                                     <div>
-                                        <textarea id="should-know-input" ng-model="moreAboutMe.shouldKnow" class="form-control"
+                                        <textarea id="should-know-input" data-ng-model="moreAboutMe.shouldKnow" class="form-control"
                                                   placeholder="E.g. my interests and relevant personal details" ></textarea>
                                     </div>
                                 </div>
@@ -124,29 +124,26 @@
                                 <div class="col-md-12">
                                     <label for="talk-about-input" class="control-label">Things I'd like to talk about</label>
                                     <div>
-                                        <textarea id="talk-about-input" ng-model="moreAboutMe.talkAbout" class="form-control"
+                                        <textarea id="talk-about-input" data-ng-model="moreAboutMe.talkAbout" class="form-control"
                                                   placeholder="E.g. how my treatment is progressing or possible questions about new treatment options"></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <br/>
-                        <button class="btn blue" ng-click="saveMoreAboutMe(moreAboutMe)">Save</button>
+                        <button class="btn blue" data-ng-click="saveMoreAboutMe(moreAboutMe)">Save</button>
                         <span>{{moreAboutMeMessage}}</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div ng-show="!loading && !patientDetails.length">
+    <div data-ng-show="!loading && !patientDetails.length">
         <p>Your patient details are not currently stored in PatientView.</p>
     </div>
-
-
-
-    <div ng-show="loading" class="container"><br/>
-        <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Details</h3>
     </div>
 </div>
-
-

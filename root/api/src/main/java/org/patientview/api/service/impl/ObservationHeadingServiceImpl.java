@@ -8,9 +8,11 @@ import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
+import org.patientview.persistence.model.ResultCluster;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
+import org.patientview.persistence.repository.ResultClusterRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,6 +42,9 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     private GroupRepository groupRepository;
+
+    @Inject
+    private ResultClusterRepository resultClusterRepository;
 
     public ObservationHeading add(final ObservationHeading observationHeading) {
         if (observationHeadingExists(observationHeading)) {
@@ -116,6 +121,10 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         observationHeadingGroupRepository.delete(observationHeadingGroup);
     }
 
+    public List<ResultCluster> getResultClusters() {
+        return Util.convertIterable(resultClusterRepository.findAll());
+    }
+
     public void delete(final Long observationHeadingId) {
         observationHeadingRepository.delete(observationHeadingId);
     }
@@ -142,6 +151,10 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         return observationHeadingRepository.findAllMinimal(pageable);
+    }
+
+    public List<ObservationHeading> findByCode(final String code) {
+        return observationHeadingRepository.findByCode(code);
     }
 
     public List<ObservationHeading> findAll() {

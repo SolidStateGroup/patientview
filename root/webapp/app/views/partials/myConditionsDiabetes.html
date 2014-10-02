@@ -1,20 +1,20 @@
 
-<div ng-show="!patientDetails.length">
+<div data-ng-show="!patientDetails.length">
     <br/>
     <p>Your conditions have not yet been added to PatientView by the {{currentSpecialty.name}} specialty.</p>
 </div>
 
-<div class="details-filter clearfix" ng-show="patientDetails.length">
+<div class="details-filter clearfix" data-ng-show="patientDetails.length">
     <div class="pull-right">Information provided by: &nbsp;&nbsp;
-        <label ng-repeat="patient in patientDetails">
-            <input type="checkbox" value="{{patient.group.name}}" ng-model="patient.group.selected">
+        <label data-ng-repeat="patient in patientDetails">
+            <input type="checkbox" value="{{patient.group.name}}" data-ng-model="patient.group.selected">
             <span class="checkbox-label">{{patient.group.name}}</span>
         </label>
     </div>
 </div>
 
-<div ng-show="patientDetails.length">
-    <div ng-repeat="patient in patientDetails" ng-show="patient.group.selected">
+<div data-ng-show="patientDetails.length">
+    <div data-ng-repeat="patient in patientDetails" data-ng-show="patient.group.selected">
         <div class="panel panel-default">
             <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
             <div class="panel-body">
@@ -24,10 +24,10 @@
                     <tr>
                         <td class="forced-width">Diagnosis</td>
                         <td>
-                            <dl class="conditions-link-list unstyled" ng-repeat="code in patient.diagnosisCodes">
+                            <dl class="conditions-link-list unstyled" data-ng-repeat="code in patient.diagnosisCodes">
                                 <dt><h5>{{code.description}}:</h5></dt>
                                 <dd>
-                                    <span ng-repeat="link in code.links">
+                                    <span data-ng-repeat="link in code.links">
                                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                     </span>
                                 </dd>
@@ -39,7 +39,7 @@
                         <td class="forced-width">Other Conditions</td>
                         <td>
                             <ul>
-                                <li ng-repeat="condition in patient.fhirConditions" ng-show="condition.category === 'diagnosis'">
+                                <li data-ng-repeat="condition in patient.fhirConditions" data-ng-show="condition.category === 'diagnosis'">
                                     {{condition.notes}}
                                 </li>
                             </ul>
@@ -49,7 +49,7 @@
                     <tr>
                         <td class="forced-width">Treatment</td>
                         <td>
-                            <span ng-repeat="encounter in patient.fhirEncounters" ng-show="encounter.identifier === 'TREATMENT'">
+                            <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.identifier === 'TREATMENT'">
                                 {{encounter.type}}
                             </span>
                         </td>
@@ -57,7 +57,7 @@
                     <tr>
                         <td class="forced-width">Transplant Status</td>
                         <td>
-                            <span ng-repeat="encounter in patient.fhirEncounters" ng-show="encounter.identifier === 'TRANSPLANT_STATUS'">
+                            <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.identifier === 'TRANSPLANT_STATUS'">
                                 {{encounter.type}}
                             </span>
                         </td>
@@ -66,13 +66,13 @@
                     </tbody>
                 </table>
 
-                <table class="table table-bordered" ng-show="patient.group.links">
+                <table class="table table-bordered" data-ng-show="patient.group.links">
                     <tbody>
                         <tr><td colspan="2"><h4>Other Helpful Information</h4></td></tr>
                         <tr>
                             <td colspan="2">
                                 <ul>
-                                    <li ng-repeat="link in patient.group.links">
+                                    <li data-ng-repeat="link in patient.group.links">
                                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
                                     </li>
                                 </ul>

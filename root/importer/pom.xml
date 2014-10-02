@@ -5,11 +5,11 @@
   <parent>
     <groupId>org.patientview</groupId>
     <artifactId>root</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
   </parent>
   <groupId>patientview</groupId>
   <artifactId>importer</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <name>importer</name>
   <packaging>war</packaging>
   <url>http://maven.apache.org</url>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>data</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.2-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>data</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.2-SNAPSHOT</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>

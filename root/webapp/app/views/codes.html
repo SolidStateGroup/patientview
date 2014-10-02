@@ -1,7 +1,7 @@
-<div class="page-content" ng-show="!loading">
-    <h1>Codes <button class="btn blue" ng-click="openModalNewCode('lg')">Create New</button></h1>
+<div class="page-content" data-ng-show="!loading">
+    <h1>Codes <button class="btn blue" data-ng-click="openModalNewCode('lg')">Create New</button></h1>
 
-    <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
+    <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 
     <!-- delete code modal template -->
     <script type="text/ng-template" id="deleteCodeModal.html">
@@ -12,8 +12,8 @@
             <p>Are you sure? This will delete code <strong>{{code.code}}</strong>.</p>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()">Delete</button>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()">Delete</button>
         </div>
     </script>
 
@@ -23,25 +23,25 @@
             <h3 class="modal-title">Create New Code</h3>
         </div>
         <div class="modal-body">
-            <form name="codeFormNew" ng-model="editCode">
-                <div ng-include src="'views/partials/codeDetailsNew.html'" ng-controller="CodeDetailsCtrl"></div>
+            <form name="codeFormNew" data-ng-model="editCode">
+                <div data-ng-include src="'views/partials/codeDetailsNew.html'" data-ng-controller="CodeDetailsCtrl"></div>
             </form>
         </div>
         <div class="modal-footer">
-            <div class="alert alert-danger" ng-show="errorMessage">There was an error {{errorMessage}}</div>
-            <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" ng-click="ok()" ng-disabled="!codeFormNew.$valid">Create New</button>
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()" data-ng-disabled="!codeFormNew.$valid">Create New</button>
         </div>
     </script>
 
-    <div ng-show="!loading" ng-cloak>
+    <div data-ng-show="!loading" data-ng-cloak>
 
         <!-- Filter -->
         <div class="content-panel filter-panel">
             <div class="">
                 <div class="search-container">
                     <i class="icon-search-black"></i>
-                    <input type="text" ng-model="searchText" placeholder="Search all fields..." class="form-control input-block-level" />
+                    <input type="text" data-ng-model="searchText" placeholder="Search all fields..." class="form-control input-block-level" />
                 </div>
             </div>
             <div class="panel-footer clearfix">
@@ -60,7 +60,7 @@
                                     <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
-                            <span data-ng-repeat="type in codeTypes" ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
+                            <span data-ng-repeat="type in codeTypes" data-ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
                         </div>
                         <div class="select-container pull-left">
                             <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
@@ -71,7 +71,7 @@
                                     <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
-                            <span data-ng-repeat="type in standardTypes" ng-show="isStandardTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
+                            <span data-ng-repeat="type in standardTypes" data-ng-show="isStandardTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
                         </div>
                     </div>
                 </div>
@@ -79,19 +79,19 @@
         </div>
 
         <!-- data grid -->
-        <div class="faux-table five-col" data-ng-show="pagedItems.length  > 0" ng-cloak>
+        <div class="faux-table five-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
             <!-- header -->
             <div class="accordion-title-row table-head">
                 <div class="hidden">ID</div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('codeType');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('standardType');" class="sort-title"><i class="icon-sort pull-right"></i>Standard</a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('description');" class="sort-title"><i class="icon-sort pull-right"></i>Description</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('codeType');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('standardType');" class="sort-title"><i class="icon-sort pull-right"></i>Standard</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('description');" class="sort-title"><i class="icon-sort pull-right"></i>Description</a></div>
                 <div class="head-item accordion-title-text "><a class="sort-title"></a></div>
             </div>
 
             <!-- body -->
-            <div class="item-header" ng-repeat="code in pagedItems">
+            <div class="item-header" data-ng-repeat="code in pagedItems">
                 <div class="faux-row">
                     <div class="row-item hidden">{{code.id}}</div>
                     <div class="row-item accordion-heading-text">{{code.code}}</div>
@@ -101,20 +101,20 @@
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="btn-group pull-right">
-                            <button type="button" class="btn blue" ng-click="opened(code)">Edit</button>
-                            <button type="button" class="btn aquamarine" ng-click="clone(code.id, $event)">Copy</button>
-                            <button type="button" class="btn negative" ng-click="remove(code.id, $event)">Delete</button>
+                            <button type="button" class="btn blue" data-ng-click="opened(code)">Edit</button>
+                            <button type="button" class="btn aquamarine" data-ng-click="clone(code.id, $event)">Copy</button>
+                            <button type="button" class="btn negative" data-ng-click="remove(code.id, $event)">Delete</button>
                         </div>
                     </div>
                 </div>
                 <!-- edit pane -->
-                <div class="panel-body" ng-show="code.showEdit">
-                    <div ng-show="code.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-                    <div ng-show="!code.editLoading">
+                <div class="panel-body" data-ng-show="code.showEdit">
+                    <div data-ng-show="code.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div data-ng-show="!code.editLoading">
                         <form name="codeForm" class="edit-code">
-                            <div ng-include src="'views/partials/codeDetails.html'" ng-controller="CodeDetailsCtrl"></div>
+                            <div data-ng-include src="'views/partials/codeDetails.html'" data-ng-controller="CodeDetailsCtrl"></div>
                         </form>
-                        <div class="panel-body-footer"><button class="btn btn-grey pull-right" ng-click="code.showEdit = false">Close</button></div>
+                        <div class="panel-body-footer"><button class="btn btn-grey pull-right" data-ng-click="code.showEdit = false">Close</button></div>
                     </div>
                 </div>
             </div>
@@ -127,16 +127,16 @@
 
         <!-- pagination -->
         <div class="col-md-12" data-ng-show="pagedItems.length > 0">
-            <div ng-show="pagedItems.length > 0 && totalPages > 1">
+            <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
                 <ul class="pagination">
-                    <li ng-class="prevPageDisabled()">
-                        <a href ng-click="prevPage()">« Prev</a>
+                    <li data-ng-class="prevPageDisabled()">
+                        <a href data-ng-click="prevPage()">« Prev</a>
                     </li>
-                    <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+                    <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
                         <a href>{{n+1}}</a>
                     </li>
-                    <li ng-class="nextPageDisabled()">
-                        <a href ng-click="nextPage()">Next »</a>
+                    <li data-ng-class="nextPageDisabled()">
+                        <a href data-ng-click="nextPage()">Next »</a>
                     </li>
                 </ul>
             </div>
@@ -145,8 +145,8 @@
     </div>
 </div>
 
-<div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading">
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
         <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Codes</h3>
     </div>
 </div>

@@ -14,12 +14,9 @@ import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Lookup;
-import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
-import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -41,9 +38,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private UserRepository userRepository;
 
     @Inject
-    private LookupRepository lookupRepository;
-
-    @Inject
     private IdentifierRepository identifierRepository;
 
     @Inject
@@ -54,8 +48,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private GroupRepository groupRepository;
-
-    private Lookup nhsIdentifier;
 
     /**
      * We link fhir records against NHS Number, Unit and User.
@@ -118,16 +110,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     private void update(FhirLink fhirLink) {
         if (fhirLink != null) {
-            //try {
-                // todo: do we want to update an existing patient record or create new? create new allows us to easily keep history
-                //Resource resource = fhirResource.get(fhirLink.getResourceId(), ResourceType.valueOf(fhirLink.getResourceType()));
-                //UUID versionId =  fhirResource.update(resource, fhirLink);
-                //fhirLink.setVersionId(versionId);
-                fhirLink.setActive(false);
-                fhirLinkRepository.save(fhirLink);
-            //} catch (FhirResourceException e) {
-            //    LOG.error("Could update patient resource ", e);
-            //}
+            fhirLink.setActive(false);
+            fhirLinkRepository.save(fhirLink);
         }
     }
 
@@ -138,18 +122,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             LOG.error("Could not build patient resource", e);
             throw new FhirResourceException(e.getMessage());
         }
-    }
-
-    private Identifier matchPatientByNhsNumber(Patientview patientview) throws ResourceNotFoundException {
-        nhsIdentifier = lookupRepository.findByTypeAndValue(LookupTypes.IDENTIFIER, "NHS_NUMBER");
-        Identifier identifier = identifierRepository.findByTypeAndValue(
-                patientview.getPatient().getPersonaldetails().getNhsno(), nhsIdentifier);
-
-        if (identifier == null) {
-            throw new ResourceNotFoundException("The NHS number is not linked with PatientView");
-        }
-
-        return identifier;
     }
 
     public Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException {

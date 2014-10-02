@@ -21,6 +21,16 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
             });
             return deferred.promise;
         },
+        getResultClusters: function () {
+            var deferred = $q.defer();
+            // GET /resultclusters
+            Restangular.one('resultclusters').get().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // create new observation heading
         create: function (observationHeading) {
             observationHeading = UtilService.cleanObject(observationHeading, 'observationHeading');

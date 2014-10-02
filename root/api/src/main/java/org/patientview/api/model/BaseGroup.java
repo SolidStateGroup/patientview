@@ -1,5 +1,7 @@
 package org.patientview.api.model;
 
+import org.patientview.persistence.model.Lookup;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
@@ -11,6 +13,7 @@ public class BaseGroup {
     private String shortName;
     private String code;
     private Boolean visible;
+    private Lookup groupType;
 
     public BaseGroup() {
 
@@ -22,6 +25,7 @@ public class BaseGroup {
         setName(group.getName());
         setShortName(group.getShortName());
         setVisible(group.getVisible());
+        setGroupType(group.getGroupType());
     }
 
     public Long getId() {
@@ -62,5 +66,13 @@ public class BaseGroup {
 
     public void setVisible(Boolean visible) {
         this.visible = visible;
+    }
+
+    public Lookup getGroupType() {
+        return groupType;
+    }
+
+    public void setGroupType(Lookup groupType) {
+        this.groupType = groupType;
     }
 }

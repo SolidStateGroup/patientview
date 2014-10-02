@@ -5,6 +5,7 @@ import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.ResultCluster;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Restful interface for the basic Crud operation for observation (result) headings.
@@ -86,5 +88,12 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     public void removeObservationHeadingGroup(@PathVariable("observationHeadingGroupId") Long observationHeadingGroupId)
             throws ResourceNotFoundException {
         observationHeadingService.removeObservationHeadingGroup(observationHeadingGroupId);
+    }
+
+    // ResultCluster for patient entered results
+    @RequestMapping(value = "/resultclusters", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ResultCluster>> getResultClusters() {
+        return new ResponseEntity<>(observationHeadingService.getResultClusters(), HttpStatus.OK);
     }
 }

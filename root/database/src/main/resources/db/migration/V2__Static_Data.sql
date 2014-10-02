@@ -74,6 +74,9 @@ INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (4, 'IBD', 'IBD', null, 2, true, now(), 1, true);
 INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (5, 'ECS', 'GP', null, 1, true, now(), 1, true);
 
+/* used for storing user entered results */
+INSERT INTO pv_group(id, Group_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join, Group_Short_Name) VALUES (6, 'Patient Entered Data', 'PATIENT_ENTERED', null, 2, false, now(), 1, false, 'Patient Entered');
+
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (1, 'PATIENT', '7', '2', true, 'Patient', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (2, 'UNIT_ADMIN', '6', '4', true, 'Unit Admin', now(), '1');
 INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creation_date, created_by) VALUES (3, 'STAFF_ADMIN', '6', '3', true, 'Unit Staff', now(), '1');
@@ -146,6 +149,8 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
   (19, 4, 40,  '/myconditions', 'views/myconditions.html','MyconditionsCtrl', 'My Conditions', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (20, 4, 105,  '/resultheadings', 'views/observationheadings.html','ObservationHeadingsCtrl', 'Result Headings', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (21, 5, 55,  '/resultsenter', 'views/resultsenter.html','ResultsEnterCtrl', 'Enter Own Results', now(), 1 );
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (1, 1, 1, null, null, now(), 1 );
@@ -211,6 +216,8 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
   (31, 20, null, 5, null, now(), 1 );
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (32, 9, null, 1, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (33, 21, null, 1, null, now(), 1 );
 
 
 INSERT INTO PV_User_Token(Id, User_Id, Token, Creation_Date) VALUES

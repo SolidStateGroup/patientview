@@ -3,7 +3,6 @@ package org.patientview.api.model;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
-import org.patientview.persistence.model.Lookup;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,7 +15,6 @@ import java.util.Set;
  */
 public class Group extends BaseGroup{
 
-    private Lookup groupType;
     private Set<GroupFeature> groupFeatures = new HashSet<>();
     private List<Group> parentGroups = new ArrayList<>();
     private List<Group> childGroups = new ArrayList<>();
@@ -53,14 +51,6 @@ public class Group extends BaseGroup{
                 getLinks().add(link);
             }
         }
-    }
-
-    public Lookup getGroupType() {
-        return groupType;
-    }
-
-    public void setGroupType(final Lookup groupType) {
-        this.groupType = groupType;
     }
 
     public Set<GroupFeature> getGroupFeatures() {

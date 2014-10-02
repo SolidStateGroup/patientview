@@ -1,29 +1,30 @@
-<h1>My Conditions</h1>
-<div class="patient-details">
+<h1 data-ng-show="!loading">My Conditions</h1>
+<div class="patient-details" data-ng-show="!loading">
     <div class="">
         <div class="">
             <!-- patient details from FHIR -->
-            <div ng-show="!loading && specialties && specialties.length > 1">
+            <div data-ng-show="specialties && specialties.length > 1">
                 <div class="specialty-switcher btn-group">
-                    <a href="" ng-repeat="specialty in specialties" ng-click="changeSpecialty(specialty)"
-                       class="btn blue" ng-class="{active:currentSpecialty.code === specialty.code}">{{specialty.name}}</a>
+                    <a href="" data-ng-repeat="specialty in specialties" data-ng-click="changeSpecialty(specialty)"
+                       class="btn blue" data-ng-class="{active:currentSpecialty.code === specialty.code}">{{specialty.name}}</a>
                 </div>
             </div>
-            <div ng-show="!loading && currentSpecialty">
+            <div data-ng-show="currentSpecialty">
                 <h5 class="hidden">Your conditions as provided by the {{currentSpecialty.name}} specialty</h5>
-                <div ng-include src="'views/partials/myConditionsRenal.html'" ng-show="currentSpecialty.code === 'Renal'"></div>
-                <div ng-include src="'views/partials/myConditionsDiabetes.html'" ng-show="currentSpecialty.code === 'Diabetes'"></div>
-                <div ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes'">
+                <div data-ng-include src="'views/partials/myConditionsRenal.html'" data-ng-show="currentSpecialty.code === 'Renal'"></div>
+                <div data-ng-include src="'views/partials/myConditionsDiabetes.html'" data-ng-show="currentSpecialty.code === 'Diabetes'"></div>
+                <div data-ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes'">
                     <br/>My Conditions is not currently available for the {{currentSpecialty.name}} specialty
                 </div>
             </div>
-            <div ng-show="!loading && !currentSpecialty">
+            <div data-ng-show="!currentSpecialty">
                 <p>Your conditions are not currently stored in PatientView.</p>
-            </div>
-            <div ng-show="loading" class="container"><br/>
-                <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div><br/>
             </div>
         </div>
     </div>
-
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Conditions</h3>
+    </div>
 </div>

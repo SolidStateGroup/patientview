@@ -1,30 +1,30 @@
-<div class="hider" ng-show="status.open"></div>
+<div class="hider" data-ng-show="status.open"></div>
 
 <div>
-    <h1 ng-show="!loading">Staff <button class="btn blue" ng-click="openModalNewStaff('lg')">Create New</button></h1>
+    <h1 data-ng-show="!loading">Staff <button class="btn blue" data-ng-click="openModalNewStaff('lg')">Create New</button></h1>
 
-    <div class="alert alert-danger" ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
+    <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
-    <div ng-show="!fatalErrorMessage && !loading" ng-cloak>
+    <div data-ng-show="!fatalErrorMessage && !loading" data-ng-cloak>
         <!-- new staff modal -->
         <script type="text/ng-template" id="newStaffModal.html">
             <div class="modal-header">
-                <h3 class="modal-title" ng-show="!existingUser">Create New Staff User</h3>
-                <h3 class="modal-title" ng-show="existingUser">Existing Staff User</h3>
+                <h3 class="modal-title" data-ng-show="!existingUser">Create New Staff User</h3>
+                <h3 class="modal-title" data-ng-show="existingUser">Existing Staff User</h3>
             </div>
             <div class="modal-body">
-                <form name="userFormNew" ng-show="!existingUser">
-                    <div ng-include src="'views/partials/staffDetailsNew.html'" ng-controller="UserDetailsCtrl"></div>
+                <form name="userFormNew" data-ng-show="!existingUser">
+                    <div data-ng-include src="'views/partials/staffDetailsNew.html'" data-ng-controller="UserDetailsCtrl"></div>
                 </form>
-                <form name="userFormExisting" ng-show="existingUser">
-                    <div ng-include src="'views/partials/staffDetailsExisting.html'" ng-controller="UserDetailsCtrl"></div>
+                <form name="userFormExisting" data-ng-show="existingUser">
+                    <div data-ng-include src="'views/partials/staffDetailsExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
                 </form>
             </div>
             <div class="modal-footer">
-                <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
-                <div class="alert alert-warning" ng-show="warningMessage">{{warningMessage}}</div>
-                <button class="btn btn-grey" ng-click="cancel()">Close</button>
-                <button class="btn btn-primary" ng-click="create()" ng-show="!existingUser" ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+                <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+                <button class="btn btn-primary" data-ng-click="create()" data-ng-show="!existingUser" data-ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
             </div>
         </script>
 
@@ -37,9 +37,9 @@
                 <p>Are you sure? This will delete user with username <strong>{{user.username}}</strong>.</p>
             </div>
             <div class="modal-footer">
-                <div class="alert alert-danger" ng-show="errorMessage">{{errorMessage}}</div>
-                <button class="btn btn-grey" ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" ng-click="ok()">Delete</button>
+                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+                <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+                <button class="btn btn-primary" data-ng-click="ok()">Delete</button>
             </div>
         </script>
 
@@ -47,7 +47,7 @@
         <div class="content-panel filter-panel">
             <div class="search-container">
                 <i class="icon-search-black"></i>
-                <input type="text" ng-model="searchText" placeholder="Search by name or email..." class="form-control input-block-level" />
+                <input type="text" data-ng-model="searchText" placeholder="Search by name or email..." class="form-control input-block-level" />
             </div>
         </div>
         <div class="panel-footer clearfix">
@@ -63,7 +63,7 @@
                                 <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role clearfix"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
                             </ul>
                         </div>
-                        <span data-ng-repeat="role in allRoles" ng-show="isRoleChecked(role.id)"><span class="label label-info">{{role.description}}</span>&nbsp;</span>
+                        <span data-ng-repeat="role in allRoles" data-ng-show="isRoleChecked(role.id)"><span class="label label-info">{{role.description}}</span>&nbsp;</span>
                     </div>
                         <!-- filter by group -->
                     <div class="select-container pull-left">
@@ -75,7 +75,7 @@
                                 <li data-ng-repeat="group in allGroups"> <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix"><span class="pull-left">{{group.name}}</span><span data-ng-class="isGroupChecked(group.id)"></span></a></li>
                             </ul>
                         </div>
-                        <span data-ng-repeat="group in allGroups" ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</span>
+                        <span data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</span>
                     </div>
                 </div>
             </div>
@@ -84,48 +84,48 @@
             </div>
         </div>
 
-        <div class="alert alert-success" ng-show="successMessage">{{successMessage}}</div>
+        <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
-        <div class="faux-table six-col" data-ng-show="pagedItems.length  > 0" ng-cloak>
+        <div class="faux-table six-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
             <!-- header -->
             <div class="accordion-title-row table-head">
                 <div class="hidden">ID</div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('email');" class="sort-title"><i class="icon-sort pull-right"></i>Email</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('email');" class="sort-title"><i class="icon-sort pull-right"></i>Email</a></div>
                 <div class="head-item accordion-title-text " class="sort-title">Group (Role)</div>
                 <div class="head-item accordion-title-text " class="sort-title">Features</div>
-                <div class="head-item accordion-title-text "><a ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
                 <div class="head-item"><a class="sort-title"> </a></div>
             </div>
             <!-- body -->
-            <div class="item-header" ng-repeat="user in pagedItems">
+            <div class="item-header" data-ng-repeat="user in pagedItems">
                 <div class="faux-row">
                     <div class="row-item hidden">{{user.id}}</div>
                     <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
                     <div class="row-item accordion-heading-text">{{user.email}}</div>
                     <div class="row-item accordion-heading-text">
-                        <ul ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled">
-                            <div ng-if="groupRole.role.name !== 'MEMBER'">
+                        <ul data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled">
+                            <div data-ng-if="groupRole.role.name !== 'MEMBER'">
                                 <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
                             </div>
                         </ul>
                     </div>
-                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
+                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
                     <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
 
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="button-dropdown-group">
-                            <button type="button" class="btn blue pull-left" ng-click="opened(user)">Edit</button>
+                            <button type="button" class="btn blue pull-left" data-ng-click="opened(user)">Edit</button>
                             <div class="dropdown pull-left">
                                 <button class="btn blue dropdown-toggle" type="button" id="dropdownMenu1">
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
-                                    <li><a href="" ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
-                                    <li><a href="" ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
-                                    <li><a href="" ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
+                                    <li><a href="" data-ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
+                                    <li><a href="" data-ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
+                                    <li><a href="" data-ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -133,16 +133,16 @@
                 </div>
 
                 <!-- edit pane -->
-                <div class="panel-body" ng-show="user.showEdit">
-                    <div ng-show="user.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-                    <div ng-show="!user.editLoading">
+                <div class="panel-body" data-ng-show="user.showEdit">
+                    <div data-ng-show="user.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div data-ng-show="!user.editLoading">
                         <form name="userForm">
-                            <div ng-include src="'views/partials/staffDetails.html'" ng-controller="UserDetailsCtrl"></div>
+                            <div data-ng-include src="'views/partials/staffDetails.html'" data-ng-controller="UserDetailsCtrl"></div>
                         </form>
                         <hr>
-                        <div class="last-login pull-left" ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                        <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                         <div class="user-save-cancel panel-body-footer">
-                            <button type="button" class="btn btn-grey pull-right" ng-click="user.showEdit = false">Close</button>
+                            <button type="button" class="btn btn-grey pull-right" data-ng-click="user.showEdit = false">Close</button>
                         </div>
                     </div>
                 </div>
@@ -157,22 +157,22 @@
         <!-- pagination -->
         <div class="col-md-12" data-ng-show="pagedItems.length > 0 && totalPages > 1">
             <ul class="pagination">
-                <li ng-class="prevPageDisabled()">
-                    <a href ng-click="prevPage()">« Prev</a>
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
                 </li>
-                <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
                     <a href>{{n+1}}</a>
                 </li>
-                <li ng-class="nextPageDisabled()">
-                    <a href ng-click="nextPage()">Next »</a>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
                 </li>
             </ul>
         </div>
     </div>
 </div>
 
-<div ng-show="loading" class="container"><br/><br/>
-    <div ng-show="loading" class="loading">
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
         <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Staff</h3>
     </div>
 </div>

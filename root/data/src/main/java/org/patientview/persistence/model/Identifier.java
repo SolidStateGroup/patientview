@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -29,9 +30,9 @@ public class Identifier extends RangeModel {
     @Column(name = "identifier")
     private String identifier;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "identifier")
+    @OneToMany(mappedBy = "identifier")
     @JsonIgnore
-    private FhirLink fhirLink;
+    private List<FhirLink> fhirLink;
 
     @JsonIgnore
     public User getUser() {
@@ -58,11 +59,11 @@ public class Identifier extends RangeModel {
         this.identifier = identifier;
     }
 
-    public FhirLink getFhirLink() {
+    public List<FhirLink> getFhirLink() {
         return fhirLink;
     }
 
-    public void setFhirLink(final FhirLink fhirLink) {
+    public void setFhirLink(List<FhirLink> fhirLink) {
         this.fhirLink = fhirLink;
     }
 }

@@ -90,6 +90,11 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addParentAndChildGroups(groups);
     }
 
+    @Override
+    public Group findByCode(String code) {
+        return groupRepository.findByCode(code);
+    }
+
     public Group get(Long id) {
         return addSingleParentAndChildGroup(groupRepository.findOne(id));
     }

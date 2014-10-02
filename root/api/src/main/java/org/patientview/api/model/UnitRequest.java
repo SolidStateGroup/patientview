@@ -1,6 +1,5 @@
 package org.patientview.api.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.patientview.persistence.model.Group;
 
 import java.util.Date;

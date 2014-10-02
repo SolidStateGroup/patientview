@@ -1,20 +1,20 @@
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
-            <label for="result-heading-code" class="control-label">Code <span class="error" ng-show="observationHeadingFormNew.code.$error.required"> *required</span></label>
-            <div><input type="text" class="form-control" id="result-heading-code" placeholder="Code" name="code" ng-model="editObservationHeading.code" required></div>
+            <label for="result-heading-code" class="control-label">Code <span class="error" data-ng-show="observationHeadingFormNew.code.$error.required"> *required</span></label>
+            <div><input type="text" class="form-control" id="result-heading-code" placeholder="Code" name="code" data-ng-model="editObservationHeading.code" required></div>
         </div>
         <div class="col-md-3">
             <label for="result-heading-heading" class="control-label">Heading</label>
-            <div><input type="text" class="form-control" id="result-heading-heading" placeholder="Heading" name="heading" ng-model="editObservationHeading.heading"></div>
+            <div><input type="text" class="form-control" id="result-heading-heading" placeholder="Heading" name="heading" data-ng-model="editObservationHeading.heading"></div>
         </div>
         <div class="col-md-3">
             <label for="result-heading-name" class="control-label">Name</label>
-            <div><input type="text" class="form-control" id="result-heading-name" placeholder="Name" name="name" ng-model="editObservationHeading.name"></div>
+            <div><input type="text" class="form-control" id="result-heading-name" placeholder="Name" name="name" data-ng-model="editObservationHeading.name"></div>
         </div>
         <div class="col-md-3">
             <label for="result-heading-normal-range" class="control-label">Normal Range</label>
-            <div><input type="text" class="form-control" id="result-heading-normal-range" placeholder="Normal Range" name="normalRange" ng-model="editObservationHeading.normalRange"></div>
+            <div><input type="text" class="form-control" id="result-heading-normal-range" placeholder="Normal Range" name="normalRange" data-ng-model="editObservationHeading.normalRange"></div>
         </div>
     </div>
 </div>
@@ -22,15 +22,15 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="result-heading-units" class="control-label">Units</label>
-            <div><input type="text" class="form-control" id="result-heading-units" placeholder="Units" name="units" ng-model="editObservationHeading.units"></div>
+            <div><input type="text" class="form-control" id="result-heading-units" placeholder="Units" name="units" data-ng-model="editObservationHeading.units"></div>
         </div>
         <div class="col-md-3">
             <label for="result-heading-min-graph" class="control-label">Min Graphing Value</label>
-            <div><input type="text" class="form-control" id="result-heading-min-graph" placeholder="Min Graphing Value" name="minGraph" ng-model="editObservationHeading.minGraph" only-num-decimal></div>
+            <div><input type="text" class="form-control" id="result-heading-min-graph" placeholder="Min Graphing Value" name="minGraph" data-ng-model="editObservationHeading.minGraph" only-num-decimal></div>
         </div>
         <div class="col-md-3">
             <label for="result-heading-max-graph" class="control-label">Max Graphing Value</label>
-            <div><input type="text" class="form-control" id="result-heading-max-graph" placeholder="Max Graphing Value" name="maxGraph" ng-model="editObservationHeading.maxGraph" only-num-decimal></div>
+            <div><input type="text" class="form-control" id="result-heading-max-graph" placeholder="Max Graphing Value" name="maxGraph" data-ng-model="editObservationHeading.maxGraph" only-num-decimal></div>
         </div>
     </div>
 </div>
@@ -38,15 +38,15 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-6">
             <label for="result-heading-info-link" class="control-label">Info Link</label>
-            <div><input type="text" class="form-control" id="result-heading-info-link" placeholder="Info Link" name="infoLink" ng-model="editObservationHeading.infoLink"></div>
+            <div><input type="text" class="form-control" id="result-heading-info-link" placeholder="Info Link" name="infoLink" data-ng-model="editObservationHeading.infoLink"></div>
         </div>
         <div class="col-md-3">
             <label for="result-heading-default-panel" class="control-label">Default Panel</label>
-            <div><input type="text" class="form-control" id="result-heading-default-panel" placeholder="Default Panel" name="defaultPanel" ng-model="editObservationHeading.defaultPanel" only-num></div>
+            <div><input type="text" class="form-control" id="result-heading-default-panel" placeholder="Default Panel" name="defaultPanel" data-ng-model="editObservationHeading.defaultPanel" only-num></div>
         </div>
         <div class="col-md-3">
             <label for="result-heading-default-panel-order" class="control-label">Default Order on Panel</label>
-            <div><input type="text" class="form-control" id="result-heading-default-panel-order" placeholder="Default Order on Panel" name="defaultPanelOrder" ng-model="editObservationHeading.defaultPanelOrder" only-num></div>
+            <div><input type="text" class="form-control" id="result-heading-default-panel-order" placeholder="Default Order on Panel" name="defaultPanelOrder" data-ng-model="editObservationHeading.defaultPanelOrder" only-num></div>
         </div>
     </div>
 </div>
@@ -54,32 +54,32 @@
 <div class="row specialty-manager">
     <div class="added-container col-md-6">
         <label class="large-label">Current Specialty Specific Order</label>
-        <div class="added-specialty row" ng-repeat="observationHeadingGroup in editObservationHeading.observationHeadingGroups">
+        <div class="added-specialty row" data-ng-repeat="observationHeadingGroup in editObservationHeading.observationHeadingGroups">
             <div class="col-md-1 hidden">
                 {{observationHeadingGroup.id}}
             </div>
             <div class="col-md-4">
-                <label ng-show="observationHeadingGroup === editObservationHeading.observationHeadingGroups[0]">Specialty</label>
-                <select class="form-control" ng-model="observationHeadingGroup.group.id"
-                        ng-options="group.id as group.name for group in groups | orderBy:'name'">
+                <label data-ng-show="observationHeadingGroup === editObservationHeading.observationHeadingGroups[0]">Specialty</label>
+                <select class="form-control" data-ng-model="observationHeadingGroup.group.id"
+                        data-ng-options="group.id as group.name for group in groups | orderBy:'name'">
                 </select>
             </div>
             <div class="col-md-2">
-                <label ng-show="observationHeadingGroup === editObservationHeading.observationHeadingGroups[0]">Panel</label>
-                <input type="text" class="form-control" ng-model="observationHeadingGroup.panel" only-num/>
+                <label data-ng-show="observationHeadingGroup === editObservationHeading.observationHeadingGroups[0]">Panel</label>
+                <input type="text" class="form-control" data-ng-model="observationHeadingGroup.panel" only-num/>
             </div>
             <div class="col-md-3">
-                <label ng-show="observationHeadingGroup === editObservationHeading.observationHeadingGroups[0]">Panel Order</label>
-                <input type="text" class="form-control" ng-model="observationHeadingGroup.panelOrder" only-num/>
+                <label data-ng-show="observationHeadingGroup === editObservationHeading.observationHeadingGroups[0]">Panel Order</label>
+                <input type="text" class="form-control" data-ng-model="observationHeadingGroup.panelOrder" only-num/>
             </div>
             <div class="col-md-3">
-                <label ng-show="observationHeadingGroup === editObservationHeading.observationHeadingGroups[0]">Delete &nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <label data-ng-show="observationHeadingGroup === editObservationHeading.observationHeadingGroups[0]">Delete &nbsp;&nbsp;&nbsp;&nbsp;</label>
                 <div class="btn-group">
-                    <button class="btn negative" ng-click="removeSpecialtyOrder(observationHeadingGroup)">Delete</button>
+                    <button class="btn negative" data-ng-click="removeSpecialtyOrder(observationHeadingGroup)">Delete</button>
                 </div>
             </div>
         </div>
-        <div class="added-specialty row" ng-show="!editObservationHeading.observationHeadingGroups.length">
+        <div class="added-specialty row" data-ng-show="!editObservationHeading.observationHeadingGroups.length">
             <p>No specialty specific ordering, will use default order</p>
         </div>
     </div>
@@ -88,21 +88,21 @@
         <div class="added-specialty row">
             <div class="col-md-3">
                 <label>Specialty</label>
-                <select class="form-control" ng-model="newObservationHeadingGroup.groupId"
-                        ng-options="group.id as group.name for group in editObservationHeading.groups | orderBy:'name'">
+                <select class="form-control" data-ng-model="newObservationHeadingGroup.groupId"
+                    data-ng-options="group.id as group.name for group in editObservationHeading.groups | orderBy:'name'">
                 </select>
             </div>
             <div class="col-md-3">
                 <label>Panel</label>
-                <input type="text" class="form-control" ng-model="newObservationHeadingGroup.panel" only-num/>
+                <input type="text" class="form-control" data-ng-model="newObservationHeadingGroup.panel" only-num/>
             </div>
             <div class="col-md-3">
                 <label>Panel Order</label>
-                <input type="text" class="form-control" ng-model="newObservationHeadingGroup.panelOrder" only-num/>
+                <input type="text" class="form-control" data-ng-model="newObservationHeadingGroup.panelOrder" only-num/>
             </div>
             <div class="col-md-3 no-label">
-                <button class="btn blue" ng-click="createSpecialtyOrder(newObservationHeadingGroup)"
-                        ng-disabled="!newObservationHeadingGroup.groupId || !newObservationHeadingGroup.panel || !newObservationHeadingGroup.panelOrder">
+                <button class="btn blue" data-ng-click="createSpecialtyOrder(newObservationHeadingGroup)"
+                    data-ng-disabled="!newObservationHeadingGroup.groupId || !newObservationHeadingGroup.panel || !newObservationHeadingGroup.panelOrder">
                     Add
                 </button>
             </div>

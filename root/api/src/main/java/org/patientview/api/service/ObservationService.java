@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.ObservationSummary;
+import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 
@@ -21,5 +22,8 @@ public interface ObservationService {
     List<Observation> get(UUID patientUuid);
 
     List<ObservationSummary> getObservationSummary(Long userId)
+            throws ResourceNotFoundException, FhirResourceException;
+
+    void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 }
