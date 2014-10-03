@@ -26,33 +26,35 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         },
 
         validationDate: function (day, month, year) {
+
+            if (day === undefined || month === undefined || year === undefined) {
+                return false;
+            }
+
             // strip preceding 0 on dates if present
             day = parseInt(day.toString());
             month = parseInt(month.toString());
             year = parseInt(year.toString());
 
-            var valid = true;
-
             if (isNaN(day) || isNaN(month) || isNaN(year)) {
-                valid = false;
+                return false;
             }
-
             if ((month < 1) || (month > 12)) {
-                valid = false;
+                return false;
             }
             else if ((day < 1) || (day > 31)) {
-                valid = false;
+                return false;
             }
             else if (((month === 4) || (month === 6) || (month === 9) || (month === 11)) && (day > 30)) {
-                valid = false;
+                return false;
             }
             else if ((month === 2) && (((year % 400) === 0) || ((year % 4) === 0)) && ((year % 100) !== 0) && (day > 29)) {
-                valid = false;
+                return false;
             }
             else if ((month === 2) && ((year % 100) === 0) && (day > 29)) {
-                valid = false;
+                return false;
             }
-            return valid;
+            return true;
         },
 
         // Used when cleaning objects before they are passed to REST service, object fields to keep
@@ -129,18 +131,26 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         generateHours: function () {
             var hours = [];
-            hours.push('');
-            for (var i=0;i<=24;i++) {
-                hours.push(i);
+            //hours.push('');
+            for (var i=0;i<=23;i++) {
+                if (i<10) {
+                    hours.push('0' + i);
+                } else {
+                    hours.push(i);
+                }
             }
             return hours;
         },
 
         generateMinutes: function () {
             var minutes = [];
-            minutes.push('');
+            //minutes.push('');
             for (var i=0;i<=60;i++) {
-                minutes.push(i);
+                if (i<10) {
+                    minutes.push('0' + i);
+                } else {
+                    minutes.push(i);
+                }
             }
             return minutes;
         }

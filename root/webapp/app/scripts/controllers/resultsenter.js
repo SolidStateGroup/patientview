@@ -7,14 +7,39 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
         if (resultCluster !== undefined) {
 
             delete $scope.successMessage;
+
+            var currentDate = new Date();
+            var i;
             var userResultCluster = {};
             userResultCluster.resultCluster = resultCluster;
-            userResultCluster.day = $scope.days[0];
-            userResultCluster.month = $scope.months[0];
-            userResultCluster.year = $scope.years[0];
-            userResultCluster.hour = $scope.hours[0];
-            userResultCluster.minute = $scope.minutes[0];
             userResultCluster.values = {};
+
+            for (i=0;i<$scope.days.length;i++) {
+                if (parseInt($scope.days[i]) === currentDate.getDate()) {
+                    userResultCluster.day = $scope.days[i];
+                }
+            }
+            for (i=0;i<$scope.months.length;i++) {
+                if (parseInt($scope.months[i]) === currentDate.getMonth() + 1) {
+                    userResultCluster.month = $scope.months[i];
+                }
+            }
+            for (i=0;i<$scope.years.length;i++) {
+                if (parseInt($scope.years[i]) === currentDate.getFullYear()) {
+                    userResultCluster.year = $scope.years[i];
+                }
+            }
+
+            for (i=0;i<$scope.hours.length;i++) {
+                if (parseInt($scope.hours[i]) === currentDate.getHours() - (currentDate.getTimezoneOffset()/60)) {
+                    userResultCluster.hour = $scope.hours[i];
+                }
+            }
+            for (i=0;i<$scope.minutes.length;i++) {
+                if (parseInt($scope.minutes[i]) === currentDate.getMinutes()) {
+                    userResultCluster.minute = $scope.minutes[i];
+                }
+            }
 
             $scope.userResultClusters.push(userResultCluster);
         }
