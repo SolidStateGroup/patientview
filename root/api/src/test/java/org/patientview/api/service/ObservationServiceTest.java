@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
-import org.patientview.api.model.enums.GroupCode;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.impl.ObservationServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -20,7 +20,6 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
@@ -88,7 +87,7 @@ public class ObservationServiceTest {
         user.getIdentifiers().add(identifier);
 
         Group patientEnteredGroup = TestUtils.createGroup("testGroup");
-        patientEnteredGroup.setCode(GroupCode.PATIENT_ENTERED.toString());
+        patientEnteredGroup.setCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
 
         ObservationHeading observationHeading1 = new ObservationHeading();
         observationHeading1.setId(3L);
@@ -133,7 +132,7 @@ public class ObservationServiceTest {
             when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
             when(observationHeadingService.get(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
             when(observationHeadingService.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
-            when(groupService.findByCode(eq(GroupCode.PATIENT_ENTERED.toString()))).thenReturn(patientEnteredGroup);
+            when(groupService.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString()))).thenReturn(patientEnteredGroup);
             when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
             when(fhirResource.create(eq(fhirPatient))).thenReturn(fhirPatientJson);
 

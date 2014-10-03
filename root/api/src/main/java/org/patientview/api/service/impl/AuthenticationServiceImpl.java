@@ -4,7 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Role;
-import org.patientview.api.model.enums.GroupCode;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.util.Util;
@@ -234,7 +234,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         for (org.patientview.persistence.model.Group userGroup : userGroups) {
             // do not add groups that have code in GroupCode enum as these are used for patient entered results etc
-            if (!Util.isInEnum(userGroup.getCode(), GroupCode.class)) {
+            if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)) {
                 userToken.getUserGroups().add(new BaseGroup(userGroup));
             }
         }

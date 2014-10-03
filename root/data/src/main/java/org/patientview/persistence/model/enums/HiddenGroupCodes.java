@@ -1,4 +1,4 @@
-package org.patientview.api.model.enums;
+package org.patientview.persistence.model.enums;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -6,12 +6,12 @@ package org.patientview.api.model.enums;
  *
  * Used for shared group codes, e.g. for storing patient entered data
  */
-public enum GroupCode {
+public enum HiddenGroupCodes {
 
     PATIENT_ENTERED("Patient Entered Data");
 
     private String name;
-    GroupCode(String name) { this.name = name; }
+    HiddenGroupCodes(String name) { this.name = name; }
     public String getName() { return this.name; }
     public String getId() { return this.name(); }
 }

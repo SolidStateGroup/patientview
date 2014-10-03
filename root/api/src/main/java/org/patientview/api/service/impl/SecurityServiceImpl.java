@@ -2,7 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.patientview.api.model.enums.GroupCode;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.util.Util;
@@ -76,7 +76,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
 
         for (Group group : groups) {
             // do not add groups that have code in GroupCode enum as these are used for patient entered results etc
-            if(!Util.isInEnum(group.getCode(), GroupCode.class)) {
+            if(!Util.isInEnum(group.getCode(), HiddenGroupCodes.class)) {
                 transportGroups.add(new org.patientview.api.model.Group(group));
             }
         }

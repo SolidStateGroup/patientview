@@ -18,7 +18,7 @@ import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
-import org.patientview.api.model.enums.GroupCode;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
@@ -255,7 +255,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("User does not exist");
         }
 
-        Group patientEnteredResultsGroup = groupService.findByCode(GroupCode.PATIENT_ENTERED.toString());
+        Group patientEnteredResultsGroup = groupService.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
         if (patientEnteredResultsGroup == null) {
             throw new ResourceNotFoundException("Group for patient entered results does not exist");
         }

@@ -8,16 +8,17 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.model.FhirCondition;
 import org.patientview.api.model.FhirEncounter;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.PatientService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
@@ -72,7 +73,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         List<org.patientview.api.model.Patient> patients = new ArrayList<>();
-        List<Group> groups = new ArrayList<>();
         List<FhirLink> fhirLinks = new ArrayList<>();
         fhirLinks.addAll(user.getFhirLinks());
 
@@ -86,7 +86,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // get data from FHIR from each unit, ignoring multiple FHIR records per unit (versions)
         for (FhirLink fhirLink : fhirLinks) {
             if ((restrictGroups && groupIds.contains(fhirLink.getGroup().getId())) || (!restrictGroups)) {
-                if (!groups.contains(fhirLink.getGroup())) {
+                if (fhirLink.getActive() && !Util.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
                     Patient fhirPatient = get(fhirLink.getResourceId());
 
                     Practitioner fhirPractitioner = null;
@@ -103,8 +103,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
                     // set edta diagnosis if present based on available codes
                     patients.add(setDiagnosisCodes(patient));
-
-                    groups.add(fhirLink.getGroup());
                 }
             }
         }
