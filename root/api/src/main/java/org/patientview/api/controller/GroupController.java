@@ -2,22 +2,19 @@ package org.patientview.api.controller;
 
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.UnitRequest;
-import org.patientview.config.exception.ResourceInvalidException;
-import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.JoinRequestService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -47,19 +42,14 @@ public class GroupController extends BaseController<GroupController> {
     private JoinRequestService joinRequestService;
 
     @Inject
-    private AdminService adminService;
-
-    @Inject
     private GroupService groupService;
 
     @Inject
     private GroupStatisticService groupStatisticService;
 
     @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Group> createGroup(@RequestBody Group group) {
-        group = groupService.add(group);
-        LOG.info("Created group with id " + group.getId());
-        return new ResponseEntity<>(group, HttpStatus.CREATED);
+    public void createGroup(@RequestBody Group group) {
+        groupService.add(group);
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.GET)
@@ -76,37 +66,8 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/group", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Void> saveGroup(@RequestBody Group group, UriComponentsBuilder uriComponentsBuilder) {
-
-        try {
-            group = groupService.save(group);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        LOG.info("Updated group with id " + group.getId());
-        UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(group.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<>(headers, HttpStatus.OK);
-    }
-
-
-    @RequestMapping(value = "/group/{groupId}/feature/{featureId}", method = RequestMethod.PUT,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<GroupFeature> getGroup(@PathVariable("groupId") Long groupId,
-                                          @PathVariable("featureId") Long featureId) {
-        return new ResponseEntity<>(adminService.addGroupFeature(groupId, featureId), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/groupfeature", method = RequestMethod.POST)
-    public ResponseEntity<GroupFeature> createGroupFeature(@RequestBody GroupFeature groupFeature, UriComponentsBuilder uriComponentsBuilder) {
-        groupFeature = adminService.createGroupFeature(groupFeature);
-        UriComponents uriComponents = uriComponentsBuilder.path("/group/{id}").buildAndExpand(groupFeature.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<>(groupFeature, HttpStatus.CREATED);
+    public void saveGroup(@RequestBody Group group) throws ResourceNotFoundException{
+        groupService.save(group);
     }
 
     @RequestMapping(value = "/group/type/{typeId}", method = RequestMethod.GET)
@@ -117,29 +78,23 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Void> addParentGroup(@PathVariable("groupId") Long groupId,
+    public void addParentGroup(@PathVariable("groupId") Long groupId,
                                                       @PathVariable("parentId") Long parentGroupId) {
         groupService.addParentGroup(groupId,parentGroupId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteParentGroup(@PathVariable("groupId") Long groupId,
-                                                  @PathVariable("parentId") Long parentGroupId) {
+    public void deleteParentGroup(@PathVariable("groupId") Long groupId, @PathVariable("parentId") Long parentGroupId) {
         groupService.deleteParentGroup(groupId, parentGroupId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group/{groupId}/joinRequest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> addJoinRequest(@PathVariable("groupId") Long groupId,
-                                               @RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
+    @RequestMapping(value = "/group/{groupId}/joinRequest", method = RequestMethod.POST,
+                    consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void addJoinRequest(@PathVariable("groupId") Long groupId,
+                               @RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
         LOG.debug("Join Request Received for {} {}", joinRequest.getForename(), joinRequest.getSurname());
-
         joinRequestService.add(groupId, joinRequest);
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
-
     }
 
     @RequestMapping(value = "/group/{groupId}/children", method = RequestMethod.GET)
@@ -151,107 +106,64 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Void> addChildGroup(@PathVariable("groupId") Long groupId,
-                                                      @PathVariable("childId") Long childGroupId) {
+    public void addChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
         groupService.addChildGroup(groupId,childGroupId);
-        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteChildGroup(@PathVariable("groupId") Long groupId,
-                                                  @PathVariable("childId") Long childGroupId) {
+    public void deleteChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
         groupService.deleteChildGroup(groupId, childGroupId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/links", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Link> addLink(@PathVariable("groupId") Long groupId, @RequestBody Link link
-            , UriComponentsBuilder uriComponentsBuilder) {
-
-        // create new link
-        Link newLink = groupService.addLink(groupId, link);
-        LOG.info("Created new Link with id " + newLink.getId() + " and added to Group with id " + groupId);
-
-        // set header with location
-        UriComponents uriComponents = uriComponentsBuilder.path("/link/{linkId}").buildAndExpand(newLink.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
-        return new ResponseEntity<>(newLink, HttpStatus.CREATED);
+    public ResponseEntity<Link> addLink(@PathVariable("groupId") Long groupId, @RequestBody Link link) {
+        return new ResponseEntity<>(groupService.addLink(groupId, link), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST
-            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<ContactPoint> addContactPoint(@PathVariable("groupId") Long groupId, @RequestBody ContactPoint contactPoint
-            , UriComponentsBuilder uriComponentsBuilder) {
-
-        // create new contactPoint
-        ContactPoint newContactPoint = groupService.addContactPoint(groupId, contactPoint);
-        LOG.info("Created new ContactPoint with id " + newContactPoint.getId() + " and added to Group with id " + groupId);
-
-        // set header with location
-        UriComponents uriComponents = uriComponentsBuilder.path("/contactpoint/{contactPointId}").buildAndExpand(newContactPoint.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
-        return new ResponseEntity<>(newContactPoint, HttpStatus.CREATED);
+    public ResponseEntity<ContactPoint> addContactPoint(@PathVariable("groupId") Long groupId,
+                                                        @RequestBody ContactPoint contactPoint) {
+        return new ResponseEntity<>(groupService.addContactPoint(groupId, contactPoint), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST
-            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Location> addLocation(@PathVariable("groupId") Long groupId, @RequestBody Location location
-            , UriComponentsBuilder uriComponentsBuilder) {
-
-        // create new location
-        Location newLocation = groupService.addLocation(groupId, location);
-        LOG.info("Created new Location with id " + newLocation.getId() + " and added to Group with id " + groupId);
-
-        // set header with location
-        UriComponents uriComponents = uriComponentsBuilder.path("/location/{locationId}").buildAndExpand(newLocation.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
-        return new ResponseEntity<>(newLocation, HttpStatus.CREATED);
+    public ResponseEntity<Location> addLocation(@PathVariable("groupId") Long groupId, @RequestBody Location location) {
+        return new ResponseEntity<>(groupService.addLocation(groupId, location), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<Void> addFeature(@PathVariable("groupId") Long groupId,
-                                               @PathVariable("featureId") Long featureId) {
+    public void addFeature(@PathVariable("groupId") Long groupId, @PathVariable("featureId") Long featureId) {
         groupService.addFeature(groupId, featureId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteFeature(@PathVariable("groupId") Long groupId,
-                                               @PathVariable("featureId") Long featureId) {
+    public void deleteFeature(@PathVariable("groupId") Long groupId, @PathVariable("featureId") Long featureId) {
         groupService.deleteFeature(groupId, featureId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
-    @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Collection<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException {
-        Collection<GroupStatisticTO> groupStatisticTO = Util.convertGroupStatistics(groupStatisticService.getMonthlyGroupStatistics(groupId));
+        Collection<GroupStatisticTO> groupStatisticTO
+            = Util.convertGroupStatistics(groupStatisticService.getMonthlyGroupStatistics(groupId));
         return new ResponseEntity<>(groupStatisticTO, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/contactunit", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Void> contactUnit(@PathVariable("groupId") Long groupId,
-                                            @RequestBody UnitRequest unitRequest)
+    public void contactUnit(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
             throws ResourceNotFoundException, ResourceInvalidException {
         groupService.contactUnit(groupId, unitRequest);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
 }

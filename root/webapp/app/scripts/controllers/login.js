@@ -22,6 +22,8 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                 var user = userInformation.user;
                 user.securityRoles = userInformation.securityRoles;
                 user.userGroups = userInformation.userGroups;
+                user.staffRoles = userInformation.staffRoles;
+                user.patientRoles = userInformation.patientRoles;
 
                 $rootScope.loggedInUser = user;
                 localStorageService.set('loggedInUser', user);

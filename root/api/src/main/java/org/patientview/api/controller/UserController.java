@@ -2,13 +2,11 @@ package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
-import org.patientview.api.service.AdminService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserInformation;
 import org.slf4j.Logger;
@@ -40,9 +38,6 @@ public class UserController extends BaseController<UserController> {
 
     @Inject
     private UserService userService;
-
-    @Inject
-    private AdminService adminService;
 
     final private static int MINIMUM_PASSWORD_LENGTH = 7;
 
@@ -212,20 +207,11 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.verify(userId, verificationCode), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/role/{roleId}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<Role>> getUserByRoles(@PathVariable("roleId") Long roleId) {
-        LOG.debug("Request has been received for userId : {}", roleId);
-        return new ResponseEntity<>(adminService.getAllRoles(), HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/user/{userId}/identifiers", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Identifier> addIdentifier(@PathVariable("userId") Long userId,
         @RequestBody Identifier identifier) throws ResourceNotFoundException, EntityExistsException {
-        LOG.debug("User with userId : {} is verifying with code {}", userId, identifier);
         return new ResponseEntity<>(userService.addIdentifier(userId, identifier), HttpStatus.CREATED);
     }
 

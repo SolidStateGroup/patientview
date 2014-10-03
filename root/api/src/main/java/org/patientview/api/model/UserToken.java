@@ -21,6 +21,8 @@ public class UserToken {
     private List<Role> securityRoles;
     private List<BaseGroup> userGroups;
     private Set<Route> routes;
+    private List<Role> staffRoles;
+    private List<Role> patientRoles;
 
     public UserToken () {
 
@@ -89,5 +91,21 @@ public class UserToken {
 
     public void setRoutes(Set<Route> routes) {
         this.routes = routes;
+    }
+
+    public List<Role> getStaffRoles() {
+        return staffRoles;
+    }
+
+    public void setStaffRoles(List<Role> staffRoles) {
+        this.staffRoles = staffRoles;
+    }
+
+    public List<Role> getPatientRoles() {
+        return patientRoles;
+    }
+
+    public void setPatientRoles(List<Role> patientRoles) {
+        this.patientRoles = patientRoles;
     }
 }

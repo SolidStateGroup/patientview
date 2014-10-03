@@ -9,7 +9,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.SecurityAspect;
 import org.patientview.api.model.UnitRequest;
-import org.patientview.api.service.AdminService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.JoinRequestService;
@@ -52,9 +51,6 @@ public class GroupControllerTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     User creator;
-
-    @Mock
-    private AdminService adminService;
 
     @Mock
     private GroupService groupService;
@@ -192,7 +188,7 @@ public class GroupControllerTest {
             when(joinRequestService.add(eq(groupId), eq(joinRequest))).thenReturn(joinRequest);
             mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/joinRequest")
                     .content(mapper.writeValueAsString(joinRequest)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated());
+                    .andExpect(MockMvcResultMatchers.status().isOk());
             verify(joinRequestService, Mockito.times(1)).add(eq(groupId), eq(joinRequest));
         } catch (Exception e) {
             fail("This call should not fail");

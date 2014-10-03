@@ -357,44 +357,40 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             }
 
             // get staff type roles
-            RoleService.getByType('STAFF').then(function(roles) {
-                // set roles that can be chosen in UI, only show visible roles
-                for (i = 0; i < roles.length; i++) {
-                    role = roles[i];
-                    if (role.visible === true) {
-                        $scope.allRoles.push(role);
-                        $scope.roleIds.push(role.id);
-                    }
+            var roles = $scope.loggedInUser.staffRoles;
+            // set roles that can be chosen in UI, only show visible roles
+            for (i = 0; i < roles.length; i++) {
+                role = roles[i];
+                if (role.visible === true) {
+                    $scope.allRoles.push(role);
+                    $scope.roleIds.push(role.id);
                 }
+            }
 
-                // get list of roles available when user is adding a new Group & Role to staff member
-                // e.g. unit admins cannot add specialty admin roles to staff members
-                roles = $scope.loggedInUser.securityRoles;
-                // filter by roleId found previously as STAFF
-                var allowedRoles = [];
-                for (i = 0; i < roles.length; i++) {
-                    if ($scope.roleIds.indexOf(roles[i].id) != -1) {
-                        allowedRoles.push(roles[i]);
-                    }
+            // get list of roles available when user is adding a new Group & Role to staff member
+            // e.g. unit admins cannot add specialty admin roles to staff members
+            roles = $scope.loggedInUser.securityRoles;
+            // filter by roleId found previously as STAFF
+            var allowedRoles = [];
+            for (i = 0; i < roles.length; i++) {
+                if ($scope.roleIds.indexOf(roles[i].id) != -1) {
+                    allowedRoles.push(roles[i]);
                 }
-                $scope.allowedRoles = allowedRoles;
+            }
+            $scope.allowedRoles = allowedRoles;
 
-                // get list of features available when user is adding a new Feature to staff members
-                FeatureService.getAllStaffFeatures().then(function (allFeatures) {
-                    $scope.allFeatures = [];
-                    for (var i = 0; i < allFeatures.length; i++) {
-                        $scope.allFeatures.push({'feature': allFeatures[i]});
-                    }
-                });
-
-                // only applies to patients
-                $scope.identifierTypes = [];
-
-                $scope.initFinished = true;
-                $scope.getItems();
+            // get list of features available when user is adding a new Feature to staff members
+            FeatureService.getAllStaffFeatures().then(function (allFeatures) {
+                $scope.allFeatures = [];
+                for (var i = 0; i < allFeatures.length; i++) {
+                    $scope.allFeatures.push({'feature': allFeatures[i]});
+                }
             });
 
+            // only applies to patients
+            $scope.identifierTypes = [];
 
+            $scope.initFinished = true;
         } else {
             // no groups found
             delete $scope.loading;

@@ -6,7 +6,6 @@ import org.junit.Ignore;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.service.AdminService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,9 +29,6 @@ public class BaseControllerTest<T extends BaseController> {
 
     @Mock
     private UserService userService;
-
-    @Mock
-    private AdminService adminService;
 
     @InjectMocks
     private T controller;
@@ -75,14 +71,6 @@ public class BaseControllerTest<T extends BaseController> {
 
     public void setUserService(final UserService userService) {
         this.userService = userService;
-    }
-
-    public AdminService getAdminService() {
-        return adminService;
-    }
-
-    public void setAdminService(final AdminService adminService) {
-        this.adminService = adminService;
     }
 
     public MockMvc getMockMvc() {

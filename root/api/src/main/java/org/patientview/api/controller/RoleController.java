@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.patientview.api.service.AdminService;
+import org.patientview.api.service.RoleService;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.RoleType;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import java.util.List;
 public class RoleController extends BaseController<RoleController> {
 
     @Inject
-    private AdminService adminService;
+    private RoleService roleService;
 
     @RequestMapping(value = "/role", method = RequestMethod.GET)
     @ResponseBody
@@ -31,15 +31,15 @@ public class RoleController extends BaseController<RoleController> {
             @RequestParam(value = "type", required = false) String type, HttpServletRequest request) {
 
         if (!request.getParameterMap().containsKey("type")) {
-            return new ResponseEntity<List<Role>>(adminService.getAllRoles(), HttpStatus.OK);
+            return new ResponseEntity<>(roleService.getAllRoles(), HttpStatus.OK);
         }
         RoleType roleType;
 
         roleType = RoleType.valueOf(type);
         if (roleType == null) {
-            return new ResponseEntity<List<Role>>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<List<Role>>(adminService.getRolesByType(roleType), HttpStatus.OK);
+        return new ResponseEntity<>(roleService.getRolesByType(roleType), HttpStatus.OK);
     }
 }

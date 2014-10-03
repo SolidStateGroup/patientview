@@ -4,6 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Role;
+import org.patientview.api.service.RoleService;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.SecurityService;
@@ -16,6 +17,8 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
@@ -60,6 +63,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Inject
     private SecurityService securityService;
+
+    @Inject
+    private RoleService roleService;
 
     @Inject
     private Properties properties;
@@ -169,9 +175,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // get information about user's available roles and groups as used in staff and patient views
         transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
-        transportUserToken = setSecurityRoles(transportUserToken);
         transportUserToken = setUserGroups(transportUserToken);
         transportUserToken = setRoutes(transportUserToken);
+
+        if (!doesContainRoles(RoleName.PATIENT)) {
+            transportUserToken = setSecurityRoles(transportUserToken);
+            transportUserToken = setPatientRoles(transportUserToken);
+            transportUserToken = setStaffRoles(transportUserToken);
+        }
 
         return transportUserToken;
     }
@@ -243,6 +254,29 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private org.patientview.api.model.UserToken setRoutes(org.patientview.api.model.UserToken userToken) {
         userToken.setRoutes(securityService.getUserRoutes(userToken.getUser().getId()));
+        return userToken;
+    }
+
+    private org.patientview.api.model.UserToken setPatientRoles(org.patientview.api.model.UserToken userToken) {
+        List<Role> patientRoles = new ArrayList<>();
+        List<org.patientview.persistence.model.Role> fullPatientRoles = roleService.getRolesByType(RoleType.PATIENT);
+        
+        for (org.patientview.persistence.model.Role role : fullPatientRoles) {
+            patientRoles.add(new Role(role));
+        }
+        
+        userToken.setPatientRoles(patientRoles);
+        return userToken;
+    }
+    private org.patientview.api.model.UserToken setStaffRoles(org.patientview.api.model.UserToken userToken) {
+        List<Role> staffRoles = new ArrayList<>();
+        List<org.patientview.persistence.model.Role> fullStaffRoles = roleService.getRolesByType(RoleType.STAFF);
+        
+        for (org.patientview.persistence.model.Role role : fullStaffRoles) {
+            staffRoles.add(new Role(role));
+        }
+        
+        userToken.setStaffRoles(staffRoles);
         return userToken;
     }
 

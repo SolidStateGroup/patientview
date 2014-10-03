@@ -1,8 +1,8 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.api.service.AdminService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -68,7 +68,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private GroupService groupService;
 
     @Inject
-    private AdminService adminService;
+    private RoleService roleService;
 
     @Inject
     private UserService userService;
@@ -407,7 +407,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // assuming patients cannot contact other patients
-        for (Role role : adminService.getRolesByType(RoleType.STAFF)) {
+        for (Role role : roleService.getRolesByType(RoleType.STAFF)) {
             roleIdList.add(role.getId().toString());
         }
 
