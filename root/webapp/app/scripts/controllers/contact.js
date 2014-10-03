@@ -32,7 +32,8 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
 
         // build message
         var message = {};
-        message.user = $scope.loggedInUser;
+        message.user = {};
+        message.user.id = $scope.loggedInUser.id;
         message.message = $scope.conversation.message;
         message.type = 'CONTACT_UNIT';
         conversation.messages[0] = message;
