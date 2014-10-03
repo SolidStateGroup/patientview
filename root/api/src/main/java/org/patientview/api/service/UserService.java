@@ -49,6 +49,8 @@ public interface UserService extends CrudService<User> {
 
     void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException;
 
+    void removeAllGroupRoles(Long userId) throws ResourceNotFoundException;
+
     Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters);
 
     Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters);

@@ -213,6 +213,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // Delete all group roles
+        removeAllGroupRoles: function (user) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/removeallgrouproles
+            Restangular.one('user', user.id).one('removeallgrouproles').remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Add new identifier to user
         addIdentifier: function (user, identifier) {
             var deferred = $q.defer();

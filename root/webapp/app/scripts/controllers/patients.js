@@ -32,7 +32,7 @@ var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'pe
             }, function(result) {
                 if (result.status === 409) {
                     // 409 = CONFLICT, means patient already exists, provide UI to edit existing patient group roles
-                    $scope.warningMessage = 'A patient member with this username or email already exists. \nAdd them to your group if required, then close this window. \nYou can then edit their details normally as they will appear in the refreshed list.';
+                    $scope.warningMessage = 'A patient member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
                     $scope.editUser = result.data;
                     $scope.existingUser = true;
                     $scope.editMode = true;
@@ -114,9 +114,9 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         $scope.user.keepData = false;
 
         for (i=0;i<user.groupRoles.length;i++) {
-            for (j=0;j<user.groupRoles[i].group.groupFeatures;j++) {
+            for (j=0;j<user.groupRoles[i].group.groupFeatures.length;j++) {
                 var feature = user.groupRoles[i].group.groupFeatures[j];
-                if (feature.name === 'KEEP_ALL_DATA') {
+                if (feature.feature.name === 'KEEP_ALL_DATA') {
                     $scope.user.keepData = true;
                 }
             }
@@ -151,10 +151,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
 
             // if keeping data remove group roles from user with multiple deleteGroupRole, otherwise delete permanently
             if ($scope.user.keepData) {
-                for (i = 0; i < user.groupRoles.length; i++) {
-                    var groupRole = user.groupRoles[i];
-                    promises.push(UserService.deleteGroupRole(user, groupRole.group.id, groupRole.role.id));
-                }
+                promises.push(UserService.removeAllGroupRoles(user));
             } else {
                 promises.push(UserService.remove(user));
             }
@@ -171,7 +168,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                     $scope.user.canDelete = false;
                 }
             }, function() {
-                $scope.errorMessage = 'There was an error';
+                $scope.errorMessage = 'There was an error.';
             });
         };
 

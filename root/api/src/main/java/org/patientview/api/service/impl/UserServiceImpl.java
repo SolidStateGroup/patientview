@@ -198,10 +198,39 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
+    @Override
+    public void removeAllGroupRoles(Long userId) throws ResourceNotFoundException {
+        User entityUser = userRepository.findOne(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        groupRoleRepository.removeAllGroupRoles(entityUser);
+    }
+
     private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException {
-        groupRoleRepository.delete(groupRoleRepository.findByUserGroupRole(
-                userRepository.findOne(userId), groupRepository.findOne(groupId), roleRepository.findOne(roleId)
-        ));
+
+        User entityUser = userRepository.findOne(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        Group entityGroup = groupRepository.findOne(groupId);
+        if (entityGroup == null) {
+            throw new ResourceNotFoundException("Group not found");
+        }
+
+        Role entityRole = roleRepository.findOne(roleId);
+        if (entityRole == null) {
+            throw new ResourceNotFoundException("Role not found");
+        }
+
+        GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(entityUser, entityGroup, entityRole);
+        if (entityGroupRole == null) {
+            throw new ResourceNotFoundException("GroupRole not found");
+        }
+
+        groupRoleRepository.delete(entityGroupRole);
     }
 
     private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {

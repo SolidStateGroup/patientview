@@ -22,7 +22,7 @@ public interface GroupRoleRepository extends CrudRepository<GroupRole, Long> {
 
     @Modifying
     @Query("DELETE FROM GroupRole gr WHERE gr.user = :user")
-    void deleteByUser(@Param("user") User user);
+    void removeAllGroupRoles(@Param("user") User user);
 
     @Query("SELECT   gr " +
             "FROM    GroupRole gr " +

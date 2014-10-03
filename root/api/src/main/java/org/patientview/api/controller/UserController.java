@@ -67,6 +67,12 @@ public class UserController extends BaseController<UserController> {
         userService.deleteGroupRole(userId, groupId, roleId);
     }
 
+    @RequestMapping(value = "/user/{userId}/removeallgrouproles", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void removeAllGroupRoles(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
+        userService.removeAllGroupRoles(userId);
+    }
+
     // handle getting users from multiple groups and roles using query parameters
     @RequestMapping(value = "/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
