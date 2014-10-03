@@ -104,9 +104,11 @@ function ($scope, $modal, ObservationService) {
 
     $scope.getPanelResultTitles = function(panel) {
         var text = "", i;
-        for (i=0;i<panel.length;i++) {
-            text += panel[i].heading;
-            if (i !== panel.length-1) {
+        var sortedResultSummaries = _.sortBy(panel, "panelOrder");
+
+        for (i=0;i<sortedResultSummaries.length;i++) {
+            text += sortedResultSummaries[i].heading;
+            if (i !== sortedResultSummaries.length-1) {
                 text+= ", ";
             }
         }
