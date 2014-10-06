@@ -35,24 +35,22 @@ public class FhirObservation extends BaseModel{
             throw new FhirResourceException("Cannot convert FHIR observation, missing Name");
         }
 
+        if (observation.getValue() == null) {
+            throw new FhirResourceException("Cannot convert FHIR observation, missing Value");
+        }
+
         setTemporaryUuid(UUID.randomUUID().toString());
         setName(observation.getName().getTextSimple());
         setComments(observation.getCommentsSimple());
 
-        try {
-            if (observation.getValue() != null) {
-                if (observation.getValue().getClass().equals(Quantity.class)) {
-                    Quantity value = (Quantity) observation.getValue();
-                    setValue(value.getValueSimple().toString());
-                } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
-                    CodeableConcept value = (CodeableConcept) observation.getValue();
-                    setValue(value.getTextSimple());
-                } else {
-                    throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
-                }
-            }
-        } catch (NumberFormatException nfe) {
-            throw new FhirResourceException("Cannot convert FHIR observation, missing Value");
+        if (observation.getValue().getClass().equals(Quantity.class)) {
+            Quantity value = (Quantity) observation.getValue();
+            setValue(value.getValueSimple().toString());
+        } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
+            CodeableConcept value = (CodeableConcept) observation.getValue();
+            setValue(value.getTextSimple());
+        } else {
+            throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
         }
 
         if (observation.getApplies() != null) {
