@@ -611,7 +611,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             });
 
             modalInstance.result.then(function (successResult) {
-                $scope.successMessage = 'Password reset, new password is: ' + successResult.password;
+                $scope.successMessage = 'Password reset for ' + user.forename + ' ' + user.surname
+                    + ' (username ' + user.username + '), new password is: ' + successResult.password;
             }, function () {
                 // closed
             });
