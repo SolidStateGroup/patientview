@@ -1,12 +1,18 @@
 'use strict';
 
-angular.module('patientviewApp').controller('DiagnosticsCtrl',['$scope', 'PatientService', 'GroupService',
-function ($scope, PatientService, GroupService) {
+angular.module('patientviewApp').controller('DiagnosticsCtrl',['$scope', 'DiagnosticService',
+function ($scope, DiagnosticService) {
 
     var init = function(){
         $scope.loading = true;
 
-        $scope.loading = false;
+        DiagnosticService.getByUserId($scope.loggedInUser.id).then(function(diagnostics) {
+            $scope.diagnostics = diagnostics;
+            $scope.predicate = 'date';
+            $scope.loading = false;
+        }, function () {
+            alert('Cannot get medication');
+        })
     };
 
     init();
