@@ -27,7 +27,7 @@
 <div data-ng-show="!loading">
     <br/>
     <!-- Filter -->
-    <div class="content-panel filter-panel">
+    <div class="content-panel filter-panel" ng-show="nonEcsFiltered.length || ecsFiltered.length">
         <div class="search-container">
             <i class="icon-search-black"></i>
             <input type="text" data-ng-model="searchText" placeholder="Search by medicine name or dose..." class="form-control input-block-level" />
