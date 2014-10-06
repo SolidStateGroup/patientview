@@ -71,7 +71,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             } else {
                 if (!authenticateRequest(httpRequest)) {
                     LOG.info("Request is not authenticated");
-                    //redirectFailedAuthentication((HttpServletResponse) response);
+                    redirectFailedAuthentication((HttpServletResponse) response);
                 }
                 chain.doFilter(request, response);
             }
