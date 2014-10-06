@@ -11,22 +11,51 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
         if ($scope.pw !== $scope.userdetails.confirmPassword) {
             $scope.passwordErrorMessage = 'The passwords do not match';
         } else {
-            AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword}).then(function () {
+
+            $scope.loading = true;
+
+            AuthService.login({'username': $scope.userdetails.username, 'password': $scope.userdetails.currentPassword})
+                .then(function (authToken) {
 
                 // set the password
                 $scope.userdetails.password = $scope.pw;
 
+                // set the authtoken
+                $rootScope.authToken = authToken;
+                localStorageService.set('authToken', authToken);
+
                 UserService.changePassword($scope.userdetails).then(function () {
+
                     // successfully changed user password
                     $scope.successMessage = 'The password has been changed';
 
-                    RouteService.getRoutes($scope.userdetails.id).then(function (data) {
-                        $rootScope.routes = data;
-                        localStorageService.set('routes', data);
+                    AuthService.getUserInformation(authToken).then(function (userInformation) {
+
+                        // get user information (securityroles, userGroups), store in session
+                        var user = userInformation.user;
+                        user.securityRoles = userInformation.securityRoles;
+                        user.userGroups = userInformation.userGroups;
+                        user.staffRoles = userInformation.staffRoles;
+                        user.patientRoles = userInformation.patientRoles;
+
+                        $rootScope.loggedInUser = user;
+                        localStorageService.set('loggedInUser', user);
+                        $rootScope.routes = userInformation.routes;
+                        localStorageService.set('routes', userInformation.routes);
+
+                        $scope.loading = false;
+
+                    }, function(result) {
+                        if (result.data) {
+                            $scope.passwordErrorMessage = ' - ' + result.data;
+                        } else {
+                            $scope.passwordErrorMessage = ' ';
+                        }
+                        $scope.loading = false;
                     });
                 }, function () {
-                    // error
                     $scope.passwordErrorMessage = '- There was an error';
+                    $scope.loading = false;
                 });
 
             }, function (result) {
@@ -35,6 +64,7 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
                 } else {
                     $scope.passwordErrorMessage = ' ';
                 }
+                $scope.loading = false;
             });
         }
     };

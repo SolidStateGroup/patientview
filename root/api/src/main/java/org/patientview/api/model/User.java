@@ -26,6 +26,7 @@ public class User extends BaseUser{
     private Boolean dummy;
     private String contactNumber;
     private Date created;
+    private Boolean changePassword;
 
     // from fhirLink
     private Date latestDataReceivedDate;
@@ -52,6 +53,7 @@ public class User extends BaseUser{
         setDummy(user.getDummy());
         setContactNumber(user.getContactNumber());
         setCreated(user.getCreated());
+        setChangePassword(user.getChangePassword());
 
         if (user.getGroupRoles() != null) {
             for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
@@ -182,5 +184,13 @@ public class User extends BaseUser{
 
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public Boolean getChangePassword() {
+        return changePassword;
+    }
+
+    public void setChangePassword(Boolean changePassword) {
+        this.changePassword = changePassword;
     }
 }

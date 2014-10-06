@@ -190,13 +190,6 @@ angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', f
                     }
                 }
             };
-        },
-        getRoutes: function (uuid) {
-            var deferred = $q.defer();
-            Restangular.all('security').one('user', uuid).customGET('routes').then(function (res) {
-                deferred.resolve(res);
-            });
-            return deferred.promise;
         }
     };
 }]);
