@@ -20,6 +20,8 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to get the filter from the request. Lookup the token and add the user into the security context
@@ -34,11 +36,32 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private AuthenticationService authenticationService;
 
+    private List<String> publicUrls = new ArrayList<>();
+
     @PostConstruct
     public void init() {
         LOG.info("Authentication token filter initialised");
+
+        publicUrls.add("/api/auth/login");
+        publicUrls.add("/api/auth/logout");
+        publicUrls.add("/api/news/public");
+
+        // used for join requests
+        publicUrls.add("/api/lookupType");
+        publicUrls.add("/api/group/type");
+
+        // TODO: correctly retrieve group info for join requests
+
     }
 
+    private boolean isPublicPath(String path) {
+        for (String publicUrl : this.publicUrls) {
+            if (path.startsWith(publicUrl)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * This is the method to authorize the user to use the service is spring.
@@ -66,7 +89,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             // Fix for CORS not required for PROD
             if (httpRequest.getMethod().equalsIgnoreCase("options")) {
                 chain.doFilter(request, response);
-            } else if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/logout")) {
+            } else if (isPublicPath(path)) {
                 chain.doFilter(request, response);
             } else {
                 if (!authenticateRequest(httpRequest)) {
