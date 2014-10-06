@@ -33,7 +33,7 @@ public class DiagnosticReportBuilder {
         diagnosticReport.setName(name);
 
         CodeableConcept type = new CodeableConcept();
-        name.setTextSimple(data.getDiagnostictype());
+        type.setTextSimple(data.getDiagnostictype());
         diagnosticReport.setServiceCategory(type);
 
         return diagnosticReport;
