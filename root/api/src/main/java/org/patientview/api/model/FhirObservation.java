@@ -31,32 +31,32 @@ public class FhirObservation extends BaseModel{
     // if converting from actual Observation
     public FhirObservation(Observation observation) throws FhirResourceException {
 
-        if (observation.getName() != null) {
-            setTemporaryUuid(UUID.randomUUID().toString());
-            setName(observation.getName().getTextSimple());
-            setComments(observation.getCommentsSimple());
-
-            try {
-                if (observation.getValue() != null) {
-                    Property valueProperty = observation.getValue().getChildByName("value");
-
-                    if (valueProperty.getTypeCode().equals("decimal")) {
-                        Decimal element = (Decimal)valueProperty.getValues().get(0);
-                        setValue(element.getStringValue());
-                    }
-                }
-            } catch (NumberFormatException nfe) {
-                throw new FhirResourceException("Cannot convert FHIR observation, missing Value");
-            }
-
-            if (observation.getApplies() != null) {
-                DateTime applies = (DateTime) observation.getApplies();
-                DateAndTime date = applies.getValue();
-                setApplies(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
-                        date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
-            }
-        } else {
+        if (observation.getName() == null) {
             throw new FhirResourceException("Cannot convert FHIR observation, missing Name");
+        }
+
+        setTemporaryUuid(UUID.randomUUID().toString());
+        setName(observation.getName().getTextSimple());
+        setComments(observation.getCommentsSimple());
+
+        try {
+            if (observation.getValue() != null) {
+                Property valueProperty = observation.getValue().getChildByName("value");
+
+                if (valueProperty.getTypeCode().equals("decimal")) {
+                    Decimal element = (Decimal)valueProperty.getValues().get(0);
+                    setValue(element.getStringValue());
+                }
+            }
+        } catch (NumberFormatException nfe) {
+            throw new FhirResourceException("Cannot convert FHIR observation, missing Value");
+        }
+
+        if (observation.getApplies() != null) {
+            DateTime applies = (DateTime) observation.getApplies();
+            DateAndTime date = applies.getValue();
+            setApplies(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                    date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
         }
     }
 

@@ -1,6 +1,6 @@
 package org.patientview.api.service;
 
-import org.patientview.api.model.FhirDiagnostic;
+import org.patientview.api.model.FhirDiagnosticReport;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 
@@ -12,5 +12,6 @@ import java.util.List;
  */
 public interface DiagnosticService {
 
-    List<FhirDiagnostic> getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
+    List<FhirDiagnosticReport> getByUserId(Long userId)
+            throws ResourceNotFoundException, FhirResourceException;
 }

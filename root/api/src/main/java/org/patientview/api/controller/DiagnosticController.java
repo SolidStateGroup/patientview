@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.patientview.api.model.FhirDiagnostic;
+import org.patientview.api.model.FhirDiagnosticReport;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -27,7 +27,7 @@ public class DiagnosticController extends BaseController<DiagnosticController> {
 
     @RequestMapping(value = "/user/{userId}/diagnostics", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<FhirDiagnostic>> getAllDiagnostics(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<FhirDiagnosticReport>> getAllDiagnostics(@PathVariable("userId") Long userId)
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(diagnosticService.getByUserId(userId), HttpStatus.OK);
     }

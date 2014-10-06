@@ -5,7 +5,7 @@ import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
-import org.patientview.api.model.FhirDiagnostic;
+import org.patientview.api.model.FhirDiagnosticReport;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -35,14 +35,14 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
     private UserRepository userRepository;
 
     @Override
-    public List<FhirDiagnostic> getByUserId(final Long userId) throws ResourceNotFoundException, FhirResourceException {
+    public List<FhirDiagnosticReport> getByUserId(final Long userId) throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        List<FhirDiagnostic> fhirDiagnostics = new ArrayList<>();
+        List<FhirDiagnosticReport> fhirDiagnosticReports = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
             if (fhirLink.getActive()) {
@@ -60,13 +60,17 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
                 // for each, create new transport object with result (Observation) found from resource reference
                 for (DiagnosticReport diagnosticReport : diagnosticReports) {
 
+                    if (diagnosticReport.getResult().isEmpty()) {
+                        throw new FhirResourceException("No result found for Diagnostic Report");
+                    }
+
                     try {
                         JSONObject resultJson = fhirResource.getResource(
                             UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
                             ResourceType.Observation);
 
                         Observation observation = (Observation) DataUtils.getResource(resultJson);
-                        fhirDiagnostics.add(new FhirDiagnostic(diagnosticReport, observation, fhirLink.getGroup()));
+                        fhirDiagnosticReports.add(new FhirDiagnosticReport(diagnosticReport, observation, fhirLink.getGroup()));
 
                     } catch (Exception e) {
                         throw new FhirResourceException(e.getMessage());
@@ -75,6 +79,6 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
             }
         }
 
-        return fhirDiagnostics;
+        return fhirDiagnosticReports;
     }
 }
