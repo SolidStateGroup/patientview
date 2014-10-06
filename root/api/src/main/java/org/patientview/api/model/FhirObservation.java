@@ -1,10 +1,10 @@
 package org.patientview.api.model;
 
+import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
-import org.hl7.fhir.instance.model.Decimal;
 import org.hl7.fhir.instance.model.Observation;
-import org.hl7.fhir.instance.model.Property;
+import org.hl7.fhir.instance.model.Quantity;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.BaseModel;
 
@@ -41,11 +41,14 @@ public class FhirObservation extends BaseModel{
 
         try {
             if (observation.getValue() != null) {
-                Property valueProperty = observation.getValue().getChildByName("value");
-
-                if (valueProperty.getTypeCode().equals("decimal")) {
-                    Decimal element = (Decimal)valueProperty.getValues().get(0);
-                    setValue(element.getStringValue());
+                if (observation.getValue().getClass().equals(Quantity.class)) {
+                    Quantity value = (Quantity) observation.getValue();
+                    setValue(value.getValueSimple().toString());
+                } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
+                    CodeableConcept value = (CodeableConcept) observation.getValue();
+                    setValue(value.getTextSimple());
+                } else {
+                    throw new FhirResourceException("Cannot convert FHIR observation, unknown Value type");
                 }
             }
         } catch (NumberFormatException nfe) {
