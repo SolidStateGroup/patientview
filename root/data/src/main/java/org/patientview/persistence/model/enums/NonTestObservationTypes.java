@@ -8,7 +8,8 @@ package org.patientview.persistence.model.enums;
  * Testcode.java contains other test codes generated from patientview.xsd e.g. ciclosporin, weight
  */
 public enum NonTestObservationTypes {
-    BLOOD_GROUP("Blood Group");
+    BLOOD_GROUP("Blood Group"),
+    DIAGNOSTIC_RESULT("Diagnostic Result");
 
     private String name;
     NonTestObservationTypes(String name) { this.name = name; }

@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
-import org.patientview.api.model.FhirMedicationStatement;
-import org.patientview.api.service.MedicationService;
+import org.patientview.api.model.FhirDiagnosticReport;
+import org.patientview.api.service.DiagnosticService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.http.HttpStatus;
@@ -17,18 +17,18 @@ import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
- * Created on 29/09/2014
+ * Created on 05/10/2014
  */
 @RestController
-public class MedicationController extends BaseController<MedicationController> {
+public class DiagnosticController extends BaseController<DiagnosticController> {
 
     @Inject
-    private MedicationService medicationService;
+    private DiagnosticService diagnosticService;
 
-    @RequestMapping(value = "/user/{userId}/medication", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/diagnostics", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<FhirMedicationStatement>> getAllMedication(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<FhirDiagnosticReport>> getAllDiagnostics(@PathVariable("userId") Long userId)
             throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(medicationService.getByUserId(userId), HttpStatus.OK);
+        return new ResponseEntity<>(diagnosticService.getByUserId(userId), HttpStatus.OK);
     }
 }

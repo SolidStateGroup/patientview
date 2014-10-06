@@ -131,9 +131,7 @@ public class ObservationsBuilder {
             throw new FhirResourceException("Invalid value for observation");
         }
         return decimal;
-
     }
-
 
     private org.hl7.fhir.instance.model.Identifier createIdentifier(Patientview.Patient.Testdetails.Test test) {
         org.hl7.fhir.instance.model.Identifier identifier = new org.hl7.fhir.instance.model.Identifier();
@@ -174,5 +172,4 @@ public class ObservationsBuilder {
     public int getCount() {
         return count;
     }
-
 }

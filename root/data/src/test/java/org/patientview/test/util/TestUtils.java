@@ -362,8 +362,10 @@ public final class TestUtils {
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(user);
         fhirLink.setResourceId(UUID.randomUUID());
+        fhirLink.setVersionId(UUID.randomUUID());
         fhirLink.setCreated(new Date());
         fhirLink.setIdentifier(identifier);
+        fhirLink.setActive(true);
         if (CollectionUtils.isEmpty(user.getFhirLinks())) {
             user.setFhirLinks(new HashSet<FhirLink>());
         }
