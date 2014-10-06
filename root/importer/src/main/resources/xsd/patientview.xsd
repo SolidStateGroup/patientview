@@ -370,6 +370,22 @@
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
+                            <xs:element maxOccurs="1" minOccurs="0" name="diagnostics">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element maxOccurs="unbounded" minOccurs="1" name="diagnostic">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="diagnosticdate" type="xs:dateTime"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="diagnosticresult" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="diagnosticname" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="diagnostictype" type="xs:string"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>

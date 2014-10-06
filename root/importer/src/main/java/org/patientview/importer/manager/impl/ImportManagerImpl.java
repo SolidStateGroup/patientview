@@ -6,6 +6,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.ConditionService;
+import org.patientview.importer.service.DiagnosticService;
 import org.patientview.importer.service.EncounterService;
 import org.patientview.importer.service.MedicationService;
 import org.patientview.importer.service.ObservationService;
@@ -15,7 +16,6 @@ import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.Identifier;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -53,6 +53,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Inject
     private MedicationService medicationService;
+
+    @Inject
+    private DiagnosticService diagnosticService;
 
     @Inject
     private Properties properties;
@@ -113,6 +116,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             // medication (drugdetails)
             medicationService.add(patientview, patientReference);
 
+            // diagnosticreports (diagnostics, originally IBD now generic)
+            diagnosticService.add(patientview, patientReference);
+
             Date end = new Date();
             LOG.info("Finished processing data for NHS number: "
                     + patientview.getPatient().getPersonaldetails().getNhsno()
@@ -149,6 +155,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                     conditionService.deleteBySubjectId(fhirLink.getVersionId());
                     encounterService.deleteBySubjectId(fhirLink.getVersionId());
                     medicationService.deleteBySubjectId(fhirLink.getVersionId());
+                    diagnosticService.deleteBySubjectId(fhirLink.getVersionId());
                 }
 
                 LOG.info("Finished removing old data for NHS number: "

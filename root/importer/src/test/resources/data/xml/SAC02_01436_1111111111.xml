@@ -205,5 +205,13 @@ Increased due to infection </drugdose>
 </letter>
 
 </letterdetails>
+    <diagnostics>
+        <diagnostic>
+            <diagnosticresult>99.9</diagnosticresult>
+            <diagnosticname>Image taken</diagnosticname>
+            <diagnostictype>IMAGING</diagnostictype>
+            <diagnosticdate>2014-08-09T15:58:25</diagnosticdate>
+        </diagnostic>
+    </diagnostics>
 </patient>
 </patientview>

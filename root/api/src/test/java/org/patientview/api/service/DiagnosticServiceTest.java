@@ -25,9 +25,9 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.DiagnosticReportTypes;
-import org.patientview.persistence.model.enums.DiagnosticResultTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
@@ -141,8 +141,8 @@ public class DiagnosticServiceTest {
         JSONObject resultName = new JSONObject();
         JSONArray resultNameCoding = new JSONArray();
         JSONObject resultNameCodingDisplay = new JSONObject();
-        resultName.put("text", DiagnosticResultTypes.DIAGNOSTIC_RESULT.toString());
-        resultNameCodingDisplay.put("display", DiagnosticResultTypes.DIAGNOSTIC_RESULT.getName());
+        resultName.put("text", NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+        resultNameCodingDisplay.put("display", NonTestObservationTypes.DIAGNOSTIC_RESULT.getName());
         resultNameCoding.put(0, resultNameCodingDisplay);
         resultName.put("coding", resultNameCoding);
 
