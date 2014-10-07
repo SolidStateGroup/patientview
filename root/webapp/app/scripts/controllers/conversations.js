@@ -17,7 +17,9 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
                 $scope.newConversation.allRecipients[recipients[i].id] = recipients[i];
             }
 
-            $scope.recipientToAdd = recipients[0].id;
+            if (recipients[0] !== undefined) {
+                $scope.recipientToAdd = recipients[0].id;
+            }
 
             $scope.modalLoading = false;
         }, function () {

@@ -1,48 +1,61 @@
 
-<div class="row">
-    <div class="form-horizontal" role="form">
-        <div class="col-md-12">
-            <label for="conversation-add-recipient" class="control-label">Recipients <span class="error" data-ng-show="newConversation.recipients.length < 1 && !conversationFormNew.$pristine"> *required</span></label>
-            <ul class="feature-list unstyled">
-                <li class="feature-list-item" data-ng-repeat="user in newConversation.recipients">
-                    <div class="feature-list-name"><span class="feature-list-name">{{user.forename}} {{user.surname}}</span> &nbsp;
-                        <a id="remove-recipient-{{user.id}}" href="" data-ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
-                    </div>
-                </li>
-            </ul>
+
+<div data-ng-show="!modalLoading && newConversation.allRecipients.length">
+
+    <div class="row">
+        <div class="form-horizontal" role="form">
+            <div class="col-md-12">
+                <label for="conversation-add-recipient" class="control-label">Recipients <span class="error" data-ng-show="newConversation.recipients.length < 1 && !conversationFormNew.$pristine"> *required</span></label>
+                <ul class="feature-list unstyled">
+                    <li class="feature-list-item" data-ng-repeat="user in newConversation.recipients">
+                        <div class="feature-list-name"><span class="feature-list-name">{{user.forename}} {{user.surname}}</span> &nbsp;
+                            <a id="remove-recipient-{{user.id}}" href="" data-ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
+    </div>
+
+    <div class="row">
+        <div class="form-horizontal" role="form">
+            <div data-ng-show="newConversation.allRecipients.length">
+                <div class="custom-select col-md-3" data-ng-show="newConversation.availableRecipients.length" >
+                    <select class="form-control recipient-select" id="conversation-add-recipient" data-ng-model="recipientToAdd" data-ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
+                </div>
+                <button type="button" class="btn blue recipient-add-button pull-left" data-ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)" data-ng-show="newConversation.availableRecipients.length">
+                    <i class="glyphicon glyphicon-plus-sign"></i> &nbsp;&nbsp;Add Recipient</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="form-horizontal" role="form">
+            <div class="col-md-12">
+                <label for="conversation-title" class="control-label">Title <span class="error" data-ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span></label>
+                <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" data-ng-model="newConversation.title" required></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-horizontal" role="form">
+            <div class="col-md-12">
+                <label for="conversation-message" class="control-label">Message <span class="error" data-ng-show="conversationFormNew.message.$error.required && !conversationFormNew.$pristine"> *required</span></label>
+                <textarea class="form-control article-content" id="conversation-message" placeholder="Message" name="message" data-ng-model="newConversation.message" required></textarea>
+            </div>
+        </div>
+    </div>
+    <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+</div>
+
+<div class="row" data-ng-show="!modalLoading && !newConversation.allRecipients.length" data-ng-cloak>
+    <div class="col-md-12">
+        <p>No message recipients available, cannot send a new message</p>
     </div>
 </div>
 
-<div class="row">
-    <div class="form-horizontal" role="form" data-ng-show="!modalLoading">
-        <div class="custom-select col-md-3" data-ng-show="!newConversation.allRecipients.length" data-ng-cloak>
-            <p>No message recipients available, cannot send a new message</p>
-        </div>
-        <div data-ng-show="newConversation.allRecipients.length">
-            <div class="custom-select col-md-3" data-ng-show="newConversation.availableRecipients.length" >
-                <select class="form-control recipient-select" id="conversation-add-recipient" data-ng-model="recipientToAdd" data-ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
-            </div>
-            <button type="button" class="btn blue recipient-add-button pull-left" data-ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)" data-ng-show="newConversation.availableRecipients.length">
-                <i class="glyphicon glyphicon-plus-sign"></i> &nbsp;&nbsp;Add Recipient</button>
-        </div>
-    </div>
-    <div class="loading" data-ng-show="modalLoading"><img src="images/loading.gif" alt="Loading"/></div>
-</div>
-<div class="row">
-    <div class="form-horizontal" role="form">
-        <div class="col-md-12">
-            <label for="conversation-title" class="control-label">Title <span class="error" data-ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" data-ng-model="newConversation.title" required></div>
-        </div>
+<div data-ng-show="modalLoading" class="row"><br/>
+    <div class="col-md-12">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Recipients</h3>
     </div>
 </div>
-<div class="row">
-    <div class="form-horizontal" role="form">
-        <div class="col-md-12">
-            <label for="conversation-message" class="control-label">Message <span class="error" data-ng-show="conversationFormNew.message.$error.required && !conversationFormNew.$pristine"> *required</span></label>
-            <textarea class="form-control article-content" id="conversation-message" placeholder="Messasge" name="message" data-ng-model="newConversation.message" required></textarea>
-        </div>
-    </div>
-</div>
-<div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>

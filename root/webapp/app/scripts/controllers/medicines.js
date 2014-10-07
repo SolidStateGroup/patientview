@@ -87,6 +87,7 @@ function ($scope, $timeout, MedicationService) {
             $scope.filterGroups = getSourceGroups(medicationStatements);
             separateMedicationStatements(medicationStatements);
             $scope.predicate = 'date';
+            $scope.reverse = true;
             $scope.loading = false;
         }, function () {
             alert('Cannot get medication');
