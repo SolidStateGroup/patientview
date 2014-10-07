@@ -163,12 +163,12 @@ public class ConversationServiceTest {
         when(userRepository.exists(Matchers.eq(user1.getId()))).thenReturn(true);
         when(userRepository.exists(Matchers.eq(user2.getId()))).thenReturn(true);
 
-        when(conversationRepository.findByUser(eq(user1), eq(pageRequestAll))).thenReturn(conversationPage);
+        when(conversationRepository.getUnreadConversationCount(eq(user1.getId()))).thenReturn(1L);
 
         TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
 
         try {
-            Assert.assertEquals("Should get 1 unread conversation", 1,
+            Assert.assertEquals("Should get 1 unread conversation", (Long)1L,
                     conversationService.getUnreadConversationCount(user1.getId()));
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("resource not found exception");
