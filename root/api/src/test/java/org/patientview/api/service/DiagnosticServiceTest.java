@@ -113,7 +113,7 @@ public class DiagnosticServiceTest {
         diagnosticReport.setName(name);
 
         CodeableConcept type = new CodeableConcept();
-        name.setTextSimple(DiagnosticReportTypes.IMAGING.toString());
+        type.setTextSimple(DiagnosticReportTypes.IMAGING.toString());
         diagnosticReport.setServiceCategory(type);
 
         diagnosticReport.setStatusSimple(DiagnosticReport.DiagnosticReportStatus.registered);

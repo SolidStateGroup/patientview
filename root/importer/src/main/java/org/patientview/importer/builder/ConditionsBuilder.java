@@ -42,7 +42,7 @@ public class ConditionsBuilder {
                 conditions.add(createCondition(diagnosis));
                 success++;
             } catch (FhirResourceException e) {
-                LOG.error("Invalid data in XML: ", e.getMessage());
+                LOG.error("Invalid data in XML: " + e.getMessage());
             }
             count++;
         }
@@ -52,7 +52,7 @@ public class ConditionsBuilder {
             conditions.add(createCondition(data.getPatient().getClinicaldetails().getDiagnosisedta()));
             success++;
         } catch (FhirResourceException e) {
-            LOG.error("Invalid data in XML: ", e.getMessage());
+            LOG.error("Invalid data in XML: " + e.getMessage());
         }
         count++;
 

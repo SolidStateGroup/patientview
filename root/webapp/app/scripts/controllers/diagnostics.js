@@ -9,9 +9,11 @@ function ($scope, DiagnosticService) {
         DiagnosticService.getByUserId($scope.loggedInUser.id).then(function(diagnostics) {
             $scope.diagnostics = diagnostics;
             $scope.predicate = 'date';
+            $scope.reverse = true;
             $scope.loading = false;
         }, function () {
-            alert('Cannot get medication');
+            alert('Cannot get diagnostics');
+            $scope.loading = false;
         })
     };
 

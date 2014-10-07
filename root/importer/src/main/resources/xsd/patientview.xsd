@@ -350,7 +350,7 @@
                                         <xs:element maxOccurs="unbounded" minOccurs="1" name="letter">
                                             <xs:complexType>
                                                 <xs:sequence>
-                                                    <xs:element maxOccurs="1" minOccurs="1" name="letterdate" type="xs:date"/>
+                                                    <xs:element maxOccurs="1" minOccurs="1" name="letterdate" type="xs:dateTime"/>
                                                     <xs:element maxOccurs="1" minOccurs="1" name="lettertype">
                                                         <xs:simpleType>
                                                             <xs:restriction base="xs:string">
