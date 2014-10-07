@@ -29,7 +29,7 @@ public interface ConversationService extends CrudService<Conversation> {
 
     void addMessageReadReceipt(Long messageId, Long userId) throws ResourceNotFoundException;
 
-    int getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
+    Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
 
     List<User> getRecipients(Long userId, String[] featureTypes) throws ResourceNotFoundException, ResourceInvalidException;
 }

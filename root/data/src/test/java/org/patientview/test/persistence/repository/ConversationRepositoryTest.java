@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
+import org.patientview.persistence.model.Message;
+import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
@@ -17,8 +19,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -142,5 +146,67 @@ public class ConversationRepositoryTest {
         entityConversations = conversationRepository.findByUser(user1, pageablePage2);
         Assert.assertTrue("Should find 5 Conversations for user", entityConversations.getContent().size() == 5);
         Assert.assertTrue("Should get title of '20'", entityConversations.getContent().get(0).getTitle().equals("20"));
+    }
+
+    @Test
+    public void testFindUnreadConversationCount() {
+
+        User user1 = dataTestUtils.createUser("user1");
+        User user2 = dataTestUtils.createUser("user2");
+
+        for (int i=0; i<30; i++) {
+            Conversation conversation = new Conversation();
+
+            ConversationUser conversationUser1 = new ConversationUser();
+            conversationUser1.setUser(user1);
+            conversationUser1.setAnonymous(false);
+            conversationUser1.setConversation(conversation);
+
+            ConversationUser conversationUser2 = new ConversationUser();
+            conversationUser2.setUser(user2);
+            conversationUser2.setAnonymous(false);
+            conversationUser2.setConversation(conversation);
+
+            conversation.setConversationUsers(new HashSet<ConversationUser>());
+
+            conversation.getConversationUsers().add(conversationUser2);
+
+            conversation.setTitle(String.valueOf(i+1));
+            conversation.setLastUpdate(new Date());
+
+            conversation.setMessages(new ArrayList<Message>());
+
+            // user1 has messages on last 25
+            // has read 20 of them
+            if (i > 4) {
+                conversation.getConversationUsers().add(conversationUser1);
+                Message message = new Message();
+                message.setUser(user1);
+                message.setReadReceipts(new HashSet<MessageReadReceipt>());
+                message.setConversation(conversation);
+
+                if (i > 9) {
+                    MessageReadReceipt readReceipt = new MessageReadReceipt();
+                    readReceipt.setUser(user1);
+                    readReceipt.setMessage(message);
+                    readReceipt.setCreated(new Date());
+                    message.getReadReceipts().add(readReceipt);
+                }
+
+                conversation.getMessages().add(message);
+            }
+
+            conversationRepository.save(conversation);
+        }
+
+        PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Page<Conversation> entityConversations = conversationRepository.findByUser(user1, pageableAll);
+        Assert.assertEquals("Should find 25 Conversations for user", 25, entityConversations.getContent().size());
+
+        List<Conversation> conversationList = conversationRepository.getUnreadConversations(user1.getId());
+        Assert.assertEquals("Should find 5 unread Conversations for user", 5, conversationList.size());
+
+        Long count = conversationRepository.getUnreadConversationCount(user1.getId());
+        Assert.assertEquals("Should find 5 unread Conversations for user", (Long)5L, count);
     }
 }

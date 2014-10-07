@@ -33,7 +33,7 @@ public class TestPersistenceConfig  {
 
     @PostConstruct
     public void init() {
-        Properties properties = new Properties();
+        properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "create");
         properties.setProperty("hibernate.show_sql", "true");
         properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");

@@ -75,7 +75,7 @@ public class ConversationController extends BaseController<ConversationControlle
     @RequestMapping(value = "/user/{userId}/conversations/unreadcount", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Integer> getUnreadConversationCount(@PathVariable("userId") Long userId)
+    public ResponseEntity<Long> getUnreadConversationCount(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
     }

@@ -338,45 +338,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
-    private boolean conversationHasUnreadMessages(org.patientview.api.model.Conversation conversation, Long userId) {
-        int unreadMessages = 0;
-        for (org.patientview.api.model.Message message : conversation.getMessages()) {
-            boolean unread = true;
-            for (org.patientview.api.model.MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
-                if (messageReadReceipt.getUser().getId().equals(userId)) {
-                    unread = false;
-                }
-            }
-            if (unread) {
-                unreadMessages++;
-            }
-        }
-        return unreadMessages > 0;
-    }
-
     // todo: convert to native query, performance improvements etc
-    public int getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
+    public Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
 
         if (!userRepository.exists(userId)) {
             throw new ResourceNotFoundException("User does not exist");
         }
 
-        Page<org.patientview.api.model.Conversation> conversationPage
-                = findByUserId(userId, new PageRequest(0, Integer.MAX_VALUE));
-
-        if (conversationPage.getContent().size() == 0) {
-            return 0;
-        }
-
-        int unreadConversations = 0;
-
-        for (org.patientview.api.model.Conversation conversation : conversationPage.getContent()) {
-            if (conversationHasUnreadMessages(conversation, userId)) {
-                unreadConversations++;
-            }
-        }
-
-        return unreadConversations;
+        return conversationRepository.getUnreadConversationCount(userId);
     }
 
     private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
