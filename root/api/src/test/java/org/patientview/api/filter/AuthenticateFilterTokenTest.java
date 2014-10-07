@@ -99,6 +99,9 @@ public class AuthenticateFilterTokenTest {
     @Test
     public void testAuthenticationFromToken_loginRequest() {
 
+        // required during testing
+        authenticateTokenFilter.init();
+
         //Create a token
         String token = "token";
         UserToken userToken = new UserToken();
@@ -117,7 +120,6 @@ public class AuthenticateFilterTokenTest {
         }
 
         verify(authenticationService, Mockito.times(0)).authenticate(any(Authentication.class));
-
     }
 
     /**
@@ -127,6 +129,9 @@ public class AuthenticateFilterTokenTest {
      */
     @Test
     public void testAuthenticationFromToken_logoutRequest() {
+
+        // required during testing
+        authenticateTokenFilter.init();
 
         //Create a token
         String token = "token";
@@ -146,7 +151,6 @@ public class AuthenticateFilterTokenTest {
         }
 
         verify(authenticationService, Mockito.times(0)).authenticate(any(Authentication.class));
-
     }
 
     /**
