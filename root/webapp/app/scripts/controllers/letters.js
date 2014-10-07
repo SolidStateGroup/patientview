@@ -10,8 +10,11 @@ function ($scope, $modalInstance, letter) {
 
 angular.module('patientviewApp').controller('LettersCtrl', ['$scope', '$modal', 'LetterService',
 function ($scope, $modal, LetterService) {
+
     var init = function(){
         $scope.loading = true;
+        $scope.currentPage = 1;
+        $scope.entryLimit = 10;
 
         LetterService.getByUserId($scope.loggedInUser.id).then(function(letters) {
             $scope.letters = letters;
@@ -44,6 +47,15 @@ function ($scope, $modal, LetterService) {
         }, function () {
             // closed
         });
+    };
+
+    // client side sorting, pagination
+    $scope.sortBy = function(predicate) {
+        $scope.predicate = predicate;
+        $scope.reverse = !$scope.reverse;
+    };
+    $scope.setPage = function(pageNo) {
+        $scope.currentPage = pageNo;
     };
 
     init();

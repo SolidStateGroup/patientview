@@ -80,6 +80,9 @@ function ($scope, $timeout, MedicationService) {
 
     var init = function() {
         $scope.loading = true;
+        $scope.currentPage = 1;
+        $scope.entryLimit = 10;
+
         MedicationService.getByUserId($scope.loggedInUser.id).then(function(medicationStatements) {
             $scope.filterGroups = getSourceGroups(medicationStatements);
             separateMedicationStatements(medicationStatements);
@@ -90,9 +93,13 @@ function ($scope, $timeout, MedicationService) {
         })
     };
 
+    // client side sorting, pagination
     $scope.sortBy = function(predicate) {
         $scope.predicate = predicate;
         $scope.reverse = !$scope.reverse;
+    };
+    $scope.setPage = function(pageNo) {
+        $scope.currentPage = pageNo;
     };
 
     // filter by group

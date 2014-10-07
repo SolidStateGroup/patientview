@@ -18,14 +18,15 @@
             <table class="table" data-ng-show="letters.length">
                 <thead class="table-head">
                 <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Source</th>
+                    <th><a href="" data-ng-click="sortBy('date');" class="sort-title">Date</a></th>
+                    <th><a href="" data-ng-click="sortBy('type');" class="sort-title">Type</a></th>
+                    <th><a href="" data-ng-click="sortBy('group.name');" class="sort-title">Source</a></th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr data-ng-repeat="letter in letters | orderBy: predicate :reverse">
+                <tr data-ng-repeat="letter in letters | orderBy: predicate :reverse
+                    | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                     <td>{{letter.date | date: 'dd-MMM-yyyy HH:mm'}}</td>
                     <td>{{letter.type}}</td>
                     <td>{{letter.group.name}}</td>
@@ -33,6 +34,12 @@
                 </tr>
                 </tbody>
             </table>
+
+            <div data-ng-show="letters.length > 0">
+                <div pagination on-select-page="setPage(page)" total-items="letters.length"
+                     items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm"
+                     ng-hide="letters.length  < entryLimit "></div>
+            </div>
 
             <div class="alert alert-warning" data-ng-show="!letters.length">
                 <p>No Letters available</p>

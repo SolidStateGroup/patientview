@@ -27,7 +27,7 @@
 <div data-ng-show="!loading">
     <br/>
     <!-- Filter -->
-    <div class="content-panel filter-panel" ng-show="nonEcsFiltered.length || ecsFiltered.length">
+    <div class="content-panel filter-panel" ng-show="medicationStatementsNonEcs.length || medicationStatementsEcs.length">
         <div class="search-container">
             <i class="icon-search-black"></i>
             <input type="text" data-ng-model="searchText" placeholder="Search by medicine name or dose..." class="form-control input-block-level" />
@@ -80,7 +80,8 @@
                     </thead>
                     <tbody>
                         <tr data-ng-repeat="medicationStatement in nonEcsFiltered =
-                            (medicationStatementsNonEcs | nameAndDoseFilter:searchText | sourceGroupFilter:selectedGroups | orderBy: predicate :reverse)">
+                            (medicationStatementsNonEcs | nameAndDoseFilter:searchText | sourceGroupFilter:selectedGroups
+                            | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                             <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
                             <td>{{medicationStatement.name}}</td>
                             <td>{{medicationStatement.dose}}</td>
@@ -88,6 +89,12 @@
                         </tr>
                     </tbody>
                 </table>
+
+                <div data-ng-show="nonEcsFiltered.length > 0">
+                    <div pagination on-select-page="setPage(page)" total-items="nonEcsFiltered.length"
+                         items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm"
+                         ng-hide="nonEcsFiltered.length  < entryLimit "></div>
+                </div>
 
                 <div class="alert alert-warning" data-ng-show="!nonEcsFiltered.length">
                     <p>No medicine information from your units available</p>
