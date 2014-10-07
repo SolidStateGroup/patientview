@@ -31,8 +31,7 @@ public class StaticDataController extends BaseController<StaticDataController> {
     @RequestMapping(value = "/lookup", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Lookup>> getAllLookups() {
-
-        return new ResponseEntity<List<Lookup>>(staticDataManager.getAllLookups(), HttpStatus.OK);
+        return new ResponseEntity<>(staticDataManager.getAllLookups(), HttpStatus.OK);
     }
 
     // get lookups by lookupType type string
@@ -41,7 +40,7 @@ public class StaticDataController extends BaseController<StaticDataController> {
     @ResponseBody
     public ResponseEntity<List<Lookup>> getLookupsByType(@PathVariable("lookupType") LookupTypes lookupType) {
         LOG.debug("Request has been received to get lookups by type: {}", lookupType);
-        return new ResponseEntity<List<Lookup>>(staticDataManager.getLookupsByType(lookupType), HttpStatus.OK);
+        return new ResponseEntity<>(staticDataManager.getLookupsByType(lookupType), HttpStatus.OK);
     }
 
     // get lookup by lookupType type and value string
@@ -51,7 +50,7 @@ public class StaticDataController extends BaseController<StaticDataController> {
     public ResponseEntity<Lookup> getLookupByTypeAndValue(@PathVariable("lookupType") LookupTypes lookupType,
                                                           @PathVariable("lookupValue") String lookupValue) {
         LOG.debug("Request has been received to get lookups by type: {}", lookupType);
-        return new ResponseEntity<Lookup>(staticDataManager.getLookupByTypeAndValue(lookupType, lookupValue), HttpStatus.OK);
+        return new ResponseEntity<>(staticDataManager.getLookupByTypeAndValue(lookupType, lookupValue), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/feature", method = RequestMethod.GET)
@@ -60,9 +59,9 @@ public class StaticDataController extends BaseController<StaticDataController> {
             @RequestParam(value = "type", required = false) String featureType, HttpServletRequest request) {
 
         if (!request.getParameterMap().containsKey("type")) {
-            return new ResponseEntity<List<Feature>>(staticDataManager.getAllFeatures(), HttpStatus.OK);
+            return new ResponseEntity<>(staticDataManager.getAllFeatures(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<Feature>>(staticDataManager.getFeaturesByType(featureType), HttpStatus.OK);
+            return new ResponseEntity<>(staticDataManager.getFeaturesByType(featureType), HttpStatus.OK);
         }
     }
 

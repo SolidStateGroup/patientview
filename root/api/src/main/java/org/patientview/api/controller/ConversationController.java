@@ -9,6 +9,8 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -44,6 +46,7 @@ public class ConversationController extends BaseController<ConversationControlle
         return new ResponseEntity<>(conversationService.findByConversationId(conversationId), HttpStatus.OK);
     }
 
+    @CacheEvict("unreadCountCache")
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -72,6 +75,7 @@ public class ConversationController extends BaseController<ConversationControlle
         return new ResponseEntity<>(conversationService.findByUserId(userId, pageable), HttpStatus.OK);
     }
 
+    @Cacheable("unreadCountCache")
     @RequestMapping(value = "/user/{userId}/conversations/unreadcount", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

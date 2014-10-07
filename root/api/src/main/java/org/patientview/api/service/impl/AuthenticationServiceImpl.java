@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Role;
 import org.patientview.api.service.RoleService;
+import org.patientview.api.service.StaticDataManager;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.SecurityService;
@@ -66,6 +67,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Inject
     private RoleService roleService;
+
+    @Inject
+    private StaticDataManager staticDataManager;
 
     @Inject
     private Properties properties;
@@ -163,6 +167,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userTokenRepository.delete(userToken.getId());
     }
 
+    // retrieve static data and user specific data to avoid requerying
     @Override
     public org.patientview.api.model.UserToken getUserInformation(String token) {
         UserToken userToken = userTokenRepository.findByToken(token);
@@ -182,6 +187,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             transportUserToken = setSecurityRoles(transportUserToken);
             transportUserToken = setPatientRoles(transportUserToken);
             transportUserToken = setStaffRoles(transportUserToken);
+            transportUserToken = setGroupFeatures(transportUserToken);
+            transportUserToken = setPatientFeatures(transportUserToken);
+            transportUserToken = setStaffFeatures(transportUserToken);
         }
 
         return transportUserToken;
@@ -268,6 +276,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setPatientRoles(patientRoles);
         return userToken;
     }
+
     private org.patientview.api.model.UserToken setStaffRoles(org.patientview.api.model.UserToken userToken) {
         List<Role> staffRoles = new ArrayList<>();
         List<org.patientview.persistence.model.Role> fullStaffRoles = roleService.getRolesByType(RoleType.STAFF);
@@ -277,6 +286,21 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
         
         userToken.setStaffRoles(staffRoles);
+        return userToken;
+    }
+
+    private org.patientview.api.model.UserToken setGroupFeatures(org.patientview.api.model.UserToken userToken) {
+        userToken.setGroupFeatures(staticDataManager.getFeaturesByType("GROUP"));
+        return userToken;
+    }
+
+    private org.patientview.api.model.UserToken setPatientFeatures(org.patientview.api.model.UserToken userToken) {
+        userToken.setPatientFeatures(staticDataManager.getFeaturesByType("PATIENT"));
+        return userToken;
+    }
+
+    private org.patientview.api.model.UserToken setStaffFeatures(org.patientview.api.model.UserToken userToken) {
+        userToken.setStaffFeatures(staticDataManager.getFeaturesByType("STAFF"));
         return userToken;
     }
 

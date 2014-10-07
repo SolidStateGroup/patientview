@@ -478,12 +478,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.allowedRoles = allowedRoles;
 
             // get list of features available when user is adding a new Feature to patient members
-            FeatureService.getAllPatientFeatures().then(function (allFeatures) {
-                $scope.allFeatures = [];
-                for (var i = 0; i < allFeatures.length; i++) {
-                    $scope.allFeatures.push({'feature': allFeatures[i]});
-                }
-            });
+            var allFeatures = $scope.loggedInUser.patientFeatures;
+            $scope.allFeatures = [];
+            for (i = 0; i < allFeatures.length; i++) {
+                $scope.allFeatures.push({'feature': allFeatures[i]});
+            }
 
             // get list of identifier types when user adding identifiers to patient members
             $scope.identifierTypes = [];
@@ -732,6 +731,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 user.userGroups = userInformation.userGroups;
                 user.staffRoles = userInformation.staffRoles;
                 user.patientRoles = userInformation.patientRoles;
+                user.groupFeatures = userInformation.groupFeatures;
+                user.staffFeatures = userInformation.staffFeatures;
+                user.patientFeatures = userInformation.patientFeatures;
 
                 $rootScope.loggedInUser = user;
                 localStorageService.set('loggedInUser', user);

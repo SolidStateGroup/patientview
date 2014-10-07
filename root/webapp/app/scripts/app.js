@@ -276,6 +276,9 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
                 user.userGroups = userInformation.userGroups;
                 user.staffRoles = userInformation.staffRoles;
                 user.patientRoles = userInformation.patientRoles;
+                user.groupFeatures = userInformation.groupFeatures;
+                user.staffFeatures = userInformation.staffFeatures;
+                user.patientFeatures = userInformation.patientFeatures;
 
                 $rootScope.loggedInUser = user;
                 localStorageService.set('loggedInUser', user);

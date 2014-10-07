@@ -380,12 +380,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.allowedRoles = allowedRoles;
 
             // get list of features available when user is adding a new Feature to staff members
-            FeatureService.getAllStaffFeatures().then(function (allFeatures) {
-                $scope.allFeatures = [];
-                for (var i = 0; i < allFeatures.length; i++) {
-                    $scope.allFeatures.push({'feature': allFeatures[i]});
-                }
-            });
+            var allFeatures = $scope.loggedInUser.staffFeatures;
+            $scope.allFeatures = [];
+            for (i = 0; i < allFeatures.length; i++) {
+                $scope.allFeatures.push({'feature': allFeatures[i]});
+            }
 
             // only applies to patients
             $scope.identifierTypes = [];

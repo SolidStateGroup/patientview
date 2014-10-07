@@ -206,12 +206,11 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.getAllowedAddEditFilterGroups();
 
         // get list of features associated with groups
-        FeatureService.getAllGroupFeatures().then(function(allFeatures) {
-            $scope.allFeatures = [];
-            for (i=0;i<allFeatures.length;i++){
-                $scope.allFeatures.push({'feature':allFeatures[i]});
-            }
-        });
+        var allFeatures = $scope.loggedInUser.groupFeatures;
+        $scope.allFeatures = [];
+        for (i=0;i<allFeatures.length;i++){
+            $scope.allFeatures.push({'feature':allFeatures[i]});
+        }
 
         // get list of contact point types
         StaticDataService.getLookupsByType('CONTACT_POINT_TYPE').then(function(contactPointTypes) {

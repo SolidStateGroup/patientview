@@ -1,5 +1,6 @@
 package org.patientview.api.model;
 
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Route;
 
 import java.util.Date;
@@ -23,6 +24,9 @@ public class UserToken {
     private Set<Route> routes;
     private List<Role> staffRoles;
     private List<Role> patientRoles;
+    private List<Feature> groupFeatures;
+    private List<Feature> staffFeatures;
+    private List<Feature> patientFeatures;
 
     public UserToken () {
 
@@ -107,5 +111,29 @@ public class UserToken {
 
     public void setPatientRoles(List<Role> patientRoles) {
         this.patientRoles = patientRoles;
+    }
+
+    public List<Feature> getGroupFeatures() {
+        return groupFeatures;
+    }
+
+    public void setGroupFeatures(List<Feature> groupFeatures) {
+        this.groupFeatures = groupFeatures;
+    }
+
+    public List<Feature> getPatientFeatures() {
+        return patientFeatures;
+    }
+
+    public void setPatientFeatures(List<Feature> patientFeatures) {
+        this.patientFeatures = patientFeatures;
+    }
+
+    public List<Feature> getStaffFeatures() {
+        return staffFeatures;
+    }
+
+    public void setStaffFeatures(List<Feature> staffFeatures) {
+        this.staffFeatures = staffFeatures;
     }
 }
