@@ -53,7 +53,7 @@ public class ObservationsBuilder {
                     observations.add(createObservation(test, result));
                     success++;
                 } catch (FhirResourceException e) {
-                    LOG.error("Invalid data in XML: ", e.getMessage());
+                    LOG.error("Invalid data in XML: " + e.getMessage());
                 }
                 count++;
             }
@@ -64,7 +64,7 @@ public class ObservationsBuilder {
             observations.add(createObservationNonTest(NonTestObservationTypes.BLOOD_GROUP.toString(),
                     results.getPatient().getClinicaldetails().getBloodgroup()));
         } catch (FhirResourceException e) {
-            LOG.error("Invalid data in XML: ", e.getMessage());
+            LOG.error("Invalid data in XML: " + e.getMessage());
         }
 
         return observations;
@@ -90,7 +90,12 @@ public class ObservationsBuilder {
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
 
-        observation.setValue(null);
+        // text based value
+        CodeableConcept valueConcept = new CodeableConcept();
+        valueConcept.setTextSimple(value);
+        valueConcept.addCoding().setDisplaySimple(value);
+        observation.setValue(valueConcept);
+
         observation.setSubject(resourceReference);
 
         CodeableConcept name = new CodeableConcept();
@@ -102,8 +107,6 @@ public class ObservationsBuilder {
         identifier.setLabelSimple("resultcode");
         identifier.setValueSimple(type);
         observation.setIdentifier(identifier);
-
-        observation.setCommentsSimple(value);
 
         return observation;
     }
@@ -148,21 +151,14 @@ public class ObservationsBuilder {
     }
 
     private DateTime createDateTime(Patientview.Patient.Testdetails.Test.Result result) throws FhirResourceException {
-        DateTime dateTime = new DateTime();
         try {
-            DateAndTime dateAndTime = DateAndTime.now();
-            dateAndTime.setYear(result.getDatestamp().getYear());
-            dateAndTime.setMonth(result.getDatestamp().getMonth());
-            dateAndTime.setDay(result.getDatestamp().getDay());
-            dateAndTime.setHour(result.getDatestamp().getHour());
-            dateAndTime.setMinute(result.getDatestamp().getMinute());
-            dateAndTime.setSecond(result.getDatestamp().getSecond());
+            DateTime dateTime = new DateTime();
+            DateAndTime dateAndTime = new DateAndTime(result.getDatestamp().toGregorianCalendar().getTime());
             dateTime.setValue(dateAndTime);
+            return dateTime;
         } catch (NullPointerException npe) {
-            throw new FhirResourceException("Result timestamp has not been supplied");
+            throw new FhirResourceException("Result timestamp is incorrectly formatted");
         }
-
-        return dateTime;
     }
 
     public int getSuccess() {

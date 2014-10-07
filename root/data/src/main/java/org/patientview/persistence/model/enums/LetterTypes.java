@@ -6,7 +6,8 @@ package org.patientview.persistence.model.enums;
  */
 public enum LetterTypes {
     CLINIC_LETTER("Clinic Letter"),
-    DISCHARGE_SUMMARY("Discharge Summary");
+    DISCHARGE_SUMMARY("Discharge Summary"),
+    GENERAL_LETTER("General Letter");
 
     private String name;
     LetterTypes(String name) { this.name = name; }

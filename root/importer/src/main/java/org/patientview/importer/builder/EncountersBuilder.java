@@ -43,7 +43,7 @@ public class EncountersBuilder {
                     EncounterTypes.TREATMENT.toString()));
             success++;
         } catch (FhirResourceException e) {
-            LOG.error("Invalid data in XML: ", e.getMessage());
+            LOG.error("Invalid data in XML: " + e.getMessage());
         }
 
         count++;
@@ -54,7 +54,7 @@ public class EncountersBuilder {
                     EncounterTypes.TRANSPLANT_STATUS.toString()));
             success++;
         } catch (FhirResourceException e) {
-            LOG.error("Invalid data in XML: ", e.getMessage());
+            LOG.error("Invalid data in XML: " + e.getMessage());
         }
 
         count++;

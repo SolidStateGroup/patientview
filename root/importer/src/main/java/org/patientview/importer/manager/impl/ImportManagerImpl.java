@@ -7,6 +7,7 @@ import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
 import org.patientview.importer.service.ConditionService;
 import org.patientview.importer.service.DiagnosticService;
+import org.patientview.importer.service.DocumentReferenceService;
 import org.patientview.importer.service.EncounterService;
 import org.patientview.importer.service.MedicationService;
 import org.patientview.importer.service.ObservationService;
@@ -58,6 +59,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private DiagnosticService diagnosticService;
 
     @Inject
+    private DocumentReferenceService documentReferenceService;
+
+    @Inject
     private Properties properties;
 
 
@@ -104,13 +108,13 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             UUID patientUuid = patientService.add(patientview, practitionerReference);
             patientReference = createResourceReference(patientUuid);
 
-            // observations (tests)
+            // observation (tests)
             observationService.add(patientview, patientReference);
 
-            // conditions (diagnoses)
+            // condition (diagnoses)
             conditionService.add(patientview, patientReference);
 
-            // encounters (used for treatment and transplant status)
+            // encounter (used for treatment and transplant status)
             encounterService.add(patientview, patientReference, organizationReference);
 
             // medication (drugdetails)
@@ -118,6 +122,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             // diagnosticreports (diagnostics, originally IBD now generic)
             diagnosticService.add(patientview, patientReference);
+
+            // documentreference (letters)
+            documentReferenceService.add(patientview, patientReference);
 
             Date end = new Date();
             LOG.info("Finished processing data for NHS number: "
@@ -156,6 +163,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                     encounterService.deleteBySubjectId(fhirLink.getVersionId());
                     medicationService.deleteBySubjectId(fhirLink.getVersionId());
                     diagnosticService.deleteBySubjectId(fhirLink.getVersionId());
+                    documentReferenceService.deleteBySubjectId(fhirLink.getVersionId());
                 }
 
                 LOG.info("Finished removing old data for NHS number: "
