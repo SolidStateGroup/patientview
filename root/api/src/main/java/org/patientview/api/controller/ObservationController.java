@@ -29,6 +29,9 @@ public class ObservationController extends BaseController<ObservationController>
     @Inject
     private ObservationService observationService;
 
+    private final String DEFAULT_SORT = "appliesDateTime";
+    private final String DEFAULT_SORT_DIRECTION = "DESC";
+
     @RequestMapping(value = "/user/{userId}/observations", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getAllObservations(@PathVariable("userId") Long userId)
@@ -40,7 +43,8 @@ public class ObservationController extends BaseController<ObservationController>
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getObservationsByCode(@PathVariable("userId") Long userId,
             @PathVariable("code") String code) throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(observationService.get(userId, code.toUpperCase(), "appliesDateTime", "DESC", null),
+        return new ResponseEntity<>(
+            observationService.get(userId, code.toUpperCase(), DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null),
             HttpStatus.OK);
     }
 
