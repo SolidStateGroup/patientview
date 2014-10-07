@@ -42,9 +42,14 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     private JoinRequestRepository joinRequestRepository;
 
     @Override
-    public JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException {
+    public JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException {
 
-        Group group = findGroup(groupId);
+        Group group = findGroup(joinRequest.getGroupId());
+
+        if (group == null) {
+            throw new ResourceNotFoundException("Group not found");
+        }
+
         joinRequest.setGroup(group);
         joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
         return joinRequestRepository.save(joinRequest);

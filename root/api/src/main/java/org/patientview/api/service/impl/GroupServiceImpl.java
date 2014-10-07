@@ -36,7 +36,6 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -84,11 +83,25 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     /**
      * Get all the groups and put the children and parents into the transient objects
      *
-     * @return
+     * @return list of groups
      */
     public List<Group> findAll() {
         List<Group> groups = Util.convertIterable(groupRepository.findAll());
         return addParentAndChildGroups(groups);
+    }
+
+    private List<org.patientview.api.model.Group> convertToTransportGroups(List<Group> groups) {
+        List<org.patientview.api.model.Group> transportGroups = new ArrayList<>();
+        for (Group group : groups) {
+            transportGroups.add(new org.patientview.api.model.Group(group));
+        }
+        return transportGroups;
+    }
+
+    @Override
+    public List<org.patientview.api.model.Group> findAllPublic() {
+        return convertToTransportGroups(
+                addParentAndChildGroups(groupRepository.findAllVisibleToJoin()));
     }
 
     @Override
@@ -111,10 +124,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addParentAndChildGroups(groups);
     }
 
-    /**
-     * @param group
-     * @return
-     */
     public Group save(Group group) throws ResourceNotFoundException, EntityExistsException {
         Group entityGroup = groupRepository.findOne(group.getId());
 
@@ -124,7 +133,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         // check if another group with this code exists
         Group existingGroup = groupRepository.findByCode(group.getCode());
-        if (groupExists(group) && !(entityGroup.getId() == existingGroup.getId())) {
+        if (groupExists(group) && !(entityGroup.getId().equals(existingGroup.getId()))) {
             throw new EntityExistsException("Group already exists with this code");
         }
 
@@ -408,7 +417,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public void delete(Long id){
-        LOG.info("Not Implemented");
+        LOG.info("Delete " + id + " not Implemented");
     }
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {

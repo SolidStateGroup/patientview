@@ -129,4 +129,9 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
 
     public Iterable<Group> findByName(String name);
 
+    @Query("SELECT g " +
+            "FROM   Group g " +
+            "WHERE  g.visibleToJoin = true")
+    public List<Group> findAllVisibleToJoin();
+
 }

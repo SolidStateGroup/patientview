@@ -4,13 +4,11 @@ import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
-import org.patientview.api.service.JoinRequestService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.slf4j.Logger;
@@ -36,11 +34,6 @@ import java.util.List;
 @RestController
 public class GroupController extends BaseController<GroupController> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(GroupController.class);
-
-    @Inject
-    private JoinRequestService joinRequestService;
-
     @Inject
     private GroupService groupService;
 
@@ -50,6 +43,12 @@ public class GroupController extends BaseController<GroupController> {
     @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void createGroup(@RequestBody Group group) {
         groupService.add(group);
+    }
+
+    @RequestMapping(value = "/public/group", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<org.patientview.api.model.Group>> getGroupsPublic() {
+        return new ResponseEntity<>(groupService.findAllPublic(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.GET)
@@ -87,14 +86,6 @@ public class GroupController extends BaseController<GroupController> {
     @ResponseBody
     public void deleteParentGroup(@PathVariable("groupId") Long groupId, @PathVariable("parentId") Long parentGroupId) {
         groupService.deleteParentGroup(groupId, parentGroupId);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/joinRequest", method = RequestMethod.POST,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void addJoinRequest(@PathVariable("groupId") Long groupId,
-                               @RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
-        LOG.debug("Join Request Received for {} {}", joinRequest.getForename(), joinRequest.getSurname());
-        joinRequestService.add(groupId, joinRequest);
     }
 
     @RequestMapping(value = "/group/{groupId}/children", method = RequestMethod.GET)

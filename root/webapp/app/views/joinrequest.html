@@ -7,7 +7,6 @@
                 <strong>Thank you for submitting your request to join PatientView. Your selected unit will follow up shortly
                     with the enrolment forms, after which you will receive your account details.</strong>
             </div>
-
             <div>
                 <p>Please enter your details. Ensure they are accurate since they will be used by your unit's staff to
                     verify who you are and to contact you to add you to PatientView.</p>
@@ -17,23 +16,23 @@
             </div>
 
             <div class="form-group">
-                <label for="forename" class="col-md-2 control-label">Forename:</label>
+                <label for="forename" class="col-md-2 control-label">Forename (required):</label>
                 <div class="col-md-4">
-                    <input id="forename" name=forename" type="text" class="form-control" data-ng-model="joinRequest.forename"
+                    <input id="forename" name="forename" type="text" class="form-control" data-ng-model="joinRequest.forename"
                            required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="forename" class="col-md-2 control-label">Surname:</label>
+                <label for="surname" class="col-md-2 control-label">Surname (required):</label>
                 <div class="col-md-4">
-                    <input id="surname" name=surname" type="text" class="form-control" data-ng-model="joinRequest.surname"
+                    <input id="surname" name="surname" type="text" class="form-control" data-ng-model="joinRequest.surname"
                            required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-md-2 control-label">Date Of Birth:</label>
+                <label class="col-md-2 control-label">Date Of Birth (required):</label>
                 <div class="col-md-4 dob-row">
                     <div class="col-md-4 day">
                     Day:<select required="required"
@@ -64,10 +63,10 @@
             </div>
 
             <div class="form-group">
-                <label class="col-md-2 control-label">Specialty:</label>
+                <label class="col-md-2 control-label" for="specialty">Specialty (required):</label>
                 <div class="col-md-4">
-
-                    <select required="required"
+                    <select id="specialty"
+                            required="required"
                             data-ng-model="joinRequest.specialty"
                             data-ng-change="refreshUnits()"
                             data-ng-options="obj.id as obj.name for obj in specialties | orderBy:['name']"
@@ -77,18 +76,20 @@
             </div>
 
             <div class="form-group">
-                <label class="col-md-2 control-label">Unit:</label>
+                <label class="col-md-2 control-label" for="unit">Unit (required):</label>
                 <div class="col-md-4">
-                    <select required="required"
+                    <select id="unit"
+                            required="required"
                             data-ng-model="joinRequest.unit"
                             data-ng-options="obj.id as obj.name for obj in units | orderBy:['name']"
-                            class="form-control">
-                            </select>
+                            class="form-control"
+                            data-ng-show="units.length"></select>
+                    <p data-ng-show="!units.length">You must choose a specialty with units available to join</p>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="email" class="col-md-2 control-label">Email:</label>
+                <label for="email" class="col-md-2 control-label">Email (required):</label>
                 <div class="col-md-4">
                     <input id="email" name="email" type="text" class="form-control" data-ng-model="joinRequest.email" required=""/>
                 </div>
@@ -97,7 +98,8 @@
             <div class="form-group">
                 <div class="col-md-4 col-sm-offset-2">
                     <button data-ng-click="submit()" class="btn blue"
-                            data-ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear">
+                            data-ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear
+                            || !joinRequest.email || !units.length || !joinRequest.unit">
                         Submit Request</button>
                 </div>
             </div>

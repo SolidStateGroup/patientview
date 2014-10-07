@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 'JoinRequestService', 'StaticDataService', '$scope', '$rootScope', 'UtilService', function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,UtilService) {
+angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 'JoinRequestService', 'StaticDataService', '$scope', '$rootScope', 'UtilService',
+function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,UtilService) {
 
     $scope.joinRequest = {};
     $scope.pw = '';
@@ -11,20 +12,17 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
     $scope.joinRequest.selectedMonth = '';
     $scope.joinRequest.selectedDay = '';
 
-    StaticDataService.getLookupByTypeAndValue('GROUP', 'SPECIALTY').then(function(lookup){
-        GroupService.getAllByType(lookup.id).then(function(specialties) {
-            $scope.specialties = [];
-            specialties.forEach(function(entry) {
+    GroupService.getAllPublic().then(function(groups) {
+        $scope.specialties = [];
+        $scope.childUnits = [];
 
-                if (entry.visibleToJoin === true) {
-                    $scope.specialties.push(entry);
-                    // Lets default to Renal and requery the units
-                    if (entry.name === 'Renal') {
-                        $scope.joinRequest.specialty = entry.id;
-                        $scope.refreshUnits();
-                    }
-                }
-            });
+        // separate SPECIALTY from UNIT groups
+        groups.forEach(function(group) {
+            if (group.groupType.value === 'SPECIALTY') {
+                $scope.specialties.push(group);
+            } else if (group.groupType.value === 'UNIT') {
+                $scope.childUnits.push(group);
+            }
         });
     });
 
@@ -32,21 +30,20 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
 
         var groupId = 0;
         $scope.joinRequest.id = null;
-
         $scope.successMessage = null;
         $scope.errorMessage = null;
 
         var formOk = true;
 
         if (typeof $scope.joinRequest.unit === 'undefined') {
-            $scope.errorMessage = '- Please select a unit to join';
+            $scope.errorMessage = 'Please select a unit to join';
             formOk = false;
         } else {
             groupId = $scope.joinRequest.unit;
         }
 
         if (UtilService.validateEmail($scope.joinRequest.email)) {
-            $scope.errorMessage = '- Invalid format for email';
+            $scope.errorMessage = 'Invalid format for email';
             formOk = false;
         }
 
@@ -62,7 +59,7 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
         if (!UtilService.validationDate($scope.joinRequest.selectedDay,
                                         $scope.joinRequest.selectedMonth,
                                         $scope.joinRequest.selectedYear)) {
-            $scope.errorMessage = '- Please enter a valid date';
+            $scope.errorMessage = 'Please enter a valid date';
             formOk = false;
         } else {
             $scope.joinRequest.dateOfBirth = $scope.joinRequest.selectedDay +
@@ -74,25 +71,21 @@ angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 
             JoinRequestService.create(groupId, $scope.joinRequest).then(function () {
                 $scope.successMessage = 'The join request has been saved';
             }, function (result) {
-                $scope.errorMessage = '- The join request has not been submitted ' + result.data;
+                $scope.errorMessage = 'The join request has not been submitted ' + result.data;
             });
         }
-
     };
 
     $scope.refreshUnits = function() {
-        if (typeof $scope.joinRequest.specialty !== 'undefined') {
-            GroupService.getChildren($scope.joinRequest.specialty).then(function (units) {
-                $scope.units = [];
-                units.forEach(function(entry) {
-                    if (entry.visibleToJoin === true) {
-                        $scope.units.push(entry);
-                    }
-                    $scope.joinRequest.unit = entry.id;
-                });
+        $scope.units = [];
 
+        if (typeof $scope.joinRequest.specialty !== 'undefined') {
+
+            $scope.childUnits.forEach(function(unit) {
+                if (_.findWhere(unit.parentGroups, {id: $scope.joinRequest.specialty})) {
+                    $scope.units.push(unit);
+                }
             });
         }
     };
-
 }]);

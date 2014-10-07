@@ -71,11 +71,12 @@ public class JoinRequestServiceTest {
         joinRequest.setForename("Test");
         joinRequest.setSurname("User");
         joinRequest.setDateOfBirth(new Date());
+        joinRequest.setGroupId(group.getId());
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(joinRequestRepository.save(any(JoinRequest.class))).thenReturn(joinRequest);
 
-        joinRequest = joinRequestService.add(group.getId(), joinRequest);
+        joinRequest = joinRequestService.add(joinRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
         verify(joinRequestRepository, Mockito.times(1)).save(any(JoinRequest.class));
@@ -99,10 +100,11 @@ public class JoinRequestServiceTest {
         joinRequest.setSurname("User");
         joinRequest.setDateOfBirth(new Date());
         joinRequest.setGroup(group);
+        joinRequest.setGroupId(group.getId());
 
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
 
-        joinRequestService.add(group.getId(), joinRequest);
+        joinRequestService.add(joinRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
         Assert.fail("The service should throw an exception");

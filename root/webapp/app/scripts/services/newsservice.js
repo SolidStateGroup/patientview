@@ -23,9 +23,8 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
         },
         getPublicNews: function (page, size) {
             var deferred = $q.defer();
-            // GET /news/public?page=0&size=5
-            // returns page
-            Restangular.one('news').one('public').get({'page': page, 'size': size}).then(function(successResult) {
+            // GET /public/news?page=0&size=5
+            Restangular.one('public').one('news').get({'page': page, 'size': size}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -93,44 +92,11 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
             });
             return deferred.promise;
         },
-        // Add new group to news links
-        addGroup: function (newsId, groupId) {
-            var deferred = $q.defer();
-            // PUT /news/{newsId}/group/{groupId}
-            Restangular.one('news', newsId).one('group',groupId).put().then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        // Delete group from news links
-        deleteGroup: function (newsId, groupId) {
-            var deferred = $q.defer();
-            // DELETE /news/{newsId}/group/{groupId}
-            Restangular.one('news', newsId).one('group',groupId).remove().then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
         // Add new role to news links
         addRole: function (newsId, roleId) {
             var deferred = $q.defer();
             // PUT /news/{newsId}/role/{roleId}
             Restangular.one('news', newsId).one('role',roleId).put().then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        // Delete role from news links
-        deleteRole: function (newsId, roleId) {
-            var deferred = $q.defer();
-            // DELETE /news/{newsId}/role/{roleId}
-            Restangular.one('news', newsId).one('role',roleId).remove().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

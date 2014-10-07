@@ -23,6 +23,7 @@ import java.util.Date;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by james@solidstategroup.com
@@ -44,6 +45,33 @@ public class JoinRequestControllerTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(joinRequestController).build();
+    }
+
+    /**
+     * Test: The submission of a JoinRequest object to the controller
+     * Fail: The JoinRequest object is not passed to the server
+     */
+    @Test
+    public void testAddJoinRequest() {
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setId(1L);
+        joinRequest.setForename("Test");
+        joinRequest.setSurname("User");
+        joinRequest.setDateOfBirth(new Date());
+        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
+
+        Long groupId = 2L;
+        joinRequest.setGroupId(groupId);
+
+        try {
+            when(joinRequestService.add(eq(joinRequest))).thenReturn(joinRequest);
+            mockMvc.perform(MockMvcRequestBuilders.post("/public/joinrequest")
+                    .content(mapper.writeValueAsString(joinRequest)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+            verify(joinRequestService, Mockito.times(1)).add(eq(joinRequest));
+        } catch (Exception e) {
+            fail("This call should not fail");
+        }
     }
 
     /**
@@ -80,7 +108,6 @@ public class JoinRequestControllerTest {
             fail("Exception throw");
         }
     }
-
 
     /**
      * Test: The request of the join request for a unit

@@ -42,16 +42,16 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     public void init() {
         LOG.info("Authentication token filter initialised");
 
+        // all users login/logout
         publicUrls.add("/api/auth/login");
         publicUrls.add("/api/auth/logout");
-        publicUrls.add("/api/news/public");
 
-        // used for join requests
-        publicUrls.add("/api/lookupType");
-        publicUrls.add("/api/group/type");
+        // public news
+        publicUrls.add("/api/public/news");
 
-        // TODO: correctly retrieve group info for join requests
-
+        // patient join requests
+        publicUrls.add("/api/public/group");
+        publicUrls.add("/api/public/joinrequest");
     }
 
     private boolean isPublicPath(String path) {
@@ -66,9 +66,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     /**
      * This is the method to authorize the user to use the service is spring.
      *
-     * @param request
-     * @param response
-     * @param chain
+     * @param request servlet request
+     * @param response servlet response
+     * @param chain filter chain
      * @throws IOException
      * @throws ServletException
      */

@@ -20,7 +20,7 @@ public interface JoinRequestService {
 
     BigInteger getCount(Long userId) throws ResourceNotFoundException;
 
-    JoinRequest add(Long groupId, JoinRequest joinRequest) throws ResourceNotFoundException;
+    JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException;
 
     Page<org.patientview.api.model.JoinRequest> getByUser(Long userId, GetParameters getParameters)
             throws ResourceNotFoundException;

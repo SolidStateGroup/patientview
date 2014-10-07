@@ -31,6 +31,12 @@ public class JoinRequestController extends BaseController<JoinRequestController>
     @Inject
     private JoinRequestService joinRequestService;
 
+    @RequestMapping(value = "/public/joinrequest", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void addJoinRequest(@RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
+        joinRequestService.add(joinRequest);
+    }
+
     @RequestMapping(value = "/joinrequest/statuses", method = RequestMethod.GET)
     @ResponseBody
     public List<JoinRequestStatus> getStatuses() {

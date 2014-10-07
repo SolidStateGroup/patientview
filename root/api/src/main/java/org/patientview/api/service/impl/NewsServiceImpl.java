@@ -286,7 +286,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
             Role newsLinkRole = newsLink.getRole();
-            if (newsLink.getRole() != null && (newsLinkRole.getId().equals(entityRole.getId()))) {
+            if (newsLink.getRole() != null && newsLink.getGroup() == null
+                    && (newsLinkRole.getId().equals(entityRole.getId()))) {
                 found = true;
             }
         }

@@ -12,6 +12,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.Date;
 
 /**
@@ -60,6 +61,10 @@ public class JoinRequest extends BaseModel {
 
     @Column(name = "notes")
     private String notes;
+
+    // used when public creation of join requests
+    @Transient
+    private Long groupId;
 
     public String getForename() {
         return forename;
@@ -147,5 +152,13 @@ public class JoinRequest extends BaseModel {
 
     public void setNotes(final String notes) {
         this.notes = notes;
+    }
+
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 }

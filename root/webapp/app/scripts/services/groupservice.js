@@ -21,6 +21,16 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getAllPublic: function () {
+            var deferred = $q.defer();
+            // GET /public/group
+            Restangular.all('public/group').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getAllByType: function (typeId) {
             var deferred = $q.defer();
             Restangular.all('group').one('type', typeId).getList().then(function(successResult) {

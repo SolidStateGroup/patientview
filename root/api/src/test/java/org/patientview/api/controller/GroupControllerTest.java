@@ -16,12 +16,10 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
-import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.util.TestUtils;
 import org.slf4j.Logger;
@@ -45,8 +43,6 @@ import static org.mockito.Mockito.when;
  * Created on 09/07/2014
  */
 public class GroupControllerTest {
-
-    protected final Logger LOG = LoggerFactory.getLogger(GroupControllerTest.class);
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -80,8 +76,19 @@ public class GroupControllerTest {
     }
 
     @Test
-    public void testGetGroupByType() {
+    public void testGetGroupsPublic() {
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/public/group"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw");
+        }
 
+        verify(groupService, Mockito.times(1)).findAllPublic();
+    }
+
+    @Test
+    public void testGetGroupByType() {
         Long typeId = 9L;
 
         try {
@@ -93,12 +100,10 @@ public class GroupControllerTest {
         }
 
         verify(groupService, Mockito.times(1)).findGroupByType(eq(typeId));
-
     }
 
     @Test
     public void testAddChildGroup() {
-
         Long groupId = 1L;
         Long childGroupId = 2L;
 
@@ -166,36 +171,6 @@ public class GroupControllerTest {
         verify(groupService, Mockito.times(1)).deleteFeature(eq(groupId), eq(featureId));
     }
 
-
-    /**
-     * Test: The submission of a JoinRequest object to the controller
-     * Fail: The JoinRequest object is not passed to the server
-     */
-    @Test
-    public void testAddJoinRequest() {
-
-        JoinRequest joinRequest = new JoinRequest();
-        joinRequest.setId(1L);
-        joinRequest.setForename("Test");
-        joinRequest.setSurname("User");
-        joinRequest.setDateOfBirth(new Date());
-        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
-
-
-        Long groupId = 2L;
-
-        try {
-            when(joinRequestService.add(eq(groupId), eq(joinRequest))).thenReturn(joinRequest);
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/joinRequest")
-                    .content(mapper.writeValueAsString(joinRequest)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(joinRequestService, Mockito.times(1)).add(eq(groupId), eq(joinRequest));
-        } catch (Exception e) {
-            fail("This call should not fail");
-        }
-
-    }
-
     /**
      * Test: The request of a parent group with the child
      * Fail: The 200 is not returned and the service is not called
@@ -214,7 +189,6 @@ public class GroupControllerTest {
         }
 
         verify(groupService, Mockito.times(1)).findChildren(eq(groupId));
-
     }
 
     @Test
@@ -287,7 +261,6 @@ public class GroupControllerTest {
         }
     }
 
-
     /**
      * Test: The retrieval of the group statistics for a specific group
      * Fail: The statistics service is not contacted about the request
@@ -308,7 +281,6 @@ public class GroupControllerTest {
         }
 
         verify(groupStatisticService, Mockito.times(1)).getMonthlyGroupStatistics(eq(group.getId()));
-
     }
 
     /**
@@ -333,9 +305,7 @@ public class GroupControllerTest {
         } catch (Exception e) {
             fail("This call should not fail");
         }
-
     }
-
 }
 
 

@@ -4,15 +4,16 @@ angular.module('patientviewApp').factory('JoinRequestService', ['$q', 'Restangul
     return {
         // save join request
         create: function (groupId, joinRequest) {
-
             joinRequest = UtilService.cleanObject(joinRequest, 'joinRequest');
+            joinRequest.groupId = groupId;
 
             // correctly format DOB
             joinRequest.dateOfBirth = joinRequest.dateOfBirth.split('-')[2] + '-'
                 + joinRequest.dateOfBirth.split('-')[1] + '-' + joinRequest.dateOfBirth.split('-')[0];
 
             var deferred = $q.defer();
-            Restangular.all('group/' + groupId + '/joinRequest').customPOST(joinRequest).then(function(successResult) {
+            // POST /public/joinrequest
+            Restangular.all('public/joinrequest').customPOST(joinRequest).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

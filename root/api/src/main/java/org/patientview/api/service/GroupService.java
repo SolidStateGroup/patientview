@@ -28,6 +28,8 @@ public interface GroupService {
 
     List<Group> findAll();
 
+    List<org.patientview.api.model.Group> findAllPublic();
+
     Group findByCode(String code);
 
     List<Group> findGroupByUser(User user);
