@@ -94,7 +94,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.chartLoading = true;
         ObservationService.getByCode($scope.loggedInUser.id, code).then(function(observations) {
             if (observations.length) {
-                $scope.observations = observations;
+                $scope.observations = _.sortBy(observations, 'applies').reverse();
                 $scope.selectedObservation = observations[0];
                 $scope.initialiseChart();
             } else {
@@ -193,6 +193,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     $scope.setRangeInDays = function (days) {
         $scope.range = days;
         var now = new Date();
+        now = new Date(now.getTime() + 86400000);
         var start = new Date(now.getTime() - days * 86400000);
         $scope.chart.setVisibleChartRange(start, now);
         $scope.showHideObservationsInTable(start, now);

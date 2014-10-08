@@ -41,7 +41,7 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
             }
 
             for (i=0;i<$scope.hours.length;i++) {
-                if (parseInt($scope.hours[i]) === currentDate.getHours() - (currentDate.getTimezoneOffset()/60)) {
+                if (parseInt($scope.hours[i]) === currentDate.getHours()) {
                     userResultCluster.hour = $scope.hours[i];
                 }
             }
