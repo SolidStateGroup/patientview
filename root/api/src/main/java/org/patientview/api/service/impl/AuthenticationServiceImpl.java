@@ -234,20 +234,23 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private org.patientview.api.model.UserToken setFhirInformation(org.patientview.api.model.UserToken userToken,
                                                                    User user)  {
-        // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy
+        // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy (ignore PATIENT_ENTERED)
         if (user.getFhirLinks() != null && !user.getFhirLinks().isEmpty()) {
             Date latestDataReceivedDate = new Date(1,1,1);
-            Group group = user.getFhirLinks().iterator().next().getGroup();
+            Group group = null;
 
             for (FhirLink fhirLink : user.getFhirLinks()) {
-                if (fhirLink.getCreated().after(latestDataReceivedDate)) {
+                if (fhirLink.getCreated().after(latestDataReceivedDate)
+                        && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
                     latestDataReceivedDate = fhirLink.getCreated();
                     group = fhirLink.getGroup();
                 }
             }
 
-            userToken.getUser().setLatestDataReceivedBy(new org.patientview.api.model.Group(group));
-            userToken.getUser().setLatestDataReceivedDate(latestDataReceivedDate);
+            if (group != null) {
+                userToken.getUser().setLatestDataReceivedBy(new org.patientview.api.model.Group(group));
+                userToken.getUser().setLatestDataReceivedDate(latestDataReceivedDate);
+            }
         }
         return userToken;
     }
