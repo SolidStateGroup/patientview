@@ -3,7 +3,7 @@
     <p>Your conditions are not currently stored in PatientView.</p>
 </div>
 
-<div class="details-filter clearfix">
+<div class="details-filter clearfix" data-ng-show="patientDetails.length">
     <div class="pull-right">Information provided by: &nbsp;&nbsp;
         <label data-ng-repeat="patient in patientDetails">
             <input type="checkbox" value="{{patient.group.name}}" data-ng-model="patient.group.selected">
