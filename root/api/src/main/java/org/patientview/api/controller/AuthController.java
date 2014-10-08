@@ -62,12 +62,12 @@ public class AuthController extends BaseController<AuthController> {
 
         if (StringUtils.isEmpty(credentials.getUsername())) {
             LOG.debug("A username must be supplied");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new AuthenticationServiceException("Incorrect username or password");
         }
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
             LOG.debug("A password must be supplied");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new AuthenticationServiceException("Incorrect username or password");
         }
 
         return new ResponseEntity<>(authenticationService.authenticate(
