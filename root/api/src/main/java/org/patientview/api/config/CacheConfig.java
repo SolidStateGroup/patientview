@@ -22,7 +22,13 @@ public class CacheConfig implements CachingConfigurer {
 
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
         config.defaultCache(defaultCache());
+
+        // unread conversation count, simple repository call, evicted on loading conversations for user
         config.addCache(createCache("unreadConversationCount"));
+
+        // authenticate based on token string, returning UserToken and storing group roles in granted authorities,
+        // evicted on log out / log in / get user information
+        config.addCache(createCache("authenticateOnToken"));
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }

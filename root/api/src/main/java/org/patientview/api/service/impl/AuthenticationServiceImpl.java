@@ -23,6 +23,8 @@ import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -114,6 +116,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
+    @CacheEvict(value = "authenticateOnToken", allEntries = true)
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
     public String authenticate(String username, String password)
             throws UsernameNotFoundException, AuthenticationServiceException {
@@ -157,6 +160,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userRepository.findByUsername(username);
     }
 
+    @CacheEvict(value = "authenticateOnToken", allEntries = true)
     public void logout(String token) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
@@ -168,7 +172,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     // retrieve static data and user specific data to avoid requerying
-    @Override
+    @CacheEvict(value = "authenticateOnToken", allEntries = true)
     public org.patientview.api.model.UserToken getUserInformation(String token) {
         UserToken userToken = userTokenRepository.findByToken(token);
 
@@ -195,6 +199,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return transportUserToken;
     }
 
+    @Cacheable(value = "authenticateOnToken")
     public Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(authentication.getName());
 
@@ -268,11 +273,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private org.patientview.api.model.UserToken setPatientRoles(org.patientview.api.model.UserToken userToken) {
         List<Role> patientRoles = new ArrayList<>();
         List<org.patientview.persistence.model.Role> fullPatientRoles = roleService.getRolesByType(RoleType.PATIENT);
-        
+
         for (org.patientview.persistence.model.Role role : fullPatientRoles) {
             patientRoles.add(new Role(role));
         }
-        
+
         userToken.setPatientRoles(patientRoles);
         return userToken;
     }
@@ -280,11 +285,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private org.patientview.api.model.UserToken setStaffRoles(org.patientview.api.model.UserToken userToken) {
         List<Role> staffRoles = new ArrayList<>();
         List<org.patientview.persistence.model.Role> fullStaffRoles = roleService.getRolesByType(RoleType.STAFF);
-        
+
         for (org.patientview.persistence.model.Role role : fullStaffRoles) {
             staffRoles.add(new Role(role));
         }
-        
+
         userToken.setStaffRoles(staffRoles);
         return userToken;
     }
