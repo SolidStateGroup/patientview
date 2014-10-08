@@ -72,6 +72,7 @@
                     <label for="quick-reply-input">Quick Reply</label>
                     <textarea id="quick-reply-input" data-ng-model="conversation.quickReplyContent"></textarea>
                     <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+                    <br/>
                     <fieldset>
                         <div class="btn-group pull-right">
                             <button class="btn btn-grey" data-ng-click="conversation.quickReplyOpen = false">Close</button>
@@ -97,6 +98,7 @@
                     <label for="add-message-input">Add Message</label>
                     <textarea id="add-message-input" data-ng-model="conversation.addMessageContent"></textarea>
                     <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+                    <br/>
                     <fieldset>
                         <div class="btn-group pull-right">
                             <button class="btn btn-grey" data-ng-click="viewMessages(conversation)">Close</button>
