@@ -30,7 +30,7 @@ import javax.inject.Inject;
  */
 @Aspect
 @Configurable
-public class SecurityAspect {
+public final class SecurityAspect {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspect.class);
 
@@ -61,7 +61,7 @@ public class SecurityAspect {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Cannot validate when security has not been initialised
-        if (authentication == null || !authentication.isAuthenticated() ) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             throw new SecurityException("The request must be authenticated");
         }
 
@@ -93,8 +93,7 @@ public class SecurityAspect {
                 || Util.doesContainChildGroupAndRole(groupId, RoleName.SPECIALTY_ADMIN)
                 || Util.doesContainGroupAndRole(groupId, roles)) {
             LOG.debug("User has passed group validation");
-        }
-        else {
+        } else {
             throw new ResourceForbiddenException("The user does not belong to this group");
         }
 
@@ -132,7 +131,7 @@ public class SecurityAspect {
         return null;
     }
 
-    public static SecurityAspect aspectOf(){
+    public static SecurityAspect aspectOf() {
         if (instance == null) {
             instance = new SecurityAspect();
         }

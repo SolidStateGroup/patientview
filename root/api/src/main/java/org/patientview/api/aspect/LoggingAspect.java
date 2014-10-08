@@ -6,7 +6,7 @@ package org.patientview.api.aspect;
  */
 //@Aspect
 //@Configurable
-public class LoggingAspect {
+public final class LoggingAspect {
 
     private static LoggingAspect instance;
 
@@ -14,13 +14,10 @@ public class LoggingAspect {
 
     }
 
-    public static LoggingAspect aspectOf(){
-
+    public static LoggingAspect aspectOf() {
         if (instance == null) {
             instance = new LoggingAspect();
         }
         return instance;
     }
-
-
 }

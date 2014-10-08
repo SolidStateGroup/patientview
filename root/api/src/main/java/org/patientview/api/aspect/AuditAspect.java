@@ -45,7 +45,7 @@ public class AuditAspect {
 
 
     @Pointcut("execution(public * *(..))")
-    public void publicMethod() {}
+    public void publicMethod() { }
 
     @Before(value = "@annotation(org.patientview.api.annotation.AuditTrail)")
     public void auditObject(JoinPoint joinPoint) {
@@ -56,7 +56,7 @@ public class AuditAspect {
         BaseModel auditObject = getObject(joinPoint);
 
         // We get the id off the object or the Long value on the method
-        Long id ;
+        Long id;
         if (auditObject == null) {
             id = getId(joinPoint);
         } else {
@@ -88,7 +88,7 @@ public class AuditAspect {
     }
 
     // Singleton pattern for AspectJ vs Spring management
-    public static AuditAspect aspectOf(){
+    public static AuditAspect aspectOf() {
 
         if (instance == null) {
             instance = new AuditAspect();
@@ -102,10 +102,11 @@ public class AuditAspect {
         if (signature instanceof MethodSignature) {
             final MethodSignature ms = (MethodSignature) signature;
 
-            for (Annotation annotation : ms.getMethod().getDeclaredAnnotations())
+            for (Annotation annotation : ms.getMethod().getDeclaredAnnotations()) {
                 if (annotation.annotationType() == AuditTrail.class) {
                     return ((AuditTrail) annotation);
                 }
+            }
         }
         return null;
     }
