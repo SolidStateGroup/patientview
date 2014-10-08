@@ -76,8 +76,9 @@
             </div>
 
             <div class="content-panel" data-ng-show="chartLoading && !permissions.isPatient">
-                <div class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                <div class="loading"><img src="images/loading.gif" alt="Loading"/><br/><br/></div>
             </div>
+
             <div class="chart-container content-panel" data-ng-show="!chartLoading && !permissions.isPatient">
                 <div class="panel-intro">
                     <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
