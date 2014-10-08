@@ -60,9 +60,13 @@ angular.module('patientviewApp').directive('checkStrength', function () {
                         .css({ 'background': '#DDD' })
                         .slice(0, c.idx)
                         .css({ 'background': c.col });
+
+                    // append textual description
+                    var description = ['Very Weak', 'Weak', 'Average', 'Strong', 'Very Strong'];
+                    iElement.children('span').text(description[c.idx]);
                 }
             });
         },
-        template: '<li class="point"></li><li class="point"></li><li class="point"></li><li class="point"></li><li class="point"></li>'
+        template: '<li class="point"></li><li class="point"></li><li class="point"></li><li class="point"></li><li class="point"></li> &nbsp; <span></span>'
     };
 });
