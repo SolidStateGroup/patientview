@@ -17,7 +17,9 @@ import org.springframework.context.annotation.Configuration;
 @EnableCaching
 public class CacheConfig implements CachingConfigurer {
 
-    @Bean(destroyMethod="shutdown")
+    private static final int MAX_ENTRIES_LOCAL_HEAP = 10000;
+
+    @Bean(destroyMethod = "shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
 
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
@@ -45,7 +47,7 @@ public class CacheConfig implements CachingConfigurer {
     }
 
     private CacheConfiguration createCache(String name) {
-        return new CacheConfiguration(name, 10000);
+        return new CacheConfiguration(name, MAX_ENTRIES_LOCAL_HEAP);
     }
 
     @Bean

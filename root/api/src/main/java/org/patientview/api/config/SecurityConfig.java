@@ -12,8 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * Created on 16/06/2014
  */
 @EnableWebSecurity
-@ComponentScan(basePackages = {"org.patientview.api.controller", "org.patientview.api.filter"})
-@EnableGlobalMethodSecurity(prePostEnabled=true)
+@ComponentScan(basePackages = { "org.patientview.api.controller", "org.patientview.api.filter" })
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -21,6 +21,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         // The security is done through filter
         web.ignoring().antMatchers("/**");
-
     }
 }

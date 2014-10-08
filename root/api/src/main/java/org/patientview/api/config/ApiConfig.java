@@ -22,7 +22,8 @@ import java.util.Properties;
  * Created on 03/06/2014.
  */
 @Configuration
-@ComponentScan(basePackages = {"org.patientview.api.service","org.patientview.api.aspect","org.patientview.api.job","org.patientview.persistence.resource"})
+@ComponentScan(basePackages = { "org.patientview.api.service", "org.patientview.api.aspect", "org.patientview.api.job",
+        "org.patientview.persistence.resource" })
 @EnableWebMvc
 @EnableScheduling
 public class ApiConfig {
@@ -35,7 +36,7 @@ public class ApiConfig {
     @Bean
     @Primary
     public ObjectMapper getCustomerObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper(){
+        ObjectMapper objectMapper = new ObjectMapper() {
             @PostConstruct
             public void customConfiguration() {
                 // Uses Enum.toString() for serialization of an Enum
@@ -67,11 +68,11 @@ public class ApiConfig {
         javaMailSender.setPassword(properties.getProperty("smtp.password"));
 
         Properties javaMailProperties = new Properties();
-        javaMailProperties.setProperty("mail.debug","false");
-        javaMailProperties.setProperty("mail.smtp.auth","true");
-        javaMailProperties.setProperty("mail.smtp.ssl.enable","true");
-        javaMailProperties.setProperty("mail.smtp.starttls.enable","true");
-        javaMailProperties.setProperty("mail.smtp.port","465");
+        javaMailProperties.setProperty("mail.debug", "false");
+        javaMailProperties.setProperty("mail.smtp.auth", "true");
+        javaMailProperties.setProperty("mail.smtp.ssl.enable", "true");
+        javaMailProperties.setProperty("mail.smtp.starttls.enable", "true");
+        javaMailProperties.setProperty("mail.smtp.port", "465");
         javaMailSender.setJavaMailProperties(javaMailProperties);
 
         return javaMailSender;
