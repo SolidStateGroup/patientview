@@ -5,6 +5,7 @@ import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
@@ -109,7 +110,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return groupRepository.findByCode(code);
     }
 
-    public Group get(Long id) {
+    public Group get(Long id) throws ResourceForbiddenException {
         return addSingleParentAndChildGroup(groupRepository.findOne(id));
     }
 
@@ -124,7 +125,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addParentAndChildGroups(groups);
     }
 
-    public Group save(Group group) throws ResourceNotFoundException, EntityExistsException {
+    public Group save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {
         Group entityGroup = groupRepository.findOne(group.getId());
 
         if (entityGroup == null) {

@@ -4,8 +4,10 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.model.GroupStatisticTO;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticType;
@@ -180,6 +182,28 @@ public class Util {
             if (groupRole.getGroup().getId().equals(groupId)) {
                 for (RoleName roleNameArg : roleNames) {
                     if (groupRole.getRole().getName().equals(roleNameArg)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // used for specialty admins
+    public static boolean doesContainChildGroupAndRole(Long groupId, RoleName roleName) {
+        if (CollectionUtils.isEmpty(getGroupRoles())) {
+            return false;
+        }
+
+        for (GroupRole groupRole : getGroupRoles()) {
+            Group group = groupRole.getGroup();
+            Role role = groupRole.getRole();
+
+            if (role.getName().equals(roleName)) {
+                for (Group childGroup : group.getChildGroups()) {
+                    if (childGroup.getId().equals(groupId)) {
                         return true;
                     }
                 }

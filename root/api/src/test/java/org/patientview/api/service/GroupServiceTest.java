@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.Email;
 import org.patientview.api.model.UnitRequest;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupServiceImpl;
@@ -307,8 +308,8 @@ public class GroupServiceTest {
         try {
             Group group = groupService.save(parentGroup);
             //Assert.assertEquals("Should retrieve 3 groups", 3, securityService.getUserGroups(testUser.getId()).size());
-        } catch (ResourceNotFoundException rnf) {
-            return;
+        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+            Assert.fail("Exception thrown");
         }
     }
 

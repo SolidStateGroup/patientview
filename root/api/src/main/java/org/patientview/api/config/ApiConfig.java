@@ -17,7 +17,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.Properties;
 
-
 /**
  * Created by james@solidstategroup.com
  * Created on 03/06/2014.
@@ -59,7 +58,6 @@ public class ApiConfig {
         return AuditAspect.aspectOf();
     }
 
-
     @Bean
     public JavaMailSenderImpl javaMailSender() {
         final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
@@ -79,7 +77,3 @@ public class ApiConfig {
         return javaMailSender;
     }
 }
-
-
-
-

@@ -28,7 +28,6 @@ import javax.inject.Inject;
  * Responsible for security resource via annotations.
  *
  */
-
 @Aspect
 @Configurable
 public class SecurityAspect {
@@ -77,7 +76,10 @@ public class SecurityAspect {
         Long groupId = getId(joinPoint);
 
         if (groupId == null) {
-            groupId = getGroup(joinPoint).getId();
+            Group group = getGroup(joinPoint);
+            if (group != null) {
+                groupId = group.getId();
+            }
         }
 
         if (groupId == null) {
@@ -87,9 +89,12 @@ public class SecurityAspect {
 
         RoleName[] roles = Util.getRoles(joinPoint);
 
-        if (Util.doesContainGroupAndRole(groupId, roles)) {
+        if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+                || Util.doesContainChildGroupAndRole(groupId, RoleName.SPECIALTY_ADMIN)
+                || Util.doesContainGroupAndRole(groupId, roles)) {
             LOG.debug("User has passed group validation");
-        } else {
+        }
+        else {
             throw new ResourceForbiddenException("The user does not belong to this group");
         }
 
@@ -109,37 +114,28 @@ public class SecurityAspect {
     // TODO the next two methods can be fixed up with annotations on the parameters
     // Assuming we apply the annotation to a method with a groupId
     private Long getId(JoinPoint joinPoint) {
-
         for (Object argument : joinPoint.getArgs()) {
             if (argument instanceof Long) {
                 return (Long) argument;
             }
         }
-
         return null;
-
     }
 
     // Assuming we apply the annotation to a method with a Group
     private Group getGroup(JoinPoint joinPoint) {
-
         for (Object argument : joinPoint.getArgs()) {
             if (argument instanceof Group) {
                 return (Group) argument;
             }
         }
-
         return null;
     }
 
-
     public static SecurityAspect aspectOf(){
-
         if (instance == null) {
             instance = new SecurityAspect();
         }
         return instance;
-
     }
-
 }

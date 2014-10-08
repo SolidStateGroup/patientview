@@ -1,12 +1,12 @@
 package org.patientview.api.service;
 
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.api.config.TestPersistenceConfig;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
 import org.patientview.persistence.model.Group;
@@ -90,11 +90,13 @@ public class GroupStatisticsServiceIntegrationTest {
         Date startDate =  calendar.getTime();;
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
 
-        List<GroupStatistic> groupStatistics = groupStatisticService.getMonthlyGroupStatistics(testGroup.getId());
-
-        // Expect the generate statistics to have create 2 statistics from the lookups below
-        Assert.assertTrue("We have created 2 statistics for our group", groupStatistics.size() == 2);
-
+        try {
+            List<GroupStatistic> groupStatistics = groupStatisticService.getMonthlyGroupStatistics(testGroup.getId());
+            // Expect the generate statistics to have create 2 statistics from the lookups below
+            Assert.assertTrue("We have created 2 statistics for our group", groupStatistics.size() == 2);
+        } catch (ResourceForbiddenException rfe) {
+            Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
+        }
     }
 
     private void createStatisticLookups() {

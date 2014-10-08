@@ -293,9 +293,14 @@ public final class TestUtils {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    public static void authenticateTest(User user) {
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), Collections.EMPTY_SET);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    public static void authenticateTest(User user, Set<GroupRole> groupRoles) {
+        if (groupRoles != null) {
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), groupRoles);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), Collections.EMPTY_SET);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
     }
 
     public static GroupStatistic createGroupStatistics(Group group, BigInteger value, Lookup lookup) {

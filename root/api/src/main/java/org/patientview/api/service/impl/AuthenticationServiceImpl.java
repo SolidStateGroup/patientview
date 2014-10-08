@@ -4,8 +4,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Role;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.StaticDataManager;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.SecurityService;
@@ -69,6 +71,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Inject
     private RoleService roleService;
+
+    @Inject
+    private GroupService groupService;
 
     @Inject
     private StaticDataManager staticDataManager;
@@ -208,7 +213,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
             for (GroupRole groupRole : userToken.getUser().getGroupRoles()) {
-                grantedAuthorities.add(groupRole);
+                try {
+                    grantedAuthorities.add(addChildGroupsToGroupRole(groupRole));
+                } catch (ResourceNotFoundException rnf) {
+                    throw new AuthenticationServiceException("Error retrieving child groups");
+                }
             }
             return new UsernamePasswordAuthenticationToken(userToken.getUser(), userToken.getUser().getId(),
                     grantedAuthorities);
@@ -216,6 +225,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         } else {
             throw new AuthenticationServiceException("Token could not be found");
         }
+    }
+
+    private GroupRole addChildGroupsToGroupRole(GroupRole groupRole) throws ResourceNotFoundException {
+        groupRole.getGroup().setChildGroups(groupService.findChildren(groupRole.getGroup().getId()));
+        return groupRole;
     }
 
     private org.patientview.api.model.UserToken setFhirInformation(org.patientview.api.model.UserToken userToken,

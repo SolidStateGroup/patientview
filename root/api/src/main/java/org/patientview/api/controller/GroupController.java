@@ -5,14 +5,13 @@ import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,13 +58,14 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/group/{groupId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId) throws SecurityException {
+    public ResponseEntity<Group> getGroup(@PathVariable("groupId") Long groupId)
+            throws SecurityException, ResourceForbiddenException {
         return new ResponseEntity<>(groupService.get(groupId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.PUT)
     @ResponseBody
-    public void saveGroup(@RequestBody Group group) throws ResourceNotFoundException{
+    public void saveGroup(@RequestBody Group group) throws ResourceNotFoundException, ResourceForbiddenException{
         groupService.save(group);
     }
 
@@ -145,7 +145,7 @@ public class GroupController extends BaseController<GroupController> {
                     produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Collection<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         Collection<GroupStatisticTO> groupStatisticTO
             = Util.convertGroupStatistics(groupStatisticService.getMonthlyGroupStatistics(groupId));
         return new ResponseEntity<>(groupStatisticTO, HttpStatus.OK);

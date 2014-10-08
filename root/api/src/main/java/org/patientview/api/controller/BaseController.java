@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,14 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String handleSecurityException(SecurityException e) {
         LOG.info("Authentication failed for this resource");
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(ResourceForbiddenException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public String handleResourceForbiddenException(ResourceForbiddenException e) {
+        LOG.info("Resource forbidden");
         return e.getMessage();
     }
 

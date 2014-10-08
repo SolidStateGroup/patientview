@@ -1,13 +1,17 @@
 'use strict';
 
 // group statistics modal instance controller
-var GroupStatisticsModalInstanceCtrl = ['$scope', '$modalInstance','statistics',
-    function ($scope, $modalInstance, statistics) {
-        $scope.statistics = statistics;
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-    }];
+var GroupStatisticsModalInstanceCtrl = ['$scope', '$modalInstance', 'statistics', 'UtilService',
+function ($scope, $modalInstance, statistics, UtilService) {
+    $scope.statistics = statistics;
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+    $scope.formatDate = function(dateString) {
+        var datesplit = dateString.split("-");
+        return UtilService.getMonthText(datesplit[1] - 1) + ' ' + datesplit[0];
+    }
+}];
 
 // new group modal instance controller
 var NewGroupModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'editGroup', 'allFeatures', 'contactPointTypes', 'allParentGroups', 'allChildGroups', 'GroupService',
@@ -413,8 +417,10 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 }
 
                 openedGroup.editLoading = false;
-            }, function () {
-                $scope.editGroup.errorMessage = 'There has been a problem retrieving this group';
+            }, function (failureResult) {
+                alert('Cannot open group: ' + failureResult.data);
+                openedGroup.showEdit = false;
+                openedGroup.editLoading = false;
             });
         }
     };
