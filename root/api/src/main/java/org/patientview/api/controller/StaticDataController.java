@@ -4,6 +4,8 @@ import org.patientview.api.service.StaticDataManager;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,8 @@ import java.util.List;
  */
 @RestController
 public class StaticDataController extends BaseController<StaticDataController> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StaticDataController.class);
 
     @Inject
     private StaticDataManager staticDataManager;
@@ -64,13 +68,4 @@ public class StaticDataController extends BaseController<StaticDataController> {
             return new ResponseEntity<>(staticDataManager.getFeaturesByType(featureType), HttpStatus.OK);
         }
     }
-
-    /*@RequestMapping(value = "/proxy.html", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<String> getProxy() {
-        String proxyHtml = "<!DOCTYPE HTML>\n" +
-                "<script src=\"http://cdn.rawgit.com/jpillora/xdomain/gh-pages/dist/0.6/xdomain.min.js\" " +
-                "master=\"http://10.0.2.2:8080/api/*\"></script>";
-        return new ResponseEntity<>(proxyHtml, HttpStatus.OK);
-    }*/
 }

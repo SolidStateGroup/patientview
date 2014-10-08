@@ -34,7 +34,7 @@ import java.util.List;
 @RestController
 public class ConversationController extends BaseController<ConversationController> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(ConversationController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConversationController.class);
 
     @Inject
     private ConversationService conversationService;
@@ -65,7 +65,7 @@ public class ConversationController extends BaseController<ConversationControlle
             sizeConverted = Integer.parseInt(size);
         }
 
-        if (sizeConverted != null && sizeConverted != null) {
+        if (pageConverted != null && sizeConverted != null) {
             pageable = new PageRequest(pageConverted, sizeConverted);
         } else {
             pageable = new PageRequest(0, Integer.MAX_VALUE);

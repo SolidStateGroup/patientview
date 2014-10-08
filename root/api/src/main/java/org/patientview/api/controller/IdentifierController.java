@@ -18,7 +18,7 @@ import javax.persistence.EntityExistsException;
  * Created on 04/08/2014
  */
 @RestController
-public class IdentifierController extends BaseController<IdentifierController>{
+public class IdentifierController extends BaseController<IdentifierController> {
 
     @Inject
     private IdentifierService identifierService;

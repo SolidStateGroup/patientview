@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ErrorController extends BaseController<ErrorController> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(ErrorController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ErrorController.class);
 
     @RequestMapping(value = "/error", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

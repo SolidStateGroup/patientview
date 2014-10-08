@@ -1,12 +1,13 @@
 package org.patientview.api.controller;
 
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.CodeService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
@@ -30,6 +29,8 @@ import javax.persistence.EntityExistsException;
  */
 @RestController
 public class CodeController extends BaseController<CodeController> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CodeController.class);
 
     @Inject
     private CodeService codeService;
@@ -63,7 +64,7 @@ public class CodeController extends BaseController<CodeController> {
     @ResponseBody
     public ResponseEntity<Void> deleteCode(@PathVariable("codeId") Long codeId) {
         codeService.delete(codeId);
-        return new ResponseEntity<>( HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/code/{codeId}/clone", method = RequestMethod.POST
@@ -81,18 +82,10 @@ public class CodeController extends BaseController<CodeController> {
     @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Link> addLink(@PathVariable("codeId") Long codeId, @RequestBody Link link
-            , UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Link> addLink(@PathVariable("codeId") Long codeId, @RequestBody Link link) {
 
         // create new link
         Link newLink = codeService.addLink(codeId, link);
-        LOG.info("Created new Link with id " + newLink.getId() + " and added to Code with id " + codeId);
-
-        // set header with location
-        UriComponents uriComponents = uriComponentsBuilder.path("/link/{linkId}").buildAndExpand(newLink.getId());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-
         return new ResponseEntity<>(newLink, HttpStatus.CREATED);
     }
 }

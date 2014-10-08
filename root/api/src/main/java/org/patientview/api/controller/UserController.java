@@ -34,12 +34,12 @@ import java.util.List;
 @RestController
 public class UserController extends BaseController<UserController> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(UserController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @Inject
     private UserService userService;
 
-    final private static int MINIMUM_PASSWORD_LENGTH = 7;
+    private static final int MINIMUM_PASSWORD_LENGTH = 7;
 
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -104,8 +104,7 @@ public class UserController extends BaseController<UserController> {
             // Migration Only, are migrating passwords so create user with no password encryption
             try {
                 user = userService.createUserNoEncryption(user);
-            }
-            catch (EntityExistsException eee) {
+            } catch (EntityExistsException eee) {
                 User foundUser = userService.getByUsername(user.getUsername());
                 if (foundUser != null) {
                     // found by username

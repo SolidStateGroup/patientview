@@ -20,7 +20,7 @@ import java.lang.reflect.ParameterizedType;
  */
 public abstract class BaseController<T extends BaseController> {
 
-    protected final Logger LOG = LoggerFactory.getLogger(getControllerClass());
+    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     public Class<T> getControllerClass()  {
         ParameterizedType superclass = (ParameterizedType) getClass().getGenericSuperclass();

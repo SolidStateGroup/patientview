@@ -65,7 +65,7 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/group", method = RequestMethod.PUT)
     @ResponseBody
-    public void saveGroup(@RequestBody Group group) throws ResourceNotFoundException, ResourceForbiddenException{
+    public void saveGroup(@RequestBody Group group) throws ResourceNotFoundException, ResourceForbiddenException {
         groupService.save(group);
     }
 
@@ -79,7 +79,7 @@ public class GroupController extends BaseController<GroupController> {
     @ResponseBody
     public void addParentGroup(@PathVariable("groupId") Long groupId,
                                                       @PathVariable("parentId") Long parentGroupId) {
-        groupService.addParentGroup(groupId,parentGroupId);
+        groupService.addParentGroup(groupId, parentGroupId);
     }
 
     @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.DELETE)
@@ -91,14 +91,14 @@ public class GroupController extends BaseController<GroupController> {
     @RequestMapping(value = "/group/{groupId}/children", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<Group>> getChildren(@PathVariable("groupId") Long groupId)
-            throws ResourceNotFoundException{
+            throws ResourceNotFoundException {
         return new ResponseEntity<>(groupService.findChildren(groupId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.PUT)
     @ResponseBody
     public void addChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
-        groupService.addChildGroup(groupId,childGroupId);
+        groupService.addChildGroup(groupId, childGroupId);
     }
 
     @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.DELETE)

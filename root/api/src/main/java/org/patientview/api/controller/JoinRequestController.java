@@ -5,6 +5,8 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,6 +29,8 @@ import java.util.List;
  */
 @RestController
 public class JoinRequestController extends BaseController<JoinRequestController> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JoinRequestController.class);
 
     @Inject
     private JoinRequestService joinRequestService;
@@ -52,7 +56,7 @@ public class JoinRequestController extends BaseController<JoinRequestController>
 
     @RequestMapping(value = "/joinrequest", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Void> save(@RequestBody JoinRequest joinRequest) throws ResourceNotFoundException{
+    public ResponseEntity<Void> save(@RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
         joinRequestService.save(joinRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -60,7 +64,7 @@ public class JoinRequestController extends BaseController<JoinRequestController>
     @RequestMapping(value = "/joinrequest/{joinRequestId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<org.patientview.api.model.JoinRequest> get(@PathVariable("joinRequestId") Long joinRequestId)
-            throws ResourceNotFoundException{
+            throws ResourceNotFoundException {
         return new ResponseEntity<>(joinRequestService.get(joinRequestId), HttpStatus.OK);
     }
 

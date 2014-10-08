@@ -7,6 +7,8 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.model.UserToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,8 @@ import javax.inject.Inject;
  */
 @RestController
 public class AuthController extends BaseController<AuthController> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
 
     @Inject
     private AuthenticationService authenticationService;
@@ -82,7 +86,8 @@ public class AuthController extends BaseController<AuthController> {
         return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> forgottenPassword(@RequestBody ForgottenCredentials credentials)
             throws ResourceNotFoundException {
         userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail());

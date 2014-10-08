@@ -29,8 +29,8 @@ public class ObservationController extends BaseController<ObservationController>
     @Inject
     private ObservationService observationService;
 
-    private final String DEFAULT_SORT = "appliesDateTime";
-    private final String DEFAULT_SORT_DIRECTION = "DESC";
+    private static final String DEFAULT_SORT = "appliesDateTime";
+    private static final String DEFAULT_SORT_DIRECTION = "DESC";
 
     @RequestMapping(value = "/user/{userId}/observations", method = RequestMethod.GET)
     @ResponseBody
@@ -58,7 +58,8 @@ public class ObservationController extends BaseController<ObservationController>
     @RequestMapping(value = "/user/{userId}/observations/resultclusters", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void addResultClusters(@PathVariable("userId") Long userId, @RequestBody List<UserResultCluster> userResultClusters)
+    public void addResultClusters(@PathVariable("userId") Long userId,
+                                  @RequestBody List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException {
         observationService.addUserResultClusters(userId, userResultClusters);
     }

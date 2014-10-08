@@ -28,7 +28,7 @@ import java.util.List;
 @RestController
 public class SecurityController extends BaseController<SecurityController> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(SecurityController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityController.class);
 
     @Inject
     private SecurityService securityService;

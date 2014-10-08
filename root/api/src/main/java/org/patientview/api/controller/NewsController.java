@@ -4,6 +4,8 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.NewsService;
 import org.patientview.persistence.model.NewsItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +34,8 @@ import javax.inject.Inject;
  */
 @RestController
 public class NewsController extends BaseController<NewsController> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NewsController.class);
 
     @Inject
     private NewsService newsService;
@@ -77,8 +81,8 @@ public class NewsController extends BaseController<NewsController> {
 
     @RequestMapping(value = "/news", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<NewsItem> save(@RequestBody NewsItem newsItem, UriComponentsBuilder uriComponentsBuilder) throws ResourceNotFoundException  {
-
+    public ResponseEntity<NewsItem> save(@RequestBody NewsItem newsItem, UriComponentsBuilder uriComponentsBuilder)
+            throws ResourceNotFoundException  {
         try {
             NewsItem news = newsService.save(newsItem);
             LOG.info("Updated new item with id " + newsItem.getId());
