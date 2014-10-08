@@ -26,7 +26,6 @@ import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -338,7 +337,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
     }
 
-    // todo: convert to native query, performance improvements etc
     public Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
 
         if (!userRepository.exists(userId)) {
