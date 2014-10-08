@@ -84,7 +84,7 @@ public class ContactPointControllerTest {
         String url = "/contactpoint/" + contactPointId;
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isNoContent());
+            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
         }
