@@ -14,5 +14,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface GroupMemberOnly {
-    RoleName[] roles() default {};
+    RoleName[] roles() default { };
 }
