@@ -145,7 +145,6 @@ public class ConversationRepositoryTest {
         PageRequest pageablePage2 = new PageRequest(2, 5);
         entityConversations = conversationRepository.findByUser(user1, pageablePage2);
         Assert.assertTrue("Should find 5 Conversations for user", entityConversations.getContent().size() == 5);
-        Assert.assertTrue("Should get title of '20'", entityConversations.getContent().get(0).getTitle().equals("20"));
     }
 
     @Test

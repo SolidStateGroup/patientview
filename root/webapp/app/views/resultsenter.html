@@ -95,7 +95,7 @@
                     <div class="col-md-12">
                         <span data-ng-repeat="observationHeading in userResultCluster.resultCluster.observationHeadings">
                             <input type="text" data-ng-model="userResultCluster.values[observationHeading.id]"
-                                placeholder="{{observationHeading.heading}}" class="form-control input-value" only-num-decimal/>
+                                placeholder="{{getObservationHeadingPlaceholder(observationHeading)}}" class="form-control input-value" only-num-decimal/>
                         </span>
                     </div>
                 </div>

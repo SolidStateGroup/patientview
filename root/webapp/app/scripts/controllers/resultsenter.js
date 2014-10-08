@@ -3,6 +3,16 @@
 angular.module('patientviewApp').controller('ResultsEnterCtrl',['$scope', 'ObservationService', 'ObservationHeadingService', 'UtilService',
 function ($scope, ObservationService, ObservationHeadingService, UtilService) {
 
+    $scope.getObservationHeadingPlaceholder = function(observationHeading) {
+        var placeholder = observationHeading.heading;
+
+        if (observationHeading.units) {
+            placeholder = placeholder + ' (' + observationHeading.units + ')';
+        }
+
+        return placeholder;
+    };
+
     $scope.addResultCluster = function(resultCluster) {
         if (resultCluster !== undefined) {
 
