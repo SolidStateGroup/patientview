@@ -10,20 +10,17 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
 
     // update page when currentPage is changed (and at start)
     $scope.$watch('currentPage', function(value) {
-        $scope.currentPage = value;
-        $scope.getItems();
+        if ($scope.initFinished) {
+            $scope.currentPage = value;
+            $scope.getItems();
+        }
     });
 
     // Init
     $scope.init = function () {
         $scope.statuses = [];
         $scope.allGroups = [];
-
-        JoinRequestService.getStatuses().then(function(statuses) {
-            if (statuses.length > 0) {
-                $scope.statuses = statuses.sort();
-            }
-        });
+        $scope.initFinished = false;
 
         // get logged in user's groups
         var groups = $scope.loggedInUser.userGroups;
@@ -36,6 +33,20 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
                 $scope.allGroups.push(group);
             }
         }
+
+        JoinRequestService.getStatuses().then(function(statuses) {
+            if (statuses.length > 0) {
+                $scope.statuses = statuses.sort();
+            }
+
+            // if present set selected status to SUBMITTED
+            if (statuses.indexOf("SUBMITTED")) {
+                $scope.setSelectedStatus("SUBMITTED");
+            }
+
+            $scope.initFinished = true;
+        });
+
     };
 
     $scope.getItems = function() {
@@ -64,8 +75,7 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
 
     // filter by status
     $scope.selectedStatus = [];
-    $scope.setSelectedStatus = function () {
-        var status = this.status;
+    $scope.setSelectedStatus = function (status) {
         if (_.contains($scope.selectedStatus, status)) {
             $scope.selectedStatus = _.without($scope.selectedStatus, status);
         } else {

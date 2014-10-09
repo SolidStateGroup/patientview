@@ -9,7 +9,7 @@
                 <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
             </div>
             <div class="form-horizontal" role="form">
-                <!-- filter by code type -->
+                <!-- filter by status -->
                 <div class="select-container pull-left">
                     <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open1}">
                         <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Status <span class="caret-container"><span class="caret"></span></span></button>
@@ -17,7 +17,7 @@
                             <li><a data-ng-click="removeAllStatuses()"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                             <li class="divider"></li>
                             <li data-ng-repeat="status in statuses">
-                                <a data-ng-click="setSelectedStatus()">
+                                <a data-ng-click="setSelectedStatus(status)">
                                     <span class="pull-left">{{status}}</span>
                                     <span data-ng-class="isStatusChecked(status)"></span>
                                 </a>
