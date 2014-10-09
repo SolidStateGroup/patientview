@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface AuthenticationService extends UserDetailsService {
 
+    void setParameter();
+
     String switchUser(Long userId, String token) throws AuthenticationServiceException;
 
     String authenticate(String username, String password)

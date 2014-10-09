@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -52,6 +53,9 @@ public class AuthenticationServiceTest {
     @Mock
     private AuditRepository auditRepository;
 
+    @Mock
+    private Properties properties;
+
     @InjectMocks
     private AuthenticationService authenticationService = new AuthenticationServiceImpl();
 
@@ -63,6 +67,9 @@ public class AuthenticationServiceTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         ServletRequestAttributes attributes = new ServletRequestAttributes(request);
         RequestContextHolder.setRequestAttributes(attributes);
+
+        when(properties.getProperty(eq("maximum.failed.logons"))).thenReturn("3");
+        this.authenticationService.setParameter();
     }
 
     @After

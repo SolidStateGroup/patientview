@@ -56,7 +56,7 @@ import java.util.Set;
 public class AuthenticationServiceImpl extends AbstractServiceImpl<AuthenticationServiceImpl>
         implements AuthenticationService {
 
-    private Integer maximumLoginAttempts;
+    private static Integer maximumLoginAttempts;
 
     @Inject
     private UserRepository userRepository;
