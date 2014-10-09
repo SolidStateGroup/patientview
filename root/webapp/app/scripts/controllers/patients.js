@@ -366,6 +366,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // Get patients based on current user selected filters etc
     $scope.getItems = function () {
+        $scope.loadingMessage = 'Loading Patients';
         $scope.loading = true;
 
         var getParameters = {};
@@ -398,6 +399,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
 
         var i, role, group;
+        $scope.loadingMessage = 'Loading Patients';
         $scope.loading = true;
         $scope.allGroups = [];
         $scope.allRoles = [];
@@ -708,6 +710,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // view patient
     $scope.viewUser = function (userId) {
+        $scope.loadingMessage = 'Viewing Patient';
         $scope.loading = true;
         $scope.successMessage = '';
         var currentToken = $rootScope.authToken;
@@ -746,10 +749,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             }, function() {
                 alert("Error receiving user information");
+                $scope.loading = false;
             });
 
         }, function() {
             alert("Cannot view patient");
+            $scope.loading = false;
         });
     };
 

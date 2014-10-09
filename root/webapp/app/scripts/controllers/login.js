@@ -6,6 +6,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
     $scope.login = function() {
         $scope.errorMessage = '';
         $scope.loading = true;
+        $scope.loadingMessage = 'Logging In';
 
         // workaround for https://github.com/angular/angular.js/issues/1460
         $scope.username = $('#username').val();
@@ -15,6 +16,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
 
             $rootScope.authToken = authToken;
             localStorageService.set('authToken', authToken);
+            $scope.loadingMessage = 'Loading Your Information';
 
             AuthService.getUserInformation(authToken).then(function (userInformation) {
 
