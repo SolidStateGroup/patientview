@@ -11,7 +11,7 @@ public class ObservationSummary {
     private Group group;
     private HashMap<Long, List<ObservationHeading>> panels = new HashMap<>();
 
-    public ObservationSummary () {
+    public ObservationSummary() {
 
     }
 

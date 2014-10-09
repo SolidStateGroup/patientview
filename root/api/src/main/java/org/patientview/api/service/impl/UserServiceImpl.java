@@ -58,6 +58,8 @@ import java.util.Set;
 @Service
 public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implements UserService {
 
+    private static final Long GENERIC_GROUP_ID = 7L;
+
     @Inject
     private UserRepository userRepository;
 
@@ -152,7 +154,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return groupRole;
     }
 
-    public void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException{
+    public void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException {
 
         deleteGroupRoleRelationship(userId, groupId, roleId);
 
@@ -314,7 +316,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     // We do this so early one gets the generic group
     private void addUserToGenericGroup(User user) {
         // TODO Sprint 2 make these value configurable
-        Role role = roleRepository.findOne(7L);
+        Role role = roleRepository.findOne(GENERIC_GROUP_ID);
         Group group = groupRepository.findOne(1L);
 
         GroupRole groupRole = new GroupRole();
@@ -414,7 +416,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 try {
                     Patient fhirPatient = patientService.get(recentFhirData.getResourceId());
                     transportUsers.add(new org.patientview.api.model.User(user, fhirPatient));
-                } catch(FhirResourceException fre) {
+                } catch (FhirResourceException fre) {
                     LOG.error("FhirResourceException on retrieving patient data");
                     transportUsers.add(new org.patientview.api.model.User(user, null));
                 }
@@ -665,7 +667,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException {
         Identifier identifier = identifierRepository.findByValue(identifierValue);
-        if (identifier == null){
+        if (identifier == null) {
             throw new ResourceNotFoundException(String.format("Could not find identifier with value %s",
                     identifierValue));
         }

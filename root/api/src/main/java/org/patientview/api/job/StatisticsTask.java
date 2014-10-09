@@ -23,7 +23,10 @@ import java.util.Date;
 @Component
 public class StatisticsTask {
 
-    protected final Logger LOG = LoggerFactory.getLogger(StatisticsTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StatisticsTask.class);
+
+    // todo: correct this for daily stats
+    private static final long DAILY_RATE = 5000000L;
 
     @Inject
     private Timer timer;
@@ -53,7 +56,7 @@ public class StatisticsTask {
      * Cumulative stats for the month, run once a day.
      */
     //@Scheduled(cron = "*/5 * * * * *") //every five minutes
-    @Scheduled(fixedRate = 5000000L)
+    @Scheduled(fixedRate = DAILY_RATE)
     public void executeDaily() {
         LOG.info("Executing daily statistics");
         Calendar calendar = timer.getCurrentDate();

@@ -11,5 +11,5 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface LookupService {
-    public Lookup findByTypeAndValue(LookupTypes lookupType, String lookupValue);
+    Lookup findByTypeAndValue(LookupTypes lookupType, String lookupValue);
 }

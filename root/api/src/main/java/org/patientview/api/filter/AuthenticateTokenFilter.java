@@ -29,7 +29,7 @@ import java.util.List;
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
-@WebFilter(urlPatterns = {"*"}, filterName = "authenticationTokenFilter")
+@WebFilter(urlPatterns = { "*" }, filterName = "authenticationTokenFilter")
 public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
@@ -99,7 +99,6 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
                 chain.doFilter(request, response);
             }
         }
-
     }
 
     // Set the authentication in the security context
@@ -107,7 +106,8 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         LOG.debug("Filtering on path {}", httpServletRequest.getRequestURL().toString());
 
         String authToken = this.extractAuthTokenFromRequest(httpServletRequest);
-        PreAuthenticatedAuthenticationToken authenticationToken = new PreAuthenticatedAuthenticationToken(authToken, authToken);
+        PreAuthenticatedAuthenticationToken authenticationToken =
+                new PreAuthenticatedAuthenticationToken(authToken, authToken);
 
         try {
             Authentication authentication = authenticationService.authenticate(authenticationToken);
@@ -117,17 +117,15 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             LOG.info("Authentication failed for {}", authenticationToken.getName());
             return false;
         }
-
     }
 
     private void redirectFailedAuthentication(HttpServletResponse response) {
         try {
             response.sendRedirect("/api/error");
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             LOG.error("Could not redirect response");
             throw new RuntimeException("Error redirecting unauthorised request");
         }
-
     }
 
     private void setAuthenticationManager(ServletRequest servletRequest) {
@@ -142,21 +140,17 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         if (!(request instanceof HttpServletRequest)) {
             throw new RuntimeException("Expecting an HTTP request");
         }
-
         return (HttpServletRequest) request;
     }
 
-
     private String extractAuthTokenFromRequest(HttpServletRequest httpRequest) {
-
         String authToken = httpRequest.getHeader("X-Auth-Token");
 
-		/* If token not found get it from request parameter */
+        /* If token not found get it from request parameter */
         if (authToken == null) {
             authToken = httpRequest.getParameter("token");
         }
 
         return authToken;
     }
-
 }

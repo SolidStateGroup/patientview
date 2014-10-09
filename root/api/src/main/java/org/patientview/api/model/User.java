@@ -3,7 +3,6 @@ package org.patientview.api.model;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.patientview.persistence.model.UserFeature;
 
-import java.lang.Boolean;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -13,7 +12,7 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
  */
-public class User extends BaseUser{
+public class User extends BaseUser {
 
     private String email;
     private Set<UserFeature> userFeatures = new HashSet<>();
@@ -67,7 +66,7 @@ public class User extends BaseUser{
             if (patient.getBirthDateSimple() != null) {
                 DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
                     setDateOfBirth(new Date(new GregorianCalendar(fhirDateOfBirth.getYear(),
-                        fhirDateOfBirth.getMonth()-1, fhirDateOfBirth.getDay()).getTimeInMillis()));
+                        fhirDateOfBirth.getMonth() - 1, fhirDateOfBirth.getDay()).getTimeInMillis()));
             }
         }
 

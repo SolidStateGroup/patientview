@@ -16,6 +16,6 @@ public interface EncounterService {
 
     List<FhirEncounter> get(Long userId, String code) throws ResourceNotFoundException, FhirResourceException;
 
-    List<Encounter> get(UUID patientUuid) throws FhirResourceException ;
+    List<Encounter> get(UUID patientUuid) throws FhirResourceException;
 
 }

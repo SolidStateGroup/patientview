@@ -7,7 +7,7 @@ import org.patientview.persistence.model.BaseModel;
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
  */
-public class FhirCondition extends BaseModel{
+public class FhirCondition extends BaseModel {
 
     private String code;
     private String category;

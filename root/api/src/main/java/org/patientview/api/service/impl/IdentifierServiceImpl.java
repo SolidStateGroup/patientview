@@ -47,7 +47,8 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         Identifier existingIdentifier = identifierRepository.findByValue(identifier.getIdentifier());
 
         if (!existingIdentifier.equals(entityIdentifier)) {
-            throw new EntityExistsException("Cannot save Identifier, another Identifier with the same value already exists");
+            throw new EntityExistsException("Cannot save Identifier, another Identifier with the same "
+                    + "value already exists");
         }
 
         entityIdentifier.setIdentifier(identifier.getIdentifier());

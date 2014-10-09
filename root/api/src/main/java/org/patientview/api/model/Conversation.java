@@ -26,11 +26,11 @@ public class Conversation {
     private FeatureType staffFeature;
     private Long groupId;
 
-    public Conversation () {
+    public Conversation() {
 
     }
 
-    public Conversation (org.patientview.persistence.model.Conversation conversation) {
+    public Conversation(org.patientview.persistence.model.Conversation conversation) {
         setId(conversation.getId());
         setType(conversation.getType());
         setImageData(conversation.getImageData());
@@ -42,8 +42,8 @@ public class Conversation {
         setConversationUsers(new HashSet<ConversationUser>());
 
         if (conversation.getConversationUsers() != null) {
-            for (org.patientview.persistence.model.ConversationUser conversationUser :
-                conversation.getConversationUsers()) {
+            for (org.patientview.persistence.model.ConversationUser conversationUser
+                : conversation.getConversationUsers()) {
                 getConversationUsers().add(new ConversationUser(conversationUser));
             }
         }

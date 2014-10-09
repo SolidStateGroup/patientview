@@ -5,10 +5,10 @@ package org.patientview.api.model;
  * Created on 24/06/2014
  */
 public class Email {
-    String body;
-    String subject;
-    String sender;
-    String[] recipients;
+    private String body;
+    private String subject;
+    private String sender;
+    private String[] recipients;
 
     public String getBody() {
         return body;

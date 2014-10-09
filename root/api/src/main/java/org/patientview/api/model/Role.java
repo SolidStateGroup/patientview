@@ -7,7 +7,7 @@ import org.patientview.persistence.model.enums.RoleName;
  * Created by jamesr@solidstategroup.com
  * Created on 28/08/2014
  */
-public class Role extends BaseModel{
+public class Role extends BaseModel {
 
     private RoleName name;
     private String description;

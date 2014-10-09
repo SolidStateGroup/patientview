@@ -55,7 +55,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         return joinRequestRepository.save(joinRequest);
     }
 
-    private List<JoinRequestStatus> convertStringArrayToStatusList (String[] statuses) {
+    private List<JoinRequestStatus> convertStringArrayToStatusList(String[] statuses) {
         List<JoinRequestStatus> statusList = new ArrayList<>();
         for (String status : statuses) {
             JoinRequestStatus found = JoinRequestStatus.valueOf(status);
@@ -129,7 +129,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         return convertPageToTransport(joinRequestPage, pageable, joinRequestPage.getTotalElements());
     }
 
-    private Page<JoinRequest> findByParentUser (User user, List<JoinRequestStatus> statusList,
+    private Page<JoinRequest> findByParentUser(User user, List<JoinRequestStatus> statusList,
                                                 List<Long> groupIds, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
@@ -146,7 +146,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         }
     }
 
-    private Page<JoinRequest> findByUser (User user, List<JoinRequestStatus> statusList,
+    private Page<JoinRequest> findByUser(User user, List<JoinRequestStatus> statusList,
                                           List<Long> groupIds, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
@@ -163,7 +163,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         }
     }
 
-    private Page<JoinRequest> findAll (List<JoinRequestStatus> statusList,
+    private Page<JoinRequest> findAll(List<JoinRequestStatus> statusList,
                                        List<Long> groupIds, Pageable pageable) {
         if (statusList.isEmpty()) {
             if (groupIds.isEmpty()) {
@@ -201,7 +201,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             return joinRequestRepository.countSubmittedByParentUser(userId);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
             return joinRequestRepository.countSubmittedByUser(userId);
-        } else if (doesContainRoles( RoleName.GLOBAL_ADMIN)) {
+        } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
             return joinRequestRepository.countSubmitted();
         }
 

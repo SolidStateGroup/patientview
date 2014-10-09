@@ -13,7 +13,7 @@ import java.util.GregorianCalendar;
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
  */
-public class FhirLetter extends BaseModel{
+public class FhirLetter extends BaseModel {
 
     private Date date;
     private String type;

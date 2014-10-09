@@ -76,7 +76,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
 
         for (Group group : groups) {
             // do not add groups that have code in GroupCode enum as these are used for patient entered results etc
-            if(!Util.isInEnum(group.getCode(), HiddenGroupCodes.class)) {
+            if (!Util.isInEnum(group.getCode(), HiddenGroupCodes.class)) {
                 transportGroups.add(new org.patientview.api.model.Group(group));
             }
         }
@@ -131,8 +131,7 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
             } else {
                 groupPage = groupRepository.findGroupAndChildGroupsByUser(filterText, user, pageable);
             }
-        }
-        else {
+        } else {
             if (groupTypesNotEmpty) {
                 groupPage = groupRepository.findGroupsByUserAndGroupTypeNoSpecialties(filterText, groupTypesList,
                         user, pageable);

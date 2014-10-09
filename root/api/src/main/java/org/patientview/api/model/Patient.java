@@ -12,7 +12,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 03/09/2014
  */
-public class Patient extends BaseModel{
+public class Patient extends BaseModel {
 
     private List<FhirCondition> fhirConditions;
     private FhirPatient fhirPatient;

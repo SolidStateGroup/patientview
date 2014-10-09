@@ -21,15 +21,14 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @EnableAspectJAutoProxy
-@EnableAutoConfiguration(exclude=AopAutoConfiguration.class)
-@Import({ApiConfig.class, PersistenceConfig.class, SecurityConfig.class, CacheConfig.class})
+@EnableAutoConfiguration(exclude = AopAutoConfiguration.class)
+@Import({ ApiConfig.class, PersistenceConfig.class, SecurityConfig.class, CacheConfig.class })
 public class Api extends SpringBootServletInitializer {
 
     private static Class<Api> applicationClass = Api.class;
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         SpringApplication.run(applicationClass, args);
-
     }
 
     @Override

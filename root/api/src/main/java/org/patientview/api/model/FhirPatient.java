@@ -15,7 +15,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
  */
-public class FhirPatient extends BaseModel{
+public class FhirPatient extends BaseModel {
 
     private String forename;
     private String surname;
@@ -47,7 +47,7 @@ public class FhirPatient extends BaseModel{
         // date of birth if present
         DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
         if (fhirDateOfBirth != null) {
-            setDateOfBirth(new Date(new GregorianCalendar(fhirDateOfBirth.getYear(), fhirDateOfBirth.getMonth()-1,
+            setDateOfBirth(new Date(new GregorianCalendar(fhirDateOfBirth.getYear(), fhirDateOfBirth.getMonth() - 1,
                     fhirDateOfBirth.getDay()).getTimeInMillis()));
         }
 

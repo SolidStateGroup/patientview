@@ -12,7 +12,7 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
  */
-public class FhirPractitioner extends BaseModel{
+public class FhirPractitioner extends BaseModel {
 
     private String name;
     private String gender;
@@ -47,7 +47,7 @@ public class FhirPractitioner extends BaseModel{
 
         // phone numbers
         setPhoneNumbers(new ArrayList<String>());
-        if(!practitioner.getTelecom().isEmpty()) {
+        if (!practitioner.getTelecom().isEmpty()) {
             for (Contact telecom : practitioner.getTelecom()) {
                 getPhoneNumbers().add(telecom.getValueSimple());
             }

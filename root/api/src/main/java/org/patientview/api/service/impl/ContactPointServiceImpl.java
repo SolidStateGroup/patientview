@@ -16,7 +16,8 @@ import javax.persistence.EntityManager;
  * Created on 30/07/2014
  */
 @Service
-public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointServiceImpl> implements ContactPointService {
+public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointServiceImpl>
+        implements ContactPointService {
 
     @Inject
     private ContactPointRepository contactPointRepository;
@@ -27,7 +28,8 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
     public ContactPoint add(final ContactPoint contactPoint) {
 
         if (contactPoint.getContactPointType().getId() != null) {
-            contactPoint.setContactPointType(entityManager.find(ContactPointType.class, contactPoint.getContactPointType().getId()));
+            contactPoint.setContactPointType(entityManager.find(ContactPointType.class,
+                    contactPoint.getContactPointType().getId()));
         }
 
         return contactPointRepository.save(contactPoint);
@@ -45,7 +47,8 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
 
     public ContactPoint save(final ContactPoint contactPoint) {
         ContactPoint entityContactPoint = contactPointRepository.findOne(contactPoint.getId());
-        entityContactPoint.setContactPointType(entityManager.find(ContactPointType.class, contactPoint.getContactPointType().getId()));
+        entityContactPoint.setContactPointType(entityManager.find(ContactPointType.class,
+                contactPoint.getContactPointType().getId()));
         entityContactPoint.setContent(contactPoint.getContent());
         return contactPointRepository.save(entityContactPoint);
     }

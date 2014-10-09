@@ -174,7 +174,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return new PageImpl<>(conversations, pageable, conversations.size());
     }
 
-    public void addMessage(Long conversationId, org.patientview.api.model.Message message) throws ResourceNotFoundException {
+    public void addMessage(Long conversationId, org.patientview.api.model.Message message)
+            throws ResourceNotFoundException {
         Conversation entityConversation = conversationRepository.findOne(conversationId);
         if (entityConversation == null) {
             throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversationId));
@@ -207,8 +208,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return entityUser;
     }
 
-    private Set<ConversationUser> createEntityConversationUserSet
-            (Set<ConversationUser> conversationUsers, Conversation conversation, User creator)
+    private Set<ConversationUser> createEntityConversationUserSet(Set<ConversationUser> conversationUsers,
+                                                                  Conversation conversation, User creator)
             throws ResourceNotFoundException {
 
         Set<ConversationUser> conversationUserSet = new HashSet<>();
@@ -290,7 +291,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // get first message from passed in conversation
         Iterator iter = conversation.getMessages().iterator();
-        Message message = (Message)iter.next();
+        Message message = (Message) iter.next();
 
         // set message properties and add to conversation
         Message newMessage = new Message();

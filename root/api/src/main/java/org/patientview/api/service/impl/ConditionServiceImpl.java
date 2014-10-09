@@ -30,7 +30,8 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
     private UserRepository userRepository;
 
     @Override
-    public List<Condition> get(final Long userId, final String code) throws ResourceNotFoundException, FhirResourceException {
+    public List<Condition> get(final Long userId, final String code)
+            throws ResourceNotFoundException, FhirResourceException {
 
         List<Condition> conditions = new ArrayList<>();
 

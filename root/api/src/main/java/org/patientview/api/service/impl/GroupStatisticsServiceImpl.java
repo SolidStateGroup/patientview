@@ -25,7 +25,8 @@ import java.util.List;
  * Created on 07/08/2014
  */
 @Service
-public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatisticsServiceImpl> implements GroupStatisticService {
+public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatisticsServiceImpl>
+        implements GroupStatisticService {
 
     @Inject
     private GroupStatisticRepository groupStatisticRepository;

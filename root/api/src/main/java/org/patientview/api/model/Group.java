@@ -13,7 +13,7 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
  */
-public class Group extends BaseGroup{
+public class Group extends BaseGroup {
 
     private Set<GroupFeature> groupFeatures = new HashSet<>();
     private List<Group> parentGroups = new ArrayList<>();

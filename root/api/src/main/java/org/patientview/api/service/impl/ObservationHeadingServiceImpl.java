@@ -114,7 +114,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     public void removeObservationHeadingGroup(Long observationHeadingGroupId) throws ResourceNotFoundException {
-        ObservationHeadingGroup observationHeadingGroup = observationHeadingGroupRepository.findOne(observationHeadingGroupId);
+        ObservationHeadingGroup observationHeadingGroup
+                = observationHeadingGroupRepository.findOne(observationHeadingGroupId);
         if (observationHeadingGroup == null) {
             throw new ResourceNotFoundException("Observation Heading Group does not exist");
         }

@@ -18,7 +18,7 @@ import java.io.IOException;
  * Created by james@solidstategroup.com
  * Created on 17/06/2014
  */
-@WebFilter(urlPatterns = {"/*"})
+@WebFilter(urlPatterns = { "/*" })
 public class CorsFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(CorsFilter.class);
@@ -28,21 +28,22 @@ public class CorsFilter implements Filter {
         LOG.info("Cors Filter initialised");
     }
 
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
         LOG.debug("Adding CORS headers");
         HttpServletResponse response = (HttpServletResponse) res;
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
         response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Length, X-Requested-With, X-Auth-Token");
-        response.setHeader("Cache-Control","no-store, must-revalidate, no-cache, max-age=0");
-        response.setHeader("Pragma","no-cache");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Length, "
+                + "X-Requested-With, X-Auth-Token");
+        response.setHeader("Cache-Control", "no-store, must-revalidate, no-cache, max-age=0");
+        response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
         chain.doFilter(req, res);
     }
 
-    public void destroy() {}
+    public void destroy() { }
 
-    public void init(FilterConfig filterConfig) {}
-
+    public void init(FilterConfig filterConfig) { }
 }

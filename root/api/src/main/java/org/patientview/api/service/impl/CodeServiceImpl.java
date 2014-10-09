@@ -138,7 +138,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     public Code cloneCode(final Long codeId) {
         // clone original
         Code entityCode = codeRepository.findOne(codeId);
-        Code newCode = (Code)SerializationUtils.clone(entityCode);
+        Code newCode = (Code) SerializationUtils.clone(entityCode);
         newCode.setCode(newCode.getCode() + "_new");
 
         // set up links

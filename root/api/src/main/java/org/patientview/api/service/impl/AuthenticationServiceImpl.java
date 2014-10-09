@@ -53,7 +53,8 @@ import java.util.Set;
  * Created on 13/06/2014
  */
 @Service
-public class AuthenticationServiceImpl extends AbstractServiceImpl<AuthenticationServiceImpl> implements AuthenticationService {
+public class AuthenticationServiceImpl extends AbstractServiceImpl<AuthenticationServiceImpl>
+        implements AuthenticationService {
 
     private Integer maximumLoginAttempts;
 
@@ -236,7 +237,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                                                                    User user)  {
         // if user has fhir links set latestDataReceivedDate and latestDataReceivedBy (ignore PATIENT_ENTERED)
         if (user.getFhirLinks() != null && !user.getFhirLinks().isEmpty()) {
-            Date latestDataReceivedDate = new Date(1,1,1);
+            Date latestDataReceivedDate = new Date(1, 1, 1);
             Group group = null;
 
             for (FhirLink fhirLink : user.getFhirLinks()) {
@@ -344,7 +345,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             failedLogonAttempts = 0;
         }
         ++failedLogonAttempts;
-        if (failedLogonAttempts > 3) {
+        if (failedLogonAttempts > maximumLoginAttempts) {
             user.setLocked(Boolean.TRUE);
         }
 

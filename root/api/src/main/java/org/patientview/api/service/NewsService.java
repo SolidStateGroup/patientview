@@ -14,21 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface NewsService extends CrudService<NewsItem> {
 
-    public Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException;
+    Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException;
 
-    public Page<NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException;
+    Page<NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException;
 
     NewsItem save(NewsItem newsItem) throws ResourceNotFoundException;
 
-    public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException;
-    
-    public void removeGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException;
+    void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException;
 
-    public void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
-    
-    public void removeRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
+    void removeGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException;
 
-    public void addGroupAndRole(Long newsItemId, Long groupId, Long roleId) throws ResourceNotFoundException;
+    void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
 
-    public void removeNewsLink(Long newsItemId, Long newsLinkId) throws ResourceNotFoundException;
+    void removeRole(Long newsItemId, Long roleId) throws ResourceNotFoundException;
+
+    void addGroupAndRole(Long newsItemId, Long groupId, Long roleId) throws ResourceNotFoundException;
+
+    void removeNewsLink(Long newsItemId, Long newsLinkId) throws ResourceNotFoundException;
 }

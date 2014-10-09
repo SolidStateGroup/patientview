@@ -35,7 +35,8 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
     private UserRepository userRepository;
 
     @Override
-    public List<FhirDiagnosticReport> getByUserId(final Long userId) throws ResourceNotFoundException, FhirResourceException {
+    public List<FhirDiagnosticReport> getByUserId(final Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -70,7 +71,8 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
                             ResourceType.Observation);
 
                         Observation observation = (Observation) DataUtils.getResource(resultJson);
-                        fhirDiagnosticReports.add(new FhirDiagnosticReport(diagnosticReport, observation, fhirLink.getGroup()));
+                        fhirDiagnosticReports.add(new FhirDiagnosticReport(diagnosticReport, observation,
+                                fhirLink.getGroup()));
 
                     } catch (Exception e) {
                         throw new FhirResourceException(e.getMessage());

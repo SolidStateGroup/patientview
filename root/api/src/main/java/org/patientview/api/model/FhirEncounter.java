@@ -7,7 +7,7 @@ import org.patientview.persistence.model.BaseModel;
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
  */
-public class FhirEncounter extends BaseModel{
+public class FhirEncounter extends BaseModel {
 
     private String identifier;
     private String type;

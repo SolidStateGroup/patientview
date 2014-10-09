@@ -239,7 +239,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             ContactPoint tempContactPoint = new ContactPoint();
             tempContactPoint.setGroup(newGroup);
             tempContactPoint.setCreator(userRepository.findOne(1L));
-            tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class,contactPoint.getContactPointType().getId()));
+            tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class,
+                    contactPoint.getContactPointType().getId()));
             tempContactPoint.setContent(contactPoint.getContent());
             tempContactPoint = contactPointRepository.save(tempContactPoint);
             newGroup.getContactPoints().add(tempContactPoint);
@@ -276,7 +277,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         }
     }
 
-    private GroupRelationship createRelationship(Group sourceGroup, Group objectGroup, RelationshipTypes relationshipType) {
+    private GroupRelationship createRelationship(Group sourceGroup, Group objectGroup,
+                                                 RelationshipTypes relationshipType) {
         GroupRelationship groupRelationship = new GroupRelationship();
         groupRelationship.setSourceGroup(sourceGroup);
         groupRelationship.setObjectGroup(objectGroup);
@@ -368,7 +370,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     public ContactPoint addContactPoint(final Long groupId, final ContactPoint contactPoint) {
         contactPoint.setGroup(groupRepository.findOne(groupId));
         contactPoint.setCreator(userRepository.findOne(1L));
-        contactPoint.setContactPointType(entityManager.find(ContactPointType.class, contactPoint.getContactPointType().getId()));
+        contactPoint.setContactPointType(entityManager.find(ContactPointType.class,
+                contactPoint.getContactPointType().getId()));
         return contactPointRepository.save(contactPoint);
     }
 
@@ -417,7 +420,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         LOG.info("Delete " + id + " not Implemented");
     }
 
@@ -447,7 +450,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return email;
     }
 
-    private static ContactPoint getContactPoint(Collection<ContactPoint> contactPoints, ContactPointTypes contactPointTypes) {
+    private static ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,
+                                                ContactPointTypes contactPointTypes) {
         for (ContactPoint contactPoint: contactPoints) {
             if (contactPoint.getContactPointType().getValue().equals(contactPointTypes)) {
                 return contactPoint;

@@ -122,8 +122,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             Group groupRoleGroup = groupRole.getGroup();
 
             // only STAFF role types can edit/delete, allow edit/delete if newsLink linked to your group and UNIT_ADMIN
-            if (groupRoleRoleType.equals(RoleType.STAFF) &&
-                    (groupRoleGroup.equals(newsLink.getGroup()) && groupRoleRoleName.equals(RoleName.UNIT_ADMIN))) {
+            if (groupRoleRoleType.equals(RoleType.STAFF)
+                    && (groupRoleGroup.equals(newsLink.getGroup()) && groupRoleRoleName.equals(RoleName.UNIT_ADMIN))) {
                 return true;
             }
         }
@@ -138,7 +138,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
             // ignore newsLink where global admin role and no group (added by default during creation)
             if (!(newsLinkRole != null && newsLinkRole.equals(RoleName.GLOBAL_ADMIN)) && newsLinkGroup != null) {
-                if(userIsUnitAdminForNewsLink(newsLink, user)) {
+                if (userIsUnitAdminForNewsLink(newsLink, user)) {
                     canEditDeleteNewsItem = true;
                 }
             }

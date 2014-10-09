@@ -23,7 +23,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserService extends CrudService<User> {
 
-    List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException ;
+    List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException;
 
     User getByUsername(String username);
 
@@ -56,10 +56,10 @@ public interface UserService extends CrudService<User> {
     Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters);
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
-    User changePassword(final Long userId, final String password) throws ResourceNotFoundException ;
+    User changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
-    User resetPassword(Long userId, String password) throws ResourceNotFoundException ;
+    User resetPassword(Long userId, String password) throws ResourceNotFoundException;
 
     Boolean sendVerificationEmail(Long userId);
 

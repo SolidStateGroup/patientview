@@ -154,7 +154,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             if (fhirLink.getActive()) {
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT DISTINCT ON (2)");
-                query.append("CONTENT -> 'appliesDateTime', CONTENT -> 'name' -> 'text', CONTENT -> 'valueQuantity' -> 'value' ");
+                query.append("CONTENT -> 'appliesDateTime', CONTENT -> 'name' -> 'text', ");
+                query.append("CONTENT -> 'valueQuantity' -> 'value' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' -> 'display' = '\"");
                 query.append(fhirLink.getVersionId().toString());
@@ -171,7 +172,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                             // remove timezone and parse date
                             String dateString = json[0].replace("\"", "").split("\\+")[0];
-                            Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS", Locale.ENGLISH).parse(dateString);
+                            Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS", Locale.ENGLISH)
+                                    .parse(dateString);
 
                             fhirObservation.setApplies(date);
                             fhirObservation.setName(json[1].replace("\"", ""));
@@ -290,8 +292,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 }
             }
 
-            if (!fhirObservations.isEmpty() ||
-                    !(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
+            if (!fhirObservations.isEmpty()
+                    || !(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
                 // create FHIR Patient
                 Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
                 JSONObject fhirPatient = fhirResource.create(patient);
@@ -384,7 +386,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         return observation;
     }
 
-    private DateTime createDateTime(UserResultCluster resultCluster) throws FhirResourceException{
+    private DateTime createDateTime(UserResultCluster resultCluster) throws FhirResourceException {
 
         try {
             DateTime dateTime = new DateTime();
@@ -477,8 +479,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                     if (observationList.size() > 1) {
                         transportObservationHeading.setValueChange(
-                            Double.parseDouble(latest.getValue()) -
-                                    Double.parseDouble(observationList.get(1).getValue()));
+                            Double.parseDouble(latest.getValue())
+                                - Double.parseDouble(observationList.get(1).getValue()));
                     }
                 }
 

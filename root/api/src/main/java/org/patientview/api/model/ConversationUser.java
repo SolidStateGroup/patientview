@@ -10,11 +10,11 @@ public class ConversationUser {
     private BaseUser user;
     private Boolean anonymous;
 
-    public ConversationUser () {
+    public ConversationUser() {
 
     }
 
-    public ConversationUser (org.patientview.persistence.model.ConversationUser conversationUser) {
+    public ConversationUser(org.patientview.persistence.model.ConversationUser conversationUser) {
         setId(conversationUser.getId());
         setUser(new BaseUser(conversationUser.getUser()));
         setAnonymous(conversationUser.getAnonymous());

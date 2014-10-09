@@ -25,5 +25,5 @@ public interface JoinRequestService {
     Page<org.patientview.api.model.JoinRequest> getByUser(Long userId, GetParameters getParameters)
             throws ResourceNotFoundException;
 
-    org.patientview.api.model.JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException ;
+    org.patientview.api.model.JoinRequest save(JoinRequest joinRequest) throws ResourceNotFoundException;
 }

@@ -7,5 +7,5 @@ import org.patientview.api.model.Email;
  * Created on 24/06/2014
  */
 public interface EmailService {
-    public boolean sendEmail(Email email);
+    boolean sendEmail(Email email);
 }

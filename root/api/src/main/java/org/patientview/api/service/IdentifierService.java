@@ -14,5 +14,5 @@ import javax.persistence.EntityExistsException;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface IdentifierService extends CrudService<Identifier> {
 
-    public void saveIdentifier(Identifier identifier) throws ResourceNotFoundException, EntityExistsException;
+    void saveIdentifier(Identifier identifier) throws ResourceNotFoundException, EntityExistsException;
 }

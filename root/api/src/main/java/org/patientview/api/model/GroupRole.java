@@ -6,7 +6,7 @@ import org.patientview.persistence.model.BaseModel;
  * Created by jamesr@solidstategroup.com
  * Created on 28/08/2014
  */
-public class GroupRole extends BaseModel{
+public class GroupRole extends BaseModel {
 
     private Group group;
     private Role role;

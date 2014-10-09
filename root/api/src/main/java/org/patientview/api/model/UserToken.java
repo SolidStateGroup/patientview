@@ -28,11 +28,11 @@ public class UserToken {
     private List<Feature> staffFeatures;
     private List<Feature> patientFeatures;
 
-    public UserToken () {
+    public UserToken() {
 
     }
 
-    public UserToken (org.patientview.persistence.model.UserToken userToken) {
+    public UserToken(org.patientview.persistence.model.UserToken userToken) {
         if (userToken.getUser() != null) {
             setUser(new User(userToken.getUser(), null));
         }

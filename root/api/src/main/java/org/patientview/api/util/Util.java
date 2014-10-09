@@ -31,9 +31,9 @@ import java.util.TreeMap;
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */
-public class Util {
+public final class Util {
 
-    private Util() {}
+    private Util() { }
 
     /**
      * This is convert the Iterable<T> type passed for Spring DAO interface into
@@ -62,7 +62,7 @@ public class Util {
     // check string appears in enum
     public static <E extends Enum<E>> boolean isInEnum(String value, Class<E> enumClass) {
         for (E e : enumClass.getEnumConstants()) {
-            if(e.name().equals(value)) { return true; }
+            if (e.name().equals(value)) { return true; }
         }
         return false;
     }
@@ -73,10 +73,11 @@ public class Util {
         if (signature instanceof MethodSignature) {
             final MethodSignature ms = (MethodSignature) signature;
 
-            for (Annotation annotation : ms.getMethod().getDeclaredAnnotations())
+            for (Annotation annotation : ms.getMethod().getDeclaredAnnotations()) {
                 if (annotation.annotationType() == GroupMemberOnly.class) {
                     return Util.getRolesFromAnnotation(annotation);
                 }
+            }
         }
         return null;
     }
@@ -153,12 +154,15 @@ public class Util {
                 case LOCKED_USER_COUNT:
                     groupStatisticTO.setCountOfUserLocked(groupStatistic.getValue());
                     break;
+                default:
+                    break;
             }
         }
         return groupStatisticTOs.values();
     }
 
-    private static GroupStatisticTO getGroupStatisticTO(Map<Date, GroupStatisticTO> groupStatisticTOMap, Date startDate)  {
+    private static GroupStatisticTO getGroupStatisticTO(Map<Date, GroupStatisticTO> groupStatisticTOMap,
+                                                        Date startDate) {
         if (groupStatisticTOMap.get(startDate) == null) {
             groupStatisticTOMap.put(startDate, new GroupStatisticTO());
         }

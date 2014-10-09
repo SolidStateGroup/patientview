@@ -31,7 +31,8 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
     private UserRepository userRepository;
 
     @Override
-    public List<FhirEncounter> get(final Long userId, final String code) throws ResourceNotFoundException, FhirResourceException {
+    public List<FhirEncounter> get(final Long userId, final String code)
+            throws ResourceNotFoundException, FhirResourceException {
 
         List<Encounter> encounters = new ArrayList<>();
         List<FhirEncounter> fhirEncounters = new ArrayList<>();

@@ -16,7 +16,7 @@ import java.util.UUID;
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
  */
-public class FhirObservation extends BaseModel{
+public class FhirObservation extends BaseModel {
 
     private Date applies;
     private String name;
