@@ -26,15 +26,13 @@ public class XmlParser {
         }
     }
 
-    public static Patientview parse(File xmlFile){
-
+    public static Patientview parse(File xmlFile) throws JAXBException {
         try {
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             return (Patientview) jaxbUnmarshaller.unmarshal(xmlFile);
         } catch (JAXBException jbe) {
             LOG.error("Unable to bind to generated class");
+            throw jbe;
         }
-        return null;
     }
-
 }
