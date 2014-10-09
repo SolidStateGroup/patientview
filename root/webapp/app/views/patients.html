@@ -94,7 +94,7 @@
                     </div>
                 </div>
             </div>
-            <div class="pull-right">
+            <div class="pull-right" data-ng-show="pagedItems.length  > 0">
                 <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
             </div>
         </div>
@@ -168,24 +168,13 @@
         </div>
         <div class="col-md-12" data-ng-show="pagedItems.length == 0">
             <div class="col-md-12">
+                <br/>
                 <h4>No patients found</h4>
             </div>
         </div>
 
         <!-- pagination -->
-        <div class="col-md-12" data-ng-show="pagedItems.length > 0 && totalPages > 1">
-            <ul class="pagination">
-                <li data-ng-class="prevPageDisabled()">
-                    <a href data-ng-click="prevPage()">« Prev</a>
-                </li>
-                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
-                    <a href>{{n+1}}</a>
-                </li>
-                <li data-ng-class="nextPageDisabled()">
-                    <a href data-ng-click="nextPage()">Next »</a>
-                </li>
-            </ul>
-        </div>
+        <div ng-include src="'views/partials/pagination.html'"></div>
     </div>
 </div>
 

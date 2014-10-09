@@ -1,11 +1,11 @@
 <h1 data-ng-show="!loading">Join Request Admin</h1>
-<div class="content-panel filter-panel" data-ng-show="pagedItems.length > 0 && !loading" data-ng-cloak>
+<div class="content-panel filter-panel" data-ng-show="!loading" data-ng-cloak>
     <div class="">
         <p class="intro-block">Filter join requests by selecting a status from the options below.</p>
     </div>
     <div class="panel-footer clearfix">
         <div class="content-inner">
-            <div class="pull-right">
+            <div class="pull-right" data-ng-show="pagedItems.length > 0">
                 <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
             </div>
             <div class="form-horizontal" role="form">
@@ -95,25 +95,12 @@
 </div>
 
 <div data-ng-show="pagedItems.length == 0 && !loading">
+    <br/>
     <h4>No Join Requests found</h4>
 </div>
 
 <!-- pagination -->
-<div class="col-md-12" data-ng-show="pagedItems.length > 0">
-    <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
-        <ul class="pagination">
-            <li data-ng-class="prevPageDisabled()">
-                <a href data-ng-click="prevPage()">« Prev</a>
-            </li>
-            <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
-                <a href>{{n+1}}</a>
-            </li>
-            <li data-ng-class="nextPageDisabled()">
-                <a href data-ng-click="nextPage()">Next »</a>
-            </li>
-        </ul>
-    </div>
-</div>
+<div ng-include src="'views/partials/pagination.html'"></div>
 
 <div data-ng-show="loading" class="container"><br/><br/>
     <div data-ng-show="loading" class="loading">
