@@ -60,7 +60,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     public UUID add(final Patientview patient, final ResourceReference practitionerReference)
             throws ResourceNotFoundException, FhirResourceException {
 
-        LOG.info("Starting Patient Process");
+        LOG.info("Starting Patient Data Process");
 
         // Find the identifier which the patient is linked to.
         Identifier identifier = matchPatientByIdentifierValue(patient);
@@ -68,19 +68,31 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // Find the group that is importing the data
         Group group = groupRepository.findByCode(patient.getCentredetails().getCentrecode());
 
-
-        // Find and update the link between the existing User and Unit to the Fhir Record
+        // Find the link between the existing User, Unit and the FHIR Record
         FhirLink fhirLink = retrieveLink(group, identifier);
-        update(fhirLink);
 
-        // Create a new Fhir record and add the link to the User and Unit
+        // create Fhir patient from XML
         PatientBuilder patientBuilder = new PatientBuilder(patient, practitionerReference);
-        JSONObject jsonObject = create(patientBuilder.build());
-        addLink(identifier, group, jsonObject);
+        Patient newFhirPatient = patientBuilder.build();
+        UUID versionId;
 
-        LOG.info("Processed Patient NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());
+        if (fhirLink != null) {
+            // link to FHIR exists, update patient
+            JSONObject jsonObject = fhirResource.updateFhirObject(newFhirPatient, fhirLink.getResourceId(), fhirLink.getVersionId());
+            versionId = Util.getVersionId(jsonObject);
 
-        return Util.getVersionId(jsonObject);
+            // update link
+            fhirLink.setVersionId(versionId);
+            fhirLinkRepository.save(fhirLink);
+        } else {
+            // Create a new Fhir record and add the link to the User and Unit
+            JSONObject jsonObject = create(newFhirPatient);
+            addLink(identifier, group, jsonObject);
+            versionId = Util.getVersionId(jsonObject);
+        }
+
+        LOG.info("Processed Patient Data for NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());
+        return versionId;
     }
 
     public List<FhirLink> getInactivePatientFhirLinksByGroup(Patientview patientview) throws ResourceNotFoundException {
@@ -88,7 +100,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         Group group = groupRepository.findByCode(patientview.getCentredetails().getCentrecode());
 
         if (group == null) {
-            throw new ResourceNotFoundException("Group not found in PatientView database from imported Centrecode");
+            throw new ResourceNotFoundException("Group not found in PatientView database from imported <centrecode>");
         }
 
         return fhirLinkRepository.findInActiveByUserAndGroup(identifier.getUser(), group);
@@ -106,13 +118,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         fhirLinkRepository.delete(entityFhirLink);
-    }
-
-    private void update(FhirLink fhirLink) {
-        if (fhirLink != null) {
-            fhirLink.setActive(false);
-            fhirLinkRepository.save(fhirLink);
-        }
     }
 
     private JSONObject create(Patient patient) throws FhirResourceException {
@@ -135,12 +140,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return identifier;
     }
 
+    // return most recent as ordered by created DESC
     private FhirLink retrieveLink(Group group, Identifier identifier) {
         List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifier(
                 identifier.getUser(), group, identifier);
 
         if (!fhirLinks.isEmpty()) {
-            // return most recent as ordered by created DESC
             return fhirLinks.get(0);
         } else {
             return null;

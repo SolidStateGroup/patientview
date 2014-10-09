@@ -96,21 +96,21 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             LOG.info("Starting to process data for NHS number: "
                     + patientview.getPatient().getPersonaldetails().getNhsno());
 
-            // organization (Unit/centre details)
+            // update organization based on <centrecode> (Unit/centre details)
             UUID organizationUuid = organizationService.add(patientview);
             organizationReference = createResourceReference(organizationUuid);
 
-            // practitioner (GP details)
+            // update practitioner based on <gpname> (GP details)
             UUID practitionerUuid = practitionerService.add(patientview);
             practitionerReference = createResourceReference(practitionerUuid);
 
-            // core patient object
+            // update core patient object based on <nhsno>
             UUID patientUuid = patientService.add(patientview, practitionerReference);
             patientReference = createResourceReference(patientUuid);
 
             // observation (tests)
             observationService.add(patientview, patientReference);
-
+/*
             // condition (diagnoses)
             conditionService.add(patientview, patientReference);
 
@@ -124,7 +124,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             diagnosticService.add(patientview, patientReference);
 
             // documentreference (letters)
-            documentReferenceService.add(patientview, patientReference);
+            documentReferenceService.add(patientview, patientReference);*/
 
             Date end = new Date();
             LOG.info("Finished processing data for NHS number: "

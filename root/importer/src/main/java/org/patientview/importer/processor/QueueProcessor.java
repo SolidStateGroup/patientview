@@ -86,14 +86,14 @@ public class QueueProcessor extends DefaultConsumer {
                             patient.getPatient().getPersonaldetails().getNhsno(), rnf);
                 }
 
-                if (Boolean.parseBoolean(properties.getProperty("remove.old.data"))) {
+               /* if (Boolean.parseBoolean(properties.getProperty("remove.old.data"))) {
                     try {
                         importManager.removeOldData(patient);
                     } catch (ImportResourceException rnf) {
                         LOG.error("Could not remove old data for NHS Number {}",
                                 patient.getPatient().getPersonaldetails().getNhsno(), rnf);
                     }
-                }
+                }*/
             } else {
                 LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + " failed validation");
             }
