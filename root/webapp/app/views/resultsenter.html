@@ -72,7 +72,7 @@
                 </div>
                 <div class="row inline-row">
                     <div class="col-md-12">
-                        <span class="inline-span"> Date: &nbsp;</span>
+                        <span class="inline-span"> Date of result(s): &nbsp;</span>
                         <select class="form-control" data-ng-model="userResultCluster.day"
                             data-ng-options="day as day for day in days">
                         </select>
@@ -114,7 +114,7 @@
                 </div>
             </div>
 
-            <div class="row" ng-show="userResultClusters.length && userDataValid()">
+            <div class="row" ng-show="userResultClusters.length">
                 <div class="col-md-12">
                     <h4>Step 3: Once you have finished adding your results, you must click Save to submit your results
                         or Cancel to discard them.</h4>
