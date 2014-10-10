@@ -40,8 +40,8 @@
                         <dl class="col-md-6" data-ng-show="permissions.isPatient">
                             <dt>Data last received:</dt>
                             <dd data-ng-show="loggedInUser.latestDataReceivedDate && loggedInUser.latestDataReceivedBy">
-                                <a href="#/results">{{loggedInUser.latestDataReceivedDate | date:'dd-MMM-yyyy HH:mm'}}
-                                from {{loggedInUser.latestDataReceivedBy.name}}</a>
+                                <a href="#/results">{{loggedInUser.latestDataReceivedDate | date:'dd-MMM-yyyy HH:mm'}}</a>
+                                <span class="sub-text">from {{loggedInUser.latestDataReceivedBy.name}}</span>
                             </dd>
                             <dd data-ng-show="!loggedInUser.latestDataReceivedDate || !loggedInUser.latestDataReceivedBy">
                                 Not Available
