@@ -189,9 +189,12 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         org.patientview.api.model.UserToken transportUserToken = new org.patientview.api.model.UserToken(userToken);
 
         // get information about user's available roles and groups as used in staff and patient views
-        transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
         transportUserToken = setUserGroups(transportUserToken);
         transportUserToken = setRoutes(transportUserToken);
+
+        if (doesContainRoles(RoleName.PATIENT)) {
+            transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
+        }
 
         if (!doesContainRoles(RoleName.PATIENT)) {
             transportUserToken = setSecurityRoles(transportUserToken);
@@ -241,10 +244,12 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             Group group = null;
 
             for (FhirLink fhirLink : user.getFhirLinks()) {
-                if (fhirLink.getCreated().after(latestDataReceivedDate)
-                        && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
-                    latestDataReceivedDate = fhirLink.getCreated();
-                    group = fhirLink.getGroup();
+                if (fhirLink.getUpdated() != null) {
+                    if (fhirLink.getUpdated().after(latestDataReceivedDate)
+                            && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+                        latestDataReceivedDate = fhirLink.getUpdated();
+                        group = fhirLink.getGroup();
+                    }
                 }
             }
 

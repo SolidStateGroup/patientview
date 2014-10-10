@@ -1,8 +1,8 @@
 package org.patientview.importer.service;
 
 import generated.Patientview;
-import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface MedicationService {
 
-    public void add(Patientview data, ResourceReference patientReference);
+    public void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException;
 }

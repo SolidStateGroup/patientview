@@ -45,7 +45,7 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    documentreference ");
                 query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-                query.append(fhirLink.getVersionId().toString());
+                query.append(fhirLink.getResourceId().toString());
                 query.append("\", \"reference\": \"uuid\"}'");
 
                 // get list of DocumentReference

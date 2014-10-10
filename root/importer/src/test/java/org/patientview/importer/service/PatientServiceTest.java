@@ -16,7 +16,7 @@ import org.patientview.importer.BaseTest;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.impl.PatientServiceImpl;
-import org.patientview.importer.util.Util;
+import org.patientview.importer.Util.Util;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;

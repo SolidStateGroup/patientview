@@ -12,8 +12,8 @@ import org.mockito.Mockito;
 import org.patientview.importer.BaseTest;
 import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.resource.FhirResource;
-import org.patientview.importer.util.FhirTestUtil;
-import org.patientview.importer.util.Util;
+import org.patientview.importer.Util.FhirTestUtil;
+import org.patientview.importer.Util.Util;
 
 import javax.sql.DataSource;
 import java.util.List;

@@ -7,7 +7,9 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.ConditionsBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.ConditionService;
+import org.patientview.importer.Util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -19,24 +21,25 @@ import java.util.UUID;
  * Created on 05/09/2014
  */
 @Service
-public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> implements ConditionService{
+public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> implements ConditionService {
 
     @Inject
     private FhirResource fhirResource;
 
     /**
      * Creates all of the FHIR condition records from the Patientview object. Links them to the PatientReference
-     *
-     * @param data
-     * @param patientReference
      */
     @Override
-    public void add(final Patientview data, final ResourceReference patientReference) {
+    public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        LOG.info("Starting Condition Process");
-
-        ConditionsBuilder conditionsBuilder = new ConditionsBuilder(data, patientReference);
         int count = 0;
+        LOG.info("Starting Condition Process");
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+        ConditionsBuilder conditionsBuilder = new ConditionsBuilder(data, patientReference);
+
+        // delete old Condition attached to this patient
+        deleteBySubjectId(fhirLink.getResourceId());
+
         for (Condition condition : conditionsBuilder.build()) {
             LOG.trace("Creating... condition " + count);
             try {

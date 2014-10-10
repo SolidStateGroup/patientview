@@ -540,6 +540,7 @@ CREATE TABLE PV_Fhir_Link
   Resource_Type VARCHAR(100),
   Active        BOOLEAN DEFAULT TRUE,
   Creation_Date      TIMESTAMP    NOT NULL,
+  Last_Update_Date      TIMESTAMP    NOT NULL,
   PRIMARY KEY (Id)
 );
 

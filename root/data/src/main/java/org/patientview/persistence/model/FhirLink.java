@@ -44,6 +44,10 @@ public class FhirLink extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created = new Date();
 
+    @Column(name = "last_update_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updated = new Date();
+
     @Column(name = "active")
     private Boolean active;
 
@@ -77,6 +81,14 @@ public class FhirLink extends BaseModel {
 
     public void setCreated(final Date created) {
         this.created = created;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
     }
 
     public Identifier getIdentifier() {

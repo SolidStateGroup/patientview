@@ -51,7 +51,7 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    diagnosticreport ");
                 query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-                query.append(fhirLink.getVersionId().toString());
+                query.append(fhirLink.getResourceId().toString());
                 query.append("\", \"reference\": \"uuid\"}'");
 
                 // get list of diagnostic reports

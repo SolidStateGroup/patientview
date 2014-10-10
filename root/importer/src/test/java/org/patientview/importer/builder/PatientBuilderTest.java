@@ -5,7 +5,7 @@ import org.hl7.fhir.instance.model.Patient;
 import org.junit.Assert;
 import org.junit.Test;
 import org.patientview.importer.BaseTest;
-import org.patientview.importer.util.Util;
+import org.patientview.importer.Util.Util;
 
 /**
  * Created by jamesr@solidstategroup.com

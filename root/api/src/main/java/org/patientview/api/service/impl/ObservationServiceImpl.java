@@ -18,7 +18,6 @@ import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
-import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
@@ -32,6 +31,7 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.slf4j.Logger;
@@ -40,17 +40,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -96,7 +97,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    observation ");
                 query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-                query.append(fhirLink.getVersionId().toString());
+                query.append(fhirLink.getResourceId().toString());
                 query.append("\", \"reference\": \"uuid\"}' ");
 
                 if (StringUtils.isNotEmpty(code)) {
@@ -158,7 +159,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("CONTENT -> 'valueQuantity' -> 'value' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' -> 'display' = '\"");
-                query.append(fhirLink.getVersionId().toString());
+                query.append(fhirLink.getResourceId().toString());
                 query.append("\"' ");
                 query.append("ORDER  BY 2, 1 DESC");
 
@@ -171,9 +172,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                             FhirObservation fhirObservation = new FhirObservation();
 
                             // remove timezone and parse date
-                            String dateString = json[0].replace("\"", "").split("\\+")[0];
-                            Date date = new SimpleDateFormat("yyyy-MM-dd'T'hh':'mm':'ss.SSS", Locale.ENGLISH)
-                                    .parse(dateString);
+                            String dateString = json[0].replace("\"", "");
+                            XMLGregorianCalendar xmlDate
+                                    = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
+                            Date date = xmlDate.toGregorianCalendar().getTime();
 
                             fhirObservation.setApplies(date);
                             fhirObservation.setName(json[1].replace("\"", ""));
@@ -192,7 +194,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                                 latestObservationDates.put(code, date);
                             }
 
-                        } catch (ParseException e) {
+                        } catch (DatatypeConfigurationException e) {
                             LOG.error(e.getMessage());
                         }
                     }
@@ -315,7 +317,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 patientUser.getFhirLinks().add(fhirLink);
                 userRepository.save(patientUser);
 
-                ResourceReference patientReference = createResourceReference(getVersionId(fhirPatient));
+                ResourceReference patientReference = createResourceReference(getResourceId(fhirPatient));
 
                 // save observations
                 for (Observation fhirObservation : fhirObservations) {
