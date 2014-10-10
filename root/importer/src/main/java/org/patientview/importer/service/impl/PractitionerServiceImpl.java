@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import org.patientview.importer.builder.PractitionerBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
-import org.patientview.importer.Util.Util;
+import org.patientview.importer.util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.springframework.stereotype.Service;
 

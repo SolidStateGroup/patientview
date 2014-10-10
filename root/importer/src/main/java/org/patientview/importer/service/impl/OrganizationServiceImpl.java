@@ -10,7 +10,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.OrganizationBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.OrganizationService;
-import org.patientview.importer.Util.Util;
+import org.patientview.importer.util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.repository.GroupRepository;
 import org.springframework.stereotype.Service;

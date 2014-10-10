@@ -7,7 +7,7 @@ import com.rabbitmq.client.Envelope;
 import generated.Patientview;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
-import org.patientview.importer.Util.Util;
+import org.patientview.importer.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

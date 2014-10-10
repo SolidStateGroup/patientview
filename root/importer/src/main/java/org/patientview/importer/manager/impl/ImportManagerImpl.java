@@ -15,7 +15,7 @@ import org.patientview.importer.service.OrganizationService;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
-import org.patientview.importer.Util.Util;
+import org.patientview.importer.util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
