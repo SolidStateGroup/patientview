@@ -3,6 +3,7 @@ package org.patientview.api.util;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -73,8 +74,12 @@ public final class Util {
         if (signature instanceof MethodSignature) {
             final MethodSignature ms = (MethodSignature) signature;
 
+            List<Class> classTypes = new ArrayList<>();
+            classTypes.add(GroupMemberOnly.class);
+            classTypes.add(RoleOnly.class);
+
             for (Annotation annotation : ms.getMethod().getDeclaredAnnotations()) {
-                if (annotation.annotationType() == GroupMemberOnly.class) {
+                if (classTypes.contains(annotation.annotationType())) {
                     return Util.getRolesFromAnnotation(annotation);
                 }
             }

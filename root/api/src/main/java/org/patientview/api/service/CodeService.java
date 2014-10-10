@@ -1,9 +1,11 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,8 @@ public interface CodeService extends CrudService<Code> {
 
     Code add(Code code) throws EntityExistsException;
 
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
+            RoleName.STAFF_ADMIN })
     Page<Code> getAllCodes(GetParameters getParameters);
 
     Code cloneCode(Long codeId);

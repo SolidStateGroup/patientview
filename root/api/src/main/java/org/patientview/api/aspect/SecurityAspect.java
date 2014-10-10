@@ -55,6 +55,34 @@ public final class SecurityAspect {
         }
     }
 
+    @Before("@annotation(org.patientview.api.annotation.RoleOnly)")
+    public void checkHasRole(JoinPoint joinPoint) throws ResourceForbiddenException {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Cannot validate when security has not been initialised
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("The request must be authenticated");
+        }
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        // Cannot validate without the principal
+        if (user == null) {
+            throw new SecurityException("The user must be authenticated");
+        }
+
+        RoleName[] roles = Util.getRoles(joinPoint);
+
+        if (roles != null && Util.doesContainRoles(roles)) {
+            LOG.debug("User has passed role validation");
+        } else {
+            throw new ResourceForbiddenException("The user does not have the required role");
+        }
+
+        LOG.debug("PointCut");
+    }
+
     @Before("@annotation(org.patientview.api.annotation.GroupMemberOnly)")
     public void checkGroupMembership(JoinPoint joinPoint) throws ResourceForbiddenException {
 
