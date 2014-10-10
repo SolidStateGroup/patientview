@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -90,7 +89,6 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
         ResourceReference practitionerReference;
         ResourceReference organizationReference;
-        ResourceReference patientReference;
 
         try {
             Date start = new Date();
@@ -136,49 +134,6 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             LOG.error("Unable to build patient " + patientview.getPatient().getPersonaldetails().getNhsno()
                 + ". Message: " + e.getMessage());
             throw new ImportResourceException("Could not process patient data");
-        }
-    }
-
-    public void removeOldData(Patientview patientview) throws ImportResourceException {
-        int maxFhirLinkStored = Integer.parseInt(properties.getProperty("maximum.fhirlink.stored"));
-        Date start = new Date();
-
-        LOG.info("Removing old data, no more than " + (maxFhirLinkStored - 1) + " inactive FHIR records per group.");
-
-        try {
-            List<FhirLink> inactiveFhirlinks = patientService.getInactivePatientFhirLinksByGroup(patientview);
-
-            if (inactiveFhirlinks.size() > maxFhirLinkStored -1) {
-
-                // remove all old FHIR data and fhirlink leaving only maximum.fhirlink.stored remaining
-                for(int i = inactiveFhirlinks.size() - 1;i > maxFhirLinkStored - 2; i--) {
-                    FhirLink fhirLink = inactiveFhirlinks.get(i);
-
-                    // remove FhirLink
-                    patientService.deleteFhirLink(fhirLink);
-
-                    // organization, practitioner are updated on import, do not need to remove old entries
-                    patientService.deleteByResourceId(fhirLink.getResourceId());
-                    observationService.deleteBySubjectId(fhirLink.getVersionId());
-                    conditionService.deleteBySubjectId(fhirLink.getVersionId());
-                    encounterService.deleteBySubjectId(fhirLink.getVersionId());
-                    medicationService.deleteBySubjectId(fhirLink.getVersionId());
-                    diagnosticService.deleteBySubjectId(fhirLink.getVersionId());
-                    documentReferenceService.deleteBySubjectId(fhirLink.getVersionId());
-                }
-
-                LOG.info("Finished removing old data for NHS number: "
-                        + patientview.getPatient().getPersonaldetails().getNhsno()
-                        + ". Took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
-            } else {
-                LOG.info("No old data to remove.");
-            }
-
-
-        } catch (FhirResourceException | SQLException | ResourceNotFoundException e) {
-            LOG.error("Unable to remove old data for patient {}",
-                    patientview.getPatient().getPersonaldetails().getNhsno());
-            throw new ImportResourceException("Could not remove old data");
         }
     }
 

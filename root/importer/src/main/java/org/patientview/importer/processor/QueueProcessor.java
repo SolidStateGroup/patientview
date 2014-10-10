@@ -85,15 +85,6 @@ public class QueueProcessor extends DefaultConsumer {
                     LOG.error("Could not add patient NHS Number {}",
                             patient.getPatient().getPersonaldetails().getNhsno(), rnf);
                 }
-
-               /* if (Boolean.parseBoolean(properties.getProperty("remove.old.data"))) {
-                    try {
-                        importManager.removeOldData(patient);
-                    } catch (ImportResourceException rnf) {
-                        LOG.error("Could not remove old data for NHS Number {}",
-                                patient.getPatient().getPersonaldetails().getNhsno(), rnf);
-                    }
-                }*/
             } else {
                 LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + " failed validation");
             }
@@ -104,5 +95,4 @@ public class QueueProcessor extends DefaultConsumer {
         Runnable task = new PatientTask(new String(body));
         executor.submit(task);
     }
-
 }

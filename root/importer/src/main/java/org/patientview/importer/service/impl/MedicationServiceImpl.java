@@ -61,7 +61,7 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
                 JSONObject storedMedication = fhirResource.create(medication);
 
                 // get medication reference and add to medication statement
-                medicationStatement.setMedication(createResourceReference(Util.getResourceId(storedMedication)));
+                medicationStatement.setMedication(Util.createResourceReference(Util.getResourceId(storedMedication)));
 
                 // set patient reference
                 medicationStatement.setPatient(patientReference);
@@ -79,13 +79,6 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
         }
 
         LOG.info("Processed {} of {} medication", success, count);
-    }
-
-    private ResourceReference createResourceReference(UUID uuid) {
-        ResourceReference resourceReference = new ResourceReference();
-        resourceReference.setDisplaySimple(uuid.toString());
-        resourceReference.setReferenceSimple("uuid");
-        return resourceReference;
     }
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
