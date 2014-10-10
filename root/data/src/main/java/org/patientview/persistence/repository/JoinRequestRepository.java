@@ -60,7 +60,7 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
             "FROM   JoinRequest jr " +
             "JOIN   jr.group.groupRoles gr " +
             "WHERE  gr.user = :user " +
-            "AND    jr.status = :statuses")
+            "AND    jr.status IN :statuses")
     Page<JoinRequest> findByUserAndStatuses(@Param("user") User user,
                                             @Param("statuses") List<JoinRequestStatus> joinRequestStatuses,
                                             Pageable pageable);
