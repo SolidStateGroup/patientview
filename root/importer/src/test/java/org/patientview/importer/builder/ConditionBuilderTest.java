@@ -6,7 +6,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.junit.Assert;
 import org.junit.Test;
 import org.patientview.importer.BaseTest;
-import org.patientview.importer.Util.Util;
+import org.patientview.importer.Utility.Util;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;

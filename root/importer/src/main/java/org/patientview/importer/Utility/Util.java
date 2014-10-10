@@ -1,4 +1,4 @@
-package org.patientview.importer.Util;
+package org.patientview.importer.Utility;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.formats.JsonComposer;
