@@ -1,9 +1,10 @@
-package org.patientview.importer.util;
+package org.patientview.importer.Util;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.formats.JsonComposer;
 import org.hl7.fhir.instance.formats.JsonParser;
 import org.hl7.fhir.instance.model.Resource;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.importer.exception.ImportResourceException;
@@ -88,7 +89,20 @@ public class Util {
         JSONArray resultArray = (JSONArray) bundle.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
         return UUID.fromString(resource.get("id").toString());
-
     }
 
+    public static ResourceReference createResourceReference(UUID uuid) {
+        ResourceReference resourceReference = new ResourceReference();
+        resourceReference.setDisplaySimple(uuid.toString());
+        resourceReference.setReferenceSimple("uuid");
+        return resourceReference;
+    }
+
+    // check string appears in enum
+    public static <E extends Enum<E>> boolean isInEnum(String value, Class<E> enumClass) {
+        for (E e : enumClass.getEnumConstants()) {
+            if (e.name().equals(value)) { return true; }
+        }
+        return false;
+    }
 }

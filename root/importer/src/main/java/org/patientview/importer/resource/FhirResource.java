@@ -6,7 +6,7 @@ import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.patientview.importer.util.Util;
+import org.patientview.importer.Util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.postgresql.util.PGobject;

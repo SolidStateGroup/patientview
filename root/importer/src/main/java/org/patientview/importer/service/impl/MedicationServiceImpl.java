@@ -11,7 +11,7 @@ import org.patientview.importer.builder.MedicationBuilder;
 import org.patientview.importer.builder.MedicationStatementBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.MedicationService;
-import org.patientview.importer.util.Util;
+import org.patientview.importer.Util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
