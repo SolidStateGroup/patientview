@@ -9,7 +9,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.PatientBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.PatientService;
-import org.patientview.importer.util.Util;
+import org.patientview.importer.Util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;

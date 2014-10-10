@@ -10,7 +10,7 @@ import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.model.DateRange;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.ObservationService;
-import org.patientview.importer.util.Util;
+import org.patientview.importer.Util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
