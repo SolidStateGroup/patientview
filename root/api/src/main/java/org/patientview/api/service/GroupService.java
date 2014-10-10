@@ -26,7 +26,7 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupService {
 
-    @GroupMemberOnly(roles = { RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     Group get(Long id) throws ResourceForbiddenException;
 
     List<Group> findAll();
@@ -39,7 +39,7 @@ public interface GroupService {
 
     List<Group> findGroupByType(Long lookupId);
 
-    @GroupMemberOnly(roles = { RoleName.UNIT_ADMIN })
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Group save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException;
 
     @AuditTrail(value = AuditActions.CREATE, objectType = Group.class)

@@ -218,7 +218,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             for (GroupRole groupRole : userToken.getUser().getGroupRoles()) {
                 try {
-                    grantedAuthorities.add(addChildGroupsToGroupRole(groupRole));
+                    if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
+                        grantedAuthorities.add(addChildGroupsToGroupRole(groupRole));
+                    } else {
+                        grantedAuthorities.add(groupRole);
+                    }
                 } catch (ResourceNotFoundException rnf) {
                     throw new AuthenticationServiceException("Error retrieving child groups");
                 }

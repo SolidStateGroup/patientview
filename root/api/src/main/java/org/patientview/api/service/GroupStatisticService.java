@@ -19,10 +19,9 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupStatisticService {
 
-    @GroupMemberOnly(roles = { RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     List<GroupStatistic> getMonthlyGroupStatistics(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod);
 }
-

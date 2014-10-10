@@ -9,7 +9,6 @@ function ($scope, PatientService, GroupService) {
 
         GroupService.getChildren($scope.currentSpecialty.id).then(function (childGroups) {
             if (childGroups.length) {
-
                 for (i=0;i<childGroups.length;i++) {
                     childGroupIds.push(childGroups[i].id);
                 }
@@ -29,12 +28,12 @@ function ($scope, PatientService, GroupService) {
                 });
             } else {
                 $scope.loading = false;
-                alert('No Renal groups found');
+                alert('No Groups found');
             }
 
         }, function () {
             $scope.loading = false;
-            alert('Error getting Renal groups');
+            alert('Error getting Groups');
         });
     };
 
