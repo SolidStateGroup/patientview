@@ -21,15 +21,22 @@
         width:100%;
     }
 </style>
+
 <div class="header-select row">
     <div class=" col-md-7">
         <h1>Showing results: <span class="blue-text">{{observationHeading.heading}}</span></h1>
     </div>
-    <div class="col-md-5">
+    <div class="col-md-2">
+        <h3>Select Result:</h3>
+    </div>
+    <div class="col-md-1">
         <select class="form-control pull-right" data-ng-model="selectedCode"
-            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings"
+            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
             data-ng-change="changeObservationHeading(selectedCode)" >
         </select>
+    </div>
+    <div class="col-md-2">
+        <h2><a href="/#/results" class="btn blue pull-right" data-ng-show="!loading">Back to Results</a></h2>
     </div>
 </div>
 
