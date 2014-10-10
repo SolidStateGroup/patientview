@@ -48,7 +48,7 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    encounter ");
                 query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-                query.append(fhirLink.getVersionId().toString());
+                query.append(fhirLink.getResourceId().toString());
                 query.append("\", \"reference\": \"uuid\"}'");
                 encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
             }

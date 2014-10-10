@@ -23,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -57,7 +58,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
      * @throws FhirResourceException
      */
     @Override
-    public UUID add(final Patientview patient, final ResourceReference practitionerReference)
+    public FhirLink add(final Patientview patient, final ResourceReference practitionerReference)
             throws ResourceNotFoundException, FhirResourceException {
 
         LOG.info("Starting Patient Data Process");
@@ -83,6 +84,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
             // update link
             fhirLink.setVersionId(versionId);
+            fhirLink.setUpdated(new Date());
             fhirLinkRepository.save(fhirLink);
         } else {
             // Create a new Fhir record and add the link to the User and Unit
@@ -92,7 +94,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         LOG.info("Processed Patient Data for NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());
-        return versionId;
+        return fhirLink;
     }
 
     public List<FhirLink> getInactivePatientFhirLinksByGroup(Patientview patientview) throws ResourceNotFoundException {
@@ -156,6 +158,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         if (CollectionUtils.isEmpty(identifier.getUser().getFhirLinks())) {
             identifier.getUser().setFhirLinks(new HashSet<FhirLink>());
         }
+
+        Date now = new Date();
+
         FhirLink fhirLink = new FhirLink();
         fhirLink.setUser(identifier.getUser());
         fhirLink.setIdentifier(identifier);
@@ -164,6 +169,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         fhirLink.setVersionId((Util.getVersionId(bundle)));
         fhirLink.setResourceType(ResourceType.Patient.name());
         fhirLink.setActive(true);
+        fhirLink.setCreated(now);
+        fhirLink.setUpdated(now);
 
         identifier.getUser().getFhirLinks().add(fhirLink);
         userRepository.save(identifier.getUser());

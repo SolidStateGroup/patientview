@@ -7,7 +7,9 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.EncountersBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.EncounterService;
+import org.patientview.importer.util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -30,11 +32,16 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
      * @param data
      */
     @Override
-    public void add(final Patientview data, final ResourceReference patientReference,
-                    final ResourceReference groupReference) {
+    public void add(final Patientview data, final FhirLink fhirLink, final ResourceReference groupReference)
+            throws FhirResourceException, SQLException {
+
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         EncountersBuilder encountersBuilder = new EncountersBuilder(data, patientReference, groupReference);
 
         LOG.info("Starting Encounter Process");
+
+        // delete existing
+        deleteBySubjectId(fhirLink.getResourceId());
 
         int count = 0;
         for (Encounter encounter : encountersBuilder.build()) {

@@ -20,7 +20,7 @@ import java.util.UUID;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface PatientService {
 
-    UUID add(Patientview patient, ResourceReference practitionerReference)
+    FhirLink add(Patientview patient, ResourceReference practitionerReference)
             throws FhirResourceException, ResourceNotFoundException;
 
     public List<FhirLink> getInactivePatientFhirLinksByGroup(Patientview patientview) throws ResourceNotFoundException;

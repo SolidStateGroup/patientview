@@ -97,7 +97,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    observation ");
                 query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-                query.append(fhirLink.getVersionId().toString());
+                query.append(fhirLink.getResourceId().toString());
                 query.append("\", \"reference\": \"uuid\"}' ");
 
                 if (StringUtils.isNotEmpty(code)) {
@@ -159,7 +159,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("CONTENT -> 'valueQuantity' -> 'value' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' -> 'display' = '\"");
-                query.append(fhirLink.getVersionId().toString());
+                query.append(fhirLink.getResourceId().toString());
                 query.append("\"' ");
                 query.append("ORDER  BY 2, 1 DESC");
 
@@ -317,7 +317,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 patientUser.getFhirLinks().add(fhirLink);
                 userRepository.save(patientUser);
 
-                ResourceReference patientReference = createResourceReference(getVersionId(fhirPatient));
+                ResourceReference patientReference = createResourceReference(getResourceId(fhirPatient));
 
                 // save observations
                 for (Observation fhirObservation : fhirObservations) {

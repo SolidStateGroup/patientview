@@ -96,10 +96,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     }
 
                     org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
-                            fhirPractitioner, fhirLink.getGroup(), conditionService.get(fhirLink.getVersionId()));
+                            fhirPractitioner, fhirLink.getGroup(), conditionService.get(fhirLink.getResourceId()));
 
                     // set encounters
-                    patient.getFhirEncounters().addAll(setEncounters(fhirLink.getVersionId()));
+                    patient.getFhirEncounters().addAll(setEncounters(fhirLink.getResourceId()));
 
                     // set edta diagnosis if present based on available codes
                     patients.add(setDiagnosisCodes(patient));

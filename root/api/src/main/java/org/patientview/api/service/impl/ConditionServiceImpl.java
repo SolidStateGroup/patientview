@@ -46,7 +46,7 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    condition ");
                 query.append("WHERE   content->> 'subject' = '{\"display\": \"");
-                query.append(fhirLink.getVersionId().toString());
+                query.append(fhirLink.getResourceId().toString());
                 query.append("\", \"reference\": \"uuid\"}'");
                 conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
             }

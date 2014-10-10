@@ -13,6 +13,7 @@ import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.MedicationService;
 import org.patientview.importer.util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -33,16 +34,20 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
      * Creates all of the FHIR medicationstatement and medication records from the Patientview object.
      * Links them to the PatientReference.
      *
-     * @param data
-     * @param patientReference
+     * @param data patientview data from xml
+     * @param fhirLink FhirLink for user
      */
     @Override
-    public void add(final Patientview data, final ResourceReference patientReference) {
+    public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         LOG.info("Starting Medication Statement and Medication Process");
 
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int count = 0;
         int success = 0;
+
+        // delete existing
+        deleteBySubjectId(fhirLink.getResourceId());
 
         for (Drug drug : data.getPatient().getDrugdetails().getDrug()) {
             MedicationBuilder medicationBuilder = new MedicationBuilder(drug);

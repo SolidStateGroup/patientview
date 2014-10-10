@@ -78,9 +78,7 @@ public class FhirResource {
         } catch (Exception e) {
             throw new FhirResourceException(e);
         }
-
     }
-
 
     /**
      *
@@ -113,9 +111,7 @@ public class FhirResource {
             LOG.error("Unable to update resource {}", e);
             throw new FhirResourceException(e.getMessage());
         }
-
     }
-
 
     /**
      *
@@ -272,6 +268,19 @@ public class FhirResource {
 
             connection.close();
             return uuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
+    }
+
+    public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType) throws FhirResourceException {
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sql);
+            List<T> resultsList = convertResultSet(results);
+            connection.close();
+            return resultsList;
         } catch (SQLException e) {
             throw new FhirResourceException(e);
         }

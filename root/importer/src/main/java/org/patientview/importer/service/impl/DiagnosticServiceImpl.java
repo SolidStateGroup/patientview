@@ -15,6 +15,7 @@ import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.DiagnosticService;
 import org.patientview.importer.util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.springframework.stereotype.Service;
 
@@ -33,19 +34,23 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     private FhirResource fhirResource;
 
     /**
-     * Creates all of the FHIR diagnosticreport and observation (result) records from the Patientview object.
+     * Creates all of the FHIR DiagnosticReport and Observation (result) records from the Patientview object.
      * Links them to the PatientReference.
      *
      * @param data patientview data from xml
-     * @param patientReference reference to fhir patient (UUID)
+     * @param fhirLink FhirLink for user
      */
     @Override
-    public void add(final Patientview data, final ResourceReference patientReference) {
+    public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        LOG.info("Starting DiagnosticReport and Observation (result) Process");
+        LOG.info("Starting DiagnosticReport and associated Observation (result) Process");
 
+        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int count = 0;
         int success = 0;
+
+        // delete existing
+        deleteBySubjectId(fhirLink.getResourceId());
 
         for (Diagnostic diagnostic : data.getPatient().getDiagnostics().getDiagnostic()) {
 

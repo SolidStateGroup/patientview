@@ -21,14 +21,15 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by james@solidstategroup.com
  * Created on 01/09/2014
  */
 public class ObservationsBuilder {
-
     private final Logger LOG = LoggerFactory.getLogger(ObservationsBuilder.class);
 
     private ResourceReference resourceReference;
@@ -36,6 +37,7 @@ public class ObservationsBuilder {
     private List<Observation> observations;
     private int success = 0;
     private int count = 0;
+    private Map<String, Patientview.Patient.Testdetails.Test.Daterange> dateRanges;
 
     public ObservationsBuilder(Patientview results, ResourceReference resourceReference) {
         this.results = results;
@@ -46,8 +48,13 @@ public class ObservationsBuilder {
     // Normally any invalid data would fail the whole XML
     public List<Observation> build() {
 
+        dateRanges = new HashMap<>();
+
         // build from tests e.g. ciclosporin, weight etc
         for (Patientview.Patient.Testdetails.Test test : results.getPatient().getTestdetails().getTest()) {
+
+            dateRanges.put(test.getTestcode().value().toUpperCase(), test.getDaterange());
+
             for (Patientview.Patient.Testdetails.Test.Result result : test.getResult()) {
                 try {
                     observations.add(createObservation(test, result));
@@ -167,5 +174,21 @@ public class ObservationsBuilder {
 
     public int getCount() {
         return count;
+    }
+
+    public List<Observation> getObservations() {
+        return observations;
+    }
+
+    public void setObservations(List<Observation> observations) {
+        this.observations = observations;
+    }
+
+    public Map<String, Patientview.Patient.Testdetails.Test.Daterange> getDateRanges() {
+        return dateRanges;
+    }
+
+    public void setDateRanges(Map<String, Patientview.Patient.Testdetails.Test.Daterange> dateRanges) {
+        this.dateRanges = dateRanges;
     }
 }

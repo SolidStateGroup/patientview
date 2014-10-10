@@ -15,6 +15,7 @@ import org.patientview.importer.service.OrganizationService;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
+import org.patientview.importer.util.Util;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
@@ -96,42 +97,42 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             LOG.info("Starting to process data for NHS number: "
                     + patientview.getPatient().getPersonaldetails().getNhsno());
 
-            // update organization based on <centrecode> (Unit/centre details)
+            // update Organization based on <centrecode> (Unit/centre details)
             UUID organizationUuid = organizationService.add(patientview);
-            organizationReference = createResourceReference(organizationUuid);
+            organizationReference = Util.createResourceReference(organizationUuid);
 
-            // update practitioner based on <gpname> (GP details)
+            // update Practitioner based on <gpname> (GP details)
             UUID practitionerUuid = practitionerService.add(patientview);
-            practitionerReference = createResourceReference(practitionerUuid);
+            practitionerReference = Util.createResourceReference(practitionerUuid);
 
-            // update core patient object based on <nhsno>
-            UUID patientUuid = patientService.add(patientview, practitionerReference);
-            patientReference = createResourceReference(patientUuid);
+            // update core Patient object based on <nhsno>
+            FhirLink fhirLink = patientService.add(patientview, practitionerReference);
 
-            // observation (tests)
-            observationService.add(patientview, patientReference);
-/*
-            // condition (diagnoses)
-            conditionService.add(patientview, patientReference);
+            // add Observation, deleting existing Observation within <test><daterange> (tests) and existing
+            // Observation of type NonTestObservationTypes.BLOOD_GROUP
+            observationService.add(patientview, fhirLink);
 
-            // encounter (used for treatment and transplant status)
-            encounterService.add(patientview, patientReference, organizationReference);
+            // add Condition, deleting existing (diagnoses)
+            conditionService.add(patientview, fhirLink);
 
-            // medication (drugdetails)
-            medicationService.add(patientview, patientReference);
+            // Add Encounter, deleting existing (used for treatment and transplant status)
+            encounterService.add(patientview, fhirLink, organizationReference);
 
-            // diagnosticreports (diagnostics, originally IBD now generic)
-            diagnosticService.add(patientview, patientReference);
+            // Add MedicationStatement and associated Medication, deleting existing (drugdetails)
+            medicationService.add(patientview, fhirLink);
 
-            // documentreference (letters)
-            documentReferenceService.add(patientview, patientReference);*/
+            // Add DiagnosticReport and associated Observation (diagnostics, originally IBD now generic)
+            diagnosticService.add(patientview, fhirLink);
+
+            // Add DocumentReference, deleting those with the same date (letters)
+            documentReferenceService.add(patientview, fhirLink);
 
             Date end = new Date();
             LOG.info("Finished processing data for NHS number: "
                     + patientview.getPatient().getPersonaldetails().getNhsno()
                     + ". Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
 
-        } catch (FhirResourceException | ResourceNotFoundException e) {
+        } catch (FhirResourceException | ResourceNotFoundException | SQLException e) {
             LOG.error("Unable to build patient " + patientview.getPatient().getPersonaldetails().getNhsno()
                 + ". Message: " + e.getMessage());
             throw new ImportResourceException("Could not process patient data");
@@ -184,12 +185,5 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
         long diffInMillies = date2.getTime() - date1.getTime();
         return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
-    }
-
-    private ResourceReference createResourceReference(UUID uuid) {
-        ResourceReference resourceReference = new ResourceReference();
-        resourceReference.setDisplaySimple(uuid.toString());
-        resourceReference.setReferenceSimple("uuid");
-        return resourceReference;
     }
 }
