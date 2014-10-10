@@ -96,6 +96,7 @@ function ($scope, $modal, GroupService, ConversationService) {
     // open modal for contacting unit
     $scope.openModalContactUnit = function (group) {
         $scope.errorMessage = '';
+        $scope.successMessage = '';
 
         // open modal
         var modalInstance = $modal.open({
@@ -112,7 +113,7 @@ function ($scope, $modal, GroupService, ConversationService) {
         });
 
         modalInstance.result.then(function () {
-            $scope.successMessage = 'Contacted Unit';
+            $scope.successMessage = 'You have successfully contacted your unit';
         }, function () {
             $scope.conversation = '';
         });
