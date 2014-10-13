@@ -183,26 +183,6 @@ public class GroupControllerTest {
         verify(groupService, Mockito.times(1)).deleteFeature(eq(groupId), eq(featureId));
     }
 
-    /**
-     * Test: The request of a parent group with the child
-     * Fail: The 200 is not returned and the service is not called
-     */
-    @Test
-    public void testGetChildGroups() throws ResourceNotFoundException {
-
-        Long groupId = 9L;
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/group/" + groupId + "/children")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
-
-        verify(groupService, Mockito.times(1)).findChildren(eq(groupId));
-    }
-
     @Test
     public void testAddAdditionalLocation() {
         Location location = new Location();

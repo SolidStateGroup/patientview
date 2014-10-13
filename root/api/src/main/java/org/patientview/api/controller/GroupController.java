@@ -87,13 +87,6 @@ public class GroupController extends BaseController<GroupController> {
         groupService.deleteParentGroup(groupId, parentGroupId);
     }
 
-    @RequestMapping(value = "/group/{groupId}/children", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<List<Group>> getChildren(@PathVariable("groupId") Long groupId)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(groupService.findChildren(groupId), HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/group/{groupId}/child/{childId}", method = RequestMethod.PUT)
     @ResponseBody
     public void addChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {

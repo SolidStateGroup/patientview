@@ -171,15 +171,6 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        getChildren: function (groupId) {
-            var deferred = $q.defer();
-            Restangular.all('group/' + groupId + '/children').getList().then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function (failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
         // Add new link to group
         addLink: function (group, link) {
             var deferred = $q.defer();

@@ -3,38 +3,53 @@
 angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
 function ($scope, PatientService, GroupService) {
 
-    var getMyConditions = function() {
-        // get conditions (diagnosis etc) from groups under current specialty
-        var childGroupIds = [], i;
+    // get public listing of groups, used when finding child groups that provide patient information
+    var getAllPublic = function() {
+        GroupService.getAllPublic().then(function(groups) {
+            $scope.unitGroups = [];
 
-        GroupService.getChildren($scope.currentSpecialty.id).then(function (childGroups) {
-            if (childGroups.length) {
-                for (i=0;i<childGroups.length;i++) {
-                    childGroupIds.push(childGroups[i].id);
+            // only need UNIT groups
+            groups.forEach(function(group) {
+                if (group.groupType.value === 'UNIT') {
+                    $scope.unitGroups.push(group);
                 }
+            });
 
-                PatientService.get($scope.loggedInUser.id, childGroupIds).then(function (patientDetails) {
-                    $scope.patientDetails = patientDetails;
-
-                    // set checkboxes
-                    for (var i = 0; i < $scope.patientDetails.length; i++) {
-                        $scope.patientDetails[i].group.selected = true;
-                    }
-
-                    $scope.loading = false;
-                }, function () {
-                    $scope.loading = false;
-                    alert('Error getting patient details');
-                });
-            } else {
-                $scope.loading = false;
-                alert('No Groups found');
-            }
-
+            getMyConditions();
         }, function () {
             $scope.loading = false;
-            alert('Error getting Groups');
+            alert('Error getting patient details');
         });
+    };
+
+    // get conditions (diagnosis etc) from groups under current specialty
+    var getMyConditions = function() {
+        var childGroupIds = [];
+        $scope.patientDetails = '';
+
+        $scope.unitGroups.forEach(function(unit) {
+            if (_.findWhere(unit.parentGroups, {id: $scope.currentSpecialty.id})) {
+                childGroupIds.push(unit.id);
+            }
+        });
+
+        if (childGroupIds.length > 0) {
+            PatientService.get($scope.loggedInUser.id, childGroupIds).then(function (patientDetails) {
+                $scope.patientDetails = patientDetails;
+
+                // set checkboxes
+                for (var i = 0; i < $scope.patientDetails.length; i++) {
+                    $scope.patientDetails[i].group.selected = true;
+                }
+
+                $scope.loading = false;
+            }, function () {
+                $scope.loading = false;
+                alert('Error getting patient details');
+            });
+        } else {
+            $scope.loading = false;
+        }
     };
 
     $scope.init = function(){
@@ -54,7 +69,7 @@ function ($scope, PatientService, GroupService) {
         // get conditions based on first specialty
         if ($scope.specialties.length) {
             $scope.currentSpecialty = $scope.specialties[0];
-            getMyConditions();
+            getAllPublic();
         } else {
             alert("Error getting specialties");
         }

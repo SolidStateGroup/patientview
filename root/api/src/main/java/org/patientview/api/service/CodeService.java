@@ -32,7 +32,6 @@ public interface CodeService extends CrudService<Code> {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Link addLink(Long codeId, Link link);
 
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     List<Code> findAllByCodeAndType(String code, Lookup codeType);
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
