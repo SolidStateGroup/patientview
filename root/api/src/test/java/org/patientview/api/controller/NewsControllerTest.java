@@ -9,18 +9,21 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.NewsService;
-import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -61,26 +64,21 @@ public class NewsControllerTest {
      */
     @Test
     public void testNewsByUser() {
-        Long testUserId = 1L;
-        Pageable pageable = new PageRequest(0, Integer.MAX_VALUE);
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            when(newsService.findByUserId(eq(testUserId), eq(pageable))).thenReturn(new PageImpl<>(new ArrayList<NewsItem>()));
-        } catch (ResourceNotFoundException rnf) {
-            fail("ResourceNotFoundException throw");
-        }
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + Long.toString(testUserId) + "/news"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());;
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/news"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
-        }
-
-        try {
-            verify(newsService, Mockito.times(1)).findByUserId(Matchers.eq(testUserId), Matchers.eq(pageable));
-        } catch (ResourceNotFoundException rnf) {
-            fail("ResourceNotFoundException throw");
         }
     }
 
@@ -89,6 +87,8 @@ public class NewsControllerTest {
         NewsItem testNews = new NewsItem();
         testNews.setId(1L);
 
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
+
         try {
             when(newsService.save(eq(testNews))).thenReturn(testNews);
             mockMvc.perform(MockMvcRequestBuilders.put("/news")
@@ -96,7 +96,7 @@ public class NewsControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
             verify(newsService, Mockito.times(1)).save(eq(testNews));
         } catch (Exception e) {
-            fail("This call should not fail");
+            fail("This call should not fail: " + e.getMessage());
         }
     }
 }

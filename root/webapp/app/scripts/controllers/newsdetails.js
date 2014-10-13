@@ -35,8 +35,8 @@ function ($scope, NewsService) {
                     }, function () {
                         alert('Error updating header (saved successfully)');
                     });
-                }, function () {
-                    alert('Error adding Group and Role');
+                }, function (failureResult) {
+                    alert('Error adding Group and Role ' + failureResult.data);
                 });
             }
         } else {
@@ -86,8 +86,8 @@ function ($scope, NewsService) {
                     alert('Error updating header (saved successfully)');
                 });
 
-            }, function () {
-                alert('Error adding Group');
+            }, function (failureResult) {
+                alert('Error removing Group and Role ' + failureResult.data);
             });
         } else {
             for (i=0;i<newsItem.newsLinks.length;i++) {

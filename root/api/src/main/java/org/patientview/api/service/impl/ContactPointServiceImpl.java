@@ -1,7 +1,7 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.api.service.ContactPointService;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.enums.ContactPointTypes;

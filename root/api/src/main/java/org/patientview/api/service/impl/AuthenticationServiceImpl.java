@@ -1,17 +1,15 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Role;
+import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
-import org.patientview.api.service.StaticDataManager;
-import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.enums.HiddenGroupCodes;
-import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.SecurityService;
+import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirLink;
@@ -20,6 +18,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;

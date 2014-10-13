@@ -1,7 +1,9 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.NewsService;
+import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
@@ -105,14 +107,13 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     }
 
     private boolean userIsGlobalSpecialtyAdmin(User user) {
-        boolean specialtyOrGlobalAdmin = false;
         for (GroupRole groupRole : user.getGroupRoles()) {
             RoleName groupRoleName = groupRole.getRole().getName();
             if (groupRoleName.equals(RoleName.GLOBAL_ADMIN) || groupRoleName.equals(RoleName.SPECIALTY_ADMIN)) {
-                specialtyOrGlobalAdmin = true;
+                return true;
             }
         }
-        return specialtyOrGlobalAdmin;
+        return false;
     }
 
     private boolean userIsUnitAdminForNewsLink(final NewsLink newsLink, final User user) {
@@ -123,7 +124,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
             // only STAFF role types can edit/delete, allow edit/delete if newsLink linked to your group and UNIT_ADMIN
             if (groupRoleRoleType.equals(RoleType.STAFF)
-                    && (groupRoleGroup.equals(newsLink.getGroup()) && groupRoleRoleName.equals(RoleName.UNIT_ADMIN))) {
+                    && (groupRoleGroup.equals(newsLink.getGroup())
+                    && groupRoleRoleName.equals(RoleName.UNIT_ADMIN))) {
                 return true;
             }
         }
@@ -214,7 +216,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return newsItemRepository.getPublicNews(pageable);
     }
 
-    public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException {
+    public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
@@ -223,6 +225,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         Group entityGroup = groupRepository.findOne(groupId);
         if (entityGroup == null) {
             throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
+        }
+
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!isMemberOfGroup(entityGroup, currentUser)) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         boolean found = false;
@@ -235,20 +243,20 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         if (!found) {
-            User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            creator = userRepository.findOne(creator.getId());
-
+            User creator = userRepository.findOne(currentUser.getId());
             NewsLink newsLink = new NewsLink();
             newsLink.setNewsItem(entityNewsItem);
             newsLink.setGroup(entityGroup);
             newsLink.setCreator(creator);
-
             entityNewsItem.getNewsLinks().add(newsLink);
+
             newsItemRepository.save(entityNewsItem);
         }
     }
 
-    public void removeGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException {
+    public void removeGroup(Long newsItemId, Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
@@ -257,6 +265,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         Group entityGroup = groupRepository.findOne(groupId);
         if (entityGroup == null) {
             throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
+        }
+
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!isMemberOfGroup(entityGroup, currentUser)) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         NewsLink tempNewsLink = null;
@@ -271,7 +285,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         newsItemRepository.save(entityNewsItem);
     }
 
-    public void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException {
+    public void addRole(Long newsItemId, Long roleId) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
@@ -280,6 +294,11 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         Role entityRole = roleRepository.findOne(roleId);
         if (entityRole == null) {
             throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
+        }
+
+        // unit admins cannot add public roles
+        if (entityRole.getName().equals(RoleName.PUBLIC) && Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         boolean found = false;
@@ -329,7 +348,9 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         newsItemRepository.save(entityNewsItem);
     }
 
-    public void addGroupAndRole(Long newsItemId, Long groupId, Long roleId) throws ResourceNotFoundException {
+    public void addGroupAndRole(Long newsItemId, Long groupId, Long roleId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
@@ -345,6 +366,17 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
         }
 
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!isMemberOfGroup(entityGroup, currentUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        // unit admins cannot add public roles
+        if (entityRole.getName().equals(RoleName.PUBLIC) && Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         boolean found = false;
 
         for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
@@ -357,20 +389,19 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         if (!found) {
-            User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
             NewsLink newsLink = new NewsLink();
             newsLink.setNewsItem(entityNewsItem);
             newsLink.setGroup(entityGroup);
             newsLink.setRole(entityRole);
-            newsLink.setCreator(userRepository.findOne(creator.getId()));
-
+            newsLink.setCreator(userRepository.findOne(currentUser.getId()));
             entityNewsItem.getNewsLinks().add(newsLink);
+
             newsItemRepository.save(entityNewsItem);
         }
     }
 
-    public void removeNewsLink(Long newsItemId, Long newsLinkId) throws ResourceNotFoundException {
+    public void removeNewsLink(Long newsItemId, Long newsLinkId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItemId);
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItemId));
@@ -383,8 +414,45 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             }
         }
 
+        // unit admins can only delete where group is in their group roles
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!isMemberOfGroup(tempNewsLink.getGroup(), currentUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+
         entityNewsItem.getNewsLinks().remove(tempNewsLink);
         entityManager.remove(tempNewsLink);
         newsItemRepository.save(entityNewsItem);
+    }
+
+    private boolean isMemberOfGroup(Group group, User user) {
+        // unit admins / specialty admins can only add groups they belong to
+        if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            return true;
+        } else if (Util.doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (groupRole.getRole().getRoleType().getValue().equals(RoleType.STAFF)) {
+
+                    // check if have direct membership of group
+                    if (groupRole.getGroup().equals(group)) {
+                        return true;
+                    }
+
+                    // check if group is one of the child groups of user's specialty
+                    if (Util.doesContainParentGroupAndRole(groupRole.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
+                        return true;
+                    }
+                }
+            }
+        } else if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                // check if have direct membership of group
+                if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

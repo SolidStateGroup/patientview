@@ -5,6 +5,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.springframework.stereotype.Service;
+
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 

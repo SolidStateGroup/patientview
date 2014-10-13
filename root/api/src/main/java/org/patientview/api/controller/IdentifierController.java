@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.IdentifierService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Identifier;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;

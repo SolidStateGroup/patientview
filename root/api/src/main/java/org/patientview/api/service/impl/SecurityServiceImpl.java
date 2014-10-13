@@ -2,7 +2,6 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.util.Util;
@@ -11,6 +10,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;

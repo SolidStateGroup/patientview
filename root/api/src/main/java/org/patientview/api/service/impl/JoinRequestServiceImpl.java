@@ -1,8 +1,8 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.JoinRequestService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;

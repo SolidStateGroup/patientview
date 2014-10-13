@@ -1,8 +1,8 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;

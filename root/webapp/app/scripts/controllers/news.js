@@ -15,46 +15,43 @@ function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsSer
     $scope.newNews.newsLinks = [];
 
     // populate list of allowed groups for current user
-    GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
-        // add 'All Groups' option (with id -1) if allowed
-        if ($scope.permissions.canAddAllGroups) {
-            group = {};
-            group.id = -1;
-            group.name = 'All Groups';
+    var groups = $scope.loggedInUser.userGroups;
+    // add 'All Groups' option (with id -1) if allowed
+    if ($scope.permissions.canAddAllGroups) {
+        group = {};
+        group.id = -1;
+        group.name = 'All Groups';
+        $scope.newNews.allGroups.push(group);
+    }
+
+    for (i = 0; i < groups.content.length; i++) {
+        group = groups.content[i];
+        if (group.visible === true) {
             $scope.newNews.allGroups.push(group);
         }
+    }
 
-        for (i = 0; i < groups.content.length; i++) {
-            group = groups.content[i];
-            if (group.visible === true) {
-                $scope.newNews.allGroups.push(group);
+    // todo: currently gets all roles, adds public & member roles
+    RoleService.getAll().then(function(roles) {
+        for (i = 0; i < roles.length; i++) {
+            var role = roles[i];
+            if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
+                $scope.newNews.allRoles.push(role);
             }
         }
 
-        // todo: currently gets all roles, adds public & member roles
-        RoleService.getAll().then(function(roles) {
-            for (i = 0; i < roles.length; i++) {
-                var role = roles[i];
-                if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
-                    $scope.newNews.allRoles.push(role);
-                }
+        // add GLOBAL_ADMIN role (no group) to all news by default
+        for (i = 0; i < $scope.newNews.allRoles.length; i++) {
+            if ($scope.newNews.allRoles[i] && $scope.newNews.allRoles[i].name === 'GLOBAL_ADMIN') {
+                newsLink.role = $scope.newNews.allRoles[i];
+                $scope.newNews.newsLinks.push(newsLink);
             }
+        }
 
-            // add GLOBAL_ADMIN role (no group) to all news by default
-            for (i = 0; i < $scope.newNews.allRoles.length; i++) {
-                if ($scope.newNews.allRoles[i] && $scope.newNews.allRoles[i].name === 'GLOBAL_ADMIN') {
-                    newsLink.role = $scope.newNews.allRoles[i];
-                    $scope.newNews.newsLinks.push(newsLink);
-                }
-            }
+        $scope.modalLoading = false;
 
-            $scope.modalLoading = false;
-
-        }, function () {
-            alert('Error loading possible roles');
-        });
     }, function () {
-        alert('Error loading possible groups');
+        alert('Error loading possible roles');
     });
 
     $scope.ok = function () {
@@ -93,8 +90,8 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
         permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
 
-
         permissions.canAddAllGroups = permissions.isSuperAdmin || permissions.isSpecialtyAdmin;
+        permissions.canAddPublicRole = permissions.isSuperAdmin || permissions.isSpecialtyAdmin;
 
         if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin || permissions.isUnitAdmin) {
             permissions.canAddNews = true;
@@ -246,43 +243,43 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                 $scope.editNews.allRoles = [];
                 $scope.editNews.allGroups = [];
 
-                GroupService.getGroupsForUser($scope.loggedInUser.id).then(function (groups) {
+                var groups = $scope.loggedInUser.userGroups;
 
-                    // add 'All Groups' option (with id -1) if allowed
-                    if ($scope.permissions.canAddAllGroups) {
-                        group = {};
-                        group.id = -1;
-                        group.name = 'All Groups';
+                // add 'All Groups' option (with id -1) if allowed
+                if ($scope.permissions.canAddAllGroups) {
+                    group = {};
+                    group.id = -1;
+                    group.name = 'All Groups';
+                    $scope.editNews.allGroups.push(group);
+                }
+
+                for (i = 0; i < groups.length; i++) {
+                    var group = groups[i];
+                    if (group.visible === true) {
                         $scope.editNews.allGroups.push(group);
                     }
+                }
 
-                    for (i = 0; i < groups.content.length; i++) {
-                        var group = groups.content[i];
-                        if (group.visible === true) {
-                            $scope.editNews.allGroups.push(group);
-                        }
-                    }
+                $scope.groupToAdd = -1;
 
-                    $scope.groupToAdd = -1;
+                // todo: currently gets all roles, adds public and member role
+                RoleService.getAll().then(function(roles) {
+                    for (i = 0; i < roles.length; i++) {
+                        var role = roles[i];
+                        if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
+                            if (role.name === 'PUBLIC' && !$scope.permissions.canAddPublicRole) {
 
-                    // todo: currently gets all roles, adds public and member role
-                    RoleService.getAll().then(function(roles) {
-                        for (i = 0; i < roles.length; i++) {
-                            var role = roles[i];
-                            if (role.visible === true || role.name === 'PUBLIC' || role.name === 'MEMBER') {
+                            } else {
                                 $scope.editNews.allRoles.push(role);
                             }
                         }
-                    }, function () {
-                        alert('Error loading roles');
-                    });
+                    }
                 }, function () {
-                    alert('Error loading groups');
+                    alert('Error loading roles');
                 });
             }, function () {
-                alert('Error loading news item');
+                alert('Error loading groups');
             });
-
         }
     };
 

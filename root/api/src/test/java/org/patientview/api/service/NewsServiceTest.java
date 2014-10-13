@@ -8,20 +8,21 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.NewsServiceImpl;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.NewsItemRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.patientview.persistence.model.User;
 import org.patientview.test.util.TestUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,10 +30,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -75,6 +76,13 @@ public class NewsServiceTest {
         Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         User testUser = TestUtils.createUser("testUser");
         Group testGroup = TestUtils.createGroup("testGroup");
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, testUser);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(testUser, groupRoles);
 
         List<NewsItem> roleNews = new ArrayList<>();
 
@@ -150,6 +158,8 @@ public class NewsServiceTest {
         GroupRole groupRole = TestUtils.createGroupRole(unitAdminRole, testGroup, testUser);
         testUser.getGroupRoles().add(groupRole);
 
+        TestUtils.authenticateTest(testUser, testUser.getGroupRoles());
+
         // create 2 news items, one with link to testUser group exclusively, the other with other newsLinks
         NewsItem newsItem1 = TestUtils.createNewsItem("HEADING1", "STORY1");
         NewsLink newsLink1 = TestUtils.createNewsLink(newsItem1, testGroup, null);
@@ -199,14 +209,17 @@ public class NewsServiceTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.PATIENT);
 
+        GroupRole groupRole = TestUtils.createGroupRole(TestUtils.createRole(RoleName.GLOBAL_ADMIN), group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
         NewsItem newsItem = new NewsItem();
         newsItem.setId(3L);
         newsItem.setCreator(user);
         newsItem.setHeading("HEADING TEXT");
         newsItem.setStory("NEWS STORY TEXT");
         newsItem.setNewsLinks(new HashSet<NewsLink>());
-
-        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
 
         when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
         newsItem = newsService.add(newsItem);
@@ -219,14 +232,15 @@ public class NewsServiceTest {
         try {
             newsService.addGroupAndRole(newsItem.getId(), 5L, 6L);
             verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
-        } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException: " + rnf.getMessage());
+        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+            Assert.fail("Exception: " + e.getMessage());
         }
     }
 
     @Test
     public void testCreateNewsItem() {
         User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
 
         NewsItem newsItem = new NewsItem();
         newsItem.setId(3L);
@@ -239,8 +253,6 @@ public class NewsServiceTest {
         newsLink.setId(4L);
         newsLink.setNewsItem(newsItem);
         newsLink.setGroup(TestUtils.createGroup("testGroup"));
-
-        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
 
         when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
         newsService.add(newsItem);
@@ -250,6 +262,7 @@ public class NewsServiceTest {
     @Test
     public void testUpdateNewsItem() {
         User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
 
         NewsItem newsItem = new NewsItem();
         newsItem.setId(3L);
@@ -262,8 +275,6 @@ public class NewsServiceTest {
         newsLink.setId(4L);
         newsLink.setNewsItem(newsItem);
         newsLink.setGroup(TestUtils.createGroup("testGroup"));
-
-        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
 
         when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
         when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);

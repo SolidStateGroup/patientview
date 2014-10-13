@@ -78,7 +78,7 @@ public class LetterServiceTest {
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
-        
+
         user.setIdentifiers(new HashSet<Identifier>());
 
         Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),

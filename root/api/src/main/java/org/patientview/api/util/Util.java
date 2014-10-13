@@ -222,6 +222,28 @@ public final class Util {
         return false;
     }
 
+    // used for specialty admins
+    public static boolean doesContainParentGroupAndRole(Long groupId, RoleName roleName) {
+        if (CollectionUtils.isEmpty(getGroupRoles())) {
+            return false;
+        }
+
+        for (GroupRole groupRole : getGroupRoles()) {
+            Group group = groupRole.getGroup();
+            Role role = groupRole.getRole();
+
+            if (role.getName().equals(roleName)) {
+                for (Group parentGroup : group.getParentGroups()) {
+                    if (parentGroup.getId().equals(groupId)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     public static boolean doesContainRoles(RoleName... roleNames) throws SecurityException {
 
         if (CollectionUtils.isEmpty(getGroupRoles())) {
