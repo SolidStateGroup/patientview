@@ -6,7 +6,6 @@ import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
@@ -404,20 +403,22 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return Util.convertIterable(groupRepository.findChildren(group));
     }
 
-    public void contactUnit(Long groupId, UnitRequest unitRequest)
-            throws ResourceNotFoundException, ResourceInvalidException {
+    public void contactUnit(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException {
         Group group = findGroup(groupId);
+
+        if (group == null) {
+            throw new ResourceNotFoundException("The unit has not been found");
+        }
 
         Email email = createPasswordResetEmail(unitRequest, group);
         ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
 
         if (contactPoint == null) {
-            throw new ResourceInvalidException("Unable to find contact email for unit");
+            throw new ResourceNotFoundException("Unable to find contact email for this unit");
         } else {
             email.setRecipients(new String[]{contactPoint.getContent()});
         }
         emailService.sendEmail(email);
-
     }
 
     public void delete(Long id) {
@@ -438,7 +439,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         email.setSubject("PatientView - Request for password reset");
 
         StringBuilder body = new StringBuilder();
-        body.append("The following user would like to request a password rest");
+        body.append("The following user would like to request a password reset");
         body.append("Forename: ").append(unitRequest.getForename());
         body.append("Surname: ").append(unitRequest.getSurname());
         body.append("DOB: ").append(unitRequest.getDateOfBirth());

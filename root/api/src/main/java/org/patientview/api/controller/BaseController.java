@@ -20,7 +20,7 @@ import java.lang.reflect.ParameterizedType;
  */
 public abstract class BaseController<T extends BaseController> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BaseController.class);
 
     public Class<T> getControllerClass()  {
         ParameterizedType superclass = (ParameterizedType) getClass().getGenericSuperclass();
@@ -31,16 +31,15 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.CONFLICT)
     public String handleEntityException(EntityExistsException e) {
-        LOG.info("Handling Entity Exception {}", e);
+        LOG.info("Handling Entity Exception: " + e.getMessage());
         return e.getMessage();
     }
-
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public String handleEntityException(ResourceNotFoundException e) {
-        LOG.info("Could not find resource {}", e);
+        LOG.info("Could not find resource: " + e.getMessage());
         return e.getMessage();
     }
 
@@ -68,6 +67,4 @@ public abstract class BaseController<T extends BaseController> {
         LOG.error("Unhandled exception", e);
         return e.getMessage();
     }
-
-
 }

@@ -78,9 +78,7 @@ function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,Ut
 
     $scope.refreshUnits = function() {
         $scope.units = [];
-
         if (typeof $scope.joinRequest.specialty !== 'undefined') {
-
             $scope.childUnits.forEach(function(unit) {
                 if (_.findWhere(unit.parentGroups, {id: $scope.joinRequest.specialty})) {
                     $scope.units.push(unit);

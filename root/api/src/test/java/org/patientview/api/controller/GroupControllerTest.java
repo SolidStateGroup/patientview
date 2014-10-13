@@ -125,10 +125,19 @@ public class GroupControllerTest {
     @Test
     public void testAddParentGroup() {
 
-        Long groupId = 1L;
-        Long parentGroupId = 2L;
+        // groups
+        Group group = TestUtils.createGroup("testGroup");
+        Group parentGroup = TestUtils.createGroup("testParentGroup");
 
-        String url = "/group/" + groupId + "/parent/" + parentGroupId;
+        // user and security
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, parentGroup, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String url = "/group/" + group.getId() + "/parent/" + parentGroup.getId();
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.put(url))
@@ -137,7 +146,7 @@ public class GroupControllerTest {
             fail("Exception throw");
         }
 
-        verify(groupService, Mockito.times(1)).addParentGroup(eq(groupId), eq(parentGroupId));
+        verify(groupService, Mockito.times(1)).addParentGroup(eq(group.getId()), eq(parentGroup.getId()));
     }
 
     @Test
@@ -307,7 +316,7 @@ public class GroupControllerTest {
         Long groupId = 2L;
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/contactunit")
+            mockMvc.perform(MockMvcRequestBuilders.post("/public/passwordrequest/group/" + groupId)
                     .content(mapper.writeValueAsString(unitRequest)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
             verify(groupService, Mockito.times(1)).contactUnit(eq(groupId), any(UnitRequest.class));

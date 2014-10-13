@@ -126,8 +126,7 @@ public class GroupServiceTest {
     @Test
 
     public void testAddGroupChildAndParent() {
-        User testUser = TestUtils.createUser("testUser");
-        TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
 ;
         Group testGroup = TestUtils.createGroup("testGroup");
         Group parentGroup = TestUtils.createGroup("parentGroup");
@@ -139,7 +138,6 @@ public class GroupServiceTest {
         testGroup.setChildGroups(childGroups);
         testGroup.setParentGroups(parentGroups);
 
-        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
         when(groupRepository.findByName(Matchers.eq(testGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.findByName(Matchers.eq(childGroup.getName()))).thenReturn(new ArrayList<Group>());
@@ -163,7 +161,8 @@ public class GroupServiceTest {
      */
     @Test
     public void testAddGroupChildAndParentOnCreate() {
-        User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+
         Group testGroup = TestUtils.createGroup("testGroup");
         Group parentGroup = TestUtils.createGroup("parentGroup");
         Group childGroup  = TestUtils.createGroup("childGroup");
@@ -174,7 +173,6 @@ public class GroupServiceTest {
         testGroup.setChildGroups(childGroups);
         testGroup.setParentGroups(parentGroups);
 
-        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
         when(groupRepository.findByName(Matchers.eq(testGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.findByName(Matchers.eq(childGroup.getName()))).thenReturn(new ArrayList<Group>());
@@ -183,7 +181,6 @@ public class GroupServiceTest {
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
         // Test
-        TestUtils.authenticateTest(testUser, Collections.EMPTY_LIST);
         Group group = groupService.add(testGroup);
 
         // Verify
@@ -240,23 +237,20 @@ public class GroupServiceTest {
      */
     @Test
     public void testAddParentGroup() {
-        User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
         Group testGroup = TestUtils.createGroup("testGroup");
         Group testParentGroup = TestUtils.createGroup("testGroup");
 
-        when(userRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testUser);
         when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
         when(groupRepository.findOne(Matchers.eq(testParentGroup.getId()))).thenReturn(testParentGroup);
 
         groupService.addParentGroup(testGroup.getId(), testParentGroup.getId());
 
-        // Parent and child relationship should be persist
+        // Parent and child relationship should be persisted
         verify(groupRelationshipRepository, Mockito.times(2)).save(Matchers.any(GroupRelationship.class));
 
         Assert.assertNotNull("They should the correct GroupObject returned");
-
     }
-
 
     /**
      * Test: create parent and 2 children, get parent group and its children based on a user's membership of the parent group
@@ -387,7 +381,7 @@ public class GroupServiceTest {
      * Test: Contact Unit functionality with no email address
      * Fail: Doesnt raise an exception
      */
-    @Test(expected = ResourceInvalidException.class)
+    @Test(expected = ResourceNotFoundException.class)
     public void testContactUnit_NotContactEmail() throws Exception {
         UnitRequest unitRequest = new UnitRequest();
         unitRequest.setNhsNumber("234234234");

@@ -6,7 +6,6 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
@@ -151,10 +150,10 @@ public class GroupController extends BaseController<GroupController> {
         return new ResponseEntity<>(groupStatisticTO, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/group/{groupId}/contactunit", method = RequestMethod.POST)
+    @RequestMapping(value = "/public/passwordrequest/group/{groupId}", method = RequestMethod.POST)
     @ResponseBody
-    public void contactUnit(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
-            throws ResourceNotFoundException, ResourceInvalidException {
+    public void passwordRequest(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
+            throws ResourceNotFoundException {
         groupService.contactUnit(groupId, unitRequest);
     }
 }

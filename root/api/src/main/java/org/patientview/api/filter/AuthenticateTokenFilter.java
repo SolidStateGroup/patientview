@@ -52,6 +52,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // patient join requests
         publicUrls.add("/api/public/group");
         publicUrls.add("/api/public/joinrequest");
+
+        // patient password request (contact unit)
+        publicUrls.add("/api/public/passwordrequest");
     }
 
     private boolean isPublicPath(String path) {

@@ -14,37 +14,37 @@
             </div>
 
             <div class="form-group">
-                <label for="forename" class="col-sm-2 control-label">Forename:</label>
+                <label for="forename" class="col-sm-2 control-label">Forename (required):</label>
                 <div class="col-sm-4">
-                    <input id="forename" name=forename" type="text" class="form-control" data-ng-model="joinRequest.forename"
+                    <input id="forename" name=forename" type="text" class="form-control" data-ng-model="contactUnit.forename"
                            required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="forename" class="col-sm-2 control-label">Surname:</label>
+                <label for="forename" class="col-sm-2 control-label">Surname (required):</label>
                 <div class="col-sm-4">
-                    <input id="surname" name=surname" type="text" class="form-control" data-ng-model="joinRequest.surname"
+                    <input id="surname" name=surname" type="text" class="form-control" data-ng-model="contactUnit.surname"
                            required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-2 control-label">Date Of Birth:</label>
+                <label class="col-sm-2 control-label">Date Of Birth (required):</label>
                 <div class="col-sm-4">
 
                     Day:<select required="required"
-                                data-ng-model="joinRequest.selectedDay"
+                                data-ng-model="contactUnit.selectedDay"
                                 data-ng-options="option as option for option in days"
                                 class="form-control"></select>
 
                     Month:<select required="required"
-                                  data-ng-model="joinRequest.selectedMonth"
+                                  data-ng-model="contactUnit.selectedMonth"
                                   data-ng-options="option as option for option in months"
                                   class="form-control"></select>
 
                     Year:<select required="required"
-                                 data-ng-model="joinRequest.selectedYear"
+                                 data-ng-model="contactUnit.selectedYear"
                                  data-ng-options="option as option for option in years"
                                  class="form-control">
                 </select>
@@ -52,54 +52,58 @@
             </div>
 
             <div class="form-group">
-                <label for="nhsNumber" class="col-sm-2 control-label">NHS Number:</label>
+                <label for="nhsNumber" class="col-sm-2 control-label">NHS Number (required):</label>
                 <div class="col-sm-4">
-                    <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" data-ng-model="joinRequest.nhsNumber" required=""/>
+                    <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" data-ng-model="contactUnit.nhsNumber" required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-2 control-label">Specialty:</label>
-                <div class="col-sm-4">
-                    <select required="required"
-                            data-ng-model="joinRequest.specialty"
+                <label class="col-md-2 control-label" for="specialty">Specialty (required):</label>
+                <div class="col-md-4">
+                    <select id="specialty"
+                            required="required"
+                            data-ng-model="contactUnit.specialty"
                             data-ng-change="refreshUnits()"
-                            data-ng-options="obj.id as obj.name for obj in specialties"
+                            data-ng-options="obj.id as obj.name for obj in specialties | orderBy:['name']"
                             class="form-control">
                     </select>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-2 control-label">Unit:</label>
-                <div class="col-sm-4">
-
-                    <select required="required"
-                            data-ng-model="joinRequest.unit"
-                            data-ng-options="obj.id as obj.name for obj in units"
-                            class="form-control">
-                    </select>
+                <label class="col-md-2 control-label" for="unit">Unit (required):</label>
+                <div class="col-md-4">
+                    <select id="unit"
+                            required="required"
+                            data-ng-model="contactUnit.unit"
+                            data-ng-options="obj.id as obj.name for obj in units | orderBy:['name']"
+                            class="form-control"
+                            data-ng-show="units.length"></select>
+                    <p data-ng-show="!units.length">You must choose a specialty with units</p>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="email" class="col-sm-2 control-label">Email:</label>
                 <div class="col-sm-4">
-                    <input id="email" name="email" type="text" class="form-control" data-ng-model="joinRequest.email" required=""/>
+                    <input id="email" name="email" type="text" class="form-control" data-ng-model="contactUnit.email" required=""/>
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="col-sm-9 col-sm-offset-2">
                     <button data-ng-click="submit()" class="btn blue"
-                            data-ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear">
+                            data-ng-disabled="!contactUnit.selectedDay || !contactUnit.selectedMonth
+                            || !contactUnit.selectedYear || !contactUnit.email || !units.length || !contactUnit.unit
+                            || !contactUnit.forename || !contactUnit.surname">
                         Submit Request</button>
                 </div>
             </div>
 
             <div class="form-group" data-ng-show="errorMessage">
-                <div class="col-sm-9 col-sm-offset-3 alert alert-danger">
-                    <p><strong>Error submitting request</strong>{{errorMessage}}</p>
+                <div class="col-sm-10 col-sm-offset-1 alert alert-danger">
+                    <p>{{errorMessage}}</p>
                 </div>
             </div>
         </form>

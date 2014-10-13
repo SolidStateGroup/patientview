@@ -281,8 +281,9 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
-        },        // save join request
-        contactUnit: function (groupId, unitRequest) {
+        },
+        // contact unit for password forgotten
+        passwordRequest: function (groupId, unitRequest) {
             unitRequest = UtilService.cleanObject(unitRequest, 'unitRequest');
 
             // correctly format DOB
@@ -290,7 +291,7 @@ function ($q, Restangular, UtilService) {
                 + unitRequest.dateOfBirth.split('-')[1] + '-' + unitRequest.dateOfBirth.split('-')[0];
 
             var deferred = $q.defer();
-            Restangular.all('group/' + groupId + '/contactunit').customPOST(unitRequest).then(function(successResult) {
+            Restangular.all('public/passwordrequest/group/' + groupId).customPOST(unitRequest).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

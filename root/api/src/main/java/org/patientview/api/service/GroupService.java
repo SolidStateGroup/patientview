@@ -2,9 +2,9 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
@@ -29,6 +29,7 @@ public interface GroupService {
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     Group get(Long id) throws ResourceForbiddenException;
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     List<Group> findAll();
 
     List<org.patientview.api.model.Group> findAllPublic();
@@ -43,13 +44,16 @@ public interface GroupService {
     Group save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException;
 
     @AuditTrail(value = AuditActions.CREATE, objectType = Group.class)
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Group add(Group group);
 
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addParentGroup(Long groupId, Long parentGroupId);
 
-    List<Group> findChildren(Long groupId) throws ResourceNotFoundException;
-
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteParentGroup(Long groupId, Long parentGroupId);
+
+    List<Group> findChildren(Long groupId) throws ResourceNotFoundException;
 
     void addChildGroup(Long groupId, Long childGroupId);
 
@@ -65,7 +69,7 @@ public interface GroupService {
 
     void deleteFeature(Long groupId, Long featureId);
 
-    void contactUnit(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException, ResourceInvalidException;
+    void contactUnit(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException;
 
     List<Group> addParentAndChildGroups(List<Group> groups);
 }
