@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -12,5 +13,6 @@ import java.util.List;
  */
 public interface MedicationService {
 
+    @UserOnly
     List<FhirMedicationStatement> getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
 }
