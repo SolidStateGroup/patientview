@@ -5,8 +5,6 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,8 +27,6 @@ import javax.persistence.EntityExistsException;
  */
 @RestController
 public class CodeController extends BaseController<CodeController> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CodeController.class);
 
     @Inject
     private CodeService codeService;
@@ -62,30 +58,20 @@ public class CodeController extends BaseController<CodeController> {
 
     @RequestMapping(value = "/code/{codeId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteCode(@PathVariable("codeId") Long codeId) {
+    public void deleteCode(@PathVariable("codeId") Long codeId) {
         codeService.delete(codeId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/code/{codeId}/clone", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Code> cloneCode(@PathVariable("codeId") Long codeId) {
-
-        // create new code
-        Code code = codeService.cloneCode(codeId);
-        LOG.info("Cloned code with id " + codeId + " to create new code with id " + code.getId());
-
-        // return created code
-        return new ResponseEntity<>(code, HttpStatus.CREATED);
+        return new ResponseEntity<>(codeService.cloneCode(codeId), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Link> addLink(@PathVariable("codeId") Long codeId, @RequestBody Link link) {
-
-        // create new link
-        Link newLink = codeService.addLink(codeId, link);
-        return new ResponseEntity<>(newLink, HttpStatus.CREATED);
+        return new ResponseEntity<>(codeService.addLink(codeId, link), HttpStatus.CREATED);
     }
 }

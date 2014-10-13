@@ -9,6 +9,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.CodeService;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,8 +48,8 @@ public class CodeControllerTest {
 
     @Test
     public void testCreateCode() {
-
         Code testCode = TestUtils.createCode("TestCode");
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
 
         try {
             when(codeService.add(eq(testCode))).thenReturn(testCode);
@@ -57,8 +60,32 @@ public class CodeControllerTest {
         } catch (Exception e) {
             fail("This call should not fail");
         }
-
     }
 
+    @Test
+    public void testGetCodes() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
 
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/code"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+            verify(codeService, Mockito.times(1)).getAllCodes(any(GetParameters.class));
+        } catch (Exception e) {
+            fail("This call should not fail");
+        }
+    }
+
+    @Test
+    public void testDeleteCode() {
+        Code testCode = TestUtils.createCode("TestCode");
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/code/" + testCode.getId()))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+            verify(codeService, Mockito.times(1)).delete(eq(testCode.getId()));
+        } catch (Exception e) {
+            fail("This call should not fail");
+        }
+    }
 }

@@ -20,17 +20,21 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface CodeService extends CrudService<Code> {
 
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN })
     Code add(Code code) throws EntityExistsException;
 
-    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
-            RoleName.STAFF_ADMIN })
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN })
     Page<Code> getAllCodes(GetParameters getParameters);
 
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN })
     Code cloneCode(Long codeId);
 
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN })
     Link addLink(Long codeId, Link link);
 
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN })
     List<Code> findAllByCodeAndType(String code, Lookup codeType);
 
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN })
     Code save(Code code) throws EntityExistsException;
 }

@@ -29,6 +29,7 @@ import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -301,6 +302,22 @@ public final class TestUtils {
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), Collections.EMPTY_SET);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+    }
+
+    public static void authenticateTestSingleGroupRole(String userName, String groupName, RoleName roleName) {
+
+        // create user, group role
+        Group group = createGroup(groupName);
+        Role role = createRole(roleName);
+        User user = createUser(userName);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // authenticate
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), groupRoles);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     public static GroupStatistic createGroupStatistics(Group group, BigInteger value, Lookup lookup) {
