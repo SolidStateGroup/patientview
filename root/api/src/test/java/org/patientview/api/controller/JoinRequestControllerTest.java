@@ -10,8 +10,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.JoinRequestService;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.JoinRequest;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -19,6 +25,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -135,6 +143,8 @@ public class JoinRequestControllerTest {
     @Test
     public void testJoinRequestSave() throws ResourceNotFoundException {
 
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setId(1L);
         joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
@@ -161,15 +171,21 @@ public class JoinRequestControllerTest {
      */
     @Test
     public void testCountOfJoinRequest() throws ResourceNotFoundException {
-        Long groupId = 1L;
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + groupId + "/joinrequests/count"))
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/joinrequests/count"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
         }
-
-        verify(joinRequestService, Mockito.times(1)).getCount(eq(groupId));
     }
 }

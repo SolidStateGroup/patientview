@@ -25,7 +25,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -259,7 +258,7 @@ public class JoinRequestServiceTest {
      */
     @Test
     public void testSaveJoinRequest() throws ResourceNotFoundException, SecurityException {
-        User user = TestUtils.createUser("testUser");
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setId(10L);
@@ -268,9 +267,6 @@ public class JoinRequestServiceTest {
         joinRequest.setDateOfBirth(new Date());
         joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
 
-        TestUtils.authenticateTest(user, Collections.EMPTY_LIST);
-
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         when(joinRequestRepository.findOne(eq(joinRequest.getId()))).thenReturn(joinRequest);
         when(joinRequestRepository.save(eq(joinRequest))).thenReturn(joinRequest);
 
