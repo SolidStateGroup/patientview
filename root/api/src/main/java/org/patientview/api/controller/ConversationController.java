@@ -5,6 +5,7 @@ import org.patientview.api.model.Conversation;
 import org.patientview.api.model.Message;
 import org.patientview.api.model.User;
 import org.patientview.api.service.ConversationService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -42,7 +43,8 @@ public class ConversationController extends BaseController<ConversationControlle
     @RequestMapping(value = "/conversation/{conversationId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<org.patientview.api.model.Conversation> getConversation(
-            @PathVariable("conversationId") Long conversationId) throws ResourceNotFoundException, SecurityException {
+            @PathVariable("conversationId") Long conversationId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(conversationService.findByConversationId(conversationId), HttpStatus.OK);
     }
 
@@ -102,7 +104,7 @@ public class ConversationController extends BaseController<ConversationControlle
     @RequestMapping(value = "/conversation/{conversationId}/messages", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addMessage(@PathVariable("conversationId") Long conversationId, @RequestBody Message message)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         conversationService.addMessage(conversationId, message);
     }
 

@@ -89,7 +89,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
-    public String switchUser(Long userId, String token) throws AuthenticationServiceException {
+    public String switchToUser(Long userId) throws AuthenticationServiceException {
 
         LOG.debug("Switching to user with ID: {}", userId);
         User user = userRepository.findOne(userId);
@@ -98,28 +98,36 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("Cannot switch user, user not found");
         }
 
-        // if no token, assume switching to a patient, if token then switching back
-        if (StringUtils.isEmpty(token)) {
+        // TODO handled with aspects
+        createAudit(AuditActions.SWITCH_USER, user.getUsername());
 
-            // TODO handled with aspects
-            createAudit(AuditActions.SWITCH_USER, user.getUsername());
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken(CommonUtils.getAuthToken());
+        userToken.setCreated(new Date());
+        userToken = userTokenRepository.save(userToken);
+        userRepository.save(user);
 
-            UserToken userToken = new UserToken();
-            userToken.setUser(user);
-            userToken.setToken(CommonUtils.getAuthToken());
-            userToken.setCreated(new Date());
-            userToken = userTokenRepository.save(userToken);
-            userRepository.save(user);
+        return userToken.getToken();
+    }
 
-            return userToken.getToken();
+    @Transactional(noRollbackFor = AuthenticationServiceException.class)
+    public String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException {
 
-        } else {
-            UserToken userToken = getToken(token);
-            if (userToken != null) {
-                return userToken.getToken();
-            }
+        LOG.debug("Switching to user with ID: {}", userId);
+        User user = userRepository.findOne(userId);
+
+        if (user == null) {
+            throw new AuthenticationServiceException("Cannot switch user, user not found");
+        }
+
+        UserToken userToken = getToken(token);
+
+        if (userToken == null) {
             throw new AuthenticationServiceException("Cannot switch user, token not found");
         }
+
+        return userToken.getToken();
     }
 
     @CacheEvict(value = "authenticateOnToken", allEntries = true)

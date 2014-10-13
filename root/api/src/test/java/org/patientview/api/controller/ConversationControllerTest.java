@@ -3,18 +3,15 @@ package org.patientview.api.controller;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ConversationService;
-import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Conversation;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -22,13 +19,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -56,35 +50,23 @@ public class ConversationControllerTest {
 
     @Test
     public void testGetUserConversations() {
-        User testUser = TestUtils.createUser("testPost");
-        Conversation conversation = new Conversation();
-        conversation.setId(2L);
-        List<Conversation> conversationList = new ArrayList<>();
-        conversationList.add(conversation);
 
-        PageRequest pageable = new PageRequest(0, 5);
-        Page<org.patientview.api.model.Conversation> conversationPage
-                = new PageImpl(conversationList, pageable, conversationList.size());
-
-        try {
-            when(conversationService.findByUserId(Matchers.eq(testUser.getId()), Matchers.eq(pageable)))
-                    .thenReturn(conversationPage);
-        } catch (ResourceNotFoundException rnf) {
-            fail("Getting conversations should not fail.");
-        }
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + testUser.getId() + "/conversations?size=5&page=0")
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/conversations?size=5&page=0")
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception throw");
-        }
-
-        try {
-            verify(conversationService, Mockito.times(1)).findByUserId(eq(testUser.getId()), eq(pageable));
-        } catch (ResourceNotFoundException rnf) {
-            fail("Verifying conversation set should not fail.");
+            fail("Exception throw: " + e.getMessage());
         }
     }
 }

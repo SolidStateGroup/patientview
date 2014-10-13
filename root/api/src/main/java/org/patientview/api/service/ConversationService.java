@@ -1,6 +1,8 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.User;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -18,17 +20,21 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ConversationService extends CrudService<Conversation> {
 
-    org.patientview.api.model.Conversation findByConversationId(Long conversationId) throws ResourceNotFoundException;
+    org.patientview.api.model.Conversation findByConversationId(Long conversationId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @UserOnly
     Page<org.patientview.api.model.Conversation> findByUserId(Long userId, Pageable pageable)
             throws ResourceNotFoundException;
 
-    void addMessage(Long conversationId, org.patientview.api.model.Message message) throws ResourceNotFoundException;
+    void addMessage(Long conversationId, org.patientview.api.model.Message message)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException;
 
     void addMessageReadReceipt(Long messageId, Long userId) throws ResourceNotFoundException;
 
+    @UserOnly
     Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
 
     List<User> getRecipients(Long userId, String[] featureTypes)

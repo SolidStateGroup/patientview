@@ -132,10 +132,11 @@ public final class SecurityAspect {
     public void checkUser(JoinPoint joinPoint) throws ResourceForbiddenException {
         Long requestId = getId(joinPoint);
         Long userId = Util.getUser().getId();
-        if (!requestId.equals(Util.getUser().getId())) {
-            throw new ResourceForbiddenException("You have to logged in as the requested user");
+        if (!requestId.equals(userId)) {
+            LOG.debug("User with id: {id} should not be accessing the resource for user id {}", userId, requestId);
+            throw new ResourceForbiddenException("You have to be logged in as the requested user");
         }
-        LOG.debug("User with id: {id} should not be accessing the resource for user id {}", userId, requestId);
+
     }
 
     // TODO the next two methods can be fixed up with annotations on the parameters

@@ -20,7 +20,10 @@ public interface AuthenticationService extends UserDetailsService {
     void setParameter();
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
-    String switchUser(Long userId, String token) throws AuthenticationServiceException;
+    String switchToUser(Long userId) throws AuthenticationServiceException;
+
+    @RoleOnly(roles = { RoleName.PATIENT })
+    String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException;
 
     String authenticate(String username, String password)
             throws AuthenticationServiceException, UsernameNotFoundException;

@@ -46,18 +46,18 @@ public class AuthController extends BaseController<AuthController> {
         return new ResponseEntity<>("API OK", HttpStatus.OK);
     }
 
-    // switch to previous user using previous auth token, todo: requires security
+    // switch to previous user using previous auth token
     @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
             @PathVariable("userId") Long userId) throws AuthenticationServiceException {
-        return new ResponseEntity<>(authenticationService.switchUser(userId, token), HttpStatus.OK);
+        return new ResponseEntity<>(authenticationService.switchBackFromUser(userId, token), HttpStatus.OK);
     }
 
-    // switch to another user by authenticating and returning token, todo: requires security
+    // switch to another user by authenticating and returning token
     @RequestMapping(value = "/auth/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchUser(@PathVariable("userId") Long userId)
             throws AuthenticationServiceException {
-        return new ResponseEntity<>(authenticationService.switchUser(userId, null), HttpStatus.OK);
+        return new ResponseEntity<>(authenticationService.switchToUser(userId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)

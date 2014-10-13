@@ -51,6 +51,7 @@ public class ContactPointController extends BaseController<ContactPointControlle
         contactPointService.save(contactPoint);
     }
 
+    // used by migration
     @RequestMapping(value = "/contactpoint/type/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<ContactPointType> getContactPointType(@PathVariable(value = "type") String type)

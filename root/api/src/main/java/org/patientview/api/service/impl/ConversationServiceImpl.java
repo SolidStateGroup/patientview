@@ -4,6 +4,7 @@ import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -76,9 +77,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return anonymiseConversation(conversationRepository.findOne(conversationId));
     }
 
-    public org.patientview.api.model.Conversation findByConversationId(Long conversationId) {
-        return new org.patientview.api.model.Conversation(
-            anonymiseConversation(conversationRepository.findOne(conversationId)));
+    public org.patientview.api.model.Conversation findByConversationId(Long conversationId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        Conversation conversation = conversationRepository.findOne(conversationId);
+
+        if (conversation == null) {
+            throw new ResourceNotFoundException("Conversation does not exist");
+        }
+
+        if (!loggedInUserIsMemberOfConversation(conversation)) {
+            throw new ResourceForbiddenException("You do not have permission");
+        }
+
+        return new org.patientview.api.model.Conversation(anonymiseConversation(conversation));
     }
 
     public Conversation add(Conversation conversation) {
@@ -175,10 +186,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     public void addMessage(Long conversationId, org.patientview.api.model.Message message)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         Conversation entityConversation = conversationRepository.findOne(conversationId);
         if (entityConversation == null) {
             throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversationId));
+        }
+
+        if (!loggedInUserIsMemberOfConversation(entityConversation)) {
+            throw new ResourceForbiddenException("You do not have permission");
         }
 
         User entityUser = findEntityUser(message.getUser().getId());
@@ -404,5 +419,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         throw new ResourceInvalidException("No suitable roles");
+    }
+
+    // verify logged in user can open conversation
+    private boolean loggedInUserIsMemberOfConversation(Conversation conversation) {
+        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean canRead = false;
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            if (conversationUser.getUser().equals(loggedInUser)) {
+                canRead = true;
+            }
+        }
+
+        return canRead;
     }
 }
