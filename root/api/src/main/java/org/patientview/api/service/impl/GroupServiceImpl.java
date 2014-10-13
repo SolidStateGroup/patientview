@@ -403,7 +403,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return Util.convertIterable(groupRepository.findChildren(group));
     }
 
-    public void contactUnit(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException {
+    public void passwordRequest(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException {
         Group group = findGroup(groupId);
 
         if (group == null) {

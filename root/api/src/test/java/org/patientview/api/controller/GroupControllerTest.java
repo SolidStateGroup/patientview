@@ -109,6 +109,7 @@ public class GroupControllerTest {
     public void testAddChildGroup() {
         Long groupId = 1L;
         Long childGroupId = 2L;
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 
         String url = "/group/" + groupId + "/child/" + childGroupId;
 
@@ -286,7 +287,7 @@ public class GroupControllerTest {
      * Fail: The password reset object is not passed to the service
      */
     @Test
-    public void testContactUnit() {
+    public void testPasswordRequest() {
 
         UnitRequest unitRequest = new UnitRequest();
         unitRequest.setForename("Test");
@@ -299,7 +300,7 @@ public class GroupControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.post("/public/passwordrequest/group/" + groupId)
                     .content(mapper.writeValueAsString(unitRequest)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(groupService, Mockito.times(1)).contactUnit(eq(groupId), any(UnitRequest.class));
+            verify(groupService, Mockito.times(1)).passwordRequest(eq(groupId), any(UnitRequest.class));
         } catch (Exception e) {
             fail("This call should not fail");
         }

@@ -147,6 +147,6 @@ public class GroupController extends BaseController<GroupController> {
     @ResponseBody
     public void passwordRequest(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
             throws ResourceNotFoundException {
-        groupService.contactUnit(groupId, unitRequest);
+        groupService.passwordRequest(groupId, unitRequest);
     }
 }

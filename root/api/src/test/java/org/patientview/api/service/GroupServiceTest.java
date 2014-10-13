@@ -356,11 +356,11 @@ public class GroupServiceTest {
     }
 
     /**
-     * Test: Contact Unit functionality.
+     * Test: Password Request / Contact Unit functionality.
      * Fail: Doesnt send an email of any type
      */
     @Test
-    public void testContactUnit() throws Exception {
+    public void testPasswordRequest() throws Exception {
         UnitRequest unitRequest = new UnitRequest();
         unitRequest.setNhsNumber("234234234");
         unitRequest.setDateOfBirth(new Date());
@@ -371,18 +371,18 @@ public class GroupServiceTest {
         group.setContactPoints(new HashSet<ContactPoint>());
         group.getContactPoints().add(TestUtils.createContactPoint("83", ContactPointTypes.PV_ADMIN_EMAIL));
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        groupService.contactUnit(group.getId(), unitRequest);
+        groupService.passwordRequest(group.getId(), unitRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
     }
 
     /**
-     * Test: Contact Unit functionality with no email address
-     * Fail: Doesnt raise an exception
+     * Test: Password Request / Contact Unit functionality with no email address
+     * Fail: Doesn't raise an exception
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testContactUnit_NotContactEmail() throws Exception {
+    public void testPasswordRequest_NotContactEmail() throws Exception {
         UnitRequest unitRequest = new UnitRequest();
         unitRequest.setNhsNumber("234234234");
         unitRequest.setDateOfBirth(new Date());
@@ -392,14 +392,14 @@ public class GroupServiceTest {
         Group group = TestUtils.createGroup("TestGroup");
         group.setContactPoints(new HashSet<ContactPoint>());
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        groupService.contactUnit(group.getId(), unitRequest);
+        groupService.passwordRequest(group.getId(), unitRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
     }
 
     /**
-     * Test: Contact Unit functionality with a valid unit
+     * Test: Password Request / Contact Unit functionality with a valid unit
      * Fail: Doesnt raise an exception
      */
     @Test(expected = ResourceNotFoundException.class)
@@ -413,7 +413,7 @@ public class GroupServiceTest {
         Group group = TestUtils.createGroup("TestGroup");
         group.setContactPoints(new HashSet<ContactPoint>());
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
-        groupService.contactUnit(group.getId(), unitRequest);
+        groupService.passwordRequest(group.getId(), unitRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));

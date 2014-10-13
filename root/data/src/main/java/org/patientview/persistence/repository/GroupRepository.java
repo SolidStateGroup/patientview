@@ -58,21 +58,21 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
            "AND    gr.group.visible = true ")
     public Iterable<Group> findGroupByUser(@Param("user") User user);
 
-    @Query("SELECT gr.group " +
-           "FROM   User u " +
-           "JOIN   u.groupRoles gr " +
-           "WHERE  u = :user " +
-           "AND    gr.group.visible = true " +
-           "AND    gr.group.groupType.value <> 'SPECIALTY' " +
-           "AND ((UPPER(gr.group.code) LIKE :filterText) " +
-           "OR (UPPER(gr.group.name) LIKE :filterText)) ")
+    @Query("SELECT g " +
+            "FROM   Group g " +
+            "JOIN   g.groupRoles gr " +
+            "WHERE  gr.user = :user " +
+            "AND    gr.group.visible = true " +
+            "AND    gr.group.groupType.value <> 'SPECIALTY' " +
+            "AND ((UPPER(gr.group.code) LIKE :filterText) " +
+            "OR (UPPER(gr.group.name) LIKE :filterText)) ")
     public Page<Group> findGroupsByUserNoSpecialties(@Param("filterText") String filterText,
                                                      @Param("user") User user, Pageable pageable);
 
-    @Query("SELECT gr.group " +
-           "FROM   User u " +
-           "JOIN   u.groupRoles gr " +
-           "WHERE  u = :user " +
+    @Query("SELECT g " +
+            "FROM   Group g " +
+            "JOIN   g.groupRoles gr " +
+            "WHERE  gr.user = :user " +
            "AND    gr.group.visible = true " +
            "AND    gr.group.groupType.value <> 'SPECIALTY' " +
            "AND ((UPPER(gr.group.code) LIKE :filterText) " +

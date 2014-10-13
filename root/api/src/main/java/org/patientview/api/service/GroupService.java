@@ -55,21 +55,28 @@ public interface GroupService {
 
     List<Group> findChildren(Long groupId) throws ResourceNotFoundException;
 
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addChildGroup(Long groupId, Long childGroupId);
 
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteChildGroup(Long groupId, Long childGroupId);
 
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Link addLink(Long groupId, Link link);
 
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     ContactPoint addContactPoint(Long groupId, ContactPoint contactPoint);
 
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Location addLocation(Long groupId, Location location);
 
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addFeature(Long groupId, Long featureId);
 
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteFeature(Long groupId, Long featureId);
 
-    void contactUnit(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException;
+    void passwordRequest(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException;
 
     List<Group> addParentAndChildGroups(List<Group> groups);
 }
