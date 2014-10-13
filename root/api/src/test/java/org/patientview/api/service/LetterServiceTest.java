@@ -18,12 +18,15 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LetterTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.test.util.TestUtils;
@@ -32,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -66,11 +70,17 @@ public class LetterServiceTest {
     @Test
     public void testGetByUserId() {
 
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+        
         user.setIdentifiers(new HashSet<Identifier>());
 
-        Group group = TestUtils.createGroup("testGroup");
         Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                 IdentifierTypes.NHS_NUMBER.toString());
         Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
