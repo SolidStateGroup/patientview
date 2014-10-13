@@ -13,7 +13,6 @@ import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.Email;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.ContactPoint;
@@ -43,7 +42,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -191,9 +189,17 @@ public class GroupServiceTest {
 
     @Test
     public void testAddGroupFeature() {
+        User testUser = TestUtils.createUser("testUser");
         Group testGroup = TestUtils.createGroup("testGroup");
         Feature testFeature = TestUtils.createFeature(FeatureType.MESSAGING.getName());
         GroupFeature groupFeature = TestUtils.createGroupFeature(testFeature, testGroup);
+
+        // add user as specialty admin to group
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, testUser);
+        testUser.setGroupRoles(new TreeSet<GroupRole>());
+        testUser.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(testUser, testUser.getGroupRoles());
 
         testGroup.setGroupFeatures(new HashSet<GroupFeature>());
         testGroup.getGroupFeatures().add(groupFeature);
@@ -211,9 +217,17 @@ public class GroupServiceTest {
 
     @Test
     public void testRemoveGroupFeature() {
+        User testUser = TestUtils.createUser("testUser");
         Group testGroup = TestUtils.createGroup("testGroup");
         Feature testFeature = TestUtils.createFeature(FeatureType.MESSAGING.getName());
         GroupFeature groupFeature = TestUtils.createGroupFeature(testFeature, testGroup);
+
+        // add user as specialty admin to group
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, testUser);
+        testUser.setGroupRoles(new TreeSet<GroupRole>());
+        testUser.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(testUser, testUser.getGroupRoles());
 
         testGroup.setGroupFeatures(new HashSet<GroupFeature>());
         testGroup.getGroupFeatures().add(groupFeature);

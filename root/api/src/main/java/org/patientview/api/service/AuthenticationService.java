@@ -1,6 +1,8 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.UserToken;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +19,7 @@ public interface AuthenticationService extends UserDetailsService {
 
     void setParameter();
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     String switchUser(Long userId, String token) throws AuthenticationServiceException;
 
     String authenticate(String username, String password)
