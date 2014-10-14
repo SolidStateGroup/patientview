@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,14 +56,17 @@ public class SecurityServiceTest {
     @InjectMocks
     private SecurityService securityService = new SecurityServiceImpl();
 
-
     private User creator;
 
     @Before
     public void setUp() throws Exception {
-
         MockitoAnnotations.initMocks(this);
         creator = TestUtils.createUser("creator");
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -24,9 +25,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by james@solidstategroup.com
@@ -44,11 +42,15 @@ public class LinkControllerTest {
 
     private MockMvc mockMvc;
 
-
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(linkController).build();
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     @Test
@@ -104,6 +106,7 @@ public class LinkControllerTest {
 
     @Test
     public void testDeleteLink() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         Long linkId = 1L;
         String url = "/link/" + linkId;
 

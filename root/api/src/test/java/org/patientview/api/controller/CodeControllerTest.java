@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -44,6 +45,11 @@ public class CodeControllerTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(codeController).build();
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     @Test

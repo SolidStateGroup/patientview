@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -46,6 +47,11 @@ public class ConversationControllerTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(conversationController, uriComponentsBuilder).build();
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     @Test

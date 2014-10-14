@@ -8,7 +8,6 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Location;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -89,13 +88,6 @@ public class GroupController extends BaseController<GroupController> {
     @ResponseBody
     public void deleteChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
         groupService.deleteChildGroup(groupId, childGroupId);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST,
-                    produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Location> addLocation(@PathVariable("groupId") Long groupId, @RequestBody Location location) {
-        return new ResponseEntity<>(groupService.addLocation(groupId, location), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/group/{groupId}/features/{featureId}", method = RequestMethod.PUT)

@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.LocationService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Location;
 import org.springframework.http.HttpStatus;
@@ -25,22 +26,26 @@ public class LocationController extends BaseController<LocationController> {
     @Inject
     private LocationService locationService;
 
-    @RequestMapping(value = "/location", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Location> createLocation(@RequestBody Location location) {
-        return new ResponseEntity<>(locationService.add(location), HttpStatus.CREATED);
+    public ResponseEntity<Location> add(@PathVariable("groupId") Long groupId,
+                                                @RequestBody Location location)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(locationService.add(groupId, location), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/location/{locationId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteLocation(@PathVariable("locationId") Long locationId) {
+    public void delete(@PathVariable("locationId") Long locationId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         locationService.delete(locationId);
     }
 
     @RequestMapping(value = "/location", method = RequestMethod.PUT)
     @ResponseBody
-    public void saveLocation(@RequestBody Location location) throws ResourceNotFoundException {
+    public void save(@RequestBody Location location)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         locationService.save(location);
     }
 }

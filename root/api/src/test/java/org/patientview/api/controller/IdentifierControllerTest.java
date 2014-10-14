@@ -1,19 +1,15 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
@@ -23,13 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -47,20 +37,22 @@ public class IdentifierControllerTest {
 
     private MockMvc mockMvc;
 
-
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(identifierController).build();
     }
 
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
+    }
+
     @Test
     public void testUpdateIdentifier() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         Identifier testIdentifier = new Identifier();
         testIdentifier.setId(1L);
-
-        // user and security
-        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.put("/identifier")
@@ -73,11 +65,9 @@ public class IdentifierControllerTest {
 
     @Test
     public void testGetIdentifier() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         Long identifierId = 1L;
         String url = "/identifier/" + identifierId;
-
-        // user and security
-        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get(url)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -88,11 +78,9 @@ public class IdentifierControllerTest {
 
     @Test
     public void testDeleteIdentifier() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         Long identifierId = 1L;
         String url = "/identifier/" + identifierId;
-
-        // user and security
-        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -103,8 +91,9 @@ public class IdentifierControllerTest {
 
     @Test
     public void testAddIdentifier() {
-        User testUser = TestUtils.createUser("testUser");
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
 
+        User testUser = TestUtils.createUser("testUser");
         String url = "/user/" + testUser.getId() + "/identifiers";
         Identifier identifier = new Identifier();
         identifier.setId(2L);
@@ -120,6 +109,7 @@ public class IdentifierControllerTest {
 
     @Test
     public void testGetIdentifierByValue() throws ResourceNotFoundException  {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         String identifierValue = "111111111";
 
         try {

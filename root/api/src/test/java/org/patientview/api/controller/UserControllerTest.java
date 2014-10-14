@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,7 +16,6 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
-import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -70,6 +70,11 @@ public class UserControllerTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(userController, uriComponentsBuilder).build();
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     /**

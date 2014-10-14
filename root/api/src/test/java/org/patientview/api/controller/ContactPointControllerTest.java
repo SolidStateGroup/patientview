@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -50,6 +51,11 @@ public class ContactPointControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(contactPointController).build();
     }
 
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
+    }
+
     /**
      * Test: Simple request to the contact type for a contact point
      * Fail: Doesn't return OK.
@@ -94,7 +100,7 @@ public class ContactPointControllerTest {
 
     @Test
     public void testDeleteContactPoint() {
-        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         Long contactPointId = 1L;
         String url = "/contactpoint/" + contactPointId;
 
@@ -129,5 +135,28 @@ public class ContactPointControllerTest {
         } catch (Exception e) {
             fail("Exception: " + e.getMessage());
         }
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testAddContactPointWrongGroup() throws Exception {
+        ContactPoint contactPoint = new ContactPoint();
+        ContactPointType contactPointType = new ContactPointType();
+        contactPointType.setValue(ContactPointTypes.PV_ADMIN_NAME);
+        contactPoint.setContactPointType(contactPointType);
+        contactPoint.setContent("test@solidstategroup.com");
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Group group2 = TestUtils.createGroup("testGroup2");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/contactpoints")
+                .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 }

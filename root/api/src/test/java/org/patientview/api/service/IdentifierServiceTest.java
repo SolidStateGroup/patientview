@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +64,11 @@ public class IdentifierServiceTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         creator = TestUtils.createUser("creator");
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     @Test
@@ -267,6 +273,9 @@ public class IdentifierServiceTest {
     @Test(expected = EntityExistsException.class)
     public void testAddDuplicateIdentifier()
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
+
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
+
         Long userId = 1L;
         User user = TestUtils.createUser("testUser");
         user.setIdentifiers(new HashSet<Identifier>());
@@ -297,6 +306,7 @@ public class IdentifierServiceTest {
      */
     @Test
     public void testGetIdentifierByValue() throws ResourceNotFoundException {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         String identifierValue = "1111111111";
         Identifier identifier = new Identifier();
         identifier.setIdentifier(identifierValue);

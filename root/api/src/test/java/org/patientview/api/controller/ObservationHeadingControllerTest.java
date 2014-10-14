@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -54,6 +55,11 @@ public class ObservationHeadingControllerTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(observationHeadingController).build();
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     @Test
@@ -112,18 +118,15 @@ public class ObservationHeadingControllerTest {
 
     @Test
     public void testSave() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
 
         try {
-            when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
-
             mockMvc.perform(MockMvcRequestBuilders.put("/observationheading")
                     .content(mapper.writeValueAsString(observationHeading))
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-
-            verify(observationHeadingService, Mockito.times(1)).save(eq(observationHeading));
         } catch (Exception e) {
             fail("Exception: " + e.getMessage());
         }
@@ -131,6 +134,7 @@ public class ObservationHeadingControllerTest {
 
     @Test
     public void testAddGroup() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
         Group group = TestUtils.createGroup("GROUP1");
@@ -154,6 +158,7 @@ public class ObservationHeadingControllerTest {
 
     @Test
     public void testUpdateGroup() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
         Group group = TestUtils.createGroup("GROUP1");
@@ -177,6 +182,7 @@ public class ObservationHeadingControllerTest {
 
     @Test
     public void testRemoveGroup() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
         Group group = TestUtils.createGroup("GROUP1");
@@ -204,6 +210,7 @@ public class ObservationHeadingControllerTest {
 
     @Test
     public void testGetResultClusters() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.PATIENT);
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/resultclusters")
                     .contentType(MediaType.APPLICATION_JSON))

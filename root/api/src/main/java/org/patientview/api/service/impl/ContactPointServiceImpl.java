@@ -41,10 +41,6 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
             throw new ResourceNotFoundException("Group not found");
         }
 
-        if (!isMemberOfGroup(group, getCurrentUser())) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
         contactPoint.setGroup(group);
         contactPoint.setCreator(getCurrentUser());
 

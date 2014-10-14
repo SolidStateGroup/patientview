@@ -7,7 +7,6 @@ import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.RoleName;
@@ -56,9 +55,6 @@ public interface GroupService {
 
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteChildGroup(Long groupId, Long childGroupId);
-
-    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    Location addLocation(Long groupId, Location location);
 
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addFeature(Long groupId, Long featureId);

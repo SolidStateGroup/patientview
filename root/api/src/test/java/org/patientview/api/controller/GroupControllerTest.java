@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -13,15 +14,10 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.service.JoinRequestService;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.ContactPoint;
-import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
-import org.patientview.persistence.model.Link;
-import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.util.TestUtils;
@@ -75,6 +71,11 @@ public class GroupControllerTest {
         creator = TestUtils.createUser("creator");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     @Test
@@ -137,66 +138,44 @@ public class GroupControllerTest {
     @Test
     public void testAddFeature() {
 
-        Long groupId = 1L;
-        Long featureId = 2L;
-
-        String url = "/group/" + groupId + "/features/" + featureId;
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.put(url)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
-
-        verify(groupService, Mockito.times(1)).addFeature(eq(groupId), eq(featureId));
-    }
-
-    @Test
-    public void testDeleteFeature() {
-
-        Long groupId = 1L;
-        Long featureId = 2L;
-
-        String url = "/group/" + groupId + "/features/" + featureId;
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
-
-        verify(groupService, Mockito.times(1)).deleteFeature(eq(groupId), eq(featureId));
-    }
-
-    @Test
-    public void testAddAdditionalLocation() {
-        Location location = new Location();
-        location.setId(1L);
-        location.setLabel("Additional Location");
-        location.setName("New location");
-        location.setPhone("0123456789");
-        location.setAddress("1 Road Street, Town, AB12CD");
-        location.setWeb("http://www.additional.com");
-        location.setEmail("test@solidstategroup.com");
-
         // user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
+        String url = "/group/" + group.getId() + "/features/1";
+
         try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/locations")
-                    .content(mapper.writeValueAsString(location)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated());
+            mockMvc.perform(MockMvcRequestBuilders.put(url)).andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
+            fail("Exception throw");
         }
     }
 
+    @Test
+    public void testDeleteFeature() {
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String url = "/group/" + group.getId() + "/features/1";
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw");
+        }
+    }
 
     /**
      * Test: The retrieval of the group statistics for a specific group

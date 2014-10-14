@@ -353,12 +353,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         deleteRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
     }
 
-    public Location addLocation(final Long groupId, final Location location) {
-        location.setGroup(groupRepository.findOne(groupId));
-        location.setCreator(userRepository.findOne(1L));
-        return locationRepository.save(location);
-    }
-
     public void addFeature(Long groupId, Long featureId) {
         GroupFeature groupFeature = new GroupFeature();
         groupFeature.setFeature(featureRepository.findOne(featureId));

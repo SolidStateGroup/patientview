@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -70,6 +71,11 @@ public class GroupStatisticsServiceIntegrationTest {
     @Before
     public void setup() {
         creator = dataTestUtils.createUser("user");
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     /**

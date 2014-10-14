@@ -1,10 +1,10 @@
 package org.patientview.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -50,10 +50,13 @@ public class NewsControllerTest {
 
     @Before
     public void setup() {
-
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(newsController).build();
+    }
 
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     /**

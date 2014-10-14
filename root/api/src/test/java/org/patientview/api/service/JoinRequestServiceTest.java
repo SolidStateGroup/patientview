@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +55,11 @@ public class JoinRequestServiceTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+    }
+
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     /**
@@ -230,6 +236,8 @@ public class JoinRequestServiceTest {
      */
     @Test(expected = ResourceNotFoundException.class)
     public void testGetJoinRequest_invalidGroup() throws ResourceNotFoundException {
+
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
 
         User user = TestUtils.createUser("testUser");
         Group group = TestUtils.createGroup("TestGroup");

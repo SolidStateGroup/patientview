@@ -321,6 +321,20 @@ public final class TestUtils {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    public static User getPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("Session is not authenticated");
+        }
+
+        return (User) authentication.getPrincipal();
+    }
+
+    public static void removeAuthentication() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
     public static GroupStatistic createGroupStatistics(Group group, BigInteger value, Lookup lookup) {
         GroupStatistic groupStatistic = new GroupStatistic();
         groupStatistic.setGroup(group);

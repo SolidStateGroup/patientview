@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -55,6 +56,11 @@ public class JoinRequestControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(joinRequestController).build();
     }
 
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
+    }
+
     /**
      * Test: The submission of a JoinRequest object to the controller
      * Fail: The JoinRequest object is not passed to the server
@@ -87,7 +93,7 @@ public class JoinRequestControllerTest {
      * Fail: The service does not get called for join requests
      */
     @Test
-    public void testGroupJoinRequest_statuses() throws ResourceNotFoundException, JsonProcessingException {
+    public void testJoinRequest_statuses() throws ResourceNotFoundException, JsonProcessingException {
         String url = "/joinrequest/statuses";
 
         try {
@@ -101,31 +107,25 @@ public class JoinRequestControllerTest {
         }
     }
 
-    /**
-     * Test: The request of the join request for a unit
-     * Fail: exception thrown
-     */
     @Test
-    public void testGroupJoinRequest() throws ResourceNotFoundException {
-        Long groupId = 1L;
+    public void testGetByUser() throws ResourceNotFoundException {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.getPrincipal();
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + groupId + "/joinrequests"))
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/joinrequests"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
         }
     }
 
-    /**
-     * Test: The request of the join request for a unit
-     * Fail: exception thrown
-     */
     @Test
-    public void testGroupJoinRequest_withParameterAndData() throws ResourceNotFoundException, JsonProcessingException{
-        Long userId = 1L;
+    public void testGetByUser_withParameterAndData() throws ResourceNotFoundException, JsonProcessingException{
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.getPrincipal();
 
-        String url = "/user/" + userId + "/joinrequests?page=0&size=1&sortDirection=&sortField=";
+        String url = "/user/" + user.getId() + "/joinrequests?page=0&size=1&sortDirection=&sortField=";
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get(url)

@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,8 +11,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.Email;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.UserServiceImpl;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -33,7 +34,6 @@ import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
-import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.HashSet;
 
@@ -49,7 +49,6 @@ import static org.mockito.Mockito.when;
 
 
 public class UserServiceTest {
-
 
     @Mock
     private UserRepository userRepository;
@@ -93,7 +92,11 @@ public class UserServiceTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+    }
 
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -47,12 +48,14 @@ public class SecurityControllerTest {
 
     @Before
     public void setup() {
-
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(securityController).build();
-
     }
 
+    @After
+    public void tearDown() {
+        TestUtils.removeAuthentication();
+    }
 
     /**
      * Test: Send a GET request with a long parameter to the security service to return roles
