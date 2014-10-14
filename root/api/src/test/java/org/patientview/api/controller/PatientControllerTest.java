@@ -6,18 +6,21 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.PatientService;
-import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.test.util.TestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by james@solidstategroup.com
@@ -35,28 +38,31 @@ public class PatientControllerTest {
 
     @Before
     public void setup() {
-
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(patientController).build();
-
     }
 
     /**
      * Test: Send a GET request with a long parameter to the patient controller
      * Fail: The service does not get called with the parameter
-     *
      */
     @Test
-    public void testGetUser() throws ResourceNotFoundException, FhirResourceException {
+    public void testGetUser() {
 
-        String testUserId = "40279dad-5d60-49ec-8f08-f9767e5772af";
-        when(patientService.get(eq(UUID.fromString(testUserId)))).thenReturn(null);
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/patient/10"))
+            mockMvc.perform(MockMvcRequestBuilders.get("/patient/" + user.getId()))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception throw");
+            fail("Exception: " + e.getMessage());
         }
     }
 }

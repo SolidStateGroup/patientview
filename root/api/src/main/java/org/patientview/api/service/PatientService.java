@@ -1,10 +1,13 @@
 package org.patientview.api.service;
 
 import org.hl7.fhir.instance.model.Patient;
+import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +18,8 @@ import java.util.UUID;
  */
 public interface PatientService {
 
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
     List<org.patientview.api.model.Patient> get(Long userId, List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException;
 

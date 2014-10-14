@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.impl.ObservationServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -20,6 +22,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
@@ -30,6 +33,7 @@ import org.patientview.test.util.TestUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -88,6 +92,13 @@ public class ObservationServiceTest {
 
         Group patientEnteredGroup = TestUtils.createGroup("testGroup");
         patientEnteredGroup.setCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         ObservationHeading observationHeading1 = new ObservationHeading();
         observationHeading1.setId(3L);

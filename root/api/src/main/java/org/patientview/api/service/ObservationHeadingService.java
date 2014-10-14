@@ -28,7 +28,6 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     List<ObservationHeading> findByCode(String code);
 
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     ObservationHeading get(Long observationHeadingId) throws ResourceNotFoundException;
 
     @RoleOnly

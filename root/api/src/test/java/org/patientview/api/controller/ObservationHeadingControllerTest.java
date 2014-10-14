@@ -75,6 +75,7 @@ public class ObservationHeadingControllerTest {
         observationHeading.setId(1L);
 
         try {
+            TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
             mockMvc.perform(MockMvcRequestBuilders.get("/observationheading/" + observationHeading.getId())
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
