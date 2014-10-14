@@ -21,12 +21,16 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ObservationHeadingService extends CrudService<ObservationHeading> {
 
+    // available for all logged in users
     List<ObservationHeading> findAll();
 
+    // available for all logged in users
     Page<ObservationHeading> findAll(GetParameters getParameters);
 
+    // available for all logged in users
     List<ObservationHeading> findByCode(String code);
 
+    // available for all logged in users
     ObservationHeading get(Long observationHeadingId) throws ResourceNotFoundException;
 
     @RoleOnly

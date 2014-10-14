@@ -230,10 +230,9 @@ var SendVerificationEmailModalInstanceCtrl = ['$scope', '$modalInstance','user',
 
 // Patient controller
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$location',
-    'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService', 'StaticDataService',
-    'AuthService', 'localStorageService', 'RouteService',
+    'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService', 'AuthService', 'localStorageService',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, UserService, GroupService, RoleService, FeatureService,
-              SecurityService, StaticDataService, AuthService, localStorageService, RouteService) {
+              StaticDataService, AuthService, localStorageService) {
 
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
@@ -622,9 +621,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 },
                 UserService: function(){
                     return UserService;
-                },
-                SecurityService: function(){
-                    return SecurityService;
                 }
             }
         });

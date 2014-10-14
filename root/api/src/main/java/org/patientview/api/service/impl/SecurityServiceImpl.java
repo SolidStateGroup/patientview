@@ -65,12 +65,6 @@ public class SecurityServiceImpl extends AbstractServiceImpl<SecurityServiceImpl
         return routes;
     }
 
-    public List<Group> getGroupByUserAndRole(Long userId, Long roleId) {
-        User user = userRepository.findOne(userId);
-        Role role = roleRepository.findOne(roleId);
-        return Util.convertIterable(groupRepository.findGroupByUserAndRole(user, role));
-    }
-
     private List<org.patientview.api.model.Group> convertGroupsToTransportGroups(List<Group> groups) {
         List<org.patientview.api.model.Group> transportGroups = new ArrayList<>();
 

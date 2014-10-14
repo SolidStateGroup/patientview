@@ -33,21 +33,6 @@ public class SecurityController extends BaseController<SecurityController> {
     @Inject
     private SecurityService securityService;
 
-    @RequestMapping(value = "/security/user/{userId}/roles", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<Role>> getSecurityRolesByUser(@PathVariable("userId") Long userId) {
-        return new ResponseEntity<>(securityService.getUserRoles(userId), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/security/user/{userId}/role/{roleId}/groups", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public List<Group> getSecurityGroupsByUserAndRole(@PathVariable("userId") Long userId,
-                                               @PathVariable("roleId") Long roleId) {
-        return securityService.getGroupByUserAndRole(userId, roleId);
-    }
-
     @RequestMapping(value = "/security/user/{userId}/groups", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

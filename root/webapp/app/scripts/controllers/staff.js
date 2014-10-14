@@ -134,8 +134,8 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Staff controller
-angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'SecurityService',
-    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, GroupService, RoleService, FeatureService, SecurityService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, UserService) {
 
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
@@ -517,9 +517,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 },
                 UserService: function(){
                     return UserService;
-                },
-                SecurityService: function(){
-                    return SecurityService;
                 }
             }
         });
