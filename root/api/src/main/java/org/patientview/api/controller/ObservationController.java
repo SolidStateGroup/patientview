@@ -32,13 +32,6 @@ public class ObservationController extends BaseController<ObservationController>
     private static final String DEFAULT_SORT = "appliesDateTime";
     private static final String DEFAULT_SORT_DIRECTION = "DESC";
 
-    @RequestMapping(value = "/user/{userId}/observations", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<List<FhirObservation>> getAllObservations(@PathVariable("userId") Long userId)
-            throws FhirResourceException, ResourceNotFoundException {
-        return new ResponseEntity<>(observationService.get(userId, null, null, null, null), HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/user/{userId}/observations/{code}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<FhirObservation>> getObservationsByCode(@PathVariable("userId") Long userId,

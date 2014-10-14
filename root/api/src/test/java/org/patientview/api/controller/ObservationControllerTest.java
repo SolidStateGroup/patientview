@@ -5,15 +5,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ObservationService;
-import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,12 +23,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -51,50 +51,34 @@ public class ObservationControllerTest {
     }
 
     @Test
-    public void testGetAllObservationsByUserId() {
-        User user = TestUtils.createUser("testuser");
-        user.setId(1L);
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/observations"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
-
-        try {
-            verify(observationService, Mockito.times(1)).get(eq(user.getId()), any(String.class), any(String.class),
-                    any(String.class), any(Long.class));
-        } catch (ResourceNotFoundException | FhirResourceException e) {
-            fail("Exception thrown");
-        }
-    }
-
-    @Test
     public void testGetObservationsByUserIdAndCode() {
         User user = TestUtils.createUser("testuser");
-        user.setId(1L);
         String code = "EXAMPLE_CODE";
+
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/observations/" + code))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception throw");
-        }
-
-        try {
-            verify(observationService, Mockito.times(1)).get(eq(user.getId()), eq(code), any(String.class),
-                    any(String.class), any(Long.class));
-        } catch (ResourceNotFoundException | FhirResourceException e) {
-            fail("Exception thrown");
+            fail("Exception: " + e.getMessage());
         }
     }
 
     @Test
     public void testGetObservationSummaryByUserId() {
         User user = TestUtils.createUser("testuser");
-        user.setId(1L);
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/observations/summary"))
@@ -102,18 +86,17 @@ public class ObservationControllerTest {
         } catch (Exception e) {
             fail("Exception throw");
         }
-
-        try {
-            verify(observationService, Mockito.times(1)).getObservationSummary(eq(user.getId()));
-        } catch (ResourceNotFoundException | FhirResourceException e) {
-            fail("Exception thrown");
-        }
     }
 
     @Test
     public void testPostResultSummary() {
         User user = TestUtils.createUser("testuser");
-        user.setId(1L);
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         ObservationHeading observationHeading = new ObservationHeading();
         observationHeading.setId(2L);
@@ -134,12 +117,6 @@ public class ObservationControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
-        }
-
-        try {
-            verify(observationService, Mockito.times(1)).addUserResultClusters(eq(user.getId()), any(List.class));
-        } catch (ResourceNotFoundException | FhirResourceException e) {
-            fail("Exception thrown");
         }
     }
 }

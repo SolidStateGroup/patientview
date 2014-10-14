@@ -23,7 +23,6 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     List<ObservationHeading> findAll();
 
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Page<ObservationHeading> findAll(GetParameters getParameters);
 
     List<ObservationHeading> findByCode(String code);

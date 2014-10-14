@@ -17,16 +17,6 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        getAll: function (userId) {
-            var deferred = $q.defer();
-            // GET /user/{userId}/observations
-            Restangular.one('user', userId).one('observations').get().then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
         getByCode: function (userId, code) {
             var deferred = $q.defer();
             // GET /user/{userId}/observations/{code}

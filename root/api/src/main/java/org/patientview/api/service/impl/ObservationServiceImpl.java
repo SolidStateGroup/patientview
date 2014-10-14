@@ -205,11 +205,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         return latestObservations;
     }
 
-    @Override
-    public List<Observation> get(final UUID patientUuid) {
-        return null;
-    }
-
     public List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 

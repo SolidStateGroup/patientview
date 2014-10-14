@@ -1,14 +1,15 @@
 package org.patientview.api.service;
 
-import org.hl7.fhir.instance.model.Observation;
+import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -16,14 +17,18 @@ import java.util.UUID;
  */
 public interface ObservationService {
 
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
     List<FhirObservation> get(Long userId, String code, String orderBy, String orderDirection, Long limit)
             throws ResourceNotFoundException, FhirResourceException;
 
-    List<Observation> get(UUID patientUuid);
-
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
     List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException;
 
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 }
