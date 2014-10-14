@@ -122,21 +122,6 @@ public class GroupRepositoryTest {
         assertTrue("Child group should exist", groupPage.getContent().contains(childGroup));
     }
 
-    /**
-     * Test: Assign a group with a type and see if it returned by the query
-     * Fail: No group is returned
-     */
-    @Test
-    public void testFindGroupByType() {
-        Group group = dataTestUtils.createGroup("testGroup");
-        Lookup lookup = dataTestUtils.createLookup("SPECIALTY", LookupTypes.GROUP);
-        group.setGroupType(lookup);
-        groupRepository.save(group);
-
-        Iterable<Group> groups = groupRepository.findGroupByType(lookup);
-        Assert.assertTrue("There are no groups linked to the user", groups.iterator().hasNext());
-    }
-
     @Test
     public void testGroupContactPoints() {
         Group group = dataTestUtils.createGroup("testGroup");

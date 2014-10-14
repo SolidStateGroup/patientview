@@ -26,10 +26,10 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupService {
 
-    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Group get(Long id) throws ResourceForbiddenException;
 
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     List<Group> findAll();
 
     List<org.patientview.api.model.Group> findAllPublic();
@@ -37,8 +37,6 @@ public interface GroupService {
     Group findByCode(String code);
 
     List<Group> findGroupByUser(User user);
-
-    List<Group> findGroupByType(Long lookupId);
 
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Group save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException;

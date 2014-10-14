@@ -114,11 +114,6 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
                                                      @Param("groupTypes") List<Long> groupTypes,
                                                      @Param("user") User user, Pageable pageable);
 
-    @Query("SELECT g " +
-           "FROM   Group g " +
-           "WHERE  g.groupType = :groupType")
-    public Iterable<Group> findGroupByType(@Param("groupType") Lookup groupType);
-
     @Query("SELECT gr.objectGroup " +
            "FROM   GroupRelationship gr " +
            "WHERE  gr.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.CHILD " +

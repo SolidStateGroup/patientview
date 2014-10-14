@@ -118,12 +118,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addParentAndChildGroups(groups);
     }
 
-    public List<Group> findGroupByType(Long lookupId) {
-        Lookup groupType = lookupRepository.findOne(lookupId);
-        List<Group> groups = Util.convertIterable(groupRepository.findGroupByType(groupType));
-        return addParentAndChildGroups(groups);
-    }
-
     public Group save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {
         Group entityGroup = groupRepository.findOne(group.getId());
 
