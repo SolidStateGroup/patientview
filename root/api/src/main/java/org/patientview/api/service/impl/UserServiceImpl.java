@@ -582,29 +582,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return false;
     }
 
-    public Identifier addIdentifier(Long userId, Identifier identifier)
-            throws ResourceNotFoundException, EntityExistsException {
-
-        User user = findUser(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        // check Identifier doesn't already exist for another user
-        Identifier entityIdentifier = identifierRepository.findByValue(identifier.getIdentifier());
-
-        if (entityIdentifier != null) {
-            if (!(user.getId().equals(entityIdentifier.getUser().getId()))) {
-                throw new EntityExistsException("Identifier already exists for another patient");
-            }
-        }
-
-        identifier.setCreator(userRepository.findOne(1L));
-        user.getIdentifiers().add(identifier);
-        identifier.setUser(user);
-        return identifierRepository.save(identifier);
-    }
-
     public void addFeature(Long userId, Long featureId) {
         UserFeature userFeature = new UserFeature();
         userFeature.setFeature(featureRepository.findOne(featureId));
@@ -663,15 +640,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException {
         User user = findUser(userId);
         return userInformationRepository.findByUser(user);
-    }
-
-    public Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException {
-        Identifier identifier = identifierRepository.findByValue(identifierValue);
-        if (identifier == null) {
-            throw new ResourceNotFoundException(String.format("Could not find identifier with value %s",
-                    identifierValue));
-        }
-        return identifier;
     }
 
     private User findUser(Long userId) throws ResourceNotFoundException {

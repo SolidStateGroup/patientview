@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.enums.RoleName;
@@ -14,11 +15,22 @@ import javax.persistence.EntityExistsException;
  * Created on 04/08/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface IdentifierService extends CrudService<Identifier> {
+public interface IdentifierService {
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    void saveIdentifier(Identifier identifier) throws ResourceNotFoundException, EntityExistsException;
+    void save(Identifier identifier)
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    void delete(Long identifierId);
+    void delete(Long identifierId) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    Identifier get(Long identifierId) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    Identifier add(Long userId, Identifier identifier)
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException;
 }

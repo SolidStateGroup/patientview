@@ -120,6 +120,7 @@ public final class TestUtils {
     public static Group createGroup(String name) {
         Group group = new Group();
         group.setId(getId());
+        group.setCode(name.toUpperCase());
         group.setName(name);
         group.setCreated(new Date());
         group.setCreator(creator);

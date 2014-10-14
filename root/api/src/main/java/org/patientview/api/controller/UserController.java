@@ -6,7 +6,6 @@ import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
-import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserInformation;
 import org.slf4j.Logger;
@@ -206,14 +205,6 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.verify(userId, verificationCode), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/{userId}/identifiers", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Identifier> addIdentifier(@PathVariable("userId") Long userId,
-        @RequestBody Identifier identifier) throws ResourceNotFoundException, EntityExistsException {
-        return new ResponseEntity<>(userService.addIdentifier(userId, identifier), HttpStatus.CREATED);
-    }
-
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.PUT)
     @ResponseBody
     public void addFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId) {
@@ -240,13 +231,5 @@ public class UserController extends BaseController<UserController> {
     public ResponseEntity<List<UserInformation>> getInformation(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(userService.getInformation(userId), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/identifier/value/{identifierValue}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Identifier> getIdentifierByValue(@PathVariable("identifierValue") String identifierValue)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(userService.getIdentifierByValue(identifierValue), HttpStatus.OK);
     }
 }

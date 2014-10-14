@@ -1,8 +1,12 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.IdentifierService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Identifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,13 +29,39 @@ public class IdentifierController extends BaseController<IdentifierController> {
 
     @RequestMapping(value = "/identifier/{identifierId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void delete(@PathVariable("identifierId") Long identifierId) throws ResourceNotFoundException {
+    public void delete(@PathVariable("identifierId") Long identifierId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         identifierService.delete(identifierId);
     }
 
     @RequestMapping(value = "/identifier", method = RequestMethod.PUT)
     @ResponseBody
-    public void save(@RequestBody Identifier identifier) throws ResourceNotFoundException, EntityExistsException {
-        identifierService.saveIdentifier(identifier);
+    public void save(@RequestBody Identifier identifier)
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
+        identifierService.save(identifier);
+    }
+
+    @RequestMapping(value = "/identifier/{identifierId}", method = RequestMethod.GET)
+    @ResponseBody
+    public void get(@PathVariable("identifierId") Long identifierId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        identifierService.get(identifierId);
+    }
+
+    @RequestMapping(value = "/user/{userId}/identifiers", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Identifier> add(@PathVariable("userId") Long userId, @RequestBody Identifier identifier)
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
+        return new ResponseEntity<>(identifierService.add(userId, identifier), HttpStatus.CREATED);
+    }
+
+
+    @RequestMapping(value = "/identifier/value/{identifierValue}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Identifier> getIdentifierByValue(@PathVariable("identifierValue") String identifierValue)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(identifierService.getIdentifierByValue(identifierValue), HttpStatus.OK);
     }
 }

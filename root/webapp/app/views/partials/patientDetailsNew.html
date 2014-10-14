@@ -103,7 +103,7 @@
             <div class="row" data-ng-model="newIdentifier">
                 <div class="col-sm-5"><input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="NHS or CHI Number" name="newIdentifier" data-ng-model="newIdentifier.identifier"></div>
                 <div class="col-sm-3"><select class="form-control indentifierType-select" data-ng-model="newIdentifier.identifierType" data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select></div>
-                <div class="col-sm-2"><button type="button" class="btn btn-primary identifier-add-button" data-ng-click="addIdentifier(userFormNew, editUser, newIdentifier)" data-ng-disabled="!(newIdentifier.identifier)">Add</button></div>
+                <div class="col-sm-2"><button type="button" class="btn btn-primary identifier-add-button" data-ng-click="addIdentifier(userFormNew, editUser, newIdentifier)" data-ng-disabled="!(newIdentifier.identifier && newIdentifier.identifierType)">Add</button></div>
             </div>
         </div>
     </div>
