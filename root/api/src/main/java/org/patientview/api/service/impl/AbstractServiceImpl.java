@@ -2,9 +2,12 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.patientview.api.util.Util;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -78,6 +81,40 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
         return longs;
+    }
+
+    protected boolean isMemberOfGroup(Group group, User user) {
+        // unit admins / specialty admins can only add groups they belong to
+        if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            return true;
+        } else if (Util.doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (groupRole.getRole().getRoleType().getValue().equals(RoleType.STAFF)) {
+
+                    // check if have direct membership of group
+                    if (groupRole.getGroup().equals(group)) {
+                        return true;
+                    }
+
+                    // check if group is one of the child groups of user's specialty
+                    if (Util.doesContainParentGroupAndRole(groupRole.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
+                        return true;
+                    }
+                }
+            }
+        } else if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                // check if have direct membership of group
+                if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected User getCurrentUser() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
 }

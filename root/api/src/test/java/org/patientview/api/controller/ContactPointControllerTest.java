@@ -5,21 +5,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ContactPointService;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by james@solidstategroup.com
@@ -45,7 +50,7 @@ public class ContactPointControllerTest {
 
     /**
      * Test: Simple request to the contact type for a contact point
-     * Fail: Doesn't call the service and return OK.
+     * Fail: Doesn't return OK.
      */
     @Test
     public void testGetGroupByType() throws ResourceInvalidException {
@@ -56,25 +61,32 @@ public class ContactPointControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception throw");
+            fail("Exception: " + e.getMessage());
         }
-
-        verify(contactPointService, Mockito.times(1)).getContactPointType(eq(type));
     }
 
     @Test
     public void testUpdateContactPoint() {
-        ContactPoint testContactPoint = new ContactPoint();
-        testContactPoint.setId(1L);
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        ContactPoint contactPoint = new ContactPoint();
+        contactPoint.setId(1L);
+        contactPoint.setGroup(group);
 
         try {
-            when(contactPointService.save(eq(testContactPoint))).thenReturn(testContactPoint);
             mockMvc.perform(MockMvcRequestBuilders.put("/contactpoint")
-                    .content(mapper.writeValueAsString(testContactPoint)).contentType(MediaType.APPLICATION_JSON))
+                    .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(contactPointService, Mockito.times(1)).save(eq(testContactPoint));
         } catch (Exception e) {
-            fail("This call should not fail");
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -86,9 +98,7 @@ public class ContactPointControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception throw");
+            fail("Exception: " + e.getMessage());
         }
-
-        verify(contactPointService, Mockito.times(1)).delete(eq(contactPointId));
     }
 }

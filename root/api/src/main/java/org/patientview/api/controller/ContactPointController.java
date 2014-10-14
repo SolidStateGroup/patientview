@@ -1,12 +1,11 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.ContactPointService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +25,6 @@ import javax.inject.Inject;
 @RestController
 public class ContactPointController extends BaseController<ContactPointController> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ContactPointController.class);
-
     @Inject
     private ContactPointService contactPointService;
 
@@ -35,19 +32,21 @@ public class ContactPointController extends BaseController<ContactPointControlle
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<ContactPoint> createContactPoint(@RequestBody ContactPoint contactPoint)
-            throws ResourceNotFoundException {
+            throws ResourceForbiddenException {
         return new ResponseEntity<>(contactPointService.add(contactPoint), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/contactpoint/{contactPointId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteContactPoint(@PathVariable("contactPointId") Long contactPointId) {
+    public void deleteContactPoint(@PathVariable("contactPointId") Long contactPointId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         contactPointService.delete(contactPointId);
     }
 
     @RequestMapping(value = "/contactpoint", method = RequestMethod.PUT)
     @ResponseBody
-    public void saveContactPoint(@RequestBody ContactPoint contactPoint) throws ResourceNotFoundException {
+    public void saveContactPoint(@RequestBody ContactPoint contactPoint)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         contactPointService.save(contactPoint);
     }
 
@@ -56,8 +55,6 @@ public class ContactPointController extends BaseController<ContactPointControlle
     @ResponseBody
     public ResponseEntity<ContactPointType> getContactPointType(@PathVariable(value = "type") String type)
             throws ResourceInvalidException {
-        ContactPointType contactPointType = contactPointService.getContactPointType(type);
-        LOG.debug("Getting contact point type " + type);
-        return new ResponseEntity<>(contactPointType, HttpStatus.OK);
+        return new ResponseEntity<>(contactPointService.getContactPointType(type), HttpStatus.OK);
     }
 }

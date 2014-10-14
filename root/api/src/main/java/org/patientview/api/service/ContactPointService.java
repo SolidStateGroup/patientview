@@ -1,8 +1,12 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +15,19 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 30/07/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface ContactPointService extends CrudService<ContactPoint> {
+public interface ContactPointService {
 
     ContactPointType getContactPointType(String type) throws ResourceInvalidException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    ContactPoint add(ContactPoint ContactPoint) throws ResourceForbiddenException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    ContactPoint get(Long contactPointId) throws ResourceNotFoundException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    ContactPoint save(ContactPoint ContactPoint) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void delete(Long contactPointId) throws ResourceNotFoundException, ResourceForbiddenException;
 }

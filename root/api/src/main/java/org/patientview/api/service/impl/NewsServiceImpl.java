@@ -58,10 +58,6 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     private EntityManager entityManager;
 
     public NewsItem add(final NewsItem newsItem) {
-
-        User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        creator = userRepository.findOne(creator.getId());
-
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
             for (NewsLink newsLink : newsItem.getNewsLinks()) {
                 if (newsLink.getGroup() != null && newsLink.getGroup().getId() != null) {
@@ -77,7 +73,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 }
 
                 newsLink.setNewsItem(newsItem);
-                newsLink.setCreator(creator);
+                newsLink.setCreator(userRepository.findOne(getCurrentUser().getId()));
             }
         }
         return newsItemRepository.save(newsItem);
@@ -88,8 +84,6 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     }
 
     public NewsItem save(final NewsItem newsItem) throws ResourceNotFoundException {
-        User updater = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItem.getId());
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItem.getId()));
@@ -98,7 +92,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         entityNewsItem.setHeading(newsItem.getHeading());
         entityNewsItem.setStory(newsItem.getStory());
         entityNewsItem.setLastUpdate(new Date());
-        entityNewsItem.setLastUpdater(updater);
+        entityNewsItem.setLastUpdater(userRepository.findOne(getCurrentUser().getId()));
         return newsItemRepository.save(entityNewsItem);
     }
 
@@ -227,7 +221,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
         }
 
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = getCurrentUser();
 
         if (!isMemberOfGroup(entityGroup, currentUser)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -267,9 +261,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
         }
 
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (!isMemberOfGroup(entityGroup, currentUser)) {
+        if (!isMemberOfGroup(entityGroup, getCurrentUser())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -312,7 +304,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         if (!found) {
-            User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User creator = getCurrentUser();
             creator = userRepository.findOne(creator.getId());
 
             NewsLink newsLink = new NewsLink();
@@ -366,9 +358,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
         }
 
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (!isMemberOfGroup(entityGroup, currentUser)) {
+        if (!isMemberOfGroup(entityGroup, getCurrentUser())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -393,7 +383,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             newsLink.setNewsItem(entityNewsItem);
             newsLink.setGroup(entityGroup);
             newsLink.setRole(entityRole);
-            newsLink.setCreator(userRepository.findOne(currentUser.getId()));
+            newsLink.setCreator(userRepository.findOne(getCurrentUser().getId()));
             entityNewsItem.getNewsLinks().add(newsLink);
 
             newsItemRepository.save(entityNewsItem);
@@ -415,44 +405,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         // unit admins can only delete where group is in their group roles
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!isMemberOfGroup(tempNewsLink.getGroup(), currentUser)) {
+        if (!isMemberOfGroup(tempNewsLink.getGroup(), getCurrentUser())) {
             throw new ResourceForbiddenException("Forbidden");
         }
-
 
         entityNewsItem.getNewsLinks().remove(tempNewsLink);
         entityManager.remove(tempNewsLink);
         newsItemRepository.save(entityNewsItem);
-    }
-
-    private boolean isMemberOfGroup(Group group, User user) {
-        // unit admins / specialty admins can only add groups they belong to
-        if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            return true;
-        } else if (Util.doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
-            for (GroupRole groupRole : user.getGroupRoles()) {
-                if (groupRole.getRole().getRoleType().getValue().equals(RoleType.STAFF)) {
-
-                    // check if have direct membership of group
-                    if (groupRole.getGroup().equals(group)) {
-                        return true;
-                    }
-
-                    // check if group is one of the child groups of user's specialty
-                    if (Util.doesContainParentGroupAndRole(groupRole.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
-                        return true;
-                    }
-                }
-            }
-        } else if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
-            for (GroupRole groupRole : user.getGroupRoles()) {
-                // check if have direct membership of group
-                if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }
