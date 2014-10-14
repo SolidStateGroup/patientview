@@ -16,10 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
  * Created on 20/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface NewsService extends CrudService<NewsItem> {
+public interface NewsService {
 
     @UserOnly
-    Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException;
+    Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, Pageable pageable)
+            throws ResourceNotFoundException;
 
     Page<NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException;
 
@@ -27,10 +28,13 @@ public interface NewsService extends CrudService<NewsItem> {
     NewsItem add(NewsItem newsItem);
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    NewsItem save(NewsItem newsItem) throws ResourceNotFoundException;
+    NewsItem get(Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    void delete(Long newsItemId);
+    NewsItem save(NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void delete(Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException, ResourceForbiddenException;

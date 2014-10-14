@@ -428,15 +428,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     // verify logged in user can open conversation
     private boolean loggedInUserIsMemberOfConversation(Conversation conversation) {
-        User loggedInUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        boolean canRead = false;
+        User loggedInUser = getCurrentUser();
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             if (conversationUser.getUser().equals(loggedInUser)) {
-                canRead = true;
+                return true;
             }
         }
 
-        return canRead;
+        return false;
     }
 }

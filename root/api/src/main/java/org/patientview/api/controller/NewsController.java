@@ -23,8 +23,6 @@ import javax.inject.Inject;
 /**
  * Restful interface for the basic Crud operation for news.
  *
- * TODO Change a news link group and role.
- *
  * Created by james@solidstategroup.com
  * Created on 20/06/2014
  */
@@ -42,7 +40,8 @@ public class NewsController extends BaseController<NewsController> {
 
     @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<NewsItem> get(@PathVariable("newsItemId") Long newsItemId) throws ResourceNotFoundException  {
+    public ResponseEntity<NewsItem> get(@PathVariable("newsItemId") Long newsItemId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(newsService.get(newsItemId), HttpStatus.OK);
     }
 
@@ -68,20 +67,21 @@ public class NewsController extends BaseController<NewsController> {
     @RequestMapping(value = "/news", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<NewsItem> save(@RequestBody NewsItem newsItem)
-            throws ResourceNotFoundException  {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(newsService.save(newsItem), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void delete(@PathVariable("newsItemId") Long newsItemId) throws ResourceNotFoundException {
+    public void delete(@PathVariable("newsItemId") Long newsItemId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         newsService.delete(newsItemId);
     }
 
     @RequestMapping(value = "/user/{userId}/news", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Page<NewsItem>> getByUser(
+    public ResponseEntity<Page<org.patientview.api.model.NewsItem>> getByUser(
             @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
             @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException {
 

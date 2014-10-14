@@ -24,8 +24,8 @@ function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsSer
         $scope.newNews.allGroups.push(group);
     }
 
-    for (i = 0; i < groups.content.length; i++) {
-        group = groups.content[i];
+    for (i = 0; i < groups.length; i++) {
+        group = groups[i];
         if (group.visible === true) {
             $scope.newNews.allGroups.push(group);
         }
@@ -75,8 +75,8 @@ function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsSer
 }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService', 'RoleService', 'UserService',
-    function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService) {
+angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q', 'NewsService', 'GroupService',
+    'RoleService', 'UserService', function ($scope, $modal, $q, NewsService, GroupService, RoleService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;

@@ -133,7 +133,8 @@ public class NewsServiceTest {
                 eq(pageableAll))).thenReturn(new PageImpl<>(groupNews));
 
         try {
-            Page<NewsItem> newsItems = newsService.findByUserId(testUser.getId(), new PageRequest(0, 10));
+            Page<org.patientview.api.model.NewsItem> newsItems
+                    = newsService.findByUserId(testUser.getId(), new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 10 news items total", 10, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by creation date descending",
@@ -188,14 +189,15 @@ public class NewsServiceTest {
                 eq(pageableAll))).thenReturn(new PageImpl<>(groupNews));
 
         try {
-            Page<NewsItem> newsItems = newsService.findByUserId(testUser.getId(), new PageRequest(0, 10));
+            Page<org.patientview.api.model.NewsItem> newsItems
+                    = newsService.findByUserId(testUser.getId(), new PageRequest(0, 10));
 
             Assert.assertEquals("Should have 2 news items total", 2, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by creation date descending",
                     newsItems.getContent().get(0).getCreated().after(newsItems.getContent().get(1).getCreated()));
 
-            NewsItem returnedNewsItem1 = newsItems.getContent().get(0);
-            NewsItem returnedNewsItem2 = newsItems.getContent().get(1);
+            org.patientview.api.model.NewsItem returnedNewsItem1 = newsItems.getContent().get(0);
+            org.patientview.api.model.NewsItem returnedNewsItem2 = newsItems.getContent().get(1);
 
             Assert.assertEquals("1st newsItem should be STORY2", "STORY2", returnedNewsItem1.getStory());
             Assert.assertEquals("STORY2 should have 2 newsLinks", 2, returnedNewsItem1.getNewsLinks().size());
@@ -290,8 +292,8 @@ public class NewsServiceTest {
         try {
             newsItem.setHeading("HEADING TEXT UPDATED");
             newsService.save(newsItem);
-        } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException");
+        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+            Assert.fail("Exception: " +  e.getMessage());
         }
 
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));

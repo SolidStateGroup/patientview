@@ -3,9 +3,11 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.ArrayUtils;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.slf4j.Logger;
@@ -97,8 +99,11 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
                     }
 
                     // check if group is one of the child groups of user's specialty
-                    if (Util.doesContainParentGroupAndRole(groupRole.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
-                        return true;
+                    for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
+                        if (groupRelationship.getRelationshipType().equals(RelationshipTypes.PARENT)
+                                && groupRelationship.getSourceGroup().equals(group)) {
+                            return true;
+                        }
                     }
                 }
             }

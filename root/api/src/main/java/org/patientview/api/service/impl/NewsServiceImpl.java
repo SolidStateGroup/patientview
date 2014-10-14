@@ -78,11 +78,16 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return newsItemRepository.save(newsItem);
     }
 
-    public NewsItem get(final Long newsItemId) {
-        return newsItemRepository.findOne(newsItemId);
+    public NewsItem get(final Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException {
+        NewsItem newsItem = newsItemRepository.findOne(newsItemId);
+        if (newsItem == null) {
+            throw new ResourceNotFoundException("NewsItem does not exist");
+        }
+
+        return newsItem;
     }
 
-    public NewsItem save(final NewsItem newsItem) throws ResourceNotFoundException {
+    public NewsItem save(final NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItem.getId());
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItem.getId()));
@@ -95,7 +100,16 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return newsItemRepository.save(entityNewsItem);
     }
 
-    public void delete(final Long newsItemId) {
+    public void delete(final Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException{
+        NewsItem newsItem = newsItemRepository.findOne(newsItemId);
+        if (newsItem == null) {
+            throw new ResourceNotFoundException("NewsItem does not exist");
+        }
+
+        if (!canModifyNewsItem(newsItem)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         newsItemRepository.delete(newsItemId);
     }
 
@@ -160,7 +174,8 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
     }
 
-    public Page<NewsItem> findByUserId(Long userId, Pageable pageable) throws ResourceNotFoundException {
+    public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, Pageable pageable)
+            throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
@@ -175,9 +190,14 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         newsItemSet.addAll(extractNewsItems(newsItemRepository.findGroupRoleNewsByUser(entityUser, pageableAll)));
 
         // get specialty news (accessed by parent/child relationships from groups in newsLink)
-        newsItemSet.addAll(extractNewsItems(newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll)));
+        /*newsItemSet.addAll(extractNewsItems(newsItemRepository.findSpecialtyNewsByUser(entityUser, pageableAll)));
 
-        // sort combined list
+        // remove generic specialty news and sort combined list
+        List<NewsItem> newsItems = new ArrayList<>();
+        for (NewsItem newsItem : newsItemSet) {
+            if (newsItem.getNewsLinks())
+        }*/
+
         List<NewsItem> newsItems = new ArrayList<>(newsItemSet);
         Collections.sort(newsItems);
 
@@ -198,11 +218,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         // set if user can edit or delete (used for UNIT_ADMIN)
+        List<org.patientview.api.model.NewsItem> transportNewsItems = new ArrayList<>();
         for (NewsItem newsItem : pagedNewsItems) {
-            newsItem = setEditable(newsItem, entityUser);
+            transportNewsItems.add(new org.patientview.api.model.NewsItem(setEditable(newsItem, entityUser)));
         }
 
-        return new PageImpl<>(pagedNewsItems, pageable, newsItems.size());
+        return new PageImpl<>(transportNewsItems, pageable, newsItems.size());
     }
 
     public Page<NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException {
@@ -404,12 +425,41 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         // unit admins can only delete where group is in their group roles
-        if (!isMemberOfGroup(tempNewsLink.getGroup(), getCurrentUser())) {
-            throw new ResourceForbiddenException("Forbidden");
+        if (!canModifyNewsLink(tempNewsLink)) {
+            throw new ResourceForbiddenException("You cannot delete this Group and Role");
         }
 
         entityNewsItem.getNewsLinks().remove(tempNewsLink);
         entityManager.remove(tempNewsLink);
         newsItemRepository.save(entityNewsItem);
+    }
+
+    private boolean canModifyNewsLink(NewsLink newsLink) {
+        if (newsLink.getGroup() != null && Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+            User currentUser = getCurrentUser();
+            for (GroupRole groupRole : currentUser.getGroupRoles()) {
+                if (groupRole.getGroup().equals(newsLink.getGroup())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean canModifyNewsItem(NewsItem newsItem) {
+        User currentUser = getCurrentUser();
+        for (NewsLink newsLink : newsItem.getNewsLinks()) {
+            if (newsLink.getGroup() == null) {
+                // ignore GLOBAL_ADMIN and PUBLIC roles
+                if (newsLink.getRole().getName().equals(RoleName.PUBLIC)) {
+                    return true;
+                }
+            } else if (isMemberOfGroup(newsLink.getGroup(), currentUser)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
