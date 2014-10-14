@@ -6,8 +6,10 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.repository.ContactPointRepository;
+import org.patientview.persistence.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -25,24 +27,48 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
     private ContactPointRepository contactPointRepository;
 
     @Inject
+    private GroupRepository groupRepository;
+
+    @Inject
     private EntityManager entityManager;
 
-    public ContactPoint add(final ContactPoint contactPoint) throws ResourceForbiddenException {
+    public ContactPoint add(final Long groupId, final ContactPoint contactPoint)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        Group group = groupRepository.findOne(groupId);
+
+        if (group == null) {
+            throw new ResourceNotFoundException("Group not found");
+        }
+
+        if (!isMemberOfGroup(group, getCurrentUser())) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        contactPoint.setGroup(group);
+        contactPoint.setCreator(getCurrentUser());
 
         if (contactPoint.getContactPointType().getId() != null) {
             contactPoint.setContactPointType(entityManager.find(ContactPointType.class,
                     contactPoint.getContactPointType().getId()));
         }
 
+        return contactPointRepository.save(contactPoint);
+    }
+
+    public ContactPoint get(final Long contactPointId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        ContactPoint contactPoint = contactPointRepository.findOne(contactPointId);
+
+        if (contactPoint == null) {
+            throw new ResourceNotFoundException("Contact point does not exist");
+        }
+
         if (!isMemberOfGroup(contactPoint.getGroup(), getCurrentUser())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        return contactPointRepository.save(contactPoint);
-    }
-
-    public ContactPoint get(final Long contactPointId) {
-        return contactPointRepository.findOne(contactPointId);
+        return contactPoint;
     }
 
     public void delete(final Long contactPointId) throws ResourceNotFoundException, ResourceForbiddenException {
@@ -85,7 +111,7 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
         ContactPointTypes contactPointTypes = ContactPointTypes.valueOf(type);
 
         if (contactPointTypes == null) {
-            throw new ResourceInvalidException("The value to the lookup is invalid");
+            throw new ResourceInvalidException("The value of the lookup is invalid");
         }
 
         return entityManager.createQuery(

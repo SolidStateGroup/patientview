@@ -166,14 +166,6 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         codeRepository.delete(codeId);
     }
 
-    public Link addLink(final Long codeId, final Link link) {
-        Code entityCode = codeRepository.findOne(codeId);
-        link.setCode(entityCode);
-        link.setCreator(userRepository.findOne(1L));
-        Link persistedLink = linkRepository.save(link);
-        return persistedLink;
-    }
-
     public List<Code> findAllByCodeAndType(String code, Lookup codeType) {
         return codeRepository.findAllByCodeAndType(code, codeType);
     }

@@ -81,13 +81,14 @@ public class ContactPointServiceTest {
         ContactPoint contactPoint = TestUtils.createContactPoint("TestContactPoint", ContactPointTypes.PV_ADMIN_EMAIL);
         contactPoint.setGroup(group);
 
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(contactPointRepository.save(eq(contactPoint))).thenReturn(contactPoint);
         when(entityManager.find(eq(ContactPointType.class), eq(contactPoint.getContactPointType().getId())))
                 .thenReturn(contactPoint.getContactPointType());
 
         try {
-            contactPointService.add(contactPoint);
-        } catch (ResourceForbiddenException e) {
+            contactPointService.add(group.getId(), contactPoint);
+        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
             fail("Exception: " + e.getMessage());
         }
 
@@ -96,7 +97,7 @@ public class ContactPointServiceTest {
     }
 
     @Test(expected = ResourceForbiddenException.class)
-    public void testCreateContactPointWrongGroup() throws ResourceForbiddenException {
+    public void testCreateContactPointWrongGroup() throws ResourceNotFoundException, ResourceForbiddenException {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -112,15 +113,12 @@ public class ContactPointServiceTest {
         ContactPoint contactPoint = TestUtils.createContactPoint("TestContactPoint", ContactPointTypes.PV_ADMIN_EMAIL);
         contactPoint.setGroup(group);
 
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(contactPointRepository.save(eq(contactPoint))).thenReturn(contactPoint);
         when(entityManager.find(eq(ContactPointType.class), eq(contactPoint.getContactPointType().getId())))
                 .thenReturn(contactPoint.getContactPointType());
 
-        try {
-            contactPointService.add(contactPoint);
-        } catch (ResourceForbiddenException e) {
-            throw e;
-        }
+        contactPointService.add(group.getId(), contactPoint);
 
         Assert.assertNotNull("The returned contactPoint should not be null", contactPoint);
         verify(contactPointRepository, Mockito.times(1)).save(eq(contactPoint));
@@ -176,11 +174,6 @@ public class ContactPointServiceTest {
 
         when(contactPointRepository.findOne(eq(contactPoint.getId()))).thenReturn(contactPoint);
 
-        try {
-            contactPointService.delete(contactPoint.getId());
-        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
-            throw e;
-        }
+        contactPointService.delete(contactPoint.getId());
     }
-
 }

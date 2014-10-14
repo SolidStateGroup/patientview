@@ -248,10 +248,10 @@ public final class TestUtils {
         return code;
     }
 
-    public static Link createLink(Code code, String name, Lookup linkType) {
+    public static Link createLink(Group group, Code code, String name) {
         Link link = new Link();
         link.setId(getId());
-        link.setLinkType(linkType);
+        link.setGroup(group);
         link.setCode(code);
         link.setLink(name);
         link.setCreator(creator);

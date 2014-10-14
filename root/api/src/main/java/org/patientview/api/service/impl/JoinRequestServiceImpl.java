@@ -84,10 +84,6 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
         User user = findUser(userId);
 
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-
         String size = getParameters.getSize();
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();

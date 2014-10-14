@@ -6,9 +6,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
@@ -58,12 +56,6 @@ public interface GroupService {
 
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteChildGroup(Long groupId, Long childGroupId);
-
-    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    Link addLink(Long groupId, Link link);
-
-    @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    ContactPoint addContactPoint(Long groupId, ContactPoint contactPoint);
 
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Location addLocation(Long groupId, Location location);

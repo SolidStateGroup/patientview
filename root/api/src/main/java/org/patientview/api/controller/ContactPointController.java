@@ -28,14 +28,6 @@ public class ContactPointController extends BaseController<ContactPointControlle
     @Inject
     private ContactPointService contactPointService;
 
-    @RequestMapping(value = "/contactpoint", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<ContactPoint> createContactPoint(@RequestBody ContactPoint contactPoint)
-            throws ResourceForbiddenException {
-        return new ResponseEntity<>(contactPointService.add(contactPoint), HttpStatus.CREATED);
-    }
-
     @RequestMapping(value = "/contactpoint/{contactPointId}", method = RequestMethod.DELETE)
     @ResponseBody
     public void deleteContactPoint(@PathVariable("contactPointId") Long contactPointId)
@@ -48,6 +40,15 @@ public class ContactPointController extends BaseController<ContactPointControlle
     public void saveContactPoint(@RequestBody ContactPoint contactPoint)
             throws ResourceNotFoundException, ResourceForbiddenException {
         contactPointService.save(contactPoint);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<ContactPoint> addContactPoint(@PathVariable("groupId") Long groupId,
+                                                        @RequestBody ContactPoint contactPoint)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(contactPointService.add(groupId, contactPoint), HttpStatus.CREATED);
     }
 
     // used by migration

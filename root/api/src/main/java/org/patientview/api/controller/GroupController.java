@@ -7,9 +7,7 @@ import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -91,21 +89,6 @@ public class GroupController extends BaseController<GroupController> {
     @ResponseBody
     public void deleteChildGroup(@PathVariable("groupId") Long groupId, @PathVariable("childId") Long childGroupId) {
         groupService.deleteChildGroup(groupId, childGroupId);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/links", method = RequestMethod.POST
-            , produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Link> addLink(@PathVariable("groupId") Long groupId, @RequestBody Link link) {
-        return new ResponseEntity<>(groupService.addLink(groupId, link), HttpStatus.CREATED);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST,
-                    produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<ContactPoint> addContactPoint(@PathVariable("groupId") Long groupId,
-                                                        @RequestBody ContactPoint contactPoint) {
-        return new ResponseEntity<>(groupService.addContactPoint(groupId, contactPoint), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/group/{groupId}/locations", method = RequestMethod.POST,

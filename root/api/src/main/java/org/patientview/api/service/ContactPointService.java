@@ -20,10 +20,11 @@ public interface ContactPointService {
     ContactPointType getContactPointType(String type) throws ResourceInvalidException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    ContactPoint add(ContactPoint contactPoint) throws ResourceForbiddenException;
+    ContactPoint add(Long groupId, ContactPoint contactPoint)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    ContactPoint get(Long contactPointId) throws ResourceNotFoundException;
+    ContactPoint get(Long contactPointId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     ContactPoint save(ContactPoint contactPoint) throws ResourceNotFoundException, ResourceForbiddenException;

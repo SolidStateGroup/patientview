@@ -8,18 +8,25 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.LinkServiceImpl;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
-import org.patientview.persistence.model.Lookup;
-import org.patientview.persistence.model.LookupType;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,29 +60,87 @@ public class LinkServiceTest {
         creator = TestUtils.createUser("creator");
     }
 
-
-    /**
-     * Test: Create a link that has a code attached and save
-     * Fail: The link fails to be created and the associated code is not reattached
-     */
     @Test
-    public void testCreateLink() {
+    public void testCreateGroupLink() {
 
-        LookupType lookupType = TestUtils.createLookupType(LookupTypes.CODE_TYPE);
-        Lookup linkType = TestUtils.createLookup(lookupType, "LinkType");
-        Code code = TestUtils.createCode("testGroup");
-        Link link = TestUtils.createLink(code, "TestLink", linkType);
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
 
+        Link link = TestUtils.createLink(group, null, "groupLink");
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(linkRepository.save(eq(link))).thenReturn(link);
-        when(codeRepository.findOne(eq(code.getId()))).thenReturn(code);
 
-        linkService.add(link);
-
+        try {
+            linkService.addGroupLink(group.getId(), link);
+        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+            fail("Exception: " + e.getMessage());
+        }
 
         Assert.assertNotNull("The returned link should not be null", link);
-        verify(codeRepository, Mockito.times(1)).findOne(eq(code.getId()));
         verify(linkRepository, Mockito.times(1)).save(eq(link));
+    }
 
+    @Test(expected= ResourceForbiddenException.class)
+    public void testCreateGroupLinkWrongGroup()
+            throws ResourceNotFoundException, ResourceForbiddenException{
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Group group2 = TestUtils.createGroup("testGroup2");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Link link = TestUtils.createLink(group, null, "groupLink");
+
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(linkRepository.save(eq(link))).thenReturn(link);
+
+        linkService.addGroupLink(group.getId(), link);
+
+        Assert.assertNotNull("The returned link should not be null", link);
+        verify(linkRepository, Mockito.times(1)).save(eq(link));
+    }
+
+    @Test
+    public void testCreateCodeLink() {
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Code code = TestUtils.createCode("testCode");
+        Link link = TestUtils.createLink(null, code, "groupLink");
+
+        when(codeRepository.findOne(eq(code.getId()))).thenReturn(code);
+        when(linkRepository.save(eq(link))).thenReturn(link);
+
+        try {
+            linkService.addCodeLink(code.getId(), link);
+        } catch (ResourceNotFoundException e) {
+            fail("Exception: " + e.getMessage());
+        }
+
+        Assert.assertNotNull("The returned link should not be null", link);
+        verify(linkRepository, Mockito.times(1)).save(eq(link));
     }
 
 }

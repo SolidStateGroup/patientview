@@ -197,57 +197,6 @@ public class GroupControllerTest {
         }
     }
 
-    @Test
-    public void testAddContactPoint() {
-        ContactPoint contactPoint = new ContactPoint();
-        ContactPointType contactPointType = new ContactPointType();
-        contactPointType.setValue(ContactPointTypes.PV_ADMIN_NAME);
-        contactPoint.setContactPointType(contactPointType);
-        contactPoint.setContent("test@solidstategroup.com");
-
-        // user and security
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
-        User user = TestUtils.createUser("testUser");
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/contactpoints")
-                    .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testAddLink() {
-        Link link = new Link();
-        link.setId(1L);
-        link.setDisplayOrder(1);
-        link.setName("Home");
-        link.setLink("http://www.solidstategroup.com");
-
-        // user and security
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
-        User user = TestUtils.createUser("testUser");
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/links")
-                    .content(mapper.writeValueAsString(link)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
-    }
 
     /**
      * Test: The retrieval of the group statistics for a specific group

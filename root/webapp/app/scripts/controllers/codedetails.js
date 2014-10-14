@@ -11,7 +11,9 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
                 // added link
                 link.id = successResult.id;
                 code.links.push(_.clone(link));
-                link.link = link.name = '';
+                delete link.id;
+                delete link.link;
+                delete link.name;
                 form.$setDirty(true);
             }, function () {
                 // failure
@@ -20,7 +22,9 @@ angular.module('patientviewApp').controller('CodeDetailsCtrl', ['$scope', 'CodeS
         } else {
             link.id = Math.floor(Math.random() * (9999)) -10000;
             code.links.push(_.clone(link));
-            link.link = link.name = '';
+            delete link.id;
+            delete link.link;
+            delete link.name;
             form.$setDirty(true);
         }
     };

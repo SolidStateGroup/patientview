@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.LinkService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Link;
 import org.springframework.http.HttpStatus;
@@ -25,22 +26,32 @@ public class LinkController extends BaseController<LinkController> {
     @Inject
     private LinkService linkService;
 
-    @RequestMapping(value = "/link", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Link> createLink(@RequestBody Link link) throws ResourceNotFoundException {
-        return new ResponseEntity<>(linkService.add(link), HttpStatus.CREATED);
-    }
-
     @RequestMapping(value = "/link/{linkId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteLink(@PathVariable("linkId") Long linkId) {
+    public void delete(@PathVariable("linkId") Long linkId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         linkService.delete(linkId);
     }
 
     @RequestMapping(value = "/link", method = RequestMethod.PUT)
     @ResponseBody
-    public void saveLink(@RequestBody Link link) throws ResourceNotFoundException {
+    public void save(@RequestBody Link link) throws ResourceNotFoundException, ResourceForbiddenException {
         linkService.save(link);
+    }
+
+    @RequestMapping(value = "/group/{groupId}/links", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Link> addGroupLink(@PathVariable("groupId") Long groupId, @RequestBody Link link)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(linkService.addGroupLink(groupId, link), HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Link> addCodeLink(@PathVariable("codeId") Long codeId, @RequestBody Link link)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(linkService.addCodeLink(codeId, link), HttpStatus.CREATED);
     }
 }

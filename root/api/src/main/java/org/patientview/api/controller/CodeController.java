@@ -4,7 +4,6 @@ import org.patientview.api.service.CodeService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
-import org.patientview.persistence.model.Link;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -66,12 +65,5 @@ public class CodeController extends BaseController<CodeController> {
             , produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Code> cloneCode(@PathVariable("codeId") Long codeId) {
         return new ResponseEntity<>(codeService.cloneCode(codeId), HttpStatus.CREATED);
-    }
-
-    @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST
-            , produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Link> addLink(@PathVariable("codeId") Long codeId, @RequestBody Link link) {
-        return new ResponseEntity<>(codeService.addLink(codeId, link), HttpStatus.CREATED);
     }
 }

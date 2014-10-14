@@ -4,7 +4,6 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
-import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
@@ -32,9 +31,6 @@ public interface CodeService extends CrudService<Code> {
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code cloneCode(Long codeId);
-
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
-    Link addLink(Long codeId, Link link);
 
     List<Code> findAllByCodeAndType(String code, Lookup codeType);
 

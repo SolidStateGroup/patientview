@@ -353,20 +353,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         deleteRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
     }
 
-    public Link addLink(final Long groupId, final Link link) {
-        link.setGroup(groupRepository.findOne(groupId));
-        link.setCreator(userRepository.findOne(1L));
-        return linkRepository.save(link);
-    }
-
-    public ContactPoint addContactPoint(final Long groupId, final ContactPoint contactPoint) {
-        contactPoint.setGroup(groupRepository.findOne(groupId));
-        contactPoint.setCreator(userRepository.findOne(1L));
-        contactPoint.setContactPointType(entityManager.find(ContactPointType.class,
-                contactPoint.getContactPointType().getId()));
-        return contactPointRepository.save(contactPoint);
-    }
-
     public Location addLocation(final Long groupId, final Location location) {
         location.setGroup(groupRepository.findOne(groupId));
         location.setCreator(userRepository.findOne(1L));

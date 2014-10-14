@@ -5,15 +5,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.LinkService;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -44,34 +52,53 @@ public class LinkControllerTest {
     }
 
     @Test
-    public void testCreateLink() {
-        Link testLink = new Link();
-        testLink.setId(1L);
+    public void testAddLink() {
+        Link link = new Link();
+        link.setId(1L);
+        link.setDisplayOrder(1);
+        link.setName("Home");
+        link.setLink("http://www.solidstategroup.com");
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            when(linkService.add(eq(testLink))).thenReturn(testLink);
-            mockMvc.perform(MockMvcRequestBuilders.post("/link")
-                    .content(mapper.writeValueAsString(testLink)).contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/links")
+                    .content(mapper.writeValueAsString(link)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(linkService, Mockito.times(1)).add(eq(testLink));
         } catch (Exception e) {
-            fail("This call should not fail");
+            fail("Exception: " + e.getMessage());
         }
     }
 
     @Test
     public void testUpdateLink() {
-        Link testLink = new Link();
-        testLink.setId(1L);
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Link link = new Link();
+        link.setId(1L);
+        link.setGroup(group);
 
         try {
-            when(linkService.save(eq(testLink))).thenReturn(testLink);
             mockMvc.perform(MockMvcRequestBuilders.put("/link")
-                    .content(mapper.writeValueAsString(testLink)).contentType(MediaType.APPLICATION_JSON))
+                    .content(mapper.writeValueAsString(link)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            verify(linkService, Mockito.times(1)).save(eq(testLink));
         } catch (Exception e) {
-            fail("This call should not fail");
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -85,10 +112,5 @@ public class LinkControllerTest {
         } catch (Exception e) {
             fail("Exception throw");
         }
-
-        verify(linkService, Mockito.times(1)).delete(eq(linkId));
     }
-
-
-
 }
