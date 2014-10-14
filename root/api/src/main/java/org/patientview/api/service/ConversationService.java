@@ -3,7 +3,6 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.User;
 import org.patientview.config.exception.ResourceForbiddenException;
-import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
 import org.springframework.data.domain.Page;
@@ -30,13 +29,15 @@ public interface ConversationService extends CrudService<Conversation> {
     void addMessage(Long conversationId, org.patientview.api.model.Message message)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @UserOnly
     void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException;
 
-    void addMessageReadReceipt(Long messageId, Long userId) throws ResourceNotFoundException;
+    void addMessageReadReceipt(Long messageId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     @UserOnly
     Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
 
-    List<User> getRecipients(Long userId, String[] featureTypes)
-            throws ResourceNotFoundException, ResourceInvalidException;
+    @UserOnly
+    List<User> getRecipients(Long userId, String[] featureTypes) throws ResourceNotFoundException;
 }

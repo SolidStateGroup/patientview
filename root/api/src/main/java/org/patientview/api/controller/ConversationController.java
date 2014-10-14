@@ -90,15 +90,9 @@ public class ConversationController extends BaseController<ConversationControlle
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<User>> getRecipients(@PathVariable("userId") Long userId,
-                                    @RequestParam(value = "featuretype", required = false) String[] featureTypes) {
-        try {
-            LOG.debug("Request has been received for potential recipients of userId : {}", userId);
-            return new ResponseEntity<>(conversationService.getRecipients(userId, featureTypes), HttpStatus.OK);
-        } catch (ResourceNotFoundException rnf) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (ResourceInvalidException ri) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+            @RequestParam(value = "featuretype", required = false) String[] featureTypes)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(conversationService.getRecipients(userId, featureTypes), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/conversation/{conversationId}/messages", method = RequestMethod.POST,
@@ -119,7 +113,7 @@ public class ConversationController extends BaseController<ConversationControlle
     @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.PUT)
     @ResponseBody
     public void addMessageReadReceipt(@PathVariable("messageId") Long messageId, @PathVariable("userId") Long userId)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         conversationService.addMessageReadReceipt(messageId, userId);
     }
 }

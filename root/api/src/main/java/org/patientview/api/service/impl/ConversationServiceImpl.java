@@ -332,12 +332,18 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         conversationRepository.save(newConversation);
     }
 
-    public void addMessageReadReceipt(Long messageId, Long userId) throws ResourceNotFoundException {
+    public void addMessageReadReceipt(Long messageId, Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
 
         Message entityMessage = messageRepository.findOne(messageId);
         if (entityMessage == null) {
             throw new ResourceNotFoundException(String.format("Could not find message %s", messageId));
+        }
+
+        // can only add read receipts for own user
+        if (getCurrentUser().equals(entityUser)) {
+            throw new ResourceForbiddenException("Cannot add read receipts for other users");
         }
 
         boolean found = false;
@@ -373,7 +379,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     public List<org.patientview.api.model.User> getRecipients(Long userId, String[] featureTypes)
-            throws ResourceNotFoundException, ResourceInvalidException {
+            throws ResourceNotFoundException {
         User entityUser = findEntityUser(userId);
 
         // global admin can contact all users
@@ -418,7 +424,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             return userService.getUsersByGroupsRolesFeatures(getParameters).getContent();
         }
 
-        throw new ResourceInvalidException("No suitable roles");
+        throw new ResourceNotFoundException("No suitable roles");
     }
 
     // verify logged in user can open conversation
