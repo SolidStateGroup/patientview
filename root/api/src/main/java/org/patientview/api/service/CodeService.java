@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
@@ -24,6 +25,9 @@ public interface CodeService extends CrudService<Code> {
     Code add(Code code) throws EntityExistsException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    Code get(Long codeId) throws ResourceNotFoundException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Page<Code> getAllCodes(GetParameters getParameters);
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
@@ -36,4 +40,7 @@ public interface CodeService extends CrudService<Code> {
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code save(Code code) throws EntityExistsException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    void delete(Long codeId);
 }

@@ -4,6 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.CodeService;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Link;
@@ -120,8 +121,12 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return newCode;
     }
 
-    public Code get(final Long codeId) {
-        return codeRepository.findOne(codeId);
+    public Code get(final Long codeId) throws ResourceNotFoundException {
+        Code code = codeRepository.findOne(codeId);
+        if (code == null) {
+            throw new ResourceNotFoundException("Code does not exist");
+        }
+        return code;
     }
 
     public Code save(final Code code) throws EntityExistsException {

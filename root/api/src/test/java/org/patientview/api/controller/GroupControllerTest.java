@@ -39,7 +39,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by james@solidstategroup.com
@@ -88,21 +87,6 @@ public class GroupControllerTest {
         }
 
         verify(groupService, Mockito.times(1)).findAllPublic();
-    }
-
-    @Test
-    public void testGetGroupByType() {
-        Long typeId = 9L;
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/group/type/" + typeId)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
-
-        verify(groupService, Mockito.times(1)).findGroupByType(eq(typeId));
     }
 
     @Test
@@ -195,41 +179,47 @@ public class GroupControllerTest {
         location.setWeb("http://www.additional.com");
         location.setEmail("test@solidstategroup.com");
 
-        Long groupId = 2L;
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            when(groupService.addLocation(eq(groupId), eq(location))).thenReturn(location);
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/locations")
+            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/locations")
                     .content(mapper.writeValueAsString(location)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(groupService, Mockito.times(1)).addLocation(eq(groupId), eq(location));
         } catch (Exception e) {
-            fail("This call should not fail");
+            fail("Exception: " + e.getMessage());
         }
     }
 
     @Test
     public void testAddContactPoint() {
         ContactPoint contactPoint = new ContactPoint();
-        contactPoint.setId(1L);
-
         ContactPointType contactPointType = new ContactPointType();
-        contactPointType.setId(2L);
         contactPointType.setValue(ContactPointTypes.PV_ADMIN_NAME);
         contactPoint.setContactPointType(contactPointType);
-
         contactPoint.setContent("test@solidstategroup.com");
 
-        Long groupId = 3L;
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            when(groupService.addContactPoint(eq(groupId), eq(contactPoint))).thenReturn(contactPoint);
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/contactpoints")
+            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/contactpoints")
                     .content(mapper.writeValueAsString(contactPoint)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(groupService, Mockito.times(1)).addContactPoint(eq(groupId), eq(contactPoint));
         } catch (Exception e) {
-            fail("This call should not fail");
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -241,16 +231,21 @@ public class GroupControllerTest {
         link.setName("Home");
         link.setLink("http://www.solidstategroup.com");
 
-        Long groupId = 2L;
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            when(groupService.addLink(eq(groupId), eq(link))).thenReturn(link);
-            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + groupId + "/links")
+            mockMvc.perform(MockMvcRequestBuilders.post("/group/" + group.getId() + "/links")
                     .content(mapper.writeValueAsString(link)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
-            verify(groupService, Mockito.times(1)).addLink(eq(groupId), eq(link));
         } catch (Exception e) {
-            fail("This call should not fail");
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -260,12 +255,8 @@ public class GroupControllerTest {
      */
     @Test
     public void testGroupStatistics() throws ResourceNotFoundException {
-
-        // group
-        Group group = TestUtils.createGroup("testGroup");
-        when(groupRepository.findOne(group.getId())).thenReturn(group);
-
         // user and security
+        Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -276,9 +267,8 @@ public class GroupControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.get("/group/" + group.getId() + "/statistics"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
-            //verify(groupStatisticService, Mockito.times(1)).getMonthlyGroupStatistics(eq(group.getId()));
         } catch (Exception e) {
-            fail("Exception thrown: " + e.getMessage());
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -302,7 +292,7 @@ public class GroupControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
             verify(groupService, Mockito.times(1)).passwordRequest(eq(groupId), any(UnitRequest.class));
         } catch (Exception e) {
-            fail("This call should not fail");
+            fail("Exception: " + e.getMessage());
         }
     }
 }

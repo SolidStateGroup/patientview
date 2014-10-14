@@ -5,6 +5,8 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -65,6 +67,22 @@ public abstract class BaseController<T extends BaseController> {
     public String handleGenericException(Exception e) {
         LOG.error("Unhandled exception type {}", e.getCause());
         LOG.error("Unhandled exception", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(AuthenticationServiceException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public String handleAuthenticationException(Exception e) {
+        LOG.error("Login failed");
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public String handleUsernameException(Exception e) {
+        LOG.error("Login failed");
         return e.getMessage();
     }
 }

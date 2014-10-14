@@ -122,7 +122,7 @@ public final class SecurityAspect {
                 || Util.doesContainGroupAndRole(groupId, roles)) {
             LOG.debug("User has passed group validation");
         } else {
-            throw new ResourceForbiddenException("The user does not belong to this group");
+            throw new ResourceForbiddenException("Failed group validation");
         }
 
         LOG.debug("PointCut");

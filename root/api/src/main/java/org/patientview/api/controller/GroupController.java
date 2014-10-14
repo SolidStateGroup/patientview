@@ -68,12 +68,6 @@ public class GroupController extends BaseController<GroupController> {
         groupService.save(group);
     }
 
-    @RequestMapping(value = "/group/type/{typeId}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<List<Group>> getGroupsByType(@PathVariable("typeId") Long lookupId) {
-        return new ResponseEntity<>(groupService.findGroupByType(lookupId), HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/group/{groupId}/parent/{parentId}", method = RequestMethod.PUT)
     @ResponseBody
     public void addParentGroup(@PathVariable("groupId") Long groupId,

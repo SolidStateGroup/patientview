@@ -31,15 +31,6 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        getAllByType: function (typeId) {
-            var deferred = $q.defer();
-            Restangular.all('group').one('type', typeId).getList().then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function (failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
         getGroupsForUser: function (userId, getParameters) {
             var deferred = $q.defer();
             // GET /security/user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code

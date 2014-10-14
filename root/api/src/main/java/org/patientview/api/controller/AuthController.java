@@ -14,13 +14,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
@@ -88,35 +86,14 @@ public class AuthController extends BaseController<AuthController> {
 
     @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> forgottenPassword(@RequestBody ForgottenCredentials credentials)
-            throws ResourceNotFoundException {
+    public void forgottenPassword(@RequestBody ForgottenCredentials credentials) throws ResourceNotFoundException {
         userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail());
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/auth/logout/{token}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Void> deleteToken(@PathVariable("token") String token)
-            throws AuthenticationServiceException {
+    public void deleteToken(@PathVariable("token") String token) throws AuthenticationServiceException {
         authenticationService.logout(token);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    @ExceptionHandler(AuthenticationServiceException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public String handleAuthenticationException(Exception e) {
-        LOG.error("Login failed");
-        return e.getMessage();
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public String handleUsernameException(Exception e) {
-        LOG.error("Login failed");
-        return e.getMessage();
-    }
-
 }
