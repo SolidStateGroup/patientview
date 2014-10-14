@@ -12,6 +12,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.test.util.TestUtils;
@@ -58,11 +59,13 @@ public class ObservationHeadingControllerTest {
     @Test
     public void testFindAll() {
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/observationheading?page=0&size=5&sortDirection=ASC&sortField=name")
+            TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
+            mockMvc.perform(MockMvcRequestBuilders
+                    .get("/observationheading?page=0&size=5&sortDirection=ASC&sortField=name")
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception throw");
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -76,13 +79,13 @@ public class ObservationHeadingControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception thrown");
+            fail("Exception: " + e.getMessage());
         }
 
         try {
             verify(observationHeadingService, Mockito.times(1)).get(eq(observationHeading.getId()));
-        } catch (ResourceNotFoundException rnf) {
-            fail("ResourceNotFoundException thrown");
+        } catch (ResourceNotFoundException e) {
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -90,6 +93,7 @@ public class ObservationHeadingControllerTest {
     public void testAdd() {
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 
         try {
             when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
@@ -101,7 +105,7 @@ public class ObservationHeadingControllerTest {
 
             verify(observationHeadingService, Mockito.times(1)).add(eq(observationHeading));
         } catch (Exception e) {
-            fail("Exception thrown");
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -120,7 +124,7 @@ public class ObservationHeadingControllerTest {
 
             verify(observationHeadingService, Mockito.times(1)).save(eq(observationHeading));
         } catch (Exception e) {
-            fail("Exception thrown");
+            fail("Exception: " + e.getMessage());
         }
     }
 
@@ -204,7 +208,7 @@ public class ObservationHeadingControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
-            fail("Exception throw");
+            fail("Exception: " + e.getMessage());
         }
         verify(observationHeadingService, Mockito.times(1)).getResultClusters();
     }

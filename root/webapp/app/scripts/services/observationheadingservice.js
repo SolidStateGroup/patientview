@@ -53,6 +53,11 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
         save: function (observationHeading) {
             var deferred = $q.defer();
 
+            for(var i=0;i<observationHeading.observationHeadingGroups.length;i++) {
+                observationHeading.observationHeadingGroups[i]
+                    = UtilService.cleanObject(observationHeading.observationHeadingGroups[i], 'observationHeadingGroup');
+            }
+
             Restangular.all('observationheading')
                 .customPUT(UtilService.cleanObject(observationHeading, 'observationHeading'))
                 .then(function(successResult) {

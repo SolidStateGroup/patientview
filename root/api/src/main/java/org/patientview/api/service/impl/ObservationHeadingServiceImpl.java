@@ -3,12 +3,14 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ResultCluster;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
@@ -70,7 +72,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     public void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
 
         if (observationHeading == null) {
@@ -82,6 +84,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             throw new ResourceNotFoundException("Group does not exist");
         }
 
+        // only global admin or specialty admin with correct group role can remove
+        if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+                && !Util.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         observationHeading.getObservationHeadingGroups().add(
                 new ObservationHeadingGroup(observationHeading, group, panel, panelOrder));
 
@@ -89,7 +97,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         ObservationHeading observationHeading
                 = observationHeadingRepository.findOne(observationHeadingGroup.getObservationHeadingId());
 
@@ -100,6 +108,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         Group group = groupRepository.findOne(observationHeadingGroup.getGroupId());
         if (group == null) {
             throw new ResourceNotFoundException("Group does not exist");
+        }
+
+        // only global admin or specialty admin with correct group role can remove
+        if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+                && !Util.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         for (ObservationHeadingGroup oldObservationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
@@ -113,12 +127,20 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         observationHeadingRepository.save(observationHeading);
     }
 
-    public void removeObservationHeadingGroup(Long observationHeadingGroupId) throws ResourceNotFoundException {
+    public void removeObservationHeadingGroup(Long observationHeadingGroupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         ObservationHeadingGroup observationHeadingGroup
                 = observationHeadingGroupRepository.findOne(observationHeadingGroupId);
         if (observationHeadingGroup == null) {
             throw new ResourceNotFoundException("Observation Heading Group does not exist");
         }
+
+        // only global admin or specialty admin with correct group role can remove
+        if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)
+            && !Util.doesContainGroupAndRole(observationHeadingGroup.getGroup().getId(), RoleName.SPECIALTY_ADMIN)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         observationHeadingGroupRepository.delete(observationHeadingGroup);
     }
 

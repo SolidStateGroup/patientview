@@ -9,13 +9,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ObservationHeadingServiceImpl;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ResultCluster;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
@@ -32,6 +36,7 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -80,6 +85,7 @@ public class ObservationHeadingServiceTest {
     @Test
     public void testFindAll() {
         Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
 
         List<ObservationHeading> observationHeadings = new ArrayList<>();
         ObservationHeading observationHeading1 = new ObservationHeading();
@@ -101,6 +107,7 @@ public class ObservationHeadingServiceTest {
 
     @Test
     public void testAdd() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
         ObservationHeading savedObservationHeading = observationHeadingService.add(observationHeading);
@@ -111,6 +118,7 @@ public class ObservationHeadingServiceTest {
 
     @Test(expected = EntityExistsException.class)
     public void testAddDuplicate() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         List<ObservationHeading> observationHeadings = new ArrayList<>();
         observationHeadings.add(observationHeading);
@@ -128,6 +136,7 @@ public class ObservationHeadingServiceTest {
 
     @Test
     public void testSave() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         observationHeading.setId(1L);
 
@@ -146,18 +155,26 @@ public class ObservationHeadingServiceTest {
     @Test
     public void testAddGroup() {
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
-        observationHeading.setId(1L);
-        Group group = TestUtils.createGroup("GROUP1");
-        group.setId(2L);
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Group group2 = TestUtils.createGroup("testGroup2");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
         when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
 
         try {
-            observationHeadingService.addObservationHeadingGroup(1L, 2L, 3L, 4L);
-        } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException thrown");
+            observationHeadingService.addObservationHeadingGroup(observationHeading.getId(), group.getId(), 3L, 4L);
+        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+            Assert.fail("Exception: " + e.getMessage());
         }
 
         verify(observationHeadingRepository, Mockito.times(1)).save(eq(observationHeading));
@@ -166,21 +183,38 @@ public class ObservationHeadingServiceTest {
     @Test
     public void testUpdateGroup() {
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
-        observationHeading.setId(1L);
         Group group = TestUtils.createGroup("GROUP1");
-        group.setId(2L);
 
-        observationHeading.getObservationHeadingGroups().add(
-                new ObservationHeadingGroup(observationHeading, group, 3L, 4L));
+        // user and security
+        Group group2 = TestUtils.createGroup("GROUP2");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        ObservationHeadingGroup observationHeadingGroup
+                = new ObservationHeadingGroup(observationHeading, group, 3L, 4L);
+        observationHeadingGroup.setId(1L);
+
+        // update from group1 to group2 by specialty admin in group 2
+        org.patientview.api.model.ObservationHeadingGroup apiObservationHeadingGroup
+                = new org.patientview.api.model.ObservationHeadingGroup(
+                    new ObservationHeadingGroup(observationHeading, group2, 3L, 4L));
+
+        apiObservationHeadingGroup.setId(observationHeadingGroup.getId());
+        observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
 
         when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
         when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
 
         try {
-            observationHeadingService.addObservationHeadingGroup(1L, 2L, 4L, 4L);
-        } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException thrown");
+            observationHeadingService.updateObservationHeadingGroup(apiObservationHeadingGroup);
+        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+            Assert.fail("Exception: " + e.getMessage());
         }
 
         verify(observationHeadingRepository, Mockito.times(1)).save(eq(observationHeading));
@@ -192,6 +226,14 @@ public class ObservationHeadingServiceTest {
         observationHeading.setId(1L);
         Group group = TestUtils.createGroup("GROUP1");
         group.setId(2L);
+
+        // specialty admin can only delete from own group
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
 
         ObservationHeadingGroup observationHeadingGroup
                 = new ObservationHeadingGroup(observationHeading, group, 3L, 4L);
@@ -207,8 +249,8 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.removeObservationHeadingGroup(3L);
-        } catch (ResourceNotFoundException rnf) {
-            Assert.fail("ResourceNotFoundException thrown");
+        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+            Assert.fail("Exception: " + e.getMessage());
         }
 
         verify(observationHeadingGroupRepository, Mockito.times(1)).delete(eq(observationHeadingGroup));
@@ -216,6 +258,8 @@ public class ObservationHeadingServiceTest {
 
     @Test
     public void testGetResultClusters() {
+
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.PATIENT);
 
         ObservationHeading observationHeading1 = new ObservationHeading();
         observationHeading1.setCode("OBS1");

@@ -1,10 +1,13 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.ObservationHeadingGroup;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ResultCluster;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,19 +23,32 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     List<ObservationHeading> findAll();
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Page<ObservationHeading> findAll(GetParameters getParameters);
 
     List<ObservationHeading> findByCode(String code);
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    ObservationHeading get(Long observationHeadingId) throws ResourceNotFoundException;
+
+    @RoleOnly
     ObservationHeading add(ObservationHeading observationHeading);
 
+    @RoleOnly
+    ObservationHeading save(ObservationHeading observationHeading) throws ResourceNotFoundException;
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
-            throws ResourceNotFoundException;
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void updateObservationHeadingGroup(ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException;
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
-    void removeObservationHeadingGroup(Long observationHeadingGroupId) throws ResourceNotFoundException;
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    void removeObservationHeadingGroup(Long observationHeadingGroupId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @RoleOnly(roles = { RoleName.PATIENT })
     List<ResultCluster> getResultClusters();
 }

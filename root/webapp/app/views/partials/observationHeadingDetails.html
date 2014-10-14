@@ -56,7 +56,9 @@
 </div>
 <div class="row">
     <div class="col-md-12 actions-row">
-        <button type="button" class="btn blue pull-right" data-ng-click="save(observationHeadingForm, editObservationHeading)" data-ng-disabled="observationHeadingForm.$pristine || !observationHeadingForm.$valid">Save</button>
+        <button type="button" class="btn blue pull-right" data-ng-click="save(observationHeadingForm, editObservationHeading)"
+                data-ng-disabled="observationHeadingForm.$pristine || !observationHeadingForm.$valid"
+                data-ng-show="permissions.canEdit">Save</button>
         <span class="saved-notification pull-right" data-ng-show="observationHeadingForm.$pristine && saved">Saved Successfully! &nbsp;</span>
     </div>
 </div>
@@ -87,7 +89,7 @@
                         data-ng-disabled="!observationHeadingGroup.group || !observationHeadingGroup.panel || !observationHeadingGroup.panelOrder">Update</button>
                     <button class="btn negative" data-ng-click="removeSpecialtyOrder(observationHeadingGroup)">Delete</button>
                 </div>
-                <span class="saved-notification" data-ng-show="editObservationHeading.saved">&nbsp; Saved Successfully!</span>
+                <span class="saved-notification" data-ng-show="observationHeadingGroup.saved">&nbsp; Saved Successfully!</span>
             </div>
         </div>
         <div class="added-specialty row" data-ng-show="!editObservationHeading.observationHeadingGroups">
