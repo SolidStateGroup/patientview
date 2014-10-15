@@ -341,7 +341,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // can only add read receipts for own user
-        if (getCurrentUser().equals(entityUser)) {
+        if (!getCurrentUser().equals(entityUser)) {
             throw new ResourceForbiddenException("Cannot add read receipts for other users");
         }
 
