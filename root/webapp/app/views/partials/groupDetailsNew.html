@@ -164,11 +164,13 @@
         <label>Parent Groups</label>
         <div data-ng-hide="editGroup.parentGroups.length > 0" class="no-items">No parent groups, must have at least one</div>
 
-        <ul class="feature-list">
+        <ul class="feature-list unstyled name-action-list">
             <li class="feature-list-item" data-ng-repeat="parentGroup in editGroup.parentGroups">
-                <div class="feature-list-name"><span class="feature-list-name">{{parentGroup.name}}</span></div>
-                <div class="feature-list-delete" data-ng-show="permissions.canEditParentGroups">
-                    <a id="remove-parent-group-modal-{{parentGroup.id}}" href="" data-ng-click="removeParentGroup(groupFormNew, editGroup, parentGroup)" ><i class="glyphicon glyphicon-remove"></i></a>
+                <div class="feature-list-name pull-left"><span class="feature-list-name">{{parentGroup.name}}</span></div>
+                <div class="feature-list-delete pull-left" data-ng-show="permissions.canEditParentGroups">
+                    <a id="remove-parent-group-modal-{{parentGroup.id}}" href="" data-ng-click="removeParentGroup(groupFormNew, editGroup, parentGroup)" >
+                        <i class="glyphicon glyphicon-remove"></i>
+                    </a>
                 </div>
             </li>
         </ul>
