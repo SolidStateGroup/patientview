@@ -2,9 +2,9 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
@@ -24,8 +24,6 @@ import java.util.List;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserService {
-
-    List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException;
 
     org.patientview.api.model.User getByUsername(String username);
 
@@ -70,22 +68,31 @@ public interface UserService {
     Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters);
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
-    User changePassword(final Long userId, final String password) throws ResourceNotFoundException;
+    @UserOnly
+    void changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
-    org.patientview.api.model.User resetPassword(Long userId, String password) throws ResourceNotFoundException;
+    org.patientview.api.model.User resetPassword(Long userId, String password)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
-    Boolean sendVerificationEmail(Long userId);
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    Boolean sendVerificationEmail(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
 
-    void addFeature(Long userId, Long featureId);
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void addFeature(Long userId, Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
-    void deleteFeature(Long userId, Long featureId);
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void deleteFeature(Long userId, Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     void resetPasswordByUsernameAndEmail(String username, String email) throws ResourceNotFoundException;
 
+    @UserOnly
     void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;
 
+    @UserOnly
     List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException;
 }

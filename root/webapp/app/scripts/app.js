@@ -258,9 +258,6 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
         AuthService.switchUser($rootScope.previousLoggedInUser.id, $rootScope.previousAuthToken).then(
         function(authToken) {
 
-            delete $rootScope.previousAuthToken;
-            localStorageService.remove('previousAuthToken');
-
             delete $rootScope.previousLoggedInUser;
             localStorageService.remove('previousLoggedInUser');
 
@@ -287,6 +284,8 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
                 localStorageService.set('routes', userInformation.routes);
                 $location.path('/dashboard');
 
+                delete $rootScope.previousAuthToken;
+                localStorageService.remove('previousAuthToken');
             }, function() {
                 alert("Error receiving user information");
             });

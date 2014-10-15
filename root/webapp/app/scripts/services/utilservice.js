@@ -135,9 +135,17 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             return years;
         },
 
+        generateYears2000: function () {
+            var years = [];
+            years.push('');
+            for (var i=new Date().getFullYear();i>=2000;i--) {
+                years.push(i);
+            }
+            return years;
+        },
+
         generateHours: function () {
             var hours = [];
-            //hours.push('');
             for (var i=0;i<=23;i++) {
                 if (i<10) {
                     hours.push('0' + i);
@@ -150,8 +158,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         generateMinutes: function () {
             var minutes = [];
-            //minutes.push('');
-            for (var i=0;i<=60;i++) {
+            for (var i=0;i<60;i++) {
                 if (i<10) {
                     minutes.push('0' + i);
                 } else {

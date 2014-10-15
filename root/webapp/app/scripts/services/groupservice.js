@@ -155,8 +155,6 @@ function ($q, Restangular, UtilService) {
 
             Restangular.all('group').post(group).then(function(successResult) {
                 deferred.resolve(successResult);
-                successResult.parentGroups = successResult.parents;
-                successResult.childGroups = successResult.children;
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });

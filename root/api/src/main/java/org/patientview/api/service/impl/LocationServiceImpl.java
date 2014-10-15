@@ -70,7 +70,7 @@ public class LocationServiceImpl extends AbstractServiceImpl<LocationServiceImpl
         location.getGroup().getLocations().remove(location);
         locationRepository.delete(locationId);
     }
-    
+
     public Location save(final Location location) throws ResourceNotFoundException, ResourceForbiddenException {
         Location entityLocation = locationRepository.findOne(location.getId());
 

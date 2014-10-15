@@ -112,12 +112,12 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
         Page<JoinRequest> joinRequestPage;
 
-        if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            joinRequestPage = findAll(statusList, groupIdList, pageable);
+        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
             joinRequestPage = findByParentUser(user, statusList, groupIdList, pageable);
         } else if (doesContainRoles(RoleName.UNIT_ADMIN)) {
             joinRequestPage = findByUser(user, statusList, groupIdList, pageable);
-        } else if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            joinRequestPage = findAll(statusList, groupIdList, pageable);
         } else {
             throw new SecurityException("Invalid role for join requests");
         }

@@ -14,70 +14,78 @@ function (UserService, $scope, GroupService, NewsService, UtilService) {
             if (newValue !== undefined) {
                 GroupService.getStatistics(newValue).then(function (data) {
 
-                    var patients = [];
-                    var uniqueLogons = [];
-                    var logons = [];
-                    var xAxisCategories = [];
+                    if (data.length) {
+                        var patients = [];
+                        var uniqueLogons = [];
+                        var logons = [];
+                        var xAxisCategories = [];
 
-                    for (i = 0; i < data.length; i++) {
-                        var date = new Date(data[i].endDate);
-                        xAxisCategories.push(UtilService.getMonthText(date.getMonth()) + ' ' +  date.getFullYear());
-                        patients.push(data[i].countOfPatients);
-                        uniqueLogons.push(data[i].countOfUniqueLogons);
-                        logons.push(data[i].countOfLogons);
-                    }
-                    $scope.statisticsDate = data[data.length-1].endDate;
-                    $scope.lockedUsers = data[data.length-1].countOfUserLocked;
-                    $scope.inactiveUsers = data[data.length-1].countOfUserInactive;
+                        for (i = 0; i < data.length; i++) {
+                            var date = new Date(data[i].endDate);
+                            xAxisCategories.push(UtilService.getMonthText(date.getMonth()) + ' ' + date.getFullYear());
+                            patients.push(data[i].countOfPatients);
+                            uniqueLogons.push(data[i].countOfUniqueLogons);
+                            logons.push(data[i].countOfLogons);
+                        }
+                        $scope.statisticsDate = data[data.length - 1].endDate;
+                        $scope.lockedUsers = data[data.length - 1].countOfUserLocked;
+                        $scope.inactiveUsers = data[data.length - 1].countOfUserInactive;
 
-                    // using highcharts
-                    $('#chart_div').highcharts({
-                        chart: {
-                            zoomType: 'xy'
-                        },
-                        title: {
-                            text: null
-                        },
-                        xAxis: {
-                            categories: xAxisCategories
-                        },
-                        yAxis: {
+                        // using highcharts
+                        $('#chart_div').highcharts({
+                            chart: {
+                                zoomType: 'xy'
+                            },
                             title: {
                                 text: null
                             },
-                            plotLines: [{
-                                value: 0,
-                                width: 1,
-                                color: '#808080'
-                            }],
-                            min: 0,
-                            allowDecimals : false
-                        },
-                        legend: {
-                            layout: 'vertical',
-                            align: 'right',
-                            verticalAlign: 'middle',
-                            borderWidth: 0
-                        },
-                        series: [{
-                            name: 'Patients',
-                            data: patients
-                        }, {
-                            name: 'Unique Logons',
-                            data: uniqueLogons
-                        }, {
-                            name: 'Logons',
-                            data: logons
-                        }],
-                        credits : {
-                            text: null
-                        },
-                        exporting: {
-                            enabled: false
-                        }
-                    });
-
+                            xAxis: {
+                                categories: xAxisCategories
+                            },
+                            yAxis: {
+                                title: {
+                                    text: null
+                                },
+                                plotLines: [
+                                    {
+                                        value: 0,
+                                        width: 1,
+                                        color: '#808080'
+                                    }
+                                ],
+                                min: 0,
+                                allowDecimals: false
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'middle',
+                                borderWidth: 0
+                            },
+                            series: [
+                                {
+                                    name: 'Patients',
+                                    data: patients
+                                },
+                                {
+                                    name: 'Unique Logons',
+                                    data: uniqueLogons
+                                },
+                                {
+                                    name: 'Logons',
+                                    data: logons
+                                }
+                            ],
+                            credits: {
+                                text: null
+                            },
+                            exporting: {
+                                enabled: false
+                            }
+                        });
+                    }
                     $scope.chartLoading = false;
+
                 });
             }
         }

@@ -16,11 +16,14 @@ import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
@@ -30,8 +33,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
@@ -110,7 +115,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -136,7 +140,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -169,7 +172,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -207,7 +209,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -250,7 +251,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -304,12 +304,10 @@ public class UserControllerTest {
         } catch (Exception e) {
             fail("The post request should not fail " + e.getCause());
         }
-
-      //  verify(userService, Mockito.times(1)).resetPassword(eq(testUser.getId()), eq(credentials.getPassword()));
     }
 
     /**
-     * Test: The url to reset a password
+     * Test: The url to change a password
      * Fail: The service method does not get called
      * TODO Fix verify - possible problem with aspect
      */
@@ -333,8 +331,150 @@ public class UserControllerTest {
         } catch (Exception e) {
             fail("The post request should not fail " + e.getCause());
         }
-       //weirdest Mockito bug
-      // verify(userService, Mockito.times(1)).changePassword(Matchers.eq(testUser.getId()), Matchers.eq(credentials.getPassword()));
     }
 
+    @Test
+    public void testSendVerificationEmail() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to send verification email
+        Group group2 = TestUtils.createGroup("testGroup2");
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + staffUser.getId() + "/sendVerificationEmail"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getCause());
+        }
+    }
+
+    @Test
+    public void testAddFeature() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to add feature for
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        Feature feature = TestUtils.createFeature("testFeature");
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.put("/user/" + staffUser.getId() + "/features/" + feature.getId()))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getCause());
+        }
+    }
+
+    @Test
+    public void testDeleteFeature() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to add feature for
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        Feature feature = TestUtils.createFeature("testFeature");
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + staffUser.getId() + "/features/" + feature.getId()))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getCause());
+        }
+    }
+
+    @Test
+    public void testGetInformation() throws ResourceNotFoundException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/information"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getCause());
+        }
+    }
+
+    @Test
+    public void testAddInformation() throws ResourceNotFoundException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        UserInformation userInformation
+                = TestUtils.createUserInformation(user, UserInformationTypes.SHOULD_KNOW, "shouldKnow");
+        List<UserInformation> userInformations = new ArrayList<>();
+        userInformations.add(userInformation);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/information")
+                    .content(mapper.writeValueAsString(userInformations)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getCause());
+        }
+    }
 }

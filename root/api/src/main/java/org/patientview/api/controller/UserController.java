@@ -5,7 +5,6 @@ import org.patientview.api.model.Credentials;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.api.model.User;
 import org.patientview.persistence.model.UserInformation;
@@ -149,28 +148,18 @@ public class UserController extends BaseController<UserController> {
         userService.save(user);
     }
 
-    @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException {
-
-        LOG.debug("Request has been received for userId : {}", userId);
-        return new ResponseEntity<>(userService.getUserFeatures(userId), HttpStatus.OK);
-    }
-
+    // reset password, done by users for other staff or patients
     @RequestMapping(value = "/user/{userId}/resetPassword", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> resetPassword(@PathVariable("userId") Long userId,
-                                              @RequestBody Credentials credentials) throws ResourceNotFoundException {
+            @RequestBody Credentials credentials) throws ResourceNotFoundException, ResourceForbiddenException {
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
             LOG.debug("A password must be supplied");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        LOG.debug("Password reset requested for userId : {}", userId);
         return new ResponseEntity<>(userService.resetPassword(userId, credentials.getPassword()), HttpStatus.OK);
     }
 
@@ -190,17 +179,15 @@ public class UserController extends BaseController<UserController> {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        LOG.debug("Password reset requested for userId : {}", userId);
         userService.changePassword(userId, credentials.getPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     @RequestMapping(value = "/user/{userId}/sendVerificationEmail", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Boolean> sendVerificationEmail(@PathVariable("userId") Long userId) {
-        LOG.debug("Email verification email requested for userId : {}", userId);
+    public ResponseEntity<Boolean> sendVerificationEmail(@PathVariable("userId") Long userId)
+        throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(userService.sendVerificationEmail(userId), HttpStatus.OK);
     }
 
@@ -208,21 +195,22 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Boolean> verify(@PathVariable("userId") Long userId,
-                                          @PathVariable("verificationCode") String verificationCode)
-    throws ResourceNotFoundException {
+        @PathVariable("verificationCode") String verificationCode) throws ResourceNotFoundException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, verificationCode);
         return new ResponseEntity<>(userService.verify(userId, verificationCode), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.PUT)
     @ResponseBody
-    public void addFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId) {
+    public void addFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         userService.addFeature(userId, featureId);
     }
 
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId) {
+    public void deleteFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         userService.deleteFeature(userId, featureId);
     }
 

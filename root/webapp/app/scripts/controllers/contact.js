@@ -75,16 +75,16 @@ function ($scope, $modal, GroupService, ConversationService) {
     $scope.init = function() {
         $scope.loading = true;
         GroupService.getGroupsForUserAllDetails($scope.loggedInUser.id).then(function(page) {
-            $scope.groups = page.content;
+            $scope.groups = [];
 
             // set checkboxes
-            for (var i=0;i<$scope.groups.length;i++) {
-                $scope.groups[i].selected = true;
-                if ($scope.groups[i].groupType.value !== 'UNIT') {
-                    $scope.groups.splice(i, 1);
+            for (var i=0;i<page.content.length;i++) {
+
+                if (page.content[i].groupType.value === 'UNIT') {
+                    page.content[i].selected = true;
+                    $scope.groups.push(page.content[i])
                 }
             }
-
 
             $scope.loading = false;
         }, function () {
