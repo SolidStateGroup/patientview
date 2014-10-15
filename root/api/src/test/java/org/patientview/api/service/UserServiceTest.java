@@ -505,4 +505,66 @@ public class UserServiceTest {
         userService.sendVerificationEmail(staffUser.getId());
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
     }
+
+    @Test
+    public void testAddFeature() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to add feature for
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        Feature feature = TestUtils.createFeature("testFeature");
+
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(featureRepository.findOne(eq(feature.getId()))).thenReturn(feature);
+
+        userService.addFeature(staffUser.getId(), feature.getId());
+        verify(userFeatureRepository, Mockito.times(1)).save(any(UserFeature.class));
+    }
+
+    @Test
+    public void testDeleteFeature() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to add feature for
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        Feature feature = TestUtils.createFeature("testFeature");
+        UserFeature userFeature = TestUtils.createUserFeature(feature, staffUser);
+
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(featureRepository.findOne(eq(feature.getId()))).thenReturn(feature);
+        when(userFeatureRepository.findByUserAndFeature(user, feature)).thenReturn(userFeature);
+
+        userService.deleteFeature(staffUser.getId(), feature.getId());
+        verify(userFeatureRepository, Mockito.times(1)).delete(any(UserFeature.class));
+    }
 }

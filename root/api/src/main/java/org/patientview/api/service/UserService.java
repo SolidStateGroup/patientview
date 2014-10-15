@@ -80,9 +80,13 @@ public interface UserService {
 
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
 
-    void addFeature(Long userId, Long featureId);
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void addFeature(Long userId, Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
-    void deleteFeature(Long userId, Long featureId);
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void deleteFeature(Long userId, Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     void resetPasswordByUsernameAndEmail(String username, String email) throws ResourceNotFoundException;
 

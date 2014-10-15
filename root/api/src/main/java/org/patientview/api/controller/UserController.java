@@ -202,13 +202,15 @@ public class UserController extends BaseController<UserController> {
 
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.PUT)
     @ResponseBody
-    public void addFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId) {
+    public void addFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         userService.addFeature(userId, featureId);
     }
 
     @RequestMapping(value = "/user/{userId}/features/{featureId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId) {
+    public void deleteFeature(@PathVariable("userId") Long userId, @PathVariable("featureId") Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         userService.deleteFeature(userId, featureId);
     }
 

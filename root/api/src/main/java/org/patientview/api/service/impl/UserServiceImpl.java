@@ -12,6 +12,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
@@ -644,17 +645,40 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return false;
     }
 
-    public void addFeature(Long userId, Long featureId) {
+    public void addFeature(Long userId, Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = findUser(userId);
+        Feature feature = featureRepository.findOne(featureId);
+        if (feature == null) {
+            throw new ResourceForbiddenException("Feature not found");
+        }
+
+        if (!canGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         UserFeature userFeature = new UserFeature();
-        userFeature.setFeature(featureRepository.findOne(featureId));
-        userFeature.setUser(userRepository.findOne(userId));
-        userFeature.setCreator(userRepository.findOne(1L));
+        userFeature.setFeature(feature);
+        userFeature.setUser(user);
+        userFeature.setCreator(userRepository.findOne(getCurrentUser().getId()));
         userFeatureRepository.save(userFeature);
     }
 
-    public void deleteFeature(Long userId, Long featureId) {
-        userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(
-                userRepository.findOne(userId), featureRepository.findOne(featureId)));
+    public void deleteFeature(Long userId, Long featureId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = findUser(userId);
+        Feature feature = featureRepository.findOne(featureId);
+        if (feature == null) {
+            throw new ResourceForbiddenException("Feature not found");
+        }
+
+        if (!canGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(user, feature));
     }
 
     // Forgotten Password
