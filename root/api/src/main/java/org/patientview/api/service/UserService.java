@@ -41,7 +41,8 @@ public interface UserService {
     org.patientview.api.model.User createUserNoEncryption(User user);
 
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
-    User save(User user) throws EntityExistsException, ResourceNotFoundException;
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    User save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId) throws ResourceNotFoundException;

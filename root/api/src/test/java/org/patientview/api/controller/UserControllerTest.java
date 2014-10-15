@@ -130,6 +130,39 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testUpdateUser() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to update
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        String url = "/user";
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.put(url)
+                    .content(mapper.writeValueAsString(staffUser)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+    }
+
+    @Test
     public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException {
 
         // current user and security

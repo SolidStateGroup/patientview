@@ -437,7 +437,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    public User save(User user) throws EntityExistsException, ResourceNotFoundException {
+    public User save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findUser(user.getId());
 
         if (entityUser == null) {
@@ -448,6 +448,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         org.patientview.api.model.User existingUser = getByUsername(user.getUsername());
         if (existingUser != null && !existingUser.getId().equals(entityUser.getId())) {
             throw new EntityExistsException("Username in use by another User");
+        }
+
+        for (GroupRole groupRole : entityUser.getGroupRoles()) {
+            if (!groupRepository.exists(groupRole.getGroup().getId())) {
+                throw new ResourceNotFoundException("Group does not exist");
+            }
+        }
+
+        if (!canGetUser(entityUser)) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         entityUser.setForename(user.getForename());

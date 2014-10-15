@@ -145,7 +145,7 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void updateUser(@RequestBody org.patientview.persistence.model.User user)
-            throws EntityExistsException, ResourceNotFoundException {
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         userService.save(user);
     }
 
