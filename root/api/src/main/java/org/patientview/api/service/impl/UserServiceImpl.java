@@ -131,12 +131,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
 
-        User user = userRepository.findOne(userId);
+        User user = findUser(userId);
         Group group = groupRepository.findOne(groupId);
         Role role = roleRepository.findOne(roleId);
 
-        if (user == null || group == null || role == null) {
-            throw new ResourceNotFoundException();
+        if (group == null || role == null) {
+            throw new ResourceNotFoundException("Group or Role not found");
         }
 
         // validate i can add to requested group (staff role)
@@ -165,7 +165,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // if a user is removed from all child groups the parent group (if present) is also removed
         // e.g. remove Renal (specialty) if RenalA (unit) is removed and these are the only 2 groups present
-        User user = userRepository.findOne(userId);
+        User user = findUser(userId);
         Group removedGroup = groupRepository.findOne(groupId);
 
         Set<GroupRole> toRemove = new HashSet<>();
@@ -208,12 +208,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void removeAllGroupRoles(Long userId) throws ResourceNotFoundException {
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-
-        groupRoleRepository.removeAllGroupRoles(entityUser);
+        groupRoleRepository.removeAllGroupRoles(findUser(userId));
     }
 
     private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId)
@@ -372,11 +367,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     // not used
     public User get(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User with this ID does not exist");
-        }
-        return user;
+        return findUser(userId);
     }
 
     public org.patientview.api.model.User getUser(Long userId)
@@ -437,10 +428,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public User save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findUser(user.getId());
-
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("User cannot be found");
-        }
 
         // don't allow setting username to same as other users
         org.patientview.api.model.User existingUser = getByUsername(user.getUsername());
@@ -586,14 +573,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     public void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
-
-        User entityUser = findUser(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("User cannot be found");
-        }
-
-        if (canGetUser(entityUser)) {
-            userRepository.delete(entityUser);
+        User user = findUser(userId);
+        if (canGetUser(user)) {
+            userRepository.delete(user);
         }
     }
 
@@ -606,9 +588,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      */
     public void changePassword(Long userId, String password) throws ResourceNotFoundException {
         User user = findUser(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
         user.setChangePassword(Boolean.FALSE);
         user.setPassword(DigestUtils.sha256Hex(password));
         userRepository.save(user);
@@ -620,10 +599,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public org.patientview.api.model.User resetPassword(Long userId, String password)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User user = findUser(userId);
-
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
 
         if (!canGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -638,11 +613,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * Send a email to the user email address to verify have access to the email account
      */
     public Boolean sendVerificationEmail(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = findUser(userId);
 
         if (!canGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");

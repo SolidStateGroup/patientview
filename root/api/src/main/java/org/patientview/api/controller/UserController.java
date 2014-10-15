@@ -183,7 +183,6 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     @RequestMapping(value = "/user/{userId}/sendVerificationEmail", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -196,8 +195,7 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Boolean> verify(@PathVariable("userId") Long userId,
-                                          @PathVariable("verificationCode") String verificationCode)
-    throws ResourceNotFoundException {
+        @PathVariable("verificationCode") String verificationCode) throws ResourceNotFoundException {
         LOG.debug("User with userId : {} is verifying with code {}", userId, verificationCode);
         return new ResponseEntity<>(userService.verify(userId, verificationCode), HttpStatus.OK);
     }
