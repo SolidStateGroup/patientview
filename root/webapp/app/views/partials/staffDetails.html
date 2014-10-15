@@ -61,10 +61,12 @@
     <div class="col-md-6">
         <div class="added-container">
             <label class="inner-title">Features</label>
-            <div class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures">
-                <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
-                <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userForm, editUser, feature)" >Delete</a></span></div>
-            </div>
+            <ul class="name-action-list unstyled">
+                <li class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures">
+                    <div class="feature-list-name pull-left"><span class="feature-list-name">{{feature.feature.description}}</span></div>
+                    <div class="feature-list-delete pull-left"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userForm, editUser, feature)" ><i class="glyphicon glyphicon-remove"></i></a></span></div>
+                </li>
+            </ul>
         </div>
         <div class="feature-add-container add-container" data-ng-show="editUser.availableFeatures.length > 0 ">
             <label class="inner-title">Add New Feature </label>

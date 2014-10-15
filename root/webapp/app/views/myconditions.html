@@ -4,9 +4,9 @@
         <div class="">
             <!-- patient details from FHIR -->
             <div data-ng-show="specialties && specialties.length > 1">
-                <div class="specialty-switcher btn-group">
+                <div class="btn-group-switcher btn-group">
                     <a href="" data-ng-repeat="specialty in specialties" data-ng-click="changeSpecialty(specialty)"
-                       class="btn blue" data-ng-class="{active:currentSpecialty.code === specialty.code}">{{specialty.name}}</a>
+                       class="btn" data-ng-class="{active:currentSpecialty.code === specialty.code}">{{specialty.name}}</a>
                 </div>
             </div>
             <div data-ng-show="currentSpecialty">

@@ -24,19 +24,16 @@
 
 <div class="header-select row">
     <div class=" col-md-7">
-        <h1>Showing results: <span class="blue-text">{{observationHeading.heading}}</span></h1>
+        <h1><a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading"><i class="icon-back-to pull-left"> </i> Back to Results</a> Showing result: <span class="blue-text">{{observationHeading.heading}}</span></h1>
+    </div>
+    <div class="col-md-3">
+        <h3 class="pull-right">Select Result:</h3>
     </div>
     <div class="col-md-2">
-        <h3>Select Result:</h3>
-    </div>
-    <div class="col-md-1">
         <select class="form-control pull-right" data-ng-model="selectedCode"
             data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
             data-ng-change="changeObservationHeading(selectedCode)" >
         </select>
-    </div>
-    <div class="col-md-2">
-        <h2><a href="/#/results" class="btn blue pull-right" data-ng-show="!loading">Back to Results</a></h2>
     </div>
 </div>
 
@@ -75,7 +72,7 @@
         </div>
 
         <div class="info-header" data-ng-show="!loading && observations">
-            <div class="btn-group pull-right">
+            <div class="btn-group btn-group-switcher pull-right">
                 <a href="" data-ng-click="setRangeInDays(30)" class="btn blue" data-ng-class="{active: range==30}">30 Days</a>
                 <a href="" data-ng-click="setRangeInDays(90)" class="btn blue" data-ng-class="{active: range==90}">3 Months</a>
                 <a href="" data-ng-click="setRangeInDays(365.25)" class="btn blue" data-ng-class="{active: range==365.25}">1 Year</a>
