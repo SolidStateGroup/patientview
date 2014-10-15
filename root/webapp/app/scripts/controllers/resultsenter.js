@@ -98,7 +98,7 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
         $scope.userResultClusters = [];
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
-        $scope.years = UtilService.generateYears();
+        $scope.years = UtilService.generateYears2000();
         $scope.hours = UtilService.generateHours();
         $scope.minutes = UtilService.generateMinutes();
 
