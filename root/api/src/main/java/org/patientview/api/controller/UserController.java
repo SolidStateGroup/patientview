@@ -179,17 +179,16 @@ public class UserController extends BaseController<UserController> {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        LOG.debug("Password reset requested for userId : {}", userId);
         userService.changePassword(userId, credentials.getPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/user/{userId}/sendVerificationEmail", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Boolean> sendVerificationEmail(@PathVariable("userId") Long userId) {
-        LOG.debug("Email verification email requested for userId : {}", userId);
+    public ResponseEntity<Boolean> sendVerificationEmail(@PathVariable("userId") Long userId)
+        throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(userService.sendVerificationEmail(userId), HttpStatus.OK);
     }
 

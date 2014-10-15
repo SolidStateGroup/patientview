@@ -604,11 +604,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * @param password
      * @return
      */
-    public User changePassword(Long userId, String password) throws ResourceNotFoundException {
+    public void changePassword(Long userId, String password) throws ResourceNotFoundException {
         User user = findUser(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
         user.setChangePassword(Boolean.FALSE);
         user.setPassword(DigestUtils.sha256Hex(password));
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     /**
@@ -633,12 +636,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Send a email to the user email address to verify have access to the email account
-     *
-     * @param userId
-     * @return
      */
-    public Boolean sendVerificationEmail(Long userId) {
-        User user = userRepository.getOne(userId);
+    public Boolean sendVerificationEmail(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = userRepository.findOne(userId);
+
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        if (!canGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         Email email = new Email();
         email.setSender(properties.getProperty("smtp.sender"));
         email.setSubject("PatientView - Please verify your account");

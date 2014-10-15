@@ -302,7 +302,7 @@ public class UserControllerTest {
     }
 
     /**
-     * Test: The url to reset a password
+     * Test: The url to change a password
      * Fail: The service method does not get called
      * TODO Fix verify - possible problem with aspect
      */
@@ -326,8 +326,36 @@ public class UserControllerTest {
         } catch (Exception e) {
             fail("The post request should not fail " + e.getCause());
         }
-       //weirdest Mockito bug
-      // verify(userService, Mockito.times(1)).changePassword(Matchers.eq(testUser.getId()), Matchers.eq(credentials.getPassword()));
     }
 
+    @Test
+    public void testSendVerificationEmail() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to send verification email
+        Group group2 = TestUtils.createGroup("testGroup2");
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + staffUser.getId() + "/sendVerificationEmail"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getCause());
+        }
+    }
 }

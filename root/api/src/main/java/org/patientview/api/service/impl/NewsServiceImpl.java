@@ -100,7 +100,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return newsItemRepository.save(entityNewsItem);
     }
 
-    public void delete(final Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException{
+    public void delete(final Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem newsItem = newsItemRepository.findOne(newsItemId);
         if (newsItem == null) {
             throw new ResourceNotFoundException("NewsItem does not exist");
