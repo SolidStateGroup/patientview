@@ -5,7 +5,6 @@ import org.patientview.api.model.Credentials;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.api.model.User;
 import org.patientview.persistence.model.UserInformation;
@@ -148,17 +147,7 @@ public class UserController extends BaseController<UserController> {
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         userService.save(user);
     }
-
-    @RequestMapping(value = "/user/{userId}/features", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<Feature>> getUserFeatures(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException {
-
-        LOG.debug("Request has been received for userId : {}", userId);
-        return new ResponseEntity<>(userService.getUserFeatures(userId), HttpStatus.OK);
-    }
-
+    
     @RequestMapping(value = "/user/{userId}/resetPassword", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -170,7 +159,6 @@ public class UserController extends BaseController<UserController> {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        LOG.debug("Password reset requested for userId : {}", userId);
         return new ResponseEntity<>(userService.resetPassword(userId, credentials.getPassword()), HttpStatus.OK);
     }
 

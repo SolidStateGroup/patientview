@@ -4,7 +4,6 @@ import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
@@ -24,8 +23,6 @@ import java.util.List;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserService {
-
-    List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException;
 
     org.patientview.api.model.User getByUsername(String username);
 

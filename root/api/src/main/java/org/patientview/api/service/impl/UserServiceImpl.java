@@ -8,12 +8,10 @@ import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
-import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.exception.FhirResourceException;
-import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
@@ -597,11 +595,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (canGetUser(entityUser)) {
             userRepository.delete(entityUser);
         }
-    }
-
-    public List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException {
-        User user = findUser(userId);
-        return Util.convertIterable(Util.convertIterable(featureRepository.findByUser(user)));
     }
 
     /**
