@@ -716,6 +716,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.loadingMessage = 'Viewing Patient';
         $scope.loading = true;
         $scope.successMessage = '';
+        $rootScope.switchingUser = true;
         var currentToken = $rootScope.authToken;
 
         AuthService.switchUser(userId, null).then(function(authToken) {
@@ -749,6 +750,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
                 $scope.loading = false;
                 $location.path('/dashboard');
+                delete $rootScope.switchingUser;
 
             }, function() {
                 alert("Error receiving user information");
@@ -758,6 +760,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }, function() {
             alert("Cannot view patient");
             $scope.loading = false;
+            delete $rootScope.switchingUser;
         });
     };
 
