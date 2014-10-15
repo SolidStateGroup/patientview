@@ -104,8 +104,9 @@
 .footer{
     margin-top:40px;
     background: $white;
-    height: 90px;
+    height: 106px;
     position:relative;
+    overflow:hidden;
 
     .brand{
         @include bootstrap-opacity(50);
@@ -121,6 +122,8 @@
 
     .partner-info{
         & > h5{
+            width:100%;
+            text-align:center;
             float:left;
         }
     }
@@ -130,11 +133,12 @@
         padding:15px 35px;
 
         a{
-            margin-right:20px;
+            margin:0 10px;
             float:left;
 
             &.other-partners{
                 clear:left;
+                color:#959595;
             }
         }
     }
