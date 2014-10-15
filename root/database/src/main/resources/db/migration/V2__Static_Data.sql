@@ -124,7 +124,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (7, 4, 50,  '/results', 'views/results.html','ResultsCtrl', 'Results', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (8, 5, 51,  '/resultsdetail', 'views/resultsdetail.html','ResultsDetailCtrl', 'Results Detail', now(), 1 );
+  (8, 5, 51,  '/resultsdetail', 'views/resultsdetail.html','ResultsDetailCtrl', 'Results', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (9, 4, 60,  '/medicines', 'views/medicines.html','MedicinesCtrl', 'Medicines', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
@@ -150,9 +150,9 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (20, 4, 105,  '/resultheadings', 'views/observationheadings.html','ObservationHeadingsCtrl', 'Result Headings', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (21, 5, 55,  '/resultsenter', 'views/resultsenter.html','ResultsEnterCtrl', 'Enter Own Results', now(), 1 );
+  (21, 5, 55,  '/resultsenter', 'views/resultsenter.html','ResultsEnterCtrl', 'Results', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (22, 5, 56,  '/diagnostics', 'views/diagnostics.html','DiagnosticsCtrl', 'Diagnostics', now(), 1 );
+  (22, 5, 56,  '/diagnostics', 'views/diagnostics.html','DiagnosticsCtrl', 'Results', now(), 1 );
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (1, 1, 1, null, null, now(), 1 );
