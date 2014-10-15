@@ -147,12 +147,13 @@ public class UserController extends BaseController<UserController> {
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         userService.save(user);
     }
-    
+
+    // reset password, done by users for other staff or patients
     @RequestMapping(value = "/user/{userId}/resetPassword", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> resetPassword(@PathVariable("userId") Long userId,
-                                              @RequestBody Credentials credentials) throws ResourceNotFoundException {
+            @RequestBody Credentials credentials) throws ResourceNotFoundException, ResourceForbiddenException {
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
             LOG.debug("A password must be supplied");

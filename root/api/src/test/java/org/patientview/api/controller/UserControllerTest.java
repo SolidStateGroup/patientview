@@ -110,7 +110,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -136,7 +135,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -169,7 +167,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -207,7 +204,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -250,7 +246,6 @@ public class UserControllerTest {
         Group group = TestUtils.createGroup("testGroup");
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
-        user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
@@ -304,8 +299,6 @@ public class UserControllerTest {
         } catch (Exception e) {
             fail("The post request should not fail " + e.getCause());
         }
-
-      //  verify(userService, Mockito.times(1)).resetPassword(eq(testUser.getId()), eq(credentials.getPassword()));
     }
 
     /**

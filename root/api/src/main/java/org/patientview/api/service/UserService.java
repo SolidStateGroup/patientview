@@ -70,7 +70,8 @@ public interface UserService {
     User changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
-    org.patientview.api.model.User resetPassword(Long userId, String password) throws ResourceNotFoundException;
+    org.patientview.api.model.User resetPassword(Long userId, String password)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     Boolean sendVerificationEmail(Long userId);
 

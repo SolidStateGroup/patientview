@@ -256,17 +256,37 @@ public class UserServiceTest {
     /**
      * Test: Password reset check
      * Fail: Service is not called and the change password flag is not set
-     *
      */
     @Test
-    public void testPasswordReset() throws ResourceNotFoundException {
+    public void testPasswordReset() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to reset password for
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
         String password = "newPassword";
-        User user = TestUtils.createUser("testPasswordUser");
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(userRepository.save(eq(user))).thenReturn(user);
-        userService.resetPassword(user.getId(), password);
-        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
-        Assert.assertTrue("The user now has the change password flag set", user.getChangePassword());
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(userRepository.save(eq(staffUser))).thenReturn(staffUser);
+
+        org.patientview.api.model.User user1 = userService.resetPassword(staffUser.getId(), password);
+
+        verify(userRepository, Mockito.times(1)).findOne(eq(staffUser.getId()));
+        verify(userRepository, Mockito.times(1)).save(eq(staffUser));
+        Assert.assertTrue("The user now has the change password flag set", user1.getChangePassword());
     }
 
     /**

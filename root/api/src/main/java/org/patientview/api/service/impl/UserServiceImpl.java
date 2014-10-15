@@ -613,13 +613,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * On a password reset the user should change on login
-     *
-     * @param userId
-     * @param password
-     * @return
      */
-    public org.patientview.api.model.User resetPassword(Long userId, String password) throws ResourceNotFoundException {
+    public org.patientview.api.model.User resetPassword(Long userId, String password)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         User user = findUser(userId);
+
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        if (!canGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         user.setChangePassword(Boolean.TRUE);
         user.setPassword(DigestUtils.sha256Hex(password));
         return new org.patientview.api.model.User(userRepository.save(user), null);
