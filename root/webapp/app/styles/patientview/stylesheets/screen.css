@@ -865,10 +865,11 @@ i.icon-back-to {
 .footer {
   margin-top: 40px;
   background: white;
-  height: 90px;
+  height: 106px;
   position: relative;
+  overflow: hidden;
 }
-/* line 110, ../sass/_nav.scss */
+/* line 111, ../sass/_nav.scss */
 .footer .brand {
   opacity: 0.5;
   filter: alpha(opacity=50);
@@ -876,54 +877,57 @@ i.icon-back-to {
   line-height: 55px;
   padding: 15px;
 }
-/* line 116, ../sass/_nav.scss */
+/* line 117, ../sass/_nav.scss */
 .footer .brand img {
   height: 50%;
   width: 50%;
 }
-/* line 123, ../sass/_nav.scss */
+/* line 124, ../sass/_nav.scss */
 .footer .partner-info > h5 {
+  width: 100%;
+  text-align: center;
   float: left;
 }
-/* line 128, ../sass/_nav.scss */
+/* line 131, ../sass/_nav.scss */
 .footer .partner-links {
   margin: 0 auto;
   padding: 15px 35px;
 }
-/* line 132, ../sass/_nav.scss */
+/* line 135, ../sass/_nav.scss */
 .footer .partner-links a {
-  margin-right: 20px;
+  margin: 0 10px;
   float: left;
 }
-/* line 136, ../sass/_nav.scss */
+/* line 139, ../sass/_nav.scss */
 .footer .partner-links a.other-partners {
   clear: left;
+  color: #959595;
 }
-/* line 142, ../sass/_nav.scss */
+/* line 146, ../sass/_nav.scss */
 .footer .legal-links {
   padding-top: 15px;
 }
-/* line 144, ../sass/_nav.scss */
+/* line 148, ../sass/_nav.scss */
 .footer .legal-links li {
   line-height: 40px;
   padding: 0 10px;
   font-size: 1.25rem;
   color: #959595;
 }
-/* line 150, ../sass/_nav.scss */
+/* line 154, ../sass/_nav.scss */
 .footer .legal-links li a {
   font-size: 1.25rem;
   color: #959595;
 }
-/* line 154, ../sass/_nav.scss */
+/* line 158, ../sass/_nav.scss */
 .footer .legal-links li a:hover {
   color: #368de8;
 }
-/* line 162, ../sass/_nav.scss */
+/* line 166, ../sass/_nav.scss */
 .footer .legal-links.partner-list li {
   line-height: 5px;
 }
-/* line 168, ../sass/_nav.scss */
+/* line 172, ../sass/_nav.scss */
 .footer p {
   font-size: 1.75rem;
   color: #959595;
@@ -932,11 +936,11 @@ i.icon-back-to {
   top: 25%;
 }
 
-/* line 177, ../sass/_nav.scss */
+/* line 181, ../sass/_nav.scss */
 .nav-utils {
   height: 70px;
 }
-/* line 179, ../sass/_nav.scss */
+/* line 183, ../sass/_nav.scss */
 .nav-utils li {
   width: 70px;
   margin-left: -2px;
@@ -944,7 +948,7 @@ i.icon-back-to {
   background: #f8f8f8;
   border-left: 1px solid #e4e9f0;
 }
-/* line 185, ../sass/_nav.scss */
+/* line 189, ../sass/_nav.scss */
 .nav-utils li a {
   height: 100%;
   width: 100%;
@@ -953,40 +957,40 @@ i.icon-back-to {
   color: #959595;
   text-decoration: none;
 }
-/* line 193, ../sass/_nav.scss */
+/* line 197, ../sass/_nav.scss */
 .nav-utils li a i {
   display: block;
   margin: 20px auto 0;
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 204, ../sass/_nav.scss */
+  /* line 208, ../sass/_nav.scss */
   .navbar-header {
     position: relative;
   }
-  /* line 207, ../sass/_nav.scss */
+  /* line 211, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav {
     position: absolute;
     top: 5px;
     right: 10px;
   }
-  /* line 214, ../sass/_nav.scss */
+  /* line 218, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li a {
     text-align: right;
   }
 
-  /* line 223, ../sass/_nav.scss */
+  /* line 227, ../sass/_nav.scss */
   .navbar-brand img {
     height: 50%;
     width: 160px;
   }
-  /* line 227, ../sass/_nav.scss */
+  /* line 231, ../sass/_nav.scss */
   .navbar-brand img.sub-brand {
     width: 50px;
     height: 15%;
   }
 
-  /* line 234, ../sass/_nav.scss */
+  /* line 238, ../sass/_nav.scss */
   .nav-account {
     display: none;
   }
@@ -1171,6 +1175,14 @@ i.icon-back-to {
   float: left;
   margin: 7px 0 0 10px;
   width: auto;
+}
+
+/* line 187, ../sass/_tables.scss */
+.cleared-row {
+  float: left;
+  clear: left;
+  margin-top: 5px;
+  width: 100%;
 }
 
 /** form styles **/

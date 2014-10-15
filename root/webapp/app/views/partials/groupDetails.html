@@ -64,7 +64,7 @@
         <label>Additional Locations</label>
         <div data-ng-hide="editGroup.locations.length > 0" class="no-items">No additional locations</div>
     </div>
-    <div class="location-list-item"  data-ng-repeat="location in editGroup.locations | orderBy:'id'">
+    <div class="location-list-item cleared-row"  data-ng-repeat="location in editGroup.locations | orderBy:'id'">
         <div class="col-md-1 hidden">{{location.id}}</div>
         <div class="col-md-1"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="label" name="label" data-ng-model="location.label" required></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="name" name="name" data-ng-model="location.name" required></div>
@@ -78,14 +78,14 @@
         </div>
         <span class="saved-notification" data-ng-show="location.saved">&nbsp; Saved Successfully!</span>
     </div>
-    <div class="add-form add-location" data-ng-model="editGroup.newLocation">
+    <div class="add-form add-location cleared-row" data-ng-model="editGroup.newLocation">
         <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" data-ng-model="editGroup.newLocation.label"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="Name" name="newLocationName" data-ng-model="editGroup.newLocation.name"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="Phone" name="newLocationPhone" data-ng-model="editGroup.newLocation.phone"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="Address" name="newLocationAddress" data-ng-model="editGroup.newLocation.address"></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="Web" name="newLocationWeb" data-ng-model="editGroup.newLocation.web"></div>
         <div class="col-md-2"><input type="email" class="form-control" id="group-newLocation-email" placeholder="Email" name="newLocationEmail" data-ng-model="editGroup.newLocation.email"> <span data-ng-show="groupForm.newLocationEmail.$error.email"> Invalid</span></div>
-        <div class="modal-hack"><button type="button" class="btn blue location-add-button" data-ng-click="addLocation(groupForm, editGroup, editGroup.newLocation)" data-ng-disabled="!(editGroup.newLocation.label && editGroup.newLocation.name && !groupForm.newLocationEmail.$error.email)">Add</button></div>
+        <div><button type="button" class="btn blue location-add-button" data-ng-click="addLocation(groupForm, editGroup, editGroup.newLocation)" data-ng-disabled="!(editGroup.newLocation.label && editGroup.newLocation.name && !groupForm.newLocationEmail.$error.email)">Add</button></div>
     </div>
 </div>
         
@@ -203,7 +203,10 @@
         <ul class="name-action-list unstyled inline">
             <li class="feature-list-item" data-ng-repeat="childGroup in editGroup.childGroups">
                 <div class="feature-list-name pull-left"><span class="feature-list-name">{{childGroup.name}}</span></div>
-                <div class="feature-list-delete pull-left" data-ng-show="permissions.canEditChildGroups"><span class="feature-list-delete"><a id="remove-child-group-modal-{{childGroup.id}}" href="" data-ng-click="removeChildGroup(groupForm, editGroup, childGroup)" ><i class="glyphicon glyphicon-remove"></i></a></span></div>
+                <div class="feature-list-delete pull-left" data-ng-show="permissions.canEditChildGroups">
+                    <a id="remove-child-group-modal-{{childGroup.id}}" href="" data-ng-click="removeChildGroup(groupForm, editGroup, childGroup)" ><i class="glyphicon glyphicon-remove"></i>
+                    </a>
+                </div>
             </li>
         </ul>
         <div class="parent-group-add-container item-add-container" data-ng-show="editGroup.availableChildGroups.length > 0 && permissions.canEditChildGroups">
