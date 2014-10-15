@@ -201,7 +201,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
 
     private User callApiCreateUser(User user) {
-        String url = JsonUtil.pvUrl + "/user?encryptPassword=false";
+        String url = JsonUtil.pvUrl + "/user/migrate";
         User newUser = null;
         try {
             newUser = JsonUtil.jsonRequest(url, User.class, user, HttpPost.class);
@@ -211,7 +211,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         } catch (JsonMigrationExistsException jee) {
             LOG.info("User {} already exists", user.getUsername());
         }
-
 
         return newUser;
     }

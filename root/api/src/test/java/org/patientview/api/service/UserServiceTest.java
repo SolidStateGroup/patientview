@@ -36,6 +36,7 @@ import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.HashSet;
 import java.util.Set;
@@ -102,17 +103,20 @@ public class UserServiceTest {
         TestUtils.removeAuthentication();
     }
 
-    /**
-     * Test: The creation of the user with user features, groups and roles
-     * Fail: The creation of the user fails without creating groups or user features
-     *
-     */
     @Test
-    public void testCreateUser() {
+    public void testCreateUser() throws ResourceNotFoundException, ResourceForbiddenException {
 
-        User creator = TestUtils.createUser("testCreateUser");
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
         User newUser = TestUtils.createUser("newTestUser");
-        TestUtils.authenticateTest(newUser);
         Feature feature = TestUtils.createFeature("TEST_FEATURE");
 
         // Add test feature
@@ -121,11 +125,10 @@ public class UserServiceTest {
         newUser.getUserFeatures().add(userFeature);
 
         // Add test role group
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        Group group = TestUtils.createGroup("TEST_GROUP");
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, newUser);
+        Role role2 = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole2 = TestUtils.createGroupRole(role2, group, newUser);
         newUser.setGroupRoles(new HashSet<GroupRole>());
-        newUser.getGroupRoles().add(groupRole);
+        newUser.getGroupRoles().add(groupRole2);
 
         // Add test identifier, with lookup type IDENTIFIER, value NHS_NUMBER
         LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
@@ -134,13 +137,120 @@ public class UserServiceTest {
         newUser.setIdentifiers(new HashSet<Identifier>());
         newUser.getIdentifiers().add(identifier);
 
-        when(userRepository.save(Matchers.eq(newUser))).thenReturn(newUser);
-        when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
-        when(roleRepository.findOne(Matchers.eq(role.getId()))).thenReturn(role);
+        when(userRepository.save(any(User.class))).thenReturn(newUser);
+        when(userRepository.getOne(any(Long.class))).thenReturn(newUser);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
         when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
                 .thenReturn(groupRole);
 
         userService.createUserWithPasswordEncryption(newUser);
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testCreateUserWrongGroup() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Group group2 = TestUtils.createGroup("testGroup2");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        User newUser = TestUtils.createUser("newTestUser");
+        Feature feature = TestUtils.createFeature("TEST_FEATURE");
+
+        // Add test feature
+        UserFeature userFeature = TestUtils.createUserFeature(feature, newUser);
+        newUser.setUserFeatures(new HashSet<UserFeature>());
+        newUser.getUserFeatures().add(userFeature);
+
+        // Add test role group
+        Role role2 = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole2 = TestUtils.createGroupRole(role2, group, newUser);
+        newUser.setGroupRoles(new HashSet<GroupRole>());
+        newUser.getGroupRoles().add(groupRole2);
+
+        // Add test identifier, with lookup type IDENTIFIER, value NHS_NUMBER
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, "NHS_NUMBER");
+        Identifier identifier = TestUtils.createIdentifier(lookup, newUser, "342343424");
+        newUser.setIdentifiers(new HashSet<Identifier>());
+        newUser.getIdentifiers().add(identifier);
+
+        when(userRepository.save(any(User.class))).thenReturn(newUser);
+        when(userRepository.getOne(any(Long.class))).thenReturn(newUser);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
+                .thenReturn(groupRole);
+
+        userService.createUserWithPasswordEncryption(newUser);
+    }
+
+    @Test
+    public void testUpdateUser() throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to save
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+        userService.save(staffUser);
+        verify(userRepository, Mockito.times(1)).save(Matchers.any(User.class));
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testUpdateUserWrongGroup()
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Group group2 = TestUtils.createGroup("testGroup2");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to save
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+
+        userService.save(staffUser);
     }
 
     /**
@@ -153,6 +263,7 @@ public class UserServiceTest {
         String password = "newPassword";
         User user = TestUtils.createUser("testPasswordUser");
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.save(eq(user))).thenReturn(user);
         userService.resetPassword(user.getId(), password);
         verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
         Assert.assertTrue("The user now has the change password flag set", user.getChangePassword());
@@ -309,7 +420,6 @@ public class UserServiceTest {
         userService.deleteGroupRole(staffUser.getId(), group.getId(), staffRole.getId());
         verify(groupRoleRepository, Mockito.times(1)).delete(Matchers.any(GroupRole.class));
     }
-
 
     @Test
     public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException {

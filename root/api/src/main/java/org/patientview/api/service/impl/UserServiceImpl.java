@@ -260,6 +260,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public User add(User user) {
 
+        User creator = getCurrentUser();
         User newUser;
 
         if (getByUsername(user.getUsername()) != null) {
@@ -270,7 +271,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new EntityExistsException("User already exists (email)");
         }
 
-        user.setCreator(userRepository.findOne(1L));
+        user.setCreator(userRepository.findOne(getCurrentUser().getId()));
         // Everyone should change their password at login
         user.setChangePassword(Boolean.TRUE);
 
@@ -289,7 +290,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setGroup(entityGroup);
                     groupRole.setRole(entityRole);
                     groupRole.setUser(newUser);
-                    groupRole.setCreator(userRepository.findOne(1L));
+                    groupRole.setCreator(userRepository.findOne(creator.getId()));
                     groupRole = groupRoleRepository.save(groupRole);
                     addParentGroupRoles(groupRole);
                 }
@@ -305,7 +306,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             for (UserFeature userFeature : user.getUserFeatures()) {
                 userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
                 userFeature.setUser(userRepository.findOne(userId));
-                userFeature.setCreator(userRepository.findOne(1L));
+                userFeature.setCreator(userRepository.findOne(creator.getId()));
                 userFeatureRepository.save(userFeature);
             }
         }
@@ -317,7 +318,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             for (Identifier identifier : user.getIdentifiers()) {
                 identifier.setId(null);
                 identifier.setUser(userRepository.findOne(userId));
-                identifier.setCreator(userRepository.findOne(1L));
+                identifier.setCreator(userRepository.findOne(creator.getId()));
                 identifierRepository.save(identifier);
             }
         }
@@ -349,14 +350,26 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * @param user
      * @return
      */
-    public User createUserWithPasswordEncryption(User user) {
+    public org.patientview.api.model.User createUserWithPasswordEncryption(User user)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-        return add(user);
+
+        // validate that group roles exist and current user has rights to create
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (!groupRepository.exists(groupRole.getGroup().getId())) {
+                throw new ResourceNotFoundException("Group does not exist");
+            }
+            if (!isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
+        }
+
+        return new org.patientview.api.model.User(add(user), null);
     }
 
     //Migration Only
-    public User createUserNoEncryption(User user) {
-        return add(user);
+    public org.patientview.api.model.User createUserNoEncryption(User user) {
+        return new org.patientview.api.model.User(add(user), null);
     }
 
     // not used
@@ -407,19 +420,44 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return false;
     }
 
-    public User getByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public org.patientview.api.model.User getByUsername(String username) {
+        User foundUser = userRepository.findByUsername(username);
+        if (foundUser == null) {
+            return null;
+        } else {
+            return new org.patientview.api.model.User(foundUser, null);
+        }
+    }
+    public org.patientview.api.model.User getByEmail(String email) {
+        User foundUser = userRepository.findByEmail(email);
+        if (foundUser == null) {
+            return null;
+        } else {
+            return new org.patientview.api.model.User(foundUser, null);
+        }
     }
 
-    public User getByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public User save(User user) throws ResourceNotFoundException {
+    public User save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findUser(user.getId());
 
         if (entityUser == null) {
             throw new ResourceNotFoundException("User cannot be found");
+        }
+
+        // don't allow setting username to same as other users
+        org.patientview.api.model.User existingUser = getByUsername(user.getUsername());
+        if (existingUser != null && !existingUser.getId().equals(entityUser.getId())) {
+            throw new EntityExistsException("Username in use by another User");
+        }
+
+        for (GroupRole groupRole : entityUser.getGroupRoles()) {
+            if (!groupRepository.exists(groupRole.getGroup().getId())) {
+                throw new ResourceNotFoundException("Group does not exist");
+            }
+        }
+
+        if (!canGetUser(entityUser)) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         entityUser.setForename(user.getForename());
@@ -587,11 +625,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * @param password
      * @return
      */
-    public User resetPassword(Long userId, String password) throws ResourceNotFoundException {
+    public org.patientview.api.model.User resetPassword(Long userId, String password) throws ResourceNotFoundException {
         User user = findUser(userId);
         user.setChangePassword(Boolean.TRUE);
         user.setPassword(DigestUtils.sha256Hex(password));
-        return userRepository.save(user);
+        return new org.patientview.api.model.User(userRepository.save(user), null);
     }
 
     /**
