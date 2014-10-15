@@ -90,7 +90,9 @@ public interface UserService {
 
     void resetPasswordByUsernameAndEmail(String username, String email) throws ResourceNotFoundException;
 
+    @UserOnly
     void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;
 
+    @UserOnly
     List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException;
 }

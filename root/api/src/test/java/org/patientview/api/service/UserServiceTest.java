@@ -22,21 +22,26 @@ import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
+import org.patientview.persistence.repository.UserInformationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -73,6 +78,9 @@ public class UserServiceTest {
 
     @Mock
     private IdentifierRepository identifierRepository;
+
+    @Mock
+    private UserInformationRepository userInformationRepository;
 
     @Mock
     private EmailService emailService;
@@ -566,5 +574,56 @@ public class UserServiceTest {
 
         userService.deleteFeature(staffUser.getId(), feature.getId());
         verify(userFeatureRepository, Mockito.times(1)).delete(any(UserFeature.class));
+    }
+
+    @Test
+    public void testGetInformation() throws ResourceNotFoundException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        UserInformation userInformation
+                = TestUtils.createUserInformation(user, UserInformationTypes.SHOULD_KNOW, "shouldKnow");
+        List<UserInformation> userInformations = new ArrayList<>();
+        userInformations.add(userInformation);
+
+        when(userInformationRepository.findByUser(eq(user))).thenReturn(userInformations);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        userService.getInformation(user.getId());
+        verify(userInformationRepository, Mockito.times(1)).findByUser(any(User.class));
+    }
+
+    @Test
+    public void testAddInformation() throws ResourceNotFoundException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        UserInformation userInformation
+                = TestUtils.createUserInformation(user, UserInformationTypes.SHOULD_KNOW, "shouldKnow");
+        List<UserInformation> userInformations = new ArrayList<>();
+        userInformations.add(userInformation);
+
+        when(userInformationRepository.save(any(UserInformation.class))).thenReturn(userInformation);
+        when(userInformationRepository.findByUserAndType(eq(user), any(UserInformationTypes.class))).thenReturn(userInformation);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        userService.addInformation(user.getId(), userInformations);
+        verify(userInformationRepository, Mockito.times(1)).save(any(UserInformation.class));
     }
 }
