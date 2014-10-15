@@ -36,7 +36,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
             // build message
             var message = {};
-            message.user = $scope.loggedInUser;
+            message.user = {};
+            message.user.id = $scope.loggedInUser.id;
             message.message = $scope.newConversation.message;
             message.type = 'MESSAGE';
             conversation.messages[0] = message;

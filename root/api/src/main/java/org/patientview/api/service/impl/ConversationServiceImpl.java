@@ -367,23 +367,34 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return conversationRepository.getUnreadConversationCount(userId);
     }
 
-    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
-        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
+    private List<org.patientview.api.model.BaseUser> convertUsersToTransportBaseUsers(List<User> users) {
+        List<org.patientview.api.model.BaseUser> transportUsers = new ArrayList<>();
 
         for (User user : users) {
-            transportUsers.add(new org.patientview.api.model.User(user, null));
+            transportUsers.add(new org.patientview.api.model.BaseUser(user));
         }
 
         return transportUsers;
     }
 
-    public List<org.patientview.api.model.User> getRecipients(Long userId, String[] featureTypes)
+    private List<org.patientview.api.model.BaseUser> convertApiUsersToTransportBaseUsers(
+            List<org.patientview.api.model.User> users) {
+        List<org.patientview.api.model.BaseUser> transportUsers = new ArrayList<>();
+
+        for (org.patientview.api.model.User user : users) {
+            transportUsers.add(new org.patientview.api.model.BaseUser(user));
+        }
+
+        return transportUsers;
+    }
+
+    public List<org.patientview.api.model.BaseUser> getRecipients(Long userId, String[] featureTypes)
             throws ResourceNotFoundException {
         User entityUser = findEntityUser(userId);
 
         // global admin can contact all users
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            return convertUsersToTransportUsers(userRepository.findAll());
+            return convertUsersToTransportBaseUsers(userRepository.findAll());
         }
 
         List<String> groupIdList = new ArrayList<>();
@@ -405,7 +416,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // specialty/unit staff and admin can contact all users in specialty/unit
         if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN)) {
-            return userService.getUsersByGroupsAndRoles(getParameters).getContent();
+            return convertApiUsersToTransportBaseUsers(
+                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
         }
 
         // patients can only contact staff with feature names passed in
@@ -420,7 +432,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 }
             }
             getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
-            return userService.getUsersByGroupsRolesFeatures(getParameters).getContent();
+            return convertApiUsersToTransportBaseUsers(
+                    userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
         }
 
         throw new ResourceNotFoundException("No suitable roles");

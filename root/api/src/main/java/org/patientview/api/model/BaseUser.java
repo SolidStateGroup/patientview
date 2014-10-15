@@ -22,6 +22,13 @@ public class BaseUser {
         setSurname(user.getSurname());
     }
 
+    public BaseUser(org.patientview.api.model.User user) {
+        setId(user.getId());
+        setUsername(user.getUsername());
+        setForename(user.getForename());
+        setSurname(user.getSurname());
+    }
+
     public Long getId() {
         return id;
     }
