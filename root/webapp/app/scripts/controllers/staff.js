@@ -454,8 +454,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
             // update accordion header for group with data from GET
             UserService.get(user.id).then(function (successResult) {
-                for(var i=0;i<$scope.pagedItems.length;i++) {
-                    if($scope.pagedItems[i].id === successResult.id) {
+                for (var i = 0; i < $scope.pagedItems.length; i++) {
+                    if ($scope.pagedItems[i].id === successResult.id) {
                         var headerDetails = $scope.pagedItems[i];
                         headerDetails.forename = successResult.forename;
                         headerDetails.surname = successResult.surname;
@@ -468,6 +468,13 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             });
 
             $scope.successMessage = 'User saved';
+        }, function (failureResult) {
+            if (failureResult.status === 409) {
+                // conflict (already exists)
+                alert("Cannot save User: " + failureResult.data);
+            } else {
+                alert("Cannot save User: " + failureResult.data);
+            }
         });
     };
 

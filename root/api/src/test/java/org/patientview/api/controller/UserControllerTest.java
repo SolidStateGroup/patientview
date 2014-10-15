@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -37,7 +36,6 @@ import java.util.Set;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -105,41 +103,32 @@ public class UserControllerTest {
         }
     }
 
-    /**
-     * Test: User creation without password reset
-     * Fail: The UserService does not get called
-     *
-     * Improve test to verify the correct user is being saved
-     */
     @Test
-    @Ignore("Needs refactoring sprint 3")
     public void testCreateUser() throws ResourceNotFoundException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
         User postUser = TestUtils.createUser("testPost");
-        User persistedUser = TestUtils.createUser("testPost");
 
-        TestUtils.authenticateTest(postUser);
-
-        when(userService.get(anyLong())).thenReturn(TestUtils.createUser( "creator"));
-
-        when(userService.createUserWithPasswordEncryption(any(User.class))).thenReturn(persistedUser);
         try {
             mockMvc.perform(MockMvcRequestBuilders.post("/user")
                     .content(mapper.writeValueAsString(postUser)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isCreated());
         }
-
         catch (Exception e) {
-            fail("The post request all should not fail " + e.getCause());
+            fail("Exception: " + e.getCause());
         }
-
-        verify(userService, Mockito.times(1)).createUserWithPasswordEncryption(any(User.class));
     }
 
-
-    /**
-     * Test: Adding a GroupRole to a user
-     * Fail: The GroupService method does not get called
-     */
     @Test
     public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -171,7 +160,7 @@ public class UserControllerTest {
             fail("Exception: " + e.getMessage());
         }
 
-        verify(userService, Mockito.times(1)).delete(Matchers.eq(staffUser.getId()));
+        verify(userService, Mockito.times(1)).delete(eq(staffUser.getId()));
     }
 
     /**
@@ -214,7 +203,7 @@ public class UserControllerTest {
         }
 
         verify(userService, Mockito.times(1)).addGroupRole(
-                Matchers.eq(staffUser.getId()), Matchers.eq(group.getId()), Matchers.eq(newStaffRole.getId()));
+                eq(staffUser.getId()), eq(group.getId()), eq(newStaffRole.getId()));
     }
 
     /**
@@ -253,7 +242,7 @@ public class UserControllerTest {
         }
 
         verify(userService, Mockito.times(1)).deleteGroupRole(
-                Matchers.eq(staffUser.getId()), Matchers.eq(group.getId()), Matchers.eq(staffRole.getId()));
+                eq(staffUser.getId()), eq(group.getId()), eq(staffRole.getId()));
     }
 
     /**

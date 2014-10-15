@@ -7,7 +7,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
-import org.patientview.persistence.model.User;
+import org.patientview.api.model.User;
 import org.patientview.persistence.model.UserInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class UserController extends BaseController<UserController> {
     // add group role to user
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.PUT)
     @ResponseBody
-    public void addUserGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
+    public void addGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
             @PathVariable("roleId") Long roleId) throws ResourceNotFoundException, ResourceForbiddenException {
         userService.addGroupRole(userId, groupId, roleId);
     }
@@ -60,7 +60,7 @@ public class UserController extends BaseController<UserController> {
     // remove group role from user
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteUserGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
+    public void deleteGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
             @PathVariable("roleId") Long roleId) throws ResourceNotFoundException, ResourceForbiddenException {
         userService.deleteGroupRole(userId, groupId, roleId);
     }
@@ -81,7 +81,7 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.getUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
     }
 
-    // TODO Sprint 2, required by migration
+    // required by migration
     @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> getUserByUsername(@RequestParam("username") String username) {
@@ -96,55 +96,56 @@ public class UserController extends BaseController<UserController> {
         userService.delete(userId);
     }
 
-    // TODO Sprint 3 split this into different methods as UI only needs transport user
+    // Creating new user in UI
     @RequestMapping(value = "/user", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> createUser(@RequestBody User user,
-       @RequestParam(value = "encryptPassword", required = false) Boolean encryptPassword)
+    public ResponseEntity<User> createUser(@RequestBody org.patientview.persistence.model.User  user)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        User createdUser;
+        try {
+            createdUser = userService.createUserWithPasswordEncryption(user);
+        } catch (EntityExistsException eee) {
+            User foundUser = userService.getByUsername(user.getUsername());
+            if (foundUser != null) {
+                // found by username
+                return new ResponseEntity<>(foundUser, HttpStatus.CONFLICT);
+            } else {
+                // found by email
+                return new ResponseEntity<>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
+            }
+        }
+
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    // Migration Only, are migrating passwords so create user with no password encryption
+    @RequestMapping(value = "/user/migrate", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<User> migrateUser(@RequestBody org.patientview.persistence.model.User user)
             throws ResourceNotFoundException {
-
-        LOG.debug("Request has been received for userId : {}", user.getUsername());
-        user.setCreator(userService.get(1L));
-
-        if (encryptPassword != null && encryptPassword.equals(Boolean.FALSE)) {
-            // Migration Only, are migrating passwords so create user with no password encryption
-            try {
-                user = userService.createUserNoEncryption(user);
-            } catch (EntityExistsException eee) {
-                User foundUser = userService.getByUsername(user.getUsername());
-                if (foundUser != null) {
-                    // found by username
-                    return new ResponseEntity<>(foundUser, HttpStatus.CONFLICT);
-                } else {
-                    // found by email
-                    return new ResponseEntity<>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
-                }
+        User createdUser;
+        try {
+            createdUser = userService.createUserNoEncryption(user);
+        } catch (EntityExistsException eee) {
+            User foundUser = userService.getByUsername(user.getUsername());
+            if (foundUser != null) {
+                // found by username
+                return new ResponseEntity<>(foundUser, HttpStatus.CONFLICT);
+            } else {
+                // found by email
+                return new ResponseEntity<>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
             }
         }
 
-        if (user.getId() == null) {
-            // creating new user in UI
-            try {
-                user = userService.createUserWithPasswordEncryption(user);
-            } catch (EntityExistsException eee) {
-                User foundUser = userService.getByUsername(user.getUsername());
-                if (foundUser != null) {
-                    // found by username
-                    return new ResponseEntity<>(foundUser, HttpStatus.CONFLICT);
-                } else {
-                    // found by email
-                    return new ResponseEntity<>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
-                }
-            }
-        }
-
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void updateUser(@RequestBody User user) throws ResourceNotFoundException {
+    public void updateUser(@RequestBody org.patientview.persistence.model.User user)
+            throws EntityExistsException, ResourceNotFoundException {
         userService.save(user);
     }
 

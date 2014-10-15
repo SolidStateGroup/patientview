@@ -572,6 +572,13 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             });
 
             $scope.successMessage = 'User saved';
+        }, function (failureResult) {
+            if (failureResult.status === 409) {
+                // conflict (already exists)
+                alert("Cannot save User: " + failureResult.data);
+            } else {
+                alert("Cannot save User: " + failureResult.data);
+            }
         });
     };
 

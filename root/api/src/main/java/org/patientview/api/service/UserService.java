@@ -27,18 +27,21 @@ public interface UserService {
 
     List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException;
 
-    User getByUsername(String username);
+    org.patientview.api.model.User getByUsername(String username);
 
-    User getByEmail(String username);
-
-    @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
-    User createUserWithPasswordEncryption(User user);
+    org.patientview.api.model.User getByEmail(String username);
 
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
-    User createUserNoEncryption(User user);
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    org.patientview.api.model.User createUserWithPasswordEncryption(User user)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    // used by migration
+    @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
+    org.patientview.api.model.User createUserNoEncryption(User user);
 
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
-    User save(User user) throws ResourceNotFoundException;
+    User save(User user) throws EntityExistsException, ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId) throws ResourceNotFoundException;
@@ -69,7 +72,7 @@ public interface UserService {
     User changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
-    User resetPassword(Long userId, String password) throws ResourceNotFoundException;
+    org.patientview.api.model.User resetPassword(Long userId, String password) throws ResourceNotFoundException;
 
     Boolean sendVerificationEmail(Long userId);
 
