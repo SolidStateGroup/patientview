@@ -42,7 +42,7 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
             throw new ResourceNotFoundException("Group not found");
         }
 
-        if (!isMemberOfGroup(group, getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(group)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -80,7 +80,7 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
             throw new ResourceNotFoundException("Contact point does not exist");
         }
 
-        if (!isMemberOfGroup(link.getGroup(), getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(link.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -94,7 +94,7 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
             throw new ResourceNotFoundException("Link does not exist");
         }
 
-        if (!isMemberOfGroup(link.getGroup(), getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(link.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -110,7 +110,7 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
         }
 
         if (link.getGroup() != null) {
-            if (!isMemberOfGroup(entityLink.getGroup(), getCurrentUser())) {
+            if (!isCurrentUserMemberOfGroup(entityLink.getGroup())) {
                 throw new ResourceForbiddenException("Forbidden");
             }
         }

@@ -73,7 +73,8 @@ function ($scope, UserService, IdentifierService) {
                     }
                     user.groupRoles = successResult.groupRoles;
                 }, function () {
-                    alert('Error updating header (saved successfully)');
+                    alert('Error loading data (but saved successfully)');
+                    $scope.getItems();
                 });
             }, function () {
                 alert('Error deleting group role');

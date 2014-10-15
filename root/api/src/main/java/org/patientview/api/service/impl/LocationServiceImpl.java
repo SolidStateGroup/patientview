@@ -48,7 +48,7 @@ public class LocationServiceImpl extends AbstractServiceImpl<LocationServiceImpl
             throw new ResourceNotFoundException("Contact point does not exist");
         }
 
-        if (!isMemberOfGroup(location.getGroup(), getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(location.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -63,7 +63,7 @@ public class LocationServiceImpl extends AbstractServiceImpl<LocationServiceImpl
             throw new ResourceNotFoundException("Contact point does not exist");
         }
 
-        if (!isMemberOfGroup(location.getGroup(), getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(location.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -78,7 +78,7 @@ public class LocationServiceImpl extends AbstractServiceImpl<LocationServiceImpl
             throw new ResourceNotFoundException("Contact point does not exist");
         }
 
-        if (!isMemberOfGroup(entityLocation.getGroup(), getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(entityLocation.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 

@@ -60,7 +60,7 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
             throw new ResourceNotFoundException("Contact point does not exist");
         }
 
-        if (!isMemberOfGroup(contactPoint.getGroup(), getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(contactPoint.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -75,7 +75,7 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
             throw new ResourceNotFoundException("Contact point does not exist");
         }
 
-        if (!isMemberOfGroup(contactPoint.getGroup(), getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(contactPoint.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -91,7 +91,7 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
             throw new ResourceNotFoundException("Contact point does not exist");
         }
 
-        if (!isMemberOfGroup(contactPoint.getGroup(), getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(contactPoint.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 

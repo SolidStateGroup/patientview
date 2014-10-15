@@ -107,6 +107,19 @@ public final class TestUtils {
         return role;
     }
 
+    public static Role createRole(RoleName name, RoleType roleType) {
+        org.patientview.persistence.model.RoleType roleTypeObj = new org.patientview.persistence.model.RoleType();
+        roleTypeObj.setValue(roleType);
+
+        Role role = new Role();
+        role.setId(getId());
+        role.setRoleType(roleTypeObj);
+        role.setName(name);
+        role.setCreated(new Date());
+        role.setCreator(creator);
+        return role;
+    }
+
 
     public static Feature createFeature(String name) {
         Feature feature = new Feature();

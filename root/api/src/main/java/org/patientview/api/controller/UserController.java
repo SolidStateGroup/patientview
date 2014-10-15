@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
@@ -40,27 +41,32 @@ public class UserController extends BaseController<UserController> {
 
     private static final int MINIMUM_PASSWORD_LENGTH = 7;
 
+    // get User, secured in service
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<org.patientview.api.model.User> getUser(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
     }
 
+    // add group role to user
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.PUT)
     @ResponseBody
     public void addUserGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
-            @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
+            @PathVariable("roleId") Long roleId) throws ResourceNotFoundException, ResourceForbiddenException {
         userService.addGroupRole(userId, groupId, roleId);
     }
 
+    // remove group role from user
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteUserGroupRole(@PathVariable("userId") Long userId,
-          @PathVariable("groupId") Long groupId, @PathVariable("roleId") Long roleId) throws ResourceNotFoundException {
+    public void deleteUserGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
+            @PathVariable("roleId") Long roleId) throws ResourceNotFoundException, ResourceForbiddenException {
         userService.deleteGroupRole(userId, groupId, roleId);
     }
 
+    // remove all group roles for user (used when 'deleting' user with KEEP_ALL_DATA feature available on one of
+    // their groups)
     @RequestMapping(value = "/user/{userId}/removeallgrouproles", method = RequestMethod.DELETE)
     @ResponseBody
     public void removeAllGroupRoles(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
@@ -82,9 +88,11 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
     }
 
+    // permanently delete user (NOT just remove from all groups)
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
+    public void deleteUser(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         userService.delete(userId);
     }
 

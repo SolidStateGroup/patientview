@@ -1,6 +1,8 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.AuditTrail;
+import org.patientview.api.annotation.RoleOnly;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
@@ -8,6 +10,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +23,7 @@ import java.util.List;
  * Created on 19/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface UserService extends CrudService<User> {
+public interface UserService {
 
     List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException;
 
@@ -40,16 +43,24 @@ public interface UserService extends CrudService<User> {
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId) throws ResourceNotFoundException;
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
-    org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException;
+    org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
-            throws ResourceNotFoundException, EntityExistsException;
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
-    void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException;
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    void deleteGroupRole(Long userId, Long groupId, Long roleId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void removeAllGroupRoles(Long userId) throws ResourceNotFoundException;
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
     Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters);
 
     Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters);

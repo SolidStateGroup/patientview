@@ -14,9 +14,14 @@ import org.patientview.api.model.Credentials;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.http.MediaType;
@@ -27,6 +32,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -132,26 +139,121 @@ public class UserControllerTest {
     /**
      * Test: Adding a GroupRole to a user
      * Fail: The GroupService method does not get called
-     *
-     * Improve test to verify the correct user is being saved
      */
     @Test
-    public void testAddGroupRole() throws ResourceNotFoundException {
-        Long userId = 1L;
-        Long groupId = 2L;
-        Long roleId = 3L;
+    public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException {
 
-        String url = "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to delete
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        String url = "/user/" + staffUser.getId();
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete(url))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+
+        verify(userService, Mockito.times(1)).delete(Matchers.eq(staffUser.getId()));
+    }
+
+    /**
+     * Test: Adding a GroupRole to a user
+     * Fail: The GroupService method does not get called
+     */
+    @Test
+    public void testAddGroupRole() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to modify
+        Group group2 = TestUtils.createGroup("testGroup2");
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        // new role
+        Role newStaffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+
+        String url = "/user/" + staffUser.getId() + "/group/" + group.getId() + "/role/" + newStaffRole.getId();
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.put(url))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         }
         catch (Exception e) {
-            fail("The put request all should not fail " + e.getCause());
+            fail("Exception: " + e.getMessage());
         }
 
-        verify(userService, Mockito.times(1)).addGroupRole(Matchers.eq(userId), Matchers.eq(groupId), Matchers.eq(roleId));
+        verify(userService, Mockito.times(1)).addGroupRole(
+                Matchers.eq(staffUser.getId()), Matchers.eq(group.getId()), Matchers.eq(newStaffRole.getId()));
+    }
+
+    /**
+     * Test: Removing a GroupRole from a user
+     * Fail: The GroupService method does not get called
+     */
+    @Test
+    public void testDeleteGroupRole() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to modify
+        Group group2 = TestUtils.createGroup("testGroup2");
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        String url = "/user/" + staffUser.getId() + "/group/" + group.getId() + "/role/" + staffRole.getId();
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+
+        verify(userService, Mockito.times(1)).deleteGroupRole(
+                Matchers.eq(staffUser.getId()), Matchers.eq(group.getId()), Matchers.eq(staffRole.getId()));
     }
 
     /**

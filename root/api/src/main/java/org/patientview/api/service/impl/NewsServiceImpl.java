@@ -241,9 +241,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
         }
 
-        User currentUser = getCurrentUser();
-
-        if (!isMemberOfGroup(entityGroup, currentUser)) {
+        if (!isCurrentUserMemberOfGroup(entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -257,13 +255,11 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         if (!found) {
-            User creator = userRepository.findOne(currentUser.getId());
             NewsLink newsLink = new NewsLink();
             newsLink.setNewsItem(entityNewsItem);
             newsLink.setGroup(entityGroup);
-            newsLink.setCreator(creator);
+            newsLink.setCreator(userRepository.findOne(getCurrentUser().getId()));
             entityNewsItem.getNewsLinks().add(newsLink);
-
             newsItemRepository.save(entityNewsItem);
         }
     }
@@ -281,7 +277,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find group %s", groupId));
         }
 
-        if (!isMemberOfGroup(entityGroup, getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -378,7 +374,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             throw new ResourceNotFoundException(String.format("Could not find role %s", roleId));
         }
 
-        if (!isMemberOfGroup(entityGroup, getCurrentUser())) {
+        if (!isCurrentUserMemberOfGroup(entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -444,19 +440,17 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             }
             return false;
         }
-
         return true;
     }
 
     private boolean canModifyNewsItem(NewsItem newsItem) {
-        User currentUser = getCurrentUser();
         for (NewsLink newsLink : newsItem.getNewsLinks()) {
             if (newsLink.getGroup() == null) {
                 // ignore GLOBAL_ADMIN and PUBLIC roles
                 if (newsLink.getRole().getName().equals(RoleName.PUBLIC)) {
                     return true;
                 }
-            } else if (isMemberOfGroup(newsLink.getGroup(), currentUser)) {
+            } else if (isCurrentUserMemberOfGroup(newsLink.getGroup())) {
                 return true;
             }
         }

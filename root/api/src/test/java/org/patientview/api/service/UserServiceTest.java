@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.impl.UserServiceImpl;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
@@ -24,6 +25,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -36,6 +38,7 @@ import org.patientview.test.util.TestUtils;
 
 import javax.persistence.EntityManager;
 import java.util.HashSet;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -225,28 +228,114 @@ public class UserServiceTest {
         Assert.assertTrue("The set change password is set", user.getChangePassword() == Boolean.TRUE);
     }
 
-
     /**
      * Test: To save a Group with Role to a user
      * Fail: The repository does not get called
-     *
-     * Matching is required on the save call
      */
     @Test
-    public void testAddGroupRole() throws ResourceNotFoundException {
-        User testUser = TestUtils.createUser("testUser");
-        Group testGroup = TestUtils.createGroup("testGroup");
-        Role testRole = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRole = TestUtils.createGroupRole(testRole, testGroup, testUser);
+    public void testAddGroupRole() throws ResourceNotFoundException, ResourceForbiddenException {
 
-        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
-        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
-        when(roleRepository.findOne(Matchers.eq(testRole.getId()))).thenReturn(testRole);
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to modify
+        Group group2 = TestUtils.createGroup("testGroup2");
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        // new role
+        Role newStaffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+
+        when(userRepository.findOne(Matchers.eq(staffUser.getId()))).thenReturn(staffUser);
+        when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findOne(Matchers.eq(group2.getId()))).thenReturn(group2);
+        when(roleRepository.findOne(Matchers.eq(newStaffRole.getId()))).thenReturn(newStaffRole);
         when(groupRoleRepository.save(Matchers.any(GroupRole.class))).thenReturn(groupRole);
 
-        groupRole = userService.addGroupRole(testUser.getId(), testGroup.getId(), testRole.getId());
+        // add GroupRole to staff user
+        groupRole = userService.addGroupRole(staffUser.getId(), group.getId(), newStaffRole.getId());
 
         Assert.assertNotNull("The returned object should not be null", groupRole);
         verify(groupRoleRepository, Mockito.times(1)).save(Matchers.any(GroupRole.class));
+    }
+
+    /**
+     * Test: To remove a group role
+     * Fail: The repository does not get called
+     */
+    @Test
+    public void testDeleteGroupRole() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to modify
+        Group group2 = TestUtils.createGroup("testGroup2");
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
+        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+        when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
+                .thenReturn(groupRoleStaff);
+
+        // add GroupRole to staff user
+        userService.deleteGroupRole(staffUser.getId(), group.getId(), staffRole.getId());
+        verify(groupRoleRepository, Mockito.times(1)).delete(Matchers.any(GroupRole.class));
+    }
+
+
+    @Test
+    public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to delete
+        User staffUser = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+
+        userService.delete(staffUser.getId());
+        verify(userRepository, Mockito.times(1)).delete(Matchers.any(User.class));
     }
 }

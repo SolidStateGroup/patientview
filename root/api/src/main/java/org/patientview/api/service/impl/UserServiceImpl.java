@@ -9,6 +9,7 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.exception.FhirResourceException;
@@ -121,7 +122,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         parentGroupRole.setGroup(parentEntityGroup);
                         parentGroupRole.setRole(entityRole);
                         parentGroupRole.setUser(entityUser);
-                        parentGroupRole.setCreator(userRepository.findOne(1L));
+                        parentGroupRole.setCreator(userRepository.findOne(getCurrentUser().getId()));
                         groupRoleRepository.save(parentGroupRole);
                     }
                 }
@@ -130,7 +131,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     public GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
-            throws ResourceNotFoundException, EntityExistsException {
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
 
         User user = userRepository.findOne(userId);
         Group group = groupRepository.findOne(groupId);
@@ -138,6 +139,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         if (user == null || group == null || role == null) {
             throw new ResourceNotFoundException();
+        }
+
+        // validate i can add to requested group (staff role)
+        if (!isCurrentUserMemberOfGroup(group)) {
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         if (groupRoleRepository.findByUserGroupRole(user, group, role) != null) {
@@ -148,13 +154,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRole.setUser(user);
         groupRole.setGroup(group);
         groupRole.setRole(role);
-        groupRole.setCreator(userRepository.findOne(1L));
+        groupRole.setCreator(userRepository.findOne(getCurrentUser().getId()));
         groupRole = groupRoleRepository.save(groupRole);
         addParentGroupRoles(groupRole);
         return groupRole;
     }
 
-    public void deleteGroupRole(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException {
+    public void deleteGroupRole(Long userId, Long groupId, Long roleId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
 
         deleteGroupRoleRelationship(userId, groupId, roleId);
 
@@ -166,16 +173,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Set<GroupRole> toRemove = new HashSet<>();
         Set<GroupRole> userGroupRoles = new HashSet<>();
 
-        // remove from user.getGroupRoles as not deleted in this transaction yet
+        // remove deleted grouprole from user.getGroupRoles as not deleted in this transaction yet
         for (GroupRole groupRole : user.getGroupRoles()) {
-            if (groupRole.getGroup().getId() != groupId) {
+            if (!(groupRole.getGroup().getId().equals(groupId) && groupRole.getRole().getId().equals(roleId))) {
                 userGroupRoles.add(groupRole);
             }
         }
 
         // identify specialty groups with no children
         for (GroupRole groupRole : userGroupRoles) {
-            if (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+            if (groupRole.getGroup().getGroupType() != null
+                    && groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
 
                 List<Group> children = groupService.findChildren(groupRole.getGroup().getId());
                 boolean childInGroupRoles = false;
@@ -210,16 +218,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRoleRepository.removeAllGroupRoles(entityUser);
     }
 
-    private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId) throws ResourceNotFoundException {
-
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+    private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
 
         Group entityGroup = groupRepository.findOne(groupId);
         if (entityGroup == null) {
             throw new ResourceNotFoundException("Group not found");
+        }
+
+        // check if current user is a member of the group to be removed
+        if (!isCurrentUserMemberOfGroup(entityGroup)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        User entityUser = userRepository.findOne(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("User not found");
         }
 
         Role entityRole = roleRepository.findOne(roleId);
@@ -345,6 +359,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return add(user);
     }
 
+    // not used
     public User get(Long userId) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -353,11 +368,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return user;
     }
 
-    public org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException {
+    public org.patientview.api.model.User getUser(Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User with this ID does not exist");
         }
+
+        if (!canGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         org.patientview.api.model.User transportUser = new org.patientview.api.model.User(user, null);
 
         // get last data received if present
@@ -368,6 +390,21 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         return transportUser;
+    }
+
+    private boolean canGetUser(User user) {
+        // if i am trying to access myself
+        if (getCurrentUser().equals(user)) {
+            return true;
+        }
+
+        // if i have staff group role in same groups
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public User getByUsername(String username) {
@@ -512,8 +549,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return new PageImpl<>(transportContent, pageable, users.getTotalElements());
     }
 
-    public void delete(Long userId) {
-        userRepository.delete(userId);
+    public void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User entityUser = findUser(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("User cannot be found");
+        }
+
+        if (canGetUser(entityUser)) {
+            userRepository.delete(entityUser);
+        }
     }
 
     public List<Feature> getUserFeatures(Long userId) throws ResourceNotFoundException {

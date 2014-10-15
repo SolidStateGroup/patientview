@@ -85,7 +85,10 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         return longs;
     }
 
-    protected boolean isMemberOfGroup(Group group, User user) {
+    protected boolean isCurrentUserMemberOfGroup(Group group) {
+
+        User user = getCurrentUser();
+
         // unit admins / specialty admins can only add groups they belong to
         if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
             return true;
