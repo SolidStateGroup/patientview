@@ -154,13 +154,16 @@ public class AuthenticateFilterTokenTest {
     }
 
     /**
-     * Test: To see if the filter will avoid authenticating /api/auth/logout
+     * Test: To see if the filter will avoid authenticating /api/error
      * Fail: The filter will not authenticate the request
      *
      */
     @Test
     public void testAuthenticationFromToken_errorRequest() {
 
+        // required during testing
+        authenticateTokenFilter.init();
+        
         //Create a token
         String token = "token";
         UserToken userToken = new UserToken();
