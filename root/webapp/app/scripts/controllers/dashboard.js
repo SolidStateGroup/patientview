@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService', 'UtilService',
-function (UserService, $scope, GroupService, NewsService, UtilService) {
+angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService', 'NewsService', 'UtilService',
+function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -124,6 +124,25 @@ function (UserService, $scope, GroupService, NewsService, UtilService) {
             $scope.loading = false;
         }, function() {
             $scope.loading = false;
+        });
+    };
+
+    $scope.viewNewsItem = function(news) {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/viewNewsModal.html',
+            controller: ViewNewsModalInstanceCtrl,
+            size: 'lg',
+            resolve: {
+                news: function(){
+                    return news;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
         });
     };
 

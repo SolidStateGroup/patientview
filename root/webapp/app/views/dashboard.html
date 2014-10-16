@@ -129,13 +129,12 @@
                             <h4>{{news.heading}}</h4>
                             <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                             <div>
-                                <p data-ng-class="{'clamped': !news.showMore, 'clamped-2': !news.showMore}" class="message-content">
+                                <p class="message-content">
                                     <span class="text">
                                         <span data-ng-bind-html="parseHTMLText(news.story)"></span>
-                                        <span class="ellipsis" data-ng-hide="news.showMore">
-                                            &nbsp;&nbsp;&nbsp;<a href="" data-ng-click="news.showMore = true">Show More</a>
+                                        <br/>
+                                        <span class="pull-right"><a href="" data-ng-click="viewNewsItem(news)">Show More</a>
                                         </span>
-                                        <span class="fill" data-ng-hide="news.showMore"></span>
                                     </span>
                                 </p>
                             </div>

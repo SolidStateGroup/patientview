@@ -1,5 +1,14 @@
 'use strict';
 
+// view news modal instance controller
+var ViewNewsModalInstanceCtrl = ['$scope', '$modalInstance', 'news',
+function ($scope, $modalInstance, news) {
+    $scope.news = news;
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
 // new news modal instance controller
 var NewNewsModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'NewsService', 'permissions',
 function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsService, permissions) {
@@ -345,6 +354,25 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
         }
 
         return noDuplicates;
+    };
+
+    $scope.viewNewsItem = function(news) {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/viewNewsModal.html',
+            controller: ViewNewsModalInstanceCtrl,
+            size: 'lg',
+            resolve: {
+                news: function(){
+                    return news;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
     };
 
     $scope.init();
