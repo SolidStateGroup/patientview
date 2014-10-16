@@ -99,6 +99,13 @@ function (UserService, $scope, GroupService, NewsService, UtilService) {
         var i;
 
         $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
+        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+
+        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
+            $scope.permissions.showJoinRequestButton = true;
+        }
 
         // set the list of groups to show in the data grid
         $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
