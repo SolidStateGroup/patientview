@@ -14,7 +14,12 @@
         </div>
         <div class="col-md-3">
             <label for="group-groupType" class="control-label">Group Type <span class="error" data-ng-show="!editGroup.groupTypeId"> *required</span></label>
-            <div class=""><select id="group-groupType" class="form-control groupType-select" data-ng-model="editGroup.groupTypeId" data-ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
+            <div data-ng-show="editGroup.canChangeGroupType"><select id="group-groupType" class="form-control groupType-select" data-ng-model="editGroup.groupTypeId"
+                                  data-ng-options="groupType.id as groupType.value for groupType in groupTypes"></select></div>
+            <div data-ng-show="!editGroup.canChangeGroupType">
+                <input type="text" class="form-control" data-ng-model="editGroup.groupType.description"
+                       data-ng-disabled="true">
+            </div>
         </div>
     </div>
 </div>

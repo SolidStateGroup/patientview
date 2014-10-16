@@ -17,6 +17,7 @@ import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ContactPointRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupFeatureRepository;
@@ -128,6 +129,12 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         Group existingGroup = groupRepository.findByCode(group.getCode());
         if (groupExists(group) && !(entityGroup.getId().equals(existingGroup.getId()))) {
             throw new EntityExistsException("Group already exists with this code");
+        }
+
+        // unit admin cannot change group type
+        if (Util.doesContainGroupAndRole(entityGroup.getId(), RoleName.UNIT_ADMIN)
+            && !lookupRepository.findOne(group.getGroupType().getId()).equals(entityGroup.getGroupType())) {
+            throw new ResourceForbiddenException("Unit Admin cannot change group type");
         }
 
         entityGroup.setCode(group.getCode());

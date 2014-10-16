@@ -410,6 +410,17 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 group.newLocation = {};
                 group.newLocation.label = 'Additional Location';
 
+                // set if group type can be changed (not by unit admins)
+                var canChangeGroupType = true;
+                var groupRoles = $scope.loggedInUser.groupRoles;
+
+                for (i=0;i<groupRoles.length;i++) {
+                    if ((groupRoles[i].group.id === group.id) && (groupRoles[i].role.name === 'UNIT_ADMIN')) {
+                        canChangeGroupType = false;
+                    }
+                }
+
+                group.canChangeGroupType = canChangeGroupType;
                 $scope.editGroup = _.clone(group);
 
                 if ($scope.editGroup.availableFeatures[0]) {
@@ -545,6 +556,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         }, function(result) {
             if (result.status === 409) {
                 alert('Group with this code already exists, please choose another');
+            } else {
+                alert('Cannot save group: ' + result.data);
             }
         });
     };
