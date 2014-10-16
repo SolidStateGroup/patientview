@@ -95,7 +95,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         ObservationService.getByCode($scope.loggedInUser.id, code).then(function(observations) {
             if (observations.length) {
                 $scope.observations = _.sortBy(observations, 'applies').reverse();
-                $scope.selectedObservation = observations[0];
+                $scope.selectedObservation = $scope.observations[0];
                 $scope.initialiseChart();
             } else {
                 delete $scope.observations;
