@@ -86,22 +86,17 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         String path = httpRequest.getRequestURI();
 
-        if (path.contains("/error")) {
+        // Fix for CORS not required for PROD
+        if (httpRequest.getMethod().equalsIgnoreCase("options")) {
             chain.doFilter(request, response);
-
+        } else if (isPublicPath(path)) {
+            chain.doFilter(request, response);
         } else {
-            // Fix for CORS not required for PROD
-            if (httpRequest.getMethod().equalsIgnoreCase("options")) {
-                chain.doFilter(request, response);
-            } else if (isPublicPath(path)) {
-                chain.doFilter(request, response);
-            } else {
-                if (!authenticateRequest(httpRequest)) {
-                    LOG.info("Request is not authenticated");
-                    redirectFailedAuthentication((HttpServletResponse) response);
-                }
-                chain.doFilter(request, response);
+            if (!authenticateRequest(httpRequest)) {
+                LOG.info("Request is not authenticated");
+                redirectFailedAuthentication((HttpServletResponse) response);
             }
+            chain.doFilter(request, response);
         }
     }
 
