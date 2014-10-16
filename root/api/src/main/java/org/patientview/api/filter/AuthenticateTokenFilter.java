@@ -48,7 +48,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         publicUrls.add("/auth/logout");
 
         // public news
-        publicUrls.add("/api/public/news");
+        publicUrls.add("/public/news");
 
         // patient join requests
         publicUrls.add("/public/group");
