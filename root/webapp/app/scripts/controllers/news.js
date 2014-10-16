@@ -15,7 +15,7 @@ function ($scope, $rootScope, $modalInstance, GroupService, RoleService, NewsSer
     $scope.newNews.newsLinks = [];
 
     // populate list of allowed groups for current user
-    var groups = $scope.loggedInUser.userGroups;
+    var groups = $scope.loggedInUser.userInformation.userGroups;
     // add 'All Groups' option (with id -1) if allowed
     if ($scope.permissions.canAddAllGroups) {
         group = {};
@@ -243,7 +243,7 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
                 $scope.editNews.allRoles = [];
                 $scope.editNews.allGroups = [];
 
-                var groups = $scope.loggedInUser.userGroups;
+                var groups = $scope.loggedInUser.userInformation.userGroups;
 
                 // add 'All Groups' option (with id -1) if allowed
                 if ($scope.permissions.canAddAllGroups) {

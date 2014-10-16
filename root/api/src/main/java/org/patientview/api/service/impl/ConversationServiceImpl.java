@@ -4,6 +4,7 @@ import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -17,6 +18,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.ConversationRepository;
@@ -26,6 +28,7 @@ import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -400,43 +403,69 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<String> groupIdList = new ArrayList<>();
         List<String> roleIdList = new ArrayList<>();
 
-        // staff & patient users can only contact those in their groups
-        for (Group group : groupService.findGroupByUser(entityUser)) {
-            groupIdList.add(group.getId().toString());
-        }
-
         // assuming patients cannot contact other patients
         for (Role role : roleService.getRolesByType(RoleType.STAFF)) {
             roleIdList.add(role.getId().toString());
         }
 
         GetParameters getParameters = new GetParameters();
-        getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
         getParameters.setRoleIds(roleIdList.toArray(new String[roleIdList.size()]));
 
         // specialty/unit staff and admin can contact all users in specialty/unit
         if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN)) {
+
+            // staff & patient users can only contact those in their groups
+            for (Group group : groupService.findGroupByUser(entityUser)) {
+                groupIdList.add(group.getId().toString());
+            }
+            getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
+
             return convertApiUsersToTransportBaseUsers(
                     userService.getUsersByGroupsAndRoles(getParameters).getContent());
         }
 
-        // patients can only contact staff with feature names passed in
+        // patients can only contact staff in their units with feature names passed in
         if (doesContainRoles(RoleName.PATIENT)) {
 
             List<String> featureIdList = new ArrayList<>();
-
             for (String featureType : featureTypes) {
-                Feature feat = featureRepository.findByName(featureType);
-                if (feat != null) {
-                    featureIdList.add(feat.getId().toString());
+
+                // restrict features to PatientMessagingFeatureType (subset of Feature Type)
+                if (Util.isInEnum(featureType, PatientMessagingFeatureType.class)) {
+                    Feature feat = featureRepository.findByName(featureType);
+                    if (feat != null) {
+                        featureIdList.add(feat.getId().toString());
+                    }
                 }
             }
+
+            if (featureIdList.isEmpty()) {
+                throw new ResourceNotFoundException("No suitable recipients (by feature)");
+            }
+
             getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
+
+            // only search for groups patient is in (excluding specialties so only units)
+            List<Group> patientGroups
+                    = Util.convertIterable(groupRepository.findGroupsByUserNoSpecialties(
+                    "%%", entityUser, new PageRequest(0, Integer.MAX_VALUE)));
+            groupIdList = new ArrayList<>();
+
+            for (Group group : patientGroups) {
+                groupIdList.add(group.getId().toString());
+            }
+
+            getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
+
+            if (featureIdList.isEmpty()) {
+                throw new ResourceNotFoundException("No suitable recipients (by group)");
+            }
+
             return convertApiUsersToTransportBaseUsers(
                     userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
         }
 
-        throw new ResourceNotFoundException("No suitable roles");
+        throw new ResourceNotFoundException("No suitable recipients");
     }
 
     // verify logged in user can open conversation

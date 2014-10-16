@@ -341,7 +341,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.permissions.allGroupsIds = [];
 
         $scope.initFinished = false;
-        var groups = $scope.loggedInUser.userGroups;
+        var groups = $scope.loggedInUser.userInformation.userGroups;
 
         // show error if user is not a member of any groups
         if (groups.length !== 0) {
@@ -357,7 +357,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             }
 
             // get staff type roles
-            var roles = $scope.loggedInUser.staffRoles;
+            var roles = $scope.loggedInUser.userInformation.staffRoles;
             // set roles that can be chosen in UI, only show visible roles
             for (i = 0; i < roles.length; i++) {
                 role = roles[i];
@@ -369,7 +369,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
             // get list of roles available when user is adding a new Group & Role to staff member
             // e.g. unit admins cannot add specialty admin roles to staff members
-            roles = $scope.loggedInUser.securityRoles;
+            roles = $scope.loggedInUser.userInformation.securityRoles;
             // filter by roleId found previously as STAFF
             var allowedRoles = [];
             for (i = 0; i < roles.length; i++) {
@@ -380,7 +380,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.allowedRoles = allowedRoles;
 
             // get list of features available when user is adding a new Feature to staff members
-            var allFeatures = $scope.loggedInUser.staffFeatures;
+            var allFeatures = $scope.loggedInUser.userInformation.staffFeatures;
             $scope.allFeatures = [];
             for (i = 0; i < allFeatures.length; i++) {
                 $scope.allFeatures.push({'feature': allFeatures[i]});

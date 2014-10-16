@@ -101,7 +101,7 @@ function (UserService, $scope, GroupService, NewsService, UtilService) {
         $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
 
         // set the list of groups to show in the data grid
-        $scope.graphGroups = $scope.loggedInUser.userGroups;
+        $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
 
         for(i=0;i<$scope.graphGroups.length;i++) {
             $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];

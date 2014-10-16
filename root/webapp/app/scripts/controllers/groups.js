@@ -210,7 +210,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.getAllowedAddEditFilterGroups();
 
         // get list of features associated with groups
-        var allFeatures = $scope.loggedInUser.groupFeatures;
+        var allFeatures = $scope.loggedInUser.userInformation.groupFeatures;
         $scope.allFeatures = [];
         for (i=0;i<allFeatures.length;i++){
             $scope.allFeatures.push({'feature':allFeatures[i]});

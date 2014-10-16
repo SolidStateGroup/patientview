@@ -79,7 +79,9 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         final List<Long> longs = new ArrayList<>();
         if (ArrayUtils.isNotEmpty(strings)) {
             for (String string : strings) {
-                longs.add(Long.parseLong(string));
+                if (string != null) {
+                    longs.add(Long.parseLong(string));
+                }
             }
         }
         return longs;
