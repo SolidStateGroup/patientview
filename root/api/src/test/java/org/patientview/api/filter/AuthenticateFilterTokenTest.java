@@ -163,7 +163,7 @@ public class AuthenticateFilterTokenTest {
 
         // required during testing
         authenticateTokenFilter.init();
-        
+
         //Create a token
         String token = "token";
         UserToken userToken = new UserToken();

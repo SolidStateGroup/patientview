@@ -45,7 +45,6 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // all users login/logout/error
         publicUrls.add("/api/auth/login");
         publicUrls.add("/api/auth/logout");
-        publicUrls.add("/api/error");
 
         // public news
         publicUrls.add("/api/public/news");
@@ -86,17 +85,22 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         String path = httpRequest.getRequestURI();
 
-        // Fix for CORS not required for PROD
-        if (httpRequest.getMethod().equalsIgnoreCase("options")) {
-            chain.doFilter(request, response);
-        } else if (isPublicPath(path)) {
+        if (path.contains("/error")) {
+            LOG.info("Redirect to /error");
             chain.doFilter(request, response);
         } else {
-            if (!authenticateRequest(httpRequest)) {
-                LOG.info("Request is not authenticated");
-                redirectFailedAuthentication((HttpServletResponse) response);
+            // Fix for CORS not required for PROD
+            if (httpRequest.getMethod().equalsIgnoreCase("options")) {
+                chain.doFilter(request, response);
+            } else if (isPublicPath(path)) {
+                chain.doFilter(request, response);
+            } else {
+                if (!authenticateRequest(httpRequest)) {
+                    LOG.info("Request is not authenticated");
+                    redirectFailedAuthentication((HttpServletResponse) response);
+                }
+                chain.doFilter(request, response);
             }
-            chain.doFilter(request, response);
         }
     }
 
@@ -113,13 +117,15 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return true;
         } catch (AuthenticationServiceException e) {
-            LOG.info("Authentication failed for {}", authenticationToken.getName());
+            LOG.info("Authentication failed for " + authenticationToken.getName()
+                + ", " + e.getMessage());
             return false;
         }
     }
 
     private void redirectFailedAuthentication(HttpServletResponse response) {
         try {
+            LOG.info("Failed Authentication");
             response.sendRedirect("/api/error");
         } catch (IOException ioe) {
             LOG.error("Could not redirect response");

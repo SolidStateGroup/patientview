@@ -23,7 +23,7 @@ public class ErrorController extends BaseController<ErrorController> {
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     public String handleError(Exception e) {
         LOG.error("Handling error path");
-        return "Error: " + e.getMessage();
+        return "Error";
     }
 
 }
