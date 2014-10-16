@@ -60,7 +60,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private boolean isPublicPath(String path) {
         for (String publicUrl : this.publicUrls) {
-            if (path.startsWith(publicUrl)) {
+            if (path.contains(publicUrl)) {
                 return true;
             }
         }
@@ -102,10 +102,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
                     Enumeration headerNames = httpRequest.getHeaderNames();
                     while(headerNames.hasMoreElements()) {
                         String headerName = (String)headerNames.nextElement();
-                        LOG.info(httpRequest.getHeader(headerName));
+                        LOG.info(headerName + " = " + httpRequest.getHeader(headerName));
                     }
 
-                    //redirectFailedAuthentication((HttpServletResponse) response);
+                    redirectFailedAuthentication((HttpServletResponse) response);
                 }
                 chain.doFilter(request, response);
             }
