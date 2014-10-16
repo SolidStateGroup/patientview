@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -97,7 +98,14 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             } else {
                 if (!authenticateRequest(httpRequest)) {
                     LOG.info("Request is not authenticated");
-                    redirectFailedAuthentication((HttpServletResponse) response);
+
+                    Enumeration headerNames = httpRequest.getHeaderNames();
+                    while(headerNames.hasMoreElements()) {
+                        String headerName = (String)headerNames.nextElement();
+                        LOG.info(httpRequest.getHeader(headerName));
+                    }
+
+                    //redirectFailedAuthentication((HttpServletResponse) response);
                 }
                 chain.doFilter(request, response);
             }
@@ -150,6 +158,8 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private String extractAuthTokenFromRequest(HttpServletRequest httpRequest) {
         String authToken = httpRequest.getHeader("X-Auth-Token");
+
+        LOG.info("authToken: " + authToken);
 
         /* If token not found get it from request parameter */
         if (authToken == null) {
