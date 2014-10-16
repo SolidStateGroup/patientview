@@ -44,18 +44,18 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         LOG.info("Authentication token filter initialised");
 
         // all users login/logout/error
-        publicUrls.add("/api/auth/login");
-        publicUrls.add("/api/auth/logout");
+        publicUrls.add("/auth/login");
+        publicUrls.add("/auth/logout");
 
         // public news
         publicUrls.add("/api/public/news");
 
         // patient join requests
-        publicUrls.add("/api/public/group");
-        publicUrls.add("/api/public/joinrequest");
+        publicUrls.add("/public/group");
+        publicUrls.add("/public/joinrequest");
 
         // patient password request (contact unit)
-        publicUrls.add("/api/public/passwordrequest");
+        publicUrls.add("/public/passwordrequest");
 
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
