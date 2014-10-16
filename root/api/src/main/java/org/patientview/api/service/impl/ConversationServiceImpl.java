@@ -385,7 +385,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<org.patientview.api.model.BaseUser> transportUsers = new ArrayList<>();
 
         for (org.patientview.api.model.User user : users) {
-            transportUsers.add(new org.patientview.api.model.BaseUser(user));
+            // do not allow users to talk to themselves
+            if (!getCurrentUser().getId().equals(user.getId())) {
+                transportUsers.add(new org.patientview.api.model.BaseUser(user));
+            }
         }
 
         return transportUsers;
