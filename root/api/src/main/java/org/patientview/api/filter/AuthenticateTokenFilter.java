@@ -56,6 +56,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         // patient password request (contact unit)
         publicUrls.add("/api/public/passwordrequest");
+
+        for (String publicUrl : this.publicUrls) {
+            LOG.info("publicUrls: " + publicUrl);
+        }
     }
 
     private boolean isPublicPath(String path) {
@@ -85,6 +89,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         setAuthenticationManager(request);
 
         String path = httpRequest.getRequestURI();
+        LOG.info("Path: " + path);
 
         if (path.contains("/error")) {
             LOG.info("Redirect to /error");
@@ -92,10 +97,13 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         } else {
             // Fix for CORS not required for PROD
             if (httpRequest.getMethod().equalsIgnoreCase("options")) {
+                LOG.info("OPTIONS: " + path);
                 chain.doFilter(request, response);
             } else if (isPublicPath(path)) {
+                LOG.info("Public path: " + path);
                 chain.doFilter(request, response);
             } else {
+                LOG.info("Non public path: " + path);
                 if (!authenticateRequest(httpRequest)) {
                     LOG.info("Request is not authenticated");
 
@@ -114,7 +122,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     // Set the authentication in the security context
     private boolean authenticateRequest(HttpServletRequest httpServletRequest) {
-        LOG.debug("Filtering on path {}", httpServletRequest.getRequestURL().toString());
+        LOG.info("Filtering on path " + httpServletRequest.getRequestURL().toString());
 
         String authToken = this.extractAuthTokenFromRequest(httpServletRequest);
         PreAuthenticatedAuthenticationToken authenticationToken =
