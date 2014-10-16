@@ -148,7 +148,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // TODO handled with aspects
             createAudit(AuditActions.LOGON_FAIL, user.getUsername());
             incrementFailedLogon(user);
-            throw new AuthenticationServiceException("Invalid credentials");
+            throw new AuthenticationServiceException("Incorrect username or password");
         }
 
         if (user.getLocked()) {
