@@ -110,7 +110,7 @@
             <label>Links </label>
             <div data-ng-hide="editGroup.links.length > 0" class="no-items"> There are currently no links associated with this group</div>
         </div>
-        <div class="link-list-item" data-ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
+        <div class="link-list-item cleared-row" data-ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
             <div class="col-md-3"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="URL" name="link" data-ng-model="link.link" required></div>
             <div class="col-md-5"><input type="text" class="form-control" id="group-link-name-{{link.id}}" placeholder="Description" name="name" data-ng-model="link.name" required></div>
             <div class="col-md-1">
@@ -120,7 +120,7 @@
             </div>
             <button type="button" class="btn negative link-delete-button" data-ng-click="removeLink(groupFormNew, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>
         </div>
-        <div class="add-form" data-ng-model="newLink">
+        <div class="add-form cleared-row" data-ng-model="newLink">
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" data-ng-model="newLink.link"></div>
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" data-ng-model="newLink.name"></div>
             <div class="col-md-1 hidden">

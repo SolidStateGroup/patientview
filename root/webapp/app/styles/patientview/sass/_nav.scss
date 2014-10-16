@@ -82,6 +82,31 @@
             }
         }
 
+        &.active{
+            position:relative;
+            a{
+                background:#f8f8f8;
+                color:$primary;
+//                font-weight:bold;
+
+                &:hover{
+                    background:#f8f8f8;
+                    color:$primary;
+                }
+            }
+
+            &:after{
+                height:20px;
+                width:100%;
+                display:block;
+                background:url(../../../images/icons/nav-active.png) 50% 0 no-repeat;
+                position: absolute;
+                bottom:-20px;
+                left:0;
+                content:"";
+            }
+        }
+
         a {
             border-left: 1px solid $border-default;
             color: $light-grey;
@@ -199,6 +224,12 @@
                 margin:20px auto 0;
             }
         }
+    }
+}
+
+.subnav-row{
+    .content-panel{
+        overflow:visible;
     }
 }
 
