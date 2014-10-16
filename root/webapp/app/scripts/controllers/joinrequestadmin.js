@@ -23,7 +23,7 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
         $scope.initFinished = false;
 
         // get logged in user's groups
-        var groups = $scope.loggedInUser.userGroups;
+        var groups = $scope.loggedInUser.userInformation.userGroups;
         var i, group;
 
         // set groups that can be chosen in UI, only show visible groups

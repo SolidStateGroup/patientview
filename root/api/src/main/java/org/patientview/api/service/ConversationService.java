@@ -1,7 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.UserOnly;
-import org.patientview.api.model.User;
+import org.patientview.api.model.BaseUser;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
@@ -39,5 +39,5 @@ public interface ConversationService extends CrudService<Conversation> {
     Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
 
     @UserOnly
-    List<User> getRecipients(Long userId, String[] featureTypes) throws ResourceNotFoundException;
+    List<BaseUser> getRecipients(Long userId, String[] featureTypes) throws ResourceNotFoundException;
 }

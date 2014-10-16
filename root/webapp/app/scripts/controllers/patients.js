@@ -437,8 +437,14 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.permissions.canSendVerificationEmails = true;
         }
 
+        // STAFF_ADMIN can only view
+        if (!($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin
+            || $scope.permissions.isUnitAdmin)) {
+            $scope.permissions.canViewPatients = true;
+        }
+
         // get patient type roles
-        var roles = $scope.loggedInUser.patientRoles;
+        var roles = $scope.loggedInUser.userInformation.patientRoles;
 
         // set roles that can be chosen in UI, only show visible roles
         for (i = 0; i < roles.length; i++) {
@@ -450,7 +456,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
 
         // get logged in user's groups
-        var groups = $scope.loggedInUser.userGroups;
+        var groups = $scope.loggedInUser.userInformation.userGroups;
         $scope.initFinished = false;
 
         // show error if user is not a member of any groups
@@ -468,7 +474,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             // get list of roles available when user is adding a new Group & Role to patient member
             // e.g. unit admins cannot add specialty admin roles to patient members
-            roles = $scope.loggedInUser.securityRoles;
+            roles = $scope.loggedInUser.userInformation.securityRoles;
             // filter by roleId found previously as PATIENT
             var allowedRoles = [];
             for (i = 0; i < roles.length; i++) {
@@ -479,7 +485,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.allowedRoles = allowedRoles;
 
             // get list of features available when user is adding a new Feature to patient members
-            var allFeatures = $scope.loggedInUser.patientFeatures;
+            var allFeatures = $scope.loggedInUser.userInformation.patientFeatures;
             $scope.allFeatures = [];
             for (i = 0; i < allFeatures.length; i++) {
                 $scope.allFeatures.push({'feature': allFeatures[i]});
@@ -545,6 +551,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 // set the patient member being edited to a clone of the existing patient member (so only updated in UI on save)
                 $scope.editUser = _.clone(user);
                 openedUser.editLoading = false;
+            }, function(failureResult) {
+                openedUser.showEdit = false;
+                openedUser.editLoading = false;
+                alert('Cannot open patient: ' + failureResult.data);
             });
         }
     };
@@ -734,13 +744,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             AuthService.getUserInformation(authToken).then(function (userInformation) {
 
                 var user = userInformation.user;
-                user.securityRoles = userInformation.securityRoles;
-                user.userGroups = userInformation.userGroups;
-                user.staffRoles = userInformation.staffRoles;
-                user.patientRoles = userInformation.patientRoles;
-                user.groupFeatures = userInformation.groupFeatures;
-                user.staffFeatures = userInformation.staffFeatures;
-                user.patientFeatures = userInformation.patientFeatures;
+                delete userInformation.user;
+                user.userInformation = userInformation;
 
                 $rootScope.loggedInUser = user;
                 localStorageService.set('loggedInUser', user);

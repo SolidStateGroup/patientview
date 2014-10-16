@@ -116,11 +116,14 @@
                     <div class="content-inner">
                         <h4>{{news.heading}}</h4>
                         <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
-                        <div>
-                            <div class="showHideText" data-ng-class="{show: show}" data-ng-bind-html="parseHTMLText(news.story)"></div>
-                            <a href="" class="showHideLink" data-ng-click="show = true" data-ng-show="!show">show more</a>
-                            <a href="" class="showHideLink" data-ng-click="show = false" data-ng-show="show">show less</a>
-                        </div>
+                        <p class="message-content">
+                            <span class="text">
+                                <span data-ng-bind-html="parseHTMLText(news.story)"></span>
+                                <br/>
+                                <span class="pull-right"><a href="" data-ng-click="viewNewsItem(news)">Show More</a>
+                                </span>
+                            </span>
+                        </p>
                     </div>
                 </li>
             </ul>

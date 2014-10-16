@@ -8,7 +8,7 @@ var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalIns
         $scope.editObservationHeading.observationHeadingGroups = [];
         $scope.groups = [];
 
-        var groups = $scope.loggedInUser.userGroups;
+        var groups = $scope.loggedInUser.userInformation.userGroups;
         for (var i=0;i<groups.length;i++) {
             if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
                 $scope.groups.push(groups[i]);
@@ -62,7 +62,7 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                 $scope.permissions.canEdit = true;
             }
 
-            var groups = $scope.loggedInUser.userGroups;
+            var groups = $scope.loggedInUser.userInformation.userGroups;
             for (var i=0;i<groups.length;i++) {
                 if (groups[i].groupType.value === 'SPECIALTY' && groups[i].code !== 'Generic') {
                     $scope.groups.push(groups[i]);

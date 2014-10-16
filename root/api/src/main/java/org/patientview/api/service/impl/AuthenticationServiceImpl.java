@@ -19,6 +19,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
@@ -40,6 +41,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -146,7 +148,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // TODO handled with aspects
             createAudit(AuditActions.LOGON_FAIL, user.getUsername());
             incrementFailedLogon(user);
-            throw new AuthenticationServiceException("Invalid credentials");
+            throw new AuthenticationServiceException("Incorrect username or password");
         }
 
         if (user.getLocked()) {
@@ -201,6 +203,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         if (doesContainRoles(RoleName.PATIENT)) {
             transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
+            transportUserToken = setPatientMessagingFeatureTypes(transportUserToken);
         }
 
         if (!doesContainRoles(RoleName.PATIENT)) {
@@ -340,6 +343,12 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private org.patientview.api.model.UserToken setStaffFeatures(org.patientview.api.model.UserToken userToken) {
         userToken.setStaffFeatures(staticDataManager.getFeaturesByType("STAFF"));
+        return userToken;
+    }
+
+    private org.patientview.api.model.UserToken setPatientMessagingFeatureTypes(
+            org.patientview.api.model.UserToken userToken) {
+        userToken.setPatientMessagingFeatureTypes(new ArrayList<>(Arrays.asList(PatientMessagingFeatureType.values())));
         return userToken;
     }
 

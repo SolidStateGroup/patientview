@@ -1,9 +1,9 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.Conversation;
 import org.patientview.api.model.Message;
-import org.patientview.api.model.User;
 import org.patientview.api.service.ConversationService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -88,7 +88,7 @@ public class ConversationController extends BaseController<ConversationControlle
     @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<User>> getRecipients(@PathVariable("userId") Long userId,
+    public ResponseEntity<List<BaseUser>> getRecipients(@PathVariable("userId") Long userId,
             @RequestParam(value = "featuretype", required = false) String[] featureTypes)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(conversationService.getRecipients(userId, featureTypes), HttpStatus.OK);

@@ -79,7 +79,9 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         final List<Long> longs = new ArrayList<>();
         if (ArrayUtils.isNotEmpty(strings)) {
             for (String string : strings) {
-                longs.add(Long.parseLong(string));
+                if (string != null) {
+                    longs.add(Long.parseLong(string));
+                }
             }
         }
         return longs;
@@ -114,6 +116,13 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // check if have direct membership of group
                 if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
+                    return true;
+                }
+            }
+        } else if (Util.doesContainRoles(RoleName.STAFF_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                // check if have direct membership of group
+                if (groupRole.getRole().getName().equals(RoleName.STAFF_ADMIN) && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }

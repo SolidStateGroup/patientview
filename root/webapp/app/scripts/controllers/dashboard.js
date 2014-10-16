@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('DashboardCtrl', ['UserService','$scope', 'GroupService', 'NewsService', 'UtilService',
-function (UserService, $scope, GroupService, NewsService, UtilService) {
+angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService', 'NewsService', 'UtilService',
+function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -99,9 +99,16 @@ function (UserService, $scope, GroupService, NewsService, UtilService) {
         var i;
 
         $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
+        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+
+        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
+            $scope.permissions.showJoinRequestButton = true;
+        }
 
         // set the list of groups to show in the data grid
-        $scope.graphGroups = $scope.loggedInUser.userGroups;
+        $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
 
         for(i=0;i<$scope.graphGroups.length;i++) {
             $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
@@ -117,6 +124,25 @@ function (UserService, $scope, GroupService, NewsService, UtilService) {
             $scope.loading = false;
         }, function() {
             $scope.loading = false;
+        });
+    };
+
+    $scope.viewNewsItem = function(news) {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/viewNewsModal.html',
+            controller: ViewNewsModalInstanceCtrl,
+            size: 'lg',
+            resolve: {
+                news: function(){
+                    return news;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
         });
     };
 

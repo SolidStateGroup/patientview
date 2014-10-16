@@ -42,24 +42,29 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     public void init() {
         LOG.info("Authentication token filter initialised");
 
-        // all users login/logout
-        publicUrls.add("/api/auth/login");
-        publicUrls.add("/api/auth/logout");
+        // all users login/logout/error
+        publicUrls.add("/auth/login");
+        publicUrls.add("/auth/logout");
+        publicUrls.add("/error");
 
         // public news
-        publicUrls.add("/api/public/news");
+        publicUrls.add("/public/news");
 
         // patient join requests
-        publicUrls.add("/api/public/group");
-        publicUrls.add("/api/public/joinrequest");
+        publicUrls.add("/public/group");
+        publicUrls.add("/public/joinrequest");
 
         // patient password request (contact unit)
-        publicUrls.add("/api/public/passwordrequest");
+        publicUrls.add("/public/passwordrequest");
+
+        for (String publicUrl : this.publicUrls) {
+            LOG.info("publicUrls: " + publicUrl);
+        }
     }
 
     private boolean isPublicPath(String path) {
         for (String publicUrl : this.publicUrls) {
-            if (path.startsWith(publicUrl)) {
+            if (path.contains(publicUrl)) {
                 return true;
             }
         }
@@ -79,35 +84,27 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             ServletException {
 
         HttpServletRequest httpRequest = this.getAsHttpRequest(request);
+        String path = httpRequest.getRequestURI();
 
         // TODO Fix for Spring Boot bug with using delegating proxy
         setAuthenticationManager(request);
 
-        String path = httpRequest.getRequestURI();
-
-        if (path.contains("/error")) {
+        // Fix for CORS not required for PROD
+        if (httpRequest.getMethod().equalsIgnoreCase("options")) {
             chain.doFilter(request, response);
-
+        } else if (isPublicPath(path)) {
+            chain.doFilter(request, response);
         } else {
-            // Fix for CORS not required for PROD
-            if (httpRequest.getMethod().equalsIgnoreCase("options")) {
-                chain.doFilter(request, response);
-            } else if (isPublicPath(path)) {
-                chain.doFilter(request, response);
-            } else {
-                if (!authenticateRequest(httpRequest)) {
-                    LOG.info("Request is not authenticated");
-                    redirectFailedAuthentication((HttpServletResponse) response);
-                }
-                chain.doFilter(request, response);
+            if (!authenticateRequest(httpRequest)) {
+                LOG.info("Request is not authenticated");
+                redirectFailedAuthentication((HttpServletResponse) response);
             }
+            chain.doFilter(request, response);
         }
     }
 
     // Set the authentication in the security context
     private boolean authenticateRequest(HttpServletRequest httpServletRequest) {
-        LOG.debug("Filtering on path {}", httpServletRequest.getRequestURL().toString());
-
         String authToken = this.extractAuthTokenFromRequest(httpServletRequest);
         PreAuthenticatedAuthenticationToken authenticationToken =
                 new PreAuthenticatedAuthenticationToken(authToken, authToken);
@@ -117,13 +114,14 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return true;
         } catch (AuthenticationServiceException e) {
-            LOG.info("Authentication failed for {}", authenticationToken.getName());
+            LOG.info("Authentication failed for " + authenticationToken.getName() + ", " + e.getMessage());
             return false;
         }
     }
 
     private void redirectFailedAuthentication(HttpServletResponse response) {
         try {
+            LOG.info("Failed Authentication");
             response.sendRedirect("/api/error");
         } catch (IOException ioe) {
             LOG.error("Could not redirect response");
@@ -148,7 +146,6 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private String extractAuthTokenFromRequest(HttpServletRequest httpRequest) {
         String authToken = httpRequest.getHeader("X-Auth-Token");
-
         /* If token not found get it from request parameter */
         if (authToken == null) {
             authToken = httpRequest.getParameter("token");

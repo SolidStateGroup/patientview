@@ -9,6 +9,11 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
         $scope.modalLoading = true;
         var featureTypes = ['MESSAGING'];
 
+        // if patientMessagingFeatureTypes is set then restrict to this
+        if ($scope.loggedInUser.userInformation.patientMessagingFeatureTypes) {
+            featureTypes = $scope.loggedInUser.userInformation.patientMessagingFeatureTypes;
+        }
+
         ConversationService.getRecipients($scope.loggedInUser.id, featureTypes).then(function (recipients) {
             $scope.newConversation.availableRecipients = _.clone(recipients);
             $scope.newConversation.allRecipients = [];
@@ -22,8 +27,13 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
             }
 
             $scope.modalLoading = false;
-        }, function () {
-            alert('Error loading message recipients');
+        }, function (failureResult) {
+            if (failureResult.status === 404) {
+                $scope.modalLoading = false;
+            } else {
+                $scope.modalLoading = false;
+                alert('Error loading message recipients');
+            }
         });
 
         $scope.ok = function () {
@@ -36,7 +46,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
 
             // build message
             var message = {};
-            message.user = $scope.loggedInUser;
+            message.user = {};
+            message.user.id = $scope.loggedInUser.id;
             message.message = $scope.newConversation.message;
             message.type = 'MESSAGE';
             conversation.messages[0] = message;

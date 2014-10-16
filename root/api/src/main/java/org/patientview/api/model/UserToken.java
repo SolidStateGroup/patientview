@@ -2,6 +2,7 @@ package org.patientview.api.model;
 
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Route;
+import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 
 import java.util.Date;
 import java.util.List;
@@ -27,6 +28,7 @@ public class UserToken {
     private List<Feature> groupFeatures;
     private List<Feature> staffFeatures;
     private List<Feature> patientFeatures;
+    private List<PatientMessagingFeatureType> patientMessagingFeatureTypes;
 
     public UserToken() {
 
@@ -135,5 +137,13 @@ public class UserToken {
 
     public void setStaffFeatures(List<Feature> staffFeatures) {
         this.staffFeatures = staffFeatures;
+    }
+
+    public List<PatientMessagingFeatureType> getPatientMessagingFeatureTypes() {
+        return patientMessagingFeatureTypes;
+    }
+
+    public void setPatientMessagingFeatureTypes(List<PatientMessagingFeatureType> patientMessagingFeatureTypes) {
+        this.patientMessagingFeatureTypes = patientMessagingFeatureTypes;
     }
 }

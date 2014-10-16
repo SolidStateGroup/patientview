@@ -78,13 +78,15 @@
                     </h2>
                     <div class="last-message">
                         <p class="date-stamp"><strong>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
-                        <p data-ng-class="{'clamped': !news.showMore, 'clamped-2': !news.showMore}" class="message-content">
+                        <p class="message-content">
                             <span class="text">
-                                <span data-ng-bind-html="parseHTMLText(news.story)"></span>
-                                <span class="ellipsis">
-                                    &nbsp;&nbsp;&nbsp;<a href="" data-ng-click="news.showMore = true">Show More</a>
-                                </span>
-                                <span class="fill"></span>
+                                <p class="message-content">
+                                    <span class="text">
+                                        <span data-ng-bind-html="parseHTMLText(news.story)"></span>
+                                        <br/>
+                                        <span><a href="" data-ng-click="viewNewsItem(news)">Show More</a></span>
+                                    </span>
+                                </p>
                             </span>
                         </p>
                     </div>
