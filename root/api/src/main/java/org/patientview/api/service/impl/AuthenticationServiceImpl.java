@@ -27,10 +27,12 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -57,7 +59,9 @@ import java.util.Set;
 public class AuthenticationServiceImpl extends AbstractServiceImpl<AuthenticationServiceImpl>
         implements AuthenticationService {
 
+    // retrieved from properties file
     private static Integer maximumLoginAttempts;
+    private static Integer sessionLength;
 
     @Inject
     private UserRepository userRepository;
@@ -87,6 +91,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     public void setParameter() {
         maximumLoginAttempts = Integer.parseInt(properties.getProperty("maximum.failed.logons"));
         LOG.debug("Setting the maximum failed logons attempts to {}", maximumLoginAttempts);
+        sessionLength = Integer.parseInt(properties.getProperty("session.length"));
+        LOG.debug("Setting the session length to {}", sessionLength);
     }
 
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
@@ -175,7 +181,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userRepository.findByUsername(username);
     }
 
-    @CacheEvict(value = "authenticateOnToken", allEntries = true)
+    @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),
+            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
     public void logout(String token) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
@@ -184,6 +191,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
         createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername());
         userTokenRepository.delete(userToken.getId());
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     // retrieve static data and user specific data to avoid requerying
@@ -242,6 +250,26 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         } else {
             throw new AuthenticationServiceException("Token could not be found");
+        }
+    }
+
+    @Override
+    public boolean sessionExpired(String authToken) {
+        // set expired to 30 mins in future, throw exception if expiration is set and before now
+        Date now = new Date();
+        Date future = new Date(now.getTime() + sessionLength);
+        Date expiration = userTokenRepository.getExpiration(authToken);
+
+        if (expiration == null) {
+            userTokenRepository.setExpiration(authToken, future);
+            return false;
+        } else {
+            if (userTokenRepository.sessionExpired(authToken)) {
+                return true;
+            } else {
+                userTokenRepository.setExpiration(authToken, future);
+                return false;
+            }
         }
     }
 

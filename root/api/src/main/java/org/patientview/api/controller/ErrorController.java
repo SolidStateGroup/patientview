@@ -21,9 +21,9 @@ public class ErrorController extends BaseController<ErrorController> {
     @RequestMapping(value = "/error", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public String handleError(Exception e) {
+    public String handleError() {
         LOG.error("Handling error path");
-        return "Error";
+        return "Not Authorised";
     }
 
 }
