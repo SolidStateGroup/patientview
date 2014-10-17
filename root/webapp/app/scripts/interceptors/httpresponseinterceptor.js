@@ -1,15 +1,14 @@
 'use strict';
 
-angular.module('patientviewApp').factory('HttpResponseInterceptor', ['$q', '$rootScope', '$location',
-function ($q, $rootScope, $location) {
+angular.module('patientviewApp').factory('HttpResponseInterceptor', ['$q', '$rootScope', function ($q, $rootScope) {
     return {
         'responseError': function(rejection) {
-            var status = rejection.status;
 
-            if (status === 401) {
-                // http UNAUTHORIZED, log out user
+            // http UNAUTHORIZED, log out user
+            if (rejection.status === 401) {
                 $rootScope.logout();
             }
+
             return $q.reject(rejection);
         }
     };

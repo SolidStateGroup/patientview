@@ -68,9 +68,9 @@ patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider',
         $routeProviderReference = $routeProvider;
     }]);
 
-patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular',
+patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$cookies', '$sce', 'localStorageService', 'Restangular',
     '$route', 'RouteService', 'ENV', 'ConversationService', 'JoinRequestService', 'UserService', 'AuthService',
-    function($rootScope, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
+    function($rootScope, $timeout, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
              RouteService, ENV, ConversationService, JoinRequestService, UserService, AuthService) {
 
     $rootScope.ieTestMode = false;
@@ -245,13 +245,15 @@ patientviewApp.run(['$rootScope', '$location', '$cookieStore', '$cookies', '$sce
     });
 
     $rootScope.logout = function() {
-        delete $rootScope.routes;
-        delete $rootScope.loggedInUser;
-        delete $rootScope.authToken;
-        delete $rootScope.previousAuthToken;
-        delete $rootScope.previousLoggedInUser;
-        localStorageService.clearAll();
-        $location.path('/');
+        $timeout(function() {
+            delete $rootScope.routes;
+            delete $rootScope.loggedInUser;
+            delete $rootScope.authToken;
+            delete $rootScope.previousAuthToken;
+            delete $rootScope.previousLoggedInUser;
+            localStorageService.clearAll();
+            $location.path('/');
+        });
     };
 
     $rootScope.switchUserBack = function() {
