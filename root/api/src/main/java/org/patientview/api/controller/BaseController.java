@@ -72,7 +72,7 @@ public abstract class BaseController<T extends BaseController> {
 
     @ExceptionHandler(AuthenticationServiceException.class)
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String handleAuthenticationException(Exception e) {
         LOG.error("Login failed");
         return e.getMessage();
@@ -80,7 +80,7 @@ public abstract class BaseController<T extends BaseController> {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String handleUsernameException(Exception e) {
         LOG.error("Login failed");
         return e.getMessage();
