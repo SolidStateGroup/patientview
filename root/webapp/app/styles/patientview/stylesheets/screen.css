@@ -1928,6 +1928,22 @@ textarea.form-control.article-content {
   font-size: 1.5rem;
 }
 
+/* line 87, ../sass/_messages.scss */
+.message-content > p {
+  max-height: 40px;
+  overflow: hidden;
+}
+
+/* line 93, ../sass/_messages.scss */
+.news-date {
+  color: #a8a8a8;
+}
+
+/* line 97, ../sass/_messages.scss */
+.news-actions {
+  text-align: center;
+}
+
 /* line 1, ../sass/_results.scss */
 .large-label {
   font-size: 20px;

@@ -82,3 +82,18 @@
         }
     }
 }
+
+.message-content{
+    > p {
+        max-height:40px;
+        overflow:hidden;
+    }
+}
+
+.news-date{
+    color:#a8a8a8;
+}
+
+.news-actions{
+    text-align: center;
+}

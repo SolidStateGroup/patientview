@@ -115,15 +115,13 @@
                 <li class="news-item content-panel" data-ng-repeat="news in newsItems | orderBy: '-created'">
                     <div class="content-inner">
                         <h4>{{news.heading}}</h4>
-                        <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
-                        <p class="message-content">
-                            <span class="text">
-                                <span data-ng-bind-html="parseHTMLText(news.story)"></span>
-                                <br/>
-                                <span class="pull-right"><a href="" data-ng-click="viewNewsItem(news)">Show More</a>
-                                </span>
-                            </span>
-                        </p>
+                        <p class="news-date">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                        <div class="message-content">
+                            <p data-ng-bind-html="parseHTMLText(news.story)"></p>
+                            <div class="news-actions">
+                                <button class="btn blue" href="" data-ng-click="viewNewsItem(news)">Read More</button>
+                            </div>
+                        </div>
                     </div>
                 </li>
             </ul>
