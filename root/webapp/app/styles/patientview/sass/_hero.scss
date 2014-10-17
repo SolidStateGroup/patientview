@@ -66,10 +66,43 @@
 and (max-width : 1024px) {
     .hero-panel{
         height:auto;
+        background:none;
+        margin-top:0;
 
         .hero-pane{
             .pane-content{
                 margin:0;
+                padding:10px;
+
+                h2{
+                    font-size:5rem;
+                }
+
+                p{
+                    font-size:1.8rem;
+                }
+
+                > i{
+                    background-position: 50%;
+                    background-size: 100%;
+                    height: 130px;
+                    width: 60px;
+                    float: left;
+                }
+            }
+
+            &.aquamarine {
+                @include bootstrap-color-opacity($aquamarine, 100);
+                @include bootstrap-border-radius(8px 8px 0 0);
+            }
+
+            &.aqua {
+                @include bootstrap-color-opacity($aqua, 100);
+            }
+
+            &.blue {
+                @include bootstrap-color-opacity($primary, 100);
+                @include bootstrap-border-radius(0 0 8px 8px);
             }
         }
     }

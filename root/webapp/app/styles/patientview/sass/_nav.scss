@@ -249,6 +249,31 @@ and (max-width : 1024px) {
                     a {
                         text-align: right;
                     }
+
+                    &.help-link{
+                        position: absolute;
+                        height: 40px;
+                        width: 40px;
+                        right: 70px;
+                        top: 10px;
+
+                        a{
+                            height: 40px;
+                            width: 40px;
+                            display:block;
+                            text-align: center;
+
+                            i{
+                                display:block;
+                            }
+                        }
+                    }
+                }
+
+                &.login-reg{
+                    li{
+
+                    }
                 }
             }
         }

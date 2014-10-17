@@ -11,11 +11,17 @@
             <a data-ng-hide="loggedInUser" class="navbar-brand" href="/"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
             <div class="temp-mobile-nav visible-xs pull-right">
                 <ul class="unstyled" data-ng-hide="!loggedInUser">
+                    <li class="help-link">
+                        <a href="/#/help">
+                            <i class="icon-help"></i>
+                            Help
+                        </a>
+                    </li>
                     <li><a data-ng-href="#/conversations">Messages</a></li>
                     <li><a data-ng-href="#/settings">Settings</a></li>
                     <li><a href="#/logout">Logout</a></li>
                 </ul>
-                <ul class="unstyled" data-ng-hide="loggedInUser">
+                <ul class="login-reg unstyled" data-ng-hide="loggedInUser">
                     <li><a data-ng-href="#/joinrequest">Join</a></li>
                     <li><a data-ng-href="#/login">Login</a></li>
                 </ul>
@@ -38,7 +44,7 @@
                     <li><a data-ng-href="#/logout" data-ng-hide="!loggedInUser">Log Out</a></li>
                 </ul>
             </div>
-            <ul class="nav-utils pull-right inline hidden-xs" data-ng-hide="!loggedInUser" data-ng-cloak>
+            <ul class="nav-utils pull-right inline " data-ng-hide="!loggedInUser" data-ng-cloak>
                 <li data-ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'" >
                     <a data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Feedback'">
                         <i class="icon-issues"></i>

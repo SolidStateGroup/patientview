@@ -190,3 +190,17 @@
     margin-top:5px;
     width:100%;
 }
+
+@media (max-width: $screen-xs-max) {
+    .details-container{
+        table{
+            tr{
+                td{
+                    width:50%;
+                }
+            }
+        }
+    }
+}
+
+

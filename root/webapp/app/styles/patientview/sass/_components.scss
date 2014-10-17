@@ -76,3 +76,15 @@
         line-height:35px;
     }
 }
+
+@media only screen
+and (max-width : 1024px) {
+
+    .tab-panel-item .item-detail{
+        padding:5px 20px;
+    }
+
+    .modal-dialog{
+        width:auto;
+    }
+}
