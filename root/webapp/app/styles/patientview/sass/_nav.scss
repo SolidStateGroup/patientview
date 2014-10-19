@@ -125,6 +125,21 @@
     margin-left: 0;
 }
 
+html, body{
+    height:100%;
+
+    > .container{
+        min-height: 100%;
+        margin-bottom: -106px;
+        position: relative;
+    }
+
+    .clearFooter{
+        height: 106px;
+        clear: both;
+    }
+}
+
 
 .footer{
     margin-top:40px;
