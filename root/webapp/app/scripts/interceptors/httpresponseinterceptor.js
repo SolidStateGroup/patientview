@@ -1,19 +1,14 @@
 'use strict';
 
-angular.module('patientviewApp').factory('HttpResponseInterceptor', ['$q', '$rootScope', '$location',
-function ($q, $rootScope, $location) {
+angular.module('patientviewApp').factory('HttpResponseInterceptor', ['$q', '$rootScope', function ($q, $rootScope) {
     return {
         'responseError': function(rejection) {
-            var status = rejection.status;
-            var config = rejection.config;
-            var method = config.method;
-            var url = config.url;
 
-           // if (status === 401) {
-           //        $location.path( '/login' );
-           // } else {
-           //     $rootScope.error = method + ' on ' + url + ' failed with status ' + status;
-           // }
+            // http UNAUTHORIZED, log out user
+            if (rejection.status === 401) {
+                $rootScope.logout();
+            }
+
             return $q.reject(rejection);
         }
     };

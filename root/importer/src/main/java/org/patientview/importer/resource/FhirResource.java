@@ -182,7 +182,7 @@ public class FhirResource {
             return jsonObject;
         } catch (Exception e) {
             // Fhir parser just throws exception
-            LOG.error("Could not retrieve resource");
+            LOG.error("Unable to get resource {}", e);
             throw new FhirResourceException(e.getMessage());
         }
     }
@@ -207,7 +207,7 @@ public class FhirResource {
                 T resource = (T) jsonParser.parse(new ByteArrayInputStream(resultSet.getString(1).getBytes()));
                 resources.add(resource);
             } catch (Exception e) {
-                LOG.error("Cannot create resource");
+                LOG.error("Cannot convert resource " + e.getMessage());
             }
         }
         return resources;

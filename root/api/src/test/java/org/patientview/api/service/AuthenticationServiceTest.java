@@ -69,6 +69,7 @@ public class AuthenticationServiceTest {
         RequestContextHolder.setRequestAttributes(attributes);
 
         when(properties.getProperty(eq("maximum.failed.logons"))).thenReturn("3");
+        when(properties.getProperty(eq("session.length"))).thenReturn("1800000");
         this.authenticationService.setParameter();
     }
 

@@ -444,6 +444,11 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     }
 
     private boolean canModifyNewsItem(NewsItem newsItem) {
+
+        if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            return true;
+        }
+
         for (NewsLink newsLink : newsItem.getNewsLinks()) {
             if (newsLink.getGroup() == null) {
                 // ignore GLOBAL_ADMIN and PUBLIC roles

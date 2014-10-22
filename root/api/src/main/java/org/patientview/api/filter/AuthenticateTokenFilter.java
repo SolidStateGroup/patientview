@@ -98,6 +98,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             if (!authenticateRequest(httpRequest)) {
                 LOG.info("Request is not authenticated");
                 redirectFailedAuthentication((HttpServletResponse) response);
+                return;
             }
             chain.doFilter(request, response);
         }
@@ -110,6 +111,12 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
                 new PreAuthenticatedAuthenticationToken(authToken, authToken);
 
         try {
+            if (authenticationService.sessionExpired(authToken)) {
+                LOG.info("Session Expired");
+                authenticationService.logout(authToken);
+                return false;
+            }
+
             Authentication authentication = authenticationService.authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return true;
@@ -121,7 +128,6 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private void redirectFailedAuthentication(HttpServletResponse response) {
         try {
-            LOG.info("Failed Authentication");
             response.sendRedirect("/api/error");
         } catch (IOException ioe) {
             LOG.error("Could not redirect response");

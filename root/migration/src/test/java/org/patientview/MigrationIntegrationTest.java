@@ -1,6 +1,9 @@
 package org.patientview;
 
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -10,6 +13,7 @@ import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.PatientDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
+import org.patientview.migration.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.Rollback;
@@ -29,6 +33,7 @@ import javax.inject.Inject;
 public class MigrationIntegrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MigrationIntegrationTest.class);
+    //private String token;
 
     @Inject
     private AdminDataMigrationService adminDataMigrationService;
@@ -38,6 +43,27 @@ public class MigrationIntegrationTest {
 
     @Inject
     private PatientDataMigrationService patientDataMigrationService;
+
+    /*@Before
+    public void setup() throws Exception {
+
+        LOG.info("Authenticating");
+        // authenticate as migration user
+
+        String token = JsonUtil.jsonRequest(JsonUtil.pvUrl + "login", String.class, null, HttpPost.class);
+    }*/
+
+    /**
+     * Order(0) doNothing, test setup
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void test00doNothing() {
+
+    }
 
     /**
      * Order(1) Migrates all the static data like groups, specialities

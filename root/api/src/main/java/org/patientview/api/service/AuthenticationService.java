@@ -30,6 +30,8 @@ public interface AuthenticationService extends UserDetailsService {
 
     Authentication authenticate(final Authentication authentication) throws AuthenticationServiceException;
 
+    boolean sessionExpired(final String authToken);
+
     void logout(String token) throws AuthenticationServiceException;
 
     UserToken getUserInformation(String token);
