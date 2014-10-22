@@ -48,7 +48,7 @@
             </div>
             <ul class="nav-utils pull-right inline " data-ng-hide="!loggedInUser" data-ng-cloak>
                 <li data-ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'" >
-                    <a data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Feedback'">
+                    <a  data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Feedback'">
                         <i class="icon-issues"></i>
                         Report Issues
                     </a>
@@ -56,7 +56,7 @@
                         <i class="icon-help"></i>
                         {{menuitem.title}}
                     </a>
-                    <a data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Messages'">
+                    <a class="messages-menu-item" data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Messages'">
                         <i class="icon-messages"></i>
                         {{menuitem.title}} <span data-ng-show="unreadConversationCount > 0" class="badge badge-tiny warning">{{unreadConversationCount}}</span>
                     </a>
