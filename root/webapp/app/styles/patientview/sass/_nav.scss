@@ -306,6 +306,9 @@ and (max-width : 1023px) {
     }
 
     .navbar-brand {
+        .brand{
+            height:auto;
+        }
         img {
             height: 28px;
             width: 160px;
@@ -334,4 +337,44 @@ and (max-width : 1023px) {
             width:46%;
         }
     }
+}
+
+@media (max-width: $screen-xs-max) {
+
+    .navbar-brand {
+        .brand{
+            height:auto;
+        }
+        img {
+            height: 28px;
+            width: 130px;
+
+            &.sub-brand {
+                width: 50px;
+                height: 20px;
+            }
+        }
+    }
+
+    .temp-mobile-nav {
+        .nav-public{
+            .public{
+                height:70px;
+                margin:0;
+                li{
+                    height:100%;
+                    float:left;
+                    padding-top:5px;
+
+                    a{
+                        padding-left:5px;
+                        padding-right:5px;
+                        min-width:60px;
+                        text-align:center;
+                    }
+                }
+            }
+        }
+    }
+
 }

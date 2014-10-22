@@ -11,3 +11,20 @@
 .lt-ie9 .navbar-collapse {
   padding-right: 0;
 }
+/* line 16, ../sass/ie.scss */
+.lt-ie9 .hero-panel {
+  overflow: hidden;
+}
+/* line 18, ../sass/ie.scss */
+.lt-ie9 .hero-panel .ie-hero-image {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 100%;
+  min-width: 1170px;
+  width: 100%;
+  height: auto;
+}

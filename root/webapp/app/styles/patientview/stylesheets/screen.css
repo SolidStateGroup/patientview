@@ -1097,34 +1097,73 @@ html .clearFooter, body .clearFooter {
   }
 
   /* line 309, ../sass/_nav.scss */
+  .navbar-brand .brand {
+    height: auto;
+  }
+  /* line 312, ../sass/_nav.scss */
   .navbar-brand img {
     height: 28px;
     width: 160px;
   }
-  /* line 313, ../sass/_nav.scss */
+  /* line 316, ../sass/_nav.scss */
   .navbar-brand img.sub-brand {
     width: 50px;
     height: 20px;
   }
 
-  /* line 320, ../sass/_nav.scss */
+  /* line 323, ../sass/_nav.scss */
   .nav-account {
     display: none;
   }
 
-  /* line 325, ../sass/_nav.scss */
+  /* line 328, ../sass/_nav.scss */
   .footer .legal-links {
     width: 20%;
   }
-  /* line 327, ../sass/_nav.scss */
+  /* line 330, ../sass/_nav.scss */
   .footer .legal-links li {
     display: block;
     text-align: right;
     line-height: 22px;
   }
-  /* line 333, ../sass/_nav.scss */
+  /* line 336, ../sass/_nav.scss */
   .footer .partner-info {
     width: 46%;
+  }
+}
+@media (max-width: 767px) {
+  /* line 345, ../sass/_nav.scss */
+  .navbar-brand .brand {
+    height: auto;
+  }
+  /* line 348, ../sass/_nav.scss */
+  .navbar-brand img {
+    height: 28px;
+    width: 130px;
+  }
+  /* line 352, ../sass/_nav.scss */
+  .navbar-brand img.sub-brand {
+    width: 50px;
+    height: 20px;
+  }
+
+  /* line 361, ../sass/_nav.scss */
+  .temp-mobile-nav .nav-public .public {
+    height: 70px;
+    margin: 0;
+  }
+  /* line 364, ../sass/_nav.scss */
+  .temp-mobile-nav .nav-public .public li {
+    height: 100%;
+    float: left;
+    padding-top: 5px;
+  }
+  /* line 369, ../sass/_nav.scss */
+  .temp-mobile-nav .nav-public .public li a {
+    padding-left: 5px;
+    padding-right: 5px;
+    min-width: 60px;
+    text-align: center;
   }
 }
 /** Actual Tables **/
@@ -1829,6 +1868,10 @@ textarea.form-control.article-content {
   margin-top: 20px;
 }
 /* line 11, ../sass/_hero.scss */
+.hero-panel .ie-hero-image {
+  display: none;
+}
+/* line 15, ../sass/_hero.scss */
 .hero-panel .hero-pane {
   height: 100%;
   color: white;
@@ -1837,13 +1880,13 @@ textarea.form-control.article-content {
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
 }
-/* line 19, ../sass/_hero.scss */
+/* line 23, ../sass/_hero.scss */
 .hero-panel .hero-pane.aquamarine {
   background: #00aa9e;
   opacity: 0.7;
   filter: alpha(opacity=70);
 }
-/* line 21, ../sass/_hero.scss */
+/* line 25, ../sass/_hero.scss */
 .hero-panel .hero-pane.aquamarine:hover {
   background: #00aa9e;
   opacity: 1;
@@ -1853,13 +1896,13 @@ textarea.form-control.article-content {
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
 }
-/* line 30, ../sass/_hero.scss */
+/* line 34, ../sass/_hero.scss */
 .hero-panel .hero-pane.aqua {
   background: #00adc6;
   opacity: 0.7;
   filter: alpha(opacity=70);
 }
-/* line 32, ../sass/_hero.scss */
+/* line 36, ../sass/_hero.scss */
 .hero-panel .hero-pane.aqua:hover {
   background: #00adc6;
   opacity: 1;
@@ -1869,13 +1912,13 @@ textarea.form-control.article-content {
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
 }
-/* line 41, ../sass/_hero.scss */
+/* line 45, ../sass/_hero.scss */
 .hero-panel .hero-pane.blue {
   background: #368de8;
   opacity: 0.7;
   filter: alpha(opacity=70);
 }
-/* line 43, ../sass/_hero.scss */
+/* line 47, ../sass/_hero.scss */
 .hero-panel .hero-pane.blue:hover {
   background: #368de8;
   opacity: 1;
@@ -1885,40 +1928,40 @@ textarea.form-control.article-content {
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
 }
-/* line 52, ../sass/_hero.scss */
+/* line 56, ../sass/_hero.scss */
 .hero-panel .hero-pane .pane-content {
   text-align: center;
   margin: 25% 0;
   font-weight: 100;
   font-size: 2.5rem;
 }
-/* line 58, ../sass/_hero.scss */
+/* line 62, ../sass/_hero.scss */
 .hero-panel .hero-pane .pane-content h2 {
   font-size: 7rem;
 }
 
 /** todo BELOW SMALL DESKTOP - review potential need for mobile design **/
 @media only screen and (max-width: 1024px) {
-  /* line 68, ../sass/_hero.scss */
+  /* line 72, ../sass/_hero.scss */
   .hero-panel {
     height: auto;
     background: none;
     margin-top: 0;
   }
-  /* line 74, ../sass/_hero.scss */
+  /* line 78, ../sass/_hero.scss */
   .hero-panel .hero-pane .pane-content {
     margin: 0;
     padding: 10px;
   }
-  /* line 78, ../sass/_hero.scss */
+  /* line 82, ../sass/_hero.scss */
   .hero-panel .hero-pane .pane-content h2 {
     font-size: 5rem;
   }
-  /* line 82, ../sass/_hero.scss */
+  /* line 86, ../sass/_hero.scss */
   .hero-panel .hero-pane .pane-content p {
     font-size: 1.8rem;
   }
-  /* line 86, ../sass/_hero.scss */
+  /* line 90, ../sass/_hero.scss */
   .hero-panel .hero-pane .pane-content > i {
     background-position: 50%;
     background-size: 100%;
@@ -1926,7 +1969,7 @@ textarea.form-control.article-content {
     width: 60px;
     float: left;
   }
-  /* line 95, ../sass/_hero.scss */
+  /* line 99, ../sass/_hero.scss */
   .hero-panel .hero-pane.aquamarine {
     background: #00aa9e;
     opacity: 1;
@@ -1935,13 +1978,13 @@ textarea.form-control.article-content {
     -moz-border-radius: 8px 8px 0 0;
     border-radius: 8px 8px 0 0;
   }
-  /* line 100, ../sass/_hero.scss */
+  /* line 104, ../sass/_hero.scss */
   .hero-panel .hero-pane.aqua {
     background: #00adc6;
     opacity: 1;
     filter: alpha(opacity=100);
   }
-  /* line 104, ../sass/_hero.scss */
+  /* line 108, ../sass/_hero.scss */
   .hero-panel .hero-pane.blue {
     background: #368de8;
     opacity: 1;
