@@ -872,33 +872,38 @@ i.icon-back-to {
   padding-left: 0;
 }
 /* line 70, ../sass/_nav.scss */
+.navbar-default .brand {
+  height: 41px;
+}
+/* line 74, ../sass/_nav.scss */
 .navbar-default .sub-brand {
+  height: 30px;
   margin: 7px 0 0 20px;
 }
 
-/* line 76, ../sass/_nav.scss */
+/* line 81, ../sass/_nav.scss */
 .secondary-nav li {
   margin-left: 0;
 }
-/* line 80, ../sass/_nav.scss */
+/* line 85, ../sass/_nav.scss */
 .secondary-nav li:first-child a {
   border-left: none;
 }
-/* line 85, ../sass/_nav.scss */
+/* line 90, ../sass/_nav.scss */
 .secondary-nav li.active {
   position: relative;
 }
-/* line 87, ../sass/_nav.scss */
+/* line 92, ../sass/_nav.scss */
 .secondary-nav li.active a {
   background: #f8f8f8;
   color: #368de8;
 }
-/* line 92, ../sass/_nav.scss */
+/* line 97, ../sass/_nav.scss */
 .secondary-nav li.active a:hover {
   background: #f8f8f8;
   color: #368de8;
 }
-/* line 98, ../sass/_nav.scss */
+/* line 103, ../sass/_nav.scss */
 .secondary-nav li.active:after {
   height: 20px;
   width: 100%;
@@ -909,7 +914,7 @@ i.icon-back-to {
   left: 0;
   content: "";
 }
-/* line 110, ../sass/_nav.scss */
+/* line 115, ../sass/_nav.scss */
 .secondary-nav li a {
   border-left: 1px solid #e4e9f0;
   color: #959595;
@@ -918,34 +923,34 @@ i.icon-back-to {
   -moz-border-radius: 0;
   border-radius: 0;
 }
-/* line 116, ../sass/_nav.scss */
+/* line 121, ../sass/_nav.scss */
 .secondary-nav li a:hover {
   background: #f8f8f8;
   color: #368de8;
 }
 
-/* line 124, ../sass/_nav.scss */
+/* line 129, ../sass/_nav.scss */
 .nav-pills.secondary-nav li {
   margin-left: 0;
 }
 
-/* line 128, ../sass/_nav.scss */
+/* line 133, ../sass/_nav.scss */
 html, body {
   height: 100%;
 }
-/* line 131, ../sass/_nav.scss */
+/* line 136, ../sass/_nav.scss */
 html > .container, body > .container {
   min-height: 100%;
   margin-bottom: -106px;
   position: relative;
 }
-/* line 137, ../sass/_nav.scss */
+/* line 142, ../sass/_nav.scss */
 html .clearFooter, body .clearFooter {
   height: 106px;
   clear: both;
 }
 
-/* line 144, ../sass/_nav.scss */
+/* line 149, ../sass/_nav.scss */
 .footer {
   margin-top: 40px;
   background: white;
@@ -953,7 +958,7 @@ html .clearFooter, body .clearFooter {
   position: relative;
   overflow: hidden;
 }
-/* line 151, ../sass/_nav.scss */
+/* line 156, ../sass/_nav.scss */
 .footer .brand {
   opacity: 0.5;
   filter: alpha(opacity=50);
@@ -961,57 +966,56 @@ html .clearFooter, body .clearFooter {
   line-height: 55px;
   padding: 15px;
 }
-/* line 157, ../sass/_nav.scss */
+/* line 162, ../sass/_nav.scss */
 .footer .brand img {
-  height: 50%;
-  width: 50%;
+  height: 30px;
 }
-/* line 164, ../sass/_nav.scss */
+/* line 168, ../sass/_nav.scss */
 .footer .partner-info > h5 {
   width: 100%;
   text-align: center;
   float: left;
 }
-/* line 171, ../sass/_nav.scss */
+/* line 175, ../sass/_nav.scss */
 .footer .partner-links {
   margin: 0 auto;
   padding: 15px 35px;
 }
-/* line 175, ../sass/_nav.scss */
+/* line 179, ../sass/_nav.scss */
 .footer .partner-links a {
   margin: 0 10px;
   float: left;
 }
-/* line 179, ../sass/_nav.scss */
+/* line 183, ../sass/_nav.scss */
 .footer .partner-links a.other-partners {
   clear: left;
   color: #959595;
 }
-/* line 186, ../sass/_nav.scss */
+/* line 190, ../sass/_nav.scss */
 .footer .legal-links {
   padding-top: 15px;
 }
-/* line 188, ../sass/_nav.scss */
+/* line 192, ../sass/_nav.scss */
 .footer .legal-links li {
   line-height: 40px;
   padding: 0 10px;
   font-size: 1.25rem;
   color: #959595;
 }
-/* line 194, ../sass/_nav.scss */
+/* line 198, ../sass/_nav.scss */
 .footer .legal-links li a {
   font-size: 1.25rem;
   color: #959595;
 }
-/* line 198, ../sass/_nav.scss */
+/* line 202, ../sass/_nav.scss */
 .footer .legal-links li a:hover {
   color: #368de8;
 }
-/* line 206, ../sass/_nav.scss */
+/* line 210, ../sass/_nav.scss */
 .footer .legal-links.partner-list li {
   line-height: 5px;
 }
-/* line 212, ../sass/_nav.scss */
+/* line 216, ../sass/_nav.scss */
 .footer p {
   font-size: 1.75rem;
   color: #959595;
@@ -1020,11 +1024,11 @@ html .clearFooter, body .clearFooter {
   top: 25%;
 }
 
-/* line 221, ../sass/_nav.scss */
+/* line 225, ../sass/_nav.scss */
 .nav-utils {
   height: 70px;
 }
-/* line 223, ../sass/_nav.scss */
+/* line 227, ../sass/_nav.scss */
 .nav-utils li {
   width: 70px;
   margin-left: -2px;
@@ -1032,7 +1036,7 @@ html .clearFooter, body .clearFooter {
   background: #f8f8f8;
   border-left: 1px solid #e4e9f0;
 }
-/* line 229, ../sass/_nav.scss */
+/* line 233, ../sass/_nav.scss */
 .nav-utils li a {
   height: 100%;
   width: 100%;
@@ -1041,27 +1045,21 @@ html .clearFooter, body .clearFooter {
   color: #959595;
   text-decoration: none;
 }
-/* line 237, ../sass/_nav.scss */
+/* line 241, ../sass/_nav.scss */
 .nav-utils li a i {
   display: block;
   margin: 20px auto 0;
 }
 
-/* line 246, ../sass/_nav.scss */
+/* line 250, ../sass/_nav.scss */
 .subnav-row .content-panel {
   overflow: visible;
 }
 
-@media only screen and (max-width: 1024px) {
-  /* line 254, ../sass/_nav.scss */
+@media only screen and (max-width: 1023px) {
+  /* line 258, ../sass/_nav.scss */
   .navbar-header {
     position: relative;
-  }
-  /* line 257, ../sass/_nav.scss */
-  .navbar-header .temp-mobile-nav {
-    position: absolute;
-    top: 5px;
-    right: 10px;
   }
   /* line 264, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li a {
@@ -1086,21 +1084,47 @@ html .clearFooter, body .clearFooter {
   .navbar-header .temp-mobile-nav ul li.help-link a i {
     display: block;
   }
-
-  /* line 298, ../sass/_nav.scss */
-  .navbar-brand img {
-    height: 50%;
-    width: 160px;
+  /* line 295, ../sass/_nav.scss */
+  .navbar-header .temp-mobile-nav .nav-public .public {
+    height: 70px;
+    margin: 0;
   }
-  /* line 302, ../sass/_nav.scss */
-  .navbar-brand img.sub-brand {
-    width: 50px;
-    height: 15%;
+  /* line 298, ../sass/_nav.scss */
+  .navbar-header .temp-mobile-nav .nav-public .public li {
+    height: 100%;
+    float: left;
+    padding-top: 5px;
   }
 
   /* line 309, ../sass/_nav.scss */
+  .navbar-brand img {
+    height: 28px;
+    width: 160px;
+  }
+  /* line 313, ../sass/_nav.scss */
+  .navbar-brand img.sub-brand {
+    width: 50px;
+    height: 20px;
+  }
+
+  /* line 320, ../sass/_nav.scss */
   .nav-account {
     display: none;
+  }
+
+  /* line 325, ../sass/_nav.scss */
+  .footer .legal-links {
+    width: 20%;
+  }
+  /* line 327, ../sass/_nav.scss */
+  .footer .legal-links li {
+    display: block;
+    text-align: right;
+    line-height: 22px;
+  }
+  /* line 333, ../sass/_nav.scss */
+  .footer .partner-info {
+    width: 46%;
   }
 }
 /** Actual Tables **/
@@ -1190,16 +1214,6 @@ html .clearFooter, body .clearFooter {
   font-size: 1.5rem;
   background: #fff;
   border-bottom: 1px solid #e4e9f0;
-}
-/* line 90, ../sass/_tables.scss */
-.faux-table .faux-row.dull {
-  opacity: 0.5;
-  filter: alpha(opacity=50);
-}
-/* line 94, ../sass/_tables.scss */
-.faux-table .faux-row.highlight {
-  opacity: 1;
-  filter: alpha(opacity=100);
 }
 /* line 98, ../sass/_tables.scss */
 .faux-table .faux-row .row-item {
@@ -1809,11 +1823,12 @@ textarea.form-control.article-content {
 .hero-panel {
   background: url("../../../images/hero-bg.png") 0 0 no-repeat;
   background-size: cover;
+  -ms-behavior: url(/backgroundsize.min.htc);
   width: 100%;
   height: 430px;
   margin-top: 20px;
 }
-/* line 10, ../sass/_hero.scss */
+/* line 11, ../sass/_hero.scss */
 .hero-panel .hero-pane {
   height: 100%;
   color: white;
@@ -1822,13 +1837,13 @@ textarea.form-control.article-content {
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
 }
-/* line 18, ../sass/_hero.scss */
+/* line 19, ../sass/_hero.scss */
 .hero-panel .hero-pane.aquamarine {
   background: #00aa9e;
   opacity: 0.7;
   filter: alpha(opacity=70);
 }
-/* line 20, ../sass/_hero.scss */
+/* line 21, ../sass/_hero.scss */
 .hero-panel .hero-pane.aquamarine:hover {
   background: #00aa9e;
   opacity: 1;
@@ -1838,13 +1853,13 @@ textarea.form-control.article-content {
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
 }
-/* line 29, ../sass/_hero.scss */
+/* line 30, ../sass/_hero.scss */
 .hero-panel .hero-pane.aqua {
   background: #00adc6;
   opacity: 0.7;
   filter: alpha(opacity=70);
 }
-/* line 31, ../sass/_hero.scss */
+/* line 32, ../sass/_hero.scss */
 .hero-panel .hero-pane.aqua:hover {
   background: #00adc6;
   opacity: 1;
@@ -1854,13 +1869,13 @@ textarea.form-control.article-content {
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
 }
-/* line 40, ../sass/_hero.scss */
+/* line 41, ../sass/_hero.scss */
 .hero-panel .hero-pane.blue {
   background: #368de8;
   opacity: 0.7;
   filter: alpha(opacity=70);
 }
-/* line 42, ../sass/_hero.scss */
+/* line 43, ../sass/_hero.scss */
 .hero-panel .hero-pane.blue:hover {
   background: #368de8;
   opacity: 1;
@@ -1870,40 +1885,40 @@ textarea.form-control.article-content {
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
 }
-/* line 51, ../sass/_hero.scss */
+/* line 52, ../sass/_hero.scss */
 .hero-panel .hero-pane .pane-content {
   text-align: center;
   margin: 25% 0;
   font-weight: 100;
   font-size: 2.5rem;
 }
-/* line 57, ../sass/_hero.scss */
+/* line 58, ../sass/_hero.scss */
 .hero-panel .hero-pane .pane-content h2 {
   font-size: 7rem;
 }
 
 /** todo BELOW SMALL DESKTOP - review potential need for mobile design **/
 @media only screen and (max-width: 1024px) {
-  /* line 67, ../sass/_hero.scss */
+  /* line 68, ../sass/_hero.scss */
   .hero-panel {
     height: auto;
     background: none;
     margin-top: 0;
   }
-  /* line 73, ../sass/_hero.scss */
+  /* line 74, ../sass/_hero.scss */
   .hero-panel .hero-pane .pane-content {
     margin: 0;
     padding: 10px;
   }
-  /* line 77, ../sass/_hero.scss */
+  /* line 78, ../sass/_hero.scss */
   .hero-panel .hero-pane .pane-content h2 {
     font-size: 5rem;
   }
-  /* line 81, ../sass/_hero.scss */
+  /* line 82, ../sass/_hero.scss */
   .hero-panel .hero-pane .pane-content p {
     font-size: 1.8rem;
   }
-  /* line 85, ../sass/_hero.scss */
+  /* line 86, ../sass/_hero.scss */
   .hero-panel .hero-pane .pane-content > i {
     background-position: 50%;
     background-size: 100%;
@@ -1911,7 +1926,7 @@ textarea.form-control.article-content {
     width: 60px;
     float: left;
   }
-  /* line 94, ../sass/_hero.scss */
+  /* line 95, ../sass/_hero.scss */
   .hero-panel .hero-pane.aquamarine {
     background: #00aa9e;
     opacity: 1;
@@ -1920,13 +1935,13 @@ textarea.form-control.article-content {
     -moz-border-radius: 8px 8px 0 0;
     border-radius: 8px 8px 0 0;
   }
-  /* line 99, ../sass/_hero.scss */
+  /* line 100, ../sass/_hero.scss */
   .hero-panel .hero-pane.aqua {
     background: #00adc6;
     opacity: 1;
     filter: alpha(opacity=100);
   }
-  /* line 103, ../sass/_hero.scss */
+  /* line 104, ../sass/_hero.scss */
   .hero-panel .hero-pane.blue {
     background: #368de8;
     opacity: 1;

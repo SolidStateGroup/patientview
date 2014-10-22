@@ -126,7 +126,7 @@
                                     <span class="label label-success" data-ng-show="newsLink.role != null && newsLink.group == null && newsLink.role.name != 'GLOBAL_ADMIN'">{{newsLink.role.description}}</span>
                                 </li>
                             </ul>
-                            <h4>{{news.heading}}</h4>
+                            <h4><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a></h4>
                             <p class="news-date">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                             <div class="message-content">
                                 <p data-ng-bind-html="parseHTMLText(news.story)"></p>

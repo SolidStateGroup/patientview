@@ -114,7 +114,7 @@
             <ul class="unstyled" data-ng-show="newsItems">
                 <li class="news-item content-panel" data-ng-repeat="news in newsItems | orderBy: '-created'">
                     <div class="content-inner">
-                        <h4>{{news.heading}}</h4>
+                        <h4><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a></h4>
                         <p class="news-date">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
                         <div class="message-content">
                             <p data-ng-bind-html="parseHTMLText(news.story)"></p>

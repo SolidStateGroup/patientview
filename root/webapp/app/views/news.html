@@ -70,7 +70,7 @@
                     <li class="delete-news"><a href="" class="aside-link" data-ng-click="remove(news)" data-ng-confirm-click="Are you sure you want to delete this news item?" data-ng-show="news.delete">Delete</a></li>
                 </ul>
                 <div class="message-summary">
-                    <h2 class="message-title">{{news.heading}}
+                    <h2 class="message-title"><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a>
                         <span data-ng-repeat="newsLink in removeDuplicateNewsLinks(news.newsLinks)" class="pull-right news-link-labels">
                             <span class="label label-primary" data-ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
                             <span class="label label-success" data-ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>

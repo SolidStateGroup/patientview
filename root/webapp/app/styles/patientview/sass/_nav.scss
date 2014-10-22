@@ -67,7 +67,12 @@
         }
     }
 
+    .brand{
+        height:41px;
+    }
+
     .sub-brand{
+        height:30px;
         margin:7px 0 0 20px;
     }
 }
@@ -155,8 +160,7 @@ html, body{
         padding:15px;
 
         img{
-            height:50%;
-            width:50%;
+            height:30px;
         }
     }
 
@@ -249,16 +253,12 @@ html, body{
 }
 
 @media only screen
-and (max-width : 1024px) {
+and (max-width : 1023px) {
 
     .navbar-header {
         position: relative;
 
         .temp-mobile-nav {
-            position: absolute;
-            top: 5px;
-            right: 10px;
-
             ul {
                 li {
                     a {
@@ -291,22 +291,47 @@ and (max-width : 1024px) {
                     }
                 }
             }
+            .nav-public{
+                .public{
+                    height:70px;
+                    margin:0;
+                    li{
+                        height:100%;
+                        float:left;
+                        padding-top:5px;
+                    }
+                }
+            }
         }
     }
 
     .navbar-brand {
         img {
-            height: 50%;
+            height: 28px;
             width: 160px;
 
             &.sub-brand {
                 width: 50px;
-                height: 15%;
+                height: 20px;
             }
         }
     }
 
     .nav-account{
         display:none;
+    }
+
+    .footer{
+        .legal-links{
+            width:20%;
+            li{
+                display:block;
+                text-align:right;
+                line-height:22px;
+            }
+        }
+        .partner-info{
+            width:46%;
+        }
     }
 }

@@ -7,8 +7,8 @@
 <div class="container">
     <div class="navbar navbar-default content-panel" role="navigation">
         <div class="navbar-header">
-            <a data-ng-hide="!loggedInUser" class="navbar-brand" href="#/dashboard"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
-            <a data-ng-hide="loggedInUser" class="navbar-brand" href="/"><img src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
+            <a data-ng-hide="!loggedInUser" class="navbar-brand" href="#/dashboard"><img class="brand" src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
+            <a data-ng-hide="loggedInUser" class="navbar-brand" href="/"><img class="brand" src="images/pv-logo.png" alt="patient view"/><img class="sub-brand" src="images/nhs.jpg" alt="nhs"/></a>
             <div class="temp-mobile-nav visible-xs pull-right">
                 <ul class="unstyled" data-ng-hide="!loggedInUser">
                     <li class="help-link">
@@ -21,10 +21,12 @@
                     <li><a data-ng-href="#/settings">Settings</a></li>
                     <li><a href="#/logout">Logout</a></li>
                 </ul>
-                <ul class="login-reg unstyled" data-ng-hide="loggedInUser">
-                    <li><a data-ng-href="#/joinrequest">Join</a></li>
-                    <li><a data-ng-href="#/login">Login</a></li>
-                </ul>
+                <div class="nav-public pull-right" data-ng-hide="loggedInUser">
+                    <ul class="nav navbar-nav navbar-right public pull-left" data-ng-cloak>
+                        <li class="login"><a data-ng-href="#/login" ><i class="icon-login-large pull-left"></i> Sign In</a></li>
+                        <li class="join"><a data-ng-href="#/joinrequest" ><i class="icon-join-large pull-left"></i> I want to join</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
