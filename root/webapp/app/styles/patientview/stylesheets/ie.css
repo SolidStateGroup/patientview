@@ -33,3 +33,14 @@
 .lt-ie9 .navbar-right label {
   min-width: 100px;
 }
+/* line 40, ../sass/ie.scss */
+.lt-ie9 .messages-menu-item {
+  position: relative;
+}
+/* line 43, ../sass/ie.scss */
+.lt-ie9 .messages-menu-item i {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  height: 15px;
+}
