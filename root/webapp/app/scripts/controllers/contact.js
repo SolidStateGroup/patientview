@@ -120,5 +120,33 @@ function ($scope, $modal, GroupService, ConversationService) {
 
     };
 
+    var isValidUrl = function ValidURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+            '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        if(!pattern.test(str)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    $scope.addAIfRequired = function (text) {
+        if (text.indexOf('@') > -1) {
+            text = '<a href="mailto:' + text + '">' + text + '</a>';
+        } else if (isValidUrl(text)) {
+            if (text.indexOf('http') > -1) {
+                text = '<a href="' + text + '" target="_blank">' + text + '</a>';
+            } else {
+                text = '<a href="http://' + text + '" target="_blank">' + text + '</a>';
+            }
+        }
+
+        return text;
+    };
+
     $scope.init();
 }]);

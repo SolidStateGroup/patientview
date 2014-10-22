@@ -93,13 +93,13 @@ public class ImportControllerTest {
     public void importIntegrationTestMilestone4() throws Exception {
 
         List<String> files = new ArrayList<>();
-        files.add("data/xml/milestone4/SAC02_01439_41737438900.xml");
-        files.add("data/xml/milestone4/SGC04_01436_57703939407.xml");
+        //files.add("data/xml/milestone4/SAC02_01439_41737438900.xml");
+        //files.add("data/xml/milestone4/SGC04_01436_57703939407.xml");
         files.add("data/xml/milestone4/SGC04_01436_64098149107.xml");
-        files.add("data/xml/milestone4/SGC04_01456_12314191702.xml");
-        files.add("data/xml/milestone4/SGC04_01459_14018849809.xml");
-        files.add("data/xml/milestone4/SGC04_01459_28039602801.xml");
-        files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");
+        //files.add("data/xml/milestone4/SGC04_01456_12314191702.xml");
+        //files.add("data/xml/milestone4/SGC04_01459_14018849809.xml");
+        //files.add("data/xml/milestone4/SGC04_01459_28039602801.xml");
+        //files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");
 
         for (String file : files) {
             post(getFileFromString(file));
