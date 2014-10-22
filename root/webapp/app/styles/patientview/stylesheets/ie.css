@@ -14,8 +14,9 @@
 /* line 16, ../sass/ie.scss */
 .lt-ie9 .hero-panel {
   overflow: hidden;
+  position: relative;
 }
-/* line 18, ../sass/ie.scss */
+/* line 20, ../sass/ie.scss */
 .lt-ie9 .hero-panel .ie-hero-image {
   display: block;
   position: absolute;
