@@ -3,14 +3,11 @@
  * <!--[if IE]>
  *   <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
  * <![endif]--> */
-
-.lt-ie9{
-    .historical-data .overlay{
-        -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";;
-    }
-
-    .navbar-collapse{
-        padding-right:0;
-    }
+/* line 8, ../sass/ie.scss */
+.lt-ie9 .historical-data .overlay {
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 }
-
+/* line 12, ../sass/ie.scss */
+.lt-ie9 .navbar-collapse {
+  padding-right: 0;
+}

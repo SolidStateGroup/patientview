@@ -51,15 +51,14 @@
                 <div class="message-summary">
                     <h2 class="message-title">
                         <span data-ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> New</span>
-                        <a href="" data-ng-click="viewMessages(conversation)">{{conversation.title}}</a>
-                        <span class="recipient">with: </span>
-                        <span class="recipient" data-ng-repeat="conversationUser in conversation.conversationUsers" data-ng-show="conversationUser.user.id != loggedInUser.id">
-                            <span class="label label-info">{{conversationUser.user.forename}} {{conversationUser.user.surname}}</span>&nbsp;
-                        </span>
-                        <span class="pull-right">
-                            <span class="label label-primary" data-ng-show="conversation.type ==='CONTACT_UNIT'">Patient Support</span> &nbsp;
+                        <a href="" class="pull-left" data-ng-click="viewMessages(conversation)">{{conversation.title}}</a>
+                        <span class="recipient pull-left">with:
+                            <span data-ng-repeat="conversationUser in conversation.conversationUsers" data-ng-show="conversationUser.user.id != loggedInUser.id">
+                                {{conversationUser.user.forename}} {{conversationUser.user.surname}}
+                            </span>
                         </span>
                     </h2>
+                    <p class="message-type-badge" data-ng-show="conversation.type ==='CONTACT_UNIT'">Patient Support</p>
                     <div class="last-message">
                         <h4>Most recent message from: {{conversation.messages[conversation.messages.length-1].user.forename}} {{conversation.messages[conversation.messages.length-1].user.surname}}</h4>
                         <p class="message-content" data-ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>

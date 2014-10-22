@@ -54,11 +54,21 @@ body {
     }
 }
 
+.subnav-row{
+    .content-panel{
+        margin-top:10px;
+    }
+}
+
 .content-panel {
     background: $white;
     @include bootstrap-border-radius(4px);
     @include bootstrap-box-shadow($content-panel);
     overflow: hidden;
+
+    &.navbar-default{
+        margin-bottom:0;
+    }
 
     &.chart-container{
         margin-top:20px;
