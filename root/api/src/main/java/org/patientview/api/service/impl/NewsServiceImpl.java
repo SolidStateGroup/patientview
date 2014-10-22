@@ -208,7 +208,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         if ((startIndex + pageable.getPageSize()) > newsItems.size()) {
             endIndex = newsItems.size();
         } else {
-            endIndex = pageable.getPageSize();
+            endIndex = startIndex + pageable.getPageSize();
         }
 
         List<NewsItem> pagedNewsItems = new ArrayList<>();
