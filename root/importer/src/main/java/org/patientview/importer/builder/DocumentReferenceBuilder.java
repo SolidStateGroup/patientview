@@ -36,15 +36,17 @@ public class DocumentReferenceBuilder {
 
     // Normally and invalid data would fail the whole XML
     public List<DocumentReference> build() {
-        
-        for (Patientview.Patient.Letterdetails.Letter letter : data.getPatient().getLetterdetails().getLetter()) {
-            try {
-                documentReferences.add(createDocumentReference(letter));
-                success++;
-            } catch (FhirResourceException e) {
-                LOG.error("Invalid data in XML: " + e.getMessage());
+
+        if (data.getPatient().getLetterdetails() != null) {
+            for (Patientview.Patient.Letterdetails.Letter letter : data.getPatient().getLetterdetails().getLetter()) {
+                try {
+                    documentReferences.add(createDocumentReference(letter));
+                    success++;
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+                count++;
             }
-            count++;
         }
 
         return documentReferences;

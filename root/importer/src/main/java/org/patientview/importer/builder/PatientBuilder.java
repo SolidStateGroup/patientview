@@ -24,95 +24,113 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class PatientBuilder {
 
-    private Patientview oldPatient;
+    private Patientview data;
     private ResourceReference practitionerReference;
 
-    public PatientBuilder(Patientview oldPatient, ResourceReference practitionerReference) {
-        this.oldPatient = oldPatient;
+    public PatientBuilder(Patientview data, ResourceReference practitionerReference) {
+        this.data = data;
         this.practitionerReference = practitionerReference;
     }
 
     public Patient build() {
         Patient newPatient = new Patient();
-        createHumanName(newPatient, oldPatient);
-        createDateOfBirth(newPatient, oldPatient);
-        createGender(newPatient, oldPatient);
-        createAddress(newPatient, oldPatient);
-        createContactDetails(newPatient, oldPatient);
-        addIdentifiers(newPatient, oldPatient);
+        createHumanName(newPatient, data);
+        createDateOfBirth(newPatient, data);
+        createGender(newPatient, data);
+        createAddress(newPatient, data);
+        createContactDetails(newPatient, data);
+        addIdentifiers(newPatient, data);
         addCareProvider(newPatient);
         return newPatient;
     }
 
-    private Patient createHumanName(Patient newPatient, Patientview oldPatient) {
+    private Patient createHumanName(Patient newPatient, Patientview data) {
         HumanName humanName = newPatient.addName();
-        humanName.addFamilySimple(oldPatient.getPatient().getPersonaldetails().getSurname());
-        humanName.addGivenSimple(oldPatient.getPatient().getPersonaldetails().getForename());
+        if (data.getPatient().getPersonaldetails() != null) {
+            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getSurname())) {
+                humanName.addFamilySimple(data.getPatient().getPersonaldetails().getSurname());
+            }
+            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getForename())) {
+                humanName.addGivenSimple(data.getPatient().getPersonaldetails().getForename());
+            }
+        }
         Enumeration<HumanName.NameUse> nameUse = new Enumeration(HumanName.NameUse.usual);
         humanName.setUse(nameUse);
         return newPatient;
     }
 
-    private Patient createDateOfBirth(Patient newPatient, Patientview oldPatient) {
-        XMLGregorianCalendar dateofBirth = oldPatient.getPatient().getPersonaldetails().getDateofbirth();
-        newPatient.setBirthDateSimple(new DateAndTime(dateofBirth.toGregorianCalendar().getTime()));
+    private Patient createDateOfBirth(Patient newPatient, Patientview data) {
+        if (data.getPatient().getPersonaldetails() != null) {
+            if (data.getPatient().getPersonaldetails().getDateofbirth() != null) {
+                XMLGregorianCalendar dateofBirth = data.getPatient().getPersonaldetails().getDateofbirth();
+                newPatient.setBirthDateSimple(new DateAndTime(dateofBirth.toGregorianCalendar().getTime()));
+            }
+        }
         return newPatient;
     }
 
-    private Patient createGender(Patient newPatient, Patientview oldPatient) {
-        CodeableConcept gender = new CodeableConcept();
-        Sex sex = oldPatient.getPatient().getPersonaldetails().getSex();
-        if (sex != null) {
-            gender.setTextSimple(oldPatient.getPatient().getPersonaldetails().getSex().value());
+    private Patient createGender(Patient newPatient, Patientview data) {
+        if (data.getPatient().getPersonaldetails() != null) {
+            CodeableConcept gender = new CodeableConcept();
+            Sex sex = data.getPatient().getPersonaldetails().getSex();
+            if (sex != null) {
+                gender.setTextSimple(data.getPatient().getPersonaldetails().getSex().value());
+            }
+            gender.addCoding().setDisplaySimple("gender");
+            newPatient.setGender(gender);
         }
-        gender.addCoding().setDisplaySimple("gender");
-        newPatient.setGender(gender);
         return newPatient;
     }
 
-    private Patient createAddress(Patient newPatient, Patientview oldPatient) {
-        Address address = newPatient.addAddress();
-        address.addLineSimple(oldPatient.getPatient().getPersonaldetails().getAddress1());
-        address.setCitySimple(oldPatient.getPatient().getPersonaldetails().getAddress2());
-        address.setStateSimple(oldPatient.getPatient().getPersonaldetails().getAddress3());
-        address.setCountrySimple(oldPatient.getPatient().getPersonaldetails().getAddress4());
-        address.setZipSimple(oldPatient.getPatient().getPersonaldetails().getPostcode());
+    private Patient createAddress(Patient newPatient, Patientview data) {
+        if (data.getPatient().getPersonaldetails() != null) {
+            Address address = newPatient.addAddress();
+            address.addLineSimple(data.getPatient().getPersonaldetails().getAddress1());
+            address.setCitySimple(data.getPatient().getPersonaldetails().getAddress2());
+            address.setStateSimple(data.getPatient().getPersonaldetails().getAddress3());
+            address.setCountrySimple(data.getPatient().getPersonaldetails().getAddress4());
+            address.setZipSimple(data.getPatient().getPersonaldetails().getPostcode());
+        }
         return newPatient;
     }
 
-    private Patient createContactDetails(Patient newPatient, Patientview oldPatient) {
-        Patient.ContactComponent contactComponent = newPatient.addContact();
+    private Patient createContactDetails(Patient newPatient, Patientview data) {
+        if (data.getPatient().getPersonaldetails() != null) {
+            Patient.ContactComponent contactComponent = newPatient.addContact();
 
-        if (StringUtils.isNotEmpty(oldPatient.getPatient().getPersonaldetails().getMobile())) {
-            Contact contact = contactComponent.addTelecom();
-            contact.setValueSimple(oldPatient.getPatient().getPersonaldetails().getMobile());
-            contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
-        }
+            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getMobile())) {
+                Contact contact = contactComponent.addTelecom();
+                contact.setValueSimple(data.getPatient().getPersonaldetails().getMobile());
+                contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
+            }
 
-        if (StringUtils.isNotEmpty(oldPatient.getPatient().getPersonaldetails().getTelephone1())) {
-            Contact contact = contactComponent.addTelecom();
-            contact.setValueSimple(oldPatient.getPatient().getPersonaldetails().getTelephone1());
-            contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
-        }
+            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getTelephone1())) {
+                Contact contact = contactComponent.addTelecom();
+                contact.setValueSimple(data.getPatient().getPersonaldetails().getTelephone1());
+                contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
+            }
 
-        if (StringUtils.isNotEmpty(oldPatient.getPatient().getPersonaldetails().getTelephone2())) {
-            Contact contact = contactComponent.addTelecom();
-            contact.setValueSimple(oldPatient.getPatient().getPersonaldetails().getTelephone2());
-            contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
+            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getTelephone2())) {
+                Contact contact = contactComponent.addTelecom();
+                contact.setValueSimple(data.getPatient().getPersonaldetails().getTelephone2());
+                contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
+            }
         }
         return  newPatient;
     }
 
-    private Patient addIdentifiers(Patient newPatient, Patientview oldPatient) {
-        // NHS Number
-        Identifier nhsNumber = newPatient.addIdentifier();
-        nhsNumber.setLabelSimple(IdentifierTypes.NHS_NUMBER.toString());
-        nhsNumber.setValueSimple(oldPatient.getPatient().getPersonaldetails().getNhsno());
+    private Patient addIdentifiers(Patient newPatient, Patientview data) {
+        if (data.getPatient().getPersonaldetails() != null) {
+            // NHS Number
+            Identifier nhsNumber = newPatient.addIdentifier();
+            nhsNumber.setLabelSimple(IdentifierTypes.NHS_NUMBER.toString());
+            nhsNumber.setValueSimple(data.getPatient().getPersonaldetails().getNhsno());
 
-        // Hospital Number
-        Identifier hospitalNumber = newPatient.addIdentifier();
-        hospitalNumber.setLabelSimple(IdentifierTypes.HOSPITAL_NUMBER.toString());
-        hospitalNumber.setValueSimple(oldPatient.getPatient().getPersonaldetails().getHospitalnumber());
+            // Hospital Number
+            Identifier hospitalNumber = newPatient.addIdentifier();
+            hospitalNumber.setLabelSimple(IdentifierTypes.HOSPITAL_NUMBER.toString());
+            hospitalNumber.setValueSimple(data.getPatient().getPersonaldetails().getHospitalnumber());
+        }
         return newPatient;
     }
 

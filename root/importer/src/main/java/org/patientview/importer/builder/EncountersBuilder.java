@@ -37,27 +37,33 @@ public class EncountersBuilder {
     // Normally any invalid data would fail the whole XML
     public List<Encounter> build() {
 
-        // Treatment
-        try {
-            encounters.add(createEncounter(data.getPatient().getClinicaldetails().getRrtstatus().value(),
-                    EncounterTypes.TREATMENT.toString()));
-            success++;
-        } catch (FhirResourceException e) {
-            LOG.error("Invalid data in XML: " + e.getMessage());
+        if (data.getPatient().getClinicaldetails() != null) {
+            // Treatment
+            if (data.getPatient().getClinicaldetails().getRrtstatus() != null) {
+                try {
+                    encounters.add(createEncounter(data.getPatient().getClinicaldetails().getRrtstatus().value(),
+                            EncounterTypes.TREATMENT.toString()));
+                    success++;
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+
+                count++;
+            }
+
+            // Transplant Status
+            if (data.getPatient().getClinicaldetails().getTpstatus() != null) {
+                try {
+                    encounters.add(createEncounter(data.getPatient().getClinicaldetails().getTpstatus(),
+                            EncounterTypes.TRANSPLANT_STATUS.toString()));
+                    success++;
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+
+                count++;
+            }
         }
-
-        count++;
-
-        // Transplant Status
-        try {
-            encounters.add(createEncounter(data.getPatient().getClinicaldetails().getTpstatus(),
-                    EncounterTypes.TRANSPLANT_STATUS.toString()));
-            success++;
-        } catch (FhirResourceException e) {
-            LOG.error("Invalid data in XML: " + e.getMessage());
-        }
-
-        count++;
 
         return encounters;
     }

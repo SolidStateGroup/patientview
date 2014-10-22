@@ -36,25 +36,31 @@ public class ConditionsBuilder {
     // Normally and invalid data would fail the whole XML
     public List<Condition> build() {
 
-        // generic other <diagnosis>
-        for (PvDiagnosis diagnosis : data.getPatient().getClinicaldetails().getDiagnosis()) {
-            try {
-                conditions.add(createCondition(diagnosis));
-                success++;
-            } catch (FhirResourceException e) {
-                LOG.error("Invalid data in XML: " + e.getMessage());
+        if (data.getPatient().getClinicaldetails() != null) {
+            // generic other <diagnosis>
+            if (data.getPatient().getClinicaldetails().getDiagnosis() != null) {
+                for (PvDiagnosis diagnosis : data.getPatient().getClinicaldetails().getDiagnosis()) {
+                    try {
+                        conditions.add(createCondition(diagnosis));
+                        success++;
+                    } catch (FhirResourceException e) {
+                        LOG.error("Invalid data in XML: " + e.getMessage());
+                    }
+                    count++;
+                }
             }
-            count++;
-        }
 
-        // edta diagnosis <diagnosisedta>, linked to codes
-        try {
-            conditions.add(createCondition(data.getPatient().getClinicaldetails().getDiagnosisedta()));
-            success++;
-        } catch (FhirResourceException e) {
-            LOG.error("Invalid data in XML: " + e.getMessage());
+            // edta diagnosis <diagnosisedta>, linked to codes
+            if (data.getPatient().getClinicaldetails().getDiagnosisedta() != null) {
+                try {
+                    conditions.add(createCondition(data.getPatient().getClinicaldetails().getDiagnosisedta()));
+                    success++;
+                } catch (FhirResourceException e) {
+                    LOG.error("Invalid data in XML: " + e.getMessage());
+                }
+                count++;
+            }
         }
-        count++;
 
         return conditions;
     }
