@@ -67,7 +67,12 @@
         }
     }
 
+    .brand{
+        height:41px;
+    }
+
     .sub-brand{
+        height:30px;
         margin:7px 0 0 20px;
     }
 }
@@ -79,6 +84,31 @@
         &:first-child {
             a {
                 border-left: none;
+            }
+        }
+
+        &.active{
+            position:relative;
+            a{
+                background:#f8f8f8;
+                color:$primary;
+//                font-weight:bold;
+
+                &:hover{
+                    background:#f8f8f8;
+                    color:$primary;
+                }
+            }
+
+            &:after{
+                height:20px;
+                width:100%;
+                display:block;
+                background:url(../../../images/icons/nav-active.png) 50% 0 no-repeat;
+                position: absolute;
+                bottom:-20px;
+                left:0;
+                content:"";
             }
         }
 
@@ -100,6 +130,21 @@
     margin-left: 0;
 }
 
+html, body{
+    height:100%;
+
+    > .container{
+        min-height: 100%;
+        margin-bottom: -106px;
+        position: relative;
+    }
+
+    .clearFooter{
+        height: 106px;
+        clear: both;
+    }
+}
+
 
 .footer{
     margin-top:40px;
@@ -115,8 +160,7 @@
         padding:15px;
 
         img{
-            height:50%;
-            width:50%;
+            height:30px;
         }
     }
 
@@ -202,21 +246,59 @@
     }
 }
 
+.subnav-row{
+    .content-panel{
+        overflow:visible;
+    }
+}
+
 @media only screen
-and (max-width : 1024px) {
+and (max-width : 1023px) {
 
     .navbar-header {
         position: relative;
 
         .temp-mobile-nav {
-            position: absolute;
-            top: 5px;
-            right: 10px;
-
             ul {
                 li {
                     a {
                         text-align: right;
+                    }
+
+                    &.help-link{
+                        position: absolute;
+                        height: 40px;
+                        width: 40px;
+                        right: 70px;
+                        top: 10px;
+
+                        a{
+                            height: 40px;
+                            width: 40px;
+                            display:block;
+                            text-align: center;
+
+                            i{
+                                display:block;
+                            }
+                        }
+                    }
+                }
+
+                &.login-reg{
+                    li{
+
+                    }
+                }
+            }
+            .nav-public{
+                .public{
+                    height:70px;
+                    margin:0;
+                    li{
+                        height:100%;
+                        float:left;
+                        padding-top:5px;
                     }
                 }
             }
@@ -225,17 +307,31 @@ and (max-width : 1024px) {
 
     .navbar-brand {
         img {
-            height: 50%;
+            height: 28px;
             width: 160px;
 
             &.sub-brand {
                 width: 50px;
-                height: 15%;
+                height: 20px;
             }
         }
     }
 
     .nav-account{
         display:none;
+    }
+
+    .footer{
+        .legal-links{
+            width:20%;
+            li{
+                display:block;
+                text-align:right;
+                line-height:22px;
+            }
+        }
+        .partner-info{
+            width:46%;
+        }
     }
 }
