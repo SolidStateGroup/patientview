@@ -116,7 +116,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     public void createGroups() {
         // Export a dummy group to test hibernate
-        sendDummyUnit();
+        //sendDummyUnit();
 
         for (Unit unit : unitDao.getAll(false)) {
 

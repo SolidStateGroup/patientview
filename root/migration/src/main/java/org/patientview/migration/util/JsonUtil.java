@@ -99,7 +99,7 @@ public final class JsonUtil {
         }
 
         method.setHeader("Content-type", "application/json");
-        method.setHeader("X-Auth-Token", "pppppp");
+        method.setHeader("X-Auth-Token", token);
         BufferedReader br;
         StringBuilder output = new StringBuilder();
 
@@ -158,7 +158,7 @@ public final class JsonUtil {
 
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/json");
-        post.setHeader("X-Auth-Token", "pppppp");
+        post.setHeader("X-Auth-Token", token);
         return httpClient.execute(post);
     }
 

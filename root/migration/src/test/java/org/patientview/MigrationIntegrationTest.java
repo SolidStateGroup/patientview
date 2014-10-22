@@ -32,7 +32,6 @@ import javax.inject.Inject;
 public class MigrationIntegrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MigrationIntegrationTest.class);
-    //private String token;
 
     @Inject
     private AdminDataMigrationService adminDataMigrationService;
@@ -45,18 +44,6 @@ public class MigrationIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-
-    }
-
-    /**
-     * Order(0) doNothing, test setup
-     *
-     * @throws Exception
-     */
-    @Test
-    @Transactional
-    @Rollback(false)
-    public void test00doNothing() {
 
     }
 
@@ -99,6 +86,5 @@ public class MigrationIntegrationTest {
     @Ignore
     public void test03PatientMigration() throws Exception {
         patientDataMigrationService.migrate();
-
     }
 }

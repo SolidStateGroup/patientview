@@ -88,7 +88,7 @@ INSERT INTO pv_role(id, role_name, type_id, level, visible, description, creatio
 
 /* global admin */
 INSERT INTO pv_user_group_role VALUES(1, 3, 1, 5, now(), null, now(), 1, null, null);
-/* migration (same rights as global admin */
+/* migration (same rights as global admin) */
 INSERT INTO pv_user_group_role VALUES(2, 2, 1, 5, now(), null, now(), 1, null, null);
 
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (1, 'MESSAGING', 'Messaging', now(), now(), 1);

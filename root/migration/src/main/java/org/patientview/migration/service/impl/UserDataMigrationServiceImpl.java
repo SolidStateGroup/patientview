@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -124,6 +125,42 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     }
 
+    public void bulkUserCreate(String unitCode, Long count) {
+        Date now = new Date();
+
+        Group patientUnit = adminDataMigrationService.getGroupByCode(unitCode);
+        Role patientRole = adminDataMigrationService.getRoleByName(Roles.PATIENT);
+
+        if (patientUnit != null && patientRole != null) {
+
+            for (Long i = now.getTime(); i<now.getTime() + count; i++) {
+
+                // create user and store
+                User newUser = new User();
+                newUser.setForename(i.toString());
+                newUser.setSurname(i.toString());
+                newUser.setChangePassword(true);
+                newUser.setPassword("pppppp");
+                newUser.setLocked(false);
+                newUser.setDummy(true);
+                newUser.setFailedLogonAttempts(0);
+                newUser.setEmail("patientview" + i.toString() + "@solidstategroup.com");
+                newUser.setUsername(i.toString());
+                newUser.setEmailVerified(false);
+                newUser = callApiCreateUser(newUser);
+
+                // add unit role (will automatically add to specialty)
+                callApiAddGroupRole(newUser.getId(), patientUnit.getId(), patientRole.getId());
+
+                // add identifier
+                Identifier identifier = new Identifier();
+                identifier.setIdentifier(i.toString());
+                identifier.setIdentifierType(adminDataMigrationService.getLookupByName("CHI_NUMBER"));
+                callApiAddIdentifier(identifier, newUser.getId());
+            }
+        }
+    }
+
     private void addIdentifier(User user, Set<String> nhsNumbers) {
         for (String nhsNUmber : nhsNumbers) {
                 Identifier identifier = new Identifier();
@@ -182,9 +219,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     private Identifier callApiAddIdentifier(Identifier identifier, Long userId) {
 
-        String url = JsonUtil.pvUrl + "/user/" + userId + "/identifier";
+        String url = JsonUtil.pvUrl + "/user/" + userId + "/identifiers";
         try {
-            Identifier newIdentifier = JsonUtil.jsonRequest(url, Identifier.class, null, HttpPost.class);
+            Identifier newIdentifier = JsonUtil.jsonRequest(url, Identifier.class, identifier, HttpPost.class);
             LOG.info("Added Identifier");
             return newIdentifier;
         } catch (JsonMigrationException jme) {
