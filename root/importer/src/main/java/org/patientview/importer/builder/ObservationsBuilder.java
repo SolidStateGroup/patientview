@@ -51,27 +51,32 @@ public class ObservationsBuilder {
         dateRanges = new HashMap<>();
 
         // build from tests e.g. ciclosporin, weight etc
-        for (Patientview.Patient.Testdetails.Test test : results.getPatient().getTestdetails().getTest()) {
+        if (results.getPatient().getTestdetails() != null) {
+            for (Patientview.Patient.Testdetails.Test test : results.getPatient().getTestdetails().getTest()) {
 
-            dateRanges.put(test.getTestcode().value().toUpperCase(), test.getDaterange());
+                dateRanges.put(test.getTestcode().value().toUpperCase(), test.getDaterange());
 
-            for (Patientview.Patient.Testdetails.Test.Result result : test.getResult()) {
-                try {
-                    observations.add(createObservation(test, result));
-                    success++;
-                } catch (FhirResourceException e) {
-                    LOG.error("Invalid data in XML: " + e.getMessage());
+                for (Patientview.Patient.Testdetails.Test.Result result : test.getResult()) {
+                    try {
+                        observations.add(createObservation(test, result));
+                        success++;
+                    } catch (FhirResourceException e) {
+                        LOG.error("Invalid data in XML: " + e.getMessage());
+                    }
+                    count++;
                 }
-                count++;
             }
         }
 
         // build from specific non-test fields e.g. blood group
-        try {
-            observations.add(createObservationNonTest(NonTestObservationTypes.BLOOD_GROUP.toString(),
-                    results.getPatient().getClinicaldetails().getBloodgroup()));
-        } catch (FhirResourceException e) {
-            LOG.error("Invalid data in XML: " + e.getMessage());
+        if (results.getPatient().getClinicaldetails() != null
+                && results.getPatient().getClinicaldetails().getBloodgroup() != null) {
+            try {
+                observations.add(createObservationNonTest(NonTestObservationTypes.BLOOD_GROUP.toString(),
+                        results.getPatient().getClinicaldetails().getBloodgroup()));
+            } catch (FhirResourceException e) {
+                LOG.error("Invalid data in XML: " + e.getMessage());
+            }
         }
 
         return observations;

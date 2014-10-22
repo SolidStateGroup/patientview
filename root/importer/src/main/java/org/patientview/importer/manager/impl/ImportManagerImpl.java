@@ -72,12 +72,19 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         try {
             patientService.matchPatientByIdentifierValue(patientview);
         } catch (ResourceNotFoundException rnf) {
+            LOG.error("Patient with NHS Number " + patientview.getPatient().getPersonaldetails().getNhsno()
+                    + " does not exist in PatientView");
             return false;
         }
 
         // organization/unit/group exists
-        if ((patientview.getCentredetails() == null) ||
-                !organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
+        if (patientview.getCentredetails() == null) {
+            LOG.error("Group not set in XML");
+            return false;
+        }
+
+        if (!organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
+            LOG.error("Group does not exist in PatientView");
             return false;
         }
 

@@ -6,8 +6,6 @@ import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Organization;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This maps between parameters from old PatientView and the new PatientView fhir record
@@ -16,8 +14,6 @@ import org.slf4j.LoggerFactory;
  * Created on 08/09/2014
  */
 public class OrganizationBuilder {
-
-    private final Logger LOG = LoggerFactory.getLogger(OrganizationBuilder.class);
 
     private Patientview data;
 

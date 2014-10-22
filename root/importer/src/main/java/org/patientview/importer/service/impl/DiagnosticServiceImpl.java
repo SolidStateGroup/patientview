@@ -52,52 +52,54 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         // delete existing
         deleteBySubjectId(fhirLink.getResourceId());
 
-        for (Diagnostic diagnostic : data.getPatient().getDiagnostics().getDiagnostic()) {
+        if (data.getPatient().getDiagnostics() != null) {
+            for (Diagnostic diagnostic : data.getPatient().getDiagnostics().getDiagnostic()) {
 
-            // build result observation
-            Observation observation = new Observation();
-            observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-            observation.setStatusSimple(Observation.ObservationStatus.registered);
+                // build result observation
+                Observation observation = new Observation();
+                observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+                observation.setStatusSimple(Observation.ObservationStatus.registered);
 
-            CodeableConcept value = new CodeableConcept();
-            value.setTextSimple(diagnostic.getDiagnosticresult());
-            observation.setValue(value);
-            observation.setSubject(patientReference);
+                CodeableConcept value = new CodeableConcept();
+                value.setTextSimple(diagnostic.getDiagnosticresult());
+                observation.setValue(value);
+                observation.setSubject(patientReference);
 
-            CodeableConcept name = new CodeableConcept();
-            name.setTextSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
-            name.addCoding().setDisplaySimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.getName());
-            observation.setName(name);
+                CodeableConcept name = new CodeableConcept();
+                name.setTextSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+                name.addCoding().setDisplaySimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.getName());
+                observation.setName(name);
 
-            Identifier identifier = new Identifier();
-            identifier.setLabelSimple("resultcode");
-            identifier.setValueSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
-            observation.setIdentifier(identifier);
+                Identifier identifier = new Identifier();
+                identifier.setLabelSimple("resultcode");
+                identifier.setValueSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+                observation.setIdentifier(identifier);
 
-            DiagnosticReportBuilder diagnosticReportBuilder = new DiagnosticReportBuilder(diagnostic);
-            DiagnosticReport diagnosticReport = diagnosticReportBuilder.build();
+                DiagnosticReportBuilder diagnosticReportBuilder = new DiagnosticReportBuilder(diagnostic);
+                DiagnosticReport diagnosticReport = diagnosticReportBuilder.build();
 
-            try {
-                // create result observation in FHIR
-                JSONObject storedObservation = fhirResource.create(observation);
+                try {
+                    // create result observation in FHIR
+                    JSONObject storedObservation = fhirResource.create(observation);
 
-                // get observation (result) reference and add to diagnostic report
-                ResourceReference resultReference = diagnosticReport.addResult();
-                resultReference.setDisplaySimple(Util.getResourceId(storedObservation).toString());
+                    // get observation (result) reference and add to diagnostic report
+                    ResourceReference resultReference = diagnosticReport.addResult();
+                    resultReference.setDisplaySimple(Util.getResourceId(storedObservation).toString());
 
-                // set patient reference
-                diagnosticReport.setSubject(patientReference);
+                    // set patient reference
+                    diagnosticReport.setSubject(patientReference);
 
-                // create diagnostic report in FHIR
-                fhirResource.create(diagnosticReport);
+                    // create diagnostic report in FHIR
+                    fhirResource.create(diagnosticReport);
 
-                success += 1;
+                    success += 1;
 
-            } catch (FhirResourceException e) {
-                LOG.error("Unable to build Observation (result) or DiagnosticReport");
+                } catch (FhirResourceException e) {
+                    LOG.error("Unable to build Observation (result) or DiagnosticReport");
+                }
+
+                LOG.trace("Finished creating DiagnosticReport " + count++);
             }
-
-            LOG.trace("Finished creating DiagnosticReport " + count++);
         }
 
         LOG.info("Processed {} of {} diagnostics", success, count);

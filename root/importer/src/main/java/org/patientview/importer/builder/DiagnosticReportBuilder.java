@@ -1,6 +1,7 @@
 package org.patientview.importer.builder;
 
 import generated.Patientview.Patient.Diagnostics.Diagnostic;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
@@ -23,18 +24,24 @@ public class DiagnosticReportBuilder {
     public DiagnosticReport build() {
         DiagnosticReport diagnosticReport = new DiagnosticReport();
 
-        DateAndTime dateAndTime = new DateAndTime(data.getDiagnosticdate().toGregorianCalendar().getTime());
-        DateTime diagnosticDate = new DateTime();
-        diagnosticDate.setValue(dateAndTime);
-        diagnosticReport.setDiagnostic(diagnosticDate);
+        if (data.getDiagnosticdate() != null) {
+            DateAndTime dateAndTime = new DateAndTime(data.getDiagnosticdate().toGregorianCalendar().getTime());
+            DateTime diagnosticDate = new DateTime();
+            diagnosticDate.setValue(dateAndTime);
+            diagnosticReport.setDiagnostic(diagnosticDate);
+        }
 
-        CodeableConcept name = new CodeableConcept();
-        name.setTextSimple(data.getDiagnosticname());
-        diagnosticReport.setName(name);
+        if (StringUtils.isNotEmpty(data.getDiagnosticname())) {
+            CodeableConcept name = new CodeableConcept();
+            name.setTextSimple(data.getDiagnosticname());
+            diagnosticReport.setName(name);
+        }
 
-        CodeableConcept type = new CodeableConcept();
-        type.setTextSimple(data.getDiagnostictype());
-        diagnosticReport.setServiceCategory(type);
+        if (StringUtils.isNotEmpty(data.getDiagnostictype())) {
+            CodeableConcept type = new CodeableConcept();
+            type.setTextSimple(data.getDiagnostictype());
+            diagnosticReport.setServiceCategory(type);
+        }
 
         return diagnosticReport;
     }
