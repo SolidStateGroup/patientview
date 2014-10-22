@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.ObservationsBuilder;
+import org.patientview.importer.model.BasicObservation;
 import org.patientview.importer.model.DateRange;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.ObservationService;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -43,15 +45,16 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         ObservationsBuilder observationsBuilder = new ObservationsBuilder(data, patientReference);
         observationsBuilder.build();
 
-        // delete existing observations between dates in <test><daterange>
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("observation", fhirLink.getResourceId())) {
+        List<BasicObservation> observations = fhirResource.getBasicObservationBySubjectId(fhirLink.getResourceId());
 
-            Observation observation = (Observation) fhirResource.get(uuid, ResourceType.Observation);
-            String code = observation.getName().getTextSimple();
+        // delete existing observations between dates in <test><daterange>
+        for (BasicObservation observation : observations) {
+            String code = observation.getCode();
+            UUID uuid = observation.getLogicalId();
+            Date applies = observation.getApplies();
 
             // only delete test result observations (not BLOOD_GROUP, DIAGNOSTIC_RESULT etc)
             if (!Util.isInEnum(code, NonTestObservationTypes.class)) {
-                Date applies = convertDateTime((DateTime) observation.getApplies());
 
                 Patientview.Patient.Testdetails.Test.Daterange daterange
                         = observationsBuilder.getDateRanges().get(code);
@@ -60,7 +63,6 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     DateRange convertedDateRange = new DateRange(daterange);
 
                     if (applies.after(convertedDateRange.getStart()) && applies.before(convertedDateRange.getEnd())) {
-                        LOG.trace("Deleting observation in daterange");
                         fhirResource.delete(uuid, ResourceType.Observation);
                     }
                 }
