@@ -51,7 +51,7 @@
                                 <table>
                                     <tr data-ng-repeat="contactPoint in group.contactPoints">
                                         <td>{{contactPoint.contactPointType.description}}: &nbsp;&nbsp;</td>
-                                        <td>{{contactPoint.content}}</td>
+                                        <td ng-bind-html="addAIfRequired(contactPoint.content)"></td>
                                     </tr>
                                 </table>
                                 <h4 data-ng-show="group.locations">Additional Locations</h4>
@@ -61,8 +61,8 @@
                                         <table>
                                             <tr><td>Phone:</td><td> {{location.phone}}</td></tr>
                                             <tr><td>Address: &nbsp;&nbsp;</td><td> {{location.address}}</td></tr>
-                                            <tr><td>Web:</td><td> {{location.web}}</td></tr>
-                                            <tr><td>Email:</td><td> {{location.email}}</td></tr>
+                                            <tr><td>Web:</td><td ng-bind-html="addAIfRequired(location.web)"></td></tr>
+                                            <tr><td>Email:</td><td ng-bind-html="addAIfRequired(location.email)"></td></tr>
                                         </table>
                                     </div>
                                 </div>
