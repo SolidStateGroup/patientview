@@ -13,7 +13,6 @@ import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.PatientDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
-import org.patientview.migration.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.Rollback;
@@ -44,14 +43,10 @@ public class MigrationIntegrationTest {
     @Inject
     private PatientDataMigrationService patientDataMigrationService;
 
-    /*@Before
+    @Before
     public void setup() throws Exception {
 
-        LOG.info("Authenticating");
-        // authenticate as migration user
-
-        String token = JsonUtil.jsonRequest(JsonUtil.pvUrl + "login", String.class, null, HttpPost.class);
-    }*/
+    }
 
     /**
      * Order(0) doNothing, test setup

@@ -94,10 +94,17 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     @PostConstruct
     public void init() {
-        lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
-        features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
-        groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
-        roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
+        try {
+            JsonUtil.token = JsonUtil.authenticate("migration", "pppppp");
+            lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
+            features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
+            groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
+            roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
+        } catch (JsonMigrationException e) {
+            LOG.error("Could not authenticate {} ", e.getCause());
+        } catch (JsonMigrationExistsException e) {
+            LOG.error("Could not authenticate {} ", e.getCause());
+        }
     }
 
     public void migrate() {

@@ -15,9 +15,7 @@ public final class PvUtil {
 
     private PvUtil() {
 
-
     }
-
 
     public static Set<Link> getLinks(EdtaCode edtaCode) {
 
@@ -72,8 +70,5 @@ public final class PvUtil {
         }
 
         return links;
-
     }
-
-
 }

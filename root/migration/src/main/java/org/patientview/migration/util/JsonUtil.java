@@ -25,6 +25,7 @@ import org.patientview.Feature;
 import org.patientview.Group;
 import org.patientview.Lookup;
 import org.patientview.Role;
+import org.patientview.model.LoginDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,16 +48,21 @@ public final class JsonUtil {
 
     public static String pvUrl;
 
-    static {
+    public static String token;
 
+    static {
         if ((pvUrl = System.getProperty("url")) == null) {
             throw new RuntimeException("Please specify an environment by using -Durl=apiUrl");
         }
-
     }
 
     private JsonUtil() {}
 
+    public static String authenticate(String username, String password)
+            throws JsonMigrationException, JsonMigrationExistsException {
+        LoginDetails loginDetails = new LoginDetails(username, password);
+        return JsonUtil.jsonRequest(JsonUtil.pvUrl + "/auth/login", String.class, loginDetails, HttpPost.class);
+    }
 
     public static <T, V extends HttpRequestBase> T jsonRequest(String url, Class<T> responseObject,
                                                                Object requestObject, Class<V> httpMethod)
@@ -127,11 +133,8 @@ public final class JsonUtil {
             //httpClient.getConnectionManager().shutdown();
         }
 
-
         return gson.fromJson(output.toString(), responseObject);
-
     }
-
 
     public static String getResourceUuid(String json) throws Exception {
 
@@ -143,9 +146,7 @@ public final class JsonUtil {
         JSONObject jsonObject = new JSONObject(source);
 
         return String.valueOf(jsonObject.get("insert_resource"));
-
     }
-
 
     private static HttpResponse gsonPost(String json) throws Exception {
 
@@ -159,7 +160,6 @@ public final class JsonUtil {
         post.setHeader("Content-type", "application/json");
         post.setHeader("X-Auth-Token", "pppppp");
         return httpClient.execute(post);
-
     }
 
     public static HttpResponse gsonPut(String postUrl, Object object) throws Exception {
@@ -176,11 +176,9 @@ public final class JsonUtil {
         }
 
         put.setHeader("Content-type", "application/json");
-        put.setHeader("X-Auth-Token", "pppppp");
+        put.setHeader("X-Auth-Token", token);
         return httpClient.execute(put);
-
     }
-
 
     public static  HttpResponse gsonPost(String postUrl, Object object) throws Exception {
 
@@ -195,12 +193,9 @@ public final class JsonUtil {
 
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/json");
-        post.setHeader("X-Auth-Token", "pppppp");
+        post.setHeader("X-Auth-Token", token);
         return httpClient.execute(post);
-
     }
-
-
 
     public static <T> List<T> getStaticDataList(String url) {
         HttpClient httpClient = new DefaultHttpClient();
@@ -208,7 +203,7 @@ public final class JsonUtil {
 
         HttpGet get = new HttpGet(url);
         get.addHeader("accept", "application/json");
-        get.addHeader("X-Auth-Token", "pppppp");
+        get.addHeader("X-Auth-Token", token);
         HttpResponse httpResponse = null;
 
         try {
@@ -241,9 +236,7 @@ public final class JsonUtil {
         List<T> data = gson.fromJson(output.toString(), new TypeToken<List<T>>(){}.getType());
 
         return data;
-
     }
-
 
     public static List<Lookup> getStaticDataLookups(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
@@ -252,7 +245,7 @@ public final class JsonUtil {
         HttpGet get = new HttpGet(getUrl);
 
         get.addHeader("accept", "application/json");
-        get.addHeader("X-Auth-Token", "pppppp");
+        get.addHeader("X-Auth-Token", token);
         HttpResponse httpResponse = null;
 
         try {
@@ -285,7 +278,6 @@ public final class JsonUtil {
         List<Lookup> data = gson.fromJson(output.toString(), new TypeToken<List<Lookup>>(){}.getType());
 
         return data;
-
     }
 
     public static List<Feature> getStaticDataFeatures(String getUrl) {
@@ -294,7 +286,7 @@ public final class JsonUtil {
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
-        get.addHeader("X-Auth-Token", "pppppp");
+        get.addHeader("X-Auth-Token", token);
         HttpResponse httpResponse = null;
 
         try {
@@ -327,7 +319,6 @@ public final class JsonUtil {
         List<Feature> data = gson.fromJson(output.toString(), new TypeToken<List<Feature>>(){}.getType());
 
         return data;
-
     }
 
     public static List<Group> getGroups(String getUrl) {
@@ -336,7 +327,7 @@ public final class JsonUtil {
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
-        get.addHeader("X-Auth-Token", "pppppp");
+        get.addHeader("X-Auth-Token", token);
         HttpResponse httpResponse = null;
 
         try {
@@ -369,7 +360,6 @@ public final class JsonUtil {
         List<Group> data = gson.fromJson(output.toString(), new TypeToken<List<Group>>(){}.getType());
 
         return data;
-
     }
 
     public static List<Role> getRoles(String getUrl) {
@@ -378,7 +368,7 @@ public final class JsonUtil {
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
-        get.addHeader("X-Auth-Token", "pppppp");
+        get.addHeader("X-Auth-Token", token);
         HttpResponse httpResponse = null;
 
         try {
@@ -411,7 +401,6 @@ public final class JsonUtil {
         List<Role> data = gson.fromJson(output.toString(), new TypeToken<List<Role>>(){}.getType());
 
         return data;
-
     }
 
     public static String serializeResource(Resource resource) {
@@ -428,9 +417,6 @@ public final class JsonUtil {
         return out.toString();
     }
 
-
-
-
     public static DefaultHttpClient getThreadSafeClient()  {
 
         DefaultHttpClient client = new DefaultHttpClient();
@@ -439,6 +425,4 @@ public final class JsonUtil {
         client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, mgr.getSchemeRegistry()), params);
         return client;
     }
-
-
 }
