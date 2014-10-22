@@ -8,6 +8,10 @@
     height: 430px;
     margin-top: 20px;
 
+    .ie-hero-image{
+        display:none;
+    }
+
     .hero-pane {
         height: 100%;
         color: $white;
