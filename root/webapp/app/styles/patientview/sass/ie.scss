@@ -30,5 +30,22 @@
             height: auto;
         }
     }
+
+    .navbar-right{
+        label{
+            min-width:100px;
+        }
+    }
+
+    .messages-menu-item{
+        position:relative;
+
+        i{
+            position:absolute;
+            top:2px;
+            right:6px;
+            height:15px;
+        }
+    }
 }
 

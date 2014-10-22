@@ -17,7 +17,7 @@
                             Help
                         </a>
                     </li>
-                    <li><a data-ng-href="#/conversations">Messages</a></li>
+                    <li><a class="messages-menu-item" data-ng-href="#/conversations">Messages</a></li>
                     <li><a data-ng-href="#/settings">Settings</a></li>
                     <li><a href="#/logout">Logout</a></li>
                 </ul>
@@ -40,7 +40,7 @@
             <div class="nav-account pull-right" data-ng-hide="!loggedInUser">
                 <i class="icon-account pull-left"></i>
                 <h4>{{ loggedInUser.forename }} {{ loggedInUser.surname }}</h4>
-                <ul class="nav navbar-nav navbar-right inline account pull-left" data-ng-hide="!loggedInUser" data-ng-cloak>
+                <ul class="nav navbar-nav inline account pull-left" data-ng-hide="!loggedInUser" data-ng-cloak>
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
                     <li><a data-ng-href="#/settings">Settings</a></li>
                     <li><a data-ng-href="#/logout" data-ng-hide="!loggedInUser">Log Out</a></li>
