@@ -29,3 +29,7 @@
   width: 100%;
   height: auto;
 }
+/* line 35, ../sass/ie.scss */
+.lt-ie9 .navbar-right label {
+  min-width: 100px;
+}
