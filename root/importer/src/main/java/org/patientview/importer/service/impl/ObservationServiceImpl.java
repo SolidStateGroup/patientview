@@ -45,9 +45,11 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         ObservationsBuilder observationsBuilder = new ObservationsBuilder(data, patientReference);
         observationsBuilder.build();
 
+        LOG.info("Getting Existing Observations");
         List<BasicObservation> observations = fhirResource.getBasicObservationBySubjectId(fhirLink.getResourceId());
 
         // delete existing observations between dates in <test><daterange>
+        LOG.info("Deleting Existing Observations in date ranges");
         for (BasicObservation observation : observations) {
             String code = observation.getCode();
             UUID uuid = observation.getLogicalId();
@@ -76,6 +78,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
         int count = 0;
 
+        LOG.info("Creating New Observations");
         for (Observation observation : observationsBuilder.getObservations()) {
             LOG.trace("Creating... observation " + count);
             try {
@@ -93,7 +96,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     }
                 }
             } catch (FhirResourceException e) {
-                LOG.error("Unable to build observation");
+                LOG.error("Unable to build observation {} " + e.getCause());
             }
             LOG.trace("Finished creating observation " + count++);
         }

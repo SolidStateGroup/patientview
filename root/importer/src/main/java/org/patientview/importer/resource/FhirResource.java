@@ -158,7 +158,7 @@ public class FhirResource {
      */
     public void delete(UUID uuid, ResourceType resourceType) throws SQLException, FhirResourceException {
 
-        LOG.debug("Delete {} resource {}", resourceType.toString(), uuid.toString());
+        //LOG.debug("Delete {} resource {}", resourceType.toString(), uuid.toString());
         Connection connection = dataSource.getConnection();
         CallableStatement proc  = connection.prepareCall("{call fhir_delete( ?::jsonb, ?, ?)}");
         proc.setObject(1, config);
@@ -170,7 +170,7 @@ public class FhirResource {
 
 
     private JSONObject getBundle(UUID uuid, ResourceType resourceType) throws FhirResourceException {
-        LOG.debug("Getting {} resource {}", resourceType.toString(), uuid.toString());
+        //LOG.debug("Getting {} resource {}", resourceType.toString(), uuid.toString());
         PGobject result;
         Connection connection = null;
         try {
