@@ -38,7 +38,7 @@
   position: relative;
 }
 /* line 43, ../sass/ie.scss */
-.lt-ie9 .messages-menu-item i {
+.lt-ie9 .messages-menu-item span {
   position: absolute;
   top: 2px;
   right: 6px;
