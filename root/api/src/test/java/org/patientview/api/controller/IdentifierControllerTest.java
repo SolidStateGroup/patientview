@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.UserIdentifier;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Identifier;
@@ -126,12 +127,16 @@ public class IdentifierControllerTest {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
 
         User testUser = TestUtils.createUser("testUser");
-        String url = "/user/" + testUser.getId() + "/identifier/validate";
-        Identifier identifier = new Identifier();
+        UserIdentifier userIdentifier = new UserIdentifier();
+        userIdentifier.setUserId(testUser.getId());
+        userIdentifier.setIdentifier(new Identifier());
+        userIdentifier.setDummy(false);
+
+        String url = "/identifier/validate";
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.post(url)
-                    .content(mapper.writeValueAsString(identifier)).contentType(MediaType.APPLICATION_JSON))
+                    .content(mapper.writeValueAsString(userIdentifier)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         }
         catch (Exception e) {

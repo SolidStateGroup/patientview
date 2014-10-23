@@ -248,13 +248,25 @@ function ($q, Restangular, UtilService) {
             return deferred.promise;
         },
         // validate Identifier, including if already in use etc
-        validateIdentifier: function (userId, identifier) {
+        validateIdentifier: function (userId, identifier, dummy) {
             identifier = UtilService.cleanObject(identifier, 'identifier');
             identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+
+            var userIdentifier = {};
+            userIdentifier.userId = userId;
+            userIdentifier.identifier = identifier;
+
+            if (dummy !== undefined) {
+                userIdentifier.dummy = dummy;
+            } else {
+                userIdentifier.dummy = false;
+            }
+
             var deferred = $q.defer();
 
             // POST /identifier/validate
-            Restangular.one('user', userId).one('identifier/validate').customPOST(identifier).then(function(successResult) {
+            Restangular.one('identifier/validate').customPOST(userIdentifier)
+                .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

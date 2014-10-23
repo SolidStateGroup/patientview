@@ -183,7 +183,7 @@ function ($scope, UserService, IdentifierService) {
         if (newIdentifier.identifierType !== undefined) {
             newIdentifier.identifierType = _.findWhere($scope.identifierTypes, {id: newIdentifier.identifierType});
 
-            UserService.validateIdentifier(user.id, newIdentifier).then(function () {
+            UserService.validateIdentifier(user.id, newIdentifier, user.dummy).then(function () {
                 if ($scope.editMode) {
                     delete newIdentifier.id;
                     UserService.addIdentifier(user, newIdentifier).then(function () {
@@ -228,7 +228,7 @@ function ($scope, UserService, IdentifierService) {
         identifier.saved = false;
 
         // try and save identifier
-        UserService.validateIdentifier(user.id, identifier).then(function () {
+        UserService.validateIdentifier(user.id, identifier, user.dummy).then(function () {
             IdentifierService.save(identifier).then(function () {
                 // saved identifier
                 identifier.saved = true;

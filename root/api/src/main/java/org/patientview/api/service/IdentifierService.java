@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.model.UserIdentifier;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -36,6 +37,6 @@ public interface IdentifierService {
     Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    void validate(Long userId, Identifier identifier)
+    void validate(UserIdentifier userIdentifier)
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException;
 }

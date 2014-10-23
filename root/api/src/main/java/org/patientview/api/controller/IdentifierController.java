@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.model.UserIdentifier;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -65,19 +66,11 @@ public class IdentifierController extends BaseController<IdentifierController> {
         return new ResponseEntity<>(identifierService.getIdentifierByValue(identifierValue), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/{userId}/identifier/validate", method = RequestMethod.POST,
+    @RequestMapping(value = "/identifier/validate", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void validate(@PathVariable("userId") Long userId, @RequestBody Identifier identifier)
+    public void validateNoUser(@RequestBody UserIdentifier userIdentifier)
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException {
-        identifierService.validate(userId, identifier);
-    }
-
-    @RequestMapping(value = "/user/identifier/validate", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public void validateNoUser(@RequestBody Identifier identifier)
-        throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException {
-        identifierService.validate(null, identifier);
+        identifierService.validate(userIdentifier);
     }
 }

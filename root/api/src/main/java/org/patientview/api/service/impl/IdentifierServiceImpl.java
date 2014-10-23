@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.model.UserIdentifier;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.api.service.IdentifierService;
@@ -130,11 +131,15 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         return identifier;
     }
 
-    public void validate(Long userId, Identifier identifier)
+    public void validate(UserIdentifier userIdentifier)
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException {
 
+        Long userId = userIdentifier.getUserId();
+        Identifier identifier = userIdentifier.getIdentifier();
+        boolean dummy = userIdentifier.isDummy();
+
         if (userId != null) {
-            User user = userRepository.findOne(userId);
+            User user = userRepository.findOne(userIdentifier.getUserId());
             if (user == null) {
                 throw new ResourceNotFoundException("Could not find user");
             }
@@ -155,12 +160,13 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             throw new EntityExistsException("Identifier already exists");
         }
 
-
-        try {
-            isValidIdentifier(identifier);
-        } catch (ResourceInvalidException rie) {
-            throw new ResourceInvalidException("Invalid " + identifier.getIdentifierType().getDescription()
-                    + " Identifier. " + rie.getMessage() + ".");
+        if (!dummy) {
+            try {
+                isValidIdentifier(identifier);
+            } catch (ResourceInvalidException rie) {
+                throw new ResourceInvalidException("Invalid " + identifier.getIdentifierType().getDescription()
+                        + " Identifier. " + rie.getMessage() + ".");
+            }
         }
     }
 
