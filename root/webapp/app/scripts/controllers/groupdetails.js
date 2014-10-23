@@ -396,25 +396,40 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
     };
 
     $scope.removeContactPoint = function (form, group, contactPoint) {
-        // only do DELETE if in edit mode, otherwise just remove from object
-        if ($scope.editMode) {
-            ContactPointService.remove(contactPoint).then(function () {
-                // deleted contactPoint
+
+        // if deleting PV_ADMIN_EMAIL, check at least one remains
+        var adminEmailCount = 0;
+        if (group.contactPoints) {
+            for (var i = 0; i < group.contactPoints.length; i++) {
+                if (group.contactPoints[i].contactPointType.value === 'PV_ADMIN_EMAIL') {
+                    adminEmailCount += 1;
+                }
+            }
+        }
+
+        if (contactPoint.contactPointType.value === 'PV_ADMIN_EMAIL' && adminEmailCount <= 1) {
+            alert('Cannot delete only remaining PatientView Admin Email');
+        } else {
+            // only do DELETE if in edit mode, otherwise just remove from object
+            if ($scope.editMode) {
+                ContactPointService.remove(contactPoint).then(function () {
+                    // deleted contactPoint
+                    for (var j = 0; j < group.contactPoints.length; j++) {
+                        if (group.contactPoints[j].id === contactPoint.id) {
+                            group.contactPoints.splice(j, 1);
+                        }
+                    }
+                }, function () {
+                    alert('Error deleting contactPoint');
+                });
+            } else {
                 for (var j = 0; j < group.contactPoints.length; j++) {
                     if (group.contactPoints[j].id === contactPoint.id) {
                         group.contactPoints.splice(j, 1);
                     }
                 }
-            }, function () {
-                alert('Error deleting contactPoint');
-            });
-        } else {
-            for (var j = 0; j < group.contactPoints.length; j++) {
-                if (group.contactPoints[j].id === contactPoint.id) {
-                    group.contactPoints.splice(j, 1);
-                }
+                form.$setDirty(true);
             }
-            form.$setDirty(true);
         }
     };
 }]);
