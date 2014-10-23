@@ -28,9 +28,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 delete link.id;
                 delete link.link;
                 delete link.name;
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error saving link');
             });
         } else {
@@ -48,11 +46,8 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
         // try and save link
         LinkService.save(link).then(function () {
-            // saved link
             link.saved = true;
-            form.$setDirty(true);
         }, function() {
-            // failure
             alert('Error saving link');
         });
     };
@@ -67,9 +62,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         group.links.splice(j, 1);
                     }
                 }
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error deleting link');
             });
         } else {
@@ -91,9 +84,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 group.locations.push(_.clone(location));
                 group.newLocation = {};
                 group.newLocation.label = 'Additional Location';
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error saving location');
             });
         } else {
@@ -110,11 +101,8 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
         // try and save location
         LocationService.save(location).then(function () {
-            // saved location
             location.saved = true;
-            form.$setDirty(true);
         }, function() {
-            // failure
             alert('Error saving location');
         });
     };
@@ -129,9 +117,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         group.locations.splice(j, 1);
                     }
                 }
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error deleting location');
             });
         } else {
@@ -165,13 +151,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         }
                     }
                 }, function () {
-                    // failure
                     alert('Error updating header (saved successfully)');
                 });
-
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error saving feature');
             });
         } else {
@@ -206,11 +188,8 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         }
                     }
                 }, function () {
-                    // failure
                     alert('Error updating header (saved successfully)');
                 });
-
-                form.$setDirty(true);
             }, function () {
                 // failure
                 alert('Error deleting feature');
@@ -248,13 +227,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         }
                     }
                 }, function () {
-                    // failure
                     alert('Error updating header (saved successfully)');
                 });
-
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error saving parentGroup');
             });
         } else {
@@ -289,13 +264,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         }
                     }
                 }, function () {
-                    // failure
                     alert('Error updating header (saved successfully)');
                 });
-
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error deleting parentGroup');
             });
         } else {
@@ -331,13 +302,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         }
                     }
                 }, function () {
-                    // failure
                     alert('Error updating header (saved successfully)');
                 });
-
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error saving childGroup');
             });
         } else {
@@ -372,13 +339,9 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         }
                     }
                 }, function () {
-                    // failure
                     alert('Error updating header (saved successfully)');
                 });
-
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error deleting childGroup');
             });
         } else {
@@ -401,15 +364,12 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
             contactPoint.contactPointType = _.findWhere($scope.contactPointTypes, {id: contactPoint.contactPointTypeId});
 
             GroupService.addContactPoint(group, contactPoint).then(function (successResult) {
-                // added contactPoint
                 contactPoint.id = successResult.id;
                 group.contactPoints.push(_.clone(contactPoint));
                 delete contactPoint.id;
                 delete contactPoint.contactPointType;
                 delete contactPoint.content;
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error saving contactPoint');
             });
         } else {
@@ -429,11 +389,8 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
 
         // try and save contactPoint
         ContactPointService.save(contactPoint).then(function () {
-            // saved contactPoint
             contactPoint.saved = true;
-            form.$setDirty(true);
         }, function() {
-            // failure
             alert('Error saving contactPoint');
         });
     };
@@ -448,9 +405,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                         group.contactPoints.splice(j, 1);
                     }
                 }
-                form.$setDirty(true);
             }, function () {
-                // failure
                 alert('Error deleting contactPoint');
             });
         } else {
