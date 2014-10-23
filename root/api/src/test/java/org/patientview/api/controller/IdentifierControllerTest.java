@@ -101,7 +101,8 @@ public class IdentifierControllerTest {
         try {
             mockMvc.perform(MockMvcRequestBuilders.post(url)
                     .content(mapper.writeValueAsString(identifier)).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated());        }
+                    .andExpect(MockMvcResultMatchers.status().isCreated());
+        }
         catch (Exception e) {
             fail("Exception: " + e.getMessage());
         }
@@ -117,6 +118,24 @@ public class IdentifierControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
             fail("Exception throw");
+        }
+    }
+
+    @Test
+    public void testValidateIdentifier() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
+
+        User testUser = TestUtils.createUser("testUser");
+        String url = "/user/" + testUser.getId() + "/identifier/validate";
+        Identifier identifier = new Identifier();
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post(url)
+                    .content(mapper.writeValueAsString(identifier)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getMessage());
         }
     }
 }

@@ -247,6 +247,20 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // validate Identifier, including if already in use etc
+        validateIdentifier: function (userId, identifier) {
+            identifier = UtilService.cleanObject(identifier, 'identifier');
+            identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
+            var deferred = $q.defer();
+
+            // POST /identifier/validate
+            Restangular.one('user', userId).one('identifier/validate').customPOST(identifier).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // Save More About Me details (currently SHOULD_KNOW and TALK_ABOUT fields)
         saveMoreAboutMe: function (user, moreAboutMe) {
 

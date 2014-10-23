@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,14 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String handleResourceForbiddenException(ResourceForbiddenException e) {
         LOG.info("Resource forbidden");
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(ResourceInvalidException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleResourceInvalidException(ResourceInvalidException e) {
+        LOG.info("Resource invalid");
         return e.getMessage();
     }
 

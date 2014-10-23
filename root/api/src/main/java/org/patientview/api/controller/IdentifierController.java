@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.IdentifierService;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Identifier;
 import org.springframework.http.HttpStatus;
@@ -56,12 +57,27 @@ public class IdentifierController extends BaseController<IdentifierController> {
         return new ResponseEntity<>(identifierService.add(userId, identifier), HttpStatus.CREATED);
     }
 
-
     @RequestMapping(value = "/identifier/value/{identifierValue}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Identifier> getIdentifierByValue(@PathVariable("identifierValue") String identifierValue)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(identifierService.getIdentifierByValue(identifierValue), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/identifier/validate", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void validate(@PathVariable("userId") Long userId, @RequestBody Identifier identifier)
+        throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException {
+        identifierService.validate(userId, identifier);
+    }
+
+    @RequestMapping(value = "/user/identifier/validate", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void validateNoUser(@RequestBody Identifier identifier)
+        throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException {
+        identifierService.validate(null, identifier);
     }
 }
