@@ -56,10 +56,10 @@ function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,Ut
             }
         }
 
-        if (!UtilService.validationDate($scope.joinRequest.selectedDay,
+        if (!UtilService.validationDateNoFuture($scope.joinRequest.selectedDay,
                                         $scope.joinRequest.selectedMonth,
                                         $scope.joinRequest.selectedYear)) {
-            $scope.errorMessage = 'Please enter a valid date';
+            $scope.errorMessage = 'Please enter a valid date (and not in the future)';
             formOk = false;
         } else {
             $scope.joinRequest.dateOfBirth = $scope.joinRequest.selectedDay +

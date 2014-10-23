@@ -57,6 +57,42 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             return true;
         },
 
+        validationDateNoFuture: function (day, month, year) {
+
+            if (day === undefined || month === undefined || year === undefined) {
+                return false;
+            }
+
+            // strip preceding 0 on dates if present
+            day = parseInt(day.toString());
+            month = parseInt(month.toString());
+            year = parseInt(year.toString());
+
+            if (isNaN(day) || isNaN(month) || isNaN(year)) {
+                return false;
+            }
+            if ((month < 1) || (month > 12)) {
+                return false;
+            }
+            else if ((day < 1) || (day > 31)) {
+                return false;
+            }
+            else if (((month === 4) || (month === 6) || (month === 9) || (month === 11)) && (day > 30)) {
+                return false;
+            }
+            else if ((month === 2) && (((year % 400) === 0) || ((year % 4) === 0)) && ((year % 100) !== 0) && (day > 29)) {
+                return false;
+            }
+            else if ((month === 2) && ((year % 100) === 0) && (day > 29)) {
+                return false;
+            }
+
+            var now = new Date();
+            var input = new Date(month+"/"+day+"/"+year);
+
+            return now.getTime() > input.getTime();
+        },
+
         // Used when cleaning objects before they are passed to REST service, object fields to keep
         getFields: function (objectType) {
             var fields = [];
