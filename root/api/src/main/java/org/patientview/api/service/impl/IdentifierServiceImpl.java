@@ -213,7 +213,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
             // should be numeric and pass checksum
             if (!isChecksumValid(value)) {
-                throw new ResourceInvalidException("Failed Checksum");
+                throw new ResourceInvalidException("Invalid number");
             }
         }
 
