@@ -188,16 +188,19 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             // remove 'javascript' strings
             text = text.replace('javascript','');
 
+            // manage line breaks
+            text = text.replace(/(\r\n|\n|\r)/gm, '<br/>');
+
             // https://github.com/components/jquery-htmlclean
             // clean html to remove all but certain tags
             var htmlCleanOptions = {
-                'allowedTags': ['strong','a','b','i','u','h1','h2','h3','h4','h5']
+                'allowedTags': ['strong','a','b','i','u','h1','h2','h3','h4','h5','br']
             };
 
             text = $.htmlClean(text, htmlCleanOptions);
 
             // trust as html
-            return $sce.trustAsHtml(text.replace(/(\r\n|\n|\r)/gm, '<br>'));
+            return $sce.trustAsHtml(text);
         }
     };
 
