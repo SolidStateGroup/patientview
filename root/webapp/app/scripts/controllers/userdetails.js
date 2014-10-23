@@ -176,6 +176,17 @@ function ($scope, UserService, IdentifierService) {
         }
     };
 
+    // user should have only one type of each identifier type
+    var identifierTypeExists = function(user, identifierType) {
+        for (var i=0;i<user.identifiers.length;i++) {
+            if (user.identifiers[i].identifierType.value === identifierType.value) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
     $scope.addIdentifier = function (form, user, identifier) {
 
         var newIdentifier = _.clone(identifier);
@@ -183,44 +194,49 @@ function ($scope, UserService, IdentifierService) {
         if (newIdentifier.identifierType !== undefined) {
             newIdentifier.identifierType = _.findWhere($scope.identifierTypes, {id: newIdentifier.identifierType});
 
-            UserService.validateIdentifier(user.id, newIdentifier, user.dummy).then(function () {
-                if ($scope.editMode) {
-                    delete newIdentifier.id;
-                    UserService.addIdentifier(user, newIdentifier).then(function () {
+            if (!identifierTypeExists(user, newIdentifier.identifierType)) {
 
-                        // added identifier
-                        delete identifier.id;
-                        delete identifier.identifier;
+                UserService.validateIdentifier(user.id, newIdentifier, user.dummy).then(function () {
+                    if ($scope.editMode) {
+                        delete newIdentifier.id;
+                        UserService.addIdentifier(user, newIdentifier).then(function () {
 
-                        // update accordion header with data from GET
-                        UserService.get(user.id).then(function (successResult) {
-                            for (var i = 0; i < $scope.pagedItems.length; i++) {
-                                if ($scope.pagedItems[i].id === user.id) {
-                                    var headerDetails = $scope.pagedItems[i];
-                                    headerDetails.identifiers = successResult.identifiers;
+                            // added identifier
+                            delete identifier.id;
+                            delete identifier.identifier;
+
+                            // update accordion header with data from GET
+                            UserService.get(user.id).then(function (successResult) {
+                                for (var i = 0; i < $scope.pagedItems.length; i++) {
+                                    if ($scope.pagedItems[i].id === user.id) {
+                                        var headerDetails = $scope.pagedItems[i];
+                                        headerDetails.identifiers = successResult.identifiers;
+                                    }
                                 }
-                            }
-                            user.identifiers = successResult.identifiers;
-                        }, function () {
-                            alert('Error updating header (saved successfully)');
-                        });
+                                user.identifiers = successResult.identifiers;
+                            }, function () {
+                                alert('Error updating header (saved successfully)');
+                            });
 
-                    }, function(failureResult) {
-                        if (failureResult.status === 409) {
-                            alert(failureResult.data)
-                        } else {
-                            alert('There has been an error saving');
-                        }
-                    });
-                } else {
-                    identifier.id = Math.floor(Math.random() * (9999)) - 10000;
-                    user.identifiers.push(newIdentifier);
-                    identifier.identifier = '';
-                    form.$setDirty(true);
-                }
-            }, function (failure) {
-                alert("Error: " + failure.data);
-            });
+                        }, function (failureResult) {
+                            if (failureResult.status === 409) {
+                                alert(failureResult.data)
+                            } else {
+                                alert('There has been an error saving');
+                            }
+                        });
+                    } else {
+                        identifier.id = Math.floor(Math.random() * (9999)) - 10000;
+                        user.identifiers.push(newIdentifier);
+                        identifier.identifier = '';
+                        form.$setDirty(true);
+                    }
+                }, function (failure) {
+                    alert('Error: ' + failure.data);
+                });
+            } else {
+                alert('An Identifier of this type already exists for this user');
+            }
         }
     };
 
