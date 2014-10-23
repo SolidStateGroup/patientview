@@ -137,8 +137,6 @@ function ($q, Restangular, UtilService) {
             user.identifiers = cleanIdentifiers;
             user.groupRoles = inputUser.groupRoles;
 
-            // generate password
-            user.password = UtilService.generatePassword();
             user.changePassword = 'false';
 
             // lock and generate verification code

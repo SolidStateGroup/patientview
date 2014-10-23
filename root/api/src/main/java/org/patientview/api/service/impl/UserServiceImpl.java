@@ -8,6 +8,7 @@ import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -25,6 +26,7 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -398,6 +400,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private boolean canGetUser(User user) {
         // if i am trying to access myself
         if (getCurrentUser().equals(user)) {
+            return true;
+        }
+
+        // UNIT_ADMIN can get users from other groups (used when updating existing user) as long as not GLOBAL_ADMIN
+        // or SPECIALTY_ADMIN
+        if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
+                        || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
+                    return false;
+                }
+            }
+
             return true;
         }
 

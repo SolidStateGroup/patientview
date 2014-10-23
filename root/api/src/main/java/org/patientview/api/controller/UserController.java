@@ -99,7 +99,7 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> createUser(@RequestBody org.patientview.persistence.model.User  user)
+    public ResponseEntity<Long> createUser(@RequestBody org.patientview.persistence.model.User user)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User createdUser;
         try {
@@ -108,14 +108,14 @@ public class UserController extends BaseController<UserController> {
             User foundUser = userService.getByUsername(user.getUsername());
             if (foundUser != null) {
                 // found by username
-                return new ResponseEntity<>(foundUser, HttpStatus.CONFLICT);
+                return new ResponseEntity<>(foundUser.getId(), HttpStatus.CONFLICT);
             } else {
                 // found by email
-                return new ResponseEntity<>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
+                return new ResponseEntity<>(userService.getByEmail(user.getEmail()).getId(), HttpStatus.CONFLICT);
             }
         }
 
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(createdUser.getId(), HttpStatus.CREATED);
     }
 
     // Migration Only, are migrating passwords so create user with no password encryption

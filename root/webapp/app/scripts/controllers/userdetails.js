@@ -71,8 +71,7 @@ function ($scope, UserService, IdentifierService) {
                     }
                     user.groupRoles = successResult.groupRoles;
                 }, function () {
-                    alert('Error loading data (but saved successfully)');
-                    $scope.getItems();
+                    // saved user, but no longer have rights to view
                 });
             }, function () {
                 alert('Error deleting group role');

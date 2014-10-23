@@ -237,7 +237,7 @@ public class UserServiceTest {
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
         Group group2 = TestUtils.createGroup("testGroup2");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        Role role = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
         Set<GroupRole> groupRoles = new HashSet<>();

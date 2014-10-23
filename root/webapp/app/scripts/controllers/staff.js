@@ -3,8 +3,8 @@
 // todo: consider controllers in separate files
 
 // new staff modal instance controller
-var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService',
-function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService) {
+var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService', 'UtilService',
+function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService, UtilService) {
     $scope.permissions = permissions;
     $scope.editUser = newUser;
     $scope.allGroups = allGroups;
@@ -24,38 +24,51 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     $scope.create = function () {
         var i;
 
-        UserService.create($scope.editUser).then(function(result) {
-            // successfully created new staff user
-            $scope.editUser = result;
-            $scope.editUser.isNewUser = true;
-            $modalInstance.close($scope.editUser);
+        // generate password
+        var password = UtilService.generatePassword();
+        $scope.editUser.password = password;
+
+        UserService.create($scope.editUser).then(function(userId) {
+            // successfully created new user
+            UserService.get(userId).then(function(result) {
+                result.isNewUser = true;
+                result.password = password;
+                $modalInstance.close(result);
+            }, function() {
+                alert('Cannot get user (has been created)');
+            });
         }, function(result) {
             if (result.status === 409) {
-                // 409 = CONFLICT, means staff already exists, provide UI to edit existing staff group roles
-                $scope.warningMessage = 'A staff member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
-                $scope.editUser = result.data;
-                $scope.existingUser = true;
-                $scope.editMode = true;
-                $scope.pagedItems = [];
+                // 409 = CONFLICT, means user already exists, provide UI to edit existing user group roles
+                // but only if user has rights to GET user
 
-                // get staff existing group/roles from groupRoles
-                $scope.editUser.groups = [];
-                for(i=0; i<$scope.editUser.groupRoles.length; i++) {
-                    var groupRole = $scope.editUser.groupRoles[i];
-                    var group = groupRole.group;
-                    group.role = groupRole.role;
-                    $scope.editUser.groups.push(group);
-                }
+                UserService.get(result.data).then(function(result) {
+                    $scope.warningMessage = 'A staff member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
+                    $scope.editUser = result;
+                    $scope.existingUser = true;
+                    $scope.editMode = true;
+                    $scope.pagedItems = [];
 
-                // set available groups so user can add another group/role to the staff members existing group roles if required
-                $scope.editUser.availableGroups = $scope.allGroups;
-                for (i=0; i<$scope.editUser.groups.length; i++) {
-                    $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
-                }
+                    // get user existing group/roles from groupRoles
+                    $scope.editUser.groups = [];
+                    for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                        var groupRole = $scope.editUser.groupRoles[i];
+                        var group = groupRole.group;
+                        group.role = groupRole.role;
+                        $scope.editUser.groups.push(group);
+                    }
 
-                // set available staff roles
-                $scope.editUser.roles = $scope.allowedRoles;
+                    // set available groups so user can add another group/role to the users existing group roles if required
+                    $scope.editUser.availableGroups = $scope.allGroups;
+                    for (i = 0; i < $scope.editUser.groups.length; i++) {
+                        $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
+                    }
 
+                    // set available user roles
+                    $scope.editUser.roles = $scope.allowedRoles;
+                }, function () {
+                    $scope.warningMessage = 'This username is restricted, please try another';
+                });
             } else {
                 // Other errors treated as standard errors
                 $scope.errorMessage = 'There was an error: ' + result.data;
@@ -63,7 +76,7 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
         });
     };
 
-    // click Update Existing button, (after finding staff already exists)
+    // click Update Existing button, (after finding user already exists)
     $scope.edit = function () {
         UserService.save($scope.editUser).then(function() {
             // successfully saved existing user
@@ -134,8 +147,8 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Staff controller
-angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService',
-    function ($rootScope, $scope, $compile, $modal, $timeout, UserService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'UtilService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, UtilService) {
 
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
@@ -290,7 +303,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.getItems();
     };
 
-    // Get staff based on current user selected filters etc
+    // Get users based on current user selected filters etc
     $scope.getItems = function () {
         $scope.loading = true;
 
@@ -424,7 +437,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 $scope.editing = true;
                 user.roles = $scope.allowedRoles;
 
-                // create list of available features (all - staff members existing features)
+                // create list of available features (all - users existing features)
                 user.availableFeatures = _.clone($scope.allFeatures);
                 if (user.userFeatures) {
                     for (var j = 0; j < user.userFeatures.length; j++) {
@@ -438,9 +451,13 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     user.userFeatures = [];
                 }
 
-                // set the staff member being edited to a clone of the existing staff member (so only updated in UI on save)
+                // set the user being edited to a clone of the existing user (so only updated in UI on save)
                 $scope.editUser = _.clone(user);
                 openedUser.editLoading = false;
+            }, function(failureResult) {
+                openedUser.showEdit = false;
+                openedUser.editLoading = false;
+                alert('Cannot open staff member: ' + failureResult.data);
             });
         }
     };
@@ -463,7 +480,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     }
                 }
             }, function () {
-                // failure
                 alert('Error updating header (saved successfully)');
             });
 
@@ -524,44 +540,32 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 },
                 UserService: function(){
                     return UserService;
+                },
+                UtilService: function(){
+                    return UtilService;
                 }
             }
         });
 
         // handle modal close (via button click)
         modalInstance.result.then(function (user) {
-            // check if staff member is newly created
+            // check if user is newly created
             if (user.isNewUser) {
-                // is a new staff member, add to end of list and show username and password
-                $scope.currentPage = 0;
-                $scope.getItems();
-                $scope.editUser = '';
+                // is a new user
                 $scope.successMessage = 'User successfully created ' +
                     'with username: "' + user.username + '" ' +
                     'and password: "' + user.password + '"';
                 $scope.userCreated = true;
             } else {
-                // is an already existing staff member, likely updated group roles
-                var index = null;
-                for (var i = 0; i < $scope.pagedItems.length; i++) {
-                    if (user.id === $scope.pagedItems[i].id) {
-                        index = i;
-                    }
-                }
-
-                if (index !== null) {
-                    // user already in list of users shown, update object
-                    $scope.pagedItems[index] = _.clone(user);
-                } else {
-                    // user wasn't already present in list
-                    $scope.currentPage = 0;
-                    $scope.getItems();
-                }
-
+                // is an already existing user, likely updated group roles
                 $scope.successMessage = 'User successfully updated with username: "' + user.username + '"';
             }
+
+            $scope.currentPage = 0;
+            $scope.getItems();
+            delete $scope.editUser;
+
         }, function () {
-            // close
             $scope.getItems();
         });
     };
@@ -569,6 +573,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // delete user
     $scope.deleteUser = function (userId) {
         $scope.successMessage = '';
+        // close any open edit panels
+        $('.panel-collapse.in').collapse('hide');
 
         UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
