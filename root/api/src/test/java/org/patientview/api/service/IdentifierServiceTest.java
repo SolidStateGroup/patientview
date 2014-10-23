@@ -528,4 +528,87 @@ public class IdentifierServiceTest {
 
         identifierService.validate(userIdentifier);
     }
+
+    @Test
+    public void testValidateIdentifier_HscNumber() {
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, IdentifierTypes.HSC_NUMBER.toString());
+        lookup.setDescription(IdentifierTypes.HSC_NUMBER.getName());
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, "3200000010");
+
+        // transport object
+        UserIdentifier userIdentifier = new UserIdentifier();
+        userIdentifier.setUserId(patient.getId());
+        userIdentifier.setIdentifier(identifier);
+        userIdentifier.setDummy(false);
+
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+
+        try {
+            identifierService.validate(userIdentifier);
+        } catch (ResourceForbiddenException | ResourceNotFoundException
+                    | EntityExistsException | ResourceInvalidException e) {
+            fail("Exception: " + e.getMessage());
+        }
+    }
+
+    @Test(expected = ResourceInvalidException.class)
+    public void testValidateIdentifier_InvalidHscNumber() throws ResourceForbiddenException, ResourceNotFoundException,
+            EntityExistsException, ResourceInvalidException{
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, IdentifierTypes.HSC_NUMBER.toString());
+        lookup.setDescription(IdentifierTypes.HSC_NUMBER.getName());
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, "4200000010");
+
+        // transport object
+        UserIdentifier userIdentifier = new UserIdentifier();
+        userIdentifier.setUserId(patient.getId());
+        userIdentifier.setIdentifier(identifier);
+        userIdentifier.setDummy(false);
+
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+
+        identifierService.validate(userIdentifier);
+    }
 }

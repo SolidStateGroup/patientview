@@ -33,10 +33,12 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
     private UserRepository userRepository;
 
     private static final String GENERIC_GROUP_CODE = "GENERIC";
-    private static final int NHS_NUMBER_START = 4;
-    private static final int NHS_NUMBER_END = 9;
-    private static final int CHI_NUMBER_START = 0;
-    private static final int CHI_NUMBER_END = 3;
+    private static final Long CHI_NUMBER_START = 10000010L;
+    private static final Long CHI_NUMBER_END = 3199999999L;
+    private static final Long HSC_NUMBER_START = 3200000010L;
+    private static final Long HSC_NUMBER_END = 3999999999L;
+    private static final Long NHS_NUMBER_START = 4000000000L;
+    private static final Long NHS_NUMBER_END = 9000000000L;
     private static final int NHS_NUMBER_LENGTH = 10;
     private static final int NHS_NUMBER_MODULUS = 11;
     private static final int NHS_NUMBER_MODULUS_OFFSET = 11;
@@ -173,6 +175,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
     private void isValidIdentifier(Identifier identifier) throws ResourceInvalidException {
 
         String value = identifier.getIdentifier();
+        Long numericValue = 0L;
 
         if (identifier.getIdentifierType() == null) {
             throw new ResourceInvalidException("Invalid type");
@@ -182,50 +185,53 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             throw new ResourceInvalidException("Invalid type");
         }
 
+        // for NHS Number, CHI Number, H&SC Number
+        if (identifier.getIdentifierType().getValue().equals(IdentifierTypes.NHS_NUMBER.toString())
+            || identifier.getIdentifierType().getValue().equals(IdentifierTypes.CHI_NUMBER.toString())
+            || identifier.getIdentifierType().getValue().equals(IdentifierTypes.HSC_NUMBER.toString())) {
+
+            // should be numeric
+            try {
+                numericValue = Long.parseLong(value);
+            } catch (NumberFormatException e) {
+                throw new ResourceInvalidException("Not a number");
+            }
+
+            // should be 10 characters
+            if (value.length() != NHS_NUMBER_LENGTH) {
+                throw new ResourceInvalidException("Incorrect length");
+            }
+        }
+
         // NHS Number
         if (identifier.getIdentifierType().getValue().equals(IdentifierTypes.NHS_NUMBER.toString())) {
-            try {
-                Long firstDigit = Long.parseLong(String.valueOf(value.charAt(0)));
+            // should be in correct range
+            if (numericValue < NHS_NUMBER_START || numericValue > NHS_NUMBER_END) {
+                throw new ResourceInvalidException(
+                        "Should be between " + NHS_NUMBER_START + " and " + NHS_NUMBER_END);
+            }
 
-                // should have correct first digit
-                if (firstDigit < NHS_NUMBER_START || firstDigit > NHS_NUMBER_END) {
-                    throw new ResourceInvalidException(
-                            "Should start with digit between " + NHS_NUMBER_START + " or " + NHS_NUMBER_END);
-                }
-
-                // should be 10 characters
-                if (value.length() != NHS_NUMBER_LENGTH) {
-                    throw new ResourceInvalidException("Incorrect length");
-                }
-
-                // should be numeric and pass checksum
-                if (!isChecksumValid(value)) {
-                    throw new ResourceInvalidException("Failed Checksum");
-                }
-
-            } catch (NumberFormatException e) {
-                throw new ResourceInvalidException("Incorrect character");
+            // should be numeric and pass checksum
+            if (!isChecksumValid(value)) {
+                throw new ResourceInvalidException("Failed Checksum");
             }
         }
 
         // CHI Number
         if (identifier.getIdentifierType().getValue().equals(IdentifierTypes.CHI_NUMBER.toString())) {
-            try {
-                Long firstDigit = Long.parseLong(String.valueOf(value.charAt(0)));
+            // should be in correct range
+            if (numericValue < CHI_NUMBER_START || numericValue > CHI_NUMBER_END) {
+                throw new ResourceInvalidException(
+                        "Should be between 00" + CHI_NUMBER_START + " and " + CHI_NUMBER_END);
+            }
+        }
 
-                // should have correct first digit
-                if (firstDigit < CHI_NUMBER_START || firstDigit > CHI_NUMBER_END) {
-                    throw new ResourceInvalidException(
-                            "Should start with digit between " + CHI_NUMBER_START + " or " + CHI_NUMBER_END);
-                }
-
-                // should be 10 characters
-                if (value.length() != NHS_NUMBER_LENGTH) {
-                    throw new ResourceInvalidException("Incorrect length");
-                }
-
-            } catch (NumberFormatException e) {
-                throw new ResourceInvalidException("Incorrect character");
+        // H&SC Number
+        if (identifier.getIdentifierType().getValue().equals(IdentifierTypes.HSC_NUMBER.toString())) {
+            // should be in correct range
+            if (numericValue < HSC_NUMBER_START || numericValue > HSC_NUMBER_END) {
+                throw new ResourceInvalidException(
+                        "Should be between " + HSC_NUMBER_START + " and " + HSC_NUMBER_END);
             }
         }
     }

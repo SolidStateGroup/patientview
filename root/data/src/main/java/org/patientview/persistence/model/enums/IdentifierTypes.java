@@ -7,6 +7,7 @@ package org.patientview.persistence.model.enums;
 public enum IdentifierTypes {
     NHS_NUMBER("NHS Number"),
     CHI_NUMBER("CHI Number"),
+    HSC_NUMBER("H&SC Number"),
     HOSPITAL_NUMBER("Hospital Number");
 
     private String name;

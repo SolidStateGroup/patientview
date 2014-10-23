@@ -48,7 +48,7 @@ public class StaticDataManagerImpl extends AbstractServiceImpl<StaticDataManager
         if (lookupType != null) {
             return Util.convertIterable(lookupRepository.findByType(lookupType));
         }
-        return Collections.<Lookup>emptyList();
+        return Collections.emptyList();
     }
 
     public Lookup getLookupByTypeAndValue(LookupTypes type, String value) {
@@ -60,6 +60,6 @@ public class StaticDataManagerImpl extends AbstractServiceImpl<StaticDataManager
         if (lookup != null) {
             return Util.convertIterable(featureRepository.findByType(lookup));
         }
-        return Collections.<Feature>emptyList();
+        return Collections.emptyList();
     }
 }
