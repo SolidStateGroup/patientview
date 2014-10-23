@@ -96,10 +96,10 @@ public class ImportControllerTest {
         files.add("data/xml/milestone4/SAC02_01439_41737438900.xml");
         files.add("data/xml/milestone4/SGC04_01436_57703939407.xml");
         files.add("data/xml/milestone4/SGC04_01436_64098149107.xml");
-        files.add("data/xml/milestone4/SGC04_01456_12314191702.xml");
-        files.add("data/xml/milestone4/SGC04_01459_14018849809.xml");
-        files.add("data/xml/milestone4/SGC04_01459_28039602801.xml");
-        files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");
+        //files.add("data/xml/milestone4/SGC04_01456_12314191702.xml");
+        //files.add("data/xml/milestone4/SGC04_01459_14018849809.xml");
+        //files.add("data/xml/milestone4/SGC04_01459_28039602801.xml");
+        //files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");
 
         for (String file : files) {
             post(getFileFromString(file));
@@ -126,7 +126,7 @@ public class ImportControllerTest {
 
         //String postUrl="https://staging.patientview.org/importer/import";// put in your url
         //String postUrl="http://localhost:8081/importer/import";// put in your url
-        String postUrl="https://localhost:2020/importer/import";// put in your url
+        String postUrl="http://staging.patientview.org:2020/import";// put in your url
         //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
