@@ -43,7 +43,7 @@
 
     <!--Properties Placeholder-->
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="classpath:integration-test.properties"/>
+        <property name="location" value="classpath:migration-test.properties"/>
     </bean>
 
 

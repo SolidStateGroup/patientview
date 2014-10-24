@@ -35,6 +35,7 @@ import org.patientview.repository.SpecialtyDao;
 import org.patientview.repository.UnitDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -77,6 +78,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private Group diabetes;
     private Group ibd;
 
+    private @Value("${migration.username}") String migrationUsername;
+    private @Value("${migration.password}") String migrationPassword;
+
     @Override
     public Group getRenal() {
         return renal;
@@ -95,7 +99,8 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     @PostConstruct
     public void init() {
         try {
-            JsonUtil.token = JsonUtil.authenticate("migration", "pppppp");
+
+            JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
             lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
             features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
             groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
