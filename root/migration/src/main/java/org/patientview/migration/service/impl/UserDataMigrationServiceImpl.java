@@ -15,6 +15,7 @@ import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
+import org.patientview.model.MigrationUser;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.SpecialtyUserRoleDao;
@@ -125,18 +126,18 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     }
 
-    public void bulkUserCreate(String unitCode, Long count, Roles role) {
+    public void bulkUserCreate(String unitCode, Long count, Roles roleName) {
         Date now = new Date();
 
         Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
-        Role userRole = adminDataMigrationService.getRoleByName(role);
+        Role userRole = adminDataMigrationService.getRoleByName(roleName);
 
         if (userUnit != null && userRole != null) {
 
             for (Long i = now.getTime(); i<now.getTime() + count; i++) {
 
                 // create user and store
-                User newUser = new User();
+                MigrationUser newUser = new MigrationUser();
                 newUser.setForename(i.toString());
                 newUser.setSurname(i.toString());
                 newUser.setChangePassword(true);
@@ -150,17 +151,24 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.setIdentifiers(new HashSet<Identifier>());
 
                 // if role is Roles.PATIENT add identifier
-                if (role.equals(Roles.PATIENT)) {
+                if (roleName.equals(Roles.PATIENT)) {
                     Identifier identifier = new Identifier();
                     identifier.setIdentifier(i.toString());
                     identifier.setIdentifierType(adminDataMigrationService.getLookupByName("CHI_NUMBER"));
                     newUser.getIdentifiers().add(identifier);
                 }
 
-                Long userId = callApiCreateUser(newUser);
+                Group group = new Group();
+                group.setId(userUnit.getId());
+                Role role = new Role();
+                role.setId(userRole.getId());
+                GroupRole groupRole = new GroupRole();
+                groupRole.setGroup(group);
+                groupRole.setRole(role);
+                newUser.setGroupRoles(new HashSet<GroupRole>());
+                newUser.getGroupRoles().add(groupRole);
 
-                // add unit role (will automatically add to specialty)
-                callApiAddGroupRole(userId, userUnit.getId(), userRole.getId());
+                callApiMigrateUser(newUser);
             }
         }
     }
@@ -240,6 +248,21 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         return null;
     }
 
+    // testing for bulk user creation
+    private Long callApiMigrateUser(MigrationUser user) {
+        String url = JsonUtil.pvUrl + "/user/migrate";
+        Long userId = null;
+        try {
+            userId = JsonUtil.jsonRequest(url, Long.class, user, HttpPost.class);
+            LOG.info("Created user: {} with id {}", user.getUsername(), userId);
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to create user: {}", user.getUsername());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.info("User {} already exists", user.getUsername());
+        }
+
+        return userId;
+    }
 
     private Long callApiCreateUser(User user) {
         String url = JsonUtil.pvUrl + "/user/migrate";
