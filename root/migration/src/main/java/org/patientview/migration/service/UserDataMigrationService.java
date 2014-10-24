@@ -1,5 +1,6 @@
 package org.patientview.migration.service;
 
+import org.patientview.enums.Roles;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,5 +13,5 @@ public interface UserDataMigrationService {
 
     void migrate();
 
-    void bulkUserCreate(String groupCode, Long count);
+    void bulkUserCreate(String groupCode, Long count, Roles roleName);
 }

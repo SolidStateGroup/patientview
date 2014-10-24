@@ -125,13 +125,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     }
 
-    public void bulkUserCreate(String unitCode, Long count) {
+    public void bulkUserCreate(String unitCode, Long count, Roles role) {
         Date now = new Date();
 
-        Group patientUnit = adminDataMigrationService.getGroupByCode(unitCode);
-        Role patientRole = adminDataMigrationService.getRoleByName(Roles.PATIENT);
+        Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
+        Role userRole = adminDataMigrationService.getRoleByName(role);
 
-        if (patientUnit != null && patientRole != null) {
+        if (userUnit != null && userRole != null) {
 
             for (Long i = now.getTime(); i<now.getTime() + count; i++) {
 
@@ -150,13 +150,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser = callApiCreateUser(newUser);
 
                 // add unit role (will automatically add to specialty)
-                callApiAddGroupRole(newUser.getId(), patientUnit.getId(), patientRole.getId());
+                callApiAddGroupRole(newUser.getId(), userUnit.getId(), userRole.getId());
 
-                // add identifier
-                Identifier identifier = new Identifier();
-                identifier.setIdentifier(i.toString());
-                identifier.setIdentifierType(adminDataMigrationService.getLookupByName("CHI_NUMBER"));
-                callApiAddIdentifier(identifier, newUser.getId());
+                // if role is Roles.PATIENT add identifier
+                if (role.equals(Roles.PATIENT)) {
+                    Identifier identifier = new Identifier();
+                    identifier.setIdentifier(i.toString());
+                    identifier.setIdentifierType(adminDataMigrationService.getLookupByName("CHI_NUMBER"));
+                    callApiAddIdentifier(identifier, newUser.getId());
+                }
             }
         }
     }
