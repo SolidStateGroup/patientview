@@ -31,16 +31,15 @@ public interface UserService {
 
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    org.patientview.api.model.User createUserWithPasswordEncryption(User user)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+    Long createUserWithPasswordEncryption(User user) throws ResourceNotFoundException, ResourceForbiddenException;
 
     // used by migration
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
-    org.patientview.api.model.User createUserNoEncryption(User user);
+    Long createUserNoEncryption(User user);
 
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    User save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
+    void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId) throws ResourceNotFoundException;

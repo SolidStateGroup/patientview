@@ -126,7 +126,7 @@ public class UserControllerTest {
         org.patientview.api.model.User apiUser = new org.patientview.api.model.User(user, null);
         apiUser.setId(1L);
 
-        when(userService.createUserWithPasswordEncryption(eq(postUser))).thenReturn(apiUser);
+        when(userService.createUserWithPasswordEncryption(eq(postUser))).thenReturn(apiUser.getId());
 
         try {
             mockMvc.perform(MockMvcRequestBuilders.post("/user")

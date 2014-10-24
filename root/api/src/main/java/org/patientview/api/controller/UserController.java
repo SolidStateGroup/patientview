@@ -101,9 +101,9 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Long> createUser(@RequestBody org.patientview.persistence.model.User user)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        User createdUser;
+
         try {
-            createdUser = userService.createUserWithPasswordEncryption(user);
+            return new ResponseEntity<>(userService.createUserWithPasswordEncryption(user), HttpStatus.CREATED);
         } catch (EntityExistsException eee) {
             User foundUser = userService.getByUsername(user.getUsername());
             if (foundUser != null) {
@@ -114,31 +114,14 @@ public class UserController extends BaseController<UserController> {
                 return new ResponseEntity<>(userService.getByEmail(user.getEmail()).getId(), HttpStatus.CONFLICT);
             }
         }
-
-        return new ResponseEntity<>(createdUser.getId(), HttpStatus.CREATED);
     }
 
     // Migration Only, are migrating passwords so create user with no password encryption
-    @RequestMapping(value = "/user/migrate", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user/migrate", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> migrateUser(@RequestBody org.patientview.persistence.model.User user)
-            throws ResourceNotFoundException {
-        User createdUser;
-        try {
-            createdUser = userService.createUserNoEncryption(user);
-        } catch (EntityExistsException eee) {
-            User foundUser = userService.getByUsername(user.getUsername());
-            if (foundUser != null) {
-                // found by username
-                return new ResponseEntity<>(foundUser, HttpStatus.CONFLICT);
-            } else {
-                // found by email
-                return new ResponseEntity<>(userService.getByEmail(user.getEmail()), HttpStatus.CONFLICT);
-            }
-        }
-
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    public ResponseEntity<Long> migrateUser(@RequestBody org.patientview.persistence.model.User user)
+            throws ResourceNotFoundException, EntityExistsException {
+        return new ResponseEntity<>(userService.createUserNoEncryption(user), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)

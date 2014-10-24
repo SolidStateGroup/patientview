@@ -39,7 +39,7 @@ public class BulkUserCreateTest {
     @Rollback(false)
     public void test01BulkUserCreate() {
 
-        Long numberOfUsersToCreate = 1L;
+        Long numberOfUsersToCreate = 10L;
         Date start = new Date();
         Roles role = Roles.PATIENT;
 

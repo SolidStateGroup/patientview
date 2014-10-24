@@ -134,6 +134,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
 
+        User creator = getCurrentUser();
         User user = findUser(userId);
         Group group = groupRepository.findOne(groupId);
         Role role = roleRepository.findOne(roleId);
@@ -155,7 +156,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRole.setUser(user);
         groupRole.setGroup(group);
         groupRole.setRole(role);
-        groupRole.setCreator(userRepository.findOne(getCurrentUser().getId()));
+        groupRole.setCreator(creator);
         groupRole = groupRoleRepository.save(groupRole);
         addParentGroupRoles(groupRole);
         return groupRole;
@@ -254,7 +255,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return false;
     }
 
-    public User add(User user) {
+    public Long add(User user) {
 
         User creator = getCurrentUser();
         User newUser;
@@ -272,7 +273,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         user.setChangePassword(Boolean.TRUE);
 
         newUser = userRepository.save(user);
-        Long userId = newUser.getId();
         LOG.info("New user with id: {}", user.getId());
 
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
@@ -286,7 +286,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setGroup(entityGroup);
                     groupRole.setRole(entityRole);
                     groupRole.setUser(newUser);
-                    groupRole.setCreator(userRepository.findOne(creator.getId()));
+                    groupRole.setCreator(creator);
                     groupRole = groupRoleRepository.save(groupRole);
                     addParentGroupRoles(groupRole);
                 }
@@ -301,8 +301,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
             for (UserFeature userFeature : user.getUserFeatures()) {
                 userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
-                userFeature.setUser(userRepository.findOne(userId));
-                userFeature.setCreator(userRepository.findOne(creator.getId()));
+                userFeature.setUser(newUser);
+                userFeature.setCreator(creator);
                 userFeatureRepository.save(userFeature);
             }
         }
@@ -313,15 +313,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
             for (Identifier identifier : user.getIdentifiers()) {
                 identifier.setId(null);
-                identifier.setUser(userRepository.findOne(userId));
-                identifier.setCreator(userRepository.findOne(creator.getId()));
+                identifier.setUser(newUser);
+                identifier.setCreator(creator);
                 identifierRepository.save(identifier);
             }
         }
 
         entityManager.flush();
 
-        return userRepository.getOne(newUser.getId());
+        return newUser.getId();
     }
 
     // We do this so early one gets the generic group
@@ -346,7 +346,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * @param user
      * @return
      */
-    public org.patientview.api.model.User createUserWithPasswordEncryption(User user)
+    public Long createUserWithPasswordEncryption(User user)
             throws ResourceNotFoundException, ResourceForbiddenException {
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
 
@@ -360,12 +360,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        return new org.patientview.api.model.User(add(user), null);
+        return add(user);
     }
 
     //Migration Only
-    public org.patientview.api.model.User createUserNoEncryption(User user) {
-        return new org.patientview.api.model.User(add(user), null);
+    public Long createUserNoEncryption(User user) throws EntityExistsException {
+        return add(user);
     }
 
     // not used
@@ -442,7 +442,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    public User save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+    public void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findUser(user.getId());
 
         // don't allow setting username to same as other users
@@ -469,7 +469,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setLocked(user.getLocked());
         entityUser.setDummy(user.getDummy());
         entityUser.setContactNumber(user.getContactNumber());
-        return userRepository.save(entityUser);
+        userRepository.save(entityUser);
     }
 
     private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
