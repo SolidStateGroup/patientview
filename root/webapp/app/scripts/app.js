@@ -269,7 +269,6 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             $rootScope.authToken = authToken;
             localStorageService.set('authToken', authToken);
 
-
             // get user information, store in session
             AuthService.getUserInformation(authToken).then(function (userInformation) {
 
@@ -282,6 +281,9 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
                 $rootScope.routes = userInformation.routes;
                 localStorageService.set('routes', userInformation.routes);
+
+                $rootScope.setUnreadConversationCount();
+
                 $location.path('/dashboard');
 
                 delete $rootScope.previousAuthToken;

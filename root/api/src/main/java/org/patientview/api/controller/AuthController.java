@@ -9,6 +9,7 @@ import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,7 @@ public class AuthController extends BaseController<AuthController> {
     }
 
     // switch to previous user using previous auth token
+    @CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
             @PathVariable("userId") Long userId) throws AuthenticationServiceException {
@@ -52,6 +54,7 @@ public class AuthController extends BaseController<AuthController> {
     }
 
     // switch to another user by authenticating and returning token
+    @CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/auth/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchUser(@PathVariable("userId") Long userId)
             throws AuthenticationServiceException {
