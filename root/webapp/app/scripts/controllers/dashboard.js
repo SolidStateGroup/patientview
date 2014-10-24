@@ -64,7 +64,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                             },
                             series: [
                                 {
-                                    name: 'Patients',
+                                    name: 'Patients Added',
                                     data: patients
                                 },
                                 {
