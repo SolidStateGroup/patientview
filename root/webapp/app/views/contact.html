@@ -37,16 +37,17 @@
                             <div class="panel-heading"><h3>{{group.name}}</h3></div>
                             <div class="panel-body">
                                 <p>Refer to contact details below or <a href="" data-ng-click="openModalContactUnit(group)">send a message now</a>.</p>
-
-                                <h4>Address</h4>
-                                <table class="">
-                                    <tr><td>Address: </td>
-                                        <td>{{group.address1}}<br/>
-                                            {{group.address2}}<br/>
-                                            {{group.address3}}</td>
-                                    </tr>
-                                    <tr><td>Postcode: &nbsp;&nbsp;</td><td>{{group.postcode}}</td></tr>
-                                </table>
+                                <div data-ng-show="group.address1">
+                                    <h4>Address</h4>
+                                    <table class="">
+                                        <tr>
+                                            <td>{{group.address1}}<br/>
+                                                {{group.address2}}<br/>
+                                                {{group.address3}}</td>
+                                        </tr>
+                                        <tr><td>{{group.postcode}}</td></tr>
+                                    </table>
+                                </div>
                                 <h4>Contact Points</h4>
                                 <table>
                                     <tr data-ng-repeat="contactPoint in group.contactPoints">
