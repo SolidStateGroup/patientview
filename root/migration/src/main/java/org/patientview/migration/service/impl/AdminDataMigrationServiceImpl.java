@@ -17,6 +17,9 @@ import org.patientview.Lookup;
 import org.patientview.ObservationHeading;
 import org.patientview.ObservationHeadingGroup;
 import org.patientview.Role;
+import org.patientview.enums.ContactPointTypes;
+import org.patientview.enums.FeatureType;
+import org.patientview.enums.GroupTypes;
 import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
@@ -99,7 +102,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     @PostConstruct
     public void init() {
         try {
-
             JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
             lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
             features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
@@ -326,15 +328,15 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         Set<Feature> unitFeatures = new HashSet<Feature>();
 
         if (unit.isSharedThoughtEnabled()) {
-            unitFeatures.add(getFeatureByName("SHARING_THOUGHTS"));
+            unitFeatures.add(getFeatureByName(FeatureType.SHARING_THOUGHTS.toString()));
         }
 
         if (unit.isFeedbackEnabled()) {
-            unitFeatures.add(getFeatureByName("FEEDBACK"));
+            unitFeatures.add(getFeatureByName(FeatureType.FEEDBACK.toString()));
         }
 
         if (featureDao.getUnitsForFeature("messaging").contains(unit)) {
-            unitFeatures.add(getFeatureByName("MESSAGING"));
+            unitFeatures.add(getFeatureByName(FeatureType.MESSAGING.toString()));
         }
 
         return  unitFeatures;
@@ -444,28 +446,28 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
         if (unit.getAppointmentphone() != null) {
             ContactPoint contactPoint = new ContactPoint();
-            contactPoint.setContactPointType(callApiGetType("APPOINTMENT_PHONE"));
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.APPOINTMENT_PHONE.toString()));
             contactPoint.setContent(unit.getAppointmentphone());
             contactPoints.add(contactPoint);
         }
 
         if (unit.getAppointmentemail() != null) {
             ContactPoint contactPoint = new ContactPoint();
-            contactPoint.setContactPointType(callApiGetType("APPOINTMENT_EMAIL"));
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.APPOINTMENT_EMAIL.toString()));
             contactPoint.setContent(unit.getAppointmentemail());
             contactPoints.add(contactPoint);
         }
 
         if (unit.getUnitenquiriesemail() != null) {
             ContactPoint contactPoint = new ContactPoint();
-            contactPoint.setContactPointType(callApiGetType("UNIT_ENQUIRIES_EMAIL"));
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.UNIT_ENQUIRIES_EMAIL.toString()));
             contactPoint.setContent(unit.getUnitenquiriesemail());
             contactPoints.add(contactPoint);
         }
 
         if (unit.getOutofhours() != null) {
             ContactPoint contactPoint = new ContactPoint();
-            contactPoint.setContactPointType(callApiGetType("OUT_OF_HOURS_INFO"));
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.OUT_OF_HOURS_INFO.toString()));
             contactPoint.setContent(unit.getOutofhours());
             contactPoints.add(contactPoint);
         }
@@ -482,9 +484,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         group.setVisible(true);
 
         if (unit.getSourceType().equalsIgnoreCase("renalunit")) {
-            group.setGroupType(getLookupByName("UNIT"));
+            group.setGroupType(getLookupByName(GroupTypes.UNIT.toString()));
         } else {
-            group.setGroupType(getLookupByName("DISEASE_GROUP"));
+            group.setGroupType(getLookupByName(GroupTypes.DISEASE_GROUP.toString()));
         }
 
         return group;
