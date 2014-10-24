@@ -1,6 +1,7 @@
 package org.patientview;
 
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -25,14 +26,14 @@ public class BulkUserCreateTest {
     private UserDataMigrationService userDataMigrationService;
 
     /**
-     * Order(1) Migrates all the user records that are patients with groups into the new schema
-     *
-     * @throws Exception
+     * Order(1) Bulk create users give group and number of users
      */
     @Test
     @Transactional
     @Rollback(false)
-    public void test02BulkUserCreate() {
+    @Ignore("To be run manually")
+    public void test01BulkUserCreate() {
+        // takes group to add users to and number of users to create
         userDataMigrationService.bulkUserCreate("RENALB", 1L);
     }
 }
