@@ -230,7 +230,7 @@ public class NewsServiceTest {
         newsItem.setNewsLinks(new HashSet<NewsLink>());
 
         when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
-        newsItem = newsService.add(newsItem);
+        newsService.add(newsItem);
         verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
 
         when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);

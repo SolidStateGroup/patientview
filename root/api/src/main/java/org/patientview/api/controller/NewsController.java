@@ -33,7 +33,7 @@ public class NewsController extends BaseController<NewsController> {
     private NewsService newsService;
 
     @RequestMapping(value = "/news", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NewsItem> add(@RequestBody NewsItem newsItem)
+    public ResponseEntity<Long> add(@RequestBody NewsItem newsItem)
     throws ResourceNotFoundException {
         return new ResponseEntity<>(newsService.add(newsItem), HttpStatus.CREATED);
     }
@@ -47,7 +47,7 @@ public class NewsController extends BaseController<NewsController> {
 
     @RequestMapping(value = "/public/news", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Page<NewsItem>> getPublicNews(
+    public ResponseEntity<Page<org.patientview.api.model.NewsItem>> getPublicNews(
             @RequestParam(value = "size", required = false) String size,
             @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException  {
 
@@ -66,9 +66,8 @@ public class NewsController extends BaseController<NewsController> {
 
     @RequestMapping(value = "/news", method = RequestMethod.PUT)
     @ResponseBody
-    public ResponseEntity<NewsItem> save(@RequestBody NewsItem newsItem)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(newsService.save(newsItem), HttpStatus.OK);
+    public void save(@RequestBody NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException {
+        newsService.save(newsItem);
     }
 
     @RequestMapping(value = "/news/{newsItemId}", method = RequestMethod.DELETE)

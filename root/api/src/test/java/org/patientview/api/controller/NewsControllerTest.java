@@ -93,7 +93,6 @@ public class NewsControllerTest {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
 
         try {
-            when(newsService.save(eq(testNews))).thenReturn(testNews);
             mockMvc.perform(MockMvcRequestBuilders.put("/news")
                     .content(mapper.writeValueAsString(testNews)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());

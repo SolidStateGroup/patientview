@@ -56,7 +56,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     @Inject
     private EntityManager entityManager;
 
-    public NewsItem add(final NewsItem newsItem) {
+    public Long add(final NewsItem newsItem) {
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
             for (NewsLink newsLink : newsItem.getNewsLinks()) {
                 if (newsLink.getGroup() != null && newsLink.getGroup().getId() != null) {
@@ -75,7 +75,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 newsLink.setCreator(userRepository.findOne(getCurrentUser().getId()));
             }
         }
-        return newsItemRepository.save(newsItem);
+        return newsItemRepository.save(newsItem).getId();
     }
 
     public NewsItem get(final Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException {
@@ -87,7 +87,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return newsItem;
     }
 
-    public NewsItem save(final NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException {
+    public void save(final NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException {
         NewsItem entityNewsItem = newsItemRepository.findOne(newsItem.getId());
         if (entityNewsItem == null) {
             throw new ResourceNotFoundException(String.format("Could not find news %s", newsItem.getId()));
@@ -97,7 +97,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         entityNewsItem.setStory(newsItem.getStory());
         entityNewsItem.setLastUpdate(new Date());
         entityNewsItem.setLastUpdater(userRepository.findOne(getCurrentUser().getId()));
-        return newsItemRepository.save(entityNewsItem);
+        newsItemRepository.save(entityNewsItem);
     }
 
     public void delete(final Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException {
@@ -226,8 +226,17 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         return new PageImpl<>(transportNewsItems, pageable, newsItems.size());
     }
 
-    public Page<NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException {
-        return newsItemRepository.getPublicNews(pageable);
+    public Page<org.patientview.api.model.NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException {
+        //return newsItemRepository.getPublicNews(pageable);
+        List<NewsItem> newsItems = new ArrayList<>(extractNewsItems(newsItemRepository.getPublicNews(pageable)));
+
+        // set if user can edit or delete (used for UNIT_ADMIN)
+        List<org.patientview.api.model.NewsItem> transportNewsItems = new ArrayList<>();
+        for (NewsItem newsItem : newsItems) {
+            transportNewsItems.add(new org.patientview.api.model.NewsItem(newsItem));
+        }
+
+        return new PageImpl<>(transportNewsItems, pageable, newsItems.size());
     }
 
     public void addGroup(Long newsItemId, Long groupId) throws ResourceNotFoundException, ResourceForbiddenException {

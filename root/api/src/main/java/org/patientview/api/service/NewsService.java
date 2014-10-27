@@ -22,16 +22,16 @@ public interface NewsService {
     Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, Pageable pageable)
             throws ResourceNotFoundException;
 
-    Page<NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException;
+    Page<org.patientview.api.model.NewsItem> getPublicNews(Pageable pageable) throws ResourceNotFoundException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    NewsItem add(NewsItem newsItem);
+    Long add(NewsItem newsItem);
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     NewsItem get(Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    NewsItem save(NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException;
+    void save(NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void delete(Long newsItemId) throws ResourceNotFoundException, ResourceForbiddenException;
