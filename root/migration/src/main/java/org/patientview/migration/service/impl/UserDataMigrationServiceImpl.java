@@ -20,9 +20,11 @@ import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
+import org.patientview.model.MigrationUser;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.SpecialtyUserRoleDao;
+import org.patientview.repository.TestResultDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
 import org.slf4j.Logger;
@@ -47,6 +49,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     @Inject
     private UserDao userDao;
+
+    @Inject
+    private TestResultDao testResultDao;
 
     @Inject
     private UserMappingDao userMappingDao;
@@ -134,8 +139,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     }
                 }
 
+                // convert to transport object
+                MigrationUser migrationUser = new MigrationUser(newUser);
+
                 // call REST to store migrated user
-                callApiMigrateUser(newUser);
+                callApiMigrateUser(migrationUser);
             }
         }
     }
@@ -152,14 +160,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // create user
                 User newUser = new User();
-                newUser.setForename(i.toString());
-                newUser.setSurname(i.toString());
+                newUser.setForename("test" + i.toString());
+                newUser.setSurname("test");
                 newUser.setChangePassword(true);
                 newUser.setPassword("pppppp");
                 newUser.setLocked(false);
                 newUser.setDummy(true);
                 newUser.setFailedLogonAttempts(0);
-                newUser.setEmail("patientview" + i.toString() + "@solidstategroup.com");
+                newUser.setEmail("test" + i.toString() + "@solidstategroup.com");
                 newUser.setEmailVerified(false);
                 newUser.setUsername(i.toString());
                 newUser.setIdentifiers(new HashSet<Identifier>());
@@ -189,14 +197,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 userFeature.setFeature(adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString()));
                 newUser.getUserFeatures().add(userFeature);
 
+                MigrationUser migrationUser = new MigrationUser(newUser);
+
                 // call REST to store migrated patient
-                callApiMigrateUser(newUser);
+                callApiMigrateUser(migrationUser);
             }
         }
     }
 
 
-    private Long callApiMigrateUser(User user) {
+    private Long callApiMigrateUser(MigrationUser user) {
         String url = JsonUtil.pvUrl + "/user/migrate";
         Long userId = null;
         try {

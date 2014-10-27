@@ -1,7 +1,9 @@
 package org.patientview.api.model;
 
+
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.GroupRole;
 
 import java.util.Date;
 import java.util.Set;
@@ -12,7 +14,7 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 24/10/2014
  */
-public class MigrationUser {
+public class MigrationUser  {
 
     // User
     private String username;
@@ -31,6 +33,7 @@ public class MigrationUser {
     private Set<Identifier> identifiers;
     private Date lastLogin;
     private String contactNumber;
+    private Date created;
 
     public String getUsername() {
         return username;
@@ -158,5 +161,13 @@ public class MigrationUser {
 
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

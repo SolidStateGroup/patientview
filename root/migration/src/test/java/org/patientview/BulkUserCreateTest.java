@@ -48,7 +48,7 @@ public class BulkUserCreateTest {
         Roles role = Roles.PATIENT;
 
         // takes group to add users to and number of users to create
-        userDataMigrationService.bulkUserCreate("RENALB", numberOfUsersToCreate, role);
+        userDataMigrationService.bulkUserCreate("SGC04", numberOfUsersToCreate, role);
 
         LOG.info("Creation of " + numberOfUsersToCreate + " "  + role.toString() + " took "
                 + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");

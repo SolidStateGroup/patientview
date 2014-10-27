@@ -2,6 +2,7 @@ package org.patientview.model;
 
 import org.patientview.GroupRole;
 import org.patientview.Identifier;
+import org.patientview.User;
 import org.patientview.UserFeature;
 
 import java.util.Date;
@@ -32,6 +33,29 @@ public class MigrationUser  {
     private Set<Identifier> identifiers;
     private Date lastLogin;
     private String contactNumber;
+    private Date created;
+
+    public MigrationUser (User user) {
+        username = user.getUsername();
+        password = user.getPassword();
+        changePassword = user.getChangePassword();
+        locked = user.getLocked();
+        dummy = user.getDummy();
+        emailVerified = user.getEmailVerified();
+        verificationCode = user.getVerificationCode();
+        email = user.getEmail();
+        forename = user.getForename();
+        failedLogonAttempts = user.getFailedLogonAttempts();
+        surname = user.getSurname();
+        groupRoles = user.getGroupRoles();
+        userFeatures = user.getUserFeatures();
+        identifiers = user.getIdentifiers();
+        lastLogin = user.getLastLogin();
+        contactNumber = user.getContactNumber();
+        if (user.getCreated() != null) {
+            created = new Date(user.getCreated());
+        }
+    }
 
     public String getUsername() {
         return username;
@@ -159,5 +183,13 @@ public class MigrationUser  {
 
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

@@ -135,7 +135,7 @@ public final class JsonUtil {
             throw new JsonMigrationException(e);
 
         } finally {
-            //httpClient.getConnectionManager().shutdown();
+            httpClient.getConnectionManager().shutdown();
         }
 
         return gson.fromJson(output.toString(), responseObject);

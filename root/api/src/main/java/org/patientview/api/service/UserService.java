@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
+import org.patientview.api.model.MigrationUser;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -36,7 +37,7 @@ public interface UserService {
 
     // used by migration
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
-    Long createUserNoPasswordEncryption(User user) throws EntityExistsException;
+    Long migrateUser(MigrationUser migrationUser) throws EntityExistsException;
 
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })

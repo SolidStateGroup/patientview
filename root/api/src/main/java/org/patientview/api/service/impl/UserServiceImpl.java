@@ -4,6 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.patientview.api.model.Email;
+import org.patientview.api.model.MigrationUser;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
@@ -372,13 +373,37 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return add(user);
     }
 
-    //Migration Only
-    public Long createUserNoPasswordEncryption(User user) throws EntityExistsException {
-        if (userRepository.usernameExists(user.getUsername())) {
+    // migration Only
+    public Long migrateUser(MigrationUser migrationUser) throws EntityExistsException {
+        if (userRepository.usernameExists(migrationUser.getUsername())) {
             throw new EntityExistsException("User already exists (username)");
         }
 
+        User user = convertMigrationUser(migrationUser);
         return add(user);
+    }
+
+    // migration only
+    private User convertMigrationUser(MigrationUser migrationUser) {
+        User user = new User();
+        user.setUsername(migrationUser.getUsername());
+        user.setPassword(migrationUser.getPassword());
+        user.setChangePassword(migrationUser.getChangePassword());
+        user.setLocked(migrationUser.getLocked());
+        user.setDummy(migrationUser.getDummy());
+        user.setEmailVerified(migrationUser.getEmailVerified());
+        user.setVerificationCode(migrationUser.getVerificationCode());
+        user.setEmail(migrationUser.getEmail());
+        user.setForename(migrationUser.getForename());
+        user.setFailedLogonAttempts(migrationUser.getFailedLogonAttempts());
+        user.setSurname(migrationUser.getSurname());
+        user.setGroupRoles(migrationUser.getGroupRoles());
+        user.setIdentifiers(migrationUser.getIdentifiers());
+        user.setLastLogin(migrationUser.getLastLogin());
+        user.setContactNumber(migrationUser.getContactNumber());
+        user.setCreated(migrationUser.getCreated());
+
+        return user;
     }
 
     // not used
