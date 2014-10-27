@@ -39,7 +39,7 @@ public class BulkUserCreateTest {
     @Rollback(false)
     public void test01BulkUserCreate() {
 
-        Long numberOfUsersToCreate = 10L;
+        Long numberOfUsersToCreate = 20L;
         Date start = new Date();
         Roles role = Roles.PATIENT;
 
@@ -51,7 +51,7 @@ public class BulkUserCreateTest {
     }
 
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
-        long diffInMillies = date2.getTime() - date1.getTime();
-        return timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        long diffInMilliseconds = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
     }
 }

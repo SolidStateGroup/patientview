@@ -273,7 +273,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         user.setChangePassword(Boolean.TRUE);
 
         newUser = userRepository.save(user);
-        LOG.info("New user with id: {}", user.getId());
+        LOG.info("New user with id: {}, username: {}", user.getId(), user.getUsername());
 
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
             for (GroupRole groupRole : user.getGroupRoles()) {
@@ -366,6 +366,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     //Migration Only
     public Long createUserNoEncryption(User user) throws EntityExistsException {
         return add(user);
+        //return 1L;
     }
 
     // not used

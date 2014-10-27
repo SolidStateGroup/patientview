@@ -9,6 +9,8 @@ import org.patientview.GroupRole;
 import org.patientview.Identifier;
 import org.patientview.Role;
 import org.patientview.User;
+import org.patientview.UserFeature;
+import org.patientview.enums.FeatureType;
 import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
@@ -21,7 +23,6 @@ import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
-import org.patientview.service.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -54,14 +55,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
 
-    @Inject
-    private UserManager userManager;
-
-
     public void migrate() {
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
-
 
             boolean isPatient = false;
             Set<String> nhsNumbers = new HashSet<String>();
@@ -72,7 +68,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             Long userId = callApiCreateUser(newUser);
 
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
-
 
                 // We do want the patient group.
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
@@ -136,8 +131,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             for (Long i = now.getTime(); i<now.getTime() + count; i++) {
 
-                // create user and store
-                MigrationUser newUser = new MigrationUser();
+                // create user
+                User newUser = new User();
                 newUser.setForename(i.toString());
                 newUser.setSurname(i.toString());
                 newUser.setChangePassword(true);
@@ -146,8 +141,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.setDummy(true);
                 newUser.setFailedLogonAttempts(0);
                 newUser.setEmail("patientview" + i.toString() + "@solidstategroup.com");
-                newUser.setUsername(i.toString());
                 newUser.setEmailVerified(false);
+                newUser.setUsername(i.toString());
                 newUser.setIdentifiers(new HashSet<Identifier>());
 
                 // if role is Roles.PATIENT add identifier
@@ -158,6 +153,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     newUser.getIdentifiers().add(identifier);
                 }
 
+                // add group role
                 Group group = new Group();
                 group.setId(userUnit.getId());
                 Role role = new Role();
@@ -168,6 +164,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.setGroupRoles(new HashSet<GroupRole>());
                 newUser.getGroupRoles().add(groupRole);
 
+                // add user feature (usually for staff)
+                newUser.setUserFeatures(new HashSet<UserFeature>());
+                UserFeature userFeature = new UserFeature();
+                userFeature.setFeature(adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString()));
+                newUser.getUserFeatures().add(userFeature);
+
+                // call REST to store migrated patient
                 callApiMigrateUser(newUser);
             }
         }
@@ -175,10 +178,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     private void addIdentifier(Long userId, Set<String> nhsNumbers) {
         for (String nhsNUmber : nhsNumbers) {
-                Identifier identifier = new Identifier();
-                identifier.setIdentifier(nhsNUmber);
-                identifier.setIdentifierType(adminDataMigrationService.getLookupByName("NHS_NUMBER"));
-                callApiAddIdentifier(identifier, userId);
+            Identifier identifier = new Identifier();
+            identifier.setIdentifier(nhsNUmber);
+            identifier.setIdentifierType(adminDataMigrationService.getLookupByName("NHS_NUMBER"));
+            callApiAddIdentifier(identifier, userId);
         }
     }
 
@@ -191,7 +194,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 callApiAddGroupRole(userId, group.getId(), role.getId());
             }
         }
-
     }
 
     private User callApiGetUser(String username) {
@@ -226,7 +228,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             LOG.error("Unable to add group role");
             e.printStackTrace();
         }
-
     }
 
     private Identifier callApiAddIdentifier(Identifier identifier, Long userId) {
@@ -249,7 +250,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     }
 
     // testing for bulk user creation
-    private Long callApiMigrateUser(MigrationUser user) {
+    private Long callApiMigrateUser(User user) {
         String url = JsonUtil.pvUrl + "/user/migrate";
         Long userId = null;
         try {
@@ -319,9 +320,5 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
         return groups;
-
     }
-
-
-
 }
