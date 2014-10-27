@@ -129,33 +129,38 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
             Set<Feature> unitFeatures = getUnitFeatures(unit);
 
-            LOG.info("Got unit: {}", unit.getUnitcode());
+            LOG.info("Got unit from PatientView 1: {}", unit.getUnitcode());
 
             // Create the unit
             Group group = createGroup(unit);
-            group = callApiCreateGroup(group);
 
-            // Create the features
-            if (CollectionUtils.isNotEmpty(unitFeatures)) {
-                for (Feature feature : unitFeatures) {
-                    if (group != null) {
-                        callApiCreateGroupFeature(group, feature);
+            Long groupId = callApiCreateGroup(group);
+
+            if (groupId != null) {
+                group = callApiGetGroup(groupId);
+
+                // Create the features
+                if (CollectionUtils.isNotEmpty(unitFeatures)) {
+                    for (Feature feature : unitFeatures) {
+                        if (group != null) {
+                            callApiCreateGroupFeature(group, feature);
+                        }
                     }
                 }
-            }
 
-            // Assign a specialty
-            Group parentGroup = getGroupParent(unit);
-            if (parentGroup != null && group != null) {
-                callApiCreateParentGroup(group, parentGroup);
-            } else {
-                LOG.error("Unable to find parent group");
-            }
+                // Assign a specialty
+                Group parentGroup = getGroupParent(unit);
+                if (parentGroup != null && group != null) {
+                    callApiCreateParentGroup(group, parentGroup);
+                } else {
+                    LOG.error("Unable to find parent group");
+                }
 
-            // Add the contact points
-            if (group != null) {
-                for (ContactPoint contactPoint : createGroupContactPoints(unit)) {
-                    callApiCreateContactPoint(group, contactPoint);
+                // Add the contact points
+                if (group != null) {
+                    for (ContactPoint contactPoint : createGroupContactPoints(unit)) {
+                        callApiCreateContactPoint(group, contactPoint);
+                    }
                 }
             }
         }
@@ -179,7 +184,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     private GroupFeature callApiCreateGroupFeature(Group group, Feature feature) {
 
-        String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/feature/" + feature.getId();
+        String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/features/" + feature.getId();
 
         try {
             return JsonUtil.jsonRequest(featureUrl, GroupFeature.class, null, HttpPut.class);
@@ -214,10 +219,10 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     }
 
 
-    private Group callApiCreateGroup(Group group) {
-        Group newGroup = null;
+    private Long callApiCreateGroup(Group group) {
+        Long newGroupId = null;
         try {
-            newGroup = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
+            newGroupId = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Long.class, group, HttpPost.class);
             LOG.info("Success: created group");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create group: ", jme.getMessage());
@@ -225,7 +230,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             LOG.info("Group {} already exists", group.getName());
         }
 
-        return newGroup;
+        return newGroupId;
     }
 
     private Group callApiGetGroup(Long groupId) {

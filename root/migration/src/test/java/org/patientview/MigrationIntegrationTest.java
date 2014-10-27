@@ -54,13 +54,12 @@ public class MigrationIntegrationTest {
     @Transactional
     @Rollback(false)
     public void test01StaticDataMigrationFeatures()  throws Exception {
-        LOG.info("Starting migration");
+        LOG.info("Starting migration, must have -Durl=\"http://localhost:8080/api\" or equivalent");
         adminDataMigrationService.migrate();
-        Assert.assertNotNull("This group should not be null", adminDataMigrationService.getLookupByName("UNIT"));
-        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getFeatureByName("SHARING_THOUGHTS"));
-        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName(Roles.PATIENT));
-        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName(Roles.UNIT_ADMIN));
-        Assert.assertNotNull("This feature should not be null", adminDataMigrationService.getRoleByName(Roles.STAFF_ADMIN));
+        Assert.assertNotNull("UNIT lookup type should not be null", adminDataMigrationService.getLookupByName("UNIT"));
+        Assert.assertNotNull("Roles.PATIENT should not be null", adminDataMigrationService.getRoleByName(Roles.PATIENT));
+        Assert.assertNotNull("Roles.UNIT_ADMIN should not be null", adminDataMigrationService.getRoleByName(Roles.UNIT_ADMIN));
+        Assert.assertNotNull("Roles.STAFF_ADMIN should not be null", adminDataMigrationService.getRoleByName(Roles.STAFF_ADMIN));
     }
 
     /**
@@ -83,6 +82,6 @@ public class MigrationIntegrationTest {
     @Test
     @Ignore
     public void test03PatientMigration() throws Exception {
-        patientDataMigrationService.migrate();
+        //patientDataMigrationService.migrate();
     }
 }

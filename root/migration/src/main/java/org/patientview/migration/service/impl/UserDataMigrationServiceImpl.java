@@ -4,20 +4,22 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.patientview.Feature;
 import org.patientview.Group;
 import org.patientview.GroupRole;
 import org.patientview.Identifier;
+import org.patientview.Lookup;
 import org.patientview.Role;
 import org.patientview.User;
 import org.patientview.UserFeature;
 import org.patientview.enums.FeatureType;
+import org.patientview.enums.IdentifierTypes;
 import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
-import org.patientview.model.MigrationUser;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.repository.SpecialtyUserRoleDao;
@@ -57,43 +59,39 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public void migrate() {
 
+        Role patientRole = adminDataMigrationService.getRoleByName(Roles.PATIENT);
+        Lookup nhsNumberIdentifier = adminDataMigrationService.getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
 
             boolean isPatient = false;
             Set<String> nhsNumbers = new HashSet<String>();
 
+            // basic user information
             User newUser = createUser(oldUser);
 
-            // create the User on the new system
-            Long userId = callApiCreateUser(newUser);
-
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
-
-                // We do want the patient group.
-                if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT")) {
-                    nhsNumbers.add(userMapping.getNhsno());
-                    Role patientRole = adminDataMigrationService.getRoleByName(Roles.PATIENT);
-
+                if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT") && newUser != null) {
                     if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
+                        nhsNumbers.add(userMapping.getNhsno());
 
-                        Group patientGroup = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
+                        // add group (specialty is added automatically when creating user within a UNIT group)
+                        Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
 
-                        if (newUser != null && userId != null && patientGroup != null && patientRole != null) {
-                            callApiAddGroupRole(userId, patientGroup.getId(), patientRole.getId());
+                        if (group != null && patientRole != null) {
+                            GroupRole groupRole = new GroupRole();
+                            groupRole.setGroup(group);
+                            groupRole.setRole(patientRole);
+                            newUser.getGroupRoles().add(groupRole);
                         }
-
-                        isPatient = true;
-
-
                     } else {
-
                         Role role = null;
                         List<SpecialtyUserRole> specialtyUserRoles = specialtyUserRoleDao.get(oldUser);
-                        /// TODO try and fix this - get the first role and apply it to all group (no group role mapping)
+                        // TODO: try and fix this - get the first role and apply it to all group (no group role mapping)
+                        // TODO: required hack from original PatientView
                         if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
+                            String roleName = specialtyUserRoles.get(0).getRole();
 
-
-                            String roleName = specialtyUserRoles.get(0).getRole(); //FIXME hack from original PV
                             if (roleName.equals("unitadmin")) {
                                 role = adminDataMigrationService.getRoleByName(Roles.UNIT_ADMIN);
                             }
@@ -101,24 +99,47 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                 role = adminDataMigrationService.getRoleByName(Roles.STAFF_ADMIN);
                             }
 
-
+                            // add group (specialty is added automatically when creating user within a UNIT group)
                             Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
-                            if (newUser != null && userId != null && group != null && role != null) {
-                                callApiAddGroupRole(userId, group.getId(), role.getId());
+
+                            if (group != null && role != null) {
+                                GroupRole groupRole = new GroupRole();
+                                groupRole.setGroup(group);
+                                groupRole.setRole(patientRole);
+                                newUser.getGroupRoles().add(groupRole);
                             }
                         }
+                    }
+                }
+            }
 
+            if (newUser != null) {
+                // identifiers (will only be for patient)
+                for (String nhsNumber : nhsNumbers) {
+                    Identifier identifier = new Identifier();
+                    identifier.setIdentifier(nhsNumber);
+                    identifier.setIdentifierType(nhsNumberIdentifier);
+                    newUser.getIdentifiers().add(identifier);
+                }
+
+                // features
+                if (oldUser.isIsrecipient()) {
+                    Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString());
+                    if (feature != null) {
+                        newUser.getUserFeatures().add(new UserFeature(feature));
+                    }
+                }
+                if (oldUser.isFeedbackRecipient()) {
+                    Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString());
+                    if (feature != null) {
+                        newUser.getUserFeatures().add(new UserFeature(feature));
                     }
                 }
 
-            }
-
-            if (isPatient && userId != null) {
-                addSpecialty(oldUser, userId);
-                addIdentifier(userId, nhsNumbers);
+                // call REST to store migrated user
+                callApiMigrateUser(newUser);
             }
         }
-
     }
 
     public void bulkUserCreate(String unitCode, Long count, Roles roleName) {
@@ -149,11 +170,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 if (roleName.equals(Roles.PATIENT)) {
                     Identifier identifier = new Identifier();
                     identifier.setIdentifier(i.toString());
-                    identifier.setIdentifierType(adminDataMigrationService.getLookupByName("CHI_NUMBER"));
+                    identifier.setIdentifierType(adminDataMigrationService.getLookupByName("NHS_NUMBER"));
                     newUser.getIdentifiers().add(identifier);
                 }
 
-                // add group role
+                // add group role (specialty is added automatically when creating user within a UNIT group)
                 Group group = new Group();
                 group.setId(userUnit.getId());
                 Role role = new Role();
@@ -176,96 +197,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
-    private void addIdentifier(Long userId, Set<String> nhsNumbers) {
-        for (String nhsNUmber : nhsNumbers) {
-            Identifier identifier = new Identifier();
-            identifier.setIdentifier(nhsNUmber);
-            identifier.setIdentifierType(adminDataMigrationService.getLookupByName("NHS_NUMBER"));
-            callApiAddIdentifier(identifier, userId);
-        }
-    }
 
-    private void addSpecialty(org.patientview.patientview.model.User user, Long userId) {
-
-        List<Group> groups = getUserSpecialty(user);
-        for (Group group : groups) {
-            Role role = adminDataMigrationService.getRoleByName(Roles.PATIENT);
-            if (userId != null && group != null && role != null) {
-                callApiAddGroupRole(userId, group.getId(), role.getId());
-            }
-        }
-    }
-
-    private User callApiGetUser(String username) {
-
-        String url = JsonUtil.pvUrl + "/user/username?username=" + username;
-        try {
-            User user = JsonUtil.jsonRequest(url, User.class, null, HttpPut.class);
-            LOG.info("Found user");
-            return user;
-        } catch (JsonMigrationException jme) {
-            LOG.error("Unable to find user");
-        } catch (JsonMigrationExistsException jee) {
-            LOG.error("Unable to find user");
-        } catch (Exception e) {
-            LOG.error("Unable to find user");
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    private void callApiAddGroupRole(Long userId, Long groupId, Long roleId) {
-        String url = JsonUtil.pvUrl + "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
-        try {
-            JsonUtil.jsonRequest(url, GroupRole.class, null, HttpPut.class);
-            LOG.info("Created group and role for user");
-        } catch (JsonMigrationException jme) {
-            LOG.error("Unable to add user to group");
-        } catch (JsonMigrationExistsException jee) {
-            LOG.error("Unable to add user to group");
-        } catch (Exception e) {
-            LOG.error("Unable to add group role");
-            e.printStackTrace();
-        }
-    }
-
-    private Identifier callApiAddIdentifier(Identifier identifier, Long userId) {
-
-        String url = JsonUtil.pvUrl + "/user/" + userId + "/identifiers";
-        try {
-            Identifier newIdentifier = JsonUtil.jsonRequest(url, Identifier.class, identifier, HttpPost.class);
-            LOG.info("Added Identifier");
-            return newIdentifier;
-        } catch (JsonMigrationException jme) {
-            LOG.error("Unable to add identifier");
-        } catch (JsonMigrationExistsException jee) {
-            LOG.error("Unable to add identifier");
-        } catch (Exception e) {
-            LOG.error("Unable to add identifier");
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    // testing for bulk user creation
     private Long callApiMigrateUser(User user) {
-        String url = JsonUtil.pvUrl + "/user/migrate";
-        Long userId = null;
-        try {
-            userId = JsonUtil.jsonRequest(url, Long.class, user, HttpPost.class);
-            LOG.info("Created user: {} with id {}", user.getUsername(), userId);
-        } catch (JsonMigrationException jme) {
-            LOG.error("Unable to create user: {}", user.getUsername());
-        } catch (JsonMigrationExistsException jee) {
-            LOG.info("User {} already exists", user.getUsername());
-        }
-
-        return userId;
-    }
-
-    private Long callApiCreateUser(User user) {
         String url = JsonUtil.pvUrl + "/user/migrate";
         Long userId = null;
         try {
@@ -291,15 +224,21 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setFailedLogonAttempts(user.getFailedlogons());
 
         if (StringUtils.isEmpty(user.getEmail())) {
-            newUser.setEmail("Unknown@patientview.org");
+            newUser.setEmail("unknown@patientview.org");
         } else{
             newUser.setEmail(user.getEmail());
         }
         newUser.setUsername(user.getUsername());
         newUser.setEmailVerified(user.isEmailverified());
+
+        newUser.setIdentifiers(new HashSet<Identifier>());
+        newUser.setGroupRoles(new HashSet<GroupRole>());
+        newUser.setUserFeatures(new HashSet<UserFeature>());
+
         return newUser;
     }
 
+    // deprecated as specialty added automatically for child groups during user creation
     public List<Group> getUserSpecialty(org.patientview.patientview.model.User oldUser) {
 
         List<Group> groups = new ArrayList<Group>();
@@ -320,5 +259,33 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
         return groups;
+    }
+
+    // deprecated as specialty added automatically for child groups during user creation
+    private void addSpecialty(org.patientview.patientview.model.User user, Long userId) {
+
+        List<Group> groups = getUserSpecialty(user);
+        for (Group group : groups) {
+            Role role = adminDataMigrationService.getRoleByName(Roles.PATIENT);
+            if (userId != null && group != null && role != null) {
+                callApiAddGroupRole(userId, group.getId(), role.getId());
+            }
+        }
+    }
+
+    // deprecated as specialty added automatically for child groups during user creation
+    private void callApiAddGroupRole(Long userId, Long groupId, Long roleId) {
+        String url = JsonUtil.pvUrl + "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
+        try {
+            JsonUtil.jsonRequest(url, GroupRole.class, null, HttpPut.class);
+            LOG.info("Created group and role for user");
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to add user to group");
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to add user to group");
+        } catch (Exception e) {
+            LOG.error("Unable to add group role");
+            e.printStackTrace();
+        }
     }
 }

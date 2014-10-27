@@ -118,7 +118,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addParentAndChildGroups(groups);
     }
 
-    public Group save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {
+    public void save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {
         Group entityGroup = groupRepository.findOne(group.getId());
 
         if (entityGroup == null) {
@@ -147,7 +147,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         entityGroup.setAddress3(group.getAddress3());
         entityGroup.setPostcode(group.getPostcode());
         entityGroup.setVisibleToJoin(group.getVisibleToJoin());
-        return groupRepository.save(entityGroup);
+        groupRepository.save(entityGroup);
     }
 
     private boolean groupExists(Group group) {
@@ -161,7 +161,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
      * @return
      * @throws javax.persistence.EntityExistsException
      */
-    public Group add(Group group) throws EntityExistsException {
+    public Long add(Group group) throws EntityExistsException {
         Group newGroup;
 
         Set<Link> links;
@@ -245,8 +245,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             newGroup.getContactPoints().add(tempContactPoint);
         }
 
-        // return new group with parents/children for front end to avoid recursion
-        return addSingleParentAndChildGroup(newGroup);
+        return newGroup.getId();
     }
 
 

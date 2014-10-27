@@ -26,6 +26,14 @@ public class UserFeature extends RangeModel {
     @JoinColumn(name = "feature_id", nullable = false)
     private Feature feature;
 
+    public UserFeature() {
+
+    }
+
+    public UserFeature(Feature feature) {
+        setFeature(feature);
+    }
+
     public Feature getFeature() {
         return feature;
     }

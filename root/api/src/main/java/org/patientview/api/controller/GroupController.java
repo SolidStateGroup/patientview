@@ -36,8 +36,8 @@ public class GroupController extends BaseController<GroupController> {
     private GroupStatisticService groupStatisticService;
 
     @RequestMapping(value = "/group", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void createGroup(@RequestBody Group group) {
-        groupService.add(group);
+    public ResponseEntity<Long> createGroup(@RequestBody Group group) {
+        return new ResponseEntity<>(groupService.add(group), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/public/group", method = RequestMethod.GET)

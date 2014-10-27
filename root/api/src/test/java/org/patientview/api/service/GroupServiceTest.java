@@ -149,12 +149,12 @@ public class GroupServiceTest {
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
         // Test
-        Group group = groupService.add(testGroup);
+        Long groupId = groupService.add(testGroup);
 
         // Verify
         verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
         verify(groupRelationshipRepository, Mockito.times(4)).save(Matchers.any(GroupRelationship.class));
-        Assert.assertNotNull("A group feature has been created", group);
+        Assert.assertNotNull("A group has been created", groupId);
     }
 
     /**
@@ -184,12 +184,12 @@ public class GroupServiceTest {
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
         // Test
-        Group group = groupService.add(testGroup);
+        Long groupId = groupService.add(testGroup);
 
         // Verify
         verify(groupRelationshipRepository, Mockito.times(1)).deleteBySourceGroup(Matchers.eq(testGroup));
         verify(groupRelationshipRepository, Mockito.times(4)).save(Matchers.any(GroupRelationship.class));
-        Assert.assertNotNull("A group feature has been created", group);
+        Assert.assertNotNull("A group has been created", groupId);
     }
 
     @Test
@@ -319,7 +319,7 @@ public class GroupServiceTest {
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
 
         try {
-            Group group = groupService.save(parentGroup);
+            groupService.save(parentGroup);
             //Assert.assertEquals("Should retrieve 3 groups", 3, securityService.getUserGroups(testUser.getId()).size());
         } catch (ResourceNotFoundException | ResourceForbiddenException e) {
             Assert.fail("Exception thrown");
