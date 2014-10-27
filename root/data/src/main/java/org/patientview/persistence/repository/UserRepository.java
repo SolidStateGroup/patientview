@@ -22,6 +22,14 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    @Query("SELECT CASE WHEN (count(user) > 0) THEN TRUE ELSE FALSE END " +
+            "FROM User user WHERE user.username = :username")
+    public boolean usernameExists(@Param("username") String username);
+
+    @Query("SELECT CASE WHEN (count(user) > 0) THEN TRUE ELSE FALSE END " +
+            "FROM User user WHERE user.email = :email")
+    public boolean emailExists(@Param("email") String email);
+
     User findByUsername(String username);
 
     User findByEmail(String email);

@@ -181,6 +181,20 @@ public class UserRepositoryTest {
         Iterable<User> users = userRepository.findByGroupAndFeature(group, feature);
 
         Assert.assertTrue("Should be one user returned", users.iterator().hasNext());
+    }
 
+    @Test
+    public void usernameExists() {
+        User user = dataTestUtils.createUser("testUser");
+        userRepository.save(user);
+        Assert.assertTrue("Username should exist", userRepository.usernameExists(user.getUsername()));
+    }
+
+    @Test
+    public void emailExists() {
+        User user = dataTestUtils.createUser("testUser");
+        user.setEmail("test@solidstategroup.com");
+        userRepository.save(user);
+        Assert.assertTrue("Email should exist", userRepository.emailExists(user.getEmail()));
     }
 }

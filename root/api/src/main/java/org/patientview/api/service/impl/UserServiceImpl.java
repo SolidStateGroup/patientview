@@ -260,15 +260,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User creator = getCurrentUser();
         User newUser;
 
-        if (getByUsername(user.getUsername()) != null) {
+        if (userRepository.usernameExists(user.getUsername())) {
             throw new EntityExistsException("User already exists (username)");
         }
 
-        if (getByEmail(user.getEmail()) != null) {
+        if (userRepository.emailExists(user.getEmail())) {
             throw new EntityExistsException("User already exists (email)");
         }
 
-        user.setCreator(userRepository.findOne(getCurrentUser().getId()));
+        user.setCreator(creator);
         // Everyone should change their password at login
         user.setChangePassword(Boolean.TRUE);
 
