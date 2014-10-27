@@ -43,9 +43,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
-import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -59,8 +59,6 @@ import java.util.Set;
  */
 @Service
 public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implements UserService {
-
-    private static final Long GENERIC_GROUP_ID = 7L;
 
     @Inject
     private UserRepository userRepository;
@@ -101,7 +99,20 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private Properties properties;
 
-    private void addParentGroupRoles(GroupRole groupRole) {
+    // TODO make these value configurable
+    private static final Long GENERIC_ROLE_ID = 7L;
+    private static final Long GENERIC_GROUP_ID = 1L;
+    private Group genericGroup;
+    private Role memberRole;
+
+    @PostConstruct
+    public void init() {
+        // set up generic groups
+        memberRole = roleRepository.findOne(GENERIC_ROLE_ID);
+        genericGroup = groupRepository.findOne(GENERIC_GROUP_ID);
+    }
+
+    private void addParentGroupRoles(GroupRole groupRole, User creator) {
 
         Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
 
@@ -117,7 +128,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         parentGroupRole.setGroup(groupRepository.findOne(groupRelationship.getObjectGroup().getId()));
                         parentGroupRole.setRole(roleRepository.findOne(groupRole.getRole().getId()));
                         parentGroupRole.setUser(userRepository.findOne(groupRole.getUser().getId()));
-                        parentGroupRole.setCreator(getCurrentUser());
+                        parentGroupRole.setCreator(creator);
                         groupRoleRepository.save(parentGroupRole);
                     }
                 }
@@ -152,7 +163,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRole.setRole(role);
         groupRole.setCreator(creator);
         groupRole = groupRoleRepository.save(groupRole);
-        addParentGroupRoles(groupRole);
+        addParentGroupRoles(groupRole, creator);
         return groupRole;
     }
 
@@ -280,13 +291,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setUser(newUser);
                     groupRole.setCreator(creator);
                     groupRole = groupRoleRepository.save(groupRole);
-                    addParentGroupRoles(groupRole);
+                    addParentGroupRoles(groupRole, creator);
                 }
             }
         }
 
         // Everyone should be in the generic group.
-        addUserToGenericGroup(newUser);
+        addUserToGenericGroup(newUser, creator);
 
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
             for (UserFeature userFeature : user.getUserFeatures()) {
@@ -310,16 +321,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     // We do this so early one gets the generic group
-    private void addUserToGenericGroup(User user) {
-        // TODO Sprint 2 make these value configurable
-        Role role = roleRepository.findOne(GENERIC_GROUP_ID);
-        Group group = groupRepository.findOne(1L);
-
+    private void addUserToGenericGroup(User user, User creator) {
         GroupRole groupRole = new GroupRole();
         groupRole.setUser(user);
-        groupRole.setGroup(group);
-        groupRole.setCreator(userRepository.findOne(1L));
-        groupRole.setRole(role);
+        groupRole.setGroup(genericGroup);
+        groupRole.setCreator(creator);
+        groupRole.setRole(memberRole);
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
     }
