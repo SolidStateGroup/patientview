@@ -63,9 +63,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         Lookup nhsNumberIdentifier = adminDataMigrationService.getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
-
-            boolean isPatient = false;
-            Set<String> nhsNumbers = new HashSet<String>();
+            Set<String> identifiers = new HashSet<String>();
 
             // basic user information
             User newUser = createUser(oldUser);
@@ -73,7 +71,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT") && newUser != null) {
                     if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
-                        nhsNumbers.add(userMapping.getNhsno());
+                        identifiers.add(userMapping.getNhsno());
 
                         // add group (specialty is added automatically when creating user within a UNIT group)
                         Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
@@ -115,9 +113,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             if (newUser != null) {
                 // identifiers (will only be for patient)
-                for (String nhsNumber : nhsNumbers) {
+                for (String identifierText : identifiers) {
                     Identifier identifier = new Identifier();
-                    identifier.setIdentifier(nhsNumber);
+                    identifier.setIdentifier(identifierText);
                     identifier.setIdentifierType(nhsNumberIdentifier);
                     newUser.getIdentifiers().add(identifier);
                 }

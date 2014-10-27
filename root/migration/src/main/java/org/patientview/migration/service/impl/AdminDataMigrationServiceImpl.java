@@ -105,8 +105,8 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
             lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
             features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
-            groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
             roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
+            groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
         } catch (JsonMigrationException e) {
             LOG.error("Could not authenticate {} ", e.getCause());
         } catch (JsonMigrationExistsException e) {
@@ -116,6 +116,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     public void migrate() {
         createGroups();
+        groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
         createCodes(getLookupByName("DIAGNOSIS"), "edtaCode");
         createCodes(getLookupByName("TREATMENT"), "treatment");
         createObservationHeadings();
@@ -223,7 +224,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         Long newGroupId = null;
         try {
             newGroupId = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Long.class, group, HttpPost.class);
-            LOG.info("Success: created group");
+            LOG.info("Created group");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create group: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {
@@ -279,7 +280,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         Link newLink = null;
         try {
             newLink = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/link", Link.class, link, HttpPost.class);
-            LOG.info("Created link");
+            //LOG.info("Created link");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create link: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {
@@ -294,7 +295,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         String url = JsonUtil.pvUrl + "/contactpoint/type/" + type;
         try {
             newLink = JsonUtil.jsonRequest(url, ContactPointType.class, null , HttpGet.class);
-            LOG.info("Got Contact Point Type");
+            //LOG.info("Got Contact Point Type");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to get contact point: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {

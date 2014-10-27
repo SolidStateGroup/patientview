@@ -262,19 +262,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public Long add(User user) {
 
-        if (userRepository.usernameExists(user.getUsername())) {
-            throw new EntityExistsException("User already exists (username)");
-        }
-
-        if (userRepository.emailExists(user.getEmail())) {
-            throw new EntityExistsException("User already exists (email)");
-        }
-
         User creator = getCurrentUser();
         user.setCreator(creator);
         // Everyone should change their password at login
         user.setChangePassword(Boolean.TRUE);
 
+        // booleans
         if (user.getLocked() == null) {
             user.setLocked(false);
         }
@@ -283,6 +276,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         if (user.getDummy() == null) {
             user.setDummy(false);
+        }
+
+        // forename and surname cannot be null (sometimes happens with migrated data)
+        if (StringUtils.isEmpty(user.getForename())) {
+            user.setForename("");
+        }
+        if (StringUtils.isEmpty(user.getSurname())) {
+            user.setSurname("");
         }
 
         User newUser = userRepository.save(user);
@@ -347,7 +348,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * @return
      */
     public Long createUserWithPasswordEncryption(User user)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
 
         // validate that group roles exist and current user has rights to create
@@ -360,11 +361,23 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
+        if (userRepository.usernameExists(user.getUsername())) {
+            throw new EntityExistsException("User already exists (username)");
+        }
+
+        if (userRepository.emailExists(user.getEmail())) {
+            throw new EntityExistsException("User already exists (email)");
+        }
+
         return add(user);
     }
 
     //Migration Only
-    public Long createUserNoEncryption(User user) throws EntityExistsException {
+    public Long createUserNoPasswordEncryption(User user) throws EntityExistsException {
+        if (userRepository.usernameExists(user.getUsername())) {
+            throw new EntityExistsException("User already exists (username)");
+        }
+
         return add(user);
     }
 

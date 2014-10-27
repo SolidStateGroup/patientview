@@ -101,7 +101,6 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Long> createUser(@RequestBody org.patientview.persistence.model.User user)
             throws ResourceNotFoundException, ResourceForbiddenException {
-
         try {
             return new ResponseEntity<>(userService.createUserWithPasswordEncryption(user), HttpStatus.CREATED);
         } catch (EntityExistsException eee) {
@@ -121,7 +120,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Long> migrateUser(@RequestBody org.patientview.persistence.model.User user)
             throws ResourceNotFoundException, EntityExistsException {
-        return new ResponseEntity<>(userService.createUserNoEncryption(user), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.createUserNoPasswordEncryption(user), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)

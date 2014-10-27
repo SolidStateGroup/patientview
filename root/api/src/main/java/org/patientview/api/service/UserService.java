@@ -31,11 +31,12 @@ public interface UserService {
 
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    Long createUserWithPasswordEncryption(User user) throws ResourceNotFoundException, ResourceForbiddenException;
+    Long createUserWithPasswordEncryption(User user)
+        throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
     // used by migration
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
-    Long createUserNoEncryption(User user);
+    Long createUserNoPasswordEncryption(User user) throws EntityExistsException;
 
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
