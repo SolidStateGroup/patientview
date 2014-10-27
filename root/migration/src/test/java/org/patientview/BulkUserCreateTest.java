@@ -1,11 +1,13 @@
 package org.patientview;
 
+import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.patientview.enums.Roles;
 import org.patientview.migration.service.UserDataMigrationService;
+import org.patientview.migration.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.Rollback;
@@ -39,6 +41,9 @@ public class BulkUserCreateTest {
     public void test01BulkUserCreate() {
 
         Long numberOfUsersToCreate = 1L;
+        LOG.info("Starting creation of " + numberOfUsersToCreate
+                + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
+
         Date start = new Date();
         Roles role = Roles.PATIENT;
 
@@ -47,6 +52,20 @@ public class BulkUserCreateTest {
 
         LOG.info("Creation of " + numberOfUsersToCreate + " "  + role.toString() + " took "
                 + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+    }
+
+    /**
+     * Order(2) Log out as migration user (clear token)
+     */
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void test02Logout() {
+        try {
+            JsonUtil.logout();
+        } catch (Exception e) {
+            Assert.fail("Could not logout: " + e.getMessage());
+        }
     }
 
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {

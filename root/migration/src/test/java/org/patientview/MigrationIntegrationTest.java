@@ -11,6 +11,7 @@ import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.PatientDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
+import org.patientview.migration.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.Rollback;
@@ -84,4 +85,19 @@ public class MigrationIntegrationTest {
     public void test03PatientMigration() throws Exception {
         //patientDataMigrationService.migrate();
     }
+
+    /**
+     * Order(4) Log out as migration user (clear token)
+     */
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void test04Logout() {
+        try {
+            JsonUtil.logout();
+        } catch (Exception e) {
+            Assert.fail("Could not logout: " + e.getMessage());
+        }
+    }
+
 }

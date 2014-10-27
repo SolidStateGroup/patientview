@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -62,6 +63,10 @@ public final class JsonUtil {
             throws JsonMigrationException, JsonMigrationExistsException {
         LoginDetails loginDetails = new LoginDetails(username, password);
         return JsonUtil.jsonRequest(JsonUtil.pvUrl + "/auth/login", String.class, loginDetails, HttpPost.class);
+    }
+
+    public static void logout() throws JsonMigrationException, JsonMigrationExistsException {
+        JsonUtil.jsonRequest(JsonUtil.pvUrl + "/auth/logout/" + token, String.class, null, HttpDelete.class);
     }
 
     public static <T, V extends HttpRequestBase> T jsonRequest(String url, Class<T> responseObject,
