@@ -30,7 +30,6 @@ public class BulkUserCreateTest {
     private UserDataMigrationService userDataMigrationService;
     protected final Logger LOG = LoggerFactory.getLogger(BulkUserCreateTest.class);
 
-
     /**
      * Order(1) Bulk create users give group and number of users
      */
@@ -39,7 +38,7 @@ public class BulkUserCreateTest {
     @Rollback(false)
     public void test01BulkUserCreate() {
 
-        Long numberOfUsersToCreate = 100L;
+        Long numberOfUsersToCreate = 1000L;
         Date start = new Date();
         Roles role = Roles.PATIENT;
 

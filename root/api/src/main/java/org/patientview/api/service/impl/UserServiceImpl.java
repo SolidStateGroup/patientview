@@ -125,9 +125,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                             groupRelationship.getObjectGroup().getId(), groupRole.getRole().getId()))
                     {
                         GroupRole parentGroupRole = new GroupRole();
-                        parentGroupRole.setGroup(groupRepository.findOne(groupRelationship.getObjectGroup().getId()));
-                        parentGroupRole.setRole(roleRepository.findOne(groupRole.getRole().getId()));
-                        parentGroupRole.setUser(userRepository.findOne(groupRole.getUser().getId()));
+                        parentGroupRole.setGroup(groupRelationship.getObjectGroup());
+                        parentGroupRole.setRole(groupRole.getRole());
+                        parentGroupRole.setUser(groupRole.getUser());
                         parentGroupRole.setCreator(creator);
                         groupRoleRepository.save(parentGroupRole);
                     }
@@ -275,6 +275,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // Everyone should change their password at login
         user.setChangePassword(Boolean.TRUE);
 
+        if (user.getLocked() == null) {
+            user.setLocked(false);
+        }
+        if (user.getEmailVerified() == null) {
+            user.setEmailVerified(false);
+        }
+        if (user.getDummy() == null) {
+            user.setDummy(false);
+        }
+
         User newUser = userRepository.save(user);
         LOG.info("New user with id: {}, username: {}", user.getId(), user.getUsername());
 
@@ -284,10 +294,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 if (!groupRoleRepository.userGroupRoleExists(
                         newUser.getId(), groupRole.getGroup().getId(), groupRole.getRole().getId())) {
 
-                    Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
-                    Role entityRole = roleRepository.findOne(groupRole.getRole().getId());
-                    groupRole.setGroup(entityGroup);
-                    groupRole.setRole(entityRole);
+                    groupRole.setGroup(groupRole.getGroup());
+                    groupRole.setRole(groupRole.getRole());
                     groupRole.setUser(newUser);
                     groupRole.setCreator(creator);
                     groupRole = groupRoleRepository.save(groupRole);
@@ -301,7 +309,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
             for (UserFeature userFeature : user.getUserFeatures()) {
-                userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
+                userFeature.setFeature(userFeature.getFeature());
                 userFeature.setUser(newUser);
                 userFeature.setCreator(creator);
                 userFeatureRepository.save(userFeature);

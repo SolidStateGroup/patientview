@@ -61,34 +61,34 @@ public class Group extends AuditModel {
     @JoinColumn(name = "type_id")
     private Lookup groupType;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<GroupFeature> groupFeatures;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<GroupRole> groupRoles;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<RouteLink> routeLinks;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<Link> links;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<Location> locations;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<ContactPoint> contactPoints;
 
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<FhirLink> fhirLinks;
 
     @Transient
-    private List<Group> parentGroups = new ArrayList<Group>();
+    private List<Group> parentGroups = new ArrayList<>();
 
     @Transient
-    private List<Group> childGroups = new ArrayList<Group>();
+    private List<Group> childGroups = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<GroupRelationship> groupRelationships;
 
     public String getName() {

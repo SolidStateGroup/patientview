@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -22,15 +23,15 @@ import javax.persistence.Table;
 @Table(name = "pv_user_group_role")
 public class GroupRole extends RangeModel implements GrantedAuthority {
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group group;
 
