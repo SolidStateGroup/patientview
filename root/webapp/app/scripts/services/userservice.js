@@ -137,11 +137,7 @@ function ($q, Restangular, UtilService) {
             user.identifiers = cleanIdentifiers;
             user.groupRoles = inputUser.groupRoles;
 
-            user.changePassword = 'false';
-
-            // lock and generate verification code
-            user.locked = 'false';
-            user.dummy = 'false';
+            user.changePassword = 'true';
             user.emailVerified = 'false';
             user.verificationCode = UtilService.generateVerificationCode();
 
@@ -228,17 +224,6 @@ function ($q, Restangular, UtilService) {
             identifier.identifierType = UtilService.cleanObject(identifier.identifierType, 'identifierType');
             // POST /user/{userId}/identifiers
             Restangular.one('user', user.id).all('identifiers').post(identifier).then(function(successResult) {
-                deferred.resolve(successResult);
-            }, function(failureResult) {
-                deferred.reject(failureResult);
-            });
-            return deferred.promise;
-        },
-        // get identifier by value
-        getIdentifierByValue: function (identifierValue) {
-            var deferred = $q.defer();
-            // GET /identifier/value/{identifierValue}
-            Restangular.one('identifier/value', identifierValue).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

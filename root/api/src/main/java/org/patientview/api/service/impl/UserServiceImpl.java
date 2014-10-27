@@ -99,31 +99,25 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private EmailService emailService;
 
     @Inject
-    private EntityManager entityManager;
-
-    @Inject
     private Properties properties;
 
     private void addParentGroupRoles(GroupRole groupRole) {
 
-        User entityUser = userRepository.findOne(groupRole.getUser().getId());
         Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
-        Role entityRole = roleRepository.findOne(groupRole.getRole().getId());
 
         // save grouprole with same role and parent group if doesn't exist already
         if (!CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
             for (GroupRelationship groupRelationship : entityGroup.getGroupRelationships()) {
                 if (groupRelationship.getRelationshipType() == RelationshipTypes.PARENT) {
-                    Group parentEntityGroup =
-                            groupRepository.findOne(groupRelationship.getObjectGroup().getId());
-                    if (groupRoleRepository.findByUserGroupRole(entityUser, parentEntityGroup, entityRole)
-                            == null) {
-                        GroupRole parentGroupRole = new GroupRole();
 
-                        parentGroupRole.setGroup(parentEntityGroup);
-                        parentGroupRole.setRole(entityRole);
-                        parentGroupRole.setUser(entityUser);
-                        parentGroupRole.setCreator(userRepository.findOne(getCurrentUser().getId()));
+                    if (!groupRoleRepository.userGroupRoleExists(groupRole.getUser().getId(),
+                            groupRelationship.getObjectGroup().getId(), groupRole.getRole().getId()))
+                    {
+                        GroupRole parentGroupRole = new GroupRole();
+                        parentGroupRole.setGroup(groupRepository.findOne(groupRelationship.getObjectGroup().getId()));
+                        parentGroupRole.setRole(roleRepository.findOne(groupRole.getRole().getId()));
+                        parentGroupRole.setUser(userRepository.findOne(groupRole.getUser().getId()));
+                        parentGroupRole.setCreator(getCurrentUser());
                         groupRoleRepository.save(parentGroupRole);
                     }
                 }
@@ -257,9 +251,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public Long add(User user) {
 
-        User creator = getCurrentUser();
-        User newUser;
-
         if (userRepository.usernameExists(user.getUsername())) {
             throw new EntityExistsException("User already exists (username)");
         }
@@ -268,21 +259,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new EntityExistsException("User already exists (email)");
         }
 
+        User creator = getCurrentUser();
         user.setCreator(creator);
         // Everyone should change their password at login
         user.setChangePassword(Boolean.TRUE);
 
-        newUser = userRepository.save(user);
+        User newUser = userRepository.save(user);
         LOG.info("New user with id: {}, username: {}", user.getId(), user.getUsername());
 
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
             for (GroupRole groupRole : user.getGroupRoles()) {
+                // only save if group role doesn't already exist for this user
+                if (!groupRoleRepository.userGroupRoleExists(
+                        newUser.getId(), groupRole.getGroup().getId(), groupRole.getRole().getId())) {
 
-                Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
-                Role entityRole = roleRepository.findOne(groupRole.getRole().getId());
-
-                // only save if doesn't already exist
-                if (groupRoleRepository.findByUserGroupRole(newUser, entityGroup, entityRole) == null) {
+                    Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
+                    Role entityRole = roleRepository.findOne(groupRole.getRole().getId());
                     groupRole.setGroup(entityGroup);
                     groupRole.setRole(entityRole);
                     groupRole.setUser(newUser);
@@ -296,8 +288,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // Everyone should be in the generic group.
         addUserToGenericGroup(newUser);
 
-        entityManager.flush();
-
         if (!CollectionUtils.isEmpty(user.getUserFeatures())) {
             for (UserFeature userFeature : user.getUserFeatures()) {
                 userFeature.setFeature(featureRepository.findOne(userFeature.getFeature().getId()));
@@ -307,9 +297,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        entityManager.flush();
-
-        // TODO remove into a separate call
         if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
             for (Identifier identifier : user.getIdentifiers()) {
                 identifier.setId(null);
@@ -318,8 +305,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 identifierRepository.save(identifier);
             }
         }
-
-        entityManager.flush();
 
         return newUser.getId();
     }
@@ -366,7 +351,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     //Migration Only
     public Long createUserNoEncryption(User user) throws EntityExistsException {
         return add(user);
-        //return 1L;
     }
 
     // not used

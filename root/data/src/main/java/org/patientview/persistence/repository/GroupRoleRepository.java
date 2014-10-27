@@ -35,4 +35,14 @@ public interface GroupRoleRepository extends CrudRepository<GroupRole, Long> {
     public GroupRole findByUserGroupRole(@Param("user") User user, @Param("group") Group group,
                                          @Param("role") Role role);
 
+    @Query("SELECT CASE WHEN (count(gr) > 0) THEN TRUE ELSE FALSE END " +
+            "FROM    GroupRole gr " +
+            "JOIN    gr.user u " +
+            "JOIN    gr.group g " +
+            "JOIN    gr.role r " +
+            "WHERE   u.id = :userId " +
+            "AND     g.id = :groupId " +
+            "AND     r.id = :roleId ")
+    public boolean userGroupRoleExists(@Param("userId") Long userId, @Param("groupId") Long groupId,
+                                       @Param("roleId") Long roleId);
 }

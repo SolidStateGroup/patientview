@@ -149,8 +149,9 @@ public class UserServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
         when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
-        when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
-                .thenReturn(groupRole);
+        when(groupRoleRepository.userGroupRoleExists(any(Long.class), any(Long.class), any(Long.class)))
+                .thenReturn(false);
+        when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(groupRole2);
 
         userService.createUserWithPasswordEncryption(newUser);
     }
