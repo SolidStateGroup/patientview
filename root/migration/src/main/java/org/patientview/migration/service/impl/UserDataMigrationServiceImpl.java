@@ -194,7 +194,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // add user feature (usually for staff)
                 newUser.setUserFeatures(new HashSet<UserFeature>());
                 UserFeature userFeature = new UserFeature();
-                userFeature.setFeature(adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString()));
+                Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString());
+                userFeature.setFeature(feature);
                 newUser.getUserFeatures().add(userFeature);
 
                 MigrationUser migrationUser = new MigrationUser(newUser);

@@ -21,6 +21,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.hl7.fhir.instance.formats.JsonComposer;
 import org.hl7.fhir.instance.model.Resource;
 import org.patientview.DateDeserializer;
+import org.patientview.DateSerializer;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.persistence.model.Feature;
@@ -48,7 +49,10 @@ import java.util.List;
  */
 public final class JsonUtil {
 
-    private static Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateDeserializer()).create();
+    private static Gson gson  = new GsonBuilder()
+            .registerTypeAdapter(Date.class, new DateDeserializer())
+            .registerTypeAdapter(Date.class, new DateSerializer())
+            .create();
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
 
