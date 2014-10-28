@@ -5,7 +5,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.patientview.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.slf4j.Logger;
@@ -45,10 +45,10 @@ public class BulkUserCreateTest {
                 + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
 
         Date start = new Date();
-        Roles role = Roles.PATIENT;
+        RoleName role = RoleName.PATIENT;
 
         // takes group to add users to and number of users to create
-        userDataMigrationService.bulkUserCreate("SGC04", numberOfUsersToCreate, role);
+        userDataMigrationService.bulkUserCreate("RENALB", numberOfUsersToCreate, role);
 
         LOG.info("Creation of " + numberOfUsersToCreate + " "  + role.toString() + " took "
                 + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");

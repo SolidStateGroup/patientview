@@ -1,10 +1,10 @@
 package org.patientview.migration.service;
 
-import org.patientview.Feature;
-import org.patientview.Group;
-import org.patientview.Lookup;
-import org.patientview.Role;
-import org.patientview.enums.Roles;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +26,7 @@ public interface AdminDataMigrationService {
 
     Group getGroupByCode(String code);
 
-    Role getRoleByName(Roles name);
+    Role getRoleByName(RoleName name);
 
     Group getGroupByName(String name);
 

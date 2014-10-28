@@ -2,12 +2,12 @@ package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
-import org.patientview.api.model.MigrationUser;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.api.model.User;
+import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.UserInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

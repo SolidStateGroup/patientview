@@ -4,12 +4,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.patientview</groupId>
+        <groupId>org.patientview2</groupId>
         <artifactId>root</artifactId>
         <version>0.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.patientview</groupId>
     <artifactId>data</artifactId>
     <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -53,7 +52,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.patientview</groupId>
+            <groupId>org.patientview2</groupId>
             <artifactId>common</artifactId>
             <version>0.2-SNAPSHOT</version>
         </dependency>

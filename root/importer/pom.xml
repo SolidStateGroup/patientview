@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.patientview</groupId>
+    <groupId>org.patientview2</groupId>
     <artifactId>root</artifactId>
     <version>0.2-SNAPSHOT</version>
   </parent>
@@ -19,7 +19,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.patientview</groupId>
+            <groupId>org.patientview2</groupId>
             <artifactId>data</artifactId>
             <version>0.2-SNAPSHOT</version>
             <exclusions>
@@ -124,7 +124,7 @@
         </dependency>-->
 
         <dependency>
-            <groupId>org.patientview</groupId>
+            <groupId>org.patientview2</groupId>
             <artifactId>data</artifactId>
             <version>0.2-SNAPSHOT</version>
             <scope>test</scope>

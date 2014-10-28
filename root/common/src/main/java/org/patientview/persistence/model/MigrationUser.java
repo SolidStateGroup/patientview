@@ -1,9 +1,4 @@
-package org.patientview.api.model;
-
-
-import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.UserFeature;
-import org.patientview.persistence.model.GroupRole;
+package org.patientview.persistence.model;
 
 import java.util.Date;
 import java.util.Set;
@@ -14,7 +9,7 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 24/10/2014
  */
-public class MigrationUser  {
+public class MigrationUser {
 
     // User
     private String username;
@@ -34,6 +29,30 @@ public class MigrationUser  {
     private Date lastLogin;
     private String contactNumber;
     private Date created;
+
+    public MigrationUser () {
+
+    }
+
+    public MigrationUser(User user) {
+        username = user.getUsername();
+        password = user.getPassword();
+        changePassword = user.getChangePassword();
+        locked = user.getLocked();
+        dummy = user.getDummy();
+        emailVerified = user.getEmailVerified();
+        verificationCode = user.getVerificationCode();
+        email = user.getEmail();
+        forename = user.getForename();
+        failedLogonAttempts = user.getFailedLogonAttempts();
+        surname = user.getSurname();
+        groupRoles = user.getGroupRoles();
+        userFeatures = user.getUserFeatures();
+        identifiers = user.getIdentifiers();
+        lastLogin = user.getLastLogin();
+        contactNumber = user.getContactNumber();
+        created = user.getCreated();
+    }
 
     public String getUsername() {
         return username;

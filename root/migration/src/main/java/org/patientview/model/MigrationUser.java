@@ -33,7 +33,7 @@ public class MigrationUser  {
     private Set<Identifier> identifiers;
     private Date lastLogin;
     private String contactNumber;
-    private Date created;
+    private Long created;
 
     public MigrationUser (User user) {
         username = user.getUsername();
@@ -52,9 +52,7 @@ public class MigrationUser  {
         identifiers = user.getIdentifiers();
         lastLogin = user.getLastLogin();
         contactNumber = user.getContactNumber();
-        if (user.getCreated() != null) {
-            created = new Date(user.getCreated());
-        }
+        created = user.getCreated();
     }
 
     public String getUsername() {
@@ -185,11 +183,11 @@ public class MigrationUser  {
         this.contactNumber = contactNumber;
     }
 
-    public Date getCreated() {
+    public Long getCreated() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(Long created) {
         this.created = created;
     }
 }

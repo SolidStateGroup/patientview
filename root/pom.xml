@@ -8,7 +8,7 @@
         <version>1.0.2.RELEASE</version>
     </parent>
 
-  <groupId>org.patientview</groupId>
+  <groupId>org.patientview2</groupId>
   <artifactId>root</artifactId>
   <version>0.2-SNAPSHOT</version>
   <packaging>pom</packaging>

@@ -20,12 +20,13 @@ import org.apache.http.util.EntityUtils;
 import org.codehaus.jettison.json.JSONObject;
 import org.hl7.fhir.instance.formats.JsonComposer;
 import org.hl7.fhir.instance.model.Resource;
+import org.patientview.DateDeserializer;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
-import org.patientview.Feature;
-import org.patientview.Group;
-import org.patientview.Lookup;
-import org.patientview.Role;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.Role;
 import org.patientview.model.LoginDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,6 +47,8 @@ import java.util.List;
  * Created on 05/06/2014
  */
 public final class JsonUtil {
+
+    private static Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateDeserializer()).create();
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
 
@@ -73,7 +78,7 @@ public final class JsonUtil {
                                                                Object requestObject, Class<V> httpMethod)
             throws JsonMigrationException, JsonMigrationExistsException {
 
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
 
         HttpClient httpClient = getThreadSafeClient();
         V method;
@@ -169,7 +174,7 @@ public final class JsonUtil {
 
     public static HttpResponse gsonPut(String postUrl, Object object) throws Exception {
 
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
         HttpClient httpClient = new DefaultHttpClient();
         HttpPut put = new HttpPut(postUrl);
 
@@ -187,7 +192,7 @@ public final class JsonUtil {
 
     public static  HttpResponse gsonPost(String postUrl, Object object) throws Exception {
 
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
 
         String json = gson.toJson(object);
         LOG.info("Posting the following: " + json);
@@ -204,7 +209,7 @@ public final class JsonUtil {
 
     public static <T> List<T> getStaticDataList(String url) {
         HttpClient httpClient = new DefaultHttpClient();
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
 
         HttpGet get = new HttpGet(url);
         get.addHeader("accept", "application/json");
@@ -245,7 +250,8 @@ public final class JsonUtil {
 
     public static List<Lookup> getStaticDataLookups(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
+        //Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateDeserializer()).create();
 
         HttpGet get = new HttpGet(getUrl);
 
@@ -287,7 +293,7 @@ public final class JsonUtil {
 
     public static List<Feature> getStaticDataFeatures(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        //Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
@@ -328,7 +334,7 @@ public final class JsonUtil {
 
     public static List<Group> getGroups(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        //Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
@@ -369,7 +375,7 @@ public final class JsonUtil {
 
     public static List<Role> getRoles(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        //Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");

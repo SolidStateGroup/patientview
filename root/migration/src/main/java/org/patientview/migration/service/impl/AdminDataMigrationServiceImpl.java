@@ -5,22 +5,22 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.patientview.Code;
-import org.patientview.ContactPoint;
-import org.patientview.ContactPointType;
-import org.patientview.Feature;
-import org.patientview.Group;
-import org.patientview.GroupFeature;
-import org.patientview.GroupRole;
-import org.patientview.Link;
-import org.patientview.Lookup;
-import org.patientview.ObservationHeading;
-import org.patientview.ObservationHeadingGroup;
-import org.patientview.Role;
-import org.patientview.enums.ContactPointTypes;
-import org.patientview.enums.FeatureType;
-import org.patientview.enums.GroupTypes;
-import org.patientview.enums.Roles;
+import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.ContactPoint;
+import org.patientview.persistence.model.ContactPointType;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.ObservationHeadingGroup;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.PvUtil;
@@ -428,7 +428,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return null;
     }
 
-    public Role getRoleByName(Roles name) {
+    public Role getRoleByName(RoleName name) {
         for (Role role : roles) {
             if (role.getName().equals(name)) {
                 return role;

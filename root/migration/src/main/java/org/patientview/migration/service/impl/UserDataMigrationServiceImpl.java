@@ -4,25 +4,25 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.patientview.Feature;
-import org.patientview.Group;
-import org.patientview.GroupRole;
-import org.patientview.Identifier;
-import org.patientview.Lookup;
-import org.patientview.Role;
-import org.patientview.User;
-import org.patientview.UserFeature;
-import org.patientview.enums.FeatureType;
-import org.patientview.enums.IdentifierTypes;
-import org.patientview.enums.Roles;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
-import org.patientview.model.MigrationUser;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.MigrationUser;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.TestResultDao;
 import org.patientview.repository.UserDao;
@@ -64,7 +64,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public void migrate() {
 
-        Role patientRole = adminDataMigrationService.getRoleByName(Roles.PATIENT);
+        Role patientRole = adminDataMigrationService.getRoleByName(RoleName.PATIENT);
         Lookup nhsNumberIdentifier = adminDataMigrationService.getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
@@ -96,10 +96,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             String roleName = specialtyUserRoles.get(0).getRole();
 
                             if (roleName.equals("unitadmin")) {
-                                role = adminDataMigrationService.getRoleByName(Roles.UNIT_ADMIN);
+                                role = adminDataMigrationService.getRoleByName(RoleName.UNIT_ADMIN);
                             }
                             if (roleName.equals("unitstaff")) {
-                                role = adminDataMigrationService.getRoleByName(Roles.STAFF_ADMIN);
+                                role = adminDataMigrationService.getRoleByName(RoleName.STAFF_ADMIN);
                             }
 
                             // add group (specialty is added automatically when creating user within a UNIT group)
@@ -148,7 +148,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
-    public void bulkUserCreate(String unitCode, Long count, Roles roleName) {
+    public void bulkUserCreate(String unitCode, Long count, RoleName roleName) {
         Date now = new Date();
 
         Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
@@ -172,8 +172,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.setUsername(i.toString());
                 newUser.setIdentifiers(new HashSet<Identifier>());
 
-                // if role is Roles.PATIENT add identifier
-                if (roleName.equals(Roles.PATIENT)) {
+                // if role is RoleName.PATIENT add identifier
+                if (roleName.equals(RoleName.PATIENT)) {
                     Identifier identifier = new Identifier();
                     identifier.setIdentifier(i.toString());
                     identifier.setIdentifierType(adminDataMigrationService.getLookupByName("NHS_NUMBER"));
@@ -274,7 +274,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         List<Group> groups = getUserSpecialty(user);
         for (Group group : groups) {
-            Role role = adminDataMigrationService.getRoleByName(Roles.PATIENT);
+            Role role = adminDataMigrationService.getRoleByName(RoleName.PATIENT);
             if (userId != null && group != null && role != null) {
                 callApiAddGroupRole(userId, group.getId(), role.getId());
             }

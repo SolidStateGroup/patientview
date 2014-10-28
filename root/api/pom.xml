@@ -6,7 +6,7 @@
 
     <parent>
         <artifactId>root</artifactId>
-        <groupId>org.patientview</groupId>
+        <groupId>org.patientview2</groupId>
         <version>0.2-SNAPSHOT</version>
     </parent>
 
@@ -30,7 +30,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.patientview</groupId>
+            <groupId>org.patientview2</groupId>
             <artifactId>data</artifactId>
             <version>0.2-SNAPSHOT</version>
             <exclusions>
@@ -42,13 +42,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.patientview</groupId>
+            <groupId>org.patientview2</groupId>
             <artifactId>common</artifactId>
             <version>0.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>org.patientview</groupId>
+            <groupId>org.patientview2</groupId>
             <artifactId>data</artifactId>
             <version>0.2-SNAPSHOT</version>
             <scope>test</scope>

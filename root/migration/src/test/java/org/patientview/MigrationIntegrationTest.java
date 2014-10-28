@@ -7,7 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.patientview.enums.Roles;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.PatientDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
@@ -58,9 +58,9 @@ public class MigrationIntegrationTest {
         LOG.info("Starting migration, must have -Durl=\"http://localhost:8080/api\" or equivalent");
         adminDataMigrationService.migrate();
         Assert.assertNotNull("UNIT lookup type should not be null", adminDataMigrationService.getLookupByName("UNIT"));
-        Assert.assertNotNull("Roles.PATIENT should not be null", adminDataMigrationService.getRoleByName(Roles.PATIENT));
-        Assert.assertNotNull("Roles.UNIT_ADMIN should not be null", adminDataMigrationService.getRoleByName(Roles.UNIT_ADMIN));
-        Assert.assertNotNull("Roles.STAFF_ADMIN should not be null", adminDataMigrationService.getRoleByName(Roles.STAFF_ADMIN));
+        Assert.assertNotNull("Roles.PATIENT should not be null", adminDataMigrationService.getRoleByName(RoleName.PATIENT));
+        Assert.assertNotNull("Roles.UNIT_ADMIN should not be null", adminDataMigrationService.getRoleByName(RoleName.UNIT_ADMIN));
+        Assert.assertNotNull("Roles.STAFF_ADMIN should not be null", adminDataMigrationService.getRoleByName(RoleName.STAFF_ADMIN));
     }
 
     /**
