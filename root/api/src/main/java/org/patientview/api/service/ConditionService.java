@@ -2,7 +2,7 @@ package org.patientview.api.service;
 
 import org.hl7.fhir.instance.model.Condition;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 
 import java.util.List;
 import java.util.UUID;

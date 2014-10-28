@@ -12,7 +12,7 @@ import org.patientview.importer.model.DateRange;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.Utility.Util;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.springframework.stereotype.Service;

@@ -5,7 +5,7 @@ import generated.PvDiagnosis;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.ResourceReference;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -18,7 +18,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.api.service.impl.ObservationServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ObservationHeading;

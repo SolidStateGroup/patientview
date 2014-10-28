@@ -10,7 +10,7 @@ import org.patientview.importer.builder.PatientBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.Utility.Util;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;

@@ -1,10 +1,9 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.DocumentReference;
-import org.patientview.persistence.exception.FhirResourceException;
-import org.patientview.persistence.model.BaseModel;
+import org.patientview.config.exception.FhirResourceException;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -18,7 +17,7 @@ public class FhirLetter extends BaseModel {
     private Date date;
     private String type;
     private String content;
-    private BaseGroup group;
+    private Group group;
 
     public FhirLetter() {
     }
@@ -45,7 +44,7 @@ public class FhirLetter extends BaseModel {
 
         setType(documentReference.getType().getTextSimple());
         setContent(documentReference.getDescriptionSimple());
-        setGroup(new BaseGroup(group));
+        setGroup(group);
     }
 
     public Date getDate() {
@@ -72,11 +71,11 @@ public class FhirLetter extends BaseModel {
         this.content = content;
     }
 
-    public BaseGroup getGroup() {
+    public Group getGroup() {
         return group;
     }
 
-    public void setGroup(BaseGroup group) {
+    public void setGroup(Group group) {
         this.group = group;
     }
 }

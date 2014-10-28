@@ -1,7 +1,6 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.Encounter;
-import org.patientview.persistence.model.BaseModel;
 
 /**
  * Created by jamesr@solidstategroup.com

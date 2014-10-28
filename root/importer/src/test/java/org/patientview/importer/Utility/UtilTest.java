@@ -4,7 +4,7 @@ import junit.framework.Assert;
 import org.hl7.fhir.instance.model.Patient;
 import org.junit.Test;
 import org.patientview.importer.BaseTest;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 
 public class UtilTest extends BaseTest {
 

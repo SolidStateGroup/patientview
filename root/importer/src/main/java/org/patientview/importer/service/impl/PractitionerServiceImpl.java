@@ -10,7 +10,7 @@ import org.patientview.importer.builder.PractitionerBuilder;
 import org.patientview.importer.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.Utility.Util;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

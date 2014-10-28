@@ -14,7 +14,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
-import org.patientview.api.model.FhirObservation;
+import org.patientview.persistence.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
@@ -23,7 +23,7 @@ import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.api.service.PatientService;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
@@ -129,7 +129,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                     FhirObservation fhirObservation = new FhirObservation(observation);
                     Group fhirGroup = fhirLink.getGroup();
                     if (fhirGroup != null) {
-                        fhirObservation.setGroup(new org.patientview.api.model.Group(fhirGroup));
+                        fhirObservation.setGroup(fhirGroup);
                     }
                     fhirObservations.add(fhirObservation);
                 }
@@ -180,7 +180,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                             fhirObservation.setApplies(date);
                             fhirObservation.setName(json[1].replace("\"", ""));
                             fhirObservation.setValue(json[2]);
-                            fhirObservation.setGroup(new org.patientview.api.model.Group(fhirLink.getGroup()));
+                            fhirObservation.setGroup(fhirLink.getGroup());
 
                             String code = json[1].replace("\"", "").toUpperCase();
 

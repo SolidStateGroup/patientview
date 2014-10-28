@@ -1,11 +1,10 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.DiagnosticReport;
 import org.hl7.fhir.instance.model.Observation;
-import org.patientview.persistence.exception.FhirResourceException;
-import org.patientview.persistence.model.BaseModel;
+import org.patientview.config.exception.FhirResourceException;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -20,7 +19,7 @@ public class FhirDiagnosticReport extends BaseModel {
     private String name;
     private FhirObservation result;
     private String type;
-    private BaseGroup group;
+    private Group group;
 
     public FhirDiagnosticReport() {
     }
@@ -62,7 +61,7 @@ public class FhirDiagnosticReport extends BaseModel {
         setType(diagnosticReport.getServiceCategory().getTextSimple());
 
         // Group
-        setGroup(new BaseGroup(group));
+        setGroup(group);
     }
 
     public Date getDate() {
@@ -97,11 +96,11 @@ public class FhirDiagnosticReport extends BaseModel {
         this.type = type;
     }
 
-    public BaseGroup getGroup() {
+    public Group getGroup() {
         return group;
     }
 
-    public void setGroup(BaseGroup group) {
+    public void setGroup(Group group) {
         this.group = group;
     }
 }

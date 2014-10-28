@@ -4,7 +4,7 @@ import org.hl7.fhir.instance.model.Condition;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.service.ConditionService;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.UserRepository;

@@ -1,12 +1,11 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
-import org.patientview.persistence.exception.FhirResourceException;
-import org.patientview.persistence.model.BaseModel;
+import org.patientview.config.exception.FhirResourceException;
 
 import java.util.Date;
 import java.util.GregorianCalendar;

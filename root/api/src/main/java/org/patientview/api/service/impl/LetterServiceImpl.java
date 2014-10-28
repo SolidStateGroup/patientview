@@ -2,10 +2,10 @@ package org.patientview.api.service.impl;
 
 import org.hl7.fhir.instance.model.DocumentReference;
 import org.patientview.api.controller.BaseController;
-import org.patientview.api.model.FhirLetter;
+import org.patientview.persistence.model.FhirLetter;
 import org.patientview.api.service.LetterService;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.UserRepository;

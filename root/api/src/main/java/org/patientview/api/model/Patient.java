@@ -4,6 +4,10 @@ import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirEncounter;
+import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.FhirPractitioner;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,7 @@
 package org.patientview.api.model;
 
+import org.patientview.persistence.model.FhirObservation;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 12/09/2014

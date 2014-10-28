@@ -16,7 +16,6 @@ import org.patientview.importer.Utility.FhirTestUtil;
 import org.patientview.importer.Utility.Util;
 
 import javax.sql.DataSource;
-import java.util.List;
 import java.util.UUID;
 
 public class FhirResourceIntegrationTest extends BaseTest {
@@ -36,7 +35,6 @@ public class FhirResourceIntegrationTest extends BaseTest {
         ((BasicDataSource) realDataSource).setUrl("jdbc:postgresql://localhost:5432/fhir");
         ((BasicDataSource) realDataSource).setUsername("fhir");
         ((BasicDataSource) realDataSource).setPassword("fhir");
-
     }
 
     @Test
@@ -63,13 +61,12 @@ public class FhirResourceIntegrationTest extends BaseTest {
         resourceReference.setReferenceSimple("uuid");
         resourceReference.setDisplaySimple(UUID.randomUUID().toString());
         ObservationsBuilder observationsBuilder = new ObservationsBuilder(patientview, resourceReference);
-        List<Observation> observations = observationsBuilder.build();
+        observationsBuilder.build();
 
         int i = 0;
-        for (Observation observation : observations) {
+        for (Observation observation : observationsBuilder.getObservations()) {
             fhirResource.create(observation);
             System.out.println(i++);
-
         }
     }
 
@@ -77,5 +74,4 @@ public class FhirResourceIntegrationTest extends BaseTest {
     public void tearDown() {
         realDataSource = null;
     }
-
 }

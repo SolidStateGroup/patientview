@@ -83,6 +83,18 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>me.fhir</groupId>
+            <artifactId>fhir-dstu1</artifactId>
+            <version>0.0.81.2489</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 
     <build>

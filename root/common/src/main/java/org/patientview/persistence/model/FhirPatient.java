@@ -1,10 +1,9 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.Address;
 import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.Identifier;
-import org.patientview.persistence.model.BaseModel;
 
 import java.util.ArrayList;
 import java.util.Date;

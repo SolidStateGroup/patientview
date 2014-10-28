@@ -1,9 +1,9 @@
 package org.patientview.api.controller;
 
-import org.patientview.api.model.FhirMedicationStatement;
+import org.patientview.persistence.model.FhirMedicationStatement;
 import org.patientview.api.service.MedicationService;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

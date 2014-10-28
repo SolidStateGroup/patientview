@@ -2,11 +2,11 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
-import org.patientview.api.model.FhirObservation;
+import org.patientview.persistence.model.FhirObservation;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;

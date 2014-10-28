@@ -1,9 +1,9 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.Medication;
 import org.hl7.fhir.instance.model.MedicationStatement;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -20,7 +20,7 @@ public class FhirMedicationStatement {
     private String dose;
 
     // set from FhirLink
-    private BaseGroup group;
+    private Group group;
 
     public FhirMedicationStatement() {
     }
@@ -61,7 +61,7 @@ public class FhirMedicationStatement {
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing group");
         }
 
-        setGroup(new BaseGroup(group));
+        setGroup(group);
     }
 
     public Date getStartDate() {
@@ -88,11 +88,11 @@ public class FhirMedicationStatement {
         this.dose = dose;
     }
 
-    public BaseGroup getGroup() {
+    public Group getGroup() {
         return group;
     }
 
-    public void setGroup(BaseGroup group) {
+    public void setGroup(Group group) {
         this.group = group;
     }
 }

@@ -11,7 +11,7 @@ import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
-import org.patientview.persistence.exception.FhirResourceException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class ObservationsBuilder {
     }
 
     // Normally any invalid data would fail the whole XML
-    public List<Observation> build() {
+    public void build() {
 
         dateRanges = new HashMap<>();
 
@@ -78,8 +78,6 @@ public class ObservationsBuilder {
                 LOG.error("Invalid data in XML: " + e.getMessage());
             }
         }
-
-        return observations;
     }
 
     private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result)
