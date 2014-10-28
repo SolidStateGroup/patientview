@@ -54,7 +54,6 @@ public class ImporterConfig {
         return channel;
     }
 
-
     @Bean(name = "read")
     public Channel channelRead() {
 
@@ -79,8 +78,6 @@ public class ImporterConfig {
 
     @Bean
     public ExecutorService executorServiceBean() {
-        return Executors.newFixedThreadPool(1);
-
+        return Executors.newFixedThreadPool(20);
     }
-
 }

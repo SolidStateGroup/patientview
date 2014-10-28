@@ -147,6 +147,7 @@ public class FhirResource {
             return jsonObject;
 
         } catch (SQLException e) {
+            // will likely fail if trying to update the same resource in multiple threads
             LOG.error("Unable to update resource {}", e);
             throw new FhirResourceException(e.getMessage());
         }

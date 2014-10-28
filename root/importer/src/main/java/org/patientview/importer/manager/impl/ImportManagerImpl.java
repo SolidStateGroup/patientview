@@ -120,16 +120,16 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             // add Condition, deleting existing (diagnoses)
             conditionService.add(patientview, fhirLink);
 
-            // Add Encounter, deleting existing (used for treatment and transplant status)
+            // add Encounter, deleting existing (used for treatment and transplant status)
             encounterService.add(patientview, fhirLink, organizationReference);
 
-            // Add MedicationStatement and associated Medication, deleting existing (drugdetails)
+            // add MedicationStatement and associated Medication, deleting existing (drugdetails)
             medicationService.add(patientview, fhirLink);
 
-            // Add DiagnosticReport and associated Observation (diagnostics, originally IBD now generic)
+            // add DiagnosticReport and associated Observation (diagnostics, originally IBD now generic)
             diagnosticService.add(patientview, fhirLink);
 
-            // Add DocumentReference, deleting those with the same date (letters)
+            // add DocumentReference, deleting those with the same date (letters)
             documentReferenceService.add(patientview, fhirLink);
 
             Date end = new Date();

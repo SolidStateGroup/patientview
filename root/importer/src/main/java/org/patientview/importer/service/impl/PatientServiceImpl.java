@@ -89,8 +89,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         } else {
             // Create a new Fhir record and add the link to the User and Unit
             JSONObject jsonObject = create(newFhirPatient);
-            addLink(identifier, group, jsonObject);
-            versionId = Util.getVersionId(jsonObject);
+            fhirLink = addLink(identifier, group, jsonObject);
         }
 
         LOG.info("Processed Patient Data for NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());
@@ -154,7 +153,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
-    private void addLink(Identifier identifier, Group group, JSONObject bundle) {
+    private FhirLink addLink(Identifier identifier, Group group, JSONObject bundle) {
         if (CollectionUtils.isEmpty(identifier.getUser().getFhirLinks())) {
             identifier.getUser().setFhirLinks(new HashSet<FhirLink>());
         }
@@ -174,5 +173,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         identifier.getUser().getFhirLinks().add(fhirLink);
         userRepository.save(identifier.getUser());
+
+        return fhirLink;
     }
 }
