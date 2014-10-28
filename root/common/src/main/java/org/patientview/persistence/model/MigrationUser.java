@@ -1,5 +1,7 @@
 package org.patientview.persistence.model;
 
+import java.util.List;
+
 /**
  * Transport object used for user migration
  *
@@ -10,6 +12,9 @@ public class MigrationUser {
 
     // User
     private User user;
+
+    // Observations
+    private List<FhirObservation> observations;
 
     public MigrationUser () {
 
@@ -25,5 +30,13 @@ public class MigrationUser {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<FhirObservation> getObservations() {
+        return observations;
+    }
+
+    public void setObservations(List<FhirObservation> observations) {
+        this.observations = observations;
     }
 }

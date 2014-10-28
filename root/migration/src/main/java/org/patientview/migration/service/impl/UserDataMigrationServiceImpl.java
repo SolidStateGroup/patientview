@@ -12,6 +12,7 @@ import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
@@ -148,7 +149,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
-    public void bulkUserCreate(String unitCode, Long count, RoleName roleName) {
+    public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount,
+                               String observationName) {
         Date now = new Date();
 
         Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
@@ -199,6 +201,19 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.getUserFeatures().add(userFeature);
 
                 MigrationUser migrationUser = new MigrationUser(newUser);
+                List<FhirObservation> observations = new ArrayList<FhirObservation>();
+
+                // add 500 observations
+                for (int j=0;j<observationCount;j++) {
+                    FhirObservation observation = new FhirObservation();
+                    observation.setValue(String.valueOf(i));
+                    observation.setApplies(new Date(i + j));
+                    observation.setGroup(group);
+                    observation.setName(observationName);
+                    observations.add(observation);
+                }
+
+                migrationUser.setObservations(observations);
 
                 // call REST to store migrated patient
                 callApiMigrateUser(migrationUser);

@@ -379,7 +379,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new EntityExistsException("User already exists (username)");
         }
 
-        return add(migrationUser.getUser());
+        Long userId = add(migrationUser.getUser());
+
+        LOG.info(migrationUser.getObservations().size() + " Observations");
+
+        return userId;
     }
 
     // not used
