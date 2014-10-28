@@ -16,7 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.persistence.model.FhirDiagnosticReport;
+import org.patientview.api.model.FhirDiagnosticReport;
 import org.patientview.api.service.impl.DiagnosticServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;

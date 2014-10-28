@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.persistence.model.FhirLetter;
+import org.patientview.api.model.FhirLetter;
 import org.patientview.api.service.impl.LetterServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
