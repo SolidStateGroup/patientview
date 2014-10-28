@@ -1,7 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.UserOnly;
-import org.patientview.persistence.model.FhirLetter;
+import org.patientview.api.model.FhirLetter;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 

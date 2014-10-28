@@ -22,7 +22,7 @@ public class FhirLetter extends BaseModel {
     public FhirLetter() {
     }
 
-    public FhirLetter(DocumentReference documentReference, org.patientview.persistence.model.Group group)
+    public FhirLetter(DocumentReference documentReference, Group group)
             throws FhirResourceException {
 
         if (documentReference.getCreated() == null) {

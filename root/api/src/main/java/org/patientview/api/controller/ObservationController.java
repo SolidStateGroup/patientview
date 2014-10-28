@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.patientview.persistence.model.FhirObservation;
+import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ObservationService;

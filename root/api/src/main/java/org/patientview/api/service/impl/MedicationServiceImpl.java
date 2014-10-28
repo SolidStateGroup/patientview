@@ -5,7 +5,7 @@ import org.hl7.fhir.instance.model.MedicationStatement;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
-import org.patientview.persistence.model.FhirMedicationStatement;
+import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.service.MedicationService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
@@ -71,8 +71,12 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
                             ResourceType.Medication);
 
                         Medication medication = (Medication) DataUtils.getResource(medicationJson);
-                        fhirMedications.add(new FhirMedicationStatement(
-                            medicationStatement, medication, fhirLink.getGroup()));
+
+                        org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement =
+                            new org.patientview.persistence.model.FhirMedicationStatement(
+                                medicationStatement, medication, fhirLink.getGroup());
+
+                        fhirMedications.add(new FhirMedicationStatement(fhirMedicationStatement));
 
                     } catch (Exception e) {
                         throw new FhirResourceException(e.getMessage());

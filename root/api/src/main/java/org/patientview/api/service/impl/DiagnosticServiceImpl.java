@@ -35,7 +35,7 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
     private UserRepository userRepository;
 
     @Override
-    public List<FhirDiagnosticReport> getByUserId(final Long userId)
+    public List<org.patientview.api.model.FhirDiagnosticReport> getByUserId(final Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -43,7 +43,7 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        List<FhirDiagnosticReport> fhirDiagnosticReports = new ArrayList<>();
+        List<org.patientview.api.model.FhirDiagnosticReport> fhirDiagnosticReports = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
             if (fhirLink.getActive()) {
@@ -71,8 +71,11 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
                             ResourceType.Observation);
 
                         Observation observation = (Observation) DataUtils.getResource(resultJson);
-                        fhirDiagnosticReports.add(new FhirDiagnosticReport(diagnosticReport, observation,
-                                fhirLink.getGroup()));
+                        FhirDiagnosticReport fhirDiagnosticReport =
+                                new FhirDiagnosticReport(diagnosticReport, observation, fhirLink.getGroup());
+
+                        fhirDiagnosticReports.add(
+                                new org.patientview.api.model.FhirDiagnosticReport(fhirDiagnosticReport));
 
                     } catch (Exception e) {
                         throw new FhirResourceException(e.getMessage());

@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.patientview.persistence.model.FhirMedicationStatement;
+import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.service.MedicationService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;

@@ -80,7 +80,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private static final Logger LOG = LoggerFactory.getLogger(ObservationServiceImpl.class);
 
     @Override
-    public List<FhirObservation> get(final Long userId, final String code, final String orderBy,
+    public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code, final String orderBy,
                                      final String orderDirection, final Long limit)
             throws ResourceNotFoundException, FhirResourceException {
 
@@ -89,7 +89,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        List<FhirObservation> fhirObservations = new ArrayList<>();
+        List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
             if (fhirLink.getActive()) {
@@ -131,7 +131,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                     if (fhirGroup != null) {
                         fhirObservation.setGroup(fhirGroup);
                     }
-                    fhirObservations.add(fhirObservation);
+                    fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
                 }
             }
         }

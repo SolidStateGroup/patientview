@@ -2,7 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.hl7.fhir.instance.model.DocumentReference;
 import org.patientview.api.controller.BaseController;
-import org.patientview.persistence.model.FhirLetter;
+import org.patientview.api.model.FhirLetter;
 import org.patientview.api.service.LetterService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
@@ -54,7 +54,9 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
 
                 // for each, create new transport object
                 for (DocumentReference documentReference : documentReferences) {
-                    fhirLetters.add(new FhirLetter(documentReference, fhirLink.getGroup()));
+                    org.patientview.persistence.model.FhirLetter fhirLetter
+                            = new org.patientview.persistence.model.FhirLetter(documentReference, fhirLink.getGroup());
+                    fhirLetters.add(new FhirLetter(fhirLetter));
                 }
             }
         }

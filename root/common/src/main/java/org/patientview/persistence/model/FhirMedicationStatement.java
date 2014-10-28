@@ -26,8 +26,8 @@ public class FhirMedicationStatement {
     }
 
     // if converting from actual MedicationStatement
-    public FhirMedicationStatement(MedicationStatement medicationStatement,
-        Medication medication, org.patientview.persistence.model.Group group) throws FhirResourceException {
+    public FhirMedicationStatement(MedicationStatement medicationStatement, Medication medication, Group group)
+            throws FhirResourceException {
 
         if (medicationStatement.getWhenGiven() == null) {
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing when given");

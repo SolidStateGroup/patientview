@@ -25,8 +25,8 @@ public class FhirDiagnosticReport extends BaseModel {
     }
 
     // if converting from actual Observation
-    public FhirDiagnosticReport(DiagnosticReport diagnosticReport, Observation result,
-                                org.patientview.persistence.model.Group group) throws FhirResourceException {
+    public FhirDiagnosticReport(DiagnosticReport diagnosticReport, Observation result, Group group)
+            throws FhirResourceException {
 
         if (diagnosticReport.getDiagnostic() == null) {
             throw new FhirResourceException("Cannot convert FHIR DiagnosticReport, missing Diagnostic (date)");
