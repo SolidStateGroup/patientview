@@ -212,11 +212,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         Long userId = null;
         try {
             userId = JsonUtil.jsonRequest(url, Long.class, user, HttpPost.class);
-            LOG.info("Created user: {} with id {}", user.getUsername(), userId);
+            LOG.info("Created user: {} with id {}", user.getUser().getUsername(), userId);
         } catch (JsonMigrationException jme) {
-            LOG.error("Unable to create user: {}", user.getUsername());
+            LOG.error("Unable to create user: {}", user.getUser().getUsername());
         } catch (JsonMigrationExistsException jee) {
-            LOG.info("User {} already exists", user.getUsername());
+            LOG.info("User {} already exists", user.getUser().getUsername());
         }
 
         return userId;
