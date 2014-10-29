@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +65,7 @@ public class FhirResource {
      * @throws FhirResourceException
      */
     public JSONObject create(Resource resource) throws FhirResourceException {
-
+        //LOG.info("c1 " + new Date().getTime());
         PGobject result;
         Connection connection;
         try {
@@ -76,9 +77,11 @@ public class FhirResource {
             proc.setObject(4, null);
             proc.registerOutParameter(1, Types.OTHER);
             proc.execute();
+            //LOG.info("c2 " + new Date().getTime());
 
             result = (PGobject) proc.getObject(1);
             connection.close();
+            //LOG.info("c3 " + new Date().getTime());
             return new JSONObject(result.getValue());
 
         } catch (SQLException e) {

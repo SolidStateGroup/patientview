@@ -344,19 +344,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     }
 
     @Override
-    public void addObservation(FhirObservation fhirObservation, FhirLink fhirLink)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        List<ObservationHeading> observationHeadings
-                = observationHeadingService.findByCode(fhirObservation.getName());
-
-        if (CollectionUtils.isEmpty(observationHeadings)) {
-            throw new ResourceNotFoundException("Observation Heading not found");
-        }
-
+    public void addObservation(FhirObservation fhirObservation, ObservationHeading observationHeading,
+                               FhirLink fhirLink) throws ResourceNotFoundException, FhirResourceException {
         Observation observation = buildObservation(createDateTime(fhirObservation.getApplies()),
                 fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
-                observationHeadings.get(0));
+                observationHeading);
 
         observation.setSubject(createResourceReference(fhirLink.getResourceId()));
 

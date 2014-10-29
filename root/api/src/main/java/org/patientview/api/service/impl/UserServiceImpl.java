@@ -10,6 +10,7 @@ import org.patientview.api.model.Email;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
@@ -27,6 +28,7 @@ import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
@@ -56,6 +58,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -110,6 +113,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private ObservationService observationService;
+
+    @Inject
+    private ObservationHeadingService observationHeadingService;
 
     @Inject
     private FhirResource fhirResource;
@@ -421,41 +427,63 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User entityUser = userRepository.findOne(userId);
         LOG.info(migrationUser.getObservations().size() + " Observations");
 
+        Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
+
+        // set up map of observation headings
+        List<ObservationHeading> observationHeadings = observationHeadingService.findAll();
+        HashMap<String, ObservationHeading> observationHeadingsMap = new HashMap<>();
+        for (ObservationHeading observationHeading : observationHeadings) {
+            observationHeadingsMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
+        }
+
+        if (fhirLinks == null) {
+            fhirLinks = new HashSet<>();
+        }
+
         for (FhirObservation fhirObservation : migrationUser.getObservations()) {
-            // check observation identifier exists for this user
+
+            // get identifier for this user
             Identifier identifier = getIdentifier(fhirObservation.getIdentifier(), entityUser.getIdentifiers());
-            Group entityGroup = groupRepository.findOne(fhirObservation.getGroup().getId());
 
-            if (identifier != null) {
-                FhirLink fhirLink;
+            // get observation heading for this observation
+            ObservationHeading observationHeading = observationHeadingsMap.get(fhirObservation.getName().toUpperCase());
 
-                // check if  FhirLink exists for this user, group, identifier
-                List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifierText(
-                        entityUser, fhirObservation.getGroup(), fhirObservation.getIdentifier());
+            //LOG.info("1 " + new Date().getTime());
 
-                if (CollectionUtils.isEmpty(fhirLinks)) {
+            if (identifier != null && observationHeading != null) {
+                FhirLink fhirLink = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
+
+                if (fhirLink == null) {
                     // create new FHIR Patient
                     Patient patient = patientService.buildPatient(entityUser, identifier);
                     JSONObject fhirPatient = fhirResource.create(patient);
 
-                    // create new FhirLink
+                    // create new FhirLink and add to list of known fhirlinks
                     fhirLink = new FhirLink();
                     fhirLink.setUser(entityUser);
                     fhirLink.setIdentifier(identifier);
-                    fhirLink.setGroup(entityGroup);
+                    fhirLink.setGroup(fhirObservation.getGroup());
                     fhirLink.setResourceId(getResourceId(fhirPatient));
                     fhirLink.setVersionId(getVersionId(fhirPatient));
                     fhirLink.setResourceType(ResourceType.Patient.name());
                     fhirLink.setActive(true);
-
-                    fhirLinkService.save(fhirLink);
-                } else {
-                    fhirLink = fhirLinks.get(0);
+                    fhirLinks.add(fhirLinkService.save(fhirLink));
                 }
 
-                observationService.addObservation(fhirObservation, fhirLink);
+                //LOG.info("2 " + new Date().getTime());
+                observationService.addObservation(fhirObservation, observationHeading, fhirLink);
+                //LOG.info("3 " + new Date().getTime());
             }
         }
+    }
+
+    private FhirLink getFhirLink(Group group, String identifierText, Set<FhirLink> fhirLinks) {
+        for (FhirLink fhirLink : fhirLinks) {
+            if (fhirLink.getGroup().equals(group) && fhirLink.getIdentifier().getIdentifier().equals(identifierText)) {
+                return fhirLink;
+            }
+        }
+        return null;
     }
 
     private Identifier getIdentifier(String identifierText, Set<Identifier> identifiers) {
