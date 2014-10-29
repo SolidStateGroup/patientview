@@ -31,4 +31,8 @@ public interface ObservationService {
     @RoleOnly(roles = { RoleName.PATIENT })
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
+
+    @RoleOnly
+    void addObservation(org.patientview.persistence.model.FhirObservation fhirObservation)
+            throws ResourceNotFoundException, FhirResourceException;
 }

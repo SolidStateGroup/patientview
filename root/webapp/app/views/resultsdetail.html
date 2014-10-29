@@ -51,7 +51,7 @@
                 </div>
                 <div class="result-value clearfix">
                     <dl class="result-change">
-                        <dt>{{selectedObservation.value}}
+                        <dt>{{selectedObservation.comparator}}{{selectedObservation.value}}
                             <span data-ng-show="observationHeading.units">{{observationHeading.units}}</span>
                         </dt>
                         <dd data-ng-show="getResultIcon(getValueChanged(selectedObservation))">
@@ -111,7 +111,7 @@
                     <div class="row-item hidden">{{observation.id}}</div>
                     <div class="row-item accordion-heading-text plot-this"><i class="icon-plot-this"></i></div>
                     <div class="row-item accordion-heading-text">{{observation.applies | date: 'dd-MMM-yyyy'}}<br/>{{observation.applies | date: 'HH:ss'}}</div>
-                    <div class="row-item accordion-heading-text">{{observation.value}}</div>
+                    <div class="row-item accordion-heading-text">{{observation.comparator}}{{observation.value}}</div>
                     <div class="row-item accordion-heading-text">{{observation.group.shortName}}</div>
                 </div>
             </div>

@@ -21,6 +21,7 @@ public class FhirObservation extends BaseModel {
     private String name;
     private String value;
     private String comments;
+    private String comparator;
     private Group group;
     private String temporaryUuid;
 
@@ -43,8 +44,17 @@ public class FhirObservation extends BaseModel {
         setComments(observation.getCommentsSimple());
 
         if (observation.getValue().getClass().equals(Quantity.class)) {
+
+            // value
             Quantity value = (Quantity) observation.getValue();
             setValue(value.getValueSimple().toString());
+
+            // comparator
+            Quantity.QuantityComparator quantityComparator = value.getComparatorSimple();
+            if (quantityComparator != null && !quantityComparator.equals(Quantity.QuantityComparator.Null)) {
+                setComparator(quantityComparator.toCode());
+            }
+
         } else if (observation.getValue().getClass().equals(CodeableConcept.class)) {
             CodeableConcept value = (CodeableConcept) observation.getValue();
             setValue(value.getTextSimple());
@@ -90,6 +100,14 @@ public class FhirObservation extends BaseModel {
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public String getComparator() {
+        return comparator;
+    }
+
+    public void setComparator(String comparator) {
+        this.comparator = comparator;
     }
 
     public Group getGroup() {

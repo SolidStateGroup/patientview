@@ -15,6 +15,7 @@ import org.patientview.config.utils.CommonUtils;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
@@ -382,6 +383,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Long userId = add(migrationUser.getUser());
 
         LOG.info(migrationUser.getObservations().size() + " Observations");
+
+        for (FhirObservation fhirObservation : migrationUser.getObservations()) {
+
+        }
 
         return userId;
     }

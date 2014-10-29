@@ -54,7 +54,7 @@
                         <dl class="result-change">
                             <dt>
                                 <span data-ng-show="!result.latestObservation.value">Result value not available</span>
-                                {{result.latestObservation.value}}
+                                {{result.latestObservation.comparator}}{{result.latestObservation.value}}
                                 <span data-ng-show="result.units && result.latestObservation.value">{{result.units}}</span>
                             </dt>
                             <dd data-ng-show="getResultIcon(result)" class="hidden">

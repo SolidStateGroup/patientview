@@ -154,9 +154,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         for (FhirLink fhirLink : user.getFhirLinks()) {
             if (fhirLink.getActive()) {
                 StringBuilder query = new StringBuilder();
-                query.append("SELECT DISTINCT ON (2)");
+                query.append("SELECT DISTINCT ON (2) ");
                 query.append("CONTENT -> 'appliesDateTime', CONTENT -> 'name' -> 'text', ");
-                query.append("CONTENT -> 'valueQuantity' -> 'value' ");
+                query.append("CONTENT -> 'valueQuantity' -> 'value', ");
+                query.append("CONTENT -> 'valueQuantity' -> 'comparator' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' -> 'display' = '\"");
                 query.append(fhirLink.getResourceId().toString());
@@ -180,6 +181,9 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                             fhirObservation.setApplies(date);
                             fhirObservation.setName(json[1].replace("\"", ""));
                             fhirObservation.setValue(json[2]);
+                            if (json.length > 3) {
+                                fhirObservation.setComparator(json[3].replace("\"", ""));
+                            }
                             fhirObservation.setGroup(fhirLink.getGroup());
 
                             String code = json[1].replace("\"", "").toUpperCase();
@@ -335,6 +339,22 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 }*/
             }
         }
+    }
+
+    @Override
+    public void addObservation(FhirObservation fhirObservation)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        List<ObservationHeading> observationHeadings
+                = observationHeadingService.findByCode(fhirObservation.getName());
+
+        if (CollectionUtils.isEmpty(observationHeadings)) {
+            throw new ResourceNotFoundException("Observation Heading not found");
+        }
+
+        ObservationHeading observationHeading = observationHeadings.get(0);
+
+
     }
 
     private UUID getVersionId(final JSONObject bundle) {

@@ -14,6 +14,7 @@ public class FhirObservation {
     private Date applies;
     private String name;
     private String value;
+    private String comparator;
     private String comments;
     private BaseGroup group;
     private String temporaryUuid;
@@ -27,6 +28,7 @@ public class FhirObservation {
         this.name = fhirObservation.getName();
         this.comments = fhirObservation.getComments();
         this.value = fhirObservation.getValue();
+        this.comparator = fhirObservation.getComparator();
         this.applies = fhirObservation.getApplies();
         if (fhirObservation.getGroup() != null) {
             this.group = new BaseGroup(fhirObservation.getGroup());
@@ -47,6 +49,10 @@ public class FhirObservation {
 
     public String getValue() {
         return value;
+    }
+
+    public String getComparator() {
+        return comparator;
     }
 
     public String getComments() {

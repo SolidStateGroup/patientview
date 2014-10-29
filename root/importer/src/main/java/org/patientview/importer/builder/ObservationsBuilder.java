@@ -90,6 +90,9 @@ public class ObservationsBuilder {
         observation.setName(createConcept(test));
         observation.setApplies(createDateTime(result));
         observation.setIdentifier(createIdentifier(test));
+        if (result.getPrepost() != null) {
+            observation.setCommentsSimple(result.getPrepost().toString());
+        }
 
         return observation;
     }
@@ -125,23 +128,50 @@ public class ObservationsBuilder {
                                     Patientview.Patient.Testdetails.Test test) throws FhirResourceException {
         Quantity quantity = new Quantity();
         quantity.setValue(createDecimal(result));
+        quantity.setComparatorSimple(getComparator(result));
         quantity.setUnitsSimple(test.getUnits());
-
         return quantity;
+    }
+
+    private Quantity.QuantityComparator getComparator(Patientview.Patient.Testdetails.Test.Result result) {
+
+        String resultString = result.getValue();
+
+        if (resultString.contains(">=")) {
+            return Quantity.QuantityComparator.greaterOrEqual;
+        }
+
+        if (resultString.contains("<=")) {
+            return Quantity.QuantityComparator.lessOrEqual;
+        }
+
+        if (resultString.contains(">")) {
+            return Quantity.QuantityComparator.greaterThan;
+        }
+
+        if (resultString.contains("<")) {
+            return Quantity.QuantityComparator.lessThan;
+        }
+
+        return null;
     }
 
     private Decimal createDecimal(Patientview.Patient.Testdetails.Test.Result result) throws FhirResourceException {
         Decimal decimal = new Decimal();
+
+        // remove all but numeric and .
         String resultString = result.getValue().replaceAll("[^.\\d]", "");
+
+        // attempt to parse remaining
         NumberFormat decimalFormat = DecimalFormat.getInstance();
         if (StringUtils.isNotEmpty(resultString)) {
             try {
                 decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
             } catch (ParseException nfe) {
-                LOG.info("Check down for parsing extra characters needs adding");
+                throw new FhirResourceException("Invalid value for observation");
             }
         } else {
-            throw new FhirResourceException("Invalid value for observation");
+            throw new FhirResourceException("Empty value for observation");
         }
         return decimal;
     }

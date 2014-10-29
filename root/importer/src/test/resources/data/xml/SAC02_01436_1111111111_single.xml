@@ -70,22 +70,6 @@
     <prepost>PRE</prepost>
 <value>>125.00</value>
 </result>
-<result>
-<datestamp>2013-11-05T08:00:00</datestamp>
-<value>123.00</value>
-</result>
-<result>
-<datestamp>2013-11-02T08:00:00</datestamp>
-<value>13.20</value>
-</result>
-<result>
-<datestamp>2013-11-01T08:00:00</datestamp>
-<value>12.40</value>
-</result>
-<result>
-<datestamp>2013-10-31T08:00:00</datestamp>
-<value>12.90</value>
-</result>
 </test>
 </testdetails>
 

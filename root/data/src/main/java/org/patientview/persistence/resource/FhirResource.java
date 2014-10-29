@@ -240,7 +240,7 @@ public class FhirResource {
             List<String[]> observations = new ArrayList<>();
 
             while ((results.next())) {
-                String[] res = {results.getString(1), results.getString(2), results.getString(3)};
+                String[] res = {results.getString(1), results.getString(2), results.getString(3), results.getString(4)};
                 observations.add(res);
             }
 
