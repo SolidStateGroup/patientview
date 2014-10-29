@@ -4,8 +4,10 @@ import org.hl7.fhir.instance.formats.JsonComposer;
 import org.hl7.fhir.instance.formats.JsonParser;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,19 @@ public class FhirResource {
     @Named("fhir")
     private DataSource dataSource;
 
+    public Resource get(UUID uuid, ResourceType resourceType) throws FhirResourceException {
+
+        JSONObject jsonObject = getBundle(uuid, resourceType);
+        JSONArray resultArray = (JSONArray) jsonObject.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+
+        try {
+            return jsonParser.parse(new ByteArrayInputStream(resource.getJSONObject("content").toString().getBytes()));
+        } catch (Exception e) {
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     /**
      * For FUNCTION fhir_create(cfg jsonb, _type varchar, resource jsonb, tags jsonb)
      *
@@ -72,7 +87,89 @@ public class FhirResource {
         } catch (Exception e) {
             throw new FhirResourceException(e);
         }
+    }
 
+    /**
+     *
+     * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
+     *
+     */
+    public JSONObject updateFhirObject(Resource resource, UUID resourceId, UUID versionId) throws FhirResourceException {
+
+        PGobject result;
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            CallableStatement proc = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resource.getResourceType().name());
+            proc.setObject(3, resourceId);
+            proc.setObject(4, versionId);
+            proc.setObject(5, marshallFhirRecord(resource));
+            proc.setObject(6, null);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.execute();
+
+            result = (PGobject) proc.getObject(1);
+            JSONObject jsonObject = new JSONObject(result.getValue());
+            proc.close();
+            connection.close();
+            return jsonObject;
+
+        } catch (SQLException e) {
+            // will likely fail if trying to update the same resource in multiple threads
+            LOG.error("Unable to update resource {}", e);
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * FUNCTION fhir_update(cfg jsonb, _type varchar, id uuid, vid uuid, resource jsonb, tags jsonb)
+     *
+     */
+    public UUID update(Resource resource, FhirLink fhirLink) throws FhirResourceException {
+
+        PGobject result;
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            CallableStatement proc = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resource.getResourceType().name());
+            proc.setObject(3, fhirLink.getResourceId());
+            proc.setObject(4, fhirLink.getVersionId());
+            proc.setObject(5, marshallFhirRecord(resource));
+            proc.setObject(6, null);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.execute();
+
+            result = (PGobject) proc.getObject(1);
+            JSONObject jsonObject = new JSONObject(result.getValue());
+            proc.close();
+            connection.close();
+            return getVersionId(jsonObject);
+
+        } catch (SQLException e) {
+            LOG.error("Unable to update resource {}", e);
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
+    /**
+     * For FUNCTION fhir_delete(cfg jsonb, _type varchar, id uuid)
+     *
+     */
+    public void delete(UUID uuid, ResourceType resourceType) throws SQLException, FhirResourceException {
+
+        //LOG.debug("Delete {} resource {}", resourceType.toString(), uuid.toString());
+        Connection connection = dataSource.getConnection();
+        CallableStatement proc  = connection.prepareCall("{call fhir_delete( ?::jsonb, ?, ?)}");
+        proc.setObject(1, config);
+        proc.setObject(2, resourceType.name());
+        proc.setObject(3, uuid);
+        proc.execute();
+        connection.close();
     }
 
     public JSONObject getResource(UUID uuid, ResourceType resourceType) throws FhirResourceException {
@@ -154,6 +251,90 @@ public class FhirResource {
         }
     }
 
+    public List<UUID> getLogicalIdsBySubjectId(final String tableName, final UUID subjectId)
+            throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE   content ->> 'subject' = '{\"display\": \"");
+        query.append(subjectId);
+        query.append("\", \"reference\": \"uuid\"}' ");
+
+        // execute and return UUIDs
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
+    }
+
+    public List<UUID> getLogicalIdsByPatientId(final String tableName, final UUID subjectId)
+            throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE   content ->> 'patient' = '{\"display\": \"");
+        query.append(subjectId);
+        query.append("\", \"reference\": \"uuid\"}' ");
+
+        // execute and return UUIDs
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
+    }
+
+    private JSONObject getBundle(UUID uuid, ResourceType resourceType) throws FhirResourceException {
+        //LOG.debug("Getting {} resource {}", resourceType.toString(), uuid.toString());
+        PGobject result;
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resourceType.name());
+            proc.setObject(3, uuid);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.execute();
+            result = (PGobject) proc.getObject(1);
+            JSONObject jsonObject = new JSONObject(result.getValue());
+            proc.close();
+            connection.close();
+            return jsonObject;
+        } catch (Exception e) {
+            // Fhir parser just throws exception
+            LOG.error("Unable to get resource {}", e);
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     private String marshallFhirRecord(Resource resource) throws FhirResourceException {
         JsonComposer jsonComposer = new JsonComposer();
         OutputStream outputStream = new ByteArrayOutputStream();
@@ -164,5 +345,14 @@ public class FhirResource {
             throw new FhirResourceException("Cannot build JSON", e);
         }
         return outputStream.toString();
+    }
+
+    public static UUID getVersionId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        JSONArray links = (JSONArray) resource.get("link");
+        JSONObject link = (JSONObject)  links.get(0);
+        String[] href = link.getString("href").split("/");
+        return UUID.fromString(href[href.length - 1]);
     }
 }

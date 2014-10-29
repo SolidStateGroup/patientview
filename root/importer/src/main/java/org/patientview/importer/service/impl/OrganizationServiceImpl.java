@@ -8,7 +8,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.OrganizationBuilder;
-import org.patientview.importer.resource.FhirResource;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.OrganizationService;
 import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;

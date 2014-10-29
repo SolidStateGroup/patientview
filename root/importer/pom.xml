@@ -111,18 +111,6 @@
             <version>2.2.5</version>
         </dependency>
 
-        <!-- DUPLICATE <dependency>
-            <groupId>org.patientview</groupId>
-            <artifactId>data</artifactId>
-            <version>0.1-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>-->
-
         <dependency>
             <groupId>org.patientview2</groupId>
             <artifactId>data</artifactId>
@@ -130,12 +118,6 @@
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
-
-        <!-- DUPLICATE <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>1.0.2.RELEASE</version>
-        </dependency>-->
 
         <dependency>
             <groupId>org.springframework</groupId>

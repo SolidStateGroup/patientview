@@ -7,7 +7,7 @@ import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.importer.builder.PractitionerBuilder;
-import org.patientview.importer.resource.FhirResource;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;

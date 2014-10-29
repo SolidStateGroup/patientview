@@ -5,7 +5,7 @@ import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.ConditionsBuilder;
-import org.patientview.importer.resource.FhirResource;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.ConditionService;
 import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;

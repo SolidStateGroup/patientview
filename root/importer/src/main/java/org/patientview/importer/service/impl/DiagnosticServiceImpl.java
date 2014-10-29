@@ -11,7 +11,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.importer.builder.DiagnosticReportBuilder;
-import org.patientview.importer.resource.FhirResource;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DiagnosticService;
 import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;

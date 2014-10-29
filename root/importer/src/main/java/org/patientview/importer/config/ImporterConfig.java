@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
  * Created on 14/07/2014
  */
 @Configuration
-@ComponentScan(basePackages = {"org.patientview.importer.*"})
+@ComponentScan(basePackages = {"org.patientview.importer.*","org.patientview.persistence.*"})
 @EnableWebMvc
 public class ImporterConfig {
 

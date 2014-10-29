@@ -9,7 +9,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.importer.builder.MedicationBuilder;
 import org.patientview.importer.builder.MedicationStatementBuilder;
-import org.patientview.importer.resource.FhirResource;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.MedicationService;
 import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;

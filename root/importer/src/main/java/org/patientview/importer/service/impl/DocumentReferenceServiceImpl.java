@@ -5,7 +5,7 @@ import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.DocumentReferenceBuilder;
-import org.patientview.importer.resource.FhirResource;
+import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DocumentReferenceService;
 import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;
