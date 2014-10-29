@@ -25,6 +25,9 @@ public class FhirObservation extends BaseModel {
     private Group group;
     private String temporaryUuid;
 
+    // only used by migration
+    private String identifier;
+
     public FhirObservation() {
     }
 
@@ -124,5 +127,13 @@ public class FhirObservation extends BaseModel {
 
     public void setTemporaryUuid(String temporaryUuid) {
         this.temporaryUuid = temporaryUuid;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

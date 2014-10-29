@@ -37,7 +37,8 @@ public interface UserService {
 
     // used by migration
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
-    Long migrateUser(MigrationUser migrationUser) throws EntityExistsException;
+    Long migrateUser(MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })

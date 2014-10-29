@@ -206,10 +206,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // add 500 observations
                 for (int j=0;j<observationCount;j++) {
                     FhirObservation observation = new FhirObservation();
-                    observation.setValue(String.valueOf(i));
+                    observation.setValue(String.valueOf(i + j));
                     observation.setApplies(new Date(i + j));
                     observation.setGroup(group);
+                    observation.setComparator(">");
+                    observation.setComments("comment");
                     observation.setName(observationName);
+                    observation.setIdentifier(i.toString());
                     observations.add(observation);
                 }
 

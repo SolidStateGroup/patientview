@@ -19,17 +19,15 @@ public class FhirLinkServiceImpl extends AbstractServiceImpl<FhirLinkServiceImpl
     private FhirLinkRepository fhirLinkRepository;
 
     public FhirLink get(final Long fhirLinkId) {
-        LOG.info("Not implemented");
-        return null;
+        return fhirLinkRepository.findOne(fhirLinkId);
     }
 
     public void delete(final Long fhirLinkId) {
-        LOG.info("Not implemented");
+        fhirLinkRepository.delete(fhirLinkId);
     }
 
     public FhirLink save(final FhirLink fhirLink) {
-        LOG.info("Not implemented");
-        return null;
+        return fhirLinkRepository.save(fhirLink);
     }
 
     public FhirLink add(FhirLink fhirLink) {

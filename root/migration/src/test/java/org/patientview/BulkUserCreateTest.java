@@ -40,7 +40,7 @@ public class BulkUserCreateTest {
     @Rollback(false)
     public void test01BulkUserCreate() {
 
-        Long usersToCreate = 1L;
+        Long usersToCreate = 100L;
         Long observationsToCreate = 100L;
 
         LOG.info("Starting creation of " + usersToCreate
@@ -52,8 +52,8 @@ public class BulkUserCreateTest {
         // takes group to add users to and number of users to create
         userDataMigrationService.bulkUserCreate("RENALB", usersToCreate, role, observationsToCreate, "hb");
 
-        LOG.info("Creation of " + usersToCreate + " "  + role.toString() + " took "
-                + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+        LOG.info("Creation of " + usersToCreate + " "  + role.toString() + " with " + observationsToCreate
+                + " Observations took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
     }
 
     /**

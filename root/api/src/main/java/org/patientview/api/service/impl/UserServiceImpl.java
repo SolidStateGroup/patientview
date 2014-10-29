@@ -3,9 +3,14 @@ package org.patientview.api.service.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
+import org.hl7.fhir.instance.model.ResourceType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.EmailService;
+import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.ObservationService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
@@ -38,6 +43,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserInformationRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -54,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -73,6 +80,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private PatientService patientService;
+
+    @Inject
+    private FhirLinkService fhirLinkService;
 
     @Inject
     private FeatureRepository featureRepository;
@@ -97,6 +107,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private EmailService emailService;
+
+    @Inject
+    private ObservationService observationService;
+
+    @Inject
+    private FhirResource fhirResource;
 
     @Inject
     private Properties properties;
@@ -346,8 +362,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * This persists the User map with GroupRoles and UserFeatures. The static
      * data objects are detached so have to be become managed again without updating the objects.
      *
-     * @param user
-     * @return
+     * @param user user to store
+     * @return Long userId
      */
     public Long createUserWithPasswordEncryption(User user)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
@@ -375,20 +391,95 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     // migration Only
-    public Long migrateUser(MigrationUser migrationUser) throws EntityExistsException {
+    public Long migrateUser(MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException {
+
         if (userRepository.usernameExists(migrationUser.getUser().getUsername())) {
             throw new EntityExistsException("User already exists (username)");
         }
 
-        Long userId = add(migrationUser.getUser());
+        // add basic user object
+        User user = migrationUser.getUser();
+        Long userId = add(user);
 
-        LOG.info(migrationUser.getObservations().size() + " Observations");
-
-        for (FhirObservation fhirObservation : migrationUser.getObservations()) {
-
+        // only patients will have observations
+        if (!CollectionUtils.isEmpty(migrationUser.getObservations())) {
+            try {
+                migratePatientData(userId, migrationUser);
+            } catch (FhirResourceException fre) {
+                LOG.error("Could not migrate patient data: {}", fre);
+            }
         }
 
         return userId;
+    }
+
+    // migration only
+    private void migratePatientData(Long userId, MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException {
+
+        User entityUser = userRepository.findOne(userId);
+        LOG.info(migrationUser.getObservations().size() + " Observations");
+
+        for (FhirObservation fhirObservation : migrationUser.getObservations()) {
+            // check observation identifier exists for this user
+            Identifier identifier = getIdentifier(fhirObservation.getIdentifier(), entityUser.getIdentifiers());
+            Group entityGroup = groupRepository.findOne(fhirObservation.getGroup().getId());
+
+            if (identifier != null) {
+                FhirLink fhirLink;
+
+                // check if  FhirLink exists for this user, group, identifier
+                List<FhirLink> fhirLinks = fhirLinkRepository.findByUserAndGroupAndIdentifierText(
+                        entityUser, fhirObservation.getGroup(), fhirObservation.getIdentifier());
+
+                if (CollectionUtils.isEmpty(fhirLinks)) {
+                    // create new FHIR Patient
+                    Patient patient = patientService.buildPatient(entityUser, identifier);
+                    JSONObject fhirPatient = fhirResource.create(patient);
+
+                    // create new FhirLink
+                    fhirLink = new FhirLink();
+                    fhirLink.setUser(entityUser);
+                    fhirLink.setIdentifier(identifier);
+                    fhirLink.setGroup(entityGroup);
+                    fhirLink.setResourceId(getResourceId(fhirPatient));
+                    fhirLink.setVersionId(getVersionId(fhirPatient));
+                    fhirLink.setResourceType(ResourceType.Patient.name());
+                    fhirLink.setActive(true);
+
+                    fhirLinkService.save(fhirLink);
+                } else {
+                    fhirLink = fhirLinks.get(0);
+                }
+
+                observationService.addObservation(fhirObservation, fhirLink);
+            }
+        }
+    }
+
+    private Identifier getIdentifier(String identifierText, Set<Identifier> identifiers) {
+        for (Identifier identifier : identifiers) {
+            if (identifier.getIdentifier().equals(identifierText)) {
+                return identifier;
+            }
+        }
+        return null;
+    }
+
+    private UUID getVersionId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        JSONArray links = (JSONArray) resource.get("link");
+        JSONObject link = (JSONObject)  links.get(0);
+        String[] href = link.getString("href").split("/");
+        return UUID.fromString(href[href.length - 1]);
+    }
+
+    private UUID getResourceId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        return UUID.fromString(resource.get("id").toString());
     }
 
     // not used
@@ -527,7 +618,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Get users based on a list of groups and roles
-     * @return
+     * @return Page of api User
      */
     public Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters) {
 
@@ -569,7 +660,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Get users based on a list of groups, roles and user features
-     * @return
+     * @return Page of api User
      */
     public Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters) {
 
@@ -621,9 +712,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     /**
      * Reset the flag so the user will not be prompted to change the password again
      *
-     * @param userId
-     * @param password
-     * @return
+     * @param userId Id of User to change password
+     * @param password password to set
      */
     public void changePassword(Long userId, String password) throws ResourceNotFoundException {
         User user = findUser(userId);

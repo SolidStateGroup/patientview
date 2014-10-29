@@ -48,6 +48,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -289,7 +290,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 }
 
                 if (!idValue.getValue().isEmpty()) {
-                    fhirObservations.add(buildObservation(applies, idValue.getValue(), observationHeading));
+                    fhirObservations.add(buildObservation(applies, idValue.getValue(), null,
+                            userResultCluster.getComments(), observationHeading));
                 }
             }
 
@@ -342,7 +344,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     }
 
     @Override
-    public void addObservation(FhirObservation fhirObservation)
+    public void addObservation(FhirObservation fhirObservation, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException {
 
         List<ObservationHeading> observationHeadings
@@ -352,9 +354,13 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Observation Heading not found");
         }
 
-        ObservationHeading observationHeading = observationHeadings.get(0);
+        Observation observation = buildObservation(createDateTime(fhirObservation.getApplies()),
+                fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
+                observationHeadings.get(0));
 
+        observation.setSubject(createResourceReference(fhirLink.getResourceId()));
 
+        fhirResource.create(observation);
     }
 
     private UUID getVersionId(final JSONObject bundle) {
@@ -372,7 +378,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         return UUID.fromString(resource.get("id").toString());
     }
 
-    private Observation buildObservation(DateTime applies, String value, ObservationHeading observationHeading)
+    private Observation buildObservation(DateTime applies, String value, String comparator, String comments,
+                                         ObservationHeading observationHeading)
             throws FhirResourceException {
 
         Observation observation = new Observation();
@@ -383,6 +390,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         try {
             Quantity quantity = new Quantity();
             quantity.setValue(createDecimal(value));
+            quantity.setComparatorSimple(getComparator(comparator));
             quantity.setUnitsSimple(observationHeading.getUnits());
             observation.setValue(quantity);
         } catch (ParseException pe) {
@@ -400,7 +408,32 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         observation.setName(name);
         observation.setIdentifier(createIdentifier(observationHeading.getCode()));
 
+        observation.setCommentsSimple(comments);
+
         return observation;
+    }
+
+    private Quantity.QuantityComparator getComparator(String comparator) {
+
+        if (StringUtils.isNotEmpty(comparator)) {
+            if (comparator.contains(">=")) {
+                return Quantity.QuantityComparator.greaterOrEqual;
+            }
+
+            if (comparator.contains("<=")) {
+                return Quantity.QuantityComparator.lessOrEqual;
+            }
+
+            if (comparator.contains(">")) {
+                return Quantity.QuantityComparator.greaterThan;
+            }
+
+            if (comparator.contains("<")) {
+                return Quantity.QuantityComparator.lessThan;
+            }
+        }
+
+        return null;
     }
 
     private DateTime createDateTime(UserResultCluster resultCluster) throws FhirResourceException {
@@ -429,6 +462,15 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         }
     }
 
+    private DateTime createDateTime(Date date) throws FhirResourceException {
+        DateTime dateTime = new DateTime();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        DateAndTime dateAndTime = new DateAndTime(calendar);
+        dateTime.setValue(dateAndTime);
+        return dateTime;
+    }
+
     private Decimal createDecimal(String result) throws ParseException {
         Decimal decimal = new Decimal();
         String resultString = result.replaceAll("[^.\\d]", "");
@@ -439,7 +481,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
             }
         } catch (ParseException nfe) {
-            LOG.info("Check down for parsing extra characters needs adding");
             throw new ParseException("Invalid value for observation", nfe.getErrorOffset());
         }
 

@@ -35,6 +35,16 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
     @Query("SELECT  f " +
             "FROM   FhirLink f " +
             "WHERE  f.user = :user " +
+            "AND    f.identifier.identifier = :identifierText " +
+            "AND    f.group = :group " +
+            "ORDER BY f.created DESC")
+    List<FhirLink> findByUserAndGroupAndIdentifierText(@Param("user") User user,
+                                                       @Param("group") Group group,
+                                                       @Param("identifierText") String identifierText);
+
+    @Query("SELECT  f " +
+            "FROM   FhirLink f " +
+            "WHERE  f.user = :user " +
             "AND    f.active = true " +
             "ORDER BY f.created DESC")
     List<FhirLink> findActiveByUser(@Param("user") User user);
