@@ -30,10 +30,6 @@ public class UserTokenRepositoryTest {
     @Inject
     DataTestUtils dataTestUtils;
 
-    /**
-     * Test: First DAO test needs TODO refactoring into base test
-     *
-     */
     @Test
     public void testCreateToken() {
 
@@ -137,5 +133,20 @@ public class UserTokenRepositoryTest {
         Date updatedExpiration = userTokenRepository.getExpiration(token);
 
         Assert.assertEquals("Should get correct expiration", future, updatedExpiration);
+    }
+
+    @Test
+    public void testDeleteByUserId() {
+
+        User user = dataTestUtils.createUser("testUser");
+        UserToken userToken = new UserToken();
+        userToken.setCreated(new Date());
+        userToken.setUser(user);
+        userToken.setToken("asdsa");
+        userToken.setExpiration(new Date());
+        userTokenRepository.save(userToken);
+
+        userTokenRepository.deleteByUserId(user.getId());
+        Assert.assertEquals("Should not get any UserToken", null, userTokenRepository.findByToken(userToken.getToken()));
     }
 }

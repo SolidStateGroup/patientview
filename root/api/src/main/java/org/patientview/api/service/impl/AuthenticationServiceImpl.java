@@ -190,7 +190,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("User is not currently logged in");
         }
         createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername());
-        userTokenRepository.delete(userToken.getId());
+
+        // delete all user tokens associated with this user (should only ever be one per user)
+        userTokenRepository.deleteByUserId(userToken.getUser().getId());
+        //userTokenRepository.delete(userToken.getId());
+
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 

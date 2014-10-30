@@ -32,4 +32,7 @@ public interface UserTokenRepository extends CrudRepository<UserToken, Long> {
     @Query("UPDATE UserToken SET expiration = :date WHERE token = :token")
     public void setExpiration(@Param("token") String token, @Param("date") Date date);
 
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM UserToken WHERE user.id = :userId")
+    public void deleteByUserId(@Param("userId") Long userId);
 }

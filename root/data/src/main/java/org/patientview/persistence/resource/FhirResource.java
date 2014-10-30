@@ -11,6 +11,9 @@ import org.patientview.persistence.model.FhirLink;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -27,6 +30,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -77,13 +81,14 @@ public class FhirResource {
             proc.setObject(4, null);
             proc.registerOutParameter(1, Types.OTHER);
             proc.execute();
-            //LOG.info("c2 " + new Date().getTime());
 
             result = (PGobject) proc.getObject(1);
-            connection.close();
-            //LOG.info("c3 " + new Date().getTime());
-            return new JSONObject(result.getValue());
+            JSONObject jsonObject = new JSONObject(result.getValue());
+            //LOG.info(jsonObject.toString());
 
+            proc.close();
+            connection.close();
+            return jsonObject;
         } catch (SQLException e) {
             LOG.error("Unable to build resource {}", e);
             throw new FhirResourceException(e.getMessage());

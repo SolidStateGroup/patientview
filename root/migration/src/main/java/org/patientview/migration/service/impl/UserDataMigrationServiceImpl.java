@@ -38,8 +38,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by james@solidstategroup.com
@@ -160,18 +163,19 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount,
                                String observationName) {
-        Date now = new Date();
+       LOG.info("Starting creation of " + count
+                + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
 
-        /*if (StringUtils.isEmpty(JsonUtil.token)) {
-            adminDataMigrationService.init();
-        }*/
+        ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(20);
 
-        ExecutorService concurrentTaskExecutor = Executors.newCachedThreadPool();
+        List<Callable<Object>> todo = new ArrayList<Callable<Object>>();
 
         Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
         Role userRole = adminDataMigrationService.getRoleByName(roleName);
 
         if (userUnit != null && userRole != null) {
+
+            Date now = new Date();
 
             for (Long i = now.getTime(); i<now.getTime() + count; i++) {
 
@@ -218,7 +222,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 MigrationUser migrationUser = new MigrationUser(newUser);
                 List<FhirObservation> observations = new ArrayList<FhirObservation>();
 
-                // add 500 observations
+                // add observations
                 for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
                     observation.setValue(String.valueOf(i + j));
@@ -233,7 +237,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 migrationUser.setObservations(observations);
 
-                concurrentTaskExecutor.execute(new AsyncMigrateUserTask(migrationUser));
+                //todo.add(Executors.callable(new AsyncMigrateUserTask(migrationUser)));
+
+                //try {
+                    concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                //} catch (Exception e) {
+                //    LOG.error(e.toString());
+                //}
 
                 // call REST to store migrated patient
                 /*try {
@@ -242,6 +252,23 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     LOG.error(e.getMessage());
                 }*/
             }
+
+            LOG.info("Sending " + count + " to REST service");
+
+            try {
+                concurrentTaskExecutor.shutdown();
+                concurrentTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            } catch (Exception e) {
+                LOG.error(e.getMessage());
+            }
+
+            /*try {
+                concurrentTaskExecutor.invokeAll(todo);
+            } catch (Exception e) {
+                LOG.error(e.toString());
+            }*/
+
+            LOG.info("Submitted " + count);
         }
     }
 

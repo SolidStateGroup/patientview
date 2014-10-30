@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
@@ -51,6 +52,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
@@ -70,6 +72,7 @@ import java.util.UUID;
  * Created on 19/06/2014
  */
 @Service
+@Transactional
 public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implements UserService {
 
     @Inject
@@ -400,8 +403,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     // migration Only
-    public Long migrateUser(MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException {
+    public Long migrateUser(MigrationUser migrationUser) throws EntityExistsException, ResourceNotFoundException {
 
         if (userRepository.usernameExists(migrationUser.getUser().getUsername())) {
             throw new EntityExistsException("User already exists (username)");
@@ -410,6 +412,43 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // add basic user object
         User user = migrationUser.getUser();
         Long userId = add(user);
+
+        //return userId;
+
+        //User entityUser = userRepository.findOne(userId);
+        //Identifier identifier = entityUser.getIdentifiers().iterator().next();
+
+        //Patient patient = patientService.buildPatient(entityUser, identifier);
+
+        //testing
+        /*try {
+            JSONObject fhirPatient = new JSONObject();
+            for (int i=0;i<10;i++) {
+                fhirPatient = fhirResource.create(patient);
+                //wait(10L);
+                //JSONObject fhirPatient2 = fhirResource.create(patient);
+            }
+
+            ObservationHeading observationHeading = observationHeadingService.findAll().get(0);
+            FhirObservation fhirObservation = migrationUser.getObservations().get(0);
+
+
+            FhirLink fhirLink = new FhirLink();
+            fhirLink.setUser(entityUser);
+            fhirLink.setIdentifier(identifier);
+            fhirLink.setGroup(entityUser.getGroupRoles().iterator().next().getGroup());
+            fhirLink.setResourceId(getResourceId(fhirPatient));
+            fhirLink.setVersionId(getVersionId(fhirPatient));
+            fhirLink.setResourceType(ResourceType.Patient.name());
+            fhirLink.setActive(true);
+
+            Observation observation
+                    = observationService.buildObservation(fhirObservation, observationHeading, fhirLink);
+            fhirResource.create(observation);
+
+        } catch (Exception e) {
+            LOG.error("Could not migrate patient data, " + e.toString());
+        }*/
 
         // only patients will have observations
         if (!CollectionUtils.isEmpty(migrationUser.getObservations())) {
@@ -428,67 +467,74 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private void migratePatientData(Long userId, MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException {
 
-        User entityUser = userRepository.findOne(userId);
-        LOG.info(userId + " has " + migrationUser.getObservations().size() + " Observations");
+        try {
+            User entityUser = userRepository.findOne(userId);
+            LOG.info(userId + " has " + migrationUser.getObservations().size() + " Observations");
 
-        Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
+            Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
 
-        // set up map of observation headings
-        if (observationHeadingsMap == null) {
-            observationHeadingsMap = new HashMap<>();
+            // set up map of observation headings
+            if (observationHeadingsMap == null) {
+                observationHeadingsMap = new HashMap<>();
+                for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+                    observationHeadingsMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
+                }
+            }
+
+            // set up map of identifiers
+            HashMap<String, Identifier> identifierMap = new HashMap<>();
+            for (Identifier identifier : entityUser.getIdentifiers()) {
+                identifierMap.put(identifier.getIdentifier(), identifier);
+            }
+
             for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
                 observationHeadingsMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
             }
-        }
 
-        // set up map of identifiers
-        HashMap<String, Identifier> identifierMap = new HashMap<>();
-        for (Identifier identifier : entityUser.getIdentifiers()) {
-            identifierMap.put(identifier.getIdentifier(), identifier);
-        }
-
-        for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
-            observationHeadingsMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
-        }
-
-        if (fhirLinks == null) {
-            fhirLinks = new HashSet<>();
-        }
-
-        for (FhirObservation fhirObservation : migrationUser.getObservations()) {
-
-            // get identifier for this user
-            Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());
-
-            // get observation heading for this observation
-            ObservationHeading observationHeading = observationHeadingsMap.get(fhirObservation.getName().toUpperCase());
-
-            //LOG.info("1 " + new Date().getTime());
-
-            if (identifier != null && observationHeading != null) {
-                FhirLink fhirLink = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
-
-                if (fhirLink == null) {
-                    // create new FHIR Patient
-                    Patient patient = patientService.buildPatient(entityUser, identifier);
-                    JSONObject fhirPatient = fhirResource.create(patient);
-
-                    // create new FhirLink and add to list of known fhirlinks
-                    fhirLink = new FhirLink();
-                    fhirLink.setUser(entityUser);
-                    fhirLink.setIdentifier(identifier);
-                    fhirLink.setGroup(fhirObservation.getGroup());
-                    fhirLink.setResourceId(getResourceId(fhirPatient));
-                    fhirLink.setVersionId(getVersionId(fhirPatient));
-                    fhirLink.setResourceType(ResourceType.Patient.name());
-                    fhirLink.setActive(true);
-                    fhirLinks.add(fhirLinkService.save(fhirLink));
-                }
-
-                //LOG.info("2 " + new Date().getTime());
-                observationService.addObservation(fhirObservation, observationHeading, fhirLink);
-                //LOG.info("3 " + new Date().getTime());
+            if (fhirLinks == null) {
+                fhirLinks = new HashSet<>();
             }
+
+            for (FhirObservation fhirObservation : migrationUser.getObservations()) {
+
+                // get identifier for this user
+                Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());
+
+                // get observation heading for this observation
+                ObservationHeading observationHeading = observationHeadingsMap.get(fhirObservation.getName().toUpperCase());
+
+                //LOG.info("1 " + new Date().getTime());
+
+                if (identifier != null && observationHeading != null) {
+                    FhirLink fhirLink = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
+
+                    if (fhirLink == null) {
+                        // create new FHIR Patient
+                        Patient patient = patientService.buildPatient(entityUser, identifier);
+                        JSONObject fhirPatient = fhirResource.create(patient);
+
+                        // create new FhirLink and add to list of known fhirlinks
+                        fhirLink = new FhirLink();
+                        fhirLink.setUser(entityUser);
+                        fhirLink.setIdentifier(identifier);
+                        fhirLink.setGroup(fhirObservation.getGroup());
+                        fhirLink.setResourceId(getResourceId(fhirPatient));
+                        fhirLink.setVersionId(getVersionId(fhirPatient));
+                        fhirLink.setResourceType(ResourceType.Patient.name());
+                        fhirLink.setActive(true);
+                        fhirLinks.add(fhirLinkService.save(fhirLink));
+                    }
+
+                    //LOG.info("2 " + new Date().getTime());
+                    Observation observation
+                            = observationService.buildObservation(fhirObservation, observationHeading, fhirLink);
+                    fhirResource.create(observation);
+                    //observationService.addObservation(fhirObservation, observationHeading, fhirLink);
+                    //LOG.info("3 " + new Date().getTime());
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
         }
     }
 

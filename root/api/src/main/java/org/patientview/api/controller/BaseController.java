@@ -96,11 +96,11 @@ public abstract class BaseController<T extends BaseController> {
         return e.getMessage();
     }
 
-    // handle async calls to migrate users
-    @ExceptionHandler(ClientAbortException.class)
+    @ExceptionHandler(NullPointerException.class)
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.OK)
-    public void handleBrokenPipeException() {
-        // do nothing
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleNullPointerException(NullPointerException e) {
+        LOG.info("Null Pointer");
+        return e.getMessage();
     }
 }

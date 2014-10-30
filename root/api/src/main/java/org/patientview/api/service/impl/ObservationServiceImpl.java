@@ -355,6 +355,18 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         fhirResource.create(observation);
     }
 
+    @Override
+    public Observation buildObservation(FhirObservation fhirObservation, ObservationHeading observationHeading,
+                                        FhirLink fhirLink) throws FhirResourceException {
+        Observation observation = buildObservation(createDateTime(fhirObservation.getApplies()),
+                fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
+                observationHeading);
+
+        observation.setSubject(createResourceReference(fhirLink.getResourceId()));
+
+        return observation;
+    }
+
     private UUID getVersionId(final JSONObject bundle) {
         JSONArray resultArray = (JSONArray) bundle.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);

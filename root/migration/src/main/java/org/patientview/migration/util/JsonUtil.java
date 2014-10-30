@@ -7,8 +7,12 @@ import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Request;
 import com.ning.http.client.RequestBuilder;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
@@ -17,8 +21,12 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jettison.json.JSONObject;
@@ -35,6 +43,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.model.LoginDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 
 import javax.xml.ws.Response;
 import java.io.BufferedReader;
@@ -43,9 +52,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Dumping ground for some Json utilities to migrate data
@@ -146,7 +157,7 @@ public final class JsonUtil {
                 br.close();
             }
 
-            LOG.info("Status: " + statusCode + " " + output.toString());
+            //LOG.info("Status: " + statusCode + " " + output.toString());
         } catch (Exception e) {
             LOG.error("Exception trying to {} data to {} cause: {}", method.getClass().getName(), url, e.getMessage());
             throw new JsonMigrationException(e);
@@ -197,21 +208,35 @@ public final class JsonUtil {
         return httpClient.execute(put);
     }
 
-    // testing asynchronous wih AsyncHttpClient
-    public static  HttpResponse gsonPost(String postUrl, Object object) throws Exception {
-        /*String json = gson.toJson(object);
-        //LOG.info("Posting the following: " + json);
-        HttpClient httpClient = new DefaultHttpClient();
+    // testing asynchronous alternate methods
+    public static void gsonPost(String postUrl, Object object) throws Exception {
+        String json = gson.toJson(object);
 
-        HttpPost post = new HttpPost(postUrl);
+        // see http://hc.apache.org/httpcomponents-client-4.3.x/quickstart.html
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
+        httpPost.setEntity(postingString);
+        httpPost.setHeader("Content-type", "application/json");
+        httpPost.setHeader("X-Auth-Token", token);
+        CloseableHttpResponse response2 = httpclient.execute(httpPost);
 
-        post.setEntity(postingString);
-        post.setHeader("Content-type", "application/json");
-        post.setHeader("X-Auth-Token", token);
-        return httpClient.execute(post);*/
+        try {
+            HttpEntity entity2 = response2.getEntity();
+            // do something useful with the response body
+            // and ensure it is fully consumed
+            EntityUtils.consume(entity2);
+        } finally {
+            response2.close();
+        }
+        httpclient.close();
 
-        RequestBuilder builder = new RequestBuilder("POST");
+        // httpClient.getParams().setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 10);
+        //post.releaseConnection();
+        //httpClient.getConnectionManager().closeExpiredConnections();
+        //httpClient.getConnectionManager().closeIdleConnections(1, TimeUnit.SECONDS);
+
+        /*RequestBuilder builder = new RequestBuilder("POST");
         Request request = builder.setUrl(postUrl)
                 .addHeader("Content-type", "application/json")
                 .addHeader("X-Auth-Token", token)
@@ -220,11 +245,10 @@ public final class JsonUtil {
 
         AsyncHttpClient client = new AsyncHttpClient();
         client.prepareRequest(request);
-        client.executeRequest(request).done();
+        client.executeRequest(request).done();*/
         //client.closeAsynchronously();
-
         //client.executeRequest(request);
-        return null;
+        //return null;
     }
 
     public static <T> List<T> getStaticDataList(String url) {

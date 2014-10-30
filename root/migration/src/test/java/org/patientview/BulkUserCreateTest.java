@@ -39,20 +39,15 @@ public class BulkUserCreateTest {
     @Transactional
     @Rollback(false)
     public void test01BulkUserCreate() {
-
-        Long usersToCreate = 100L;
-        Long observationsToCreate = 50L;
-
-        LOG.info("Starting creation of " + usersToCreate
-                + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
-
+        Long usersToCreate = 20L;
+        Long observationsToCreate = 0L;
         Date start = new Date();
         RoleName role = RoleName.PATIENT;
 
         // takes group to add users to and number of users to create
         userDataMigrationService.bulkUserCreate("RENALB", usersToCreate, role, observationsToCreate, "hb");
 
-        LOG.info("Creation of " + usersToCreate + " "  + role.toString() + " with " + observationsToCreate
+        LOG.info("Submission of " + usersToCreate + " "  + role.toString() + " with " + observationsToCreate
                 + " Observations took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
     }
 
