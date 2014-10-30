@@ -41,7 +41,7 @@ public class BulkUserCreateTest {
     public void test01BulkUserCreate() {
 
         Long usersToCreate = 100L;
-        Long observationsToCreate = 100L;
+        Long observationsToCreate = 50L;
 
         LOG.info("Starting creation of " + usersToCreate
                 + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");

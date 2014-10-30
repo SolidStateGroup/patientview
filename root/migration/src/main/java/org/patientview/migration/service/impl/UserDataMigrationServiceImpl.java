@@ -2,9 +2,9 @@ package org.patientview.migration.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.patientview.migration.service.AdminDataMigrationService;
+import org.patientview.migration.service.AsyncService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
@@ -38,6 +38,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by james@solidstategroup.com
@@ -59,6 +61,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     @Inject
     private AdminDataMigrationService adminDataMigrationService;
+
+    @Inject
+    private AsyncService asyncService;
 
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
@@ -143,8 +148,12 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // convert to transport object
                 MigrationUser migrationUser = new MigrationUser(newUser);
 
-                // call REST to store migrated user
-                callApiMigrateUser(migrationUser);
+                // call REST to store migrated patient
+                try {
+                    asyncService.callApiMigrateUser(migrationUser);
+                } catch (Exception e) {
+                    LOG.error(e.getMessage());
+                }
             }
         }
     }
@@ -152,6 +161,12 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount,
                                String observationName) {
         Date now = new Date();
+
+        /*if (StringUtils.isEmpty(JsonUtil.token)) {
+            adminDataMigrationService.init();
+        }*/
+
+        ExecutorService concurrentTaskExecutor = Executors.newCachedThreadPool();
 
         Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
         Role userRole = adminDataMigrationService.getRoleByName(roleName);
@@ -204,7 +219,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 List<FhirObservation> observations = new ArrayList<FhirObservation>();
 
                 // add 500 observations
-                for (int j=0;j<observationCount;j++) {
+                for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
                     observation.setValue(String.valueOf(i + j));
                     observation.setApplies(new Date(i + j));
@@ -218,26 +233,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 migrationUser.setObservations(observations);
 
+                concurrentTaskExecutor.execute(new AsyncMigrateUserTask(migrationUser));
+
                 // call REST to store migrated patient
-                callApiMigrateUser(migrationUser);
+                /*try {
+                    asyncService.callApiMigrateUser(migrationUser);
+                } catch (Exception e) {
+                    LOG.error(e.getMessage());
+                }*/
             }
         }
-    }
-
-
-    private Long callApiMigrateUser(MigrationUser user) {
-        String url = JsonUtil.pvUrl + "/user/migrate";
-        Long userId = null;
-        try {
-            userId = JsonUtil.jsonRequest(url, Long.class, user, HttpPost.class);
-            LOG.info("Created user: {} with id {}", user.getUser().getUsername(), userId);
-        } catch (JsonMigrationException jme) {
-            LOG.error("Unable to create user: {}", user.getUser().getUsername());
-        } catch (JsonMigrationExistsException jee) {
-            LOG.info("User {} already exists", user.getUser().getUsername());
-        }
-
-        return userId;
     }
 
     public User createUser(org.patientview.patientview.model.User user) {
@@ -304,7 +309,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private void callApiAddGroupRole(Long userId, Long groupId, Long roleId) {
         String url = JsonUtil.pvUrl + "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
         try {
-            JsonUtil.jsonRequest(url, GroupRole.class, null, HttpPut.class);
+            JsonUtil.jsonRequest(url, GroupRole.class, null, HttpPut.class, true);
             LOG.info("Created group and role for user");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to add user to group");

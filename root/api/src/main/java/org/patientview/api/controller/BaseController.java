@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -93,5 +94,13 @@ public abstract class BaseController<T extends BaseController> {
     public String handleUsernameException(Exception e) {
         LOG.error("Login failed");
         return e.getMessage();
+    }
+
+    // handle async calls to migrate users
+    @ExceptionHandler(ClientAbortException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.OK)
+    public void handleBrokenPipeException() {
+        // do nothing
     }
 }

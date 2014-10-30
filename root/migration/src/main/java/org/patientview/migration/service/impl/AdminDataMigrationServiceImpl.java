@@ -100,7 +100,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     }
 
     @PostConstruct
-    public void init() {
+    public void init() throws JsonMigrationException {
         try {
             JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
             lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
@@ -109,6 +109,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
         } catch (JsonMigrationException e) {
             LOG.error("Could not authenticate {} ", e.getCause());
+            throw new JsonMigrationException(e.getMessage());
         } catch (JsonMigrationExistsException e) {
             LOG.error("Could not authenticate {} ", e.getCause());
         }
@@ -171,7 +172,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/parent/" + parentGroup.getId();
 
         try {
-            JsonUtil.jsonRequest(featureUrl, GroupRole.class, null, HttpPut.class);
+            JsonUtil.jsonRequest(featureUrl, GroupRole.class, null, HttpPut.class, true);
             LOG.info("Success: feature created for group");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to parent group: ", jme.getMessage());
@@ -188,7 +189,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/features/" + feature.getId();
 
         try {
-            return JsonUtil.jsonRequest(featureUrl, GroupFeature.class, null, HttpPut.class);
+            return JsonUtil.jsonRequest(featureUrl, GroupFeature.class, null, HttpPut.class, true);
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create group feature: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {
@@ -207,7 +208,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/contactpoints";
 
         try {
-            return JsonUtil.jsonRequest(featureUrl, ContactPoint.class, contactPoint, HttpPost.class);
+            return JsonUtil.jsonRequest(featureUrl, ContactPoint.class, contactPoint, HttpPost.class, true);
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create contact point: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {
@@ -223,7 +224,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private Long callApiCreateGroup(Group group) {
         Long newGroupId = null;
         try {
-            newGroupId = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Long.class, group, HttpPost.class);
+            newGroupId = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Long.class, group, HttpPost.class, true);
             LOG.info("Created group");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create group: ", jme.getMessage());
@@ -237,7 +238,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private Group callApiGetGroup(Long groupId) {
         Group newGroup = null;
         try {
-            newGroup = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group/" + groupId, Group.class, null, HttpGet.class);
+            newGroup = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group/" + groupId, Group.class, null, HttpGet.class, true);
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to get group: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {
@@ -250,7 +251,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private Code callApiCreateCode(Code code) {
         Code newCode = null;
         try {
-            newCode = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/code", Code.class, code, HttpPost.class);
+            newCode = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/code", Code.class, code, HttpPost.class, true);
             LOG.info("Created code");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create code: ", jme.getMessage());
@@ -265,7 +266,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         ObservationHeading newObservationHeading = null;
         try {
             newObservationHeading = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/observationheading",
-                    ObservationHeading.class, observationHeading, HttpPost.class);
+                    ObservationHeading.class, observationHeading, HttpPost.class, true);
             LOG.info("Created observation heading");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create observation heading: ", jme.getMessage());
@@ -279,7 +280,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private Link callApiCreateLink(Link link) {
         Link newLink = null;
         try {
-            newLink = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/link", Link.class, link, HttpPost.class);
+            newLink = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/link", Link.class, link, HttpPost.class, true);
             //LOG.info("Created link");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to create link: ", jme.getMessage());
@@ -294,7 +295,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         ContactPointType newLink = null;
         String url = JsonUtil.pvUrl + "/contactpoint/type/" + type;
         try {
-            newLink = JsonUtil.jsonRequest(url, ContactPointType.class, null , HttpGet.class);
+            newLink = JsonUtil.jsonRequest(url, ContactPointType.class, null , HttpGet.class, true);
             //LOG.info("Got Contact Point Type");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to get contact point: ", jme.getMessage());
@@ -317,9 +318,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         int i = 0;
         while (i < 10) {
             try {
-                group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class);
+                group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group", Group.class, group, HttpPost.class, true);
                 // Delete the test group once we have successfully created one
-                group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group/" + group.getId(), null, null, HttpDelete.class);
+                group = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/group/" + group.getId(), null, null, HttpDelete.class, true);
                 break;
             } catch (JsonMigrationException jme) {
                 LOG.trace("Unable to create group: ", jme.getMessage());

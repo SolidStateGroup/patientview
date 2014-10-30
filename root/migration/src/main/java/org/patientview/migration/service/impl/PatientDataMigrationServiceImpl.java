@@ -55,7 +55,7 @@ public class PatientDataMigrationServiceImpl implements PatientDataMigrationServ
             String url = JsonUtil.pvUrl + "/user/username?username=" + oldUser.getUsername();
             User newUser = null;
             try {
-                newUser = JsonUtil.jsonRequest(url, User.class, null, HttpGet.class);
+                newUser = JsonUtil.jsonRequest(url, User.class, null, HttpGet.class, true);
             } catch (JsonMigrationException jme) {
                 LOG.error("Unable to get user {}, cause: {}", oldUser.getUsername(), jme.getCause());
                 continue;
@@ -80,7 +80,7 @@ public class PatientDataMigrationServiceImpl implements PatientDataMigrationServ
             }
 
             try {
-                newUser = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/user", User.class, newUser, HttpPut.class);
+                newUser = JsonUtil.jsonRequest(JsonUtil.pvUrl + "/user", User.class, newUser, HttpPut.class, true);
             } catch (JsonMigrationException jme) {
                 LOG.error("Failed to link patient record with user: {}", newUser.getUsername());
                 continue;

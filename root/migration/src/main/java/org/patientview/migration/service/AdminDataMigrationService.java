@@ -1,5 +1,6 @@
 package org.patientview.migration.service;
 
+import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Lookup;
@@ -14,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface AdminDataMigrationService {
+
+    void init() throws JsonMigrationException;
+
     Group getRenal();
 
     Group getDiabetes();

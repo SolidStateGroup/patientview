@@ -3,6 +3,10 @@ package org.patientview.migration.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Request;
+import com.ning.http.client.RequestBuilder;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
@@ -32,6 +36,7 @@ import org.patientview.model.LoginDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.ws.Response;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
@@ -40,6 +45,7 @@ import java.lang.reflect.Constructor;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Dumping ground for some Json utilities to migrate data
@@ -70,19 +76,18 @@ public final class JsonUtil {
 
     public static String authenticate(String username, String password)
             throws JsonMigrationException, JsonMigrationExistsException {
+        LOG.info("Authenticating " + username);
         LoginDetails loginDetails = new LoginDetails(username, password);
-        return JsonUtil.jsonRequest(JsonUtil.pvUrl + "/auth/login", String.class, loginDetails, HttpPost.class);
+        return JsonUtil.jsonRequest(JsonUtil.pvUrl + "/auth/login", String.class, loginDetails, HttpPost.class, true);
     }
 
     public static void logout() throws JsonMigrationException, JsonMigrationExistsException {
-        JsonUtil.jsonRequest(JsonUtil.pvUrl + "/auth/logout/" + token, String.class, null, HttpDelete.class);
+        JsonUtil.jsonRequest(JsonUtil.pvUrl + "/auth/logout/" + token, String.class, null, HttpDelete.class, true);
     }
 
-    public static <T, V extends HttpRequestBase> T jsonRequest(String url, Class<T> responseObject,
-                                                               Object requestObject, Class<V> httpMethod)
+    public static <T, V extends HttpRequestBase> T  jsonRequest(String url, Class<T> responseObject,
+                                               Object requestObject, Class<V> httpMethod, boolean expectResponse)
             throws JsonMigrationException, JsonMigrationExistsException {
-
-        //Gson gson = new Gson();
 
         HttpClient httpClient = getThreadSafeClient();
         V method;
@@ -132,44 +137,44 @@ public final class JsonUtil {
                 throw new JsonMigrationException("An " + httpResponse.getStatusLine().getStatusCode() + " error response from the server");
             }
 
-            br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
-            String s;
-            while ((s = br.readLine()) != null) {
-                output.append(s);
+            if (expectResponse) {
+                br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
+                String s;
+                while ((s = br.readLine()) != null) {
+                    output.append(s);
+                }
+                br.close();
             }
-            br.close();
 
+            LOG.info("Status: " + statusCode + " " + output.toString());
         } catch (Exception e) {
             LOG.error("Exception trying to {} data to {} cause: {}", method.getClass().getName(), url, e.getMessage());
             throw new JsonMigrationException(e);
-
         } finally {
+            httpClient.getConnectionManager().closeExpiredConnections();
             httpClient.getConnectionManager().shutdown();
         }
 
-        return gson.fromJson(output.toString(), responseObject);
+        if (expectResponse) {
+            return gson.fromJson(output.toString(), responseObject);
+        } else {
+            return null;
+        }
     }
 
     public static String getResourceUuid(String json) throws Exception {
-
         HttpResponse httpResponse = gsonPost(json);
-
         String source = EntityUtils.toString(httpResponse.getEntity());
         System.out.println(source);
-
         JSONObject jsonObject = new JSONObject(source);
-
         return String.valueOf(jsonObject.get("insert_resource"));
     }
 
     private static HttpResponse gsonPost(String json) throws Exception {
-
         HttpClient httpClient = new DefaultHttpClient();
-
         String postUrl="http://dev.solidstategroup.com:7865/api/resource";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
-
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/json");
         post.setHeader("X-Auth-Token", token);
@@ -177,8 +182,6 @@ public final class JsonUtil {
     }
 
     public static HttpResponse gsonPut(String postUrl, Object object) throws Exception {
-
-        //Gson gson = new Gson();
         HttpClient httpClient = new DefaultHttpClient();
         HttpPut put = new HttpPut(postUrl);
 
@@ -194,12 +197,10 @@ public final class JsonUtil {
         return httpClient.execute(put);
     }
 
+    // testing asynchronous wih AsyncHttpClient
     public static  HttpResponse gsonPost(String postUrl, Object object) throws Exception {
-
-        //Gson gson = new Gson();
-
-        String json = gson.toJson(object);
-        LOG.info("Posting the following: " + json);
+        /*String json = gson.toJson(object);
+        //LOG.info("Posting the following: " + json);
         HttpClient httpClient = new DefaultHttpClient();
 
         HttpPost post = new HttpPost(postUrl);
@@ -208,12 +209,26 @@ public final class JsonUtil {
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/json");
         post.setHeader("X-Auth-Token", token);
-        return httpClient.execute(post);
+        return httpClient.execute(post);*/
+
+        RequestBuilder builder = new RequestBuilder("POST");
+        Request request = builder.setUrl(postUrl)
+                .addHeader("Content-type", "application/json")
+                .addHeader("X-Auth-Token", token)
+                .setBody(gson.toJson(object))
+                .build();
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.prepareRequest(request);
+        client.executeRequest(request).done();
+        //client.closeAsynchronously();
+
+        //client.executeRequest(request);
+        return null;
     }
 
     public static <T> List<T> getStaticDataList(String url) {
         HttpClient httpClient = new DefaultHttpClient();
-        //Gson gson = new Gson();
 
         HttpGet get = new HttpGet(url);
         get.addHeader("accept", "application/json");
@@ -232,12 +247,10 @@ public final class JsonUtil {
         }
 
         BufferedReader br;
-
         StringBuilder output = new StringBuilder();
 
         try {
             br = new BufferedReader(new InputStreamReader((httpResponse.getEntity().getContent())));
-
             String s;
             while ((s = br.readLine()) != null) {
                 output.append(s);
@@ -247,16 +260,11 @@ public final class JsonUtil {
             e.printStackTrace();
         }
 
-        List<T> data = gson.fromJson(output.toString(), new TypeToken<List<T>>(){}.getType());
-
-        return data;
+        return gson.fromJson(output.toString(), new TypeToken<List<T>>(){}.getType());
     }
 
     public static List<Lookup> getStaticDataLookups(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
-        //Gson gson = new Gson();
-        //Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateDeserializer()).create();
-
         HttpGet get = new HttpGet(getUrl);
 
         get.addHeader("accept", "application/json");
@@ -290,14 +298,11 @@ public final class JsonUtil {
             e.printStackTrace();
         }
 
-        List<Lookup> data = gson.fromJson(output.toString(), new TypeToken<List<Lookup>>(){}.getType());
-
-        return data;
+        return gson.fromJson(output.toString(), new TypeToken<List<Lookup>>(){}.getType());
     }
 
     public static List<Feature> getStaticDataFeatures(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
-        //Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
@@ -331,14 +336,11 @@ public final class JsonUtil {
             e.printStackTrace();
         }
 
-        List<Feature> data = gson.fromJson(output.toString(), new TypeToken<List<Feature>>(){}.getType());
-
-        return data;
+        return gson.fromJson(output.toString(), new TypeToken<List<Feature>>(){}.getType());
     }
 
     public static List<Group> getGroups(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
-        //Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
@@ -379,7 +381,6 @@ public final class JsonUtil {
 
     public static List<Role> getRoles(String getUrl) {
         HttpClient httpClient = new DefaultHttpClient();
-        //Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
         HttpGet get = new HttpGet(getUrl);
         get.addHeader("accept", "application/json");
@@ -419,7 +420,6 @@ public final class JsonUtil {
     }
 
     public static String serializeResource(Resource resource) {
-
         OutputStream out = new ByteArrayOutputStream();
 
         JsonComposer jsonComposer = new JsonComposer();
@@ -433,7 +433,6 @@ public final class JsonUtil {
     }
 
     public static DefaultHttpClient getThreadSafeClient()  {
-
         DefaultHttpClient client = new DefaultHttpClient();
         ClientConnectionManager mgr = client.getConnectionManager();
         HttpParams params = client.getParams();

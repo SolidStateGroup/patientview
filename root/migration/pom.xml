@@ -34,6 +34,13 @@
             <version>0.2-SNAPSHOT</version>
         </dependency>
 
+        <!-- asynchronous http requests 29/10/14 -->
+        <dependency>
+            <groupId>com.ning</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>1.8.14</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

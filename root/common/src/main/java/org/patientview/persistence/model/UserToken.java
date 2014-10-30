@@ -19,7 +19,7 @@ import java.util.Date;
 @Table(name = "pv_user_token")
 public class UserToken extends BaseModel {
 
-    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

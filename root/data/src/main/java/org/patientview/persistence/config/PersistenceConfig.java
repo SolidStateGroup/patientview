@@ -58,8 +58,9 @@ public class PersistenceConfig extends CommonConfig {
 
     @Bean(name = "patientView")
     @Primary
-    public DataSource patientViewDataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+    public BasicDataSource patientViewDataSource() {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setMaxTotal(20);
         dataSource.setDriverClassName("org.postgresql.Driver");
         dataSource.setUrl(properties.getProperty("pv.url"));
         dataSource.setUsername(properties.getProperty("pv.user"));

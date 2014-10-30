@@ -129,6 +129,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private Group genericGroup;
     private Role memberRole;
 
+    // used during migration
+    private HashMap<String, ObservationHeading> observationHeadingsMap;
+
     @PostConstruct
     public void init() {
         // set up generic groups
@@ -417,6 +420,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
+        LOG.info("{} Done", userId);
         return userId;
     }
 
@@ -425,14 +429,25 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException {
 
         User entityUser = userRepository.findOne(userId);
-        LOG.info(migrationUser.getObservations().size() + " Observations");
+        LOG.info(userId + " has " + migrationUser.getObservations().size() + " Observations");
 
         Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
 
         // set up map of observation headings
-        List<ObservationHeading> observationHeadings = observationHeadingService.findAll();
-        HashMap<String, ObservationHeading> observationHeadingsMap = new HashMap<>();
-        for (ObservationHeading observationHeading : observationHeadings) {
+        if (observationHeadingsMap == null) {
+            observationHeadingsMap = new HashMap<>();
+            for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+                observationHeadingsMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
+            }
+        }
+
+        // set up map of identifiers
+        HashMap<String, Identifier> identifierMap = new HashMap<>();
+        for (Identifier identifier : entityUser.getIdentifiers()) {
+            identifierMap.put(identifier.getIdentifier(), identifier);
+        }
+
+        for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
             observationHeadingsMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
         }
 
@@ -443,7 +458,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         for (FhirObservation fhirObservation : migrationUser.getObservations()) {
 
             // get identifier for this user
-            Identifier identifier = getIdentifier(fhirObservation.getIdentifier(), entityUser.getIdentifiers());
+            Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());
 
             // get observation heading for this observation
             ObservationHeading observationHeading = observationHeadingsMap.get(fhirObservation.getName().toUpperCase());
@@ -481,15 +496,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         for (FhirLink fhirLink : fhirLinks) {
             if (fhirLink.getGroup().equals(group) && fhirLink.getIdentifier().getIdentifier().equals(identifierText)) {
                 return fhirLink;
-            }
-        }
-        return null;
-    }
-
-    private Identifier getIdentifier(String identifierText, Set<Identifier> identifiers) {
-        for (Identifier identifier : identifiers) {
-            if (identifier.getIdentifier().equals(identifierText)) {
-                return identifier;
             }
         }
         return null;
