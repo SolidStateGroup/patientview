@@ -244,19 +244,19 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 List<FhirCondition> conditions = new ArrayList<FhirCondition>();
                 FhirCondition fhirCondition = new FhirCondition();
                 fhirCondition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
-                fhirCondition.setCode("00");
-                fhirCondition.setNotes("00");
+                fhirCondition.setCode("Something else");
+                fhirCondition.setNotes("Something else");
                 fhirCondition.setGroup(userUnit);
                 fhirCondition.setIdentifier(i.toString());
                 conditions.add(fhirCondition);
 
                 FhirCondition fhirConditionEdta = new FhirCondition();
-                fhirConditionEdta.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+                fhirConditionEdta.setCategory(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
                 fhirConditionEdta.setCode("00");
                 fhirConditionEdta.setNotes("00");
                 fhirConditionEdta.setGroup(userUnit);
                 fhirConditionEdta.setIdentifier(i.toString());
-                conditions.add(fhirCondition);
+                conditions.add(fhirConditionEdta);
                 migrationUser.setConditions(conditions);
 
                 //todo.add(Executors.callable(new AsyncMigrateUserTask(migrationUser)));
