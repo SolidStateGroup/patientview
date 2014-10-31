@@ -2,6 +2,7 @@ package org.patientview.api.util;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.GroupStatisticTO;
@@ -27,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -280,5 +282,11 @@ public final class Util {
         return (User) authentication.getPrincipal();
     }
 
+    public static ResourceReference createFhirResourceReference(UUID uuid) {
+        ResourceReference resourceReference = new ResourceReference();
+        resourceReference.setDisplaySimple(uuid.toString());
+        resourceReference.setReferenceSimple("uuid");
+        return resourceReference;
+    }
 }
 

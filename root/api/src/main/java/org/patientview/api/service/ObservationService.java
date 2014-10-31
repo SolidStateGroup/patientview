@@ -1,6 +1,5 @@
 package org.patientview.api.service;
 
-import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
@@ -36,12 +35,10 @@ public interface ObservationService {
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 
-    @RoleOnly
     void addObservation(org.patientview.persistence.model.FhirObservation fhirObservation,
                         ObservationHeading observationHeading, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException;
 
-    @RoleOnly
-    public Observation buildObservation(org.patientview.persistence.model.FhirObservation fhirObservation,
-                        ObservationHeading observationHeading, FhirLink fhirLink) throws FhirResourceException;
+    //Observation buildObservation(org.patientview.persistence.model.FhirObservation fhirObservation,
+    //                    ObservationHeading observationHeading, FhirLink fhirLink) throws FhirResourceException;
 }

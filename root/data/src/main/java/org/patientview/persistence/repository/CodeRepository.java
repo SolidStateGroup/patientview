@@ -29,6 +29,10 @@ public interface CodeRepository extends CrudRepository<Code, Long> {
     public List<Code> findAllByCodeAndType(@Param("code") String code, @Param("codeType") Lookup codeType);
 
     @Query("SELECT c FROM Code c " +
+            "WHERE c.codeType = :codeType")
+    public List<Code> findAllByType(@Param("codeType") Lookup codeType);
+
+    @Query("SELECT c FROM Code c " +
             "WHERE (UPPER(c.code) LIKE :filterText) " +
             "OR (UPPER(c.description) LIKE :filterText) " +
             "OR (UPPER(c.codeType.value) LIKE :filterText) " +

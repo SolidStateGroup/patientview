@@ -12,6 +12,10 @@ public class FhirCondition extends BaseModel {
     private String category;
     private String notes;
 
+    // only used by migration
+    private Group group;
+    private String identifier;
+
     public FhirCondition() {
     }
 
@@ -47,5 +51,21 @@ public class FhirCondition extends BaseModel {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

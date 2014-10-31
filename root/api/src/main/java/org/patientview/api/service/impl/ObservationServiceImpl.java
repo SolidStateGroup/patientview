@@ -14,6 +14,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
+import org.patientview.api.util.Util;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
@@ -318,7 +319,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 patientUser.getFhirLinks().add(fhirLink);
                 userRepository.save(patientUser);
 
-                ResourceReference patientReference = createResourceReference(getResourceId(fhirPatient));
+                ResourceReference patientReference = Util.createFhirResourceReference(getResourceId(fhirPatient));
 
                 // save observations
                 for (Observation fhirObservation : fhirObservations) {
@@ -350,22 +351,22 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
                 observationHeading);
 
-        observation.setSubject(createResourceReference(fhirLink.getResourceId()));
+        observation.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
 
         fhirResource.create(observation);
     }
 
-    @Override
+    /*@Override
     public Observation buildObservation(FhirObservation fhirObservation, ObservationHeading observationHeading,
                                         FhirLink fhirLink) throws FhirResourceException {
         Observation observation = buildObservation(createDateTime(fhirObservation.getApplies()),
                 fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
                 observationHeading);
 
-        observation.setSubject(createResourceReference(fhirLink.getResourceId()));
+        observation.setSubject(createFhirResourceReference(fhirLink.getResourceId()));
 
         return observation;
-    }
+    }*/
 
     private UUID getVersionId(final JSONObject bundle) {
         JSONArray resultArray = (JSONArray) bundle.get("entry");
@@ -411,7 +412,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         observation.setName(name);
         observation.setIdentifier(createIdentifier(observationHeading.getCode()));
-
         observation.setCommentsSimple(comments);
 
         return observation;
@@ -496,13 +496,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         identifier.setLabelSimple("resultcode");
         identifier.setValueSimple(code);
         return identifier;
-    }
-
-    private ResourceReference createResourceReference(UUID uuid) {
-        ResourceReference resourceReference = new ResourceReference();
-        resourceReference.setDisplaySimple(uuid.toString());
-        resourceReference.setReferenceSimple("uuid");
-        return resourceReference;
     }
 
     private ObservationSummary getObservationSummary(Group group, List<ObservationHeading> observationHeadings,

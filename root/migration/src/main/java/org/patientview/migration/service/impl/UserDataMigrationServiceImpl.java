@@ -12,6 +12,7 @@ import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -21,6 +22,7 @@ import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -39,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -106,9 +109,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                             if (roleName.equals("unitadmin")) {
                                 role = adminDataMigrationService.getRoleByName(RoleName.UNIT_ADMIN);
-                            }
-                            if (roleName.equals("unitstaff")) {
+                            } else if (roleName.equals("unitstaff")) {
                                 role = adminDataMigrationService.getRoleByName(RoleName.STAFF_ADMIN);
+                            } else if (roleName.equals("patient")) {
+                                role = adminDataMigrationService.getRoleByName(RoleName.PATIENT);
                             }
 
                             // add group (specialty is added automatically when creating user within a UNIT group)
@@ -220,9 +224,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.getUserFeatures().add(userFeature);
 
                 MigrationUser migrationUser = new MigrationUser(newUser);
-                List<FhirObservation> observations = new ArrayList<FhirObservation>();
 
-                // add observations
+                // add Observations / results
+                List<FhirObservation> observations = new ArrayList<FhirObservation>();
                 for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
                     observation.setValue(String.valueOf(i + j));
@@ -234,16 +238,39 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     observation.setIdentifier(i.toString());
                     observations.add(observation);
                 }
-
                 migrationUser.setObservations(observations);
+
+                // add Conditions / diagnosis
+                List<FhirCondition> conditions = new ArrayList<FhirCondition>();
+                FhirCondition fhirCondition = new FhirCondition();
+                fhirCondition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+                fhirCondition.setCode("00");
+                fhirCondition.setNotes("00");
+                fhirCondition.setGroup(userUnit);
+                fhirCondition.setIdentifier(i.toString());
+                conditions.add(fhirCondition);
+
+                FhirCondition fhirConditionEdta = new FhirCondition();
+                fhirConditionEdta.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+                fhirConditionEdta.setCode("00");
+                fhirConditionEdta.setNotes("00");
+                fhirConditionEdta.setGroup(userUnit);
+                fhirConditionEdta.setIdentifier(i.toString());
+                conditions.add(fhirCondition);
+                migrationUser.setConditions(conditions);
 
                 //todo.add(Executors.callable(new AsyncMigrateUserTask(migrationUser)));
 
-                //try {
-                    concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                //} catch (Exception e) {
-                //    LOG.error(e.toString());
-                //}
+                migrationUser.setPatient(true);
+
+                try {
+                    Future future = concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                    LOG.info("Future: " + future.get());
+                } catch (InterruptedException ie) {
+                    LOG.error(ie.toString());
+                } catch (ExecutionException ee) {
+                    LOG.error(ee.toString());
+                }
 
                 // call REST to store migrated patient
                 /*try {

@@ -34,6 +34,8 @@ public interface CodeService extends CrudService<Code> {
 
     List<Code> findAllByCodeAndType(String code, Lookup codeType);
 
+    List<Code> findAllByType(Lookup codeType);
+
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Code save(Code code) throws EntityExistsException;
 

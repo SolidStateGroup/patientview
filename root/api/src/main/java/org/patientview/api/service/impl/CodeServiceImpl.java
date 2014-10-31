@@ -169,4 +169,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     public List<Code> findAllByCodeAndType(String code, Lookup codeType) {
         return codeRepository.findAllByCodeAndType(code, codeType);
     }
+
+    @Override
+    public List<Code> findAllByType(Lookup codeType) {
+        return codeRepository.findAllByType(codeType);
+    }
 }

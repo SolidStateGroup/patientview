@@ -6,6 +6,11 @@ import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.patientview.api.service.FhirLinkService;
+import org.patientview.api.service.ObservationHeadingService;
+import org.patientview.api.service.ObservationService;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.api.service.CodeService;
@@ -18,7 +23,11 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirObservation;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.MigrationUser;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
@@ -30,10 +39,14 @@ import org.patientview.persistence.util.DataUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -59,7 +72,20 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private EncounterService encounterService;
 
     @Inject
+    private FhirLinkService fhirLinkService;
+
+    @Inject
+    private ObservationHeadingService observationHeadingService;
+
+    @Inject
+    private ObservationService observationService;
+
+    @Inject
     private LookupService lookupService;
+
+    // used during migration
+    private HashMap<String, ObservationHeading> observationHeadingMap;
+    private HashMap<String, Code> codeMap;
 
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
@@ -169,6 +195,120 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         patient = addIdentifier(patient, identifier);
 
         return patient;
+    }
+
+    // migration only
+    @Override
+    public void migratePatientData(Long userId, MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException {
+
+        User entityUser = userRepository.findOne(userId);
+        Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
+        if (fhirLinks == null) {
+            fhirLinks = new HashSet<>();
+        }
+
+        // set up map of observation headings
+        if (observationHeadingMap == null) {
+            observationHeadingMap = new HashMap<>();
+            for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+                observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
+            }
+        }
+
+        // map of codes
+        if (codeMap == null) {
+            codeMap = new HashMap<>();
+            for (Code code : codeService.findAllByType(lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE,
+                    CodeTypes.DIAGNOSIS.toString()))) {
+                codeMap.put(code.getCode().toUpperCase(), code);
+            }
+        }
+
+        // map of identifiers
+        HashMap<String, Identifier> identifierMap = new HashMap<>();
+        for (Identifier identifier : entityUser.getIdentifiers()) {
+            identifierMap.put(identifier.getIdentifier(), identifier);
+        }
+
+        // store Observations (results), creating FHIR Patients and FhirLinks if not present
+        LOG.info(userId + " has " + migrationUser.getObservations().size() + " Observations");
+        for (FhirObservation fhirObservation : migrationUser.getObservations()) {
+
+            // get identifier for this user and observation heading for this observation
+            Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());
+            ObservationHeading observationHeading = observationHeadingMap.get(fhirObservation.getName().toUpperCase());
+
+            //LOG.info("1 " + new Date().getTime());
+            if (identifier != null && observationHeading != null) {
+                FhirLink fhirLink = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
+
+                if (fhirLink == null) {
+                    // create FHIR patient and fhirlink
+                    fhirLink = createPatientAndFhirLink(entityUser, fhirObservation.getGroup(), identifier);
+                    fhirLinks.add(fhirLink);
+                }
+
+                //LOG.info("2 " + new Date().getTime());
+                observationService.addObservation(fhirObservation, observationHeading, fhirLink);
+            } else {
+                LOG.error("");
+            }
+        }
+
+        // store Conditions (diagnoses and diagnosis edta)
+        for (FhirCondition fhirCondition : migrationUser.getConditions()) {
+            Identifier identifier = identifierMap.get(fhirCondition.getIdentifier());
+            FhirLink fhirLink = getFhirLink(fhirCondition.getGroup(), fhirCondition.getIdentifier(), fhirLinks);
+
+            if (fhirLink == null) {
+                fhirLink = createPatientAndFhirLink(entityUser, fhirCondition.getGroup(), identifier);
+                fhirLinks.add(fhirLink);
+            }
+
+            conditionService.addCondition(fhirCondition, fhirLink);
+        }
+    }
+
+    private FhirLink createPatientAndFhirLink(User user, Group group, Identifier identifier)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        JSONObject fhirPatient = fhirResource.create(buildPatient(user, identifier));
+
+        // create new FhirLink and add to list of known fhirlinks
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(user);
+        fhirLink.setIdentifier(identifier);
+        fhirLink.setGroup(group);
+        fhirLink.setResourceId(getResourceId(fhirPatient));
+        fhirLink.setVersionId(getVersionId(fhirPatient));
+        fhirLink.setResourceType(ResourceType.Patient.name());
+        fhirLink.setActive(true);
+        return fhirLinkService.save(fhirLink);
+    }
+
+    private FhirLink getFhirLink(Group group, String identifierText, Set<FhirLink> fhirLinks) {
+        for (FhirLink fhirLink : fhirLinks) {
+            if (fhirLink.getGroup().equals(group) && fhirLink.getIdentifier().getIdentifier().equals(identifierText)) {
+                return fhirLink;
+            }
+        }
+        return null;
+    }
+
+    private UUID getVersionId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        JSONArray links = (JSONArray) resource.get("link");
+        JSONObject link = (JSONObject)  links.get(0);
+        String[] href = link.getString("href").split("/");
+        return UUID.fromString(href[href.length - 1]);
+    }
+
+    private UUID getResourceId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        return UUID.fromString(resource.get("id").toString());
     }
 
     private Patient createHumanName(Patient patient, User user) {

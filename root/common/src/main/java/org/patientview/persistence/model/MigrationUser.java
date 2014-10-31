@@ -10,11 +10,16 @@ import java.util.List;
  */
 public class MigrationUser {
 
+    private boolean patient;
+
     // User
     private User user;
 
     // Observations
     private List<FhirObservation> observations;
+
+    // Conditions (diagnosis)
+    private List<FhirCondition> conditions;
 
     public MigrationUser () {
 
@@ -22,6 +27,14 @@ public class MigrationUser {
 
     public MigrationUser(User user) {
         this.user = user;
+    }
+
+    public boolean isPatient() {
+        return patient;
+    }
+
+    public void setPatient(boolean patient) {
+        this.patient = patient;
     }
 
     public User getUser() {
@@ -38,5 +51,13 @@ public class MigrationUser {
 
     public void setObservations(List<FhirObservation> observations) {
         this.observations = observations;
+    }
+
+    public List<FhirCondition> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(List<FhirCondition> conditions) {
+        this.conditions = conditions;
     }
 }

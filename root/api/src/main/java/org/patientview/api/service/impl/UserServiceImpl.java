@@ -2,34 +2,26 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
-import org.hl7.fhir.instance.model.ResourceType;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.service.ObservationHeadingService;
-import org.patientview.api.service.ObservationService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
-import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
-import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
-import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
@@ -46,7 +38,6 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserInformationRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.patientview.persistence.resource.FhirResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -60,12 +51,10 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -115,15 +104,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private EmailService emailService;
 
     @Inject
-    private ObservationService observationService;
-
-    @Inject
-    private ObservationHeadingService observationHeadingService;
-
-    @Inject
-    private FhirResource fhirResource;
-
-    @Inject
     private Properties properties;
 
     // TODO make these value configurable
@@ -132,8 +112,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private Group genericGroup;
     private Role memberRole;
 
-    // used during migration
-    private HashMap<String, ObservationHeading> observationHeadingsMap;
 
     @PostConstruct
     public void init() {
@@ -413,153 +391,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = migrationUser.getUser();
         Long userId = add(user);
 
-        //return userId;
-
-        //User entityUser = userRepository.findOne(userId);
-        //Identifier identifier = entityUser.getIdentifiers().iterator().next();
-
-        //Patient patient = patientService.buildPatient(entityUser, identifier);
-
-        //testing
-        /*try {
-            JSONObject fhirPatient = new JSONObject();
-            for (int i=0;i<10;i++) {
-                fhirPatient = fhirResource.create(patient);
-                //wait(10L);
-                //JSONObject fhirPatient2 = fhirResource.create(patient);
-            }
-
-            ObservationHeading observationHeading = observationHeadingService.findAll().get(0);
-            FhirObservation fhirObservation = migrationUser.getObservations().get(0);
-
-
-            FhirLink fhirLink = new FhirLink();
-            fhirLink.setUser(entityUser);
-            fhirLink.setIdentifier(identifier);
-            fhirLink.setGroup(entityUser.getGroupRoles().iterator().next().getGroup());
-            fhirLink.setResourceId(getResourceId(fhirPatient));
-            fhirLink.setVersionId(getVersionId(fhirPatient));
-            fhirLink.setResourceType(ResourceType.Patient.name());
-            fhirLink.setActive(true);
-
-            Observation observation
-                    = observationService.buildObservation(fhirObservation, observationHeading, fhirLink);
-            fhirResource.create(observation);
-
-        } catch (Exception e) {
-            LOG.error("Could not migrate patient data, " + e.toString());
-        }*/
-
         // only patients will have observations
-        if (!CollectionUtils.isEmpty(migrationUser.getObservations())) {
+        if (migrationUser.isPatient()) {
             try {
-                migratePatientData(userId, migrationUser);
-            } catch (FhirResourceException fre) {
-                LOG.error("Could not migrate patient data: {}", fre);
+                patientService.migratePatientData(userId, migrationUser);
+            } catch (Exception e) {
+                LOG.error("Could not migrate patient data: {}", e);
             }
         }
 
         LOG.info("{} Done", userId);
         return userId;
-    }
-
-    // migration only
-    private void migratePatientData(Long userId, MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, FhirResourceException {
-
-        try {
-            User entityUser = userRepository.findOne(userId);
-            LOG.info(userId + " has " + migrationUser.getObservations().size() + " Observations");
-
-            Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
-
-            // set up map of observation headings
-            if (observationHeadingsMap == null) {
-                observationHeadingsMap = new HashMap<>();
-                for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
-                    observationHeadingsMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
-                }
-            }
-
-            // set up map of identifiers
-            HashMap<String, Identifier> identifierMap = new HashMap<>();
-            for (Identifier identifier : entityUser.getIdentifiers()) {
-                identifierMap.put(identifier.getIdentifier(), identifier);
-            }
-
-            for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
-                observationHeadingsMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
-            }
-
-            if (fhirLinks == null) {
-                fhirLinks = new HashSet<>();
-            }
-
-            for (FhirObservation fhirObservation : migrationUser.getObservations()) {
-
-                // get identifier for this user
-                Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());
-
-                // get observation heading for this observation
-                ObservationHeading observationHeading = observationHeadingsMap.get(fhirObservation.getName().toUpperCase());
-
-                //LOG.info("1 " + new Date().getTime());
-
-                if (identifier != null && observationHeading != null) {
-                    FhirLink fhirLink = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
-
-                    if (fhirLink == null) {
-                        // create new FHIR Patient
-                        Patient patient = patientService.buildPatient(entityUser, identifier);
-                        JSONObject fhirPatient = fhirResource.create(patient);
-
-                        // create new FhirLink and add to list of known fhirlinks
-                        fhirLink = new FhirLink();
-                        fhirLink.setUser(entityUser);
-                        fhirLink.setIdentifier(identifier);
-                        fhirLink.setGroup(fhirObservation.getGroup());
-                        fhirLink.setResourceId(getResourceId(fhirPatient));
-                        fhirLink.setVersionId(getVersionId(fhirPatient));
-                        fhirLink.setResourceType(ResourceType.Patient.name());
-                        fhirLink.setActive(true);
-                        fhirLinks.add(fhirLinkService.save(fhirLink));
-                    }
-
-                    //LOG.info("2 " + new Date().getTime());
-                    Observation observation
-                            = observationService.buildObservation(fhirObservation, observationHeading, fhirLink);
-                    fhirResource.create(observation);
-                    //observationService.addObservation(fhirObservation, observationHeading, fhirLink);
-                    //LOG.info("3 " + new Date().getTime());
-                }
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
-    }
-
-    private FhirLink getFhirLink(Group group, String identifierText, Set<FhirLink> fhirLinks) {
-        for (FhirLink fhirLink : fhirLinks) {
-            if (fhirLink.getGroup().equals(group) && fhirLink.getIdentifier().getIdentifier().equals(identifierText)) {
-                return fhirLink;
-            }
-        }
-        return null;
-    }
-
-    private UUID getVersionId(final JSONObject bundle) {
-        JSONArray resultArray = (JSONArray) bundle.get("entry");
-        JSONObject resource = (JSONObject) resultArray.get(0);
-        JSONArray links = (JSONArray) resource.get("link");
-        JSONObject link = (JSONObject)  links.get(0);
-        String[] href = link.getString("href").split("/");
-        return UUID.fromString(href[href.length - 1]);
-    }
-
-    private UUID getResourceId(final JSONObject bundle) {
-        JSONArray resultArray = (JSONArray) bundle.get("entry");
-        JSONObject resource = (JSONObject) resultArray.get(0);
-        return UUID.fromString(resource.get("id").toString());
     }
 
     // not used

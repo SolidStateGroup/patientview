@@ -1,8 +1,10 @@
 package org.patientview.api.service;
 
 import org.hl7.fhir.instance.model.Condition;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirLink;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,4 +19,6 @@ public interface ConditionService {
 
     List<Condition> get(UUID patientUuid) throws FhirResourceException;
 
+    void addCondition(FhirCondition fhirCondition, FhirLink fhirLink)
+            throws ResourceNotFoundException, FhirResourceException;
 }

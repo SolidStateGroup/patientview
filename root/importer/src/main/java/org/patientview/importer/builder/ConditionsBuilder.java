@@ -72,11 +72,11 @@ public class ConditionsBuilder {
         condition.setNotesSimple(diagnosis.getValue());
 
         CodeableConcept code = new CodeableConcept();
-        code.setTextSimple("PV");
+        code.setTextSimple(diagnosis.getValue());
         condition.setCode(code);
 
         CodeableConcept category = new CodeableConcept();
-        category.setTextSimple("diagnosis");
+        category.setTextSimple(DiagnosisTypes.DIAGNOSIS.toString());
         condition.setCategory(category);
 
         return condition;
