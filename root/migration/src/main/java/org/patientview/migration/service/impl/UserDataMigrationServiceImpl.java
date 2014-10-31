@@ -13,6 +13,7 @@ import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -23,6 +24,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -40,11 +42,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -84,10 +83,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             // basic user information
             User newUser = createUser(oldUser);
+            boolean isPatient = false;
 
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT") && newUser != null) {
+
+                    // assume usermapping with nhsnumber is a patient
                     if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
+
+                        // is a patient
                         identifiers.add(userMapping.getNhsno());
 
                         // add group (specialty is added automatically when creating user within a UNIT group)
@@ -100,6 +104,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             newUser.getGroupRoles().add(groupRole);
                         }
                     } else {
+
+                        // is a staff member
                         Role role = null;
                         List<SpecialtyUserRole> specialtyUserRoles = specialtyUserRoleDao.get(oldUser);
                         // TODO: try and fix this - get the first role and apply it to all group (no group role mapping)
@@ -111,8 +117,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                 role = adminDataMigrationService.getRoleByName(RoleName.UNIT_ADMIN);
                             } else if (roleName.equals("unitstaff")) {
                                 role = adminDataMigrationService.getRoleByName(RoleName.STAFF_ADMIN);
-                            } else if (roleName.equals("patient")) {
-                                role = adminDataMigrationService.getRoleByName(RoleName.PATIENT);
                             }
 
                             // add group (specialty is added automatically when creating user within a UNIT group)
@@ -121,7 +125,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             if (group != null && role != null) {
                                 GroupRole groupRole = new GroupRole();
                                 groupRole.setGroup(group);
-                                groupRole.setRole(patientRole);
+                                groupRole.setRole(role);
                                 newUser.getGroupRoles().add(groupRole);
                             }
                         }
@@ -154,6 +158,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // convert to transport object
                 MigrationUser migrationUser = new MigrationUser(newUser);
+                migrationUser.setPatient(isPatient);
 
                 // call REST to store migrated patient
                 try {
@@ -167,18 +172,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount,
                                String observationName) {
-       LOG.info("Starting creation of " + count
+        LOG.info("Starting creation of " + count
                 + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
 
         ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(20);
-
-        List<Callable<Object>> todo = new ArrayList<Callable<Object>>();
-
         Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
         Role userRole = adminDataMigrationService.getRoleByName(roleName);
 
         if (userUnit != null && userRole != null) {
-
             Date now = new Date();
 
             for (Long i = now.getTime(); i<now.getTime() + count; i++) {
@@ -240,60 +241,55 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 }
                 migrationUser.setObservations(observations);
 
-                // add Conditions / diagnosis
-                List<FhirCondition> conditions = new ArrayList<FhirCondition>();
-                FhirCondition fhirCondition = new FhirCondition();
-                fhirCondition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
-                fhirCondition.setCode("Something else");
-                fhirCondition.setNotes("Something else");
-                fhirCondition.setGroup(userUnit);
-                fhirCondition.setIdentifier(i.toString());
-                conditions.add(fhirCondition);
+                // add Condition / generic diagnosis
+                migrationUser.setConditions(new ArrayList<FhirCondition>());
+                FhirCondition condition = new FhirCondition();
+                condition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+                condition.setCode("Something else");
+                condition.setNotes("Something else");
+                condition.setGroup(userUnit);
+                condition.setIdentifier(i.toString());
+                migrationUser.getConditions().add(condition);
 
-                FhirCondition fhirConditionEdta = new FhirCondition();
-                fhirConditionEdta.setCategory(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
-                fhirConditionEdta.setCode("00");
-                fhirConditionEdta.setNotes("00");
-                fhirConditionEdta.setGroup(userUnit);
-                fhirConditionEdta.setIdentifier(i.toString());
-                conditions.add(fhirConditionEdta);
-                migrationUser.setConditions(conditions);
+                // add Condition / EDTA diagnosis
+                FhirCondition conditionEdta = new FhirCondition();
+                conditionEdta.setCategory(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
+                conditionEdta.setCode("00");
+                conditionEdta.setNotes("00");
+                conditionEdta.setGroup(userUnit);
+                conditionEdta.setIdentifier(i.toString());
+                migrationUser.getConditions().add(conditionEdta);
 
-                //todo.add(Executors.callable(new AsyncMigrateUserTask(migrationUser)));
+                // add Encounter / transplant status
+                migrationUser.setEncounters(new ArrayList<FhirEncounter>());
+                FhirEncounter transplant = new FhirEncounter();
+                transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS.toString());
+                transplant.setStatus("Live donor transplant");
+                transplant.setIdentifier(i.toString());
+                migrationUser.getEncounters().add(transplant);
+
+                // add Encounter / treatment
+                FhirEncounter treatment = new FhirEncounter();
+                treatment.setEncounterType(EncounterTypes.TREATMENT.toString());
+                treatment.setStatus("TP");
+                treatment.setIdentifier(i.toString());
+                migrationUser.getEncounters().add(treatment);
 
                 migrationUser.setPatient(true);
 
-                try {
-                    Future future = concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                    LOG.info("Future: " + future.get());
-                } catch (InterruptedException ie) {
-                    LOG.error(ie.toString());
-                } catch (ExecutionException ee) {
-                    LOG.error(ee.toString());
-                }
-
-                // call REST to store migrated patient
-                /*try {
-                    asyncService.callApiMigrateUser(migrationUser);
-                } catch (Exception e) {
-                    LOG.error(e.getMessage());
-                }*/
+                // add task and run
+                concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
             }
 
             LOG.info("Sending " + count + " to REST service");
 
             try {
+                // wait forever until all threads are finished
                 concurrentTaskExecutor.shutdown();
-                concurrentTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                concurrentTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
             } catch (Exception e) {
                 LOG.error(e.getMessage());
             }
-
-            /*try {
-                concurrentTaskExecutor.invokeAll(todo);
-            } catch (Exception e) {
-                LOG.error(e.toString());
-            }*/
 
             LOG.info("Submitted " + count);
         }

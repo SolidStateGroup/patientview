@@ -21,8 +21,10 @@ public class MigrationUser {
     // Conditions (diagnosis)
     private List<FhirCondition> conditions;
 
-    public MigrationUser () {
+    // Encounters (treatment and transplant status)
+    private List<FhirEncounter> encounters;
 
+    public MigrationUser () {
     }
 
     public MigrationUser(User user) {
@@ -59,5 +61,13 @@ public class MigrationUser {
 
     public void setConditions(List<FhirCondition> conditions) {
         this.conditions = conditions;
+    }
+
+    public List<FhirEncounter> getEncounters() {
+        return encounters;
+    }
+
+    public void setEncounters(List<FhirEncounter> encounters) {
+        this.encounters = encounters;
     }
 }

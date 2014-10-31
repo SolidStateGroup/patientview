@@ -1,10 +1,16 @@
 package org.patientview.api.service.impl;
 
+import org.hl7.fhir.instance.model.Address;
+import org.hl7.fhir.instance.model.Contact;
+import org.hl7.fhir.instance.model.Enumeration;
+import org.hl7.fhir.instance.model.Identifier;
+import org.hl7.fhir.instance.model.Organization;
 import org.patientview.api.model.Email;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.ContactPoint;
@@ -27,18 +33,25 @@ import org.patientview.persistence.repository.LinkRepository;
 import org.patientview.persistence.repository.LocationRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -79,6 +92,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Inject
     private EntityManager entityManager;
+
+    @Inject
+    @Named("fhir")
+    private DataSource dataSource;
+
+    @Inject
+    private FhirResource fhirResource;
 
     /**
      * Get all the groups and put the children and parents into the transient objects
@@ -402,6 +422,55 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     public void delete(Long id) {
         LOG.info("Delete " + id + " not Implemented");
+    }
+
+    public UUID addOrganization(Group group) throws FhirResourceException {
+        Organization organization = new Organization();
+
+        Identifier identifier = organization.addIdentifier();
+        identifier.setValueSimple(group.getCode());
+        identifier.setLabelSimple("CODE");
+
+        Address address = organization.addAddress();
+        address.addLineSimple(group.getAddress1());
+        address.setCitySimple(group.getAddress2());
+        address.setStateSimple(group.getAddress3());
+        address.setZipSimple(group.getPostcode());
+
+        Contact telephone = organization.addTelecom();
+        telephone.setSystem(new Enumeration(Contact.ContactSystem.phone));
+
+        Contact email = organization.addTelecom();
+        email.setSystem(new Enumeration(Contact.ContactSystem.email));
+
+        return FhirResource.getLogicalId(fhirResource.create(organization));
+    }
+
+    public List<UUID> getOrganizationLogicalUuidsByCode(final String code) throws FhirResourceException {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id ");
+        query.append("FROM organization ");
+        query.append("WHERE content #> '{identifier,0}' -> 'value' = '\"");
+        query.append(code);
+        query.append("\"' ");
+
+        // execute and return UUIDs
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
+        }
     }
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {

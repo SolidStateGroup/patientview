@@ -5,22 +5,47 @@ import org.hl7.fhir.instance.model.Encounter;
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
+ *
+ * Used for treatment and transplant status
  */
 public class FhirEncounter extends BaseModel {
 
+    // maps to FHIR type -> text
+    // will be EncounterTypes enum
+    private String encounterType;
+
+    // maps to FHIR identifier -> value
+    private String status;
+
+    // only used during migration
     private String identifier;
-    private String type;
 
     public FhirEncounter() {
     }
 
     public FhirEncounter(Encounter encounter) {
         if (!encounter.getIdentifier().isEmpty()) {
-            setIdentifier(encounter.getIdentifier().get(0).getValue().getValue());
+            setEncounterType(encounter.getIdentifier().get(0).getValue().getValue());
         }
         if (!encounter.getType().isEmpty()) {
-            setType(encounter.getType().get(0).getTextSimple());
+            setStatus(encounter.getType().get(0).getTextSimple());
         }
+    }
+
+    public String getEncounterType() {
+        return encounterType;
+    }
+
+    public void setEncounterType(String encounterType) {
+        this.encounterType = encounterType;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getIdentifier() {
@@ -29,13 +54,5 @@ public class FhirEncounter extends BaseModel {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 }

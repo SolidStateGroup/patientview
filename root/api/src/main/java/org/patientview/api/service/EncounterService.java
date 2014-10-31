@@ -4,6 +4,7 @@ import org.hl7.fhir.instance.model.Encounter;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,4 +19,6 @@ public interface EncounterService {
 
     List<Encounter> get(UUID patientUuid) throws FhirResourceException;
 
+    void addEncounter(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
+            throws ResourceNotFoundException, FhirResourceException;
 }

@@ -48,16 +48,16 @@
                     <tr>
                         <td class="forced-width">Treatment</td>
                         <td>
-                            <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.identifier === 'TREATMENT'">
-                                {{encounter.type}}
+                            <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.encounterType === 'TREATMENT'">
+                                {{encounter.status}}
                             </span>
                         </td>
                     </tr>
                     <tr>
                         <td class="forced-width">Transplant Status</td>
                         <td>
-                            <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.identifier === 'TRANSPLANT_STATUS'">
-                                {{encounter.type}}
+                            <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS'">
+                                {{encounter.status}}
                             </span>
                         </td>
                     </tr>

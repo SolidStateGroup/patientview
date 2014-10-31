@@ -9,6 +9,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.api.service.FhirLinkService;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.persistence.model.FhirCondition;
@@ -33,10 +34,12 @@ import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
@@ -63,6 +66,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private UserRepository userRepository;
 
     @Inject
+    private GroupRepository groupRepository;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
     private CodeService codeService;
 
     @Inject
@@ -85,7 +94,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     // used during migration
     private HashMap<String, ObservationHeading> observationHeadingMap;
-    private HashMap<String, Code> codeMap;
 
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
@@ -175,10 +183,11 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         for (Encounter encounter : encounterService.get(patientUuid)) {
             FhirEncounter fhirEncounter = new FhirEncounter(encounter);
 
-            List<Code> codes = codeService.findAllByCodeAndType(fhirEncounter.getType(),
+            List<Code> codes = codeService.findAllByCodeAndType(fhirEncounter.getStatus(),
                     lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.TREATMENT.toString()));
+
             if (!codes.isEmpty()) {
-                fhirEncounter.setType(codes.get(0).getDescription());
+                fhirEncounter.setStatus(codes.get(0).getDescription());
             }
 
             fhirEncounters.add(fhirEncounter);
@@ -213,15 +222,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             observationHeadingMap = new HashMap<>();
             for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
                 observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
-            }
-        }
-
-        // map of codes
-        if (codeMap == null) {
-            codeMap = new HashMap<>();
-            for (Code code : codeService.findAllByType(lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE,
-                    CodeTypes.DIAGNOSIS.toString()))) {
-                codeMap.put(code.getCode().toUpperCase(), code);
             }
         }
 
@@ -267,6 +267,34 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
 
             conditionService.addCondition(fhirCondition, fhirLink);
+        }
+
+        // store Encounters (treatment and transplant status)
+        // note: the unit that provided this information is not stored in PatientView 1, attach to first fhirlink
+        for (FhirEncounter fhirEncounter : migrationUser.getEncounters()) {
+            Identifier identifier = identifierMap.get(fhirEncounter.getIdentifier());
+            Group firstUserGroup = migrationUser.getUser().getGroupRoles().iterator().next().getGroup();
+            FhirLink fhirLink = getFhirLink(firstUserGroup, fhirEncounter.getIdentifier(), fhirLinks);
+            Group entityGroup = groupRepository.findOne(firstUserGroup.getId());
+
+            if (entityGroup != null) {
+                if (fhirLink == null) {
+                    fhirLink = createPatientAndFhirLink(entityUser, entityGroup, identifier);
+                    fhirLinks.add(fhirLink);
+                }
+
+                // create organization in FHIR for this group if it doesn't exist
+                UUID organizationUuid;
+
+                List<UUID> organizationUuids = groupService.getOrganizationLogicalUuidsByCode(entityGroup.getCode());
+                if (CollectionUtils.isEmpty(organizationUuids)) {
+                    organizationUuid = groupService.addOrganization(entityGroup);
+                } else {
+                    organizationUuid = organizationUuids.get(0);
+                }
+
+                encounterService.addEncounter(fhirEncounter, fhirLink, organizationUuid);
+            }
         }
     }
 

@@ -1,7 +1,10 @@
 package org.patientview.api.service.impl;
 
+import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Encounter;
+import org.hl7.fhir.instance.model.Identifier;
 import org.patientview.api.controller.BaseController;
+import org.patientview.api.util.Util;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.api.service.EncounterService;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -74,5 +77,23 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
         encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
 
         return encounters;
+    }
+
+    @Override
+    public void addEncounter(FhirEncounter fhirEncounter, FhirLink fhirLink, UUID organizationUuid)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        Encounter encounter = new Encounter();
+        encounter.setStatusSimple(Encounter.EncounterState.finished);
+        Identifier identifier = encounter.addIdentifier();
+        identifier.setValueSimple(fhirEncounter.getEncounterType());
+
+        CodeableConcept code = encounter.addType();
+        code.setTextSimple(fhirEncounter.getStatus());
+
+        encounter.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
+        encounter.setServiceProvider(Util.createFhirResourceReference(organizationUuid));
+
+        fhirResource.create(encounter);
     }
 }

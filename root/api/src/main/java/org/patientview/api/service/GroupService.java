@@ -4,6 +4,7 @@ import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.UnitRequest;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityExistsException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by james@solidstategroup.com
@@ -65,4 +67,8 @@ public interface GroupService {
     void passwordRequest(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException;
 
     List<Group> addParentAndChildGroups(List<Group> groups);
+
+    public List<UUID> getOrganizationLogicalUuidsByCode(final String code) throws FhirResourceException;
+
+    UUID addOrganization(Group group) throws FhirResourceException;
 }

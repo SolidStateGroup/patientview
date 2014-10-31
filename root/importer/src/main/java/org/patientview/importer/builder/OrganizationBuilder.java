@@ -25,7 +25,6 @@ public class OrganizationBuilder {
 
         Organization organization = new Organization();
         Patientview.Centredetails centre = data.getCentredetails();
-        centre.setCentrename(centre.getCentrename());
 
         Identifier identifier = organization.addIdentifier();
         identifier.setValueSimple(centre.getCentrecode());

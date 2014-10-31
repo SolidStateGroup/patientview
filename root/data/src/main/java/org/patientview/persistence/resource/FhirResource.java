@@ -11,9 +11,6 @@ import org.patientview.persistence.model.FhirLink;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -28,9 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -84,7 +79,6 @@ public class FhirResource {
 
             result = (PGobject) proc.getObject(1);
             JSONObject jsonObject = new JSONObject(result.getValue());
-            //LOG.info(jsonObject.toString());
 
             proc.close();
             connection.close();
@@ -362,5 +356,11 @@ public class FhirResource {
         JSONObject link = (JSONObject)  links.get(0);
         String[] href = link.getString("href").split("/");
         return UUID.fromString(href[href.length - 1]);
+    }
+
+    public static UUID getLogicalId(final JSONObject bundle) {
+        JSONArray resultArray = (JSONArray) bundle.get("entry");
+        JSONObject resource = (JSONObject) resultArray.get(0);
+        return UUID.fromString(resource.getString("id"));
     }
 }
