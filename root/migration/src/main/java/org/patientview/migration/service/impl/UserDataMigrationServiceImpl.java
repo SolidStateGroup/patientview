@@ -14,6 +14,7 @@ import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirEncounter;
+import org.patientview.persistence.model.FhirMedicationStatement;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -275,6 +276,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 treatment.setIdentifier(i.toString());
                 migrationUser.getEncounters().add(treatment);
 
+                // add MedicationStatement
+                FhirMedicationStatement medicationStatement = new FhirMedicationStatement();
+                medicationStatement.setDose("500g");
+                medicationStatement.setName("Paracetemol");
+                medicationStatement.setStartDate(now);
+                medicationStatement.setGroup(userUnit);
+                medicationStatement.setIdentifier(i.toString());
+                migrationUser.setMedicationStatements(new ArrayList<FhirMedicationStatement>());
+                migrationUser.getMedicationStatements().add(medicationStatement);
+
+                // set to a patient user
                 migrationUser.setPatient(true);
 
                 // add task and run

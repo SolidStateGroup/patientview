@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.MedicationService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.persistence.model.FhirCondition;
@@ -88,6 +89,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private ObservationService observationService;
+
+    @Inject
+    private MedicationService medicationService;
 
     @Inject
     private LookupService lookupService;
@@ -295,6 +299,22 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
                 encounterService.addEncounter(fhirEncounter, fhirLink, organizationUuid);
             }
+        }
+
+        // MedicationStatements (also adds Medicines)
+        for (org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement
+                : migrationUser.getMedicationStatements()) {
+
+            Identifier identifier = identifierMap.get(fhirMedicationStatement.getIdentifier());
+            FhirLink fhirLink
+                = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
+
+            if (fhirLink == null) {
+                fhirLink = createPatientAndFhirLink(entityUser, fhirMedicationStatement.getGroup(), identifier);
+                fhirLinks.add(fhirLink);
+            }
+
+            medicationService.addMedicationStatement(fhirMedicationStatement, fhirLink);
         }
     }
 

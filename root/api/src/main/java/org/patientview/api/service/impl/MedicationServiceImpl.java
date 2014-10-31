@@ -1,12 +1,17 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.CodeableConcept;
+import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.Medication;
 import org.hl7.fhir.instance.model.MedicationStatement;
+import org.hl7.fhir.instance.model.Period;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.service.MedicationService;
+import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
@@ -86,5 +91,44 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
         }
 
         return fhirMedications;
+    }
+
+    @Override
+    public void addMedicationStatement(
+            org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement, FhirLink fhirLink)
+            throws FhirResourceException {
+
+        // Medication, stores name
+        Medication medication = new Medication();
+        CodeableConcept code = new CodeableConcept();
+        code.setTextSimple(fhirMedicationStatement.getName());
+        medication.setCode(code);
+
+        UUID medicationUuid = FhirResource.getLogicalId(fhirResource.create(medication));
+
+        // Medication statement, stores date, dose
+        MedicationStatement medicationStatement = new MedicationStatement();
+
+        if (fhirMedicationStatement.getStartDate() != null) {
+            DateAndTime dateAndTime = new DateAndTime(fhirMedicationStatement.getStartDate());
+            Period period = new Period();
+            period.setStartSimple(dateAndTime);
+            period.setEndSimple(dateAndTime);
+            medicationStatement.setWhenGiven(period);
+        }
+
+        if (StringUtils.isNotEmpty(fhirMedicationStatement.getDose())) {
+            MedicationStatement.MedicationStatementDosageComponent dosageComponent
+                    = new MedicationStatement.MedicationStatementDosageComponent();
+            CodeableConcept concept = new CodeableConcept();
+            concept.setTextSimple(fhirMedicationStatement.getDose());
+            dosageComponent.setRoute(concept);
+            medicationStatement.getDosage().add(dosageComponent);
+        }
+
+        medicationStatement.setPatient(Util.createFhirResourceReference(fhirLink.getResourceId()));
+        medicationStatement.setMedication(Util.createFhirResourceReference(medicationUuid));
+
+        fhirResource.create(medicationStatement);
     }
 }

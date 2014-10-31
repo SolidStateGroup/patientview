@@ -22,6 +22,9 @@ public class FhirMedicationStatement {
     // set from FhirLink
     private Group group;
 
+    // used in migration
+    private String identifier;
+
     public FhirMedicationStatement() {
     }
 
@@ -94,5 +97,13 @@ public class FhirMedicationStatement {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

@@ -24,6 +24,9 @@ public class MigrationUser {
     // Encounters (treatment and transplant status)
     private List<FhirEncounter> encounters;
 
+    // MedicationStatements (medication)
+    private List<FhirMedicationStatement> medicationStatements;
+
     public MigrationUser () {
     }
 
@@ -69,5 +72,13 @@ public class MigrationUser {
 
     public void setEncounters(List<FhirEncounter> encounters) {
         this.encounters = encounters;
+    }
+
+    public List<FhirMedicationStatement> getMedicationStatements() {
+        return medicationStatements;
+    }
+
+    public void setMedicationStatements(List<FhirMedicationStatement> medicationStatements) {
+        this.medicationStatements = medicationStatements;
     }
 }
