@@ -34,6 +34,9 @@ public class MigrationUser {
     // DocumentReferences (letters)
     private List<FhirDocumentReference> documentReferences = new ArrayList<>();
 
+    // Patient (pv1 patient table data)
+    private List<FhirPatient> patients = new ArrayList<>();
+
     public MigrationUser () {
     }
 
@@ -103,5 +106,13 @@ public class MigrationUser {
 
     public void setDocumentReferences(List<FhirDocumentReference> documentReferences) {
         this.documentReferences = documentReferences;
+    }
+
+    public List<FhirPatient> getPatients() {
+        return patients;
+    }
+
+    public void setPatients(List<FhirPatient> patients) {
+        this.patients = patients;
     }
 }

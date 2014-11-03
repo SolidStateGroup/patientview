@@ -20,7 +20,7 @@ public class FhirPractitioner extends BaseModel {
     private String address3;
     private String address4;
     private String postcode;
-    private List<String> phoneNumbers;
+    private List<FhirContact> contacts;
 
     public FhirPractitioner() {
     }
@@ -45,10 +45,18 @@ public class FhirPractitioner extends BaseModel {
         }
 
         // phone numbers
-        setPhoneNumbers(new ArrayList<String>());
+        setContacts(new ArrayList<FhirContact>());
         if (!practitioner.getTelecom().isEmpty()) {
             for (Contact telecom : practitioner.getTelecom()) {
-                getPhoneNumbers().add(telecom.getValueSimple());
+                FhirContact contact = new FhirContact();
+                contact.setValue(telecom.getValueSimple());
+                if (telecom.getSystemSimple() != null) {
+                    contact.setSystem(telecom.getSystemSimple().toCode());
+                }
+                if (telecom.getUseSimple() != null) {
+                    contact.setUse(telecom.getUseSimple().toCode());
+                }
+                getContacts().add(contact);
             }
         }
     }
@@ -109,11 +117,11 @@ public class FhirPractitioner extends BaseModel {
         this.postcode = postcode;
     }
 
-    public List<String> getPhoneNumbers() {
-        return phoneNumbers;
+    public List<FhirContact> getContacts() {
+        return contacts;
     }
 
-    public void setPhoneNumbers(List<String> phoneNumbers) {
-        this.phoneNumbers = phoneNumbers;
+    public void setContacts(List<FhirContact> contacts) {
+        this.contacts = contacts;
     }
 }

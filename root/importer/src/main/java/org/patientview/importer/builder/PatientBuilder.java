@@ -101,19 +101,22 @@ public class PatientBuilder {
             if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getMobile())) {
                 Contact contact = contactComponent.addTelecom();
                 contact.setValueSimple(data.getPatient().getPersonaldetails().getMobile());
-                contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
+                contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
+                contact.setUse(new Enumeration<>(Contact.ContactUse.mobile));
             }
 
             if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getTelephone1())) {
                 Contact contact = contactComponent.addTelecom();
                 contact.setValueSimple(data.getPatient().getPersonaldetails().getTelephone1());
-                contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
+                contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
+                contact.setUse(new Enumeration<>(Contact.ContactUse.home));
             }
 
             if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getTelephone2())) {
                 Contact contact = contactComponent.addTelecom();
                 contact.setValueSimple(data.getPatient().getPersonaldetails().getTelephone2());
-                contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
+                contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
+                contact.setUse(new Enumeration<>(Contact.ContactUse.home));
             }
         }
         return  newPatient;

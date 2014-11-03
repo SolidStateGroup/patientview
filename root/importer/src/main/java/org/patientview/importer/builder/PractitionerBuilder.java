@@ -29,7 +29,7 @@ public class PractitionerBuilder {
         if (gp != null) {
             HumanName humanName = new HumanName();
             humanName.addFamilySimple(gp.getGpname());
-            Enumeration<HumanName.NameUse> nameUse = new Enumeration(HumanName.NameUse.usual);
+            Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
             humanName.setUse(nameUse);
             practitioner.setName(humanName);
 
@@ -42,8 +42,9 @@ public class PractitionerBuilder {
             practitioner.setAddress(address);
 
             Contact contact = practitioner.addTelecom();
-            contact.setSystem(new Enumeration(Contact.ContactSystem.phone));
+            contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
             contact.setValueSimple(gp.getGptelephone());
+            contact.setUse(new Enumeration<>(Contact.ContactUse.work));
         }
 
         return practitioner;

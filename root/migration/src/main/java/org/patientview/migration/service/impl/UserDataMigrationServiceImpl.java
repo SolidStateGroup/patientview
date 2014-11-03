@@ -3,6 +3,8 @@ package org.patientview.migration.service.impl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpPut;
+import org.hl7.fhir.instance.model.Contact;
+import org.hl7.fhir.instance.model.Enumeration;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.AsyncService;
 import org.patientview.migration.service.UserDataMigrationService;
@@ -13,11 +15,13 @@ import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirMedicationStatement;
 import org.patientview.persistence.model.FhirObservation;
+import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
@@ -205,6 +209,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.setFailedLogonAttempts(0);
                 newUser.setEmail("test" + time.toString() + "@solidstategroup.com");
                 newUser.setEmailVerified(false);
+                // todo: needs consideration during migration
+                newUser.setVerificationCode("emailverify" + time);
                 newUser.setUsername(time.toString());
                 newUser.setIdentifiers(new HashSet<Identifier>());
                 newUser.setLastLogin(now);
@@ -273,7 +279,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 comment.setIdentifier(time.toString());
                 migrationUser.getObservations().add(comment);
 
-                // add Condition / generic diagnosis
+                // add Condition / generic diagnosis (pv1 diagnosis table)
                 FhirCondition condition = new FhirCondition();
                 condition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
                 condition.setCode("Something else");
@@ -282,7 +288,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 condition.setIdentifier(time.toString());
                 migrationUser.getConditions().add(condition);
 
-                // add Condition / EDTA diagnosis
+                // add Condition / EDTA diagnosis (pv1 patient table)
                 FhirCondition conditionEdta = new FhirCondition();
                 conditionEdta.setCategory(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
                 conditionEdta.setCode("00");
@@ -291,14 +297,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 conditionEdta.setIdentifier(time.toString());
                 migrationUser.getConditions().add(conditionEdta);
 
-                // add Encounter / transplant status
+                // add Encounter / transplant status (pv1 patient table)
                 FhirEncounter transplant = new FhirEncounter();
                 transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS.toString());
                 transplant.setStatus("Live donor transplant");
                 transplant.setIdentifier(time.toString());
                 migrationUser.getEncounters().add(transplant);
 
-                // add Encounter / treatment
+                // add Encounter / treatment  (pv1 patient table)
                 FhirEncounter treatment = new FhirEncounter();
                 treatment.setEncounterType(EncounterTypes.TREATMENT.toString());
                 treatment.setStatus("TP");
@@ -336,6 +342,28 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 documentReference.setContent("Letter content: " + time + " etc.");
                 documentReference.setIdentifier(time.toString());
                 migrationUser.getDocumentReferences().add(documentReference);
+
+                // add Patient / pv1 patient table data
+                FhirPatient patient = new FhirPatient();
+                patient.setForename("forename");
+                patient.setSurname("surname");
+                patient.setGender("Male");
+                patient.setAddress1("address1");
+                patient.setAddress2("address2");
+                patient.setAddress3("address3");
+                patient.setAddress4("address4");
+                patient.setPostcode("postcode");
+
+                patient.setContacts(new ArrayList<FhirContact>());
+                FhirContact fhirContact = new FhirContact();
+                fhirContact.setUse("home");
+                fhirContact.setSystem("phone");
+                fhirContact.setValue("01234 56789012");
+                patient.getContacts().add(fhirContact);
+
+                patient.setDateOfBirth(now);
+
+                migrationUser.getPatients().add(patient);
 
                 // set to a patient user
                 migrationUser.setPatient(true);

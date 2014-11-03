@@ -64,8 +64,10 @@
                                 <tr>
                                     <td class="forced-width">Phone Number(s)</td>
                                     <td>
-                                        <span data-ng-repeat="phoneNumber in patient.fhirPatient.phoneNumbers">
-                                            {{phoneNumber}}<br/>
+                                        <span data-ng-repeat="contact in patient.fhirPatient.contacts">
+                                            {{contact.value}}
+                                            <span data-ng-show="contact.use">&nbsp;({{contact.use}})</span>
+                                            <br/>
                                         </span>
                                     </td>
                                 </tr>
@@ -89,10 +91,10 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="forced-width">Phone Number (s)</td>
+                                    <td class="forced-width">Phone Number(s)</td>
                                     <td>
-                                        <span data-ng-repeat="phoneNumber in patient.fhirPractitioner.phoneNumbers">
-                                            {{phoneNumber}}<br/>
+                                        <span data-ng-repeat="contact in patient.fhirPractitioner.contacts">
+                                            {{contact.value}}<br/>
                                         </span>
                                     </td>
                                 </tr>
