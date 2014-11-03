@@ -18,7 +18,10 @@ import java.util.UUID;
 public class FhirObservation extends BaseModel {
 
     private Date applies;
+
+    // observation heading code
     private String name;
+
     private String value;
     private String comments;
     private String comparator;
@@ -50,7 +53,9 @@ public class FhirObservation extends BaseModel {
 
             // value
             Quantity value = (Quantity) observation.getValue();
-            setValue(value.getValueSimple().toString());
+            if (value.getValueSimple() != null) {
+                setValue(value.getValueSimple().toString());
+            }
 
             // comparator
             Quantity.QuantityComparator quantityComparator = value.getComparatorSimple();

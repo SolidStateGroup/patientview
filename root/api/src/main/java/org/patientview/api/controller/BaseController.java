@@ -100,7 +100,7 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public String handleNullPointerException(NullPointerException e) {
-        LOG.info("Null Pointer");
+        LOG.error("Null Pointer {}", e);
         return e.getMessage();
     }
 }

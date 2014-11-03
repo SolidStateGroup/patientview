@@ -62,6 +62,7 @@ import java.util.concurrent.TimeUnit;
 public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDataMigrationServiceImpl.class);
+    private static final String COMMENT_RESULT_HEADING = "resultcomment";
 
     @Inject
     private UserDao userDao;
@@ -249,7 +250,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 MigrationUser migrationUser = new MigrationUser(newUser);
 
-                // add Observations / results
+                // add Observations / results (of type observationName)
                 for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
                     observation.setValue(String.valueOf(time + j));
@@ -261,6 +262,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     observation.setIdentifier(time.toString());
                     migrationUser.getObservations().add(observation);
                 }
+
+                // add comment Observation (comment table in pv1), attach to group (not present in pv1)
+                FhirObservation comment = new FhirObservation();
+                comment.setValue("a patient entered comment about my results");
+                comment.setApplies(new Date(time));
+                comment.setGroup(group);
+                comment.setComments("a patient entered comment about my results");
+                comment.setName(COMMENT_RESULT_HEADING);
+                comment.setIdentifier(time.toString());
+                migrationUser.getObservations().add(comment);
 
                 // add Condition / generic diagnosis
                 FhirCondition condition = new FhirCondition();

@@ -80,6 +80,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private ObservationHeadingService observationHeadingService;
 
     private static final Logger LOG = LoggerFactory.getLogger(ObservationServiceImpl.class);
+    private static final String COMMENT_RESULT_HEADING = "resultcomment";
 
     @Override
     public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code, final String orderBy,
@@ -183,7 +184,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                             fhirObservation.setApplies(date);
                             fhirObservation.setName(json[1].replace("\"", ""));
                             fhirObservation.setValue(json[2]);
-                            if (json.length > 3) {
+                            if (StringUtils.isNotEmpty(json[3])) {
                                 fhirObservation.setComparator(json[3].replace("\"", ""));
                             }
                             fhirObservation.setGroup(fhirLink.getGroup());
@@ -265,7 +266,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Group for patient entered results does not exist");
         }
 
-        List<ObservationHeading> commentObservationHeadings = observationHeadingService.findByCode("resultcomment");
+        List<ObservationHeading> commentObservationHeadings
+                = observationHeadingService.findByCode(COMMENT_RESULT_HEADING);
         if (CollectionUtils.isEmpty(commentObservationHeadings)) {
             throw new ResourceNotFoundException("Comment type observation heading does not exist");
         }
@@ -332,14 +334,16 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                     fhirResource.create(fhirObservation);
                 }
 
-                /*
-                // todo: discuss, do we need to store separately? if so how?
+                // create comment observation based on patient entered comments
                 if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
+
                     Observation commentObservation =
-                        buildObservation(applies, userResultCluster.getComments(), commentObservationHeadings.get(0));
+                        buildObservation(applies, userResultCluster.getComments(), null,
+                                userResultCluster.getComments(), commentObservationHeadings.get(0));
+
                     commentObservation.setSubject(patientReference);
                     fhirResource.create(commentObservation);
-                }*/
+                }
             }
         }
     }
@@ -355,18 +359,6 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         fhirResource.create(observation);
     }
-
-    /*@Override
-    public Observation buildObservation(FhirObservation fhirObservation, ObservationHeading observationHeading,
-                                        FhirLink fhirLink) throws FhirResourceException {
-        Observation observation = buildObservation(createDateTime(fhirObservation.getApplies()),
-                fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
-                observationHeading);
-
-        observation.setSubject(createFhirResourceReference(fhirLink.getResourceId()));
-
-        return observation;
-    }*/
 
     private UUID getVersionId(final JSONObject bundle) {
         JSONArray resultArray = (JSONArray) bundle.get("entry");
@@ -401,7 +393,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         } catch (ParseException pe) {
             // parse exception, likely to be a string, e.g. comments store as text
             CodeableConcept comment = new CodeableConcept();
-            comment.setTextSimple(observationHeading.getCode().toUpperCase());
+            comment.setTextSimple(value);
             comment.addCoding().setDisplaySimple(observationHeading.getHeading());
             observation.setValue(comment);
         }
@@ -477,6 +469,14 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     private Decimal createDecimal(String result) throws ParseException {
         Decimal decimal = new Decimal();
+
+        // try parsing long, exception will be caught
+        try {
+            Long parsedLong = Long.parseLong(result);
+        } catch (NumberFormatException nfe) {
+            throw new ParseException(nfe.getMessage(), 0);
+        }
+
         String resultString = result.replaceAll("[^.\\d]", "");
         NumberFormat decimalFormat = DecimalFormat.getInstance();
 

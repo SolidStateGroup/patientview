@@ -19,6 +19,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             code = $scope.code[0];
         }
 
+        $scope.selectedCode = code;
+
         var chart = new google.visualization.AnnotationChart(document.querySelector('#chart_div'));
 
         google.visualization.events.addListener(chart, 'rangechange', function(e) {
@@ -96,7 +98,11 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             if (observations.length) {
                 $scope.observations = _.sortBy(observations, 'applies').reverse();
                 $scope.selectedObservation = $scope.observations[0];
-                $scope.initialiseChart();
+
+                // dont show or deal with chart if result comment type
+                //if ($scope.selectedCode !== 'resultcomment') {
+                    $scope.initialiseChart();
+                //}
             } else {
                 delete $scope.observations;
                 delete $scope.selectedObservation;
@@ -177,7 +183,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.getValueChanged = function(observation) {
-        if (observation !== undefined) {
+
+        if (observation !== undefined && $scope.selectedCode !== 'resultcomment') {
             var index = $scope.tableObservationsKey[observation.applies];
             if ($scope.tableObservations[index + 1]) {
                 return $scope.tableObservations[index].value - $scope.tableObservations[index + 1].value;

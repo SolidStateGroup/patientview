@@ -49,12 +49,12 @@
                         <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>
                     </ul>
                 </div>
-                <div class="result-value clearfix">
+                <div class="result-value clearfix" data-ng-show="selectedCode !== 'resultcomment'">
                     <dl class="result-change">
                         <dt>{{selectedObservation.comparator}}{{selectedObservation.value}}
                             <span data-ng-show="observationHeading.units">{{observationHeading.units}}</span>
                         </dt>
-                        <dd data-ng-show="getResultIcon(getValueChanged(selectedObservation))">
+                        <dd data-ng-show="getResultIcon(getValueChanged(selectedObservation)) && selectedCode !== 'resultcomment'">
                             <i class="{{getResultIcon(getValueChanged(selectedObservation))}} pull-left"></i>
                             <span class="pull-left">{{removeMinus(getValueChanged(selectedObservation))}}</span>
                         </dd>
@@ -71,7 +71,7 @@
             </div>
         </div>
 
-        <div class="info-header" data-ng-show="!loading && observations">
+        <div class="info-header" data-ng-show="!loading && observations && selectedCode !== 'resultcomment'">
             <div class="btn-group btn-group-switcher pull-right">
                 <a href="" data-ng-click="setRangeInDays(30)" class="btn blue" data-ng-class="{active: range==30}">30 Days</a>
                 <a href="" data-ng-click="setRangeInDays(90)" class="btn blue" data-ng-class="{active: range==90}">3 Months</a>
@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <div class="content-panel chart-content-panel">
+        <div class="content-panel chart-content-panel" data-ng-hide="selectedCode === 'resultcomment'">
             <div class="content-inner">
                 <div id="chart_div"></div>
             </div>
