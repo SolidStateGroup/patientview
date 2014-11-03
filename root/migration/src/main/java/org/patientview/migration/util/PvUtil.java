@@ -1,8 +1,8 @@
 package org.patientview.migration.util;
 
 import org.apache.maven.surefire.shade.org.codehaus.plexus.util.StringUtils;
-import org.patientview.persistence.model.Link;
 import org.patientview.patientview.model.EdtaCode;
+import org.patientview.persistence.model.Link;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -3,15 +3,13 @@ package org.patientview;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.migration.service.AdminDataMigrationService;
-import org.patientview.migration.service.PatientDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.persistence.model.enums.RoleName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.Rollback;
@@ -38,9 +36,6 @@ public class MigrationIntegrationTest {
     @Inject
     private UserDataMigrationService userDataMigrationService;
 
-    @Inject
-    private PatientDataMigrationService patientDataMigrationService;
-
     @Before
     public void setup() throws Exception {
 
@@ -64,7 +59,7 @@ public class MigrationIntegrationTest {
     }
 
     /**
-     * Order(2) Migrates all the user records that are patients with groups into the new schema
+     * Order(2) Migrates all the user records into the new schema, including patient data if available
      *
      * @throws Exception
      */
@@ -76,23 +71,12 @@ public class MigrationIntegrationTest {
     }
 
     /**
-     * Order(3) Migrates all the patients into the database
-     *
-     * @throws Exception
-     */
-    @Test
-    @Ignore
-    public void test03PatientMigration() throws Exception {
-        //patientDataMigrationService.migrate();
-    }
-
-    /**
-     * Order(4) Log out as migration user (clear token)
+     * Order(3) Log out as migration user (clear token)
      */
     @Test
     @Transactional
     @Rollback(false)
-    public void test04Logout() {
+    public void test03Logout() {
         try {
             JsonUtil.logout();
         } catch (Exception e) {
