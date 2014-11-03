@@ -26,6 +26,7 @@ import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
+import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
@@ -34,6 +35,7 @@ import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LetterTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.TestResultDao;
 import org.patientview.repository.UserDao;
@@ -204,6 +206,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.setEmailVerified(false);
                 newUser.setUsername(time.toString());
                 newUser.setIdentifiers(new HashSet<Identifier>());
+                newUser.setLastLogin(now);
+
+                // todo: do we need to migrate user.accounthidden?
 
                 // if role is RoleName.PATIENT add identifier
                 if (roleName.equals(RoleName.PATIENT)) {
@@ -230,6 +235,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString());
                 userFeature.setFeature(feature);
                 newUser.getUserFeatures().add(userFeature);
+
+                // add user information (assuming just one SHOULD_KNOW and TALK_ABOUT per user)
+                newUser.setUserInformation(new HashSet<UserInformation>());
+                UserInformation shouldKnow = new UserInformation();
+                shouldKnow.setType(UserInformationTypes.SHOULD_KNOW);
+                shouldKnow.setValue("Should know about me...");
+                newUser.getUserInformation().add(shouldKnow);
+                UserInformation talkAbout = new UserInformation();
+                talkAbout.setType(UserInformationTypes.TALK_ABOUT);
+                talkAbout.setValue("Would like to talk about...");
+                newUser.getUserInformation().add(talkAbout);
 
                 MigrationUser migrationUser = new MigrationUser(newUser);
 

@@ -5,7 +5,6 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.EmailService;
-import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
@@ -75,9 +74,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private PatientService patientService;
-
-    @Inject
-    private FhirLinkService fhirLinkService;
 
     @Inject
     private FeatureRepository featureRepository;
@@ -391,7 +387,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = migrationUser.getUser();
         Long userId = add(user);
 
-        // only patients will have observations
+        // add user information if present (convert from Set to ArrayList)
+        if (!CollectionUtils.isEmpty(user.getUserInformation())) {
+            addInformation(userId, new ArrayList<>(user.getUserInformation()));
+        }
+
+        // migrate patient related data
         if (migrationUser.isPatient()) {
             try {
                 patientService.migratePatientData(userId, migrationUser);
@@ -770,6 +771,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             } else {
                 if (newUserInformation.getValue() != null) {
                     newUserInformation.setUser(user);
+                    newUserInformation.setCreator(getCurrentUser());
                     userInformationRepository.save(newUserInformation);
                 }
             }
