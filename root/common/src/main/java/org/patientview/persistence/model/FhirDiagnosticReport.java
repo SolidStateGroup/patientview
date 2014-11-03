@@ -21,6 +21,9 @@ public class FhirDiagnosticReport extends BaseModel {
     private String type;
     private Group group;
 
+    // used by migration
+    private String identifier;
+
     public FhirDiagnosticReport() {
     }
 
@@ -102,5 +105,13 @@ public class FhirDiagnosticReport extends BaseModel {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

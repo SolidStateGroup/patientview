@@ -20,5 +20,4 @@ public interface MedicationService {
     void addMedicationStatement(
             org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement, FhirLink fhirLink)
             throws FhirResourceException;
-
 }

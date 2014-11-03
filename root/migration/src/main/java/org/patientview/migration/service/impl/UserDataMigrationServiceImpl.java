@@ -13,6 +13,7 @@ import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirMedicationStatement;
 import org.patientview.persistence.model.FhirObservation;
@@ -25,9 +26,11 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.DiagnosticReportTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.TestResultDao;
@@ -183,26 +186,27 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (userUnit != null && userRole != null) {
             Date now = new Date();
 
-            for (Long i = now.getTime(); i<now.getTime() + count; i++) {
+            // create users based on Date.now + count increment
+            for (Long time = now.getTime(); time<now.getTime() + count; time++) {
 
                 // create user
                 User newUser = new User();
-                newUser.setForename("test" + i.toString());
+                newUser.setForename("test" + time.toString());
                 newUser.setSurname("test");
                 newUser.setChangePassword(true);
                 newUser.setPassword("pppppp");
                 newUser.setLocked(false);
                 newUser.setDummy(true);
                 newUser.setFailedLogonAttempts(0);
-                newUser.setEmail("test" + i.toString() + "@solidstategroup.com");
+                newUser.setEmail("test" + time.toString() + "@solidstategroup.com");
                 newUser.setEmailVerified(false);
-                newUser.setUsername(i.toString());
+                newUser.setUsername(time.toString());
                 newUser.setIdentifiers(new HashSet<Identifier>());
 
                 // if role is RoleName.PATIENT add identifier
                 if (roleName.equals(RoleName.PATIENT)) {
                     Identifier identifier = new Identifier();
-                    identifier.setIdentifier(i.toString());
+                    identifier.setIdentifier(time.toString());
                     identifier.setIdentifierType(adminDataMigrationService.getLookupByName("NHS_NUMBER"));
                     newUser.getIdentifiers().add(identifier);
                 }
@@ -231,13 +235,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 List<FhirObservation> observations = new ArrayList<FhirObservation>();
                 for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
-                    observation.setValue(String.valueOf(i + j));
-                    observation.setApplies(new Date(i + j));
+                    observation.setValue(String.valueOf(time + j));
+                    observation.setApplies(new Date(time + j));
                     observation.setGroup(group);
                     observation.setComparator(">");
                     observation.setComments("comment");
                     observation.setName(observationName);
-                    observation.setIdentifier(i.toString());
+                    observation.setIdentifier(time.toString());
                     observations.add(observation);
                 }
                 migrationUser.setObservations(observations);
@@ -249,7 +253,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 condition.setCode("Something else");
                 condition.setNotes("Something else");
                 condition.setGroup(userUnit);
-                condition.setIdentifier(i.toString());
+                condition.setIdentifier(time.toString());
                 migrationUser.getConditions().add(condition);
 
                 // add Condition / EDTA diagnosis
@@ -258,7 +262,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 conditionEdta.setCode("00");
                 conditionEdta.setNotes("00");
                 conditionEdta.setGroup(userUnit);
-                conditionEdta.setIdentifier(i.toString());
+                conditionEdta.setIdentifier(time.toString());
                 migrationUser.getConditions().add(conditionEdta);
 
                 // add Encounter / transplant status
@@ -266,14 +270,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 FhirEncounter transplant = new FhirEncounter();
                 transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS.toString());
                 transplant.setStatus("Live donor transplant");
-                transplant.setIdentifier(i.toString());
+                transplant.setIdentifier(time.toString());
                 migrationUser.getEncounters().add(transplant);
 
                 // add Encounter / treatment
                 FhirEncounter treatment = new FhirEncounter();
                 treatment.setEncounterType(EncounterTypes.TREATMENT.toString());
                 treatment.setStatus("TP");
-                treatment.setIdentifier(i.toString());
+                treatment.setIdentifier(time.toString());
                 migrationUser.getEncounters().add(treatment);
 
                 // add MedicationStatement
@@ -282,9 +286,26 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 medicationStatement.setName("Paracetemol");
                 medicationStatement.setStartDate(now);
                 medicationStatement.setGroup(userUnit);
-                medicationStatement.setIdentifier(i.toString());
+                medicationStatement.setIdentifier(time.toString());
                 migrationUser.setMedicationStatements(new ArrayList<FhirMedicationStatement>());
                 migrationUser.getMedicationStatements().add(medicationStatement);
+
+                // add DiagnosticReport and associated Observation (diagnostics, originally IBD now generic)
+                FhirObservation observation = new FhirObservation();
+                observation.setValue("1234567890");
+                observation.setName(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+
+                FhirDiagnosticReport diagnosticReport = new FhirDiagnosticReport();
+                diagnosticReport.setGroup(userUnit);
+                diagnosticReport.setDate(now);
+                diagnosticReport.setType(DiagnosticReportTypes.IMAGING.toString());
+                diagnosticReport.setName("Photo of patient");
+                diagnosticReport.setResult(observation);
+                diagnosticReport.setIdentifier(time.toString());
+                migrationUser.setDiagnosticReports(new ArrayList<FhirDiagnosticReport>());
+                migrationUser.getDiagnosticReports().add(diagnosticReport);
+
+                // add DocumentReference / letter
 
                 // set to a patient user
                 migrationUser.setPatient(true);

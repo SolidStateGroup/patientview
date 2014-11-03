@@ -27,6 +27,9 @@ public class MigrationUser {
     // MedicationStatements (medication)
     private List<FhirMedicationStatement> medicationStatements;
 
+    // DiagnosticReports
+    private List<FhirDiagnosticReport> diagnosticReports;
+
     public MigrationUser () {
     }
 
@@ -80,5 +83,13 @@ public class MigrationUser {
 
     public void setMedicationStatements(List<FhirMedicationStatement> medicationStatements) {
         this.medicationStatements = medicationStatements;
+    }
+
+    public List<FhirDiagnosticReport> getDiagnosticReports() {
+        return diagnosticReports;
+    }
+
+    public void setDiagnosticReports(List<FhirDiagnosticReport> diagnosticReports) {
+        this.diagnosticReports = diagnosticReports;
     }
 }

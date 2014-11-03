@@ -1,16 +1,25 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.CodeableConcept;
+import org.hl7.fhir.instance.model.DateAndTime;
+import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.DiagnosticReport;
+import org.hl7.fhir.instance.model.Enumeration;
+import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Observation;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
+import org.patientview.api.util.Util;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
@@ -85,5 +94,64 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
         }
 
         return fhirDiagnosticReports;
+    }
+
+    @Override
+    public void addDiagnosticReport(FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink) throws FhirResourceException {
+
+        // build diagnostic result observation
+        Observation observation = new Observation();
+        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+        observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+        CodeableConcept value = new CodeableConcept();
+        value.setTextSimple(fhirDiagnosticReport.getResult().getValue());
+        observation.setValue(value);
+        observation.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
+
+        CodeableConcept name = new CodeableConcept();
+        name.setTextSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+        name.addCoding().setDisplaySimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.getName());
+        observation.setName(name);
+
+        Identifier identifier = new Identifier();
+        identifier.setLabelSimple("resultcode");
+        identifier.setValueSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+        observation.setIdentifier(identifier);
+
+        // build diagnostic report
+        DiagnosticReport diagnosticReport = new DiagnosticReport();
+
+        if (fhirDiagnosticReport.getDate() != null) {
+            DateAndTime dateAndTime = new DateAndTime(fhirDiagnosticReport.getDate());
+            DateTime diagnosticDate = new DateTime();
+            diagnosticDate.setValue(dateAndTime);
+            diagnosticReport.setDiagnostic(diagnosticDate);
+        }
+
+        if (StringUtils.isNotEmpty(fhirDiagnosticReport.getName())) {
+            CodeableConcept reportName = new CodeableConcept();
+            reportName.setTextSimple(fhirDiagnosticReport.getName());
+            diagnosticReport.setName(reportName);
+        }
+
+        if (StringUtils.isNotEmpty(fhirDiagnosticReport.getType())) {
+            CodeableConcept type = new CodeableConcept();
+            type.setTextSimple(fhirDiagnosticReport.getType());
+            diagnosticReport.setServiceCategory(type);
+        }
+
+        // set diagnostic report patient reference
+        diagnosticReport.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
+
+        // create observation
+        UUID observationUuid = FhirResource.getLogicalId(fhirResource.create(observation));
+
+        // add observation (result) reference to diagnostic report
+        ResourceReference resultReference = diagnosticReport.addResult();
+        resultReference.setDisplaySimple(observationUuid.toString());
+
+        // create diagnostic report
+        fhirResource.create(diagnosticReport);
     }
 }

@@ -8,12 +8,14 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.patientview.api.service.DiagnosticService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.MedicationService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
@@ -92,6 +94,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private MedicationService medicationService;
+
+    @Inject
+    private DiagnosticService diagnosticService;
 
     @Inject
     private LookupService lookupService;
@@ -315,6 +320,21 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
 
             medicationService.addMedicationStatement(fhirMedicationStatement, fhirLink);
+        }
+
+        // DiagnosticReports (and associated Observation)
+        for (FhirDiagnosticReport fhirDiagnosticReport : migrationUser.getDiagnosticReports()) {
+
+            Identifier identifier = identifierMap.get(fhirDiagnosticReport.getIdentifier());
+            FhirLink fhirLink
+                    = getFhirLink(fhirDiagnosticReport.getGroup(), fhirDiagnosticReport.getIdentifier(), fhirLinks);
+
+            if (fhirLink == null) {
+                fhirLink = createPatientAndFhirLink(entityUser, fhirDiagnosticReport.getGroup(), identifier);
+                fhirLinks.add(fhirLink);
+            }
+
+            diagnosticService.addDiagnosticReport(fhirDiagnosticReport, fhirLink);
         }
     }
 
