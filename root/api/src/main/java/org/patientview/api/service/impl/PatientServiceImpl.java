@@ -1,21 +1,32 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Address;
+import org.hl7.fhir.instance.model.CodeableConcept;
+import org.hl7.fhir.instance.model.Contact;
+import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
+import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.IdentifierService;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.service.MedicationService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
+import org.patientview.api.service.PractitionerService;
+import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.FhirCondition;
+import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirEncounter;
@@ -28,8 +39,10 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.Code;
+import org.patientview.persistence.model.FhirIdentifier;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
+import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
@@ -38,9 +51,10 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.repository.GroupRepository;
-import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
 import org.springframework.stereotype.Service;
@@ -68,10 +82,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private FhirResource fhirResource;
 
     @Inject
-    private UserRepository userRepository;
+    private GroupRepository groupRepository;
 
     @Inject
-    private GroupRepository groupRepository;
+    private UserService userService;
 
     @Inject
     private GroupService groupService;
@@ -106,15 +120,25 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     @Inject
     private LookupService lookupService;
 
+    @Inject
+    private PractitionerService practitionerService;
+
+    @Inject
+    private IdentifierService identifierService;
+
+    @Inject
+    private IdentifierRepository identifierRepository;
+
     // used during migration
     private HashMap<String, ObservationHeading> observationHeadingMap;
+    private static final String GENDER_CODING = "gender";
 
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
             throws FhirResourceException, ResourceNotFoundException {
 
         boolean restrictGroups = !(groupIds == null || groupIds.isEmpty());
-        User user = userRepository.findOne(userId);
+        User user = userService.get(userId);
 
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -213,22 +237,23 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     @Override
     public Patient buildPatient(User user, Identifier identifier) {
         Patient patient = new Patient();
-
         patient = createHumanName(patient, user);
         patient = addIdentifier(patient, identifier);
-
         return patient;
     }
 
-    // migration only
+    // migration only, wipe existing data for this user and then create data in fhir
     @Override
     public void migratePatientData(Long userId, MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, NullPointerException {
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
-        User entityUser = userRepository.findOne(userId);
+        User entityUser = userService.get(userId);
         Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
+
         if (fhirLinks == null) {
             fhirLinks = new HashSet<>();
+        } else {
+            deleteExistingPatientData(fhirLinks);
         }
 
         // set up map of observation headings
@@ -243,6 +268,35 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         HashMap<String, Identifier> identifierMap = new HashMap<>();
         for (Identifier identifier : entityUser.getIdentifiers()) {
             identifierMap.put(identifier.getIdentifier(), identifier);
+        }
+
+        // Patient, Practitioner (taken from pv1 patient table)
+        for (FhirPatient fhirPatient : migrationUser.getPatients()) {
+            // create practitioner in FHIR for this patient's practitioner if it doesn't exist
+            if (StringUtils.isNotEmpty(fhirPatient.getPractitioner().getName())) {
+                UUID practitionerUuid;
+
+                List<UUID> practitionerUuids
+                    = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
+
+                if (CollectionUtils.isEmpty(practitionerUuids)) {
+                    practitionerUuid = practitionerService.addPractitioner(fhirPatient.getPractitioner());
+                } else {
+                    practitionerUuid = practitionerUuids.get(0);
+                }
+
+                // add patient
+                FhirLink newFhirLink = addPatient(fhirPatient, entityUser, practitionerUuid, fhirLinks);
+                if (newFhirLink != null) {
+                    fhirLinks.add(newFhirLink);
+                }
+            } else {
+                // add patient, with no practitioner
+                FhirLink newFhirLink = addPatient(fhirPatient, entityUser, null, fhirLinks);
+                if (newFhirLink != null) {
+                    fhirLinks.add(newFhirLink);
+                }
+            }
         }
 
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
@@ -354,6 +408,104 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
+    // delete all FHIR related Patient data for this patient
+    public void deleteExistingPatientData(Set<FhirLink> fhirLinks) throws FhirResourceException {
+        // TODO, delete patient data
+    }
+
+    // add FHIR Patient with optional practitioner reference, used during migration
+    private FhirLink addPatient(FhirPatient fhirPatient, User entityUser, UUID practitionerUuid,
+        Set<FhirLink> fhirLinks) throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+
+        Patient patient = new Patient();
+
+        // name
+        HumanName humanName = patient.addName();
+        humanName.addFamilySimple(fhirPatient.getSurname());
+        humanName.addGivenSimple(fhirPatient.getForename());
+        Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
+        humanName.setUse(nameUse);
+
+        // date of birth
+        if (fhirPatient.getDateOfBirth() != null) {
+            patient.setBirthDateSimple(new DateAndTime(fhirPatient.getDateOfBirth()));
+        }
+
+        // gender
+        CodeableConcept gender = new CodeableConcept();
+        if (fhirPatient.getGender() != null) {
+            gender.setTextSimple(fhirPatient.getGender());
+        }
+        gender.addCoding().setDisplaySimple(GENDER_CODING);
+        patient.setGender(gender);
+
+        // address
+        Address address = patient.addAddress();
+        address.addLineSimple(fhirPatient.getAddress1());
+        address.setCitySimple(fhirPatient.getAddress2());
+        address.setStateSimple(fhirPatient.getAddress3());
+        address.setCountrySimple(fhirPatient.getAddress4());
+        address.setZipSimple(fhirPatient.getPostcode());
+
+        // contact details
+        for (FhirContact fhirContact : fhirPatient.getContacts()) {
+            Contact contact = patient.addTelecom();
+            contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
+            contact.setValueSimple(fhirContact.getValue());
+            contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+        }
+
+        // identifiers (note: FHIR identifiers attached to FHIR patient not PatientView Identifiers)
+        for (FhirIdentifier fhirIdentifier : fhirPatient.getIdentifiers()) {
+            org.hl7.fhir.instance.model.Identifier identifier = patient.addIdentifier();
+            identifier.setLabelSimple(fhirIdentifier.getLabel());
+            identifier.setValueSimple(fhirIdentifier.getValue());
+        }
+
+        // care provider (practitioner)
+        if (practitionerUuid != null) {
+            ResourceReference careProvider = patient.addCareProvider();
+            careProvider.setReferenceSimple("uuid");
+            careProvider.setDisplaySimple(practitionerUuid.toString());
+        }
+
+        JSONObject createdPatient = fhirResource.create(patient);
+
+        if (getFhirLink(fhirPatient.getGroup(), fhirPatient.getIdentifier(), fhirLinks) == null) {
+
+            // create new FhirLink and add to list of known fhirlinks if doesn't already exist, including identifier
+            Identifier identifier;
+
+            try {
+                identifier = identifierService.getIdentifierByValue(fhirPatient.getIdentifier());
+            } catch (ResourceNotFoundException e) {
+                identifier = new Identifier();
+                identifier.setIdentifier(fhirPatient.getIdentifier());
+                identifier.setCreator(getCurrentUser());
+                identifier.setUser(entityUser);
+                identifier.setIdentifierType(
+                    lookupService.findByTypeAndValue(LookupTypes.IDENTIFIER, IdentifierTypes.NHS_NUMBER.toString()));
+
+                identifier.setCreator(getCurrentUser());
+                identifier.setUser(entityUser);
+                identifier = identifierRepository.save(identifier);
+            }
+
+            FhirLink fhirLink = new FhirLink();
+            fhirLink.setUser(entityUser);
+            fhirLink.setIdentifier(identifier);
+            fhirLink.setGroup(fhirPatient.getGroup());
+            fhirLink.setResourceId(getResourceId(createdPatient));
+            fhirLink.setVersionId(getVersionId(createdPatient));
+            fhirLink.setResourceType(ResourceType.Patient.name());
+            fhirLink.setActive(true);
+            return fhirLinkService.save(fhirLink);
+        } else {
+            return null;
+        }
+    }
+
+    // used as backup if missing data in pv1 patient table
     private FhirLink createPatientAndFhirLink(User user, Group group, Identifier identifier)
             throws ResourceNotFoundException, FhirResourceException {
 
@@ -399,7 +551,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         HumanName humanName = patient.addName();
         humanName.addFamilySimple(user.getSurname());
         humanName.addGivenSimple(user.getForename());
-        Enumeration<HumanName.NameUse> nameUse = new Enumeration(HumanName.NameUse.usual);
+        Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
         humanName.setUse(nameUse);
         return patient;
     }

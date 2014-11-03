@@ -32,7 +32,7 @@ public class AsyncMigrateUserTask implements Runnable {
                 LOG.error("Failed to migrate username: {}", migrationUser.getUser().getUsername());
             }
         } catch (JsonMigrationException jme) {
-            LOG.error("JsonMigrationException, failed to migrate username: {}", migrationUser.getUser().getUsername());
+            LOG.error("Failed to migrate username (JsonMigrationException): {}", migrationUser.getUser().getUsername());
         } catch (JsonMigrationExistsException jee) {
             LOG.info("User {} already exists", migrationUser.getUser().getUsername());
         } catch (Exception e) {

@@ -4,7 +4,9 @@ import org.hl7.fhir.instance.model.Patient;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.User;
@@ -12,6 +14,7 @@ import org.patientview.persistence.model.enums.RoleName;
 
 import javax.persistence.EntityExistsException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -31,5 +34,8 @@ public interface PatientService {
 
     // migration only
     void migratePatientData(Long userId, MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, NullPointerException;
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
+
+    // migration only
+    void deleteExistingPatientData(Set<FhirLink> fhirLinks) throws FhirResourceException;
 }

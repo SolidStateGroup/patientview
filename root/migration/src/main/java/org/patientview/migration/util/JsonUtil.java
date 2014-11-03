@@ -131,7 +131,8 @@ public final class JsonUtil {
 
             if (statusCode >= 300) {
                 LOG.error("Server response " + httpResponse);
-                throw new JsonMigrationException("An " + httpResponse.getStatusLine().getStatusCode() + " error response from the server");
+                throw new JsonMigrationException("An " + httpResponse.getStatusLine().getStatusCode()
+                        + " error response from the server. ");
             }
 
             if (expectResponse) {

@@ -68,7 +68,7 @@ public interface GroupService {
 
     List<Group> addParentAndChildGroups(List<Group> groups);
 
-    public List<UUID> getOrganizationLogicalUuidsByCode(final String code) throws FhirResourceException;
+    List<UUID> getOrganizationLogicalUuidsByCode(final String code) throws FhirResourceException;
 
     UUID addOrganization(Group group) throws FhirResourceException;
 }

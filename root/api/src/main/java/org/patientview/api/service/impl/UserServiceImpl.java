@@ -10,6 +10,7 @@ import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -48,6 +49,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -107,6 +109,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private static final Long GENERIC_GROUP_ID = 1L;
     private Group genericGroup;
     private Role memberRole;
+
+    @Inject
+    EntityManager entityManager;
 
 
     @PostConstruct
@@ -377,7 +382,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     // migration Only
-    public Long migrateUser(MigrationUser migrationUser) throws EntityExistsException, ResourceNotFoundException {
+    public Long migrateUser(MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException, MigrationException {
 
         if (userRepository.usernameExists(migrationUser.getUser().getUsername())) {
             throw new EntityExistsException("User already exists (username)");
@@ -386,6 +392,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // add basic user object
         User user = migrationUser.getUser();
         Long userId = add(user);
+
+        entityManager.flush();
 
         // add user information if present (convert from Set to ArrayList)
         if (!CollectionUtils.isEmpty(user.getUserInformation())) {
@@ -398,8 +406,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 patientService.migratePatientData(userId, migrationUser);
                 LOG.info("{} Done, migrated patient data", userId);
             } catch (Exception e) {
-                LOG.error("Could not migrate patient data: {} {}", e.getClass(), e);
-                return null;
+                //LOG.error("Could not migrate patient data: {} {}", e.getClass(), e);
+                LOG.error("Could not migrate patient data: {} {}", e.getClass(), e.getMessage());
+                try {
+                    // clean up any data created during failed migration
+                    patientService.deleteExistingPatientData(userRepository.findOne(userId).getFhirLinks());
+                } catch (FhirResourceException fre) {
+                    throw new MigrationException("Error cleaning up failed migration: " + fre.getMessage());
+                }
+                throw new MigrationException("Could not migrate patient data: " + e.getMessage());
             }
         } else {
             LOG.info("{} Done", userId);
@@ -408,7 +423,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return userId;
     }
 
-    // not used
     public User get(Long userId) throws ResourceNotFoundException {
         return findUser(userId);
     }

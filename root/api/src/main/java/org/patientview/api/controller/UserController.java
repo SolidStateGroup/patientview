@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -120,7 +121,7 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/migrate", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Long> migrateUser(@RequestBody MigrationUser user)
-            throws ResourceNotFoundException, EntityExistsException {
+            throws ResourceNotFoundException, EntityExistsException, MigrationException {
         return new ResponseEntity<>(userService.migrateUser(user), HttpStatus.CREATED);
     }
 

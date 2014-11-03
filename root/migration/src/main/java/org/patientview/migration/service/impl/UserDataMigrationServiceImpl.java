@@ -2,15 +2,9 @@ package org.patientview.migration.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.HttpPut;
-import org.hl7.fhir.instance.model.Contact;
-import org.hl7.fhir.instance.model.Enumeration;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.AsyncService;
 import org.patientview.migration.service.UserDataMigrationService;
-import org.patientview.migration.util.JsonUtil;
-import org.patientview.migration.util.exception.JsonMigrationException;
-import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
@@ -19,9 +13,11 @@ import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirEncounter;
+import org.patientview.persistence.model.FhirIdentifier;
 import org.patientview.persistence.model.FhirMedicationStatement;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
+import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
@@ -217,13 +213,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // todo: do we need to migrate user.accounthidden?
 
-                // if role is RoleName.PATIENT add identifier
-                if (roleName.equals(RoleName.PATIENT)) {
-                    Identifier identifier = new Identifier();
-                    identifier.setIdentifier(time.toString());
-                    identifier.setIdentifierType(adminDataMigrationService.getLookupByName("NHS_NUMBER"));
-                    newUser.getIdentifiers().add(identifier);
-                }
 
                 // add group role (specialty is added automatically when creating user within a UNIT group)
                 Group group = new Group();
@@ -343,7 +332,29 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 documentReference.setIdentifier(time.toString());
                 migrationUser.getDocumentReferences().add(documentReference);
 
-                // add Patient / pv1 patient table data
+                // add nhs number (pv1 table)
+                Identifier identifier = new Identifier();
+                identifier.setIdentifier(time.toString());
+                identifier.setIdentifierType(
+                        adminDataMigrationService.getLookupByName(IdentifierTypes.NHS_NUMBER.toString()));
+                newUser.getIdentifiers().add(identifier);
+
+                // add Radar No (pv1 patient table)
+                Identifier radarNo = new Identifier();
+                radarNo.setIdentifier("radar" + time.toString());
+                radarNo.setIdentifierType(
+                        adminDataMigrationService.getLookupByName(IdentifierTypes.RADAR_NUMBER.toString()));
+                newUser.getIdentifiers().add(radarNo);
+
+                // add Radar No (pv1 patient table)
+                Identifier hospitalNo = new Identifier();
+                hospitalNo.setIdentifier("hospital" + time.toString());
+                hospitalNo.setIdentifierType(
+                        adminDataMigrationService.getLookupByName(IdentifierTypes.HOSPITAL_NUMBER.toString()));
+                newUser.getIdentifiers().add(hospitalNo);
+
+                // add Patient / pv1 patient table data (iterate through pv1 patient)
+                // - basic patient data
                 FhirPatient patient = new FhirPatient();
                 patient.setForename("forename");
                 patient.setSurname("surname");
@@ -353,7 +364,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 patient.setAddress3("address3");
                 patient.setAddress4("address4");
                 patient.setPostcode("postcode");
+                patient.setDateOfBirth(now);
+                patient.setIdentifier(time.toString());
+                patient.setGroup(userUnit);
 
+                // - patient contact data
                 patient.setContacts(new ArrayList<FhirContact>());
                 FhirContact fhirContact = new FhirContact();
                 fhirContact.setUse("home");
@@ -361,7 +376,39 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 fhirContact.setValue("01234 56789012");
                 patient.getContacts().add(fhirContact);
 
-                patient.setDateOfBirth(now);
+                // - patient identifiers (FHIR identifiers to be stored in FHIR patient record, not patientview identifiers)
+                FhirIdentifier nhsNumber = new FhirIdentifier();
+                nhsNumber.setValue(time.toString());
+                nhsNumber.setLabel(IdentifierTypes.NHS_NUMBER.toString());
+                patient.getIdentifiers().add(nhsNumber);
+
+                FhirIdentifier hospitalNumber = new FhirIdentifier();
+                hospitalNumber.setValue("hospital" + time.toString());
+                hospitalNumber.setLabel(IdentifierTypes.HOSPITAL_NUMBER.toString());
+                patient.getIdentifiers().add(hospitalNumber);
+
+                FhirIdentifier radarNumber = new FhirIdentifier();
+                radarNumber.setValue("radar" + time.toString());
+                radarNumber.setLabel(IdentifierTypes.RADAR_NUMBER.toString());
+                patient.getIdentifiers().add(radarNumber);
+
+                // - practitioner (gp)
+                FhirPractitioner practitioner = new FhirPractitioner();
+                practitioner.setName("gpname");
+                practitioner.setAddress1("gpaddress1");
+                practitioner.setAddress2("gpaddress2");
+                practitioner.setAddress3("gpaddress3");
+                practitioner.setPostcode("gppostcode");
+                practitioner.setContacts(new ArrayList<FhirContact>());
+
+                // - practitioner contact data
+                FhirContact practitionerContact = new FhirContact();
+                practitionerContact.setUse("work");
+                practitionerContact.setSystem("phone");
+                practitionerContact.setValue("09876 54321098");
+                practitioner.getContacts().add(practitionerContact);
+
+                patient.setPractitioner(practitioner);
 
                 migrationUser.getPatients().add(patient);
 
@@ -409,56 +456,5 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setUserFeatures(new HashSet<UserFeature>());
 
         return newUser;
-    }
-
-    // deprecated as specialty added automatically for child groups during user creation
-    public List<Group> getUserSpecialty(org.patientview.patientview.model.User oldUser) {
-
-        List<Group> groups = new ArrayList<Group>();
-
-        for (SpecialtyUserRole specialtyUserRole : specialtyUserRoleDao.get(oldUser)) {
-
-            if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("ibd")) {
-                groups.add(adminDataMigrationService.getGroupByName("idb"));
-            }
-
-            if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("renal")) {
-                groups.add(adminDataMigrationService.getGroupByName("renal"));
-            }
-
-            if (specialtyUserRole.getSpecialty().getContext().equalsIgnoreCase("diabetes")) {
-                groups.add(adminDataMigrationService.getGroupByName("diabetes"));
-            }
-        }
-
-        return groups;
-    }
-
-    // deprecated as specialty added automatically for child groups during user creation
-    private void addSpecialty(org.patientview.patientview.model.User user, Long userId) {
-
-        List<Group> groups = getUserSpecialty(user);
-        for (Group group : groups) {
-            Role role = adminDataMigrationService.getRoleByName(RoleName.PATIENT);
-            if (userId != null && group != null && role != null) {
-                callApiAddGroupRole(userId, group.getId(), role.getId());
-            }
-        }
-    }
-
-    // deprecated as specialty added automatically for child groups during user creation
-    private void callApiAddGroupRole(Long userId, Long groupId, Long roleId) {
-        String url = JsonUtil.pvUrl + "/user/" + userId + "/group/" + groupId + "/role/" + roleId;
-        try {
-            JsonUtil.jsonRequest(url, GroupRole.class, null, HttpPut.class, true);
-            LOG.info("Created group and role for user");
-        } catch (JsonMigrationException jme) {
-            LOG.error("Unable to add user to group");
-        } catch (JsonMigrationExistsException jee) {
-            LOG.error("Unable to add user to group");
-        } catch (Exception e) {
-            LOG.error("Unable to add group role");
-            e.printStackTrace();
-        }
     }
 }

@@ -8,7 +8,8 @@ public enum IdentifierTypes {
     NHS_NUMBER("NHS Number"),
     CHI_NUMBER("CHI Number"),
     HSC_NUMBER("H&SC Number"),
-    HOSPITAL_NUMBER("Hospital Number");
+    HOSPITAL_NUMBER("Hospital Number"),
+    RADAR_NUMBER("RADAR Number");
 
     private String name;
     IdentifierTypes(String name) { this.name = name; }

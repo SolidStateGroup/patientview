@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.apache.catalina.connector.ClientAbortException;
+import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -76,7 +76,7 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGenericException(Exception e) {
         LOG.error("Unhandled exception type {}", e.getCause());
-        LOG.error("Unhandled exception", e);
+        LOG.error("Unhandled exception ", e);
         return e.getMessage();
     }
 
@@ -101,6 +101,13 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public String handleNullPointerException(NullPointerException e) {
         LOG.error("Null Pointer {}", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(MigrationException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleMigrationException(MigrationException e) {
         return e.getMessage();
     }
 }

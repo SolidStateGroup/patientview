@@ -25,8 +25,13 @@ public class FhirPatient extends BaseModel {
     private String address3;
     private String address4;
     private String postcode;
-    private List<FhirContact> contacts;
-    private List<FhirIdentifier> identifiers;
+    private List<FhirContact> contacts = new ArrayList<>();
+    private List<FhirIdentifier> identifiers = new ArrayList<>();
+
+    // used during migration
+    private String identifier;
+    private Group group;
+    private FhirPractitioner practitioner;
 
     public FhirPatient() {
     }
@@ -68,7 +73,6 @@ public class FhirPatient extends BaseModel {
         }
 
         // phone numbers
-        setContacts(new ArrayList<FhirContact>());
         if (!patient.getContact().isEmpty()) {
             for (Contact telecom : patient.getContact().get(0).getTelecom()) {
                 FhirContact contact = new FhirContact();
@@ -84,7 +88,6 @@ public class FhirPatient extends BaseModel {
         }
 
         // identifiers if present
-        setIdentifiers(new ArrayList<FhirIdentifier>());
         if (!patient.getIdentifier().isEmpty()) {
             for (Identifier identifier : patient.getIdentifier()) {
                 getIdentifiers().add(new FhirIdentifier(identifier));
@@ -179,5 +182,29 @@ public class FhirPatient extends BaseModel {
 
     public void setIdentifiers(List<FhirIdentifier> identifiers) {
         this.identifiers = identifiers;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public FhirPractitioner getPractitioner() {
+        return practitioner;
+    }
+
+    public void setPractitioner(FhirPractitioner practitioner) {
+        this.practitioner = practitioner;
     }
 }
