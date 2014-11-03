@@ -31,5 +31,5 @@ public interface PatientService {
 
     // migration only
     void migratePatientData(Long userId, MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, FhirResourceException;
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, NullPointerException;
 }

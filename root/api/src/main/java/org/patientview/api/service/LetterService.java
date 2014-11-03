@@ -1,9 +1,10 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.UserOnly;
-import org.patientview.api.model.FhirLetter;
+import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirLink;
 
 import java.util.List;
 
@@ -14,5 +15,8 @@ import java.util.List;
 public interface LetterService {
 
     @UserOnly
-    List<FhirLetter> getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
+    List<FhirDocumentReference> getByUserId(Long userId) throws ResourceNotFoundException, FhirResourceException;
+
+    void addLetter(org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference, FhirLink fhirLink)
+            throws FhirResourceException;
 }

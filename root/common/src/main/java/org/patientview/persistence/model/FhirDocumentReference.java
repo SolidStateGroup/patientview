@@ -12,17 +12,20 @@ import java.util.GregorianCalendar;
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
  */
-public class FhirLetter extends BaseModel {
+public class FhirDocumentReference extends BaseModel {
 
     private Date date;
     private String type;
     private String content;
     private Group group;
 
-    public FhirLetter() {
+    // used by migration
+    private String identifier;
+
+    public FhirDocumentReference() {
     }
 
-    public FhirLetter(DocumentReference documentReference, Group group)
+    public FhirDocumentReference(DocumentReference documentReference, Group group)
             throws FhirResourceException {
 
         if (documentReference.getCreated() == null) {
@@ -77,5 +80,13 @@ public class FhirLetter extends BaseModel {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

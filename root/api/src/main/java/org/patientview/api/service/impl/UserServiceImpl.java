@@ -395,12 +395,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (migrationUser.isPatient()) {
             try {
                 patientService.migratePatientData(userId, migrationUser);
+                LOG.info("{} Done, migrated patient data", userId);
             } catch (Exception e) {
-                LOG.error("Could not migrate patient data: {}", e);
+                LOG.error("Could not migrate patient data: {} {}", e.getClass(), e);
+                return null;
             }
+        } else {
+            LOG.info("{} Done", userId);
         }
 
-        LOG.info("{} Done", userId);
         return userId;
     }
 

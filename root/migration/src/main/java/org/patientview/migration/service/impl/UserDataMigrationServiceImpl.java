@@ -14,6 +14,7 @@ import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDiagnosticReport;
+import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirMedicationStatement;
 import org.patientview.persistence.model.FhirObservation;
@@ -30,6 +31,7 @@ import org.patientview.persistence.model.enums.DiagnosticReportTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
+import org.patientview.persistence.model.enums.LetterTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.repository.SpecialtyUserRoleDao;
@@ -232,7 +234,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 MigrationUser migrationUser = new MigrationUser(newUser);
 
                 // add Observations / results
-                List<FhirObservation> observations = new ArrayList<FhirObservation>();
                 for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
                     observation.setValue(String.valueOf(time + j));
@@ -242,12 +243,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     observation.setComments("comment");
                     observation.setName(observationName);
                     observation.setIdentifier(time.toString());
-                    observations.add(observation);
+                    migrationUser.getObservations().add(observation);
                 }
-                migrationUser.setObservations(observations);
 
                 // add Condition / generic diagnosis
-                migrationUser.setConditions(new ArrayList<FhirCondition>());
                 FhirCondition condition = new FhirCondition();
                 condition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
                 condition.setCode("Something else");
@@ -266,7 +265,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 migrationUser.getConditions().add(conditionEdta);
 
                 // add Encounter / transplant status
-                migrationUser.setEncounters(new ArrayList<FhirEncounter>());
                 FhirEncounter transplant = new FhirEncounter();
                 transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS.toString());
                 transplant.setStatus("Live donor transplant");
@@ -287,7 +285,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 medicationStatement.setStartDate(now);
                 medicationStatement.setGroup(userUnit);
                 medicationStatement.setIdentifier(time.toString());
-                migrationUser.setMedicationStatements(new ArrayList<FhirMedicationStatement>());
                 migrationUser.getMedicationStatements().add(medicationStatement);
 
                 // add DiagnosticReport and associated Observation (diagnostics, originally IBD now generic)
@@ -302,10 +299,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 diagnosticReport.setName("Photo of patient");
                 diagnosticReport.setResult(observation);
                 diagnosticReport.setIdentifier(time.toString());
-                migrationUser.setDiagnosticReports(new ArrayList<FhirDiagnosticReport>());
                 migrationUser.getDiagnosticReports().add(diagnosticReport);
 
                 // add DocumentReference / letter
+                FhirDocumentReference documentReference = new FhirDocumentReference();
+                documentReference.setGroup(userUnit);
+                documentReference.setDate(now);
+                documentReference.setType(LetterTypes.GENERAL_LETTER.getName());
+                documentReference.setContent("Letter content: " + time + " etc.");
+                documentReference.setIdentifier(time.toString());
+                migrationUser.getDocumentReferences().add(documentReference);
 
                 // set to a patient user
                 migrationUser.setPatient(true);

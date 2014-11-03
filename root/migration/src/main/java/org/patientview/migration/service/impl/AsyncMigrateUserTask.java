@@ -26,10 +26,13 @@ public class AsyncMigrateUserTask implements Runnable {
         String url = JsonUtil.pvUrl + "/user/migrate";
         try {
             Long userId = JsonUtil.jsonRequest(url, Long.class, migrationUser, HttpPost.class, true);
-            //JsonUtil.gsonPost(url, migrationUser);
-            LOG.info("Sent user: {} OK, Id: {}", migrationUser.getUser().getUsername(), userId);
+            if (userId != null) {
+                LOG.info("Migrated username: {} OK, Id: {}", migrationUser.getUser().getUsername(), userId);
+            } else {
+                LOG.error("Failed to migrate username: {}", migrationUser.getUser().getUsername());
+            }
         } catch (JsonMigrationException jme) {
-            LOG.error("Unable to create user: {}", migrationUser.getUser().getUsername());
+            LOG.error("JsonMigrationException, failed to migrate username: {}", migrationUser.getUser().getUsername());
         } catch (JsonMigrationExistsException jee) {
             LOG.info("User {} already exists", migrationUser.getUser().getUsername());
         } catch (Exception e) {

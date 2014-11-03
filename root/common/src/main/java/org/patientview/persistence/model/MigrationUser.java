@@ -1,5 +1,6 @@
 package org.patientview.persistence.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,19 +17,22 @@ public class MigrationUser {
     private User user;
 
     // Observations
-    private List<FhirObservation> observations;
+    private List<FhirObservation> observations = new ArrayList<>();
 
     // Conditions (diagnosis)
-    private List<FhirCondition> conditions;
+    private List<FhirCondition> conditions = new ArrayList<>();
 
     // Encounters (treatment and transplant status)
-    private List<FhirEncounter> encounters;
+    private List<FhirEncounter> encounters = new ArrayList<>();
 
     // MedicationStatements (medication)
-    private List<FhirMedicationStatement> medicationStatements;
+    private List<FhirMedicationStatement> medicationStatements = new ArrayList<>();
 
     // DiagnosticReports
-    private List<FhirDiagnosticReport> diagnosticReports;
+    private List<FhirDiagnosticReport> diagnosticReports = new ArrayList<>();
+
+    // DocumentReferences (letters)
+    private List<FhirDocumentReference> documentReferences = new ArrayList<>();
 
     public MigrationUser () {
     }
@@ -91,5 +95,13 @@ public class MigrationUser {
 
     public void setDiagnosticReports(List<FhirDiagnosticReport> diagnosticReports) {
         this.diagnosticReports = diagnosticReports;
+    }
+
+    public List<FhirDocumentReference> getDocumentReferences() {
+        return documentReferences;
+    }
+
+    public void setDocumentReferences(List<FhirDocumentReference> documentReferences) {
+        this.documentReferences = documentReferences;
     }
 }

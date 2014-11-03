@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.model.FhirLetter;
+import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.impl.LetterServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
@@ -117,10 +117,10 @@ public class LetterServiceTest {
             when(fhirResource.findResourceByQuery(any(String.class), eq(DocumentReference.class)))
                     .thenReturn(documentReferences);
 
-            List<FhirLetter> fhirLetters = letterService.getByUserId(user.getId());
-            Assert.assertEquals("Should return 1 FhirLetter", 1, fhirLetters.size());
+            List<FhirDocumentReference> fhirDocumentReferences = letterService.getByUserId(user.getId());
+            Assert.assertEquals("Should return 1 FhirDocumentReference", 1, fhirDocumentReferences.size());
             Assert.assertEquals("Should have correct content", "LETTER_CONTENT",
-                    fhirLetters.get(0).getContent());
+                    fhirDocumentReferences.get(0).getContent());
 
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("ResourceNotFoundException: " + rnf.getMessage());

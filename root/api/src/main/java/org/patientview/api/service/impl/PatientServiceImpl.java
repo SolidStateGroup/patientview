@@ -11,11 +11,13 @@ import org.json.JSONObject;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.LetterService;
 import org.patientview.api.service.MedicationService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirDiagnosticReport;
+import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.api.service.CodeService;
 import org.patientview.api.service.ConditionService;
@@ -97,6 +99,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     @Inject
     private DiagnosticService diagnosticService;
+
+    @Inject
+    private LetterService letterService;
 
     @Inject
     private LookupService lookupService;
@@ -218,7 +223,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     // migration only
     @Override
     public void migratePatientData(Long userId, MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, FhirResourceException {
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, NullPointerException {
 
         User entityUser = userRepository.findOne(userId);
         Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
@@ -261,7 +266,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 //LOG.info("2 " + new Date().getTime());
                 observationService.addObservation(fhirObservation, observationHeading, fhirLink);
             } else {
-                LOG.error("");
+                throw new FhirResourceException("Identifier or ObservationHeading not found");
             }
         }
 
@@ -309,7 +314,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // MedicationStatements (also adds Medicines)
         for (org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement
                 : migrationUser.getMedicationStatements()) {
-
             Identifier identifier = identifierMap.get(fhirMedicationStatement.getIdentifier());
             FhirLink fhirLink
                 = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
@@ -324,7 +328,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // DiagnosticReports (and associated Observation)
         for (FhirDiagnosticReport fhirDiagnosticReport : migrationUser.getDiagnosticReports()) {
-
             Identifier identifier = identifierMap.get(fhirDiagnosticReport.getIdentifier());
             FhirLink fhirLink
                     = getFhirLink(fhirDiagnosticReport.getGroup(), fhirDiagnosticReport.getIdentifier(), fhirLinks);
@@ -335,6 +338,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
 
             diagnosticService.addDiagnosticReport(fhirDiagnosticReport, fhirLink);
+        }
+
+        // DocumentReferences (letters)
+        for (FhirDocumentReference documentReference : migrationUser.getDocumentReferences()) {
+            Identifier identifier = identifierMap.get(documentReference.getIdentifier());
+            FhirLink fhirLink
+                    = getFhirLink(documentReference.getGroup(), documentReference.getIdentifier(), fhirLinks);
+            if (fhirLink == null) {
+                fhirLink = createPatientAndFhirLink(entityUser, documentReference.getGroup(), identifier);
+                fhirLinks.add(fhirLink);
+            }
+
+            letterService.addLetter(documentReference, fhirLink);
         }
     }
 

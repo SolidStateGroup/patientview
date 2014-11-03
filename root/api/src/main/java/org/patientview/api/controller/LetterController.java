@@ -1,6 +1,6 @@
 package org.patientview.api.controller;
 
-import org.patientview.api.model.FhirLetter;
+import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.LetterService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
@@ -27,7 +27,7 @@ public class LetterController extends BaseController<LetterController> {
 
     @RequestMapping(value = "/user/{userId}/letters", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<FhirLetter>> getAllLetters(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<FhirDocumentReference>> getAllLetters(@PathVariable("userId") Long userId)
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(letterService.getByUserId(userId), HttpStatus.OK);
     }
