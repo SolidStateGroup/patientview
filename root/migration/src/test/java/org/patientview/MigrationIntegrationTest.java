@@ -42,14 +42,14 @@ public class MigrationIntegrationTest {
     }
 
     /**
-     * Order(1) Migrates all the static data like groups, specialities
+     * Order(1) Migrate all the static data like groups, specialities
      *
      * @throws Exception
      */
     @Test
     @Transactional
     @Rollback(false)
-    public void test01StaticDataMigrationFeatures()  throws Exception {
+    public void test01StaticDataMigrationFeatures() throws Exception {
         LOG.info("Starting migration, must have -Durl=\"http://localhost:8080/api\" or equivalent");
         adminDataMigrationService.migrate();
         Assert.assertNotNull("UNIT lookup type should not be null", adminDataMigrationService.getLookupByName("UNIT"));
@@ -59,9 +59,8 @@ public class MigrationIntegrationTest {
     }
 
     /**
-     * Order(2) Migrates all the user records into the new schema, including patient data if available
+     * Order(2) Migrate all the user records into the new schema, including patient data if available
      *
-     * @throws Exception
      */
     @Test
     @Transactional
@@ -71,12 +70,45 @@ public class MigrationIntegrationTest {
     }
 
     /**
-     * Order(3) Log out as migration user (clear token)
+     * Order(2) Migrate conversations
+     *
      */
     @Test
     @Transactional
     @Rollback(false)
-    public void test03Logout() {
+    public void test03ConversationMigration() {
+        // migrate conversation data mapping new users to old pv1 users
+    }
+
+    /**
+     * Order(3) Migrate join requests
+     *
+     */
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void test04JoinRequestMigration() {
+        // migrate join requests
+    }
+
+    /**
+     * Order(4) Migrate news
+     *
+     */
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void test04NewsMigration() {
+        // migrate news
+    }
+
+    /**
+     * Order(99) Log out as migration user (clear token)
+     */
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void test99Logout() {
         try {
             JsonUtil.logout();
         } catch (Exception e) {
