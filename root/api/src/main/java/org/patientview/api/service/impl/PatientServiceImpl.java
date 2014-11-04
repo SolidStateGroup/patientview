@@ -300,7 +300,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
-        LOG.info(userId + " has " + migrationUser.getObservations().size() + " Observations");
         for (FhirObservation fhirObservation : migrationUser.getObservations()) {
 
             // get identifier for this user and observation heading for this observation

@@ -60,7 +60,7 @@ public class PersistenceConfig extends CommonConfig {
     @Primary
     public BasicDataSource patientViewDataSource() {
         BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setMaxTotal(20);
+        dataSource.setMaxTotal(50);
         dataSource.setDriverClassName("org.postgresql.Driver");
         dataSource.setUrl(properties.getProperty("pv.url"));
         dataSource.setUsername(properties.getProperty("pv.user"));
@@ -71,14 +71,13 @@ public class PersistenceConfig extends CommonConfig {
     @Bean(name = "fhir")
     public BasicDataSource fhirDataSource(){
         BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setMaxTotal(20);
+        dataSource.setMaxTotal(50);
         dataSource.setDriverClassName("org.postgresql.Driver");
         dataSource.setUrl(properties.getProperty("fhir.url"));
         dataSource.setUsername(properties.getProperty("fhir.user"));
         dataSource.setPassword(properties.getProperty("fhir.password"));
         return dataSource;
     }
-
 
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf){

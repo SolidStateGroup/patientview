@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by james@solidstategroup.com
@@ -287,6 +288,11 @@ public final class Util {
         resourceReference.setDisplaySimple(uuid.toString());
         resourceReference.setReferenceSimple("uuid");
         return resourceReference;
+    }
+
+    public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMilliseconds = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
     }
 }
 

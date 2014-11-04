@@ -56,6 +56,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by james@solidstategroup.com
@@ -389,22 +390,27 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new EntityExistsException("User already exists (username)");
         }
 
+        Date start = new Date();
+
         // add basic user object
         User user = migrationUser.getUser();
         Long userId = add(user);
 
-        entityManager.flush();
+        //entityManager.flush();
 
         // add user information if present (convert from Set to ArrayList)
         if (!CollectionUtils.isEmpty(user.getUserInformation())) {
             addInformation(userId, new ArrayList<>(user.getUserInformation()));
         }
 
+        String doneMessage;
+
         // migrate patient related data
         if (migrationUser.isPatient()) {
             try {
+                LOG.info("{} migrating patient data, {} observations", userId, migrationUser.getObservations().size());
                 patientService.migratePatientData(userId, migrationUser);
-                LOG.info("{} Done, migrated patient data", userId);
+                doneMessage = userId + " Done, migrated patient data";
             } catch (Exception e) {
                 //LOG.error("Could not migrate patient data: {} {}", e.getClass(), e);
                 LOG.error("Could not migrate patient data: {} {}", e.getClass(), e.getMessage());
@@ -417,8 +423,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 throw new MigrationException("Could not migrate patient data: " + e.getMessage());
             }
         } else {
-            LOG.info("{} Done", userId);
+            doneMessage = userId + " Done";
         }
+
+        Date end = new Date();
+
+        LOG.info(doneMessage + ", took " + Util.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
 
         return userId;
     }

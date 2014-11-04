@@ -39,8 +39,8 @@ public class BulkUserCreateTest {
     @Transactional
     @Rollback(false)
     public void test01BulkUserCreate() {
-        Long usersToCreate = 1L;
-        Long observationsToCreate = 1L;
+        Long usersToCreate = 10L;
+        Long observationsToCreate = 500L;
         Date start = new Date();
         RoleName role = RoleName.PATIENT;
 

@@ -184,7 +184,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("Starting creation of " + count
                 + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
 
-        ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(20);
+        ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
         Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
         Role userRole = adminDataMigrationService.getRoleByName(roleName);
 
@@ -212,7 +212,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.setLastLogin(now);
 
                 // todo: do we need to migrate user.accounthidden?
-
 
                 // add group role (specialty is added automatically when creating user within a UNIT group)
                 Group group = new Group();
@@ -245,10 +244,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 MigrationUser migrationUser = new MigrationUser(newUser);
 
+                // set start and end date of observations
+                Long month = 2592000000L;
+                migrationUser.setObservationStartDate(new Date(now.getTime() - month));
+                migrationUser.setObservationEndDate(now);
+
                 // add Observations / results (of type observationName)
                 for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
-                    observation.setValue(String.valueOf(time + j));
+                    observation.setValue(String.valueOf(time + j - 141509555700L));
                     observation.setApplies(new Date(time + j));
                     observation.setGroup(group);
                     observation.setComparator(">");
@@ -332,21 +336,22 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 documentReference.setIdentifier(time.toString());
                 migrationUser.getDocumentReferences().add(documentReference);
 
-                // add nhs number (pv1 table)
+                // PatientView identifiers
+                // - nhs number (pv1 table)
                 Identifier identifier = new Identifier();
                 identifier.setIdentifier(time.toString());
                 identifier.setIdentifierType(
                         adminDataMigrationService.getLookupByName(IdentifierTypes.NHS_NUMBER.toString()));
                 newUser.getIdentifiers().add(identifier);
 
-                // add Radar No (pv1 patient table)
+                // - Radar No (pv1 patient table)
                 Identifier radarNo = new Identifier();
                 radarNo.setIdentifier("radar" + time.toString());
                 radarNo.setIdentifierType(
                         adminDataMigrationService.getLookupByName(IdentifierTypes.RADAR_NUMBER.toString()));
                 newUser.getIdentifiers().add(radarNo);
 
-                // add Radar No (pv1 patient table)
+                // - Hospital No (pv1 patient table)
                 Identifier hospitalNo = new Identifier();
                 hospitalNo.setIdentifier("hospital" + time.toString());
                 hospitalNo.setIdentifierType(
@@ -407,7 +412,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 practitionerContact.setSystem("phone");
                 practitionerContact.setValue("09876 54321098");
                 practitioner.getContacts().add(practitionerContact);
-
                 patient.setPractitioner(practitioner);
 
                 migrationUser.getPatients().add(patient);
