@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class MigrationUser {
 
+    private Long patientview1Id;
     private boolean patient;
     private Date observationStartDate;
     private Date observationEndDate;
@@ -45,6 +46,14 @@ public class MigrationUser {
 
     public MigrationUser(User user) {
         this.user = user;
+    }
+
+    public Long getPatientview1Id() {
+        return patientview1Id;
+    }
+
+    public void setPatientview1Id(Long patientview1Id) {
+        this.patientview1Id = patientview1Id;
     }
 
     public boolean isPatient() {

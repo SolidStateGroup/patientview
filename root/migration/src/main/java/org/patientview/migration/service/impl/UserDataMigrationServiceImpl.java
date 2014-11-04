@@ -244,6 +244,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 MigrationUser migrationUser = new MigrationUser(newUser);
 
+                // set patientview1 id
+                migrationUser.setPatientview1Id(time);
+
                 // set start and end date of observations
                 Long month = 2592000000L;
                 migrationUser.setObservationStartDate(new Date(now.getTime() - month));
