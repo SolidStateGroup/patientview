@@ -460,6 +460,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             } catch (Exception e) {
                 LOG.error(e.getMessage());
             }
+        } else {
+            LOG.error("unitcode: " + unitCode + ", or role: " + roleName + " do not exist");
         }
     }
 

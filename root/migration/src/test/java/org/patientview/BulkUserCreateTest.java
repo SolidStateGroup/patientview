@@ -39,13 +39,18 @@ public class BulkUserCreateTest {
     @Transactional
     @Rollback(false)
     public void test01BulkUserCreate() {
-        Long usersToCreate = 10L;
-        Long observationsToCreate = 74L;
+        Long usersToCreate = 1L;
+        Long observationsToCreate = 0L;
         Date start = new Date();
         RoleName role = RoleName.PATIENT;
 
+        // servers
+        //-Durl=http://localhost:8080/api
+        //-Durl=http://diabetes-pv.dev.solidstategroup.com/api
+        //-Durl=http://staging.patientview.org/api
+
         // takes group to add users to and number of users to create
-        userDataMigrationService.bulkUserCreate("RENALC", usersToCreate, role, observationsToCreate, "hb");
+        userDataMigrationService.bulkUserCreate("RENALB", usersToCreate, role, observationsToCreate, "hb");
 
         LOG.info("Submission of " + usersToCreate + " "  + role.toString() + " with " + observationsToCreate
                 + " Observations took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
