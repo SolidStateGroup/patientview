@@ -66,7 +66,8 @@ public class FhirResource {
     public JSONObject create(Resource resource) throws FhirResourceException {
         //LOG.info("c1 " + new Date().getTime());
         PGobject result;
-        Connection connection;
+        Connection connection = null;
+
         try {
             connection = dataSource.getConnection();
             CallableStatement proc = connection.prepareCall("{call fhir_create( ?::jsonb, ?, ?::jsonb, ?::jsonb)}");
@@ -85,6 +86,17 @@ public class FhirResource {
             return jsonObject;
         } catch (SQLException e) {
             LOG.error("Unable to build resource {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
             throw new FhirResourceException(e.getMessage());
         } catch (Exception e) {
             throw new FhirResourceException(e);
