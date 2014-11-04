@@ -252,7 +252,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // add Observations / results (of type observationName)
                 for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
-                    observation.setValue(String.valueOf(time + j - 141509555700L));
+                    observation.setValue(String.valueOf(j));
                     observation.setApplies(new Date(time + j));
                     observation.setGroup(group);
                     observation.setComparator(">");

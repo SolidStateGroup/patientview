@@ -271,13 +271,40 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         // Patient, Practitioner (taken from pv1 patient table)
+        migrateFhirPatientsAndPractitioners(migrationUser, entityUser, fhirLinks);
+
+        // store Observations (results), creating FHIR Patients and FhirLinks if not present
+        migrateFhirObservations(migrationUser, entityUser, fhirLinks, identifierMap);
+
+        // store Conditions (diagnoses and diagnosis edta)
+        migrateFhirConditions(migrationUser, entityUser, fhirLinks, identifierMap);
+
+        // store Encounters (treatment and transplant status)
+        // note: the unit that provided this information is not stored in PatientView 1, attach to first fhirlink
+        migrateFhirEncounters(migrationUser, entityUser, fhirLinks, identifierMap);
+
+        // MedicationStatements (also adds Medicines)
+        migrateFhirMedicationStatements(migrationUser, entityUser, fhirLinks, identifierMap);
+
+        // DiagnosticReports (and associated Observation)
+        migrateFhirDiagnosticReports(migrationUser, entityUser, fhirLinks, identifierMap);
+
+        // DocumentReferences (letters)
+        migrateFhirDocumentReferences(migrationUser, entityUser, fhirLinks, identifierMap);
+    }
+
+    private void migrateFhirPatientsAndPractitioners(MigrationUser migrationUser, User entityUser,
+                                                     Set<FhirLink> fhirLinks)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+
+        // Patient, Practitioner (taken from pv1 patient table)
         for (FhirPatient fhirPatient : migrationUser.getPatients()) {
             // create practitioner in FHIR for this patient's practitioner if it doesn't exist
             if (StringUtils.isNotEmpty(fhirPatient.getPractitioner().getName())) {
                 UUID practitionerUuid;
 
                 List<UUID> practitionerUuids
-                    = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
+                        = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
 
                 if (CollectionUtils.isEmpty(practitionerUuids)) {
                     practitionerUuid = practitionerService.addPractitioner(fhirPatient.getPractitioner());
@@ -298,7 +325,11 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 }
             }
         }
+    }
 
+    private void migrateFhirObservations(MigrationUser migrationUser, User entityUser,
+                                         Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
         for (FhirObservation fhirObservation : migrationUser.getObservations()) {
 
@@ -322,7 +353,11 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 throw new FhirResourceException("Identifier or ObservationHeading not found");
             }
         }
+    }
 
+    private void migrateFhirConditions(MigrationUser migrationUser, User entityUser,
+                                       Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
         // store Conditions (diagnoses and diagnosis edta)
         for (FhirCondition fhirCondition : migrationUser.getConditions()) {
             Identifier identifier = identifierMap.get(fhirCondition.getIdentifier());
@@ -335,6 +370,11 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
             conditionService.addCondition(fhirCondition, fhirLink);
         }
+    }
+
+    private void migrateFhirEncounters(MigrationUser migrationUser, User entityUser,
+                                       Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
         // store Encounters (treatment and transplant status)
         // note: the unit that provided this information is not stored in PatientView 1, attach to first fhirlink
@@ -363,13 +403,18 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 encounterService.addEncounter(fhirEncounter, fhirLink, organizationUuid);
             }
         }
+    }
+
+    private void migrateFhirMedicationStatements(MigrationUser migrationUser, User entityUser,
+                                                 Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
         // MedicationStatements (also adds Medicines)
         for (org.patientview.persistence.model.FhirMedicationStatement fhirMedicationStatement
                 : migrationUser.getMedicationStatements()) {
             Identifier identifier = identifierMap.get(fhirMedicationStatement.getIdentifier());
             FhirLink fhirLink
-                = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
+                    = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
 
             if (fhirLink == null) {
                 fhirLink = createPatientAndFhirLink(entityUser, fhirMedicationStatement.getGroup(), identifier);
@@ -378,6 +423,11 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
             medicationService.addMedicationStatement(fhirMedicationStatement, fhirLink);
         }
+    }
+
+    private void migrateFhirDiagnosticReports(MigrationUser migrationUser, User entityUser,
+                                              Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
         // DiagnosticReports (and associated Observation)
         for (FhirDiagnosticReport fhirDiagnosticReport : migrationUser.getDiagnosticReports()) {
@@ -392,6 +442,11 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
             diagnosticService.addDiagnosticReport(fhirDiagnosticReport, fhirLink);
         }
+    }
+
+    private void migrateFhirDocumentReferences(MigrationUser migrationUser, User entityUser,
+                                               Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
         // DocumentReferences (letters)
         for (FhirDocumentReference documentReference : migrationUser.getDocumentReferences()) {
