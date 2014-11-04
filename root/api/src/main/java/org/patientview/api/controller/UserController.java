@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
+import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -10,6 +11,7 @@ import org.patientview.persistence.model.GetParameters;
 import org.patientview.api.model.User;
 import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.enums.MigrationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -39,6 +41,9 @@ public class UserController extends BaseController<UserController> {
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private UserMigrationService userMigrationService;
 
     private static final int MINIMUM_PASSWORD_LENGTH = 7;
 
@@ -123,6 +128,14 @@ public class UserController extends BaseController<UserController> {
     public ResponseEntity<Long> migrateUser(@RequestBody MigrationUser user)
             throws ResourceNotFoundException, EntityExistsException, MigrationException {
         return new ResponseEntity<>(userService.migrateUser(user), HttpStatus.CREATED);
+    }
+
+    // Migration Only, used to get list of UserMigration migration status objects by status
+    @RequestMapping(value = "/usermigration/{migrationstatus}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Long>> getPatientview1IdsByStatus(@PathVariable("migrationstatus") String migrationStatus)
+            throws ResourceNotFoundException, EntityExistsException, MigrationException {
+        return new ResponseEntity<>(userMigrationService.getPatientview1IdsByStatus(MigrationStatus.valueOf(migrationStatus)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)

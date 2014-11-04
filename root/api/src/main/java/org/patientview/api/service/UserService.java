@@ -37,7 +37,7 @@ public interface UserService {
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
     // used by migration
-    @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
+    //@AuditTrail(value = AuditActions.CREATE, objectType = User.class)
     Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException;
 

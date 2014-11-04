@@ -22,6 +22,9 @@ public interface UserMigrationRepository extends CrudRepository<UserMigration, L
     @Query("SELECT um FROM UserMigration um WHERE um.status = :status")
     List<UserMigration> findByStatus(@Param("status") MigrationStatus status);
 
+    @Query("SELECT um.patientview1UserId FROM UserMigration um WHERE um.status = :status")
+    List<Long> findPatientview1IdsByStatus(@Param("status") MigrationStatus status);
+
     @Query("SELECT um FROM UserMigration um WHERE um.status <> :status")
     List<UserMigration> findByNotStatus(@Param("status") MigrationStatus status);
 }

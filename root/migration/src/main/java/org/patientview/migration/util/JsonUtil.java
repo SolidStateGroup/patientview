@@ -33,6 +33,7 @@ import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.enums.MigrationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -426,6 +427,48 @@ public final class JsonUtil {
         }
 
         List<Role> data = gson.fromJson(output.toString(), new TypeToken<List<Role>>(){}.getType());
+
+        return data;
+    }
+
+    public static List<Long> getMigratedPatientview1IdsByStatus(MigrationStatus migrationStatus) {
+        HttpClient httpClient = new DefaultHttpClient();
+
+        String getUrl = pvUrl + "/usermigration/" + migrationStatus.toString();
+
+        HttpGet get = new HttpGet(getUrl);
+        get.addHeader("accept", "application/json");
+        get.addHeader("X-Auth-Token", token);
+        HttpResponse httpResponse = null;
+
+        try {
+            httpResponse = httpClient.execute(get);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (httpResponse.getStatusLine().getStatusCode() != 200) {
+            throw new RuntimeException("Failed : HTTP error code : "
+                    + httpResponse.getStatusLine().getStatusCode());
+        }
+
+        BufferedReader br;
+
+        StringBuilder output = new StringBuilder();
+
+        try {
+            br = new BufferedReader(new InputStreamReader((httpResponse.getEntity().getContent())));
+
+            String s;
+            while ((s = br.readLine()) != null) {
+                output.append(s);
+            }
+        } catch (Exception e) {
+            LOG.error("Exception trying to get data from: {} cause: {}", getUrl, e.getCause());
+            e.printStackTrace();
+        }
+
+        List<Long> data = gson.fromJson(output.toString(), new TypeToken<List<Long>>(){}.getType());
 
         return data;
     }

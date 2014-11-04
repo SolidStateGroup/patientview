@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.AsyncService;
 import org.patientview.migration.service.UserDataMigrationService;
+import org.patientview.migration.util.JsonUtil;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
@@ -33,6 +34,7 @@ import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LetterTypes;
+import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.UserInformationTypes;
@@ -181,6 +183,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount,
                                String observationName) {
+
+        List<Long> patientview1Ids = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.COMPLETED);
+        LOG.info(patientview1Ids.size() + " completed already");
+
         LOG.info("Starting creation of " + count
                 + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
 
