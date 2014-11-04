@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.MigrationStatus;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,5 +18,9 @@ public interface UserMigrationService {
 
     List<UserMigration> getByStatus(MigrationStatus migrationStatus);
 
+    // used by controller for migration only
+    @RoleOnly
     List<Long> getPatientview1IdsByStatus(MigrationStatus migrationStatus);
+
+    UserMigration getByPatientview1Id(Long patientview1Id);
 }

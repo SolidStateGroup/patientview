@@ -41,6 +41,9 @@ public interface UserService {
     Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException;
 
+    void migrateObservations(MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException, MigrationException;
+
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;

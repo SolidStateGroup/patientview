@@ -183,10 +183,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount,
                                String observationName) {
-
-        List<Long> patientview1Ids = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.COMPLETED);
-        LOG.info(patientview1Ids.size() + " completed already");
-
         LOG.info("Starting creation of " + count
                 + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
 
@@ -194,8 +190,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
         Role userRole = adminDataMigrationService.getRoleByName(roleName);
 
+        List<MigrationUser> migrationUsers = new ArrayList<MigrationUser>();
+
         if (userUnit != null && userRole != null) {
             Date now = new Date();
+            LOG.info("Sending " + count + " users to REST service");
 
             // create users based on Date.now + count increment
             for (Long time = now.getTime(); time<now.getTime() + count; time++) {
@@ -262,7 +261,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
                     observation.setValue(String.valueOf(j));
-                    observation.setApplies(new Date(time + j));
+                    observation.setApplies(new Date(time - (j*month)));
                     observation.setGroup(group);
                     observation.setComparator(">");
                     observation.setComments("comment");
@@ -428,11 +427,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // set to a patient user
                 migrationUser.setPatient(true);
 
+                migrationUsers.add(migrationUser);
+
                 // add task and run
                 concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
             }
-
-            LOG.info("Sending " + count + " to REST service");
 
             try {
                 // wait forever until all threads are finished
@@ -442,7 +441,25 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 LOG.error(e.getMessage());
             }
 
-            LOG.info("Submitted " + count);
+            ExecutorService concurrentTaskExecutor2 = Executors.newFixedThreadPool(10);
+
+            // do observations separately
+            for (MigrationUser migrationUser : migrationUsers) {
+                concurrentTaskExecutor2.submit(new AsyncMigrateObservationTask(migrationUser));
+            }
+
+            List<Long> patientview1Ids = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
+            LOG.info(patientview1Ids.size() + " PATIENT_MIGRATED already");
+
+            LOG.info("Sending " + count + " sets of observations to REST service");
+
+            try {
+                // wait forever until all threads are finished
+                concurrentTaskExecutor2.shutdown();
+                concurrentTaskExecutor2.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+            } catch (Exception e) {
+                LOG.error(e.getMessage());
+            }
         }
     }
 

@@ -16,6 +16,9 @@ public enum MigrationStatus {
     PATIENT_MIGRATED("Patient data migrated"),
     PATIENT_CLEANUP_FAILED("Failed during cleanup of patient data after failed migration"),
     PATIENT_FAILED("Failed during patient data migration"),
+    OBSERVATIONS_STARTED("Started observation migration"),
+    OBSERVATIONS_FAILED("Failed during observation migration"),
+    OBSERVATIONS_MIGRATED("Observation data migrated"),
     COMPLETED("Completed");
 
     private String name;

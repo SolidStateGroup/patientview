@@ -123,11 +123,19 @@ public class UserController extends BaseController<UserController> {
     }
 
     // Migration Only, are migrating passwords so create user with no password encryption
-    @RequestMapping(value = "/user/migrate", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/migrate/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Long> migrateUser(@RequestBody MigrationUser user)
+    public ResponseEntity<Long> migrateUser(@RequestBody MigrationUser migrationUser)
             throws ResourceNotFoundException, EntityExistsException, MigrationException {
-        return new ResponseEntity<>(userService.migrateUser(user), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.migrateUser(migrationUser), HttpStatus.CREATED);
+    }
+
+    // Migration Only
+    @RequestMapping(value = "/migrate/observations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void migrateObservations(@RequestBody MigrationUser migrationUser)
+            throws ResourceNotFoundException, EntityExistsException, MigrationException {
+        userService.migrateObservations(migrationUser);
     }
 
     // Migration Only, used to get list of UserMigration migration status objects by status

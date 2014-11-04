@@ -274,7 +274,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         migrateFhirPatientsAndPractitioners(migrationUser, entityUser, fhirLinks);
 
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
-        migrateFhirObservations(migrationUser, entityUser, fhirLinks, identifierMap);
+        //migrateFhirObservations(migrationUser, entityUser, fhirLinks, identifierMap);
 
         // store Conditions (diagnoses and diagnosis edta)
         migrateFhirConditions(migrationUser, entityUser, fhirLinks, identifierMap);
@@ -291,6 +291,38 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // DocumentReferences (letters)
         migrateFhirDocumentReferences(migrationUser, entityUser, fhirLinks, identifierMap);
+    }
+
+    // migration only, migrate observations
+    @Override
+    public void migrateObservations(Long userId, MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+
+        User entityUser = userService.get(userId);
+        Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
+
+        if (fhirLinks == null) {
+            fhirLinks = new HashSet<>();
+        } else {
+            deleteExistingPatientData(fhirLinks);
+        }
+
+        // set up map of observation headings
+        if (observationHeadingMap == null) {
+            observationHeadingMap = new HashMap<>();
+            for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+                observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
+            }
+        }
+
+        // map of identifiers
+        HashMap<String, Identifier> identifierMap = new HashMap<>();
+        for (Identifier identifier : entityUser.getIdentifiers()) {
+            identifierMap.put(identifier.getIdentifier(), identifier);
+        }
+
+        // store Observations (results), creating FHIR Patients and FhirLinks if not present
+        migrateFhirObservations(migrationUser.getObservations(), entityUser, fhirLinks, identifierMap);
     }
 
     private void migrateFhirPatientsAndPractitioners(MigrationUser migrationUser, User entityUser,
@@ -327,11 +359,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
-    private void migrateFhirObservations(MigrationUser migrationUser, User entityUser,
+    private void migrateFhirObservations(List<FhirObservation> fhirObservations, User entityUser,
                                          Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
-        for (FhirObservation fhirObservation : migrationUser.getObservations()) {
+        for (FhirObservation fhirObservation : fhirObservations) {
 
             // get identifier for this user and observation heading for this observation
             Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());

@@ -12,25 +12,21 @@ import org.slf4j.LoggerFactory;
  * Created by jamesr@solidstategroup.com
  * Created on 29/10/2014
  */
-public class AsyncMigrateUserTask implements Runnable {
+public class AsyncMigrateObservationTask implements Runnable {
 
     MigrationUser migrationUser;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AsyncMigrateUserTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AsyncMigrateObservationTask.class);
 
-    public AsyncMigrateUserTask(MigrationUser migrationUser) {
+    public AsyncMigrateObservationTask(MigrationUser migrationUser) {
         this.migrationUser = migrationUser;
     }
 
     public void run() {
-        String url = JsonUtil.pvUrl + "/migrate/user";
+        String url = JsonUtil.pvUrl + "/migrate/observations";
         try {
-            Long userId = JsonUtil.jsonRequest(url, Long.class, migrationUser, HttpPost.class, true);
-            if (userId != null) {
-                LOG.info("Migrated username: {} OK, Id: {}", migrationUser.getUser().getUsername(), userId);
-            } else {
-                LOG.error("Failed to migrate username: {}", migrationUser.getUser().getUsername());
-            }
+            JsonUtil.jsonRequest(url, Long.class, migrationUser, HttpPost.class, true);
+            LOG.info("Migrated observations for: {} OK", migrationUser.getUser().getUsername());
         } catch (JsonMigrationException jme) {
             LOG.error("Failed to migrate username (JsonMigrationException): {}", migrationUser.getUser().getUsername());
         } catch (JsonMigrationExistsException jee) {

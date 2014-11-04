@@ -388,7 +388,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return add(user);
     }
 
-    // migration Only
+    // migration only
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
 
@@ -427,11 +427,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (migrationUser.isPatient()) {
             try {
                 userMigration.setStatus(MigrationStatus.PATIENT_STARTED);
-                userMigration.setObservationCount(Long.valueOf(migrationUser.getObservations().size()));
                 userMigration.setLastUpdate(new Date());
                 userMigrationService.save(userMigration);
 
-                LOG.info("{} migrating patient data, {} observations", userId, migrationUser.getObservations().size());
+                LOG.info("{} migrating patient data", userId);
                 patientService.migratePatientData(userId, migrationUser);
                 doneMessage = userId + " Done, migrated patient data";
 
@@ -439,7 +438,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 userMigration.setLastUpdate(new Date());
                 userMigrationService.save(userMigration);
             } catch (Exception e) {
-                //LOG.error("Could not migrate patient data: {} {}", e.getClass(), e);
                 LOG.error("Could not migrate patient data: {} {}", e.getClass(), e.getMessage());
                 try {
                     // clean up any data created during failed migration
@@ -463,14 +461,54 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         Date end = new Date();
-
         LOG.info(doneMessage + ", took " + Util.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
-
-        userMigration.setStatus(MigrationStatus.COMPLETED);
-        userMigration.setLastUpdate(new Date());
-        userMigrationService.save(userMigration);
-
         return userId;
+    }
+
+    // migration only
+    public void migrateObservations(MigrationUser migrationUser)
+            throws EntityExistsException, ResourceNotFoundException, MigrationException {
+
+        if (migrationUser.isPatient()) {
+            Date start = new Date();
+            UserMigration userMigration = userMigrationService.getByPatientview1Id(migrationUser.getPatientview1Id());
+            userMigration.setLastUpdater(getCurrentUser());
+            userMigration.setLastUpdate(start);
+            userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
+            userMigration = userMigrationService.save(userMigration);
+
+            Long userId = userMigration.getPatientview2UserId();
+
+            if (userId == null) {
+                userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+                userMigration.setInformation("Cannot find corresponding PatientView2 user");
+                userMigrationService.save(userMigration);
+                throw new ResourceNotFoundException("Cannot find corresponding PatientView2 user");
+            }
+
+            try {
+                userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
+                userMigration.setObservationCount(Long.valueOf(migrationUser.getObservations().size()));
+                userMigration.setLastUpdate(new Date());
+                userMigrationService.save(userMigration);
+
+                LOG.info("{} migrating {} observations", userId, migrationUser.getObservations().size());
+                patientService.migrateObservations(userId, migrationUser);
+
+                userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
+                userMigration.setLastUpdate(new Date());
+                userMigrationService.save(userMigration);
+            } catch (Exception e) {
+                userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+                userMigration.setInformation(e.getMessage());
+                userMigration.setLastUpdate(new Date());
+                userMigrationService.save(userMigration);
+                throw new MigrationException("Could not migrate patient data: " + e.getMessage());
+            }
+            Date end = new Date();
+            LOG.info(userId + "  migrated " + migrationUser.getObservations().size() + " observations, took "
+                    + Util.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
+        }
     }
 
     public User get(Long userId) throws ResourceNotFoundException {
