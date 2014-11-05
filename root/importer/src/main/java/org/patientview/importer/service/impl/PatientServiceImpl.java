@@ -131,14 +131,16 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     }
 
     public Identifier matchPatientByIdentifierValue(Patientview patientview) throws ResourceNotFoundException {
-        Identifier identifier = identifierRepository.findByValue(
+
+        // should only ever be one
+        List<Identifier> identifiers = identifierRepository.findByValue(
                 patientview.getPatient().getPersonaldetails().getNhsno());
 
-        if (identifier == null) {
+        if (CollectionUtils.isEmpty(identifiers)) {
             throw new ResourceNotFoundException("The Identifier value is not linked with PatientView");
         }
 
-        return identifier;
+        return identifiers.get(0);
     }
 
     // return most recent as ordered by created DESC
