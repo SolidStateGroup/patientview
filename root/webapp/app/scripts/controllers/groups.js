@@ -330,9 +330,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                 $scope.pagedItems[i].showEdit = false;
             }
 
-            $scope.editGroup = '';
+            delete $scope.editGroup;
             openedGroup.editLoading = true;
-            $scope.editGroup.editError = '';
 
             openedGroup.showEdit = true;
 
