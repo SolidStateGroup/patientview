@@ -301,8 +301,18 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         }
         return false;
     };
-    $scope.removeAllSelectedGroup = function () {
-        $scope.selectedGroup = [];
+    $scope.removeAllSelectedGroup = function (groupType) {
+
+        var newSelectedGroupList = [];
+
+        for (var i=0; i<$scope.selectedGroup.length; i++) {
+
+            if ($scope.groupMap[$scope.selectedGroup[i]].groupType.value !== groupType) {
+                newSelectedGroupList.push($scope.selectedGroup[i]);
+            }
+        }
+
+        $scope.selectedGroup = newSelectedGroupList;
         $scope.currentPage = 0;
         $scope.getItems();
     };
@@ -418,6 +428,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.allRoles = [];
         $scope.roleIds = [];
         $scope.groupIds = [];
+        $scope.groupMap = [];
 
         $scope.permissions = {};
         // used in html when checking for user group membership by id only (e.g. to show/hide delete on patient GroupRole)
@@ -483,6 +494,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     $scope.allGroups.push(group);
                     $scope.groupIds.push(group.id);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
+                    $scope.groupMap[group.id] = group;
                 }
             }
 
