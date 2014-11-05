@@ -1,3 +1,10 @@
+<!-- todo: place in main css -->
+<style>
+    .faux-table .faux-row .row-item span {
+        float:left;
+    }
+</style>
+
 <div data-ng-show="!loading">
     <h1>Groups <button class="btn blue" data-ng-click="openModalNewGroup('lg')" data-ng-show="permissions.canCreateGroup">Create New</button></h1>
     <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
@@ -71,7 +78,10 @@
                 <div class="faux-row">
                     <div class="row-item hidden">{{group.id}}</div>
                     <div class="row-item accordion-heading-text">{{group.code}}</div>
-                    <div class="row-item accordion-heading-text">{{group.name}}</div>
+                    <div class="row-item accordion-heading-text">
+                        <span data-ng-show="group.shortName.length">{{group.shortName}}</span>
+                        <span data-ng-show="!group.shortName.length">{{group.name}}</span>
+                    </div>
                     <div class="row-item accordion-heading-text">{{group.groupType.description}}</div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="group in group.parentGroups">{{group.name}}</li></ul></div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="groupFeature in group.groupFeatures">{{groupFeature.feature.description}}</li></ul></div>

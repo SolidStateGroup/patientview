@@ -192,7 +192,8 @@
                         <ul class="unstyled patient-groups">
                             <li data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']">
                                 <span data-ng-if="groupRole.role.name !== 'MEMBER'">
-                                    {{groupRole.group.name}}
+                                    <span data-ng-show="groupRole.group.shortName.length">{{groupRole.group.shortName}}</span>
+                                    <span data-ng-show="!groupRole.group.shortName.length">{{groupRole.group.name}}</span>
                                 </span>
                             </li>
                         </ul>

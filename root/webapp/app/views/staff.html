@@ -1,4 +1,9 @@
-<div class="hider" data-ng-show="status.open"></div>
+<!-- todo: place in main css -->
+<style>
+    .faux-table .faux-row .row-item span {
+        float:left;
+    }
+</style>
 
 <div>
     <h1 data-ng-show="!loading">Staff <button class="btn blue" data-ng-click="openModalNewStaff('lg')">Create New</button></h1>
@@ -113,7 +118,10 @@
                     <div class="row-item accordion-heading-text">
                         <ul data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled"
                                 data-ng-show="groupRole.role.name !== 'MEMBER'">
-                            <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
+                            <li>
+                                <span data-ng-show="groupRole.group.shortName.length">{{groupRole.group.shortName}} ({{groupRole.role.description}})</span>
+                                <span data-ng-show="!groupRole.group.shortName.length">{{groupRole.group.name}} ({{groupRole.role.description}})</span>
+                            </li>
                         </ul>
                     </div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
