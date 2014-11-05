@@ -181,8 +181,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
-    public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount,
-                               String observationName) {
+    public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount) {
         LOG.info("Starting creation of " + count
                 + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
 
@@ -201,8 +200,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // create user
                 User newUser = new User();
-                newUser.setForename("test" + time.toString());
-                newUser.setSurname("test");
+                newUser.setForename("zfore" + time.toString());
+                newUser.setSurname("zsur");
                 newUser.setChangePassword(true);
                 newUser.setPassword("pppppp");
                 newUser.setLocked(false);
@@ -265,7 +264,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     observation.setGroup(group);
                     observation.setComparator(">");
                     observation.setComments("comment");
-                    observation.setName(observationName);
+                    if (j % 2 == 0) {
+                        observation.setName("hb");
+                    } else {
+                        observation.setName("wbc");
+                    }
                     observation.setIdentifier(time.toString());
                     migrationUser.getObservations().add(observation);
                 }

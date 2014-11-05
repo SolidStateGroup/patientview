@@ -535,11 +535,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         address.setZipSimple(fhirPatient.getPostcode());
 
         // contact details
-        for (FhirContact fhirContact : fhirPatient.getContacts()) {
-            Contact contact = patient.addTelecom();
-            contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
-            contact.setValueSimple(fhirContact.getValue());
-            contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+        if (!fhirPatient.getContacts().isEmpty()) {
+            Patient.ContactComponent contactComponent = patient.addContact();
+
+            for (FhirContact fhirContact : fhirPatient.getContacts()) {
+                Contact contact = contactComponent.addTelecom();
+                contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
+                contact.setValueSimple(fhirContact.getValue());
+                contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+            }
         }
 
         // identifiers (note: FHIR identifiers attached to FHIR patient not PatientView Identifiers)
