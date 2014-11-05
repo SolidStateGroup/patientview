@@ -119,7 +119,14 @@
                 <div class="faux-row">
                     <div class="row-item hidden">{{user.id}}</div>
                     <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
-                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="identifier in user.identifiers">{{identifier.identifier}}</li></ul></div>
+                    <div class="row-item accordion-heading-text">
+                        <ul class="unstyled">
+                            <li data-ng-repeat="identifier in user.identifiers"
+                                data-ng-show="identifier.identifierType.value !== 'HOSPITAL_NUMBER'">
+                                {{identifier.identifier}}
+                            </li>
+                        </ul>
+                    </div>
                     <div class="row-item accordion-heading-text">{{user.dateOfBirth | date:'dd-MMM-yyyy'}}</div>
                     <div class="row-item accordion-heading-text">
                         <ul class="unstyled patient-groups">
