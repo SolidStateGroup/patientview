@@ -9,7 +9,7 @@
             <div class=""><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" data-ng-model="editGroup.name" required></div>
         </div>
         <div class="col-md-3">
-            <label for="group-short-name" class="control-label">Short Name (20 characters)</label>
+            <label for="group-short-name" class="control-label">Short Name (20 characters)<span class="error" data-ng-hide="editGroup.shortName.length"> *required</span></label>
             <div class=""><input type="text" class="form-control" id="group-short-name" placeholder="Short Name" name="shortName" data-ng-model="editGroup.shortName" maxlength="20"></div>
         </div>
         <div class="col-md-3">
@@ -60,7 +60,7 @@
         </div>
     </div>
 </div>
-<button type="button" class="btn blue pull-right" data-ng-click="save(groupForm, editGroup)" data-ng-disabled="!editGroup.code.length || !editGroup.name.length">Save</button>
+<button type="button" class="btn blue pull-right" data-ng-click="save(groupForm, editGroup)" data-ng-disabled="!editGroup.code.length || !editGroup.name.length || !editGroup.shortName.length">Save</button>
 <span class="saved-notification pull-right" data-ng-show="groupForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <br/>
 <div class="row">
