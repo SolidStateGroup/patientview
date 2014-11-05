@@ -476,7 +476,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         User loggedInUser = getCurrentUser();
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
-            if (conversationUser.getUser().equals(loggedInUser)) {
+            if (conversationUser.getUser().getId().equals(loggedInUser.getId())) {
                 return true;
             }
         }
