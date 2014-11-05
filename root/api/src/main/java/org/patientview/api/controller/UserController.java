@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
+import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.FhirResourceException;
@@ -45,6 +46,9 @@ public class UserController extends BaseController<UserController> {
 
     @Inject
     private UserMigrationService userMigrationService;
+
+    @Inject
+    private MigrationService migrationService;
 
     private static final int MINIMUM_PASSWORD_LENGTH = 7;
 
@@ -128,7 +132,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Long> migrateUser(@RequestBody MigrationUser migrationUser)
             throws ResourceNotFoundException, EntityExistsException, MigrationException {
-        return new ResponseEntity<>(userService.migrateUser(migrationUser), HttpStatus.CREATED);
+        return new ResponseEntity<>(migrationService.migrateUser(migrationUser), HttpStatus.CREATED);
     }
 
     // Migration Only
@@ -136,7 +140,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public void migrateObservations(@RequestBody MigrationUser migrationUser)
             throws ResourceNotFoundException, EntityExistsException, MigrationException {
-        userService.migrateObservations(migrationUser);
+        migrationService.migrateObservations(migrationUser);
     }
 
     // Migration Only, used to get list of UserMigration migration status objects by status

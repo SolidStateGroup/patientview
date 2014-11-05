@@ -424,11 +424,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.getIdentifiers().add(radarNo);
 
                 // - Hospital No (pv1 patient table)
-                Identifier hospitalNo = new Identifier();
+                /*Identifier hospitalNo = new Identifier();
                 hospitalNo.setIdentifier("hospital" + time.toString());
                 hospitalNo.setIdentifierType(
                         adminDataMigrationService.getLookupByName(IdentifierTypes.HOSPITAL_NUMBER.toString()));
-                newUser.getIdentifiers().add(hospitalNo);
+                newUser.getIdentifiers().add(hospitalNo);*/
 
                 // add Patient / pv1 patient table data (iterate through pv1 patient)
                 // - basic patient data
@@ -464,10 +464,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 hospitalNumber.setLabel(IdentifierTypes.HOSPITAL_NUMBER.toString());
                 patient.getIdentifiers().add(hospitalNumber);
 
-                FhirIdentifier radarNumber = new FhirIdentifier();
+                /*FhirIdentifier radarNumber = new FhirIdentifier();
                 radarNumber.setValue("radar" + time.toString());
                 radarNumber.setLabel(IdentifierTypes.RADAR_NUMBER.toString());
-                patient.getIdentifiers().add(radarNumber);
+                patient.getIdentifiers().add(radarNumber);*/
 
                 // - practitioner (gp)
                 FhirPractitioner practitioner = new FhirPractitioner();

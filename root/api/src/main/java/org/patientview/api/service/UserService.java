@@ -37,14 +37,6 @@ public interface UserService {
     Long createUserWithPasswordEncryption(User user)
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
-    // used by migration
-    //@AuditTrail(value = AuditActions.CREATE, objectType = User.class)
-    Long migrateUser(MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, MigrationException;
-
-    void migrateObservations(MigrationUser migrationUser)
-            throws EntityExistsException, ResourceNotFoundException, MigrationException;
-
     @AuditTrail(value = AuditActions.EDIT, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
@@ -100,6 +92,10 @@ public interface UserService {
     @UserOnly
     void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;
 
+    void addOtherUsersInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;
+
     @UserOnly
     List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException;
+
+    public Long add(User user) throws EntityExistsException;
 }
