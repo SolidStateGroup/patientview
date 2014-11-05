@@ -200,7 +200,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             for (Long time = now.getTime(); time<now.getTime() + count; time++) {
 
                 // testing only
-                //Long time = 1415183769256L;
+                //Long time = 1234L;
 
                 // create user
                 User newUser = new User();
@@ -543,8 +543,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 concurrentTaskExecutor2.submit(new AsyncMigrateObservationTask(migrationUser2));
             }
 
-            List<Long> patientview1Ids = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
-            LOG.info(patientview1Ids.size() + " PATIENT_MIGRATED already");
+            //List<Long> patientview1Ids = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
+            //LOG.info(patientview1Ids.size() + " PATIENT_MIGRATED already");
 
             LOG.info("Sending " + count + " sets of observations to REST service");
 

@@ -542,6 +542,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
                         var headerDetails = $scope.pagedItems[i];
                         headerDetails.code = successResult.code;
                         headerDetails.name = successResult.name;
+                        headerDetails.shortName = successResult.shortName;
                         headerDetails.groupType = successResult.groupType;
                         headerDetails.groupFeatures = successResult.groupFeatures;
                         headerDetails.parentGroups = successResult.parentGroups;
