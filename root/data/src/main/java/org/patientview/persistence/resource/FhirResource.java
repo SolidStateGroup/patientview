@@ -133,6 +133,17 @@ public class FhirResource {
         } catch (SQLException e) {
             // will likely fail if trying to update the same resource in multiple threads
             LOG.error("Unable to update resource {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
             throw new FhirResourceException(e.getMessage());
         }
     }
@@ -166,6 +177,17 @@ public class FhirResource {
 
         } catch (SQLException e) {
             LOG.error("Unable to update resource {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
             throw new FhirResourceException(e.getMessage());
         }
     }
@@ -174,23 +196,38 @@ public class FhirResource {
      * For FUNCTION fhir_delete(cfg jsonb, _type varchar, id uuid)
      *
      */
-    public void delete(UUID uuid, ResourceType resourceType) throws SQLException, FhirResourceException {
+    public void delete(UUID uuid, ResourceType resourceType) throws FhirResourceException {
 
         //LOG.debug("Delete {} resource {}", resourceType.toString(), uuid.toString());
-        Connection connection = dataSource.getConnection();
-        CallableStatement proc  = connection.prepareCall("{call fhir_delete( ?::jsonb, ?, ?)}");
-        proc.setObject(1, config);
-        proc.setObject(2, resourceType.name());
-        proc.setObject(3, uuid);
-        proc.execute();
-        connection.close();
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            CallableStatement proc = connection.prepareCall("{call fhir_delete( ?::jsonb, ?, ?)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resourceType.name());
+            proc.setObject(3, uuid);
+            proc.execute();
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Unable to delete resource {}", e);
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+        }
     }
 
     public JSONObject getResource(UUID uuid, ResourceType resourceType) throws FhirResourceException {
         LOG.debug("Getting resource {}", uuid.toString());
         PGobject result;
+        Connection connection = null;
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
             proc.setObject(1, config);
             proc.setObject(2, resourceType.name());
@@ -202,9 +239,19 @@ public class FhirResource {
             proc.close();
             connection.close();
             return jsonObject;
-        } catch (Exception e) {
-            // Fhir parser just throws exception
-            LOG.error("Could not retrieve resource");
+        } catch (SQLException e) {
+            LOG.error("Unable to retrieve resource {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
             throw new FhirResourceException(e.getMessage());
         }
     }
@@ -219,16 +266,32 @@ public class FhirResource {
         }
     }
 
-    public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType) throws FhirResourceException {
+    public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType)
+            throws FhirResourceException {
+
+        Connection connection = null;
+
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
             List<T> resultsList = convertResultSet(results);
             connection.close();
             return resultsList;
         } catch (SQLException e) {
-            throw new FhirResourceException(e);
+            LOG.error("Unable to find resource resource by query {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
         }
     }
 
@@ -246,8 +309,10 @@ public class FhirResource {
     }
 
     public List<String[]> findLatestObservationsByQuery(String sql) throws FhirResourceException {
+        Connection connection = null;
+
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sql);
 
@@ -261,7 +326,19 @@ public class FhirResource {
             connection.close();
             return observations;
         } catch (SQLException e) {
-            throw new FhirResourceException(e);
+            LOG.error("Unable to find latest observations by query {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
         }
     }
 
@@ -277,9 +354,11 @@ public class FhirResource {
         query.append(subjectId);
         query.append("\", \"reference\": \"uuid\"}' ");
 
+        Connection connection = null;
+
         // execute and return UUIDs
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
@@ -291,7 +370,19 @@ public class FhirResource {
             connection.close();
             return uuids;
         } catch (SQLException e) {
-            throw new FhirResourceException(e);
+            LOG.error("Unable to get logical ids by subject id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
         }
     }
 
@@ -307,9 +398,11 @@ public class FhirResource {
         query.append(subjectId);
         query.append("\", \"reference\": \"uuid\"}' ");
 
+        Connection connection = null;
+
         // execute and return UUIDs
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             java.sql.Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
@@ -321,7 +414,19 @@ public class FhirResource {
             connection.close();
             return uuids;
         } catch (SQLException e) {
-            throw new FhirResourceException(e);
+            LOG.error("Unable to retrieve resource {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
         }
     }
 
@@ -342,9 +447,19 @@ public class FhirResource {
             proc.close();
             connection.close();
             return jsonObject;
-        } catch (Exception e) {
-            // Fhir parser just throws exception
-            LOG.error("Unable to get resource {}", e);
+        } catch (SQLException e) {
+            LOG.error("Unable to get bundle {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
             throw new FhirResourceException(e.getMessage());
         }
     }
