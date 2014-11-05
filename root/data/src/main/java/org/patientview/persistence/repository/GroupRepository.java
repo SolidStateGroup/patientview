@@ -89,23 +89,21 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
             "FROM   Group g1 " +
             "JOIN   g1.groupRelationships g1r " +
             "JOIN   g1r.objectGroup.groupRoles gr2 " +
-            "LEFT  JOIN g1.groupRoles gr1 " +
             "WHERE  (gr2.user = :user " +
-            "OR     gr1.user = :user) " +
+            "OR     g1 IN (SELECT gr.group FROM User u JOIN u.groupRoles gr WHERE u = :user)) " +
             "AND    g1.visible = true " +
             "AND ((UPPER(g1.code) LIKE :filterText) " +
-            "OR (UPPER(g1.name) LIKE :filterText)) ")// +
-            //"AND  g1r.relationshipType = org.patientview.persistence.model.enums.RelationshipTypes.CHILD")
+            "OR (UPPER(g1.name) LIKE :filterText)) ")
     public Page<Group> findGroupAndChildGroupsByUser(@Param("filterText") String filterText,
                                                      @Param("user") User user, Pageable pageable);
+
     // get group and children
     @Query("SELECT DISTINCT g1 " +
             "FROM   Group g1 " +
             "JOIN   g1.groupRelationships g1r " +
             "JOIN   g1r.objectGroup.groupRoles gr2 " +
-            "LEFT  JOIN g1.groupRoles gr1 " +
             "WHERE  (gr2.user = :user " +
-            "OR     gr1.user = :user) " +
+            "OR     g1 IN (SELECT gr.group FROM User u JOIN u.groupRoles gr WHERE u = :user)) " +
             "AND    g1.visible = true " +
             "AND ((UPPER(g1.code) LIKE :filterText) " +
             "OR (UPPER(g1.name) LIKE :filterText)) " +

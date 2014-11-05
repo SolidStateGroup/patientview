@@ -106,7 +106,8 @@ public class GroupRepositoryTest {
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.CHILD));
 
         PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
-        Page<Group> groupPage = groupRepository.findGroupAndChildGroupsByUserAndGroupType("%%", convertStringArrayToLongs(groupTypes), user, pageable);
+        //Page<Group> groupPage = groupRepository.findGroupAndChildGroupsByUserAndGroupType("%%", convertStringArrayToLongs(groupTypes), user, pageable);
+        Page<Group> groupPage = groupRepository.findGroupAndChildGroupsByUser("%%", user, pageable);
 
         assertTrue("Parent group should have children", !CollectionUtils.isEmpty(TestUtils.iterableToList(groupRepository.findChildren(parentGroup))));
         assertTrue("User should be linked to parent group", !CollectionUtils.isEmpty(TestUtils.iterableToList(groupRepository.findGroupByUser(user))));
