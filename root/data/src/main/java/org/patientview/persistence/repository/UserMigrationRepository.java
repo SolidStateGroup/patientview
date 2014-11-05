@@ -30,4 +30,7 @@ public interface UserMigrationRepository extends CrudRepository<UserMigration, L
 
     @Query("SELECT um FROM UserMigration um WHERE um.patientview1UserId = :patientview1Id")
     UserMigration getByPatientview1Id(@Param("patientview1Id") Long patientview1Id);
+
+    @Query("SELECT um FROM UserMigration um WHERE um.patientview2UserId = :patientview2Id")
+    UserMigration getByPatientview2Id(@Param("patientview2Id") Long patientview2Id);
 }

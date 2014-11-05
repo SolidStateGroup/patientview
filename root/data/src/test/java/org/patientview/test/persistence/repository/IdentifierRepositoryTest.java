@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.HashSet;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestPersistenceConfig.class})
@@ -81,8 +82,8 @@ public class IdentifierRepositoryTest {
 
         userRepository.save(user);
 
-        identifier = identifierRepository.findByValue(testNhsNumber);
+        List<Identifier> identifiers = identifierRepository.findByValue(testNhsNumber);
 
-        Assert.assertTrue("There is 1 identifier returned", identifier != null);
+        Assert.assertEquals("There is 1 identifier returned", 1, identifiers.size());
     }
 }

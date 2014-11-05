@@ -109,7 +109,8 @@ public class IdentifierControllerTest {
         }
     }
 
-    @Test
+    // not used 05/11/14
+    /*@Test
     public void testGetIdentifierByValue() throws ResourceNotFoundException  {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
         String identifierValue = "111111111";
@@ -120,7 +121,7 @@ public class IdentifierControllerTest {
         } catch (Exception e) {
             fail("Exception throw");
         }
-    }
+    }*/
 
     @Test
     public void testValidateIdentifier() {

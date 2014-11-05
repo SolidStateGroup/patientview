@@ -20,22 +20,27 @@ public class UserMigrationServiceImpl extends AbstractServiceImpl<UserMigrationS
     @Inject
     private UserMigrationRepository userMigrationRepository;
 
-    public UserMigration save(UserMigration userMigration) {
+    public UserMigration save(final UserMigration userMigration) {
         return userMigrationRepository.save(userMigration);
     }
 
     @Override
-    public List<UserMigration> getByStatus(MigrationStatus migrationStatus) {
+    public List<UserMigration> getByStatus(final MigrationStatus migrationStatus) {
         return userMigrationRepository.findByStatus(migrationStatus);
     }
 
     @Override
-    public List<Long> getPatientview1IdsByStatus(MigrationStatus migrationStatus) {
+    public List<Long> getPatientview1IdsByStatus(final MigrationStatus migrationStatus) {
         return userMigrationRepository.findPatientview1IdsByStatus(migrationStatus);
     }
 
     @Override
-    public UserMigration getByPatientview1Id(Long patientview1Id) {
+    public UserMigration getByPatientview1Id(final Long patientview1Id) {
         return userMigrationRepository.getByPatientview1Id(patientview1Id);
+    }
+
+    @Override
+    public UserMigration getByPatientview2Id(final Long patientview1Id) {
+        return userMigrationRepository.getByPatientview2Id(patientview1Id);
     }
 }

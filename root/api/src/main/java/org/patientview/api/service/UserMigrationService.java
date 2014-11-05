@@ -23,4 +23,6 @@ public interface UserMigrationService {
     List<Long> getPatientview1IdsByStatus(MigrationStatus migrationStatus);
 
     UserMigration getByPatientview1Id(Long patientview1Id);
+
+    UserMigration getByPatientview2Id(Long patientview2Id);
 }

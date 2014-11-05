@@ -29,9 +29,12 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.util.CollectionUtils;
 
 import javax.persistence.EntityExistsException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
@@ -98,9 +101,11 @@ public class IdentifierServiceTest {
         patient.setGroupRoles(groupRolesPatient);
 
         Identifier identifier = TestUtils.createIdentifier(lookup, patient, "1111111111");
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
 
         when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
-        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifier);
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
         when(identifierRepository.save(eq(identifier))).thenReturn(identifier);
 
         try {
@@ -138,9 +143,11 @@ public class IdentifierServiceTest {
         patient.setGroupRoles(groupRolesPatient);
 
         Identifier identifier = TestUtils.createIdentifier(lookup, patient, "1111111111");
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
 
         when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
-        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifier);
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
         when(identifierRepository.save(eq(identifier))).thenReturn(identifier);
 
         try {
@@ -175,9 +182,11 @@ public class IdentifierServiceTest {
         patient.setGroupRoles(groupRolesPatient);
 
         Identifier identifier = TestUtils.createIdentifier(lookup, patient, "1111111111");
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
 
         when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
-        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifier);
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
 
         try {
             identifierService.delete(identifier.getId());
@@ -214,9 +223,11 @@ public class IdentifierServiceTest {
         patient.setGroupRoles(groupRolesPatient);
 
         Identifier identifier = TestUtils.createIdentifier(lookup, patient, "1111111111");
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
 
         when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
-        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifier);
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
 
         try {
             identifierService.delete(identifier.getId());
@@ -255,8 +266,10 @@ public class IdentifierServiceTest {
         patient.setGroupRoles(groupRolesPatient);
 
         Identifier identifier = TestUtils.createIdentifier(lookup, patient, "1111111111");
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
 
-        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifier);
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
 
         try {
@@ -276,27 +289,48 @@ public class IdentifierServiceTest {
     public void testAddDuplicateIdentifier()
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
 
-        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.UNIT_ADMIN);
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
 
         Long userId = 1L;
-        User user = TestUtils.createUser("testUser");
-        user.setIdentifiers(new HashSet<Identifier>());
+        User user1 = TestUtils.createUser("testUser");
+        GroupRole groupRole1 = TestUtils.createGroupRole(patientRole, group, user1);
+        Set<GroupRole> groupRoles1 = new HashSet<>();
+        groupRoles1.add(groupRole1);
+        user1.setGroupRoles(groupRoles1);
+        user1.setIdentifiers(new HashSet<Identifier>());
 
         User user2 = TestUtils.createUser("testUser2");
+        GroupRole groupRole2 = TestUtils.createGroupRole(patientRole, group, user2);
+        Set<GroupRole> groupRoles2 = new HashSet<>();
+        groupRoles2.add(groupRole2);
+        user2.setGroupRoles(groupRoles2);
         user2.setIdentifiers(new HashSet<Identifier>());
 
         Identifier identifier = new Identifier();
         identifier.setId(3L);
         identifier.setIdentifier("1111111111");
-        identifier.setUser(user);
+        identifier.setUser(user1);
 
         Identifier identifier2 = new Identifier();
         identifier2.setId(4L);
         identifier2.setIdentifier("1111111111");
         identifier2.setUser(user2);
 
-        when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user);
-        when(identifierRepository.findByValue(identifier.getIdentifier())).thenReturn(identifier2);
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier2);
+
+        when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user1);
+        when(identifierRepository.findByValue(identifier.getIdentifier())).thenReturn(identifiers);
 
         identifierService.add(userId, identifier);
     }
@@ -314,10 +348,15 @@ public class IdentifierServiceTest {
         identifier.setIdentifier(identifierValue);
         identifier.setId(1L);
 
-        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifier);
-        Identifier foundIdentifier = identifierService.getIdentifierByValue(identifier.getIdentifier());
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
+
+        List<Identifier> foundIdentifiers = identifierService.getIdentifierByValue(identifier.getIdentifier());
+
         verify(identifierRepository, Mockito.times(1)).findByValue(eq(identifier.getIdentifier()));
-        Assert.assertTrue("Identifier should be found", foundIdentifier != null);
+        Assert.assertFalse("Identifier should be found", CollectionUtils.isEmpty(foundIdentifiers));
     }
 
     @Test

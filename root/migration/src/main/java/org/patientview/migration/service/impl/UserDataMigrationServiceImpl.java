@@ -181,22 +181,26 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
-    public void bulkUserCreate(String unitCode, Long count, RoleName roleName, Long observationCount) {
+    public void bulkUserCreate(String unitCode1, String unitCode2, Long count, RoleName roleName, Long observationCount) {
         LOG.info("Starting creation of " + count
                 + " generated users, must have -Durl=\"http://localhost:8080/api\" or equivalent");
 
         ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
-        Group userUnit = adminDataMigrationService.getGroupByCode(unitCode);
+        Group userUnit1 = adminDataMigrationService.getGroupByCode(unitCode1);
+        Group userUnit2 = adminDataMigrationService.getGroupByCode(unitCode2);
         Role userRole = adminDataMigrationService.getRoleByName(roleName);
 
         List<MigrationUser> migrationUsers = new ArrayList<MigrationUser>();
 
-        if (userUnit != null && userRole != null) {
+        if (userUnit1 != null && userUnit2 != null && userRole != null) {
             Date now = new Date();
             LOG.info("Sending " + count + " users to REST service");
 
             // create users based on Date.now + count increment
             for (Long time = now.getTime(); time<now.getTime() + count; time++) {
+
+                // testing only
+                //Long time = 1415183769256L;
 
                 // create user
                 User newUser = new User();
@@ -218,15 +222,24 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // todo: do we need to migrate user.accounthidden?
 
                 // add group role (specialty is added automatically when creating user within a UNIT group)
-                Group group = new Group();
-                group.setId(userUnit.getId());
                 Role role = new Role();
                 role.setId(userRole.getId());
-                GroupRole groupRole = new GroupRole();
-                groupRole.setGroup(group);
-                groupRole.setRole(role);
+
+                Group group1 = new Group();
+                group1.setId(userUnit1.getId());
+                GroupRole groupRole1 = new GroupRole();
+                groupRole1.setGroup(group1);
+                groupRole1.setRole(role);
+
+                Group group2 = new Group();
+                group2.setId(userUnit2.getId());
+                GroupRole groupRole2 = new GroupRole();
+                groupRole2.setGroup(group2);
+                groupRole2.setRole(role);
+
                 newUser.setGroupRoles(new HashSet<GroupRole>());
-                newUser.getGroupRoles().add(groupRole);
+                newUser.getGroupRoles().add(groupRole1);
+                newUser.getGroupRoles().add(groupRole2);
 
                 // add user feature (usually for staff)
                 newUser.setUserFeatures(new HashSet<UserFeature>());
@@ -261,14 +274,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     FhirObservation observation = new FhirObservation();
                     observation.setValue(String.valueOf(j));
                     observation.setApplies(new Date(time - (j*month)));
-                    observation.setGroup(group);
-                    observation.setComparator(">");
+                    //observation.setComparator(">");
                     observation.setComments("comment");
+
                     if (j % 2 == 0) {
                         observation.setName("hb");
+                        observation.setGroup(group1);
                     } else {
                         observation.setName("wbc");
+                        observation.setGroup(group2);
                     }
+
                     observation.setIdentifier(time.toString());
                     migrationUser.getObservations().add(observation);
                 }
@@ -277,7 +293,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 FhirObservation comment = new FhirObservation();
                 comment.setValue("a patient entered comment about my results");
                 comment.setApplies(new Date(time));
-                comment.setGroup(group);
+                comment.setGroup(group1);
                 comment.setComments("a patient entered comment about my results");
                 comment.setName(COMMENT_RESULT_HEADING);
                 comment.setIdentifier(time.toString());
@@ -286,10 +302,18 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // add Condition / generic diagnosis (pv1 diagnosis table)
                 FhirCondition condition = new FhirCondition();
                 condition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
-                condition.setCode("Something else");
-                condition.setNotes("Something else");
-                condition.setGroup(userUnit);
+                condition.setCode("Something else 1");
+                condition.setNotes("Something else 1");
+                condition.setGroup(userUnit1);
                 condition.setIdentifier(time.toString());
+                migrationUser.getConditions().add(condition);
+
+                FhirCondition condition2 = new FhirCondition();
+                condition2.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+                condition2.setCode("Something else 2");
+                condition2.setNotes("Something else 2");
+                condition2.setGroup(userUnit2);
+                condition2.setIdentifier(time.toString());
                 migrationUser.getConditions().add(condition);
 
                 // add Condition / EDTA diagnosis (pv1 patient table)
@@ -297,9 +321,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 conditionEdta.setCategory(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
                 conditionEdta.setCode("00");
                 conditionEdta.setNotes("00");
-                conditionEdta.setGroup(userUnit);
+                conditionEdta.setGroup(userUnit1);
                 conditionEdta.setIdentifier(time.toString());
                 migrationUser.getConditions().add(conditionEdta);
+
+                FhirCondition conditionEdta2 = new FhirCondition();
+                conditionEdta2.setCategory(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
+                conditionEdta2.setCode("00");
+                conditionEdta2.setNotes("00");
+                conditionEdta2.setGroup(userUnit2);
+                conditionEdta2.setIdentifier(time.toString());
+                migrationUser.getConditions().add(conditionEdta2);
 
                 // add Encounter / transplant status (pv1 patient table)
                 FhirEncounter transplant = new FhirEncounter();
@@ -320,9 +352,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 medicationStatement.setDose("500g");
                 medicationStatement.setName("Paracetemol");
                 medicationStatement.setStartDate(now);
-                medicationStatement.setGroup(userUnit);
+                medicationStatement.setGroup(userUnit1);
                 medicationStatement.setIdentifier(time.toString());
                 migrationUser.getMedicationStatements().add(medicationStatement);
+
+                FhirMedicationStatement medicationStatement2 = new FhirMedicationStatement();
+                medicationStatement2.setDose("500g 2");
+                medicationStatement2.setName("Paracetemol 2");
+                medicationStatement2.setStartDate(now);
+                medicationStatement2.setGroup(userUnit2);
+                medicationStatement2.setIdentifier(time.toString());
+                migrationUser.getMedicationStatements().add(medicationStatement2);
 
                 // add DiagnosticReport and associated Observation (diagnostics, originally IBD now generic)
                 FhirObservation observation = new FhirObservation();
@@ -330,7 +370,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 observation.setName(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
 
                 FhirDiagnosticReport diagnosticReport = new FhirDiagnosticReport();
-                diagnosticReport.setGroup(userUnit);
+                diagnosticReport.setGroup(userUnit1);
                 diagnosticReport.setDate(now);
                 diagnosticReport.setType(DiagnosticReportTypes.IMAGING.toString());
                 diagnosticReport.setName("Photo of patient");
@@ -338,14 +378,35 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 diagnosticReport.setIdentifier(time.toString());
                 migrationUser.getDiagnosticReports().add(diagnosticReport);
 
+                FhirObservation observation2 = new FhirObservation();
+                observation2.setValue("1234567890 2");
+                observation2.setName(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+
+                FhirDiagnosticReport diagnosticReport2 = new FhirDiagnosticReport();
+                diagnosticReport2.setGroup(userUnit2);
+                diagnosticReport2.setDate(now);
+                diagnosticReport2.setType(DiagnosticReportTypes.IMAGING.toString());
+                diagnosticReport2.setName("Photo of patient 2");
+                diagnosticReport2.setResult(observation2);
+                diagnosticReport2.setIdentifier(time.toString());
+                migrationUser.getDiagnosticReports().add(diagnosticReport2);
+
                 // add DocumentReference / letter
                 FhirDocumentReference documentReference = new FhirDocumentReference();
-                documentReference.setGroup(userUnit);
+                documentReference.setGroup(userUnit1);
                 documentReference.setDate(now);
                 documentReference.setType(LetterTypes.GENERAL_LETTER.getName());
-                documentReference.setContent("Letter content: " + time + " etc.");
+                documentReference.setContent("Letter content: text text text " + time + " etc.");
                 documentReference.setIdentifier(time.toString());
                 migrationUser.getDocumentReferences().add(documentReference);
+
+                FhirDocumentReference documentReference2 = new FhirDocumentReference();
+                documentReference2.setGroup(userUnit2);
+                documentReference2.setDate(now);
+                documentReference2.setType(LetterTypes.GENERAL_LETTER.getName());
+                documentReference2.setContent("Letter content: text text text " + time + " etc. 2");
+                documentReference2.setIdentifier(time.toString());
+                migrationUser.getDocumentReferences().add(documentReference2);
 
                 // PatientView identifiers
                 // - nhs number (pv1 table)
@@ -382,7 +443,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 patient.setPostcode("postcode");
                 patient.setDateOfBirth(now);
                 patient.setIdentifier(time.toString());
-                patient.setGroup(userUnit);
+                patient.setGroup(userUnit1);
 
                 // - patient contact data
                 patient.setContacts(new ArrayList<FhirContact>());
@@ -427,6 +488,37 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 migrationUser.getPatients().add(patient);
 
+                // second group patient data (less data)
+                // - basic patient data
+                FhirPatient patient2 = new FhirPatient();
+                patient2.setForename("forename 2");
+                patient2.setSurname("surname 2");
+                patient2.setGender("Male 2");
+                patient2.setAddress1("address1 2");
+                patient2.setAddress2("address2 2");
+                patient2.setAddress3("address3 2");
+                patient2.setAddress4("address4 2");
+                patient2.setPostcode("postcode 2");
+                patient2.setDateOfBirth(now);
+                patient2.setIdentifier(time.toString());
+                patient2.setGroup(userUnit2);
+
+                // - patient contact data
+                patient2.setContacts(new ArrayList<FhirContact>());
+                FhirContact fhirContact2 = new FhirContact();
+                fhirContact2.setUse("home");
+                fhirContact2.setSystem("phone");
+                fhirContact2.setValue("01234 56789012 2");
+                patient2.getContacts().add(fhirContact2);
+
+                // - patient identifiers (FHIR identifiers to be stored in FHIR patient record, not patientview identifiers)
+                FhirIdentifier nhsNumber2 = new FhirIdentifier();
+                nhsNumber2.setValue(time.toString());
+                nhsNumber2.setLabel(IdentifierTypes.NHS_NUMBER.toString());
+                patient.getIdentifiers().add(nhsNumber);
+
+                migrationUser.getPatients().add(patient2);
+
                 // set to a patient user
                 migrationUser.setPatient(true);
 
@@ -447,8 +539,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             ExecutorService concurrentTaskExecutor2 = Executors.newFixedThreadPool(10);
 
             // do observations separately
-            for (MigrationUser migrationUser : migrationUsers) {
-                concurrentTaskExecutor2.submit(new AsyncMigrateObservationTask(migrationUser));
+            for (MigrationUser migrationUser2 : migrationUsers) {
+                concurrentTaskExecutor2.submit(new AsyncMigrateObservationTask(migrationUser2));
             }
 
             List<Long> patientview1Ids = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
@@ -464,7 +556,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 LOG.error(e.getMessage());
             }
         } else {
-            LOG.error("unitcode: " + unitCode + ", or role: " + roleName + " do not exist");
+            LOG.error("unitcode1: " + unitCode1 + " or unitcode2: " + unitCode1 + ", or role: " + roleName + " do not exist");
         }
     }
 

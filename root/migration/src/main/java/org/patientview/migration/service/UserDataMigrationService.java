@@ -13,5 +13,5 @@ public interface UserDataMigrationService {
 
     void migrate();
 
-    void bulkUserCreate(String groupCode, Long count, RoleName roleName, Long observationCount);
+    void bulkUserCreate(String unitCode1, String unitCode2, Long count, RoleName roleName, Long observationCount);
 }

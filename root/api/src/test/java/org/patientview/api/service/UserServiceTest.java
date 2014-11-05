@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.impl.UserServiceImpl;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
@@ -459,7 +460,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException {
+    public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");

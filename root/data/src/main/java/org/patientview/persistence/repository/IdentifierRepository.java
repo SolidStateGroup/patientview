@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 10/07/2014
@@ -26,5 +28,5 @@ public interface IdentifierRepository extends JpaRepository<Identifier, Long> {
     @Query("SELECT  i " +
            "FROM   Identifier i " +
            "WHERE  i.identifier = :value ")
-    Identifier findByValue(@Param("value") String value);
+    List<Identifier> findByValue(@Param("value") String value);
 }

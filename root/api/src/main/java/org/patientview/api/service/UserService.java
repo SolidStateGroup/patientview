@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -52,7 +53,7 @@ public interface UserService {
     User get(Long userId) throws ResourceNotFoundException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
-    void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+    void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;

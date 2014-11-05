@@ -288,8 +288,8 @@ function ($scope, UserService, IdentifierService) {
                 }, function () {
                     alert('Error updating header (saved successfully)');
                 });
-            }, function () {
-                alert('Error deleting identifier');
+            }, function (failure) {
+                alert('Error deleting identifier: ' + failure.data);
             });
         } else {
             for (i = 0; i < user.identifiers.length; i++) {

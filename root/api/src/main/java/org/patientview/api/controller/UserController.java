@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -98,7 +99,7 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE)
     @ResponseBody
     public void deleteUser(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         userService.delete(userId);
     }
 

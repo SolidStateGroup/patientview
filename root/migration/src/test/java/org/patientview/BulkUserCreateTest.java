@@ -40,7 +40,7 @@ public class BulkUserCreateTest {
     @Rollback(false)
     public void test01BulkUserCreate() {
         Long usersToCreate = 1L;
-        Long observationsToCreate = 0L;
+        Long observationsToCreate = 10L;
         Date start = new Date();
         RoleName role = RoleName.PATIENT;
 
@@ -50,7 +50,7 @@ public class BulkUserCreateTest {
         //-Durl=http://staging.patientview.org/api
 
         // takes group to add users to and number of users to create
-        userDataMigrationService.bulkUserCreate("RENALB", usersToCreate, role, observationsToCreate);
+        userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role, observationsToCreate);
 
         LOG.info("Submission of " + usersToCreate + " "  + role.toString() + " with " + observationsToCreate
                 + " Observations took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");

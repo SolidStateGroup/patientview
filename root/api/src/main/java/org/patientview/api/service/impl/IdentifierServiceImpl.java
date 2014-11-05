@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.model.UserIdentifier;
 import org.patientview.config.exception.ResourceInvalidException;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -12,10 +13,13 @@ import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.NonUniqueResultException;
+
+import java.util.List;
 
 import static java.lang.Integer.parseInt;
 
@@ -70,6 +74,11 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        // check is not being used by fhirlinks (cannot be deleted)
+        if (!CollectionUtils.isEmpty(identifier.getFhirLink())) {
+            throw new ResourceForbiddenException("Cannot be deleted, in use by FHIR data");
+        }
+
         identifierRepository.delete(identifierId);
     }
 
@@ -81,9 +90,10 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             throw new ResourceNotFoundException("Identifier does not exist");
         }
 
-        Identifier existingIdentifier = identifierRepository.findByValue(identifier.getIdentifier());
+        // should only ever get 1
+        List<Identifier> existingIdentifiers = identifierRepository.findByValue(identifier.getIdentifier());
 
-        if (existingIdentifier != null && !existingIdentifier.equals(entityIdentifier)) {
+        if (CollectionUtils.isEmpty(existingIdentifiers) && !existingIdentifiers.get(0).equals(entityIdentifier)) {
             throw new EntityExistsException("Cannot save Identifier, another Identifier with the same "
                     + "value already exists");
         }
@@ -105,11 +115,11 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        // check Identifier doesn't already exist for another user
-        Identifier entityIdentifier = identifierRepository.findByValue(identifier.getIdentifier());
+        // check Identifier doesn't already exist for another user, should only ever return one
+        List<Identifier> entityIdentifiers = identifierRepository.findByValue(identifier.getIdentifier());
 
-        if (entityIdentifier != null) {
-            if (!(user.getId().equals(entityIdentifier.getUser().getId()))) {
+        if (!CollectionUtils.isEmpty(entityIdentifiers)) {
+            if (!(user.getId().equals(entityIdentifiers.get(0).getUser().getId()))) {
                 throw new EntityExistsException("Identifier already exists for another patient");
             }
         }
@@ -124,13 +134,13 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         return identifierRepository.save(identifier);
     }
 
-    public Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException {
-        Identifier identifier = identifierRepository.findByValue(identifierValue);
-        if (identifier == null) {
+    public List<Identifier> getIdentifierByValue(String identifierValue) throws ResourceNotFoundException {
+        List<Identifier> identifiers = identifierRepository.findByValue(identifierValue);
+        if (identifiers.isEmpty()) {
             throw new ResourceNotFoundException(String.format("Could not find identifier with value %s",
                 identifierValue));
         }
-        return identifier;
+        return identifiers;
     }
 
     public void validate(UserIdentifier userIdentifier)
@@ -153,9 +163,9 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
         // check Identifier doesn't already exist (should only ever be one result returned)
         try {
-            Identifier entityIdentifier = identifierRepository.findByValue(identifier.getIdentifier());
+            List<Identifier> entityIdentifiers = identifierRepository.findByValue(identifier.getIdentifier());
 
-            if (entityIdentifier != null) {
+            if (!CollectionUtils.isEmpty(entityIdentifiers)) {
                 throw new EntityExistsException("Identifier already exists");
             }
         } catch (NonUniqueResultException nure) {

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityExistsException;
+import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -34,7 +35,7 @@ public interface IdentifierService {
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    Identifier getIdentifierByValue(String identifierValue) throws ResourceNotFoundException;
+    List<Identifier> getIdentifierByValue(String identifierValue) throws ResourceNotFoundException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void validate(UserIdentifier userIdentifier)

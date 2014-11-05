@@ -13,6 +13,7 @@ import org.patientview.api.model.Credentials;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
@@ -171,7 +172,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException {
+    public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");

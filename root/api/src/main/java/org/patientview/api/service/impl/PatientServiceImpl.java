@@ -5,14 +5,15 @@ import org.hl7.fhir.instance.model.Address;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.DateAndTime;
+import org.hl7.fhir.instance.model.DiagnosticReport;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.HumanName;
+import org.hl7.fhir.instance.model.MedicationStatement;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.api.service.DiagnosticService;
 import org.patientview.api.service.FhirLinkService;
@@ -242,7 +243,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return patient;
     }
 
-    // migration only, wipe existing data for this user and then create data in fhir
+    // migration only, wipe any existing patient data for this user and then create data in fhir
     @Override
     public void migratePatientData(Long userId, MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
@@ -253,7 +254,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         if (fhirLinks == null) {
             fhirLinks = new HashSet<>();
         } else {
+            // wipe existing patient data, observation data and fhir links to start with fresh data
             deleteExistingPatientData(fhirLinks);
+            deleteExistingObservationData(fhirLinks);
+            for(FhirLink fhirLink : entityUser.getFhirLinks()) {
+                fhirLinkService.delete(fhirLink.getId());
+            }
+            entityUser.setFhirLinks(new HashSet<FhirLink>());
+            fhirLinks = new HashSet<>();
         }
 
         // set up map of observation headings
@@ -272,9 +280,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // Patient, Practitioner (taken from pv1 patient table)
         migrateFhirPatientsAndPractitioners(migrationUser, entityUser, fhirLinks);
-
-        // store Observations (results), creating FHIR Patients and FhirLinks if not present
-        //migrateFhirObservations(migrationUser, entityUser, fhirLinks, identifierMap);
 
         // store Conditions (diagnoses and diagnosis edta)
         migrateFhirConditions(migrationUser, entityUser, fhirLinks, identifierMap);
@@ -304,7 +309,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         if (fhirLinks == null) {
             fhirLinks = new HashSet<>();
         } else {
-            deleteExistingPatientData(fhirLinks);
+            deleteExistingObservationData(fhirLinks);
         }
 
         // set up map of observation headings
@@ -332,9 +337,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // Patient, Practitioner (taken from pv1 patient table)
         for (FhirPatient fhirPatient : migrationUser.getPatients()) {
             // create practitioner in FHIR for this patient's practitioner if it doesn't exist
-            if (StringUtils.isNotEmpty(fhirPatient.getPractitioner().getName())) {
-                UUID practitionerUuid;
+            if (fhirPatient.getPractitioner() != null
+                    && StringUtils.isNotEmpty(fhirPatient.getPractitioner().getName())) {
 
+                UUID practitionerUuid;
                 List<UUID> practitionerUuids
                         = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
 
@@ -495,9 +501,73 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
-    // delete all FHIR related Patient data for this patient
+    // delete all FHIR related Patient data for this patient (not Observations)
     public void deleteExistingPatientData(Set<FhirLink> fhirLinks) throws FhirResourceException {
-        // TODO, delete patient data
+
+        if (fhirLinks != null) {
+            for (FhirLink fhirLink : fhirLinks) {
+
+                UUID subjectId = fhirLink.getResourceId();
+
+                // Patient
+                fhirResource.delete(subjectId, ResourceType.Patient);
+
+                // Conditions
+                for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("condition", subjectId)) {
+                    fhirResource.delete(uuid, ResourceType.Condition);
+                }
+
+                // Encounters
+                for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("encounter", subjectId)) {
+                    fhirResource.delete(uuid, ResourceType.Encounter);
+                }
+
+                // MedicationStatements (and associated Medicine)
+                for (UUID uuid : fhirResource.getLogicalIdsByPatientId("medicationstatement", subjectId)) {
+
+                    // delete medication associated with medication statement
+                    MedicationStatement medicationStatement
+                            = (MedicationStatement) fhirResource.get(uuid, ResourceType.MedicationStatement);
+                    fhirResource.delete(UUID.fromString(medicationStatement.getMedication().getDisplaySimple()),
+                            ResourceType.Medication);
+
+                    // delete medication statement
+                    fhirResource.delete(uuid, ResourceType.MedicationStatement);
+                }
+
+                // DiagnosticReports (and associated Observation)
+                for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("diagnosticreport", subjectId)) {
+
+                    // delete observation (result) associated with diagnostic report
+                    DiagnosticReport diagnosticReport
+                            = (DiagnosticReport) fhirResource.get(uuid, ResourceType.DiagnosticReport);
+                    fhirResource.delete(UUID.fromString(diagnosticReport.getResult().get(0).getDisplaySimple()),
+                            ResourceType.Observation);
+
+                    // delete diagnostic report
+                    fhirResource.delete(uuid, ResourceType.DiagnosticReport);
+                }
+
+                // DocumentReferences (letters)
+                for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", subjectId)) {
+                    fhirResource.delete(uuid, ResourceType.DocumentReference);
+                }
+            }
+        }
+    }
+    // delete all FHIR related Observation data for this patient (not other patient data)
+    public void deleteExistingObservationData(Set<FhirLink> fhirLinks) throws FhirResourceException {
+
+        if (fhirLinks != null) {
+            for (FhirLink fhirLink : fhirLinks) {
+                UUID subjectId = fhirLink.getResourceId();
+
+                // Observations
+                for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("observation", subjectId)) {
+                    fhirResource.delete(uuid, ResourceType.Observation);
+                }
+            }
+        }
     }
 
     // add FHIR Patient with optional practitioner reference, used during migration
@@ -568,7 +638,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             Identifier identifier;
 
             try {
-                identifier = identifierService.getIdentifierByValue(fhirPatient.getIdentifier());
+                // should only ever return 1
+                List<Identifier> identifiers = identifierService.getIdentifierByValue(fhirPatient.getIdentifier());
+                identifier = identifiers.get(0);
             } catch (ResourceNotFoundException e) {
                 identifier = new Identifier();
                 identifier.setIdentifier(fhirPatient.getIdentifier());
@@ -586,8 +658,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             fhirLink.setUser(entityUser);
             fhirLink.setIdentifier(identifier);
             fhirLink.setGroup(fhirPatient.getGroup());
-            fhirLink.setResourceId(getResourceId(createdPatient));
-            fhirLink.setVersionId(getVersionId(createdPatient));
+            fhirLink.setResourceId(FhirResource.getLogicalId(createdPatient));
+            fhirLink.setVersionId(FhirResource.getVersionId(createdPatient));
             fhirLink.setResourceType(ResourceType.Patient.name());
             fhirLink.setActive(true);
             return fhirLinkService.save(fhirLink);
@@ -607,8 +679,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         fhirLink.setUser(user);
         fhirLink.setIdentifier(identifier);
         fhirLink.setGroup(group);
-        fhirLink.setResourceId(getResourceId(fhirPatient));
-        fhirLink.setVersionId(getVersionId(fhirPatient));
+        fhirLink.setResourceId(FhirResource.getLogicalId(fhirPatient));
+        fhirLink.setVersionId(FhirResource.getVersionId(fhirPatient));
         fhirLink.setResourceType(ResourceType.Patient.name());
         fhirLink.setActive(true);
         return fhirLinkService.save(fhirLink);
@@ -621,21 +693,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
         }
         return null;
-    }
-
-    private UUID getVersionId(final JSONObject bundle) {
-        JSONArray resultArray = (JSONArray) bundle.get("entry");
-        JSONObject resource = (JSONObject) resultArray.get(0);
-        JSONArray links = (JSONArray) resource.get("link");
-        JSONObject link = (JSONObject)  links.get(0);
-        String[] href = link.getString("href").split("/");
-        return UUID.fromString(href[href.length - 1]);
-    }
-
-    private UUID getResourceId(final JSONObject bundle) {
-        JSONArray resultArray = (JSONArray) bundle.get("entry");
-        JSONObject resource = (JSONObject) resultArray.get(0);
-        return UUID.fromString(resource.get("id").toString());
     }
 
     private Patient createHumanName(Patient patient, User user) {
