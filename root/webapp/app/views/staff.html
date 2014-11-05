@@ -87,11 +87,16 @@
         <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 
         <!-- data grid -->
-        <div class="faux-table six-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
+        <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
             <!-- header -->
             <div class="accordion-title-row table-head">
                 <div class="hidden">ID</div>
-                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
+                <div class="head-item accordion-title-text ">
+                    <a data-ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Forename</a>
+                </div>
+                <div class="head-item accordion-title-text ">
+                    <a data-ng-click="sortBy('surname');" class="sort-title"><i class="icon-sort pull-right"></i>Surname</a>
+                </div>
                 <div class="head-item accordion-title-text "><a data-ng-click="sortBy('email');" class="sort-title"><i class="icon-sort pull-right"></i>Email</a></div>
                 <div class="head-item accordion-title-text " class="sort-title">Group (Role)</div>
                 <div class="head-item accordion-title-text " class="sort-title">Features</div>
@@ -102,13 +107,13 @@
             <div class="item-header" data-ng-repeat="user in pagedItems">
                 <div class="faux-row">
                     <div class="row-item hidden">{{user.id}}</div>
-                    <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
+                    <div class="row-item accordion-heading-text">{{user.forename}}</div>
+                    <div class="row-item accordion-heading-text">{{user.surname}}</div>
                     <div class="row-item accordion-heading-text">{{user.email}}</div>
                     <div class="row-item accordion-heading-text">
-                        <ul data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled">
-                            <div data-ng-if="groupRole.role.name !== 'MEMBER'">
-                                <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
-                            </div>
+                        <ul data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled"
+                                data-ng-show="groupRole.role.name !== 'MEMBER'">
+                            <li>{{groupRole.group.name}} ({{groupRole.role.description}})</li>
                         </ul>
                     </div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>

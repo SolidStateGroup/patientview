@@ -161,7 +161,12 @@
             <!-- header -->
             <div class="table-head accordion-title-row">
                 <div class="hidden">ID</div>
-                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
+                <div class="head-item accordion-title-text ">
+                    <a data-ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Forename</a>
+                </div>
+                <div class="head-item accordion-title-text ">
+                    <a data-ng-click="sortBy('surname');" class="sort-title"><i class="icon-sort pull-right"></i>Surname</a>
+                </div>
                 <div class="head-item accordion-title-text ">Identifiers&nbsp;<i class="glyphicon glyphicon-sort hidden"></i></a></div>
                 <div class="head-item accordion-title-text ">Date Of Birth</div>
                 <div class="head-item accordion-title-text ">Groups</div>
@@ -172,7 +177,8 @@
             <div class="item-header" data-ng-repeat="user in pagedItems">
                 <div class="faux-row">
                     <div class="row-item hidden">{{user.id}}</div>
-                    <div class="row-item accordion-heading-text">{{user.forename}} {{user.surname}}</div>
+                    <div class="row-item accordion-heading-text">{{user.forename}}</div>
+                    <div class="row-item accordion-heading-text">{{user.surname}}</div>
                     <div class="row-item accordion-heading-text">
                         <ul class="unstyled">
                             <li data-ng-repeat="identifier in user.identifiers"
