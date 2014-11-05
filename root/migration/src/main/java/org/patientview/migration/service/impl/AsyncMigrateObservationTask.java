@@ -26,13 +26,14 @@ public class AsyncMigrateObservationTask implements Runnable {
         String url = JsonUtil.pvUrl + "/migrate/observations";
         try {
             JsonUtil.jsonRequest(url, Long.class, migrationUser, HttpPost.class, true);
-            LOG.info("Migrated observations for: {} OK", migrationUser.getUser().getUsername());
+            LOG.info("Migrated {} observations for pv1 ID: {} OK", migrationUser.getObservations().size(),
+                    migrationUser.getPatientview1Id());
         } catch (JsonMigrationException jme) {
             LOG.error("Failed to migrate username (JsonMigrationException): {}", migrationUser.getUser().getUsername());
         } catch (JsonMigrationExistsException jee) {
             LOG.info("User {} already exists", migrationUser.getUser().getUsername());
         } catch (Exception e) {
-            LOG.info(e.getMessage());
+            LOG.error("{}", e);
         }
     }
 }

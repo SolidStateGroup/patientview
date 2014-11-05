@@ -536,15 +536,12 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 LOG.error(e.getMessage());
             }
 
-            ExecutorService concurrentTaskExecutor2 = Executors.newFixedThreadPool(10);
-
             // do observations separately
+            /*ExecutorService concurrentTaskExecutor2 = Executors.newFixedThreadPool(10);
+
             for (MigrationUser migrationUser2 : migrationUsers) {
                 concurrentTaskExecutor2.submit(new AsyncMigrateObservationTask(migrationUser2));
             }
-
-            //List<Long> patientview1Ids = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
-            //LOG.info(patientview1Ids.size() + " PATIENT_MIGRATED already");
 
             LOG.info("Sending " + count + " sets of observations to REST service");
 
@@ -554,10 +551,78 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 concurrentTaskExecutor2.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
             } catch (Exception e) {
                 LOG.error(e.getMessage());
-            }
+            }*/
         } else {
             LOG.error("unitcode1: " + unitCode1 + " or unitcode2: " + unitCode1 + ", or role: " + roleName + " do not exist");
         }
+    }
+
+    @Override
+    public void bulkObservationCreate(String unitCode1, String unitCode2, Long observationCount) {
+        // add observations for all patients previously migrated successfully but without observations
+
+        List<Long> patientview1IdsMigrated = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
+        List<Long> patientview1IdsFailed = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED);
+
+        Set<Long> idSet = new HashSet<Long>(patientview1IdsMigrated);
+        idSet.addAll(patientview1IdsFailed);
+
+        LOG.info(idSet.size() + " PATIENT_MIGRATED or OBSERVATION_FAILED records");
+
+        Long month = 2592000000L;
+        Group userUnit1 = adminDataMigrationService.getGroupByCode(unitCode1);
+        Group userUnit2 = adminDataMigrationService.getGroupByCode(unitCode2);
+        Group group1 = new Group();
+        group1.setId(userUnit1.getId());
+        Group group2 = new Group();
+        group2.setId(userUnit2.getId());
+
+        List<MigrationUser> migrationUsers = new ArrayList<MigrationUser>();
+
+        Long now = new Date().getTime();
+
+        for (Long patientview1Id : idSet) {
+            MigrationUser migrationUser = new MigrationUser();
+            migrationUser.setPatientview1Id(patientview1Id);
+            migrationUser.setPatient(true);
+
+            for (int j = 0; j < observationCount; j++) {
+                FhirObservation observation = new FhirObservation();
+                observation.setValue(String.valueOf(j));
+                observation.setApplies(new Date(now - (j*month)));
+                observation.setComments("comment");
+
+                if (j % 2 == 0) {
+                    observation.setName("hb");
+                    observation.setGroup(group1);
+                } else {
+                    observation.setName("wbc");
+                    observation.setGroup(group2);
+                }
+
+                observation.setIdentifier(patientview1Id.toString());
+                migrationUser.getObservations().add(observation);
+            }
+
+            migrationUsers.add(migrationUser);
+        }
+
+        ExecutorService concurrentTaskExecutor2 = Executors.newFixedThreadPool(10);
+
+        for (MigrationUser migrationUser2 : migrationUsers) {
+            concurrentTaskExecutor2.submit(new AsyncMigrateObservationTask(migrationUser2));
+        }
+
+        LOG.info("Sending " + migrationUsers.size() + " sets of observations to REST service");
+
+        try {
+            // wait forever until all threads are finished
+            concurrentTaskExecutor2.shutdown();
+            concurrentTaskExecutor2.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+
     }
 
     public User createUser(org.patientview.patientview.model.User user) {

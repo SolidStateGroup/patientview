@@ -2,6 +2,7 @@ package org.patientview;
 
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -38,8 +39,9 @@ public class BulkUserCreateTest {
     @Test
     @Transactional
     @Rollback(false)
+    @Ignore
     public void test01BulkUserCreate() {
-        Long usersToCreate = 1L;
+        Long usersToCreate = 10L;
         Long observationsToCreate = 100L;
         Date start = new Date();
         RoleName role = RoleName.PATIENT;
@@ -50,11 +52,29 @@ public class BulkUserCreateTest {
         //-Durl=http://staging.patientview.org/api
 
         // takes group to add users to and number of users to create
-        //userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role, observationsToCreate);
-        userDataMigrationService.bulkUserCreate("RW402", "SAC02", usersToCreate, role, observationsToCreate);
+        userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role, observationsToCreate);
+        //userDataMigrationService.bulkUserCreate("RW402", "SAC02", usersToCreate, role, observationsToCreate);
+
+        //userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", observationsToCreate);
 
         LOG.info("Submission of " + usersToCreate + " "  + role.toString() + " with " + observationsToCreate
                 + " Observations took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+    }
+
+    /**
+     * Order(2) Bulk create users give group and number of users
+     */
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void test02BulkObservationCreate() {
+        Long observationsToCreate = 1L;
+        Date start = new Date();
+
+        userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", observationsToCreate);
+
+        LOG.info("Submission of " + observationsToCreate + " Observations for PATIENT_MIGRATED rows took "
+                + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
     }
 
     /**

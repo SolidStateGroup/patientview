@@ -377,20 +377,24 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             ObservationHeading observationHeading = observationHeadingMap.get(fhirObservation.getName().toUpperCase());
 
             //LOG.info("1 " + new Date().getTime());
-            if (identifier != null && observationHeading != null) {
-                FhirLink fhirLink = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
-
-                if (fhirLink == null) {
-                    // create FHIR patient and fhirlink
-                    fhirLink = createPatientAndFhirLink(entityUser, fhirObservation.getGroup(), identifier);
-                    fhirLinks.add(fhirLink);
-                }
-
-                //LOG.info("2 " + new Date().getTime());
-                observationService.addObservation(fhirObservation, observationHeading, fhirLink);
-            } else {
-                throw new FhirResourceException("Identifier or ObservationHeading not found");
+            if (identifier == null) {
+                throw new FhirResourceException("Identifier not found");
             }
+
+            if (observationHeading == null) {
+                throw new FhirResourceException("ObservationHeading not found");
+            }
+
+            FhirLink fhirLink = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
+
+            if (fhirLink == null) {
+                // create FHIR patient and fhirlink
+                fhirLink = createPatientAndFhirLink(entityUser, fhirObservation.getGroup(), identifier);
+                fhirLinks.add(fhirLink);
+            }
+
+            //LOG.info("2 " + new Date().getTime());
+            observationService.addObservation(fhirObservation, observationHeading, fhirLink);
         }
     }
 

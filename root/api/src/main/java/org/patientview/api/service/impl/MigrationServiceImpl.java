@@ -163,9 +163,9 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
             userMigration = userMigrationService.save(userMigration);
 
-            Long userId = userMigration.getPatientview2UserId();
+            UserMigration userMigration1 = userMigrationService.getByPatientview1Id(userMigration.getPatientview1UserId());
 
-            if (userId == null) {
+            if (userMigration1.getPatientview2UserId() == null) {
                 userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
                 userMigration.setInformation("Cannot find corresponding PatientView2 user");
                 userMigrationService.save(userMigration);
@@ -173,6 +173,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             }
 
             if (!CollectionUtils.isEmpty(migrationUser.getObservations())) {
+                Long userId = userMigration1.getPatientview2UserId();
                 try {
                     LOG.info("{} migrating {} observations", userId, migrationUser.getObservations().size());
                     patientService.migrateObservations(userId, migrationUser);
