@@ -21,7 +21,7 @@
             <div class="modal-footer">
                 <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
-                <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+                <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
                 <button class="btn btn-primary" data-ng-click="create()" data-ng-show="!existingUser" data-ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0) || (!editUser.identifiers || editUser.identifiers.length == 0)">Create New</button>
             </div>
         </script>
@@ -66,7 +66,7 @@
             <div class="modal-footer">
                 <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
-                <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+                <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
             </div>
         </script>
 
@@ -228,7 +228,7 @@
                         <hr>
                         <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                         <div class="user-save-cancel pull-right">
-                            <button type="button" class="btn btn-grey" data-ng-click="user.showEdit = false">Close</button>
+                            <button type="button" class="btn btn-grey" data-ng-click="user.showEdit = false">Cancel</button>
                         </div>
                     </div>
                 </div>
