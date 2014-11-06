@@ -66,7 +66,7 @@ public class BulkUserCreateTest {
     @Rollback(false)
     //@Ignore
     public void test02BulkObservationCreate() {
-        Long observationsToCreate = 720L;
+        Long observationsToCreate = 500L;
         Long usersToInsertObservations = 1L;
         Date start = new Date();
 

@@ -34,30 +34,33 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByEmail(String email);
 
-    @Query("SELECT DISTINCT u " +
+    @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
-           "LEFT JOIN u.identifiers i " +
-           "WHERE gr.role.id IN :roleIds AND gr.group.id IN :groupIds " +
+           "JOIN u.identifiers i " +
+           "WHERE gr.role.id IN :roleIds " +
+           "AND gr.group.id IN :groupIds " +
            "AND ((UPPER(u.username) LIKE :filterText) " +
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText) " +
-           "OR (UPPER(i.identifier) LIKE :filterText)) ")
+           "OR (UPPER(i.identifier) LIKE :filterText)) " +
+            "GROUP BY u.id")
     Page<User> findByGroupsRoles(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
                                  Pageable pageable);
 
-    @Query("SELECT DISTINCT u " +
+    @Query("SELECT u " +
             "FROM User u " +
             "JOIN u.groupRoles gr " +
             "JOIN u.userFeatures uf " +
             "WHERE gr.group = :userGroup " +
-            "AND uf.feature = :feature")
+            "AND uf.feature = :feature " +
+            "GROUP BY u.id")
     List<User> findByGroupAndFeature(@Param("userGroup") Group userGroup, @Param("feature") Feature feature);
 
-    @Query("SELECT DISTINCT u " +
+    @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
            "LEFT JOIN u.identifiers i " +
@@ -70,7 +73,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText) " +
-           "OR (UPPER(i.identifier) LIKE :filterText)) ")
+           "OR (UPPER(i.identifier) LIKE :filterText)) " +
+            "GROUP BY u.id")
     Page<User> findByGroupsRolesFeatures(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
