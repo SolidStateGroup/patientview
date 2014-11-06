@@ -32,6 +32,7 @@ import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -560,7 +561,31 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             filterText = "%" + filterText.toUpperCase() + "%";
         }
 
-        Page<User> users = userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
+        // isolate into either staff, patient or both queries (staff or patient much quicker as no outer join)
+        boolean staff = false;
+        boolean patient = false;
+
+        for (Long role : roleIds) {
+            if (roleRepository.findOne(role).getRoleType().getValue().equals(RoleType.STAFF)) {
+                staff = true;
+            } else if (roleRepository.findOne(role).getRoleType().getValue().equals(RoleType.PATIENT)) {
+                patient = true;
+            }
+        }
+
+        Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
+
+        if (staff && patient) {
+            users = userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
+        }
+
+        if (!staff && patient) {
+            users = userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds, pageable);
+        }
+
+        if (staff && !patient) {
+            users = userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds, pageable);
+        }
 
         // convert to lightweight transport objects, create Page and return
         List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(users.getContent());

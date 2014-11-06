@@ -52,6 +52,39 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  Pageable pageable);
 
     @Query("SELECT u " +
+           "FROM User u " +
+           "JOIN u.groupRoles gr " +
+           "JOIN u.identifiers i " +
+           "WHERE gr.role.id IN :roleIds " +
+           "AND gr.group.id IN :groupIds " +
+           "AND ((UPPER(u.username) LIKE :filterText) " +
+           "OR (UPPER(u.forename) LIKE :filterText) " +
+           "OR (UPPER(u.surname) LIKE :filterText) " +
+           "OR (UPPER(u.email) LIKE :filterText) " +
+           "OR (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :filterText))) " +
+            "GROUP BY u.id")
+    Page<User> findPatientByGroupsRoles(@Param("filterText") String filterText,
+                                 @Param("groupIds") List<Long> groupIds,
+                                 @Param("roleIds") List<Long> roleIds,
+                                 Pageable pageable);
+
+
+    @Query("SELECT u " +
+           "FROM User u " +
+           "JOIN u.groupRoles gr " +
+           "WHERE gr.role.id IN :roleIds " +
+           "AND gr.group.id IN :groupIds " +
+           "AND ((UPPER(u.username) LIKE :filterText) " +
+           "OR (UPPER(u.forename) LIKE :filterText) " +
+           "OR (UPPER(u.surname) LIKE :filterText) " +
+           "OR (UPPER(u.email) LIKE :filterText)) " +
+            "GROUP BY u.id")
+    Page<User> findStaffByGroupsRoles(@Param("filterText") String filterText,
+                                 @Param("groupIds") List<Long> groupIds,
+                                 @Param("roleIds") List<Long> roleIds,
+                                 Pageable pageable);
+
+    @Query("SELECT u " +
             "FROM User u " +
             "JOIN u.groupRoles gr " +
             "JOIN u.userFeatures uf " +
