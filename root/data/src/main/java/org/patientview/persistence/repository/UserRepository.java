@@ -37,7 +37,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
-           "JOIN u.identifiers i " +
+           "LEFT JOIN u.identifiers i " +
            "WHERE gr.role.id IN :roleIds " +
            "AND gr.group.id IN :groupIds " +
            "AND ((UPPER(u.username) LIKE :filterText) " +
