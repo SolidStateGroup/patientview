@@ -274,23 +274,29 @@ function ($scope, UserService, IdentifierService) {
 
     $scope.removeIdentifier = function (form, user, identifier) {
         if ($scope.editMode) {
-            IdentifierService.remove(identifier).then(function () {
 
-                // update accordion header with data from GET
-                UserService.get(user.id).then(function (successResult) {
-                    for(var i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id === user.id) {
-                            var headerDetails = $scope.pagedItems[i];
-                            headerDetails.identifiers = successResult.identifiers;
+            // must always have at least one identifier
+            if (user.identifiers.length < 2) {
+                alert("Must have at least one identifier");
+            } else {
+                IdentifierService.remove(identifier).then(function () {
+
+                    // update accordion header with data from GET
+                    UserService.get(user.id).then(function (successResult) {
+                        for (var i = 0; i < $scope.pagedItems.length; i++) {
+                            if ($scope.pagedItems[i].id === user.id) {
+                                var headerDetails = $scope.pagedItems[i];
+                                headerDetails.identifiers = successResult.identifiers;
+                            }
                         }
-                    }
-                    user.identifiers = successResult.identifiers;
-                }, function () {
-                    alert('Error updating header (saved successfully)');
+                        user.identifiers = successResult.identifiers;
+                    }, function () {
+                        alert('Error updating header (saved successfully)');
+                    });
+                }, function (failure) {
+                    alert('Error deleting identifier: ' + failure.data);
                 });
-            }, function (failure) {
-                alert('Error deleting identifier: ' + failure.data);
-            });
+            }
         } else {
             for (i = 0; i < user.identifiers.length; i++) {
                 if (user.identifiers[i].id === identifier.id) {

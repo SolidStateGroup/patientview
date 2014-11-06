@@ -22,7 +22,10 @@
                 <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
-                <button class="btn btn-primary" data-ng-click="create()" data-ng-show="!existingUser" data-ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0) || (!editUser.identifiers || editUser.identifiers.length == 0)">Create New</button>
+                <button class="btn btn-primary" data-ng-click="create()" data-ng-show="!existingUser"
+                        data-ng-disabled="!userFormNew.$valid
+                        || (!editUser.groupRoles || editUser.groupRoles.length == 0)
+                        || (!editUser.identifiers || editUser.identifiers.length == 0)">Create New</button>
             </div>
         </script>
 
