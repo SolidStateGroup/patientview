@@ -56,8 +56,10 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -565,10 +567,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean staff = false;
         boolean patient = false;
 
-        for (Long role : roleIds) {
-            if (roleRepository.findOne(role).getRoleType().getValue().equals(RoleType.STAFF)) {
+        List<Role> allRoles = Util.convertIterable(roleRepository.findAll());
+        Map<Long, Role> roleMap = new HashMap<>();
+        for (Role role : allRoles) {
+            roleMap.put(role.getId(), role);
+        }
+
+        for (Long roleId : roleIds) {
+            if (roleMap.get(roleId).getRoleType().getValue().equals(RoleType.STAFF)) {
                 staff = true;
-            } else if (roleRepository.findOne(role).getRoleType().getValue().equals(RoleType.PATIENT)) {
+            } else if (roleMap.get(roleId).getRoleType().getValue().equals(RoleType.PATIENT)) {
                 patient = true;
             }
         }
