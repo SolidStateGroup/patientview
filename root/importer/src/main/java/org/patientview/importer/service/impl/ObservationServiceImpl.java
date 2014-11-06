@@ -61,8 +61,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         LOG.info("Getting Existing Observations");
         List<BasicObservation> observations = getBasicObservationBySubjectId(fhirLink.getResourceId());
 
-        // delete existing observations between dates in <test><daterange>
-        LOG.info("Deleting Existing Observations in date ranges");
+        // delete existing observations
+        LOG.info("Deleting Existing Observations");
+
         for (BasicObservation observation : observations) {
             String code = observation.getCode();
             UUID uuid = observation.getLogicalId();
@@ -74,6 +75,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                 Patientview.Patient.Testdetails.Test.Daterange daterange
                         = observationsBuilder.getDateRanges().get(code);
 
+                // between dates in <test><daterange>
                 if (daterange != null) {
                     DateRange convertedDateRange = new DateRange(daterange);
 
@@ -83,8 +85,10 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                 }
             }
 
-            // if observation is NonTestObservationType.BLOOD_GROUP then delete
-            if (code.equals(NonTestObservationTypes.BLOOD_GROUP.toString())) {
+            // if observation is NonTestObservationType.BLOOD_GROUP, PTPULSE, DPPULSE then delete
+            if (code.equals(NonTestObservationTypes.BLOOD_GROUP.toString())
+                    || code.equals(NonTestObservationTypes.PTPULSE.toString())
+                    || code.equals(NonTestObservationTypes.DPPULSE.toString())) {
                 fhirResource.delete(uuid, ResourceType.Observation);
             }
         }
@@ -95,7 +99,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         for (Observation observation : observationsBuilder.getObservations()) {
             LOG.trace("Creating... observation " + count);
             try {
-                // only add observations within daterange
+                // only add observations within daterange or those without a daterange (non test observation type)
                 Patientview.Patient.Testdetails.Test.Daterange daterange
                         = observationsBuilder.getDateRanges().get(observation.getIdentifier()
                             .getValueSimple().toUpperCase());
@@ -107,6 +111,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     if (applies.after(convertedDateRange.getStart()) && applies.before(convertedDateRange.getEnd())) {
                         fhirResource.create(observation);
                     }
+                } else {
+                    fhirResource.create(observation);
                 }
             } catch (FhirResourceException e) {
                 LOG.error("Unable to build observation {} " + e.getCause());

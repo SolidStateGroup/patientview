@@ -11,7 +11,6 @@ import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -22,14 +21,11 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
-import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
-import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.GroupTypes;
-import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -535,6 +531,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters) {
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
+
+        // TODO: security
+        // check if any groupIds are not in allowed list of groups
+        //if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+        //    return true;
+        //}
+
+
         List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
         String size = getParameters.getSize();
         String page = getParameters.getPage();

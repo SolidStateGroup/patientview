@@ -15,6 +15,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -78,6 +79,105 @@ public class ObservationsBuilder {
                 LOG.error("Invalid data in XML: " + e.getMessage());
             }
         }
+
+        // build from foot checkup
+        if (!CollectionUtils.isEmpty(results.getPatient().getFootcheckup())) {
+            for (Patientview.Patient.Footcheckup footcheckup : results.getPatient().getFootcheckup()) {
+                observations.addAll(createFootcheckupObservations(footcheckup));
+            }
+        }
+    }
+
+    private class FootData {
+        private String side;
+        private String type;
+        private String value;
+
+        public FootData() {
+
+        }
+
+        public String getSide() {
+            return side;
+        }
+
+        public void setSide(String side) {
+            this.side = side;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    // one observation per side dppulse or ptpulse so expect 4 per footcheckup
+    private List<Observation> createFootcheckupObservations(Patientview.Patient.Footcheckup footcheckup) {
+
+        List<Observation> observations = new ArrayList<>();
+        List<FootData> footDatas = new ArrayList<>();
+
+        for (Patientview.Patient.Footcheckup.Foot foot : footcheckup.getFoot()) {
+            String side = foot.getSide();
+            FootData footData = new FootData();
+
+            footData.setSide(side);
+
+            if (foot.getDppulse() != null) {
+                footData.setValue(foot.getDppulse());
+                footData.setType(NonTestObservationTypes.DPPULSE.toString());
+            }
+
+            if (foot.getPtpulse() != null) {
+                footData.setValue(foot.getPtpulse());
+                footData.setType(NonTestObservationTypes.PTPULSE.toString());
+            }
+
+            footDatas.add(footData);
+        }
+
+        for (FootData footData : footDatas) {
+            Observation observation = new Observation();
+
+            DateTime applies = new DateTime();
+            DateAndTime dateAndTime = new DateAndTime(footcheckup.getDatestamp().toGregorianCalendar().getTime());
+            applies.setValue(dateAndTime);
+            observation.setApplies(applies);
+
+            observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+            observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+            CodeableConcept bodySite = new CodeableConcept();
+            bodySite.setTextSimple(footData.getSide());
+            observation.setBodySite(bodySite);
+
+            CodeableConcept value = new CodeableConcept();
+            value.setTextSimple(footData.getValue());
+            observation.setValue(value);
+
+            Identifier identifier = new Identifier();
+            identifier.setValueSimple(footData.getType());
+            observation.setIdentifier(identifier);
+
+            CodeableConcept name = new CodeableConcept();
+            name.setTextSimple(footData.getType());
+            observation.setName(name);
+
+            observations.add(observation);
+        }
+
+        return observations;
     }
 
     private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result)

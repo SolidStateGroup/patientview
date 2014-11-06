@@ -264,6 +264,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // set patientview1 id
                 migrationUser.setPatientview1Id(time);
 
+                // todo: eye and foot checkup observations
+
                 // add comment Observation (comment table in pv1), attach to group (not present in pv1)
                 FhirObservation comment = new FhirObservation();
                 comment.setValue("a patient entered comment about my results");

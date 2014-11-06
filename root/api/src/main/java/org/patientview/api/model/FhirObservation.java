@@ -18,6 +18,7 @@ public class FhirObservation {
     private String comments;
     private BaseGroup group;
     private String temporaryUuid;
+    private String bodySite;
 
     public FhirObservation() {
     }
@@ -33,6 +34,7 @@ public class FhirObservation {
         if (fhirObservation.getGroup() != null) {
             this.group = new BaseGroup(fhirObservation.getGroup());
         }
+        this.bodySite = fhirObservation.getBodySite();
     }
 
     public Long getId() {
@@ -65,5 +67,9 @@ public class FhirObservation {
 
     public String getTemporaryUuid() {
         return temporaryUuid;
+    }
+
+    public String getBodySite() {
+        return bodySite;
     }
 }

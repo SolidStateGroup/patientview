@@ -213,5 +213,79 @@ Increased due to infection </drugdose>
             <diagnosticdate>2014-08-09T15:58:25</diagnosticdate>
         </diagnostic>
     </diagnostics>
+    <footcheckup>
+        <datestamp>2007-07-26</datestamp>
+        <foot side="left">
+            <ptpulse>O/E - L.post.tib.pulse present</ptpulse>
+        </foot>
+        <foot side="left">
+            <dppulse>O/E - L.dorsalis pedis present</dppulse>
+        </foot>
+        <foot side="right">
+            <dppulse>O/E - R.dorsalis pedis present</dppulse>
+        </foot>
+        <foot side="right">
+            <ptpulse>O/E - R.post.tib.pulse present</ptpulse>
+        </foot>
+    </footcheckup>
+    <footcheckup>
+        <datestamp>2008-10-16</datestamp>
+        <foot side="left">
+            <ptpulse>O/E - L.post.tib.pulse present</ptpulse>
+        </foot>
+        <foot side="left">
+            <dppulse>O/E - L.dorsalis pedis present</dppulse>
+        </foot>
+        <foot side="right">
+            <dppulse>O/E - R.dorsalis pedis present</dppulse>
+        </foot>
+        <foot side="right">
+            <ptpulse>O/E - R.post.tib.pulse present</ptpulse>
+        </foot>
+    </footcheckup>
+    <footcheckup>
+        <datestamp>2011-03-25</datestamp>
+        <foot side="left">
+            <ptpulse>O/E - L.post.tib.pulse present</ptpulse>
+        </foot>
+        <foot side="left">
+            <dppulse>O/E - L.dorsalis pedis present</dppulse>
+        </foot>
+        <foot side="right">
+            <dppulse>O/E - R.dorsalis pedis present</dppulse>
+        </foot>
+        <foot side="right">
+            <ptpulse>O/E - R.post.tib.pulse present</ptpulse>
+        </foot>
+    </footcheckup>
+    <footcheckup>
+        <datestamp>2013-02-01</datestamp>
+        <foot side="left">
+            <ptpulse>O/E - L.post.tib.pulse present</ptpulse>
+        </foot>
+        <foot side="left">
+            <dppulse>O/E - L.dorsalis pedis present</dppulse>
+        </foot>
+        <foot side="right">
+            <dppulse>O/E - R.dorsalis pedis present</dppulse>
+        </foot>
+        <foot side="right">
+            <ptpulse>O/E - R.post.tib.pulse present</ptpulse>
+        </foot>
+    </footcheckup>
+    <eyecheckup>
+        <datestamp>2014-03-05</datestamp>
+        <location>GP Surgery</location>
+        <eye side="left">
+            <rgrade>Rx</rgrade>
+            <mgrade>Mx</mgrade>
+            <va>6/x</va>
+        </eye>
+        <eye side="right">
+            <rgrade>Rx</rgrade>
+            <mgrade>Mx</mgrade>
+            <va>6/x</va>
+        </eye>
+    </eyecheckup>
 </patient>
 </patientview>

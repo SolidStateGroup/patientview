@@ -9,6 +9,8 @@ package org.patientview.persistence.model.enums;
  */
 public enum NonTestObservationTypes {
     BLOOD_GROUP("Blood Group"),
+    PTPULSE("Foot Checkup: ptpulse"),
+    DPPULSE("Foot Checkup: dppulse"),
     DIAGNOSTIC_RESULT("Diagnostic Result");
 
     private String name;

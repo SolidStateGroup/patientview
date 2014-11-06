@@ -27,6 +27,7 @@ public class FhirObservation extends BaseModel {
     private String comparator;
     private Group group;
     private String temporaryUuid;
+    private String bodySite;
 
     // only used by migration
     private String identifier;
@@ -75,6 +76,10 @@ public class FhirObservation extends BaseModel {
             DateAndTime date = applies.getValue();
             setApplies(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
                     date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+        }
+
+        if (observation.getBodySite() != null) {
+            setBodySite(observation.getBodySite().getTextSimple());
         }
     }
 
@@ -132,6 +137,14 @@ public class FhirObservation extends BaseModel {
 
     public void setTemporaryUuid(String temporaryUuid) {
         this.temporaryUuid = temporaryUuid;
+    }
+
+    public String getBodySite() {
+        return bodySite;
+    }
+
+    public void setBodySite(String bodySite) {
+        this.bodySite = bodySite;
     }
 
     public String getIdentifier() {
