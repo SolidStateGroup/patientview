@@ -54,10 +54,18 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             else if ((month === 2) && ((year % 100) === 0) && (day > 29)) {
                 return false;
             }
+
+            // validate leap years (more robust)
+            var input = new Date(month+"/"+day+"/"+year);
+            if (month !== input.getMonth()+1) {
+                return false;
+            }
+
             return true;
         },
 
         validationDateNoFuture: function (day, month, year) {
+
 
             if (day === undefined || month === undefined || year === undefined) {
                 return false;
@@ -87,9 +95,13 @@ angular.module('patientviewApp').factory('UtilService', [function () {
                 return false;
             }
 
-            var now = new Date();
+            // validate leap years (more robust)
             var input = new Date(month+"/"+day+"/"+year);
+            if (month !== input.getMonth()+1) {
+                return false;
+            }
 
+            var now = new Date();
             return now.getTime() > input.getTime();
         },
 
