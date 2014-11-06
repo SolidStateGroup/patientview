@@ -34,15 +34,14 @@ public class BulkUserCreateTest {
     protected final Logger LOG = LoggerFactory.getLogger(BulkUserCreateTest.class);
 
     /**
-     * Order(1) Bulk create users give group and number of users
+     * Order(1) Bulk create users given 2 groups and number of users
      */
     @Test
     @Transactional
     @Rollback(false)
-    //@Ignore
+    @Ignore
     public void test01BulkUserCreate() {
-        Long usersToCreate = 5000L;
-        Long observationsToCreate = 100L;
+        Long usersToCreate = 10L;
         Date start = new Date();
         RoleName role = RoleName.PATIENT;
 
@@ -52,29 +51,30 @@ public class BulkUserCreateTest {
         //-Durl=http://staging.patientview.org/api
 
         // takes group to add users to and number of users to create
-        //userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role, observationsToCreate);
-        userDataMigrationService.bulkUserCreate("RW402", "SAC02", usersToCreate, role, observationsToCreate);
+        userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role);
+        //userDataMigrationService.bulkUserCreate("RW402", "SAC02", usersToCreate, role);
 
-        //userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", observationsToCreate);
-
-        LOG.info("Submission of " + usersToCreate + " "  + role.toString() + " with " + observationsToCreate
-                + " Observations took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+        LOG.info("Submission of " + usersToCreate + " "  + role.toString()
+                + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
     }
 
     /**
-     * Order(2) Bulk create users give group and number of users
+     * Order(2) Bulk create observations for existing users with PATIENT_MIGRATED or OBSERVATION_FAILED
      */
     @Test
     @Transactional
     @Rollback(false)
-    @Ignore
+    //@Ignore
     public void test02BulkObservationCreate() {
         Long observationsToCreate = 720L;
+        Long usersToInsertObservations = 1L;
         Date start = new Date();
 
-        userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", observationsToCreate);
+        //userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
+        userDataMigrationService.bulkObservationCreate("RW402", "SAC02", usersToInsertObservations, observationsToCreate);
 
-        LOG.info("Submission of " + observationsToCreate + " Observations per incomplete patient took "
+        LOG.info("Submission of " + usersToInsertObservations + " patients with "
+                + observationsToCreate + " Observations per incomplete patient took "
                 + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
     }
 
