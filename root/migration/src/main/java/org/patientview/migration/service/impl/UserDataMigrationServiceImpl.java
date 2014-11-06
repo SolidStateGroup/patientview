@@ -270,7 +270,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 migrationUser.setObservationEndDate(now);
 
                 // add Observations / results (of type observationName)
-                for (int j = 0; j < observationCount; j++) {
+                /*for (int j = 0; j < observationCount; j++) {
                     FhirObservation observation = new FhirObservation();
                     observation.setValue(String.valueOf(j));
                     observation.setApplies(new Date(time - (j*month)));
@@ -287,7 +287,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                     observation.setIdentifier(time.toString());
                     migrationUser.getObservations().add(observation);
-                }
+                }*/
 
                 // add comment Observation (comment table in pv1), attach to group (not present in pv1)
                 FhirObservation comment = new FhirObservation();

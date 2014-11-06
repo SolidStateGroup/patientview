@@ -39,9 +39,9 @@ public class BulkUserCreateTest {
     @Test
     @Transactional
     @Rollback(false)
-    @Ignore
+    //@Ignore
     public void test01BulkUserCreate() {
-        Long usersToCreate = 10L;
+        Long usersToCreate = 5000L;
         Long observationsToCreate = 100L;
         Date start = new Date();
         RoleName role = RoleName.PATIENT;
@@ -52,8 +52,8 @@ public class BulkUserCreateTest {
         //-Durl=http://staging.patientview.org/api
 
         // takes group to add users to and number of users to create
-        userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role, observationsToCreate);
-        //userDataMigrationService.bulkUserCreate("RW402", "SAC02", usersToCreate, role, observationsToCreate);
+        //userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role, observationsToCreate);
+        userDataMigrationService.bulkUserCreate("RW402", "SAC02", usersToCreate, role, observationsToCreate);
 
         //userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", observationsToCreate);
 
@@ -67,13 +67,14 @@ public class BulkUserCreateTest {
     @Test
     @Transactional
     @Rollback(false)
+    @Ignore
     public void test02BulkObservationCreate() {
-        Long observationsToCreate = 1L;
+        Long observationsToCreate = 720L;
         Date start = new Date();
 
         userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", observationsToCreate);
 
-        LOG.info("Submission of " + observationsToCreate + " Observations for PATIENT_MIGRATED rows took "
+        LOG.info("Submission of " + observationsToCreate + " Observations per incomplete patient took "
                 + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
     }
 
