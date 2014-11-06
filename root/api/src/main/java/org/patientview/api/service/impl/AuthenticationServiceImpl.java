@@ -42,6 +42,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -170,8 +174,15 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         user.setFailedLogonAttempts(0);
         user.setLastLogin(new Date());
-        user.setLastLoginIpAddress(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-                .getRequest().getRemoteAddr());
+
+        // set last login from Amazon, or servlet if error
+        try {
+            user.setLastLoginIpAddress(getIp());
+        } catch (Exception e) {
+            user.setLastLoginIpAddress(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                    .getRequest().getRemoteAddr());
+        }
+
         userRepository.save(user);
 
         return userToken.getToken();
@@ -193,8 +204,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // delete all user tokens associated with this user (should only ever be one per user)
         userTokenRepository.deleteByUserId(userToken.getUser().getId());
-        //userTokenRepository.delete(userToken.getId());
-
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
@@ -273,6 +282,25 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             } else {
                 userTokenRepository.setExpiration(authToken, future);
                 return false;
+            }
+        }
+    }
+
+    private static String getIp() throws Exception {
+        URL whatismyip = new URL("http://checkip.amazonaws.com");
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(
+                    whatismyip.openStream()));
+            String ip = in.readLine();
+            return ip;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
