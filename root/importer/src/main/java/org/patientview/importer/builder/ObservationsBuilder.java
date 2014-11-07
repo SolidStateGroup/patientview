@@ -83,7 +83,10 @@ public class ObservationsBuilder {
         // build from foot checkup
         if (!CollectionUtils.isEmpty(results.getPatient().getFootcheckup())) {
             for (Patientview.Patient.Footcheckup footcheckup : results.getPatient().getFootcheckup()) {
-                observations.addAll(createFootcheckupObservations(footcheckup));
+                List<Observation> footObservations = createFootcheckupObservations(footcheckup);
+                if (footObservations != null) {
+                    observations.addAll(footObservations);
+                }
             }
         }
     }
@@ -125,59 +128,66 @@ public class ObservationsBuilder {
     // one observation per side dppulse or ptpulse so expect 4 per footcheckup
     private List<Observation> createFootcheckupObservations(Patientview.Patient.Footcheckup footcheckup) {
 
-        List<Observation> observations = new ArrayList<>();
-        List<FootData> footDatas = new ArrayList<>();
+        // only proceed if correct timestamp
+        if (footcheckup.getDatestamp() != null) {
 
-        for (Patientview.Patient.Footcheckup.Foot foot : footcheckup.getFoot()) {
-            String side = foot.getSide();
-            FootData footData = new FootData();
+            List<Observation> observations = new ArrayList<>();
+            List<FootData> footDatas = new ArrayList<>();
 
-            footData.setSide(side);
+            for (Patientview.Patient.Footcheckup.Foot foot : footcheckup.getFoot()) {
+                String side = foot.getSide();
+                FootData footData = new FootData();
 
-            if (foot.getDppulse() != null) {
-                footData.setValue(foot.getDppulse());
-                footData.setType(NonTestObservationTypes.DPPULSE.toString());
+                footData.setSide(side);
+
+                if (foot.getDppulse() != null) {
+                    footData.setValue(foot.getDppulse());
+                    footData.setType(NonTestObservationTypes.DPPULSE.toString());
+                }
+
+                if (foot.getPtpulse() != null) {
+                    footData.setValue(foot.getPtpulse());
+                    footData.setType(NonTestObservationTypes.PTPULSE.toString());
+                }
+
+                footDatas.add(footData);
             }
 
-            if (foot.getPtpulse() != null) {
-                footData.setValue(foot.getPtpulse());
-                footData.setType(NonTestObservationTypes.PTPULSE.toString());
+            for (FootData footData : footDatas) {
+                Observation observation = new Observation();
+
+                DateTime applies = new DateTime();
+                DateAndTime dateAndTime = new DateAndTime(footcheckup.getDatestamp().toGregorianCalendar().getTime());
+                applies.setValue(dateAndTime);
+                observation.setApplies(applies);
+
+                observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+                observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+                CodeableConcept bodySite = new CodeableConcept();
+                bodySite.setTextSimple(footData.getSide());
+                observation.setBodySite(bodySite);
+
+                CodeableConcept value = new CodeableConcept();
+                value.setTextSimple(footData.getValue());
+                observation.setValue(value);
+
+                Identifier identifier = new Identifier();
+                identifier.setValueSimple(footData.getType());
+                observation.setIdentifier(identifier);
+
+                CodeableConcept name = new CodeableConcept();
+                name.setTextSimple(footData.getType());
+                observation.setName(name);
+
+                observations.add(observation);
             }
 
-            footDatas.add(footData);
+            return observations;
+        } else {
+            return null;
         }
 
-        for (FootData footData : footDatas) {
-            Observation observation = new Observation();
-
-            DateTime applies = new DateTime();
-            DateAndTime dateAndTime = new DateAndTime(footcheckup.getDatestamp().toGregorianCalendar().getTime());
-            applies.setValue(dateAndTime);
-            observation.setApplies(applies);
-
-            observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
-            observation.setStatusSimple(Observation.ObservationStatus.registered);
-
-            CodeableConcept bodySite = new CodeableConcept();
-            bodySite.setTextSimple(footData.getSide());
-            observation.setBodySite(bodySite);
-
-            CodeableConcept value = new CodeableConcept();
-            value.setTextSimple(footData.getValue());
-            observation.setValue(value);
-
-            Identifier identifier = new Identifier();
-            identifier.setValueSimple(footData.getType());
-            observation.setIdentifier(identifier);
-
-            CodeableConcept name = new CodeableConcept();
-            name.setTextSimple(footData.getType());
-            observation.setName(name);
-
-            observations.add(observation);
-        }
-
-        return observations;
     }
 
     private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result)

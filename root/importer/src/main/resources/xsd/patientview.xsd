@@ -389,7 +389,7 @@
                             <xs:element maxOccurs="unbounded" minOccurs="0" name="footcheckup">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element maxOccurs="1" minOccurs="1" name="datestamp" type="xs:dateTime"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="datestamp" type="xs:date"/>
                                         <xs:element maxOccurs="unbounded" minOccurs="1" name="foot">
                                             <xs:complexType>
                                                 <xs:sequence>
