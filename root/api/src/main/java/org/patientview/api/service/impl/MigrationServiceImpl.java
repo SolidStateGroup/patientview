@@ -143,13 +143,16 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 throw new MigrationException("Must migrate user and patient before observations");
             }
 
-            // only continue to migrate observations is successfully migrated patient data
+            // only continue to migrate observations if successfully migrated patient data or failed previously
             if (!(userMigration.getStatus().equals(MigrationStatus.PATIENT_MIGRATED)
                     || userMigration.getStatus().equals(MigrationStatus.OBSERVATIONS_FAILED)
                     || userMigration.getStatus().equals(MigrationStatus.OBSERVATIONS_MIGRATED)
             )) {
                 throw new MigrationException("Cannot migrate observation data if previously failed to migrate " +
-                        "patient data or already migrating observation data");
+                        "patient data or already migrating observation data. Status: "
+                        + userMigration.getStatus().toString() + ", PatientView1 ID: "
+                        + userMigration.getPatientview1UserId() + ", PatientView2 ID: "
+                        + userMigration.getPatientview2UserId());
             }
 
             userMigration.setLastUpdater(getCurrentUser());
