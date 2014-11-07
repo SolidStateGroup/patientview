@@ -211,12 +211,18 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
+    // ignore DIAGNOSTIC_RESULT
     private org.patientview.api.model.Patient setNonTestObservations(org.patientview.api.model.Patient patient,
                                                             FhirLink fhirLink) {
         try {
+            List<String> nonTestTypes = new ArrayList<>();
             for (NonTestObservationTypes observationType : NonTestObservationTypes.class.getEnumConstants()) {
-                patient.getFhirObservations().addAll(observationService.getByFhirLinkAndCode(fhirLink, observationType.toString()));
+                if(!observationType.equals(NonTestObservationTypes.DIAGNOSTIC_RESULT)) {
+                    nonTestTypes.add(observationType.toString());
+                }
             }
+            patient.getFhirObservations().addAll(observationService.getByFhirLinkAndCodes(fhirLink, nonTestTypes));
+
         } catch (ResourceNotFoundException | FhirResourceException e) {
             LOG.error("Error setting non test observations: " + e.getMessage());
         }

@@ -143,7 +143,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     }
 
     @Override
-    public List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCode(final FhirLink fhirLink, final String code)
+    public List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCodes(final FhirLink fhirLink, final List<String> codes)
             throws ResourceNotFoundException, FhirResourceException {
 
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
@@ -155,10 +155,20 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         query.append(fhirLink.getResourceId().toString());
         query.append("\", \"reference\": \"uuid\"}' ");
 
-        if (StringUtils.isNotEmpty(code)) {
-            query.append("AND content-> 'name' ->> 'text' = '");
-            query.append(code);
-            query.append("' ");
+        if (!codes.isEmpty()) {
+            query.append("AND content-> 'name' ->> 'text' IN (");
+
+            for (int i = 0; i < codes.size(); i++) {
+
+                query.append("'");
+                query.append(codes.get(i));
+                query.append("' ");
+
+                if(i != codes.size()-1) {
+                    query.append(",");
+                }
+            }
+            query.append(") ");
         }
 
         List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
