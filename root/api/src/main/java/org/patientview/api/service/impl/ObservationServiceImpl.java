@@ -142,6 +142,41 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         return fhirObservations;
     }
 
+    @Override
+    public List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCode(final FhirLink fhirLink, final String code)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
+
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT  content::varchar ");
+        query.append("FROM    observation ");
+        query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+        query.append(fhirLink.getResourceId().toString());
+        query.append("\", \"reference\": \"uuid\"}' ");
+
+        if (StringUtils.isNotEmpty(code)) {
+            query.append("AND content-> 'name' ->> 'text' = '");
+            query.append(code);
+            query.append("' ");
+        }
+
+        List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
+
+        // convert to transport observations
+        for (Observation observation : observations) {
+            FhirObservation fhirObservation = new FhirObservation(observation);
+            Group fhirGroup = fhirLink.getGroup();
+            if (fhirGroup != null) {
+                fhirObservation.setGroup(fhirGroup);
+            }
+            fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
+        }
+
+
+        return fhirObservations;
+    }
+
     // gets all latest observations in single query per fhirlink
     private Map<String, FhirObservation> getLastObservations(final Long userId)
             throws ResourceNotFoundException, FhirResourceException {

@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Address;
 import org.hl7.fhir.instance.model.CodeableConcept;
+import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DiagnosticReport;
@@ -54,6 +55,7 @@ import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
@@ -170,13 +172,21 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     }
 
                     org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
-                            fhirPractitioner, fhirLink.getGroup(), conditionService.get(fhirLink.getResourceId()));
+                            fhirPractitioner, fhirLink.getGroup());
+
+                    // set conditions
+                    patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
 
                     // set encounters
                     patient.getFhirEncounters().addAll(setEncounters(fhirLink.getResourceId()));
 
                     // set edta diagnosis if present based on available codes
-                    patients.add(setDiagnosisCodes(patient));
+                    patient = setDiagnosisCodes(patient);
+
+                    // set non test observations
+                    patient = setNonTestObservations(patient, fhirLink);
+
+                    patients.add(patient);
                 }
             }
         }
@@ -199,6 +209,28 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         } catch (Exception e) {
             throw new FhirResourceException(e);
         }
+    }
+
+    private org.patientview.api.model.Patient setNonTestObservations(org.patientview.api.model.Patient patient,
+                                                            FhirLink fhirLink) {
+        try {
+            for (NonTestObservationTypes observationType : NonTestObservationTypes.class.getEnumConstants()) {
+                patient.getFhirObservations().addAll(observationService.getByFhirLinkAndCode(fhirLink, observationType.toString()));
+            }
+        } catch (ResourceNotFoundException | FhirResourceException e) {
+            LOG.error("Error setting non test observations: " + e.getMessage());
+        }
+
+        return patient;
+    }
+
+    private org.patientview.api.model.Patient setConditions(org.patientview.api.model.Patient patient,
+                                                            List<Condition> conditions) {
+        for(Condition condition : conditions) {
+            patient.getFhirConditions().add(new FhirCondition(condition));
+        }
+
+        return patient;
     }
 
     private org.patientview.api.model.Patient setDiagnosisCodes(org.patientview.api.model.Patient patient) {

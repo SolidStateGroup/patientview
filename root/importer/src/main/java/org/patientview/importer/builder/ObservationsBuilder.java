@@ -180,6 +180,8 @@ public class ObservationsBuilder {
                 name.setTextSimple(footData.getType());
                 observation.setName(name);
 
+                observation.setSubject(resourceReference);
+
                 observations.add(observation);
             }
 

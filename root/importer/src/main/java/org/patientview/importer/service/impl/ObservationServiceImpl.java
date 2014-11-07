@@ -156,23 +156,28 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
             while ((results.next())) {
 
-                // ignore results with no applies (DIAGNOSTIC_RESULT etc)
-                if (StringUtils.isNotEmpty(results.getString(2))) {
+                // remove timezone and parse date
+                try {
+                    String codeString = results.getString(3).replace("\"", "");
 
-                    // remove timezone and parse date
-                    try {
-                        String dateString = results.getString(2).replace("\"", "");
-                        String codeString = results.getString(3).replace("\"", "");
-                        XMLGregorianCalendar xmlDate
-                                = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
-                        Date applies = xmlDate.toGregorianCalendar().getTime();
+                    // ignore DIAGNOSTIC_RESULT
+                    if(!codeString.equals(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString())) {
+
+                        Date applies = null;
+
+                        if (StringUtils.isNotEmpty(results.getString(2))) {
+                            String dateString = results.getString(2).replace("\"", "");
+                            XMLGregorianCalendar xmlDate
+                                    = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
+                            applies = xmlDate.toGregorianCalendar().getTime();
+                        }
 
                         observations.add(new BasicObservation(
                                 UUID.fromString(results.getString(1)), applies, codeString));
-
-                    } catch (DatatypeConfigurationException e) {
-                        LOG.error(e.getMessage());
                     }
+
+                } catch (DatatypeConfigurationException e) {
+                    LOG.error(e.getMessage());
                 }
             }
 

@@ -18,18 +18,20 @@ import java.util.List;
  */
 public class Patient extends BaseModel {
 
-    private List<FhirCondition> fhirConditions;
+    private List<FhirCondition> fhirConditions = new ArrayList<>();
     private FhirPatient fhirPatient;
     private FhirPractitioner fhirPractitioner;
     private Group group;
-    private List<Code> diagnosisCodes;
-    private List<FhirEncounter> fhirEncounters;
+    private List<Code> diagnosisCodes = new ArrayList<>();
+    private List<FhirEncounter> fhirEncounters = new ArrayList<>();
+    private List<FhirObservation> fhirObservations = new ArrayList<>();
 
     public Patient() {
     }
 
     public Patient(org.hl7.fhir.instance.model.Patient patient, Practitioner practitioner,
-                   org.patientview.persistence.model.Group group, List<Condition> conditions) {
+                   org.patientview.persistence.model.Group group) {
+
         setFhirPatient(new FhirPatient(patient));
         if (practitioner != null) {
             setFhirPractitioner(new FhirPractitioner(practitioner));
@@ -37,14 +39,6 @@ public class Patient extends BaseModel {
             setFhirPractitioner(new FhirPractitioner());
         }
         setGroup(new Group(group));
-
-        setFhirConditions(new ArrayList<FhirCondition>());
-        for (Condition condition : conditions) {
-            getFhirConditions().add(new FhirCondition(condition));
-        }
-
-        setDiagnosisCodes(new ArrayList<Code>());
-        setFhirEncounters(new ArrayList<FhirEncounter>());
     }
 
     public FhirPatient getFhirPatient() {
@@ -93,5 +87,13 @@ public class Patient extends BaseModel {
 
     public void setFhirEncounters(List<FhirEncounter> fhirEncounters) {
         this.fhirEncounters = fhirEncounters;
+    }
+
+    public List<FhirObservation> getFhirObservations() {
+        return fhirObservations;
+    }
+
+    public void setFhirObservations(List<FhirObservation> fhirObservations) {
+        this.fhirObservations = fhirObservations;
     }
 }

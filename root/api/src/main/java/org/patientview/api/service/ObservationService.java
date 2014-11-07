@@ -37,4 +37,8 @@ public interface ObservationService {
     void addObservation(org.patientview.persistence.model.FhirObservation fhirObservation,
                         ObservationHeading observationHeading, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException;
+
+    public List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCode(
+            final FhirLink fhirLink, final String code)
+            throws ResourceNotFoundException, FhirResourceException;
 }
