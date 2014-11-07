@@ -112,10 +112,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         // TODO handled with aspects
         createAudit(AuditActions.SWITCH_USER, user.getUsername());
 
+        Date now = new Date();
+
         UserToken userToken = new UserToken();
         userToken.setUser(user);
         userToken.setToken(CommonUtils.getAuthToken());
-        userToken.setCreated(new Date());
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime() + sessionLength));
         userToken = userTokenRepository.save(userToken);
         userRepository.save(user);
 
@@ -165,11 +168,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("This account is locked");
         }
 
+        Date now = new Date();
+
         createAudit(AuditActions.LOGON_SUCCESS, user.getUsername());
         UserToken userToken = new UserToken();
         userToken.setUser(user);
         userToken.setToken(CommonUtils.getAuthToken());
-        userToken.setCreated(new Date());
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime() + sessionLength));
         userToken = userTokenRepository.save(userToken);
 
         user.setFailedLogonAttempts(0);

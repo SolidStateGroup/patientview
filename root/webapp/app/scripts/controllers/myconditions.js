@@ -42,6 +42,9 @@ function ($scope, PatientService, GroupService) {
                     $scope.patientDetails[i].group.selected = true;
                 }
 
+                // create foot checkup object from most recent DPPULSE, PTPULSE data
+                
+
                 $scope.loading = false;
             }, function () {
                 $scope.loading = false;
