@@ -22,6 +22,43 @@ function ($scope, PatientService, GroupService) {
         });
     };
 
+    var createFootcheckup = function(patient) {
+        var footCheckup = {};
+        footCheckup.leftFoot = {};
+        footCheckup.rightFoot = {};
+        footCheckup.applies = 0;
+
+        for (var j = 0; j < patient.fhirObservations.length; j++) {
+            var observation = patient.fhirObservations[j];
+
+            if (observation.applies >= footCheckup.applies) {
+                footCheckup.applies = observation.applies;
+                footCheckup.group = observation.group;
+                if (observation.bodySite === "LEFT_FOOT") {
+                    footCheckup.leftFoot.group = observation.group;
+                    if (observation.name === "PTPULSE") {
+                        footCheckup.leftFoot.PTPULSE = observation.value;
+                    }
+                    if (observation.name === "DPPULSE") {
+                        footCheckup.leftFoot.DPPULSE = observation.value;
+                    }
+                }
+
+                if (observation.bodySite === "RIGHT_FOOT") {
+                    footCheckup.rightFoot.group = observation.group;
+                    if (observation.name === "PTPULSE") {
+                        footCheckup.rightFoot.PTPULSE = observation.value;
+                    }
+                    if (observation.name === "DPPULSE") {
+                        footCheckup.rightFoot.DPPULSE = observation.value;
+                    }
+                }
+            }
+        }
+
+        return footCheckup;
+    };
+
     // get conditions (diagnosis etc) from groups under current specialty
     var getMyConditions = function() {
         var childGroupIds = [];
@@ -40,10 +77,11 @@ function ($scope, PatientService, GroupService) {
                 // set checkboxes
                 for (var i = 0; i < $scope.patientDetails.length; i++) {
                     $scope.patientDetails[i].group.selected = true;
+
+                    // create foot checkup object from most recent DPPULSE, PTPULSE observation data
+                    $scope.patientDetails[i].footCheckup = createFootcheckup($scope.patientDetails[i]);
+
                 }
-
-                // create foot checkup object from most recent DPPULSE, PTPULSE data
-
 
                 $scope.loading = false;
             }, function () {

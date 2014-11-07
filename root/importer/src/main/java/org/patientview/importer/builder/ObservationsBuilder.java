@@ -12,6 +12,7 @@ import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.enums.BodySites;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,10 +136,14 @@ public class ObservationsBuilder {
             List<FootData> footDatas = new ArrayList<>();
 
             for (Patientview.Patient.Footcheckup.Foot foot : footcheckup.getFoot()) {
-                String side = foot.getSide();
+
                 FootData footData = new FootData();
 
-                footData.setSide(side);
+                if (foot.getSide().equals("left")) {
+                    footData.setSide(BodySites.LEFT_FOOT.toString());
+                } else if (foot.getSide().equals("right")) {
+                    footData.setSide(BodySites.RIGHT_FOOT.toString());
+                }
 
                 if (foot.getDppulse() != null) {
                     footData.setValue(foot.getDppulse());
