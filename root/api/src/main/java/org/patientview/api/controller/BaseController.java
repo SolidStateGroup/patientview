@@ -108,6 +108,7 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public String handleMigrationException(MigrationException e) {
+        LOG.error("Migration exception {}", e);
         return e.getMessage();
     }
 }
