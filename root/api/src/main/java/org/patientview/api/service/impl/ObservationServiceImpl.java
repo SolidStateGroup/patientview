@@ -357,7 +357,9 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         observation.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
 
-        fhirResource.create(observation);
+        //fhirResource.create(observation);
+        //LOG.info("add observation " + new Date().getTime());
+        fhirResource.createFast(observation);
     }
 
     private UUID getVersionId(final JSONObject bundle) {

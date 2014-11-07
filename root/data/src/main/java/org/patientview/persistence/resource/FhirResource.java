@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -94,10 +95,53 @@ public class FhirResource {
                 }
             } catch (SQLException e2) {
                 LOG.error("Cannot close connection {}", e2);
-                throw new FhirResourceException(e2.getMessage());
+                throw new FhirResourceException(e2);
             }
 
-            throw new FhirResourceException(e.getMessage());
+            throw new FhirResourceException(e);
+        } catch (Exception e) {
+            throw new FhirResourceException(e);
+        }
+    }
+
+    /**
+     * For FUNCTION fhir_create(cfg jsonb, _type varchar, resource jsonb, tags jsonb)
+     *
+     * @param resource Resource to create
+     * @return JSONObject JSON version of saved Resource
+     * @throws FhirResourceException
+     */
+    public void createFast(Resource resource) throws FhirResourceException {
+        //LOG.info("c1 " + new Date().getTime());
+        Connection connection = null;
+
+        try {
+            connection = dataSource.getConnection();
+            //LOG.info("c2 " + new Date().getTime());
+            CallableStatement proc = connection.prepareCall("{call fhir_create( ?::jsonb, ?, ?::jsonb, ?::jsonb)}");
+            proc.setObject(1, config);
+            proc.setObject(2, resource.getResourceType().name());
+            proc.setObject(3, marshallFhirRecord(resource));
+            proc.setObject(4, null);
+            proc.execute();
+            //LOG.info("c3 " + new Date().getTime());
+            proc.close();
+            connection.close();
+            //LOG.info("c4 " + new Date().getTime());
+        } catch (SQLException e) {
+            LOG.error("Unable to build resource {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2);
+            }
+
+            throw new FhirResourceException(e);
         } catch (Exception e) {
             throw new FhirResourceException(e);
         }

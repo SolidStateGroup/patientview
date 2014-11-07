@@ -114,7 +114,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             FhirLink fhirLink = patientService.add(patientview, practitionerReference);
 
             // add Observation, deleting existing Observation within <test><daterange> (tests) and existing
-            // Observation of type NonTestObservationTypes.BLOOD_GROUP
+            // Observation of type NonTestObservationTypes.BLOOD_GROUP, PTPULSE, DPPULSE
             observationService.add(patientview, fhirLink);
 
             // add Condition, deleting existing (diagnoses)

@@ -25,6 +25,8 @@ public class AsyncMigrateObservationTask implements Runnable {
     public void run() {
         String url = JsonUtil.pvUrl + "/migrate/observations";
         try {
+            LOG.info("Submitting " + migrationUser.getObservations().size() + " observations for Patientview 1 ID: "
+                    + migrationUser.getPatientview1Id());
             JsonUtil.jsonRequest(url, Long.class, migrationUser, HttpPost.class, true);
             LOG.info("Migrated {} observations for pv1 ID: {} OK", migrationUser.getObservations().size(),
                     migrationUser.getPatientview1Id());

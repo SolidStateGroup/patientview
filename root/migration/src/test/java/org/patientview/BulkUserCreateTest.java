@@ -48,7 +48,7 @@ public class BulkUserCreateTest {
         // servers
         //-Durl=http://localhost:8080/api
         //-Durl=http://diabetes-pv.dev.solidstategroup.com/api
-        //-Durl=http://staging.patientview.org/api
+        //-Durl=https://staging.patientview.org/api
 
         // takes group to add users to and number of users to create
         userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role);
@@ -70,8 +70,8 @@ public class BulkUserCreateTest {
         Long usersToInsertObservations = 1L;
         Date start = new Date();
 
-        //userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
-        userDataMigrationService.bulkObservationCreate("RW402", "SAC02", usersToInsertObservations, observationsToCreate);
+        userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
+        //userDataMigrationService.bulkObservationCreate("RW402", "SAC02", usersToInsertObservations, observationsToCreate);
 
         LOG.info("Submission of " + usersToInsertObservations + " patients with "
                 + observationsToCreate + " Observations per incomplete patient took "

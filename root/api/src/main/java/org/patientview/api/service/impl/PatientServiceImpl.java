@@ -66,6 +66,7 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -368,6 +369,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     private void migrateFhirObservations(List<FhirObservation> fhirObservations, User entityUser,
                                          Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+
+        //LOG.info("start migration " + new Date().getTime());
 
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
         for (FhirObservation fhirObservation : fhirObservations) {
