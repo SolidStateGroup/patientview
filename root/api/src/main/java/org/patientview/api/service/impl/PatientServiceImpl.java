@@ -351,7 +351,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         if (fhirLinks == null) {
             fhirLinks = new HashSet<>();
         } else {
-            deleteExistingTestObservationData(migrationUser, fhirLinks);
+            //deleteExistingTestObservationData(migrationUser, fhirLinks);
         }
 
         LOG.info("5: " + new Date().getTime());

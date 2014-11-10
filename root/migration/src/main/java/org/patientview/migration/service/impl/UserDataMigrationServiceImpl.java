@@ -524,7 +524,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         // add observations for all patients previously migrated successfully but without observations
 
         List<Long> patientview1IdsMigrated = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
-        List<Long> patientview1IdsFailed = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
+        List<Long> patientview1IdsFailed = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED);
 
         Set<Long> idSet = new HashSet<Long>(patientview1IdsMigrated);
         idSet.addAll(patientview1IdsFailed);
