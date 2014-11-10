@@ -93,7 +93,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         // should only ever get 1
         List<Identifier> existingIdentifiers = identifierRepository.findByValue(identifier.getIdentifier());
 
-        if (CollectionUtils.isEmpty(existingIdentifiers) && !existingIdentifiers.get(0).equals(entityIdentifier)) {
+        if (!CollectionUtils.isEmpty(existingIdentifiers) && !existingIdentifiers.get(0).equals(entityIdentifier)) {
             throw new EntityExistsException("Cannot save Identifier, another Identifier with the same "
                     + "value already exists");
         }

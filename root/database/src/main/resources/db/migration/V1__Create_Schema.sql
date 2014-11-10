@@ -1,18 +1,3 @@
-CREATE TABLE PV_User_Migration
-(
-  Id                      BIGINT       NOT NULL,
-  PatientView1_User_Id    BIGINT       NOT NULL,
-  PatientView2_User_Id    BIGINT,
-  Observation_Count       BIGINT,
-  Status                  VARCHAR(50)  NOT NULL,
-  Information             TEXT,
-  Creation_Date           TIMESTAMP    NOT NULL,
-  Created_By              BIGINT       NOT NULL REFERENCES PV_User (Id),
-  Last_Update_Date        TIMESTAMP,
-  Last_Updated_By         BIGINT REFERENCES PV_User (Id),
-  PRIMARY KEY (Id)
-);
-
 CREATE TABLE PV_User
 (
   Id               BIGINT       NOT NULL,
@@ -37,6 +22,21 @@ CREATE TABLE PV_User
   Created_By       BIGINT       NOT NULL REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
   Last_Updated_By  BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE PV_User_Migration
+(
+  Id                      BIGINT       NOT NULL,
+  PatientView1_User_Id    BIGINT       NOT NULL,
+  PatientView2_User_Id    BIGINT,
+  Observation_Count       BIGINT,
+  Status                  VARCHAR(50)  NOT NULL,
+  Information             TEXT,
+  Creation_Date           TIMESTAMP    NOT NULL,
+  Created_By              BIGINT       NOT NULL REFERENCES PV_User (Id),
+  Last_Update_Date        TIMESTAMP,
+  Last_Updated_By         BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
 );
 
