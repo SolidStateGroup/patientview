@@ -29,6 +29,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportTypes;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.FeatureType;
@@ -344,7 +345,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // add DiagnosticReport and associated Observation (diagnostics, originally IBD now generic)
                 FhirObservation observation = new FhirObservation();
                 observation.setValue("1234567890");
-                observation.setName(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+                observation.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
 
                 FhirDiagnosticReport diagnosticReport = new FhirDiagnosticReport();
                 diagnosticReport.setGroup(userUnit1);
@@ -357,7 +358,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 FhirObservation observation2 = new FhirObservation();
                 observation2.setValue("1234567890 2");
-                observation2.setName(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+                observation2.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
 
                 FhirDiagnosticReport diagnosticReport2 = new FhirDiagnosticReport();
                 diagnosticReport2.setGroup(userUnit2);

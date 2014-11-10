@@ -53,6 +53,7 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -69,7 +70,6 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -218,9 +218,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         try {
             List<String> nonTestTypes = new ArrayList<>();
             for (NonTestObservationTypes observationType : NonTestObservationTypes.class.getEnumConstants()) {
-                if(!observationType.equals(NonTestObservationTypes.DIAGNOSTIC_RESULT)) {
-                    nonTestTypes.add(observationType.toString());
-                }
+                nonTestTypes.add(observationType.toString());
             }
             patient.getFhirObservations().addAll(observationService.getByFhirLinkAndCodes(fhirLink, nonTestTypes));
 

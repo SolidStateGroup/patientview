@@ -11,6 +11,7 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.importer.builder.DiagnosticReportBuilder;
+import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DiagnosticService;
 import org.patientview.importer.Utility.Util;
@@ -66,13 +67,13 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                 observation.setSubject(patientReference);
 
                 CodeableConcept name = new CodeableConcept();
-                name.setTextSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
-                name.addCoding().setDisplaySimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.getName());
+                name.setTextSimple(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
+                name.addCoding().setDisplaySimple(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.getName());
                 observation.setName(name);
 
                 Identifier identifier = new Identifier();
                 identifier.setLabelSimple("resultcode");
-                identifier.setValueSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+                identifier.setValueSimple(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
                 observation.setIdentifier(identifier);
 
                 DiagnosticReportBuilder diagnosticReportBuilder = new DiagnosticReportBuilder(diagnostic);

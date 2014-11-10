@@ -12,6 +12,7 @@ import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.model.BasicObservation;
 import org.patientview.importer.model.DateRange;
 import org.patientview.persistence.model.FhirDatabaseObservation;
+import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.Utility.Util;
@@ -72,7 +73,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             Date applies = observation.getApplies();
 
             // only delete test result observations between date range (not BLOOD_GROUP, DIAGNOSTIC_RESULT etc)
-            if (!Util.isInEnum(code, NonTestObservationTypes.class)) {
+            if (!Util.isInEnum(code, NonTestObservationTypes.class)
+                    && !Util.isInEnum(code, DiagnosticReportObservationTypes.class)) {
 
                 Patientview.Patient.Testdetails.Test.Daterange daterange
                         = observationsBuilder.getDateRanges().get(code);
@@ -85,12 +87,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                         fhirResource.delete(uuid, ResourceType.Observation);
                     }
                 }
-            }
-
-            // if observation is NonTestObservationType.BLOOD_GROUP, PTPULSE, DPPULSE then delete
-            if (code.equals(NonTestObservationTypes.BLOOD_GROUP.toString())
-                    || code.equals(NonTestObservationTypes.PTPULSE.toString())
-                    || code.equals(NonTestObservationTypes.DPPULSE.toString())) {
+            } else if (Util.isInEnum(code, NonTestObservationTypes.class)) {
+                // if observation is NonTestObservationType.BLOOD_GROUP, PTPULSE, DPPULSE etc then delete
                 fhirResource.delete(uuid, ResourceType.Observation);
             }
         }
@@ -158,7 +156,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         // now have collection, manually insert using native SQL
         if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
             StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO observation (logical_id, version_id, resource_type, published, updated, content) VALUES ");
+            sb.append("INSERT INTO observation ");
+            sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
 
             for (int i = 0; i < fhirDatabaseObservations.size() ; i++) {
                 FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
@@ -219,7 +218,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     String codeString = results.getString(3).replace("\"", "");
 
                     // ignore DIAGNOSTIC_RESULT
-                    if(!codeString.equals(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString())) {
+                    if(!codeString.equals(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString())) {
 
                         Date applies = null;
 

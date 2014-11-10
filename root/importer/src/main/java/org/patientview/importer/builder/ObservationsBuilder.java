@@ -90,23 +90,33 @@ public class ObservationsBuilder {
                 }
             }
         }
+
+        // build from eye checkup
+        if (!CollectionUtils.isEmpty(results.getPatient().getEyecheckup())) {
+            for (Patientview.Patient.Eyecheckup eyecheckup : results.getPatient().getEyecheckup()) {
+                List<Observation> eyeObservations = createEyecheckupObservations(eyecheckup);
+                if (eyeObservations != null) {
+                    observations.addAll(eyeObservations);
+                }
+            }
+        }
     }
 
-    private class FootData {
-        private String side;
+    private class BodyData {
+        private String location;
         private String type;
         private String value;
 
-        public FootData() {
+        public BodyData() {
 
         }
 
-        public String getSide() {
-            return side;
+        public String getLocation() {
+            return location;
         }
 
-        public void setSide(String side) {
-            this.side = side;
+        public void setLocation(String location) {
+            this.location = location;
         }
 
         public String getType() {
@@ -133,32 +143,32 @@ public class ObservationsBuilder {
         if (footcheckup.getDatestamp() != null) {
 
             List<Observation> observations = new ArrayList<>();
-            List<FootData> footDatas = new ArrayList<>();
+            List<BodyData> bodyDatas = new ArrayList<>();
 
             for (Patientview.Patient.Footcheckup.Foot foot : footcheckup.getFoot()) {
 
-                FootData footData = new FootData();
+                BodyData bodyData = new BodyData();
 
                 if (foot.getSide().equals("left")) {
-                    footData.setSide(BodySites.LEFT_FOOT.toString());
+                    bodyData.setLocation(BodySites.LEFT_FOOT.toString());
                 } else if (foot.getSide().equals("right")) {
-                    footData.setSide(BodySites.RIGHT_FOOT.toString());
+                    bodyData.setLocation(BodySites.RIGHT_FOOT.toString());
                 }
 
                 if (foot.getDppulse() != null) {
-                    footData.setValue(foot.getDppulse());
-                    footData.setType(NonTestObservationTypes.DPPULSE.toString());
+                    bodyData.setValue(foot.getDppulse());
+                    bodyData.setType(NonTestObservationTypes.DPPULSE.toString());
                 }
 
                 if (foot.getPtpulse() != null) {
-                    footData.setValue(foot.getPtpulse());
-                    footData.setType(NonTestObservationTypes.PTPULSE.toString());
+                    bodyData.setValue(foot.getPtpulse());
+                    bodyData.setType(NonTestObservationTypes.PTPULSE.toString());
                 }
 
-                footDatas.add(footData);
+                bodyDatas.add(bodyData);
             }
 
-            for (FootData footData : footDatas) {
+            for (BodyData bodyData : bodyDatas) {
                 Observation observation = new Observation();
 
                 DateTime applies = new DateTime();
@@ -170,31 +180,115 @@ public class ObservationsBuilder {
                 observation.setStatusSimple(Observation.ObservationStatus.registered);
 
                 CodeableConcept bodySite = new CodeableConcept();
-                bodySite.setTextSimple(footData.getSide());
+                bodySite.setTextSimple(bodyData.getLocation());
                 observation.setBodySite(bodySite);
 
                 CodeableConcept value = new CodeableConcept();
-                value.setTextSimple(footData.getValue());
+                value.setTextSimple(bodyData.getValue());
                 observation.setValue(value);
 
                 Identifier identifier = new Identifier();
-                identifier.setValueSimple(footData.getType());
+                identifier.setValueSimple(bodyData.getType());
                 observation.setIdentifier(identifier);
 
                 CodeableConcept name = new CodeableConcept();
-                name.setTextSimple(footData.getType());
+                name.setTextSimple(bodyData.getType());
                 observation.setName(name);
 
                 observation.setSubject(resourceReference);
 
                 observations.add(observation);
             }
-
             return observations;
         } else {
             return null;
         }
+    }
 
+    // one observation per side rgrade, mgrade or va so expect 6 per eyecheckup
+    private List<Observation> createEyecheckupObservations(Patientview.Patient.Eyecheckup eyecheckup) {
+
+        // only proceed if correct timestamp
+        if (eyecheckup.getDatestamp() != null) {
+
+            List<Observation> observations = new ArrayList<>();
+            List<BodyData> bodyDatas = new ArrayList<>();
+
+            for (Patientview.Patient.Eyecheckup.Eye eye : eyecheckup.getEye()) {
+
+
+                BodySites location = null;
+
+                if (eye.getSide().equals("left")) {
+                    location = BodySites.LEFT_EYE;
+                } else if (eye.getSide().equals("right")) {
+                    location = BodySites.RIGHT_EYE;
+                } else {
+                    LOG.error("Eye side is not set, continuing without this observation");
+                }
+
+                if (location != null) {
+                    if (eye.getMgrade() != null) {
+                        BodyData bodyData = new BodyData();
+                        bodyData.setValue(eye.getMgrade());
+                        bodyData.setType(NonTestObservationTypes.MGRADE.toString());
+                        bodyData.setLocation(location.toString());
+                        bodyDatas.add(bodyData);
+                    }
+
+                    if (eye.getRgrade() != null) {
+                        BodyData bodyData = new BodyData();
+                        bodyData.setValue(eye.getRgrade());
+                        bodyData.setType(NonTestObservationTypes.RGRADE.toString());
+                        bodyData.setLocation(location.toString());
+                        bodyDatas.add(bodyData);
+                    }
+
+                    if (eye.getVa() != null) {
+                        BodyData bodyData = new BodyData();
+                        bodyData.setValue(eye.getVa());
+                        bodyData.setType(NonTestObservationTypes.VA.toString());
+                        bodyData.setLocation(location.toString());
+                        bodyDatas.add(bodyData);
+                    }
+                }
+            }
+
+            for (BodyData bodyData : bodyDatas) {
+                Observation observation = new Observation();
+
+                DateTime applies = new DateTime();
+                DateAndTime dateAndTime = new DateAndTime(eyecheckup.getDatestamp().toGregorianCalendar().getTime());
+                applies.setValue(dateAndTime);
+                observation.setApplies(applies);
+
+                observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+                observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+                CodeableConcept bodySite = new CodeableConcept();
+                bodySite.setTextSimple(bodyData.getLocation());
+                observation.setBodySite(bodySite);
+
+                CodeableConcept value = new CodeableConcept();
+                value.setTextSimple(bodyData.getValue());
+                observation.setValue(value);
+
+                Identifier identifier = new Identifier();
+                identifier.setValueSimple(bodyData.getType());
+                observation.setIdentifier(identifier);
+
+                CodeableConcept name = new CodeableConcept();
+                name.setTextSimple(bodyData.getType());
+                observation.setName(name);
+
+                observation.setSubject(resourceReference);
+
+                observations.add(observation);
+            }
+            return observations;
+        } else {
+            return null;
+        }
     }
 
     private Observation createObservation(Patientview.Patient.Testdetails.Test test, Patientview.Patient.Testdetails.Test.Result result)

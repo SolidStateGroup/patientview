@@ -11,7 +11,9 @@ public enum NonTestObservationTypes {
     BLOOD_GROUP("Blood Group"),
     PTPULSE("Foot Checkup: ptpulse"),
     DPPULSE("Foot Checkup: dppulse"),
-    DIAGNOSTIC_RESULT("Diagnostic Result");
+    MGRADE("Eye Checkup: mgrade"),
+    RGRADE("Eye Checkup: rgrade"),
+    VA("Eye Checkup: va");
 
     private String name;
     NonTestObservationTypes(String name) { this.name = name; }

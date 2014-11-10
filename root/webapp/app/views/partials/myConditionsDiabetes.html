@@ -66,6 +66,50 @@
                     </tbody>
                 </table>
 
+                <!-- foot checkup -->
+                <table class="table table-bordered" data-ng-show="patient.footCheckup.applies > 0">
+                    <tbody>
+                    <tr><td colspan="2"><h4>Feet</h4></td></tr>
+                    <tr>
+                        <td colspan="2"><strong>Last recorded {{patient.footCheckup.applies | date:'dd-MMM-yyyy'}}
+                            by {{patient.footCheckup.group.name}}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Left</strong></td>
+                        <td><strong>Right</strong></td>
+                    </tr>
+                    <tr>
+                        <td>DPPULSE: {{patient.footCheckup.leftFoot.DPPULSE}}<br/>
+                            PTPULSE: {{patient.footCheckup.leftFoot.PTPULSE}}</td>
+                        <td>DPPULSE: {{patient.footCheckup.rightFoot.DPPULSE}}<br/>
+                            PTPULSE: {{patient.footCheckup.rightFoot.PTPULSE}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- eye checkup -->
+                <table class="table table-bordered" data-ng-show="patient.eyeCheckup.applies > 0">
+                    <tbody>
+                    <tr><td colspan="2"><h4>Eyes</h4></td></tr>
+                    <tr>
+                        <td colspan="2"><strong>Last recorded {{patient.eyeCheckup.applies | date:'dd-MMM-yyyy'}}
+                            by {{patient.eyeCheckup.group.name}}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Left</strong></td>
+                        <td><strong>Right</strong></td>
+                    </tr>
+                    <tr>
+                        <td>MGRADE: {{patient.eyeCheckup.leftEye.MGRADE}}<br/>
+                            RGRADE: {{patient.eyeCheckup.leftEye.RGRADE}}<br/>
+                            VA: {{patient.eyeCheckup.leftEye.VA}}</td>
+                        <td>MGRADE: {{patient.eyeCheckup.rightEye.MGRADE}}<br/>
+                            RGRADE: {{patient.eyeCheckup.rightEye.RGRADE}}<br/>
+                            VA: {{patient.eyeCheckup.rightEye.VA}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+
                 <table class="table table-bordered" data-ng-show="patient.group.links">
                     <tbody>
                         <tr><td colspan="2"><h4>Unit Information</h4></td></tr>

@@ -59,6 +59,49 @@ function ($scope, PatientService, GroupService) {
         return footCheckup;
     };
 
+    var createEyecheckup = function(patient) {
+        var eyeCheckup = {};
+        eyeCheckup.leftEye = {};
+        eyeCheckup.rightEye = {};
+        eyeCheckup.applies = 0;
+
+        for (var j = 0; j < patient.fhirObservations.length; j++) {
+            var observation = patient.fhirObservations[j];
+
+            if (observation.applies >= eyeCheckup.applies) {
+                eyeCheckup.applies = observation.applies;
+                eyeCheckup.group = observation.group;
+                if (observation.bodySite === "LEFT_EYE") {
+                    eyeCheckup.leftEye.group = observation.group;
+                    if (observation.name === "MGRADE") {
+                        eyeCheckup.leftEye.MGRADE = observation.value;
+                    }
+                    if (observation.name === "RGRADE") {
+                        eyeCheckup.leftEye.RGRADE = observation.value;
+                    }
+                    if (observation.name === "VA") {
+                        eyeCheckup.leftEye.VA = observation.value;
+                    }
+                }
+
+                if (observation.bodySite === "RIGHT_EYE") {
+                    eyeCheckup.rightEye.group = observation.group;
+                    if (observation.name === "MGRADE") {
+                        eyeCheckup.rightEye.MGRADE = observation.value;
+                    }
+                    if (observation.name === "RGRADE") {
+                        eyeCheckup.rightEye.RGRADE = observation.value;
+                    }
+                    if (observation.name === "VA") {
+                        eyeCheckup.rightEye.VA = observation.value;
+                    }
+                }
+            }
+        }
+
+        return eyeCheckup;
+    };
+
     // get conditions (diagnosis etc) from groups under current specialty
     var getMyConditions = function() {
         var childGroupIds = [];
@@ -80,6 +123,9 @@ function ($scope, PatientService, GroupService) {
 
                     // create foot checkup object from most recent DPPULSE, PTPULSE observation data
                     $scope.patientDetails[i].footCheckup = createFootcheckup($scope.patientDetails[i]);
+
+                    // create eye checkup object from most recent MGRADE, RGRADE, VA observation data
+                    $scope.patientDetails[i].eyeCheckup = createEyecheckup($scope.patientDetails[i]);
 
                 }
 

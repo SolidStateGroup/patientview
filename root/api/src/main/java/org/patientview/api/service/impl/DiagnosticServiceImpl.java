@@ -19,7 +19,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.NonTestObservationTypes;
+import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
@@ -110,13 +110,13 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
         observation.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
 
         CodeableConcept name = new CodeableConcept();
-        name.setTextSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
-        name.addCoding().setDisplaySimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.getName());
+        name.setTextSimple(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
+        name.addCoding().setDisplaySimple(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.getName());
         observation.setName(name);
 
         Identifier identifier = new Identifier();
         identifier.setLabelSimple("resultcode");
-        identifier.setValueSimple(NonTestObservationTypes.DIAGNOSTIC_RESULT.toString());
+        identifier.setValueSimple(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
         observation.setIdentifier(identifier);
 
         // build diagnostic report

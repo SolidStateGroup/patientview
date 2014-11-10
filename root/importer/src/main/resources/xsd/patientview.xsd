@@ -402,6 +402,24 @@
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
+                            <xs:element maxOccurs="unbounded" minOccurs="0" name="eyecheckup">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="datestamp" type="xs:date"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="location" type="xs:string"/>
+                                        <xs:element maxOccurs="unbounded" minOccurs="1" name="eye">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="rgrade" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="mgrade" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="va" type="xs:string"/>
+                                                </xs:sequence>
+                                                <xs:attribute name="side" type="xs:string" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
