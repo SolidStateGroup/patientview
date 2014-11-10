@@ -11,6 +11,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.model.BasicObservation;
 import org.patientview.importer.model.DateRange;
+import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.Utility.Util;
@@ -18,6 +19,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -69,7 +71,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             UUID uuid = observation.getLogicalId();
             Date applies = observation.getApplies();
 
-            // only delete test result observations (not BLOOD_GROUP, DIAGNOSTIC_RESULT etc)
+            // only delete test result observations between date range (not BLOOD_GROUP, DIAGNOSTIC_RESULT etc)
             if (!Util.isInEnum(code, NonTestObservationTypes.class)) {
 
                 Patientview.Patient.Testdetails.Test.Daterange daterange
@@ -95,7 +97,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
         int count = 0;
 
-        LOG.info("Creating New Observations");
+        // old slow method (calls fhir_create)
+        /*LOG.info("Creating New Observations");
         for (Observation observation : observationsBuilder.getObservations()) {
             LOG.trace("Creating... observation " + count);
             try {
@@ -119,6 +122,61 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             }
             LOG.trace("Finished creating observation " + count++);
         }
+        LOG.info("Processed {} of {} observations", observationsBuilder.getSuccess(), observationsBuilder.getCount());*/
+
+        LOG.info("Creating New Observations");
+        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+
+        for (Observation observation : observationsBuilder.getObservations()) {
+            LOG.trace("Creating... observation " + count);
+            try {
+                // only add observations within daterange or those without a daterange (non test observation type)
+                Patientview.Patient.Testdetails.Test.Daterange daterange
+                        = observationsBuilder.getDateRanges().get(observation.getIdentifier()
+                            .getValueSimple().toUpperCase());
+
+                if (daterange != null) {
+                    DateRange convertedDateRange = new DateRange(daterange);
+                    Date applies = convertDateTime((DateTime) observation.getApplies());
+
+                    if (applies.after(convertedDateRange.getStart()) && applies.before(convertedDateRange.getEnd())) {
+                        //fhirResource.create(observation);
+                        fhirDatabaseObservations.add(
+                                new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+                    }
+                } else {
+                    //fhirResource.create(observation);
+                    fhirDatabaseObservations.add(
+                            new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+                }
+            } catch (FhirResourceException e) {
+                LOG.error("Unable to build observation {} " + e.getCause());
+            }
+            LOG.trace("Finished creating observation " + count++);
+        }
+
+        // now have collection, manually insert using native SQL
+        if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("INSERT INTO observation (logical_id, version_id, resource_type, published, updated, content) VALUES ");
+
+            for (int i = 0; i < fhirDatabaseObservations.size() ; i++) {
+                FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
+                sb.append("(");
+                sb.append("'").append(obs.getLogicalId().toString()).append("','");
+                sb.append(obs.getVersionId().toString()).append("','");
+                sb.append(obs.getResourceType()).append("','");
+                sb.append(obs.getPublished().toString()).append("','");
+                sb.append(obs.getUpdated().toString()).append("','");
+                sb.append(obs.getContent());
+                sb.append("')");
+                if (i != (fhirDatabaseObservations.size() - 1)) {
+                    sb.append(",");
+                }
+            }
+            fhirResource.executeSQL(sb.toString());
+        }
+
         LOG.info("Processed {} of {} observations", observationsBuilder.getSuccess(), observationsBuilder.getCount());
     }
 
