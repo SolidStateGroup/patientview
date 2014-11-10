@@ -257,6 +257,7 @@
                                                 </xs:restriction>
                                             </xs:simpleType>
                                         </xs:element>
+                                        <xs:element maxOccurs="1" minOccurs="0" name="diagnosisdate" type="xs:date"/>
                                         <xs:element maxOccurs="unbounded" minOccurs="0" name="diagnosis" type="pv_diagnosis"/>
                                         <xs:element maxOccurs="1" minOccurs="0" name="ibddiseaseextent" type="ibd_disease_extent" />
                                         <xs:element maxOccurs="0" minOccurs="0" name="ibddiseasecomplications" type="ibd_disease_complications" />

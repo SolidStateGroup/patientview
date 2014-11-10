@@ -33,6 +33,14 @@
                             </dl>
                         </td>
                     </tr>
+                    <tr>
+                        <td class="forced-width">Diagnosis Date</td>
+                        <td>
+                            <span data-ng-repeat="condition in patient.fhirConditions" data-ng-show="condition.category === 'DIAGNOSIS_EDTA'">
+                                {{condition.date | date:'dd-MMM-yyyy' }}
+                            </span>
+                        </td>
+                    </tr>
 
                     <tr>
                         <td class="forced-width">Other Conditions</td>

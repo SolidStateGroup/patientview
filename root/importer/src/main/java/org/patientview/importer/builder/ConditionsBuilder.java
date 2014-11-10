@@ -4,13 +4,16 @@ import generated.Patientview;
 import generated.PvDiagnosis;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
+import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,7 +56,8 @@ public class ConditionsBuilder {
             // edta diagnosis <diagnosisedta>, linked to codes
             if (data.getPatient().getClinicaldetails().getDiagnosisedta() != null) {
                 try {
-                    conditions.add(createCondition(data.getPatient().getClinicaldetails().getDiagnosisedta()));
+                    conditions.add(createCondition(data.getPatient().getClinicaldetails().getDiagnosisedta(),
+                            data.getPatient().getClinicaldetails().getDiagnosisdate()));
                     success++;
                 } catch (FhirResourceException e) {
                     LOG.error("Invalid data in XML: " + e.getMessage());
@@ -82,7 +86,7 @@ public class ConditionsBuilder {
         return condition;
     }
 
-    private Condition createCondition(String edtaDiagnosis) throws FhirResourceException{
+    private Condition createCondition(String edtaDiagnosis, XMLGregorianCalendar date) throws FhirResourceException{
         Condition condition = new Condition();
         condition.setStatusSimple(Condition.ConditionStatus.confirmed);
         condition.setSubject(resourceReference);
@@ -95,6 +99,11 @@ public class ConditionsBuilder {
         CodeableConcept category = new CodeableConcept();
         category.setTextSimple(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
         condition.setCategory(category);
+
+        if (date != null) {
+            DateAndTime dateAndTime = new DateAndTime(new Date(date.toGregorianCalendar().getTimeInMillis()));
+            condition.setDateAssertedSimple(dateAndTime);
+        }
 
         return condition;
     }

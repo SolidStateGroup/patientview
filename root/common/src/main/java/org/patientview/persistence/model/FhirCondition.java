@@ -1,6 +1,11 @@
 package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.Condition;
+import org.hl7.fhir.instance.model.DateAndTime;
+import org.hl7.fhir.instance.model.DateTime;
+
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -11,6 +16,7 @@ public class FhirCondition extends BaseModel {
     private String code;
     private String category;
     private String notes;
+    private Date date;
 
     // only used by migration
     private Group group;
@@ -27,6 +33,12 @@ public class FhirCondition extends BaseModel {
             setCategory(condition.getCategory().getTextSimple());
         }
         setNotes(condition.getNotesSimple());
+
+        if (condition.getDateAssertedSimple() != null) {
+            DateAndTime date = condition.getDateAssertedSimple();
+            setDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                    date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+        }
     }
 
     public String getCode() {
@@ -67,5 +79,13 @@ public class FhirCondition extends BaseModel {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
