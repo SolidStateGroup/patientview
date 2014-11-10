@@ -70,6 +70,7 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -341,14 +342,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     public void migrateObservations(Long userId, MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
+        LOG.info("3: " + new Date().getTime());
+
         User entityUser = userService.get(userId);
         Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
 
+        LOG.info("4: " + new Date().getTime());
         if (fhirLinks == null) {
             fhirLinks = new HashSet<>();
         } else {
             deleteExistingTestObservationData(migrationUser, fhirLinks);
         }
+
+        LOG.info("5: " + new Date().getTime());
 
         // set up map of observation headings
         if (observationHeadingMap == null) {
@@ -452,6 +458,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         Long start = migrationUser.getObservationStartDate();
         Long end = migrationUser.getObservationEndDate();
 
+
+        LOG.info("6: " + new Date().getTime());
+
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
         for (FhirObservation fhirObservation : migrationUser.getObservations()) {
 
@@ -484,6 +493,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
         }
 
+        LOG.info("7: " + new Date().getTime());
+
         // generate large sql statement to insert
         if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
             StringBuilder sb = new StringBuilder();
@@ -505,6 +516,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
             fhirResource.executeSQL(sb.toString());
         }
+
+        LOG.info("8: " + new Date().getTime());
     }
 
     private void migrateFhirConditions(MigrationUser migrationUser, User entityUser,

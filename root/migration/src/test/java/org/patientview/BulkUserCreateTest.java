@@ -41,7 +41,7 @@ public class BulkUserCreateTest {
     @Rollback(false)
     @Ignore
     public void test01BulkUserCreate() {
-        Long usersToCreate = 10L;
+        Long usersToCreate = 1000L;
         Date start = new Date();
         RoleName role = RoleName.PATIENT;
 
@@ -67,7 +67,7 @@ public class BulkUserCreateTest {
     //@Ignore
     public void test02BulkObservationCreate() {
         Long observationsToCreate = 720L;
-        Long usersToInsertObservations = 10L;
+        Long usersToInsertObservations = 1L;
         Date start = new Date();
 
         userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
