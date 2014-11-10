@@ -42,5 +42,5 @@ public interface PatientService {
 
     void deleteExistingPatientData(Set<FhirLink> fhirLinks) throws FhirResourceException;
 
-    void deleteExistingObservationData(Set<FhirLink> fhirLinks) throws FhirResourceException;
+    void deleteAllExistingObservationData(Set<FhirLink> fhirLinks) throws FhirResourceException;
 }

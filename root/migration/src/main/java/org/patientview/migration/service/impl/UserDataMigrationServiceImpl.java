@@ -523,7 +523,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         // add observations for all patients previously migrated successfully but without observations
 
         List<Long> patientview1IdsMigrated = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
-        List<Long> patientview1IdsFailed = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED);
+        List<Long> patientview1IdsFailed = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
 
         Set<Long> idSet = new HashSet<Long>(patientview1IdsMigrated);
         idSet.addAll(patientview1IdsFailed);
@@ -572,6 +572,12 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 observation.setIdentifier(patientview1Id.toString());
                 migrationUser.getObservations().add(observation);
             }
+
+            migrationUser.setObservationEndDate(now);
+            migrationUser.setObservationStartDate(0L);
+
+            // set only 3 months to store of results to store
+            //migrationUser.setObservationStartDate(now - (3 * month));
 
             concurrentTaskExecutor.submit(new AsyncMigrateObservationTask(migrationUser));
         }

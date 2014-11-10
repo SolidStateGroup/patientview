@@ -1,5 +1,6 @@
 package org.patientview.persistence.resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.formats.JsonComposer;
 import org.hl7.fhir.instance.formats.JsonParser;
 import org.hl7.fhir.instance.model.Resource;
@@ -12,10 +13,14 @@ import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -25,7 +30,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -430,6 +434,95 @@ public class FhirResource {
         }
     }
 
+    public List<UUID> getLogicalIdsBySubjectIdAppliesIgnoreNames(
+            final String tableName, final UUID subjectId,
+            final List<String> namesToIgnore, final Long start, final Long end) throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id, content->'appliesDateTime' ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE   content ->> 'subject' = '{\"display\": \"");
+        query.append(subjectId);
+        query.append("\", \"reference\": \"uuid\"}' ");
+
+        if (!CollectionUtils.isEmpty(namesToIgnore)) {
+            // names to ignore
+            query.append("AND content -> 'name' -> 'text' NOT IN (");
+            for (int i = 0; i < namesToIgnore.size(); i++) {
+                query.append("'\"").append(namesToIgnore.get(i)).append("\"'");
+
+                if (i != (namesToIgnore.size() - 1)) {
+                    query.append(",");
+                }
+            }
+
+            query.append(") ");
+        }
+
+        // todo: better way of getting results? possible slowdown due to large table?
+        /*if (start != null && end != null) {
+            query.append("AND (to_timestamp(content -> 'appliesDateTime') > ");
+            query.append(start);
+            query.append(" AND to_timestamp(content -> 'appliesDateTime') < ");
+            query.append(end);
+            query.append(")");
+        }*/
+
+
+        Connection connection = null;
+
+        // execute and return UUIDs
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+
+                if (start != null && end != null) {
+                    // only return UUID if within start to end time
+                    if (StringUtils.isNotEmpty(results.getString(2))) {
+                        try {
+                            String dateString = results.getString(2).replace("\"", "");
+                            XMLGregorianCalendar xmlDate
+                                    = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
+                            Long applies = xmlDate.toGregorianCalendar().getTime().getTime();
+
+                            if (start <= applies && end >= applies) {
+                                uuids.add(UUID.fromString(results.getString(1)));
+                            }
+                        } catch (DatatypeConfigurationException e) {
+                            LOG.error(e.getMessage());
+                        }
+                    }
+                } else {
+                    uuids.add(UUID.fromString(results.getString(1)));
+                }
+
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            LOG.error("Unable to get logical ids by subject id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
     public List<UUID> getLogicalIdsByPatientId(final String tableName, final UUID subjectId)
             throws FhirResourceException {
 
@@ -508,7 +601,29 @@ public class FhirResource {
         }
     }
 
-    private String marshallFhirRecord(Resource resource) throws FhirResourceException {
+    public void executeSQL(String sql) throws FhirResourceException {
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            statement.execute(sql);
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("SQL exception {}", e);
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
+    public String marshallFhirRecord(Resource resource) throws FhirResourceException {
         JsonComposer jsonComposer = new JsonComposer();
         OutputStream outputStream = new ByteArrayOutputStream();
         try {

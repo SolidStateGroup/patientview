@@ -657,7 +657,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
                 patientService.deleteExistingPatientData(user.getFhirLinks());
-                patientService.deleteExistingObservationData(user.getFhirLinks());
+                patientService.deleteAllExistingObservationData(user.getFhirLinks());
             }
             userRepository.delete(user);
         }

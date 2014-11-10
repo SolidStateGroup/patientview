@@ -1,7 +1,6 @@
 package org.patientview.persistence.model;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,8 +13,8 @@ public class MigrationUser {
 
     private Long patientview1Id;
     private boolean patient;
-    private Date observationStartDate;
-    private Date observationEndDate;
+    private Long observationStartDate;
+    private Long observationEndDate;
 
     // User
     private User user;
@@ -64,19 +63,19 @@ public class MigrationUser {
         this.patient = patient;
     }
 
-    public Date getObservationStartDate() {
+    public Long getObservationStartDate() {
         return observationStartDate;
     }
 
-    public void setObservationStartDate(Date observationStartDate) {
+    public void setObservationStartDate(Long observationStartDate) {
         this.observationStartDate = observationStartDate;
     }
 
-    public Date getObservationEndDate() {
+    public Long getObservationEndDate() {
         return observationEndDate;
     }
 
-    public void setObservationEndDate(Date observationEndDate) {
+    public void setObservationEndDate(Long observationEndDate) {
         this.observationEndDate = observationEndDate;
     }
 

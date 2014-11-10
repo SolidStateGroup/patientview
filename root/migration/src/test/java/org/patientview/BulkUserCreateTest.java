@@ -66,12 +66,12 @@ public class BulkUserCreateTest {
     @Rollback(false)
     //@Ignore
     public void test02BulkObservationCreate() {
-        Long observationsToCreate = 500L;
+        Long observationsToCreate = 720L;
         Long usersToInsertObservations = 10L;
         Date start = new Date();
 
-        //userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
-        userDataMigrationService.bulkObservationCreate("RW402", "SAC02", usersToInsertObservations, observationsToCreate);
+        userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
+        //userDataMigrationService.bulkObservationCreate("RW402", "SAC02", usersToInsertObservations, observationsToCreate);
 
         LOG.info("Submission of " + usersToInsertObservations + " patients with "
                 + observationsToCreate + " Observations per incomplete patient took "

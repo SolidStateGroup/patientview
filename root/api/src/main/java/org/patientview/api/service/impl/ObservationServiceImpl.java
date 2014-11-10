@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
@@ -15,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.util.Util;
+import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.ObservationSummary;
@@ -401,10 +403,27 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 observationHeading);
 
         observation.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
-
-        //fhirResource.create(observation);
-        //LOG.info("add observation " + new Date().getTime());
         fhirResource.createFast(observation);
+    }
+
+    @Override
+    public FhirDatabaseObservation buildFhirDatabaseObservation(FhirObservation fhirObservation,
+                              ObservationHeading observationHeading, FhirLink fhirLink)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        // build actual FHIR observation and set subject
+        Observation observation = buildObservation(createDateTime(fhirObservation.getApplies()),
+                fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
+                observationHeading);
+
+        observation.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
+
+        // return new FhirDatabaseObservation with correct JSON content
+        try {
+            return new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation));
+        } catch (NullArgumentException nae) {
+            throw new FhirResourceException(nae.getMessage());
+        }
     }
 
     private UUID getVersionId(final JSONObject bundle) {

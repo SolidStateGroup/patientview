@@ -7,6 +7,7 @@ import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.enums.RoleName;
@@ -36,6 +37,11 @@ public interface ObservationService {
 
     void addObservation(org.patientview.persistence.model.FhirObservation fhirObservation,
                         ObservationHeading observationHeading, FhirLink fhirLink)
+            throws ResourceNotFoundException, FhirResourceException;
+
+    public FhirDatabaseObservation buildFhirDatabaseObservation(
+            org.patientview.persistence.model.FhirObservation fhirObservation,
+            ObservationHeading observationHeading, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException;
 
     public List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCodes(
