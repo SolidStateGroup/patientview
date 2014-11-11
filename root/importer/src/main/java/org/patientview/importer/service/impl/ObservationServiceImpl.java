@@ -66,6 +66,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
         // delete existing observations
         LOG.info("Deleting Existing Observations");
+        List<UUID> observationsUuidsToDelete = new ArrayList<>();
 
         for (BasicObservation observation : observations) {
             String code = observation.getCode();
@@ -77,50 +78,45 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     && !Util.isInEnum(code, DiagnosticReportObservationTypes.class)) {
 
                 Patientview.Patient.Testdetails.Test.Daterange daterange
-                        = observationsBuilder.getDateRanges().get(code);
+                        = observationsBuilder.getDateRanges().get(code.toUpperCase());
 
                 // between dates in <test><daterange>
                 if (daterange != null) {
                     DateRange convertedDateRange = new DateRange(daterange);
 
-                    if (applies.after(convertedDateRange.getStart()) && applies.before(convertedDateRange.getEnd())) {
-                        fhirResource.delete(uuid, ResourceType.Observation);
+                    Long start = convertedDateRange.getStart().getTime();
+                    Long end = convertedDateRange.getEnd().getTime();
+
+                    if (applies.getTime() >= start && applies.getTime() <= end) {
+                        observationsUuidsToDelete.add(uuid);
                     }
                 }
             } else if (Util.isInEnum(code, NonTestObservationTypes.class)) {
                 // if observation is NonTestObservationType.BLOOD_GROUP, PTPULSE, DPPULSE etc then delete
-                fhirResource.delete(uuid, ResourceType.Observation);
+                observationsUuidsToDelete.add(uuid);
             }
+        }
+
+        // natively delete observations
+        if (!CollectionUtils.isEmpty(observationsUuidsToDelete)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("DELETE FROM observation WHERE logical_id IN (");
+
+            for (int i = 0; i < observationsUuidsToDelete.size() ; i++) {
+                UUID uuid = observationsUuidsToDelete.get(i);
+
+                sb.append("'").append(uuid).append("'");
+
+                if (i != (observationsUuidsToDelete.size() - 1)) {
+                    sb.append(",");
+                }
+            }
+
+            sb.append(")");
+            fhirResource.executeSQL(sb.toString());
         }
 
         int count = 0;
-
-        // old slow method (calls fhir_create)
-        /*LOG.info("Creating New Observations");
-        for (Observation observation : observationsBuilder.getObservations()) {
-            LOG.trace("Creating... observation " + count);
-            try {
-                // only add observations within daterange or those without a daterange (non test observation type)
-                Patientview.Patient.Testdetails.Test.Daterange daterange
-                        = observationsBuilder.getDateRanges().get(observation.getIdentifier()
-                            .getValueSimple().toUpperCase());
-
-                if (daterange != null) {
-                    DateRange convertedDateRange = new DateRange(daterange);
-                    Date applies = convertDateTime((DateTime) observation.getApplies());
-
-                    if (applies.after(convertedDateRange.getStart()) && applies.before(convertedDateRange.getEnd())) {
-                        fhirResource.create(observation);
-                    }
-                } else {
-                    fhirResource.create(observation);
-                }
-            } catch (FhirResourceException e) {
-                LOG.error("Unable to build observation {} " + e.getCause());
-            }
-            LOG.trace("Finished creating observation " + count++);
-        }
-        LOG.info("Processed {} of {} observations", observationsBuilder.getSuccess(), observationsBuilder.getCount());*/
 
         LOG.info("Creating New Observations");
         List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
@@ -137,13 +133,14 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     DateRange convertedDateRange = new DateRange(daterange);
                     Date applies = convertDateTime((DateTime) observation.getApplies());
 
-                    if (applies.after(convertedDateRange.getStart()) && applies.before(convertedDateRange.getEnd())) {
-                        //fhirResource.create(observation);
+                    Long start = convertedDateRange.getStart().getTime();
+                    Long end = convertedDateRange.getEnd().getTime();
+
+                    if (applies.getTime() >= start && applies.getTime() <= end) {
                         fhirDatabaseObservations.add(
                                 new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
                     }
                 } else {
-                    //fhirResource.create(observation);
                     fhirDatabaseObservations.add(
                             new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
                 }
@@ -177,12 +174,6 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
 
         LOG.info("Processed {} of {} observations", observationsBuilder.getSuccess(), observationsBuilder.getCount());
-    }
-
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
-        for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("observation", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.Observation);
-        }
     }
 
     private Date convertDateTime(DateTime dateTime) {

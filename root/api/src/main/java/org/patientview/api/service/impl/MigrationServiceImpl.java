@@ -205,7 +205,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigrationService.save(userMigration);
             }
 
-            LOG.info("9: " + new Date().getTime());
+            //LOG.info("9: " + new Date().getTime());
         }
     }
 }

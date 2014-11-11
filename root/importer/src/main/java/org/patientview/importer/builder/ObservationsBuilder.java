@@ -390,13 +390,14 @@ public class ObservationsBuilder {
     private org.hl7.fhir.instance.model.Identifier createIdentifier(Patientview.Patient.Testdetails.Test test) {
         org.hl7.fhir.instance.model.Identifier identifier = new org.hl7.fhir.instance.model.Identifier();
         identifier.setLabelSimple("resultcode");
-        identifier.setValueSimple(test.getTestcode().name());
+        // note: name is generated from xsd so hco3 becomes HCO_3 therefore use value
+        identifier.setValueSimple(test.getTestcode().value());
         return identifier;
     }
 
     private CodeableConcept createConcept(Patientview.Patient.Testdetails.Test test) {
         CodeableConcept codeableConcept = new CodeableConcept();
-        codeableConcept.setTextSimple(test.getTestcode().name());
+        codeableConcept.setTextSimple(test.getTestcode().value());
         codeableConcept.addCoding().setDisplaySimple(test.getTestname());
         return codeableConcept;
     }

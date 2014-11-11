@@ -93,7 +93,7 @@ public class ImportControllerTest {
     public void importIntegrationTestMilestone4() throws Exception {
 
         List<String> files = new ArrayList<>();
-        files.add("data/xml/milestone4/SAC02_01439_41737438900.xml");
+        files.add("data/xml/milestone4/SAC02_01439_41737438900.xml"); // 336 observations
         files.add("data/xml/milestone4/SGC04_01436_57703939407.xml"); // big
         files.add("data/xml/milestone4/SGC04_01436_64098149107.xml"); // big, 6372 observations
         files.add("data/xml/milestone4/SGC04_01456_12314191702.xml");
@@ -101,7 +101,8 @@ public class ImportControllerTest {
         files.add("data/xml/milestone4/SGC04_01459_28039602801.xml");
         files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");
 
-        // 46 seconds 10/11/14
+        // 46 seconds 10/11/14 fhir_delete and native create observations
+        // 5 seconds 11/11/14 native delete and create observations
 
         for (String file : files) {
             post(getFileFromString(file));
@@ -111,8 +112,8 @@ public class ImportControllerTest {
     String getTestFile() throws IOException, URISyntaxException {
         URL xmlPath =
                 //Thread.currentThread().getContextClassLoader().getResource("data/xml/milestone5/SAC02_01439_41737438900.xml");
-                //Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_1111111111_single.xml");
-                Thread.currentThread().getContextClassLoader().getResource("data/xml/IMPORTGROUP_1111111111.xml");
+                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_1111111111_single.xml");
+                //Thread.currentThread().getContextClassLoader().getResource("data/xml/IMPORTGROUP_1111111111.xml");
         File file = new File(xmlPath.toURI());
         return new String(Files.readAllBytes(Paths.get(file.getPath())));
     }

@@ -15,6 +15,7 @@ public class MigrationUser {
     private boolean patient;
     private Long observationStartDate;
     private Long observationEndDate;
+    private boolean deleteExistingTestObservations;
 
     // User
     private User user;
@@ -141,5 +142,13 @@ public class MigrationUser {
 
     public void setPatients(List<FhirPatient> patients) {
         this.patients = patients;
+    }
+
+    public boolean isDeleteExistingTestObservations() {
+        return deleteExistingTestObservations;
+    }
+
+    public void setDeleteExistingTestObservations(boolean deleteExistingTestObservations) {
+        this.deleteExistingTestObservations = deleteExistingTestObservations;
     }
 }

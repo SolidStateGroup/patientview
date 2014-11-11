@@ -17,6 +17,4 @@ import java.util.UUID;
 public interface ObservationService {
 
     public void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
-
-    public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException;
 }
