@@ -191,9 +191,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         StringBuilder query = new StringBuilder();
         query.append("SELECT logical_id, content->'appliesDateTime', content->'name'->'text' ");
         query.append("FROM observation ");
-        query.append("WHERE   content ->> 'subject' = '{\"display\": \"");
+        query.append("WHERE   content -> 'subject' ->> 'display' = ");
         query.append(subjectId);
-        query.append("\", \"reference\": \"uuid\"}' ");
+        query.append("' ");
 
         // execute and return map of logical ids and applies
         try {

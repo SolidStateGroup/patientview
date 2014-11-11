@@ -398,9 +398,9 @@ public class FhirResource {
         query.append("SELECT logical_id ");
         query.append("FROM ");
         query.append(tableName);
-        query.append(" WHERE   content ->> 'subject' = '{\"display\": \"");
+        query.append(" WHERE   content -> 'subject' ->> 'display' = ");
         query.append(subjectId);
-        query.append("\", \"reference\": \"uuid\"}' ");
+        query.append("' ");
 
         Connection connection = null;
 
@@ -443,9 +443,9 @@ public class FhirResource {
         query.append("SELECT logical_id, content->'appliesDateTime' ");
         query.append("FROM ");
         query.append(tableName);
-        query.append(" WHERE   content ->> 'subject' = '{\"display\": \"");
+        query.append(" WHERE   content -> 'subject' ->> 'display' = '");
         query.append(subjectId);
-        query.append("\", \"reference\": \"uuid\"}' ");
+        query.append("' ");
 
         if (!CollectionUtils.isEmpty(namesToIgnore)) {
             // names to ignore
