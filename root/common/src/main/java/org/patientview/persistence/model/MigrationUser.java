@@ -15,7 +15,7 @@ public class MigrationUser {
     private boolean patient;
     private Long observationStartDate;
     private Long observationEndDate;
-    private boolean deleteExistingTestObservations;
+    private boolean deleteExistingTestObservations = false;
 
     // User
     private User user;
