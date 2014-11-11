@@ -92,6 +92,54 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     };
 }];
 
+// find existing patient modal instance controller
+var FindExistingPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService',
+function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, allFeatures, identifierTypes, UserService) {
+    $scope.permissions = permissions;
+    $scope.allGroups = allGroups;
+    $scope.allowedRoles = allowedRoles;
+    $scope.identifierTypes = identifierTypes;
+    $scope.editMode = false;
+    $scope.editUser = {};
+
+    // click Find button
+    $scope.find = function (identifier) {
+        var i;
+
+        UserService.findByIdentifier(identifier).then(function(result) {
+            $scope.editUser = result;
+            $scope.existingUser = true;
+            $scope.editMode = true;
+            $scope.warningMessage = '';
+            $scope.pagedItems = [];
+
+            // get user existing group/roles from groupRoles
+            $scope.editUser.groups = [];
+            for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                var groupRole = $scope.editUser.groupRoles[i];
+                var group = groupRole.group;
+                group.role = groupRole.role;
+                $scope.editUser.groups.push(group);
+            }
+
+            // set available groups so user can add another group/role to the users existing group roles if required
+            $scope.editUser.availableGroups = $scope.allGroups;
+            for (i = 0; i < $scope.editUser.groups.length; i++) {
+                $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
+            }
+
+            // set available user roles
+            $scope.editUser.roles = $scope.allowedRoles;
+        }, function () {
+            $scope.warningMessage = 'No patient exists with this identifier';
+        });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
 // delete patient modal instance controller
 var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','user','UserService','allGroups','allRoles','$q',
     function ($scope, $modalInstance, permissions, user, UserService, allGroups, allRoles, $q) {
@@ -688,6 +736,52 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.getItems();
             delete $scope.editUser;
 
+        }, function () {
+            $scope.getItems();
+        });
+    };
+
+    // handle opening modal for finding existing patient by identifier value
+    $scope.openModalFindExistingPatient = function (size) {
+        // close any open edit panels
+        for (var i = 0; i < $scope.pagedItems.length; i++) {
+            $scope.pagedItems[i].showEdit = false;
+        }
+        // clear messages
+        $scope.errorMessage = '';
+        $scope.warningMessage = '';
+        $scope.successMessage = '';
+
+        // open modal and pass in required objects for use in modal scope
+        var modalInstance = $modal.open({
+            templateUrl: 'findExistingPatientModal.html',
+            controller: FindExistingPatientModalInstanceCtrl,
+            size: size,
+            resolve: {
+                permissions: function(){
+                    return $scope.permissions;
+                },
+                allGroups: function(){
+                    return $scope.allGroups;
+                },
+                allowedRoles: function(){
+                    return $scope.allowedRoles;
+                },
+                allFeatures: function(){
+                    return $scope.allFeatures;
+                },
+                identifierTypes: function(){
+                    return $scope.identifierTypes;
+                },
+                UserService: function(){
+                    return UserService;
+                }
+            }
+        });
+
+        // handle modal close (via button click)
+        modalInstance.result.then(function (user) {
+            // no ok button, do nothing
         }, function () {
             $scope.getItems();
         });

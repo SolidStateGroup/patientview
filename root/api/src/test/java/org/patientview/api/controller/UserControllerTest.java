@@ -483,4 +483,32 @@ public class UserControllerTest {
             fail("Exception: " + e.getCause());
         }
     }
+
+    @Test
+    public void testFindByIdentifier() throws ResourceNotFoundException  {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String identifier = "1234567890";
+        User user2 = new User();
+        user2.setId(1L);
+
+        when(userService.getByIdentifierValue(eq(identifier)))
+                .thenReturn(new org.patientview.api.model.User(user2, null));
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/identifier/" + identifier))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw");
+        }
+    }
 }

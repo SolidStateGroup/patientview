@@ -447,6 +447,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return false;
     }
 
+    @Override
     public org.patientview.api.model.User getByUsername(String username) {
         User foundUser = userRepository.findByUsername(username);
         if (foundUser == null) {
@@ -455,6 +456,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             return new org.patientview.api.model.User(foundUser, null);
         }
     }
+
+    @Override
     public org.patientview.api.model.User getByEmail(String email) {
         User foundUser = userRepository.findByEmail(email);
         if (foundUser == null) {
@@ -462,6 +465,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         } else {
             return new org.patientview.api.model.User(foundUser, null);
         }
+    }
+
+    @Override
+    public org.patientview.api.model.User getByIdentifierValue(String identifier) throws ResourceNotFoundException {
+        List<Identifier> identifiers = identifierRepository.findByValue(identifier);
+        if (CollectionUtils.isEmpty(identifiers)) {
+            throw new ResourceNotFoundException("Identifier does not exist");
+        }
+
+        // assume identifiers are unique so get the user associated with the first identifier
+        return new org.patientview.api.model.User(identifiers.get(0).getUser(), null);
     }
 
     public void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {

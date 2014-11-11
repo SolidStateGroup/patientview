@@ -628,4 +628,38 @@ public class UserServiceTest {
         userService.addInformation(user.getId(), userInformations);
         verify(userInformationRepository, Mockito.times(1)).save(any(UserInformation.class));
     }
+
+    @Test
+    public void testGetByIdentifier() throws ResourceNotFoundException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        User user1 = TestUtils.createUser("testForgottenPassword");
+        user1.setIdentifiers(new HashSet<Identifier>());
+
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, "NHS_NUMBER");
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "342343424");
+        user1.setIdentifiers(new HashSet<Identifier>());
+        user1.getIdentifiers().add(identifier);
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
+
+        org.patientview.api.model.User user2 = userService.getByIdentifierValue(identifier.getIdentifier());
+
+        verify(identifierRepository, Mockito.times(1)).findByValue(eq(identifier.getIdentifier()));
+
+        Assert.assertNotNull("The user should be returned", user2);
+    }
 }

@@ -239,4 +239,13 @@ public class UserController extends BaseController<UserController> {
             throws ResourceNotFoundException {
         return new ResponseEntity<>(userService.getInformation(userId), HttpStatus.OK);
     }
+
+    // used when searching for existing patients
+    @RequestMapping(value = "/user/identifier/{identifier}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<User> getUserByIdentifier(@PathVariable("identifier") String identifier)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(userService.getByIdentifierValue(identifier), HttpStatus.OK);
+    }
 }

@@ -288,6 +288,17 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // find by identifier
+        findByIdentifier: function (identifier) {
+            var deferred = $q.defer();
+            // GET /user/identifier/{identifier}
+            Restangular.one('user/identifier').customGET(identifier).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

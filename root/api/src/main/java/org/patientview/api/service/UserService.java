@@ -4,12 +4,10 @@ import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.GroupRole;
-import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.AuditActions;
@@ -31,6 +29,9 @@ public interface UserService {
     org.patientview.api.model.User getByUsername(String username);
 
     org.patientview.api.model.User getByEmail(String username);
+
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
+    org.patientview.api.model.User getByIdentifierValue(String identifier) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })

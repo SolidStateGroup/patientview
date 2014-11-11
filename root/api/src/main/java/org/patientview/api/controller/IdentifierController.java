@@ -58,15 +58,6 @@ public class IdentifierController extends BaseController<IdentifierController> {
         return new ResponseEntity<>(identifierService.add(userId, identifier), HttpStatus.CREATED);
     }
 
-    // no longer used 5/11/14
-    /*@RequestMapping(value = "/identifier/value/{identifierValue}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Identifier> getIdentifierByValue(@PathVariable("identifierValue") String identifierValue)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(identifierService.getIdentifierByValue(identifierValue), HttpStatus.OK);
-    }*/
-
     @RequestMapping(value = "/identifier/validate", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
