@@ -174,7 +174,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             query.append(") ");
         }
 
+        LOG.info("patient 4a: " + new Date().getTime());
+
         List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
+
+        LOG.info("patient 4b: " + new Date().getTime());
 
         // convert to transport observations
         for (Observation observation : observations) {
@@ -186,6 +190,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             fhirObservations.add(new org.patientview.api.model.FhirObservation(fhirObservation));
         }
 
+        LOG.info("patient 4c: " + new Date().getTime());
 
         return fhirObservations;
     }
