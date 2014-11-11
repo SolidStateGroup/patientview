@@ -102,9 +102,9 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    observation ");
-                query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+                query.append("WHERE   content -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
-                query.append("\", \"reference\": \"uuid\"}' ");
+                query.append("' ");
 
                 if (StringUtils.isNotEmpty(code)) {
                     query.append("AND content-> 'name' ->> 'text' = '");
@@ -215,9 +215,9 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("CONTENT -> 'valueQuantity' -> 'value', ");
                 query.append("CONTENT -> 'valueQuantity' -> 'comparator' ");
                 query.append("FROM   observation ");
-                query.append("WHERE  CONTENT -> 'subject' -> 'display' = '\"");
+                query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
-                query.append("\"' ");
+                query.append("' ");
                 query.append("ORDER  BY 2, 1 DESC");
 
                 List<String[]> observationValues = fhirResource.findLatestObservationsByQuery(query.toString());
