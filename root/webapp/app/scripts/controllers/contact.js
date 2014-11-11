@@ -135,13 +135,15 @@ function ($scope, $modal, GroupService, ConversationService) {
     }
 
     $scope.addAIfRequired = function (text) {
-        if (text.indexOf('@') > -1) {
-            text = '<a href="mailto:' + text + '">' + text + '</a>';
-        } else if (isValidUrl(text)) {
-            if (text.indexOf('http') > -1) {
-                text = '<a href="' + text + '" target="_blank">' + text + '</a>';
-            } else {
-                text = '<a href="http://' + text + '" target="_blank">' + text + '</a>';
+        if (text !== null && text !== undefined) {
+            if (text.indexOf('@') > -1) {
+                text = '<a href="mailto:' + text + '">' + text + '</a>';
+            } else if (isValidUrl(text)) {
+                if (text.indexOf('http') > -1) {
+                    text = '<a href="' + text + '" target="_blank">' + text + '</a>';
+                } else {
+                    text = '<a href="http://' + text + '" target="_blank">' + text + '</a>';
+                }
             }
         }
 
