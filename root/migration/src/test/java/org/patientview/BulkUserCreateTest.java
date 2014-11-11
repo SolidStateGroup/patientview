@@ -67,8 +67,13 @@ public class BulkUserCreateTest {
     //@Ignore
     public void test02BulkObservationCreate() {
         Long observationsToCreate = 500L;
-        Long usersToInsertObservations = 10L;
+        Long usersToInsertObservations = 1L;
         Date start = new Date();
+
+        // servers
+        //-Durl=http://localhost:8080/api
+        //-Durl=http://diabetes-pv.dev.solidstategroup.com/api
+        //-Durl=https://staging.patientview.org/api
 
         userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
         //userDataMigrationService.bulkObservationCreate("RW402", "SAC02", usersToInsertObservations, observationsToCreate);

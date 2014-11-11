@@ -134,7 +134,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
     public void migrateObservations(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
-        //LOG.info("1: " + new Date().getTime());
+        LOG.info("1: " + new Date().getTime());
 
         if (migrationUser.isPatient()) {
             Date start = new Date();
@@ -176,7 +176,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 throw new ResourceNotFoundException("Cannot find corresponding PatientView2 user");
             }
 
-            //LOG.info("2: " + new Date().getTime());
+            LOG.info("2: " + new Date().getTime());
 
             if (!CollectionUtils.isEmpty(migrationUser.getObservations())) {
                 Long userId = userMigration1.getPatientview2UserId();
@@ -205,7 +205,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigrationService.save(userMigration);
             }
 
-            //LOG.info("9: " + new Date().getTime());
+            LOG.info("9: " + new Date().getTime());
         }
     }
 }
