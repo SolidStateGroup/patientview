@@ -154,9 +154,9 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         StringBuilder query = new StringBuilder();
         query.append("SELECT  content::varchar ");
         query.append("FROM    observation ");
-        query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+        query.append("WHERE   content -> 'subject' ->> 'display' = '");
         query.append(fhirLink.getResourceId().toString());
-        query.append("\", \"reference\": \"uuid\"}' ");
+        query.append("' ");
 
         if (!codes.isEmpty()) {
             query.append("AND content-> 'name' ->> 'text' IN (");
