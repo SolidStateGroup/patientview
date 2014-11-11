@@ -26,9 +26,9 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         google.visualization.events.addListener(chart, 'rangechange', function(e) {
             $scope.rangeChanged(e);
         });
-        google.visualization.events.addListener(chart, 'select', function() {
-            $scope.graphClicked();
-        });
+        //google.visualization.events.addListener(chart, 'select', function() {
+        //    $scope.graphClicked();
+        //});
         $scope.chart = chart;
 
         $scope.getObservationHeadings(code);
