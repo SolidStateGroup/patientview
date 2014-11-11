@@ -101,8 +101,8 @@ public class ImportControllerTest {
         files.add("data/xml/milestone4/SGC04_01459_28039602801.xml");
         files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");
 
-        // 46 seconds 10/11/14 fhir_delete and native create observations
-        // 5 seconds 11/11/14 native delete and create observations
+        // 46 seconds local 10/11/14 fhir_delete and native create observations
+        // 5 seconds local 11/11/14 native delete and create observations
 
         for (String file : files) {
             post(getFileFromString(file));
@@ -127,8 +127,8 @@ public class ImportControllerTest {
     private static org.apache.http.HttpResponse post(String json) throws Exception {
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
-        String postUrl="https://staging.patientview.org/importer/import";// put in your url
-        //String postUrl="http://localhost:8081/importer/import";// put in your url
+        //String postUrl="https://staging.patientview.org/importer/import";// put in your url
+        String postUrl="http://localhost:8081/importer/import";// put in your url
         //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
