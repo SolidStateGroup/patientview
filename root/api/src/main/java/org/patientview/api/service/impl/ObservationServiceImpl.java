@@ -57,6 +57,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -323,6 +324,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Patient must have at least one Identifier (NHS Number or other)");
         }
 
+        // use first identifier for patient
         Identifier patientIdentifier = patientUser.getIdentifiers().iterator().next();
 
         // saves results, only if observation values are present or comment found
@@ -347,63 +349,86 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
             if (!fhirObservations.isEmpty()
                     || !(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
-                // create FHIR Patient
-                Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
-                JSONObject fhirPatient = fhirResource.create(patient);
 
-                // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
-                FhirLink fhirLink = new FhirLink();
-                fhirLink.setUser(patientUser);
-                fhirLink.setIdentifier(patientIdentifier);
-                fhirLink.setGroup(patientEnteredResultsGroup);
-                fhirLink.setResourceId(getResourceId(fhirPatient));
-                fhirLink.setVersionId(getVersionId(fhirPatient));
-                fhirLink.setResourceType(ResourceType.Patient.name());
-                fhirLink.setActive(true);
+                // create FHIR Patient & fhirlink if not exists with PATIENT_ENTERED group, userId and identifier
+                FhirLink fhirLink = getFhirLink(
+                        patientEnteredResultsGroup, patientIdentifier.getIdentifier(), patientUser.getFhirLinks());
 
-                if (CollectionUtils.isEmpty(patientUser.getFhirLinks())) {
-                    patientUser.setFhirLinks(new HashSet<FhirLink>());
-                }
+                if (fhirLink == null) {
+                    Patient patient = patientService.buildPatient(patientUser, patientIdentifier);
+                    JSONObject fhirPatient = fhirResource.create(patient);
 
-                patientUser.getFhirLinks().add(fhirLink);
-                userRepository.save(patientUser);
+                    // create FhirLink to link user to FHIR Patient at group PATIENT_ENTERED
+                    fhirLink = new FhirLink();
+                    fhirLink.setUser(patientUser);
+                    fhirLink.setIdentifier(patientIdentifier);
+                    fhirLink.setGroup(patientEnteredResultsGroup);
+                    fhirLink.setResourceId(getResourceId(fhirPatient));
+                    fhirLink.setVersionId(getVersionId(fhirPatient));
+                    fhirLink.setResourceType(ResourceType.Patient.name());
+                    fhirLink.setActive(true);
 
-                ResourceReference patientReference = Util.createFhirResourceReference(getResourceId(fhirPatient));
-
-                // save observations
-                for (Observation fhirObservation : fhirObservations) {
-                    fhirObservation.setSubject(patientReference);
-
-                    if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
-                        fhirObservation.setCommentsSimple(userResultCluster.getComments());
+                    if (CollectionUtils.isEmpty(patientUser.getFhirLinks())) {
+                        patientUser.setFhirLinks(new HashSet<FhirLink>());
                     }
 
-                    fhirResource.create(fhirObservation);
+                    patientUser.getFhirLinks().add(fhirLink);
+                    userRepository.save(patientUser);
+                }
+
+                ResourceReference patientReference = Util.createFhirResourceReference(fhirLink.getResourceId());
+
+                // store observations ready for native creation rather than fhir_create
+                List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+
+                // save observations
+                for (Observation observation : fhirObservations) {
+                    observation.setSubject(patientReference);
+
+                    if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
+                        observation.setCommentsSimple(userResultCluster.getComments());
+                    }
+
+                    fhirDatabaseObservations.add(
+                            new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
                 }
 
                 // create comment observation based on patient entered comments
                 if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
 
-                    Observation commentObservation =
+                    Observation observation =
                         buildObservation(applies, userResultCluster.getComments(), null,
                                 userResultCluster.getComments(), commentObservationHeadings.get(0));
 
-                    commentObservation.setSubject(patientReference);
-                    fhirResource.create(commentObservation);
+                    observation.setSubject(patientReference);
+                    fhirDatabaseObservations.add(
+                            new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+                }
+
+                // now have collection, manually insert using native SQL
+                if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("INSERT INTO observation ");
+                    sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
+
+                    for (int i = 0; i < fhirDatabaseObservations.size() ; i++) {
+                        FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
+                        sb.append("(");
+                        sb.append("'").append(obs.getLogicalId().toString()).append("','");
+                        sb.append(obs.getVersionId().toString()).append("','");
+                        sb.append(obs.getResourceType()).append("','");
+                        sb.append(obs.getPublished().toString()).append("','");
+                        sb.append(obs.getUpdated().toString()).append("','");
+                        sb.append(obs.getContent());
+                        sb.append("')");
+                        if (i != (fhirDatabaseObservations.size() - 1)) {
+                            sb.append(",");
+                        }
+                    }
+                    fhirResource.executeSQL(sb.toString());
                 }
             }
         }
-    }
-
-    @Override
-    public void addObservation(FhirObservation fhirObservation, ObservationHeading observationHeading,
-                               FhirLink fhirLink) throws ResourceNotFoundException, FhirResourceException {
-        Observation observation = buildObservation(createDateTime(fhirObservation.getApplies()),
-                fhirObservation.getValue(), fhirObservation.getComparator(), fhirObservation.getComments(),
-                observationHeading);
-
-        observation.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
-        fhirResource.createFast(observation);
     }
 
     @Override
@@ -682,5 +707,19 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         summaryHeading.setInfoLink(observationHeading.getInfoLink());
 
         return summaryHeading;
+    }
+
+    private FhirLink getFhirLink(Group group, String identifierText, Set<FhirLink> fhirLinks) {
+        if (CollectionUtils.isEmpty(fhirLinks)) {
+            return null;
+        }
+
+        for (FhirLink fhirLink : fhirLinks) {
+            if (fhirLink.getGroup().equals(group) && fhirLink.getIdentifier().getIdentifier().equals(identifierText)) {
+                return fhirLink;
+            }
+        }
+
+        return null;
     }
 }

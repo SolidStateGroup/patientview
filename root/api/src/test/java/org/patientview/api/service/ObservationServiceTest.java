@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Patient;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,6 +39,7 @@ import java.util.Set;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -152,6 +154,8 @@ public class ObservationServiceTest {
             when(groupService.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString()))).thenReturn(patientEnteredGroup);
             when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
             when(fhirResource.create(eq(fhirPatient))).thenReturn(fhirPatientJson);
+
+            when(fhirResource.marshallFhirRecord(any(Observation.class))).thenReturn("{}");
 
             observationService.addUserResultClusters(user.getId(), userResultClusters);
 
