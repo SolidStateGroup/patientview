@@ -180,7 +180,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
 
                     // set encounters
-                    patient.getFhirEncounters().addAll(setEncounters(fhirLink.getResourceId()));
+                    //patient.getFhirEncounters().addAll(setEncounters(fhirLink.getResourceId()));
+                    patient = setEncounters(patient, encounterService.get(fhirLink.getResourceId()));
 
                     // set edta diagnosis if present based on available codes
                     patient = setDiagnosisCodes(patient);
@@ -213,7 +214,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
     }
 
-    // ignore DIAGNOSTIC_RESULT
     private org.patientview.api.model.Patient setNonTestObservations(org.patientview.api.model.Patient patient,
                                                             FhirLink fhirLink) {
         try {
@@ -254,11 +254,13 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         return patient;
     }
 
-    private List<FhirEncounter> setEncounters(UUID patientUuid) throws FhirResourceException {
-        List<FhirEncounter> fhirEncounters = new ArrayList<>();
+    private org.patientview.api.model.Patient setEncounters(org.patientview.api.model.Patient patient,
+                                              List<Encounter> encounters) throws FhirResourceException {
+
+        patient.setFhirEncounters(new ArrayList<FhirEncounter>());
 
         // replace fhirEncounter type field with a more useful description if it exists in codes
-        for (Encounter encounter : encounterService.get(patientUuid)) {
+        for (Encounter encounter : encounters) {
             FhirEncounter fhirEncounter = new FhirEncounter(encounter);
 
             List<Code> codes = codeService.findAllByCodeAndType(fhirEncounter.getStatus(),
@@ -268,10 +270,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 fhirEncounter.setStatus(codes.get(0).getDescription());
             }
 
-            fhirEncounters.add(fhirEncounter);
+            patient.getFhirEncounters().add(fhirEncounter);
         }
 
-        return fhirEncounters;
+        return patient;
     }
 
     @Override
