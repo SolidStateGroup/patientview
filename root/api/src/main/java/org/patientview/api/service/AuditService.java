@@ -1,10 +1,10 @@
 package org.patientview.api.service;
 
 import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.GetParameters;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -15,7 +15,7 @@ public interface AuditService {
 
     Audit save(Audit audit);
 
-    List<Audit> findAll();
+    Page<Audit> findAll(GetParameters getparameters);
 
 }
 

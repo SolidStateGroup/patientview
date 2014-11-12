@@ -2,6 +2,8 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.AuditService;
 import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.GetParameters;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -24,7 +25,7 @@ public class AuditController extends BaseController<AuditController> {
 
     @RequestMapping(value = "/audit", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<Audit>> findAll() {
-        return new ResponseEntity<>(auditService.findAll(), HttpStatus.OK);
+    public ResponseEntity<Page<Audit>> findAll(GetParameters getParameters) {
+        return new ResponseEntity<>(auditService.findAll(getParameters), HttpStatus.OK);
     }
 }

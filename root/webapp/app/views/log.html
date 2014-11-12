@@ -1,29 +1,83 @@
 <div data-ng-show="!loading">
     <h1>Log</h1>
 
+    <!-- Filter -->
+    <div class="content-panel filter-panel">
+        <div class="">
+            <div class="search-container">
+                <i class="icon-search-black"></i>
+                <input type="text" data-ng-model="searchText" placeholder="Search by identifier..." class="form-control input-block-level" />
+            </div>
+        </div>
+        <div class="panel-footer clearfix">
+            <div class="content-inner">
+                <div class="pull-right" data-ng-show="pagedItems.length  > 0">
+                    <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
+                </div>
+                <div class="form-horizontal" role="form">
+                    <!-- filter by group -->
+                    <div class="select-container pull-left">
+                        <div class="btn-group filter-select" id="filter-group" dropdown>
+                            <button class="btn dropdown-toggle">
+                                Filter By Group <span class="caret-container"><span class="caret"></span></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li>
+                                    <a data-ng-click="removeAllSelectedGroup()" class="a-filter-group">
+                                        <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="group in allGroups | orderBy:['name']">
+                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                        <span class="pull-left">{{group.name}}</span>
+                                        <span data-ng-class="isGroupChecked(group.id)"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="content-panel">
         <div class="content-inner">
 
-            <table class="table" data-ng-show="audits.length">
+            <table class="table" data-ng-show="pagedItems.length  > 0">
                 <thead class="table-head">
                 <tr>
                     <th><a href="" data-ng-click="sortBy('creationDate');" class="sort-title">Date</a></th>
-                    <th><a href="" data-ng-click="sortBy('auditActions');" class="sort-title">Action</a></th>
-                    <th><a href="" data-ng-click="sortBy('actorId');" class="sort-title">Actor</a></th>
+                    <th>Identifiers</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Actor</th>
+                    <th>Group</th>
+                    <th>Information</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr data-ng-repeat="audit in audits">
+                <tr data-ng-repeat="audit in pagedItems">
                     <td>{{audit.creationDate | date: 'dd-MMM-yyyy HH:mm'}}</td>
+                    <td>identifiers</td>
+                    <td>{{audit.sourceObjectId}}</td>
                     <td>{{audit.auditActions}}</td>
                     <td>{{audit.actorId}}</td>
+                    <td>group</td>
+                    <td>information</td>
                 </tr>
                 </tbody>
             </table>
+            <br/>
 
-            <div class="alert alert-warning" data-ng-show="!audits.length">
-                <p>No Log available</p>
+            <div class="alert alert-warning" data-ng-show="!pagedItems.length">
+                <p>No log entries found</p>
             </div>
+
+
+            <!-- pagination -->
+            <div ng-include src="'views/partials/pagination.html'"></div>
 
         </div>
     </div>

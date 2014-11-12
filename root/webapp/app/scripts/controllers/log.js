@@ -1,18 +1,181 @@
 'use strict';
 
-angular.module('patientviewApp').controller('LogCtrl',['$scope', 'AuditService',
-function ($scope, AuditService) {
+angular.module('patientviewApp').controller('LogCtrl',['$scope', '$timeout', 'AuditService',
+function ($scope, $timeout, AuditService) {
+
+    $scope.itemsPerPage = 20;
+    $scope.currentPage = 0;
+    $scope.filterText = '';
+    $scope.sortField = 'creationDate';
+    $scope.sortDirection = 'DESC';
+
+    var tempFilterText = '';
+    var filterTextTimeout;
+
+    // watches
+    // update page on user typed search text
+    $scope.$watch('searchText', function (value) {
+        if (value !== undefined) {
+            if (filterTextTimeout) {
+                $timeout.cancel(filterTextTimeout);
+            }
+            $scope.currentPage = 0;
+
+            tempFilterText = value;
+            filterTextTimeout = $timeout(function () {
+                $scope.filterText = tempFilterText;
+                $scope.getItems();
+            }, 1000); // delay 1000 ms
+        }
+    });
+
+    // update page when currentPage is changed (and at start)
+    $scope.$watch('currentPage', function(value) {
+        $scope.currentPage = value;
+        $scope.getItems();
+    });
+
+    $scope.sortBy = function(sortField) {
+        $scope.currentPage = 0;
+        if ($scope.sortField !== sortField) {
+            $scope.sortDirection = 'ASC';
+            $scope.sortField = sortField;
+        } else {
+            if ($scope.sortDirection === 'ASC') {
+                $scope.sortDirection = 'DESC';
+            } else {
+                $scope.sortDirection = 'ASC';
+            }
+        }
+
+        $scope.getItems();
+    };
+
+    $scope.pageCount = function() {
+        return Math.ceil($scope.total/$scope.itemsPerPage);
+    };
+
+    $scope.range = function() {
+        var rangeSize = 10;
+        var ret = [];
+        var start;
+
+        if ($scope.currentPage < 10) {
+            start = 0;
+        } else {
+            start = $scope.currentPage;
+        }
+
+        if ( start > $scope.pageCount()-rangeSize ) {
+            start = $scope.pageCount()-rangeSize;
+        }
+
+        for (var i=start; i<start+rangeSize; i++) {
+            if (i > -1) {
+                ret.push(i);
+            }
+        }
+
+        return ret;
+    };
+
+    $scope.setPage = function(n) {
+        if (n > -1 && n < $scope.totalPages) {
+            $scope.currentPage = n;
+        }
+    };
+
+    $scope.prevPage = function() {
+        if ($scope.currentPage > 0) {
+            $scope.currentPage--;
+        }
+    };
+
+    $scope.prevPageDisabled = function() {
+        return $scope.currentPage === 0 ? 'hidden' : '';
+    };
+
+    $scope.nextPage = function() {
+        if ($scope.currentPage < $scope.totalPages - 1) {
+            $scope.currentPage++;
+        }
+    };
+
+    $scope.nextPageDisabled = function() {
+        return $scope.currentPage === $scope.pageCount() - 1 ? 'disabled' : '';
+    };
+
+    // filter by group
+    $scope.selectedGroup = [];
+    $scope.setSelectedGroup = function () {
+        var id = this.group.id;
+        if (_.contains($scope.selectedGroup, id)) {
+            $scope.selectedGroup = _.without($scope.selectedGroup, id);
+        } else {
+            $scope.selectedGroup.push(id);
+        }
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.isGroupChecked = function (id) {
+        if (_.contains($scope.selectedGroup, id)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+    $scope.removeAllSelectedGroup = function (groupType) {
+        var newSelectedGroupList = [];
+
+        for (var i=0; i<$scope.selectedGroup.length; i++) {
+            if ($scope.groupMap[$scope.selectedGroup[i]].groupType.value !== groupType) {
+                newSelectedGroupList.push($scope.selectedGroup[i]);
+            }
+        }
+
+        $scope.selectedGroup = newSelectedGroupList;
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+
+    $scope.getItems = function() {
+        $scope.loading = true;
+        var getParameters = {};
+        getParameters.page = $scope.currentPage;
+        getParameters.size = $scope.itemsPerPage;
+        getParameters.filterText = $scope.filterText;
+        getParameters.groupIds = $scope.selectedGroup;
+        getParameters.sortField = $scope.sortField;
+        getParameters.sortDirection = $scope.sortDirection;
+
+        AuditService.getAll(getParameters).then(function(page) {
+            $scope.pagedItems = page.content;
+            $scope.total = page.totalElements;
+            $scope.totalPages = page.totalPages;
+            $scope.loading = false;
+        }, function() {
+            $scope.loading = false;
+        });
+    };
 
     var init = function() {
-        $scope.loading = true;
 
-        AuditService.getAll().then(function(audits) {
-            $scope.audits = audits;
-            $scope.loading = false;
-        }, function () {
-            alert('Cannot get logs');
-            $scope.loading = false;
-        })
+        var i, group;
+        $scope.allGroups = [];
+        $scope.groupIds = [];
+        $scope.groupMap = {};
+
+        // get logged in user's groups
+        var groups = $scope.loggedInUser.userInformation.userGroups;
+
+        // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
+        for (i = 0; i < groups.length; i++) {
+            group = groups[i];
+            if (group.visible === true) {
+                $scope.allGroups.push(group);
+                $scope.groupIds.push(group.id);
+                $scope.groupMap[group.id] = group;
+            }
+        }
     };
 
     init();
