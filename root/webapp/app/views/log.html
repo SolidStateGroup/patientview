@@ -1,7 +1,35 @@
-<h1>Log</h1>
+<div data-ng-show="!loading">
+    <h1>Log</h1>
 
-<div class="content-panel">
-<div class="content-inner">
+    <div class="content-panel">
+        <div class="content-inner">
 
+            <table class="table" data-ng-show="audits.length">
+                <thead class="table-head">
+                <tr>
+                    <th><a href="" data-ng-click="sortBy('creationDate');" class="sort-title">Date</a></th>
+                    <th><a href="" data-ng-click="sortBy('auditActions');" class="sort-title">Action</a></th>
+                    <th><a href="" data-ng-click="sortBy('actorId');" class="sort-title">Actor</a></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-ng-repeat="audit in audits">
+                    <td>{{audit.creationDate | date: 'dd-MMM-yyyy HH:mm'}}</td>
+                    <td>{{audit.auditActions}}</td>
+                    <td>{{audit.actorId}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-warning" data-ng-show="!audits.length">
+                <p>No Log available</p>
+            </div>
+
+        </div>
+    </div>
 </div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Log</h3>
+    </div>
 </div>
