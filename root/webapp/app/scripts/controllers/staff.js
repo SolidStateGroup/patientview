@@ -336,6 +336,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // Init
     $scope.init = function () {
+
+        $scope.initFinished = false;
+
         $('body').click(function () {
             $('.child-menu').remove();
         });
@@ -353,7 +356,27 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         // A unit admin cannot remove staff from groups to which the unit admin is not assigned.
         $scope.permissions.allGroupsIds = [];
 
-        $scope.initFinished = false;
+        // check if user is GLOBAL_ADMIN or SPECIALTY_ADMIN or UNIT_ADMIN
+        $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+
+        // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN ...
+        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
+            // to delete group membership in edit UI
+            $scope.permissions.canDeleteGroupRolesDuringEdit = true;
+        }
+
+        // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN or UNIT_ADMIN ...
+        if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
+            // to see the option to delete patients in menu
+            $scope.permissions.showDeleteMenuOption = true;
+            // can reset passwords
+            $scope.permissions.canResetPasswords = true;
+            // can send verification emails
+            $scope.permissions.canSendVerificationEmails = true;
+        }
+
         var groups = $scope.loggedInUser.userInformation.userGroups;
 
         // show error if user is not a member of any groups

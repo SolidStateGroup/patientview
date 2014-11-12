@@ -39,11 +39,12 @@ public class BulkUserCreateTest {
     @Test
     @Transactional
     @Rollback(false)
-    @Ignore
+    //@Ignore
     public void test01BulkUserCreate() {
-        Long usersToCreate = 1000L;
+        Long usersToCreate = 1L;
         Date start = new Date();
-        RoleName role = RoleName.PATIENT;
+        //RoleName role = RoleName.PATIENT;
+        RoleName role = RoleName.UNIT_ADMIN;
 
         // servers
         //-Durl=http://localhost:8080/api
@@ -64,7 +65,7 @@ public class BulkUserCreateTest {
     @Test
     @Transactional
     @Rollback(false)
-    //@Ignore
+    @Ignore
     public void test02BulkObservationCreate() {
         Long observationsToCreate = 5000L;
         Long usersToInsertObservations = 100L;

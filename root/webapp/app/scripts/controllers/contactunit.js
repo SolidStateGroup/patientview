@@ -1,5 +1,6 @@
 'use strict';
 
+// used when contacting unit due to forgotten password
 angular.module('patientviewApp').controller('ContactUnitCtrl', ['GroupService', 'StaticDataService', '$scope',
     '$rootScope', 'UtilService', function (GroupService,StaticDataService,$scope,$rootScope,UtilService) {
 

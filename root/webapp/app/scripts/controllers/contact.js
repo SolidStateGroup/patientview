@@ -1,6 +1,5 @@
 'use strict';
 
-
 // contact unit modal instance controller
 var ContactUnitModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'ConversationService', 'group',
 function ($scope, $rootScope, $modalInstance, ConversationService, group) {
