@@ -167,6 +167,7 @@ function ($scope, $timeout, AuditService) {
         getParameters.size = $scope.itemsPerPage;
         getParameters.filterText = $scope.filterText;
         getParameters.groupIds = $scope.selectedGroup;
+        getParameters.auditActions = $scope.selectedAuditAction;
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
 

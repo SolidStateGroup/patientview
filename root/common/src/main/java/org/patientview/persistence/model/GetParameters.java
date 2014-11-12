@@ -17,6 +17,7 @@ public class GetParameters {
     private String[] groupTypes;
     private String[] groupIds;
     private String[] roleIds;
+    private String[] auditActions;
 
     private String[] featureIds;
 
@@ -109,6 +110,14 @@ public class GetParameters {
 
     public void setGroupTypes(String[] groupTypes) {
         this.groupTypes = groupTypes;
+    }
+
+    public String[] getAuditActions() {
+        return auditActions;
+    }
+
+    public void setAuditActions(String[] auditActions) {
+        this.auditActions = auditActions;
     }
 
     public String[] getFeatureIds() {

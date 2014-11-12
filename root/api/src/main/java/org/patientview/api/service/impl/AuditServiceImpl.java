@@ -1,11 +1,11 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.patientview.api.model.BaseUser;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.model.Audit;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.api.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -51,6 +51,18 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         //}
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
+        
+        List<String> auditActions = new ArrayList<>();
+        if (getParameters.getAuditActions() != null) {
+            for (String action : getParameters.getAuditActions()) {
+                for (AuditActions auditAction : AuditActions.class.getEnumConstants()) {
+                    if (auditAction.getName().equals(action)) {
+                        auditActions.add(auditAction.toString());
+                    }
+                }
+            }
+        }
+
         String size = getParameters.getSize();
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
