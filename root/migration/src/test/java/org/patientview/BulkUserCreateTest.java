@@ -41,7 +41,7 @@ public class BulkUserCreateTest {
     @Rollback(false)
     //@Ignore
     public void test01BulkUserCreate() {
-        Long usersToCreate = 1L;
+        Long usersToCreate = 8889L;
         Date start = new Date();
         //RoleName role = RoleName.PATIENT;
         RoleName role = RoleName.UNIT_ADMIN;
@@ -52,8 +52,8 @@ public class BulkUserCreateTest {
         //-Durl=https://staging.patientview.org/api
 
         // takes group to add users to and number of users to create
-        userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role);
-        //userDataMigrationService.bulkUserCreate("RW402", "SAC02", usersToCreate, role);
+        //userDataMigrationService.bulkUserCreate("RENALB", "SGC04", usersToCreate, role);
+        userDataMigrationService.bulkUserCreate("RW402", "SAC02", usersToCreate, role);
 
         LOG.info("Submission of " + usersToCreate + " "  + role.toString()
                 + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
