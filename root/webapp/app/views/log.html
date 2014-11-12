@@ -82,7 +82,9 @@
                                 </li>
                             </ul>
                         </div>
-                        <span data-ng-repeat="type in codeTypes" data-ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
+                        <span data-ng-repeat="auditAction in auditActions" data-ng-show="isAuditActionChecked(auditAction)">
+                            <span class="label label-primary">{{auditAction}}</span>&nbsp;
+                        </span>
                     </div>
                 </div>
             </div>
