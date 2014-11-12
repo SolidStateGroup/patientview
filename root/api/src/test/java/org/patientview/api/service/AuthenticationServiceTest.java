@@ -45,6 +45,9 @@ public class AuthenticationServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private AuditService auditService;
+
+    @Mock
     private UserTokenRepository userTokenRepository;
 
     @Mock
