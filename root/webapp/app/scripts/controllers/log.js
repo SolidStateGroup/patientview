@@ -187,6 +187,8 @@ function ($scope, $timeout, AuditService) {
         $scope.allGroups = [];
         $scope.groupIds = [];
         $scope.groupMap = {};
+        $scope.diseaseGroupsAvailable = false;
+        $scope.unitsAvailable = false;
 
         // get logged in user's groups
         var groups = $scope.loggedInUser.userInformation.userGroups;
@@ -199,6 +201,14 @@ function ($scope, $timeout, AuditService) {
                 $scope.allGroups.push(group);
                 $scope.groupIds.push(group.id);
                 $scope.groupMap[group.id] = group;
+
+                if (group.groupType.value === 'DISEASE_GROUP') {
+                    $scope.diseaseGroupsAvailable = true;
+                }
+
+                if (group.groupType.value === 'UNIT') {
+                    $scope.unitsAvailable = true;
+                }
             }
         }
     };
