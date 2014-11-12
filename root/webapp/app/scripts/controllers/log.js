@@ -137,6 +137,29 @@ function ($scope, $timeout, AuditService) {
         $scope.getItems();
     };
 
+    // filter by audit action
+    $scope.selectedAuditAction = [];
+    $scope.setSelectedAuditAction = function (auditAction) {
+        if (_.contains($scope.selectedAuditAction, auditAction)) {
+            $scope.selectedAuditAction = _.without($scope.selectedAuditAction, auditAction);
+        } else {
+            $scope.selectedAuditAction.push(auditAction);
+        }
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.isAuditActionChecked = function (auditAction) {
+        if (_.contains($scope.selectedAuditAction, auditAction)) {
+            return 'glyphicon glyphicon-ok pull-right';
+        }
+        return false;
+    };
+    $scope.removeAllAuditActions = function () {
+        $scope.selectedAuditAction = [];
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+
     $scope.getItems = function() {
         $scope.loading = true;
         var getParameters = {};
@@ -166,6 +189,7 @@ function ($scope, $timeout, AuditService) {
 
         // get logged in user's groups
         var groups = $scope.loggedInUser.userInformation.userGroups;
+        $scope.auditActions = $scope.loggedInUser.userInformation.auditActions;
 
         // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
         for (i = 0; i < groups.length; i++) {

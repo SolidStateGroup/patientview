@@ -1,6 +1,7 @@
 package org.patientview.api.model;
 
 import org.hl7.fhir.instance.model.DateAndTime;
+import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.UserFeature;
 
 import java.util.Date;
@@ -19,7 +20,7 @@ public class User extends BaseUser {
     private Set<GroupRole> groupRoles = new HashSet<>();
     private Date lastLogin;
     private String lastLoginIpAddress;
-    private Set identifiers;
+    private Set<Identifier> identifiers;
     private Boolean locked;
     private Boolean emailVerified;
     private Boolean dummy;

@@ -1,16 +1,22 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.BaseUser;
 import org.patientview.api.service.AuditService;
-import org.patientview.persistence.model.Audit;
+import org.patientview.api.model.Audit;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.api.model.User;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.repository.AuditRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,8 +32,11 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
     @Inject
     private AuditRepository auditRepository;
 
+    @Inject
+    private UserRepository userRepository;
+
     @Override
-    public Audit save(Audit audit) {
+    public org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit) {
         return auditRepository.save(audit);
     }
 
@@ -71,7 +80,44 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
         // todo group ids, identifier search
 
-        return auditRepository.findAllFiltered(pageable);
+        Page<org.patientview.persistence.model.Audit> audits =  auditRepository.findAllFiltered(pageable);
+
+        // convert to transport objects, create Page and return
+        List<Audit> transportContent = convertToTransport(audits.getContent());
+        return new PageImpl<>(transportContent, pageable, audits.getTotalElements());
+    }
+
+    private List<Audit> convertToTransport(List<org.patientview.persistence.model.Audit> audits) {
+        List<Audit> transportAudits = new ArrayList<>();
+
+        for (org.patientview.persistence.model.Audit audit : audits) {
+            Audit transportAudit = new Audit(audit);
+
+            // get actor if exists
+            if (audit.getActorId() != null) {
+                org.patientview.persistence.model.User actor = userRepository.findOne(audit.getActorId());
+                if (actor != null) {
+                    transportAudit.setActor(new User(actor, null));
+                }
+            }
+
+            // if source object is User get source user if exists
+            if (audit.getSourceObjectType() != null
+                    && audit.getSourceObjectType().equals(AuditObjectTypes.USER.getName())
+                    && audit.getSourceObjectId() != null) {
+
+                org.patientview.persistence.model.User sourceObjectUser
+                        = userRepository.findOne(audit.getSourceObjectId());
+
+                if (sourceObjectUser != null) {
+                    transportAudit.setSourceObjectUser(new User(sourceObjectUser, null));
+                }
+            }
+
+            transportAudits.add(transportAudit);
+        }
+
+        return transportAudits;
     }
 
 }

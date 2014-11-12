@@ -29,6 +29,7 @@ public class UserToken {
     private List<Feature> staffFeatures;
     private List<Feature> patientFeatures;
     private List<PatientMessagingFeatureType> patientMessagingFeatureTypes;
+    private List<String> auditActions;
 
     public UserToken() {
 
@@ -145,5 +146,13 @@ public class UserToken {
 
     public void setPatientMessagingFeatureTypes(List<PatientMessagingFeatureType> patientMessagingFeatureTypes) {
         this.patientMessagingFeatureTypes = patientMessagingFeatureTypes;
+    }
+
+    public List<String> getAuditActions() {
+        return auditActions;
+    }
+
+    public void setAuditActions(List<String> auditActions) {
+        this.auditActions = auditActions;
     }
 }

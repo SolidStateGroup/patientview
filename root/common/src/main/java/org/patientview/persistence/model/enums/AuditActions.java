@@ -16,7 +16,7 @@ public enum AuditActions {
     LOGON_SUCCESS("Logon Success"),
     MAP("Map"),
     LOGON_FAIL("Logon failed"),
-    LOGOFF("log off"),
+    LOGOFF("Log off"),
     SWITCH_USER("Switch User");
 
     private String name;

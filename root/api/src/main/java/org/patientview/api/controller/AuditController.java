@@ -1,7 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.AuditService;
-import org.patientview.persistence.model.Audit;
+import org.patientview.api.model.Audit;
 import org.patientview.persistence.model.GetParameters;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
