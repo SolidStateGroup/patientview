@@ -375,7 +375,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (!groupRepository.exists(groupRole.getGroup().getId())) {
                 throw new ResourceNotFoundException("Group does not exist");
             }
-            if (!isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+            if (!isCurrentUserMemberOfGroup(groupRepository.findOne(groupRole.getGroup().getId()))) {
                 throw new ResourceForbiddenException("Forbidden");
             }
         }
