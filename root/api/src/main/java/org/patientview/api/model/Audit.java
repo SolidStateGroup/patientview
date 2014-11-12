@@ -27,7 +27,9 @@ public class Audit extends BaseModel {
     }
 
     public Audit(org.patientview.persistence.model.Audit audit) {
-        this.auditActions = audit.getAuditActions().getName();
+        if (audit.getAuditActions() != null) {
+            this.auditActions = audit.getAuditActions().getName();
+        }
         this.sourceObjectId = audit.getSourceObjectId();
         this.sourceObjectType = audit.getSourceObjectType();
         this.preValue = audit.getPreValue();

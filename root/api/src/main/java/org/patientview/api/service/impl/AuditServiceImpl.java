@@ -51,7 +51,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         //}
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
-        
+
         List<String> auditActions = new ArrayList<>();
         if (getParameters.getAuditActions() != null) {
             for (String action : getParameters.getAuditActions()) {
