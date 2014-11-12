@@ -203,8 +203,16 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         }
         return false;
     };
-    $scope.removeAllSelectedGroup = function () {
-        $scope.selectedGroup = [];
+    $scope.removeAllSelectedGroup = function (groupType) {
+        var newSelectedGroupList = [];
+
+        for (var i=0; i<$scope.selectedGroup.length; i++) {
+            if ($scope.groupMap[$scope.selectedGroup[i]].groupType.value !== groupType) {
+                newSelectedGroupList.push($scope.selectedGroup[i]);
+            }
+        }
+
+        $scope.selectedGroup = newSelectedGroupList;
         $scope.currentPage = 0;
         $scope.getItems();
     };
@@ -349,8 +357,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.allRoles = [];
         $scope.roleIds = [];
         $scope.groupIds = [];
+        $scope.groupMap = [];
 
-        // TODO: set permissions for ui
         $scope.permissions = {};
         // used in html when checking for user group membership by id only (e.g. to show/hide delete on staff GroupRole)
         // A unit admin cannot remove staff from groups to which the unit admin is not assigned.
@@ -389,6 +397,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     $scope.allGroups.push(group);
                     $scope.groupIds.push(group.id);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
+                    $scope.groupMap[group.id] = group;
                 }
             }
 

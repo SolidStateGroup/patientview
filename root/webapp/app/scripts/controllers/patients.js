@@ -350,11 +350,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         return false;
     };
     $scope.removeAllSelectedGroup = function (groupType) {
-
         var newSelectedGroupList = [];
 
         for (var i=0; i<$scope.selectedGroup.length; i++) {
-
             if ($scope.groupMap[$scope.selectedGroup[i]].groupType.value !== groupType) {
                 newSelectedGroupList.push($scope.selectedGroup[i]);
             }
@@ -465,6 +463,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // Init
     $scope.init = function () {
+
+        $scope.initFinished = false;
+
         $('body').click(function () {
             $('.child-menu').remove();
         });
@@ -530,7 +531,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
         // get logged in user's groups
         var groups = $scope.loggedInUser.userInformation.userGroups;
-        $scope.initFinished = false;
 
         // show error if user is not a member of any groups
         if (groups.length !== 0) {
