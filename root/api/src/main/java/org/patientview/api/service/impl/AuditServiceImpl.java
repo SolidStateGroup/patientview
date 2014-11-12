@@ -6,6 +6,7 @@ import org.patientview.persistence.repository.AuditRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * TODO Sprint 3 factor into aspect
@@ -20,8 +21,14 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
     @Inject
     private AuditRepository auditRepository;
 
+    @Override
     public Audit save(Audit audit) {
         return auditRepository.save(audit);
+    }
+
+    @Override
+    public List<Audit> findAll() {
+        return auditRepository.findAll();
     }
 
 }

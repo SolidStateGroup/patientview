@@ -4,6 +4,8 @@ import org.patientview.persistence.model.Audit;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 06/08/2014
@@ -12,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AuditService {
 
     Audit save(Audit audit);
+
+    List<Audit> findAll();
 
 }
 

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 05/08/2014
@@ -13,4 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface AuditRepository extends CrudRepository<Audit, Long> {
+
+    public List<Audit> findAll();
 }
