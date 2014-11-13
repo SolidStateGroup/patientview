@@ -65,7 +65,7 @@ public class AuditServiceTest {
         PageRequest pageRequestAll = new PageRequest(0, Integer.MAX_VALUE);
         Page<Audit> auditPage = new PageImpl<>(audits, pageRequestAll, audits.size());
 
-        when(auditRepository.findAllFiltered(any(Pageable.class))).thenReturn(auditPage);
+        when(auditRepository.findAll(any(Pageable.class))).thenReturn(auditPage);
         when(userRepository.findOne(any(Long.class))).thenReturn(new User());
 
         Page<org.patientview.api.model.Audit> returnedAudits = auditService.findAll(new GetParameters());
