@@ -6,7 +6,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -17,6 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -55,7 +60,7 @@ public class AuditRepositoryTest {
     }
 
     @Test
-    public void testFindAllFiltered() {
+    public void testFindAllPaged() {
 
         Audit audit = new Audit();
         audit.setActorId(1L);
@@ -63,7 +68,27 @@ public class AuditRepositoryTest {
         Group group = dataTestUtils.createGroup("testGroup");
         Long[] groupIdsArr = {group.getId()};
 
-        Page<Audit> audits = auditRepository.findAllFiltered(new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAll(new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllByGroup() {
+
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role);
+
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user.getId());
+        auditRepository.save(audit);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+
+        Page<Audit> audits = auditRepository.findAllByGroup(groupIds, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
     }

@@ -92,7 +92,14 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
         // todo group ids, identifier search
 
-        Page<org.patientview.persistence.model.Audit> audits =  auditRepository.findAllFiltered(pageable);
+        Page<org.patientview.persistence.model.Audit> audits
+                = new PageImpl<>(new ArrayList<org.patientview.persistence.model.Audit>());
+
+        if (!groupIds.isEmpty()) {
+            audits = auditRepository.findAllByGroup(groupIds, pageable);
+        } else {
+            audits = auditRepository.findAll(pageable);
+        }
 
         // convert to transport objects, create Page and return
         List<Audit> transportContent = convertToTransport(audits.getContent());
