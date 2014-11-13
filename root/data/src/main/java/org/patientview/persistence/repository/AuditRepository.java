@@ -31,12 +31,16 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "FROM Audit a " +
             "WHERE ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User)) " +
-            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) ")
+            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))) ")
     Page<Audit> findAllFiltered(@Param("filterText") String filterText, Pageable pageable);
 
     @Query("SELECT a " +
             "FROM Audit a " +
-            "WHERE (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))) ")
+            "WHERE ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User)) " +
+            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))) ")
     Page<Audit> findAllByIdentifierFiltered(@Param("filterText") String filterText, Pageable pageable);
 
     @Query("SELECT a " +
@@ -57,7 +61,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "WHERE g.id IN (:groupIds)) " +
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
-            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)))) ")
+            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText)))) ")
     Page<Audit> findAllBySourceGroupFiltered(@Param("filterText") String filterText,
                                              @Param("groupIds") List<Long> groupIds, Pageable pageable);
 
@@ -72,7 +77,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "WHERE a.auditActions IN :actions " +
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
-            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)))) ")
+            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText)))) ")
     Page<Audit> findAllByActionFiltered(@Param("filterText") String filterText,
                                         @Param("actions") List<AuditActions> actions, Pageable pageable);
 
@@ -97,7 +103,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "AND a.auditActions IN :actions " +
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
-            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)))) ")
+            "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText)))) ")
     Page<Audit> findAllBySourceGroupAndActionFiltered(@Param("filterText") String filterText,
                                                 @Param("groupIds") List<Long> groupIds,
                                         @Param("actions") List<AuditActions> actions, Pageable pageable);

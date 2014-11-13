@@ -90,7 +90,7 @@ public class AuditRepositoryTest {
     }
 
     @Test
-    public void testFindAllFiltered_Identifier() {
+    public void testFindAllByIdentifierFiltered() {
 
         User user = dataTestUtils.createUser("testUser");
         Lookup lookup = dataTestUtils.createLookup("NHS_NUMBER", LookupTypes.IDENTIFIER);
@@ -102,14 +102,17 @@ public class AuditRepositoryTest {
         user.getIdentifiers().add(identifier);
         userRepository.save(user);
 
+        // source user (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
 
+        // source 1L (no)
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(1L);
         audit2.setSourceObjectType(null);
 
+        // source 2L (no)
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(2L);
         audit3.setSourceObjectType(null);
@@ -118,11 +121,15 @@ public class AuditRepositoryTest {
         auditRepository.save(audit2);
         auditRepository.save(audit3);
 
+        // filter by identifier
         String filterText = "%" + identifier.getIdentifier() + "%";
-
         Page<Audit> audits = auditRepository.findAllByIdentifierFiltered(filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Assert.assertEquals("Should be 1 audit returned (search by identifier)", 1, audits.getContent().size());
 
-        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+        // filter by username
+        filterText = "%" + user.getUsername().toUpperCase() + "%";
+        audits = auditRepository.findAllByIdentifierFiltered(filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Assert.assertEquals("Should be 1 audit returned (search by username)", 1, audits.getContent().size());
     }
 
     @Test
