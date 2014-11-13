@@ -52,12 +52,12 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
 
-        List<String> auditActions = new ArrayList<>();
+        List<AuditActions> auditActions = new ArrayList<>();
         if (getParameters.getAuditActions() != null) {
             for (String action : getParameters.getAuditActions()) {
                 for (AuditActions auditAction : AuditActions.class.getEnumConstants()) {
                     if (auditAction.getName().equals(action)) {
-                        auditActions.add(auditAction.toString());
+                        auditActions.add(auditAction);
                     }
                 }
             }
@@ -92,13 +92,20 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
         // todo group ids, identifier search
 
-        Page<org.patientview.persistence.model.Audit> audits
-                = new PageImpl<>(new ArrayList<org.patientview.persistence.model.Audit>());
+        Page<org.patientview.persistence.model.Audit> audits;
 
         if (!groupIds.isEmpty()) {
-            audits = auditRepository.findAllByGroup(groupIds, pageable);
+            if (!auditActions.isEmpty()) {
+                audits = auditRepository.findAllByGroupAndAction(groupIds, auditActions, pageable);
+            } else {
+                audits = auditRepository.findAllByGroup(groupIds, pageable);
+            }
         } else {
-            audits = auditRepository.findAll(pageable);
+            if (!auditActions.isEmpty()) {
+                audits = auditRepository.findAllByAction(auditActions, pageable);
+            } else {
+                audits = auditRepository.findAll(pageable);
+            }
         }
 
         // convert to transport objects, create Page and return

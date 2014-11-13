@@ -9,6 +9,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
@@ -65,8 +66,6 @@ public class AuditRepositoryTest {
         Audit audit = new Audit();
         audit.setActorId(1L);
         auditRepository.save(audit);
-        Group group = dataTestUtils.createGroup("testGroup");
-        Long[] groupIdsArr = {group.getId()};
 
         Page<Audit> audits = auditRepository.findAll(new PageRequest(0, Integer.MAX_VALUE));
 
@@ -79,7 +78,7 @@ public class AuditRepositoryTest {
         User user = dataTestUtils.createUser("testUser");
         Group group = dataTestUtils.createGroup("testGroup");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
-        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group, role);
 
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
@@ -89,6 +88,52 @@ public class AuditRepositoryTest {
         groupIds.add(group.getId());
 
         Page<Audit> audits = auditRepository.findAllByGroup(groupIds, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllByAction() {
+
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        dataTestUtils.createGroupRole(user, group, role);
+
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user.getId());
+        audit.setAuditActions(AuditActions.SWITCH_USER);
+        auditRepository.save(audit);
+
+        List<AuditActions> actions = new ArrayList<>();
+        actions.add(AuditActions.SWITCH_USER);
+
+        Page<Audit> audits = auditRepository.findAllByAction(actions, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllByGroupAndAction() {
+
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        dataTestUtils.createGroupRole(user, group, role);
+
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user.getId());
+        audit.setAuditActions(AuditActions.SWITCH_USER);
+        auditRepository.save(audit);
+
+        List<AuditActions> actions = new ArrayList<>();
+        actions.add(AuditActions.SWITCH_USER);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+
+        Page<Audit> audits
+                = auditRepository.findAllByGroupAndAction(groupIds, actions, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
     }

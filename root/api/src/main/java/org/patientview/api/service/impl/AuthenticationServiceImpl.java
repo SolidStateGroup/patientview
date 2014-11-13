@@ -19,6 +19,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
@@ -110,7 +111,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         // TODO handled with aspects
-        createAudit(AuditActions.SWITCH_USER, user.getUsername(), getCurrentUser());
+        createAudit(AuditActions.SWITCH_USER, user.getUsername(), getCurrentUser(),
+                user.getId(), AuditObjectTypes.USER);
 
         Date now = new Date();
 
@@ -159,7 +161,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
             // TODO handled with aspects
-            createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user);
+            createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.USER);
             incrementFailedLogon(user);
             throw new AuthenticationServiceException("Incorrect username or password");
         }
@@ -170,7 +173,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         Date now = new Date();
 
-        createAudit(AuditActions.LOGON_SUCCESS, user.getUsername(), user);
+        createAudit(AuditActions.LOGON_SUCCESS, user.getUsername(), user,
+                user.getId(), AuditObjectTypes.USER);
+
         UserToken userToken = new UserToken();
         userToken.setUser(user);
         userToken.setToken(CommonUtils.getAuthToken());
@@ -206,7 +211,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (userToken == null) {
             throw new AuthenticationServiceException("User is not currently logged in");
         }
-        createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername(), userToken.getUser());
+        createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername(), userToken.getUser(),
+                userToken.getUser().getId(), AuditObjectTypes.USER);
 
         // delete all user tokens associated with this user (should only ever be one per user)
         userTokenRepository.deleteByUserId(userToken.getUser().getId());
@@ -436,13 +442,20 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     // TODO sprint 3 manage this with annotation
-    private void createAudit(AuditActions auditActions, String username, User actor) {
+    private void createAudit(AuditActions auditActions, String preValue, User actor,
+                             Long sourceObjectId, AuditObjectTypes sourceObjectType) {
+
         Audit audit = new Audit();
         audit.setAuditActions(auditActions);
-        audit.setPreValue(username);
+        audit.setPreValue(preValue);
 
         if (actor != null) {
             audit.setActorId(actor.getId());
+        }
+
+        audit.setSourceObjectId(sourceObjectId);
+        if (sourceObjectType != null) {
+            audit.setSourceObjectType(sourceObjectType.getName());
         }
 
         auditService.save(audit);

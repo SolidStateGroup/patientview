@@ -1,6 +1,7 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -34,4 +35,20 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "JOIN ugr.group g " +
             "WHERE g.id IN :groupIds)")
     Page<Audit> findAllByGroup(@Param("groupIds") List<Long> groupIds, Pageable pageable);
+
+    @Query("SELECT a " +
+            "FROM Audit a " +
+            "WHERE a.auditActions IN :actions")
+    Page<Audit> findAllByAction(@Param("actions") List<AuditActions> actions, Pageable pageable);
+
+    @Query("SELECT a " +
+            "FROM Audit a " +
+            "WHERE a.sourceObjectId IN (" +
+            "SELECT u.id FROM User u " +
+            "JOIN u.groupRoles ugr " +
+            "JOIN ugr.group g " +
+            "WHERE g.id IN :groupIds) " +
+            "AND a.auditActions IN :actions")
+    Page<Audit> findAllByGroupAndAction(@Param("groupIds") List<Long> groupIds,
+                                        @Param("actions") List<AuditActions> actions, Pageable pageable);
 }
