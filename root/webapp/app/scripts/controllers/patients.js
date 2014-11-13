@@ -110,7 +110,7 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
             $scope.editUser = result;
             $scope.existingUser = true;
             $scope.editMode = true;
-            $scope.warningMessage = '';
+            $scope.warningMessage = 'A patient member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
             $scope.pagedItems = [];
 
             // get user existing group/roles from groupRoles

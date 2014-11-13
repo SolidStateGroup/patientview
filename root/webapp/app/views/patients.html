@@ -14,6 +14,8 @@
                 <h3 class="modal-title" data-ng-show="existingUser">Existing Patient User</h3>
             </div>
             <div class="modal-body">
+                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
                 <form name="userFormNew" data-ng-show="!existingUser">
                     <div data-ng-include src="'views/partials/patientDetailsNew.html'" data-ng-controller="UserDetailsCtrl"></div>
                 </form>
@@ -22,8 +24,6 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
                 <button class="btn btn-primary" data-ng-click="create()" data-ng-show="!existingUser"
                         data-ng-disabled="!userFormNew.$valid
@@ -39,6 +39,10 @@
                 <h3 class="modal-title" data-ng-show="existingUser">Existing Patient User</h3>
             </div>
             <div class="modal-body">
+
+                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+
                 <form name="userFormFindByIdentifier" data-ng-show="!existingUser">
                     <div data-ng-include src="'views/partials/patientDetailsFindExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
                 </form>
@@ -47,9 +51,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
-                <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+                <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
             </div>
         </script>
 

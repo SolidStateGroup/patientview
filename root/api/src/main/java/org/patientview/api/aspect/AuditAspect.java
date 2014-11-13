@@ -10,8 +10,8 @@ import org.patientview.api.service.AuditService;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -38,6 +38,9 @@ public class AuditAspect {
 
     @Inject
     private AuditService auditService;
+
+    @Inject
+    private UserRepository userRepository;
 
     @PostConstruct
     public void init() {
@@ -69,7 +72,7 @@ public class AuditAspect {
         auditService.save(audit);
     }
 
-
+    // todo: better error handling
     private Audit createAudit(AuditTrail auditTrail, Long objectId) {
 
         User user = null;
@@ -79,9 +82,11 @@ public class AuditAspect {
             LOG.debug("Audit cannot get security context");
         }
 
+        User entityUser = userRepository.findOne(user.getId());
+
         Audit audit = new Audit();
-        if (user != null) {
-            audit.setActorId(user.getId());
+        if (entityUser != null) {
+            audit.setActorId(entityUser.getId());
         }
         audit.setSourceObjectId(objectId);
 

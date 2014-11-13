@@ -85,7 +85,7 @@ public class AuditRepositoryTest {
 
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(2L);
-        audit3.setSourceObjectType(null);
+        audit3.setSourceObjectType("");
         audit3.setCreationDate(new Date(new Date().getTime() - oneWeek));
 
         auditRepository.save(audit);
@@ -122,13 +122,13 @@ public class AuditRepositoryTest {
         // source 1L (no)
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(1L);
-        audit2.setSourceObjectType(null);
+        audit2.setSourceObjectType("");
         audit2.setCreationDate(new Date());
 
         // source 2L (no)
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(2L);
-        audit3.setSourceObjectType(null);
+        audit3.setSourceObjectType("");
         audit3.setCreationDate(new Date());
 
         auditRepository.save(audit);
@@ -161,12 +161,12 @@ public class AuditRepositoryTest {
 
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(1L);
-        audit2.setSourceObjectType(null);
+        audit2.setSourceObjectType("");
         audit2.setCreationDate(new Date());
 
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(2L);
-        audit3.setSourceObjectType(null);
+        audit3.setSourceObjectType("");
         audit3.setCreationDate(new Date());
 
         auditRepository.save(audit);
@@ -195,7 +195,7 @@ public class AuditRepositoryTest {
 
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(2L);
-        audit3.setSourceObjectType(null);
+        audit3.setSourceObjectType("");
         audit3.setCreationDate(new Date());
 
         auditRepository.save(audit);

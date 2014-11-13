@@ -68,6 +68,15 @@ public class Audit extends BaseModel {
         this.sourceObjectType = sourceObjectType;
     }
 
+    // required for aspect
+    public void setSourceObjectType(final String sourceObjectType) {
+        for (AuditObjectTypes auditObjectType : AuditObjectTypes.class.getEnumConstants()) {
+            if (auditObjectType.getName().equals(sourceObjectType)) {
+                this.setSourceObjectType(auditObjectType);
+            }
+        }
+    }
+
     public String getPreValue() {
         return preValue;
     }
