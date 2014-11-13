@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -69,7 +70,8 @@ public class AuditServiceTest {
         PageRequest pageRequestAll = new PageRequest(0, Integer.MAX_VALUE);
         Page<Audit> auditPage = new PageImpl<>(audits, pageRequestAll, audits.size());
 
-        when(auditRepository.findAllFiltered(any(String.class), any(Pageable.class))).thenReturn(auditPage);
+        when(auditRepository.findAllFiltered(any(Date.class), any(Date.class), any(String.class),
+                any(Pageable.class))).thenReturn(auditPage);
         when(userRepository.findOne(any(Long.class))).thenReturn(new User());
 
         Page<org.patientview.api.model.Audit> returnedAudits = auditService.findAll(new GetParameters());

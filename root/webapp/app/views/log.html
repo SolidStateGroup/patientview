@@ -1,3 +1,10 @@
+<!-- todo: put in main styles -->
+<style>
+    .btn.btn-default {
+        color: #585858;
+    }
+</style>
+
 <div data-ng-show="!loading">
     <h1>Log</h1>
 
@@ -99,23 +106,37 @@
                             </div>
                         </div>
                     <!-- datepicker -->
-                        <div class="col-md-3 hidden">
+                        <div class="col-md-3">
                             <label for="date-start">Start Date</label>
                             <p class="input-group">
-                                <input id="date-start" type="text" class="form-control" datepicker-popup="dd-MMM-yyyy" ng-model="dt" is-open="opened" min-date="minDate"
-                                       datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+                                <input id="date-start" type="text" class="form-control" datepicker-popup="dd-MMM-yyyy"
+                                       ng-model="dateStart" is-open="openedStart"
+                                       datepicker-options="dateOptions"
+                                       ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
-                                <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                    <button type="button" class="btn btn-default" ng-click="openStart($event)">
+                                        <i class="glyphicon glyphicon-calendar"></i>
+                                    </button>
                                 </span>
                             </p>
                             <label for="date-end">End Date</label>
                             <p class="input-group">
-                                <input id="date-end" type="text" class="form-control" datepicker-popup="dd-MMM-yyyy" ng-model="dt" is-open="opened" min-date="minDate"
-                                       datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+                                <input id="date-end" type="text" class="form-control" datepicker-popup="dd-MMM-yyyy"
+                                       ng-model="dateEnd" is-open="openedEnd"
+                                       datepicker-options="dateOptions"
+                                       ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
-                                <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                    <button type="button" class="btn btn-default" ng-click="openEnd($event)">
+                                        <i class="glyphicon glyphicon-calendar"></i>
+                                    </button>
                                 </span>
                             </p>
+                        </div>
+                        <div class="col-md-3">
+                            <br/>
+                            <br/>
+                            <br/>
+                            <button class="btn btn-primary" data-ng-click="setDateRange(dateStart, dateEnd)">Set Date Range</button>
                         </div>
                     </div>
                 </div>

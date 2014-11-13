@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -106,6 +107,8 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
         String filterText = getParameters.getFilterText();
+        Date start = new Date(getParameters.getStart());
+        Date end = new Date(getParameters.getEnd());
 
         PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
@@ -128,15 +131,14 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             filterText = "%" + filterText.toUpperCase() + "%";
         }
 
-        // todo identifier search
         Page<org.patientview.persistence.model.Audit> audits;
 
         if (!groupIds.isEmpty()) {
             if (!auditActions.isEmpty()) {
                 audits = auditRepository.findAllBySourceGroupAndActionFiltered(
-                        filterText, groupIds, auditActions, pageable);
+                        start, end, filterText, groupIds, auditActions, pageable);
             } else {
-                audits = auditRepository.findAllBySourceGroupFiltered(filterText, groupIds, pageable);
+                audits = auditRepository.findAllBySourceGroupFiltered(start, end, filterText, groupIds, pageable);
             }
         } else {
             // include final check to see if global admin as others should have group ids
@@ -145,9 +147,9 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             }
 
             if (!auditActions.isEmpty()) {
-                audits = auditRepository.findAllByActionFiltered(filterText, auditActions, pageable);
+                audits = auditRepository.findAllByActionFiltered(start, end, filterText, auditActions, pageable);
             } else {
-                audits = auditRepository.findAllFiltered(filterText, pageable);
+                audits = auditRepository.findAllFiltered(start, end, filterText, pageable);
             }
         }
 

@@ -170,6 +170,8 @@ function ($scope, $timeout, AuditService) {
         getParameters.auditActions = $scope.selectedAuditAction;
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
+        getParameters.start = $scope.dateStart.getTime();
+        getParameters.end = $scope.dateEnd.getTime();
 
         AuditService.getAll(getParameters).then(function(page) {
             $scope.pagedItems = page.content;
@@ -182,32 +184,43 @@ function ($scope, $timeout, AuditService) {
     };
 
     // date picker
-    $scope.today = function() {
-        $scope.dt = new Date();
-    };
-    $scope.today();
-
-    $scope.clear = function () {
-        $scope.dt = null;
+    // http://angular-ui.github.io/bootstrap/
+    $scope.todayStart = function() {
+        $scope.dateStart = new Date();
     };
 
-    // Disable weekend selection
-    $scope.disabled = function(date, mode) {
-        return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
+    $scope.todayEnd = function() {
+        $scope.dateEnd = new Date();
     };
 
-    $scope.toggleMin = function() {
-        $scope.minDate = $scope.minDate ? null : new Date();
+    $scope.clearStart = function () {
+        $scope.dateEnd = null;
     };
-    $scope.toggleMin();
-
-    $scope.open = function($event) {
+    $scope.clearEnd = function () {
+        $scope.dateEnd = null;
+    };
+    $scope.openStart = function($event) {
         $event.preventDefault();
         $event.stopPropagation();
-
-        $scope.opened = true;
+        $scope.openedStart = true;
+    };
+    $scope.openEnd = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        $scope.openedEnd = true;
     };
 
+    $scope.setDateRange = function(start, end) {
+        if (start === undefined) {
+            var oneWeek = 604800000;
+            $scope.dateStart = new Date(new Date().getTime() - oneWeek);
+        }
+        if (end === undefined) {
+            $scope.dateEnd = new Date();
+        }
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
 
     var init = function() {
 
@@ -217,6 +230,11 @@ function ($scope, $timeout, AuditService) {
         $scope.groupMap = {};
         $scope.diseaseGroupsAvailable = false;
         $scope.unitsAvailable = false;
+
+        // set up datepicker
+        $scope.todayEnd();
+        var oneWeek = 604800000;
+        $scope.dateStart = new Date(new Date().getTime() - oneWeek);
 
         // get logged in user's groups
         var groups = $scope.loggedInUser.userInformation.userGroups;
