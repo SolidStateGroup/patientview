@@ -10,6 +10,8 @@ import org.patientview.api.service.AuditService;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -82,7 +84,13 @@ public class AuditAspect {
             audit.setActorId(user.getId());
         }
         audit.setSourceObjectId(objectId);
-        audit.setSourceObjectType(auditTrail.objectType().getSimpleName());
+
+        for (AuditObjectTypes auditObjectType : AuditObjectTypes.class.getEnumConstants()) {
+            if (auditObjectType.getName().equals(auditTrail.objectType().getSimpleName())) {
+                audit.setSourceObjectType(auditObjectType);
+            }
+        }
+
         audit.setAuditActions(auditTrail.value());
         return audit;
     }

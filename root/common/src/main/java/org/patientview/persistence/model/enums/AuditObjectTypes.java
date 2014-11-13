@@ -6,7 +6,7 @@ package org.patientview.persistence.model.enums;
  */
 public enum AuditObjectTypes {
 
-    USER("User");
+    User("User");
 
     private String name;
     AuditObjectTypes(String name) { this.name = name; }

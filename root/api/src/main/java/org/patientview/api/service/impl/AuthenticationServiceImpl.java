@@ -112,7 +112,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // TODO handled with aspects
         createAudit(AuditActions.SWITCH_USER, user.getUsername(), getCurrentUser(),
-                user.getId(), AuditObjectTypes.USER);
+                user.getId(), AuditObjectTypes.User);
 
         Date now = new Date();
 
@@ -162,7 +162,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
             // TODO handled with aspects
             createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
-                    user.getId(), AuditObjectTypes.USER);
+                    user.getId(), AuditObjectTypes.User);
             incrementFailedLogon(user);
             throw new AuthenticationServiceException("Incorrect username or password");
         }
@@ -174,7 +174,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         Date now = new Date();
 
         createAudit(AuditActions.LOGON_SUCCESS, user.getUsername(), user,
-                user.getId(), AuditObjectTypes.USER);
+                user.getId(), AuditObjectTypes.User);
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);
@@ -212,7 +212,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("User is not currently logged in");
         }
         createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername(), userToken.getUser(),
-                userToken.getUser().getId(), AuditObjectTypes.USER);
+                userToken.getUser().getId(), AuditObjectTypes.User);
 
         // delete all user tokens associated with this user (should only ever be one per user)
         userTokenRepository.deleteByUserId(userToken.getUser().getId());
@@ -455,7 +455,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         audit.setSourceObjectId(sourceObjectId);
         if (sourceObjectType != null) {
-            audit.setSourceObjectType(sourceObjectType.getName());
+            audit.setSourceObjectType(sourceObjectType);
         }
 
         auditService.save(audit);

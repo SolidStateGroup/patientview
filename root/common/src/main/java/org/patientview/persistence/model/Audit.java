@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,7 +28,8 @@ public class Audit extends BaseModel {
     private Long sourceObjectId;
 
     @Column(name = "source_object_type")
-    private String sourceObjectType;
+    @Enumerated(EnumType.STRING)
+    private AuditObjectTypes sourceObjectType;
 
     @Column(name = "pre_value")
     private String preValue;
@@ -58,11 +60,11 @@ public class Audit extends BaseModel {
         this.sourceObjectId = sourceObjectId;
     }
 
-    public String getSourceObjectType() {
+    public AuditObjectTypes getSourceObjectType() {
         return sourceObjectType;
     }
 
-    public void setSourceObjectType(final String sourceObjectType) {
+    public void setSourceObjectType(final AuditObjectTypes sourceObjectType) {
         this.sourceObjectType = sourceObjectType;
     }
 

@@ -31,7 +31,9 @@ public class Audit extends BaseModel {
             this.auditActions = audit.getAuditActions().getName();
         }
         this.sourceObjectId = audit.getSourceObjectId();
-        this.sourceObjectType = audit.getSourceObjectType();
+        if (audit.getSourceObjectType() != null) {
+            this.sourceObjectType = audit.getSourceObjectType().getName();
+        }
         this.preValue = audit.getPreValue();
         this.postValue = audit.getPostValue();
         this.actorId = audit.getActorId();

@@ -133,9 +133,10 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
         if (!groupIds.isEmpty()) {
             if (!auditActions.isEmpty()) {
-                audits = auditRepository.findAllByGroupAndAction(groupIds, auditActions, pageable);
+                audits = auditRepository.findAllBySourceGroupAndActionFiltered(
+                        filterText, groupIds, auditActions, pageable);
             } else {
-                audits = auditRepository.findAllByGroup(groupIds, pageable);
+                audits = auditRepository.findAllBySourceGroupFiltered(filterText, groupIds, pageable);
             }
         } else {
             // include final check to see if global admin as others should have group ids
@@ -144,9 +145,9 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             }
 
             if (!auditActions.isEmpty()) {
-                audits = auditRepository.findAllByAction(auditActions, pageable);
+                audits = auditRepository.findAllByActionFiltered(filterText, auditActions, pageable);
             } else {
-                audits = auditRepository.findAll(pageable);
+                audits = auditRepository.findAllFiltered(filterText, pageable);
             }
         }
 
@@ -171,7 +172,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
             // if source object is User get source user if exists
             if (audit.getSourceObjectType() != null
-                    && audit.getSourceObjectType().equals(AuditObjectTypes.USER.getName())
+                    && audit.getSourceObjectType().equals(AuditObjectTypes.User)
                     && audit.getSourceObjectId() != null) {
 
                 org.patientview.persistence.model.User sourceObjectUser

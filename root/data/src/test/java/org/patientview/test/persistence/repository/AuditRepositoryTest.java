@@ -6,12 +6,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.AuditRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
 import org.springframework.data.domain.Page;
@@ -22,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -38,6 +44,9 @@ public class AuditRepositoryTest {
     AuditRepository auditRepository;
 
     @Inject
+    UserRepository userRepository;
+
+    @Inject
     DataTestUtils dataTestUtils;
 
     User creator;
@@ -48,8 +57,7 @@ public class AuditRepositoryTest {
     }
 
     @Test
-    public void testFindAll() {
-
+    public void testFindAllNonPaged() {
         Audit audit = new Audit();
         audit.setActorId(1L);
         auditRepository.save(audit);
@@ -60,20 +68,112 @@ public class AuditRepositoryTest {
     }
 
     @Test
-    public void testFindAllPaged() {
+    public void testFindAll() {
+        User user = dataTestUtils.createUser("testUser");
 
         Audit audit = new Audit();
-        audit.setActorId(1L);
+        audit.setSourceObjectId(user.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(1L);
+        audit2.setSourceObjectType(null);
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(2L);
+        audit3.setSourceObjectType(null);
         auditRepository.save(audit);
+        auditRepository.save(audit2);
+        auditRepository.save(audit3);
 
         Page<Audit> audits = auditRepository.findAll(new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be three audit returned", 3, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllFiltered_Identifier() {
+
+        User user = dataTestUtils.createUser("testUser");
+        Lookup lookup = dataTestUtils.createLookup("NHS_NUMBER", LookupTypes.IDENTIFIER);
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier("1111111111");
+        identifier.setIdentifierType(lookup);
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        userRepository.save(user);
+
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(1L);
+        audit2.setSourceObjectType(null);
+
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(2L);
+        audit3.setSourceObjectType(null);
+
+        auditRepository.save(audit);
+        auditRepository.save(audit2);
+        auditRepository.save(audit3);
+
+        String filterText = "%" + identifier.getIdentifier() + "%";
+
+        Page<Audit> audits = auditRepository.findAllByIdentifierFiltered(filterText, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
     }
 
     @Test
-    public void testFindAllByGroup() {
+    public void testFindAllFiltered_Source() {
 
+        User user = dataTestUtils.createUser("testUser");
+
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(1L);
+        audit2.setSourceObjectType(null);
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(2L);
+        audit3.setSourceObjectType(null);
+        auditRepository.save(audit);
+        auditRepository.save(audit2);
+        auditRepository.save(audit3);
+
+        String filterText = "%" + user.getUsername().toUpperCase() + "%";
+
+        Page<Audit> audits = auditRepository.findAllFiltered(filterText, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllFiltered_Actor() {
+        User user = dataTestUtils.createUser("testUser");
+
+        Audit audit = new Audit();
+        audit.setActorId(user.getId());
+        Audit audit2 = new Audit();
+        audit2.setActorId(user.getId());
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(2L);
+        audit3.setSourceObjectType(null);
+        auditRepository.save(audit);
+        auditRepository.save(audit2);
+        auditRepository.save(audit3);
+
+        String filterText = "%" + user.getUsername().toUpperCase() + "%";
+
+        Page<Audit> audits = auditRepository.findAllFiltered(filterText, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllBySourceGroup() {
         User user = dataTestUtils.createUser("testUser");
         Group group = dataTestUtils.createGroup("testGroup");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
@@ -81,15 +181,186 @@ public class AuditRepositoryTest {
 
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
+        audit.setActorId(user.getId());
         auditRepository.save(audit);
+
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(1L);
+        audit2.setActorId(user.getId());
+        auditRepository.save(audit2);
 
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
         groupIds.add(1L);
 
-        Page<Audit> audits = auditRepository.findAllByGroup(groupIds, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllBySourceGroup(groupIds, new PageRequest(0, Integer.MAX_VALUE));
 
-        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+        Assert.assertEquals("Should be 1 audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllBySourceGroupFiltered1() {
+        User user = dataTestUtils.createUser("testUser");
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user2, group2, role);
+
+        // user looking at user2 (yes)
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user2.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setActorId(user.getId());
+        auditRepository.save(audit);
+
+        // 1L looking at user2 (no)
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(user2.getId());
+        audit3.setSourceObjectType(AuditObjectTypes.User);
+        audit3.setActorId(2L);
+        auditRepository.save(audit3);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+        groupIds.add(1L);
+
+        String filterText = "%" + user.getUsername().toUpperCase() + "%";
+
+        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(filterText, groupIds, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be 1 audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllBySourceGroupFiltered2() {
+        User user = dataTestUtils.createUser("testUser");
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user2, group2, role);
+
+        // user looking at user2 (yes)
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user2.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setActorId(user.getId());
+        auditRepository.save(audit);
+
+        // user2 looking at user2 (no)
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(user2.getId());
+        audit2.setSourceObjectType(AuditObjectTypes.User);
+        audit2.setActorId(user2.getId());
+        auditRepository.save(audit2);
+
+        // 1L looking at user2 (no)
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(user2.getId());
+        audit3.setSourceObjectType(AuditObjectTypes.User);
+        audit3.setActorId(2L);
+        auditRepository.save(audit3);
+
+        // user2 looking at user (yes)
+        Audit audit4 = new Audit();
+        audit4.setSourceObjectId(user.getId());
+        audit4.setSourceObjectType(AuditObjectTypes.User);
+        audit4.setActorId(user2.getId());
+        auditRepository.save(audit4);
+
+        // 1L looking at 2L (no)
+        Audit audit5 = new Audit();
+        audit5.setSourceObjectId(2L);
+        audit5.setSourceObjectType(AuditObjectTypes.User);
+        audit5.setActorId(1L);
+        auditRepository.save(audit5);
+
+        // 1L looking at user (yes)
+        Audit audit6 = new Audit();
+        audit6.setSourceObjectId(user.getId());
+        audit6.setSourceObjectType(AuditObjectTypes.User);
+        audit6.setActorId(1L);
+        auditRepository.save(audit6);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+        groupIds.add(1L);
+
+        String filterText = "%" + user.getUsername().toUpperCase() + "%";
+
+        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(filterText, groupIds, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be 3 audit returned", 3, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllBySourceGroupFiltered_AnyFiltertext() {
+        User user = dataTestUtils.createUser("testUser");
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user2, group2, role);
+
+        // user looking at user2 (yes)
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user2.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setActorId(user.getId());
+        auditRepository.save(audit);
+
+        // user2 looking at user2 (yes)
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(user2.getId());
+        audit2.setSourceObjectType(AuditObjectTypes.User);
+        audit2.setActorId(user2.getId());
+        auditRepository.save(audit2);
+
+        // 1L looking at user2 (yes)
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(user2.getId());
+        audit3.setSourceObjectType(AuditObjectTypes.User);
+        audit3.setActorId(2L);
+        auditRepository.save(audit3);
+
+        // user2 looking at user (yes)
+        Audit audit4 = new Audit();
+        audit4.setSourceObjectId(user.getId());
+        audit4.setSourceObjectType(AuditObjectTypes.User);
+        audit4.setActorId(user2.getId());
+        auditRepository.save(audit4);
+
+        // 1L looking at 2L (no)
+        Audit audit5 = new Audit();
+        audit5.setSourceObjectId(2L);
+        audit5.setSourceObjectType(AuditObjectTypes.User);
+        audit5.setActorId(1L);
+        auditRepository.save(audit5);
+
+        // 1L looking at user (yes)
+        Audit audit6 = new Audit();
+        audit6.setSourceObjectId(user.getId());
+        audit6.setSourceObjectType(AuditObjectTypes.User);
+        audit6.setActorId(1L);
+        auditRepository.save(audit6);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+        groupIds.add(1L);
+
+        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered("%%", groupIds, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be 5 audit returned", 5, audits.getContent().size());
     }
 
     @Test
@@ -112,6 +383,66 @@ public class AuditRepositoryTest {
         Page<Audit> audits = auditRepository.findAllByAction(actions, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllByActionFiltered() {
+        User user = dataTestUtils.createUser("testUser");
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+
+        // user SWITCH_USER user2 (yes)
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user2.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setAuditActions(AuditActions.SWITCH_USER);
+        audit.setActorId(user.getId());
+        auditRepository.save(audit);
+
+        // user CREATE user2 (no)
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(user2.getId());
+        audit2.setSourceObjectType(AuditObjectTypes.User);
+        audit2.setAuditActions(AuditActions.CREATE);
+        audit2.setActorId(user.getId());
+        auditRepository.save(audit2);
+
+        // 1L SWITCH_USER user2 (no)
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(user2.getId());
+        audit3.setSourceObjectType(AuditObjectTypes.User);
+        audit3.setAuditActions(AuditActions.SWITCH_USER);
+        audit3.setActorId(2L);
+        auditRepository.save(audit3);
+
+        // user2 SWITCH_USER user (yes)
+        Audit audit4 = new Audit();
+        audit4.setSourceObjectId(user.getId());
+        audit4.setSourceObjectType(AuditObjectTypes.User);
+        audit4.setAuditActions(AuditActions.SWITCH_USER);
+        audit4.setActorId(user2.getId());
+        auditRepository.save(audit4);
+
+        // user2 CREATE user (no)
+        Audit audit5 = new Audit();
+        audit5.setSourceObjectId(user.getId());
+        audit5.setSourceObjectType(AuditObjectTypes.User);
+        audit5.setAuditActions(AuditActions.CREATE);
+        audit4.setActorId(user2.getId());
+        auditRepository.save(audit5);
+
+        List<AuditActions> actions = new ArrayList<>();
+        actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.CHANGE_PASSWORD);
+
+        String filterText = "%" + user.getUsername().toUpperCase() + "%";
+        Page<Audit> audits = auditRepository.findAllByActionFiltered(filterText, actions, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
 
     @Test
@@ -138,5 +469,55 @@ public class AuditRepositoryTest {
                 = auditRepository.findAllByGroupAndAction(groupIds, actions, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllByGroupAndActionFiltered() {
+        User user = dataTestUtils.createUser("testUser");
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user2, group2, role);
+
+        // user SWITCH_USER user2 (yes)
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user2.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setAuditActions(AuditActions.SWITCH_USER);
+        audit.setActorId(user.getId());
+        auditRepository.save(audit);
+
+        // user DELETE user2 (no)
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(user2.getId());
+        audit2.setSourceObjectType(AuditObjectTypes.User);
+        audit2.setAuditActions(AuditActions.DELETE);
+        audit2.setActorId(user.getId());
+        auditRepository.save(audit2);
+
+        // 1L SWITCH_USER user2 (no)
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(user2.getId());
+        audit3.setSourceObjectType(AuditObjectTypes.User);
+        audit3.setActorId(2L);
+        auditRepository.save(audit3);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+        groupIds.add(1L);
+
+        List<AuditActions> actions = new ArrayList<>();
+        actions.add(AuditActions.SWITCH_USER);
+
+        String filterText = "%" + user.getUsername().toUpperCase() + "%";
+
+        Page<Audit> audits = auditRepository.findAllBySourceGroupAndActionFiltered(filterText, groupIds, actions,
+                new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be 1 audit returned", 1, audits.getContent().size());
     }
 }

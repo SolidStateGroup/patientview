@@ -68,7 +68,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  @Param("roleIds") List<Long> roleIds,
                                  Pageable pageable);
 
-
     @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
