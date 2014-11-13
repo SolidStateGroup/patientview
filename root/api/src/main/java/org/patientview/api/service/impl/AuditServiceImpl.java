@@ -3,11 +3,19 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.model.Audit;
+import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.api.model.User;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.AuditRepository;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,22 +43,52 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private GroupRepository groupRepository;
+
     @Override
     public org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit) {
         return auditRepository.save(audit);
     }
 
     @Override
-    public Page<Audit> findAll(GetParameters getParameters) {
-
-
-        // TODO: security
-        // check if any groupIds are not in allowed list of groups
-        //if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
-        //    return true;
-        //}
+    public Page<Audit> findAll(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException {
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
+
+        // if specialty admin or group admin only return information relating to your groups
+        if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            if (groupIds.isEmpty()) {
+                // haven't filtered on group, add list of user's group ids
+                List<GroupRole> groupRoles = Util.getGroupRoles();
+
+                for (GroupRole groupRole : groupRoles) {
+                    if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
+                        // if specialty admin add child groups (should only be any for specialty type group)
+                        for (Group childGroup : groupRole.getGroup().getChildGroups()) {
+                            groupIds.add(childGroup.getId());
+                        }
+                    } else {
+                        // otherwise just add group (if not specialty)
+                        if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                            groupIds.add(groupRole.getGroup().getId());
+                        }
+                    }
+                }
+            } else {
+                // have filtered on group, check user is member of group
+                for (Long groupId : groupIds) {
+                    Group entityGroup = groupRepository.findOne(groupId);
+                    if (entityGroup == null) {
+                        throw new ResourceNotFoundException("Unknown Group");
+                    }
+                    if (!isCurrentUserMemberOfGroup(entityGroup)) {
+                        throw new ResourceForbiddenException("Forbidden");
+                    }
+                }
+            }
+        }
 
         List<AuditActions> auditActions = new ArrayList<>();
         if (getParameters.getAuditActions() != null) {
@@ -90,8 +128,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             filterText = "%" + filterText.toUpperCase() + "%";
         }
 
-        // todo group ids, identifier search
-
+        // todo identifier search
         Page<org.patientview.persistence.model.Audit> audits;
 
         if (!groupIds.isEmpty()) {
@@ -101,6 +138,11 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
                 audits = auditRepository.findAllByGroup(groupIds, pageable);
             }
         } else {
+            // include final check to see if global admin as others should have group ids
+            if (!Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
+
             if (!auditActions.isEmpty()) {
                 audits = auditRepository.findAllByAction(auditActions, pageable);
             } else {

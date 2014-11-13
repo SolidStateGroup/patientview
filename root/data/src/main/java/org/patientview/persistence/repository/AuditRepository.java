@@ -33,7 +33,7 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "SELECT u.id FROM User u " +
             "JOIN u.groupRoles ugr " +
             "JOIN ugr.group g " +
-            "WHERE g.id IN :groupIds)")
+            "WHERE g.id IN (:groupIds))")
     Page<Audit> findAllByGroup(@Param("groupIds") List<Long> groupIds, Pageable pageable);
 
     @Query("SELECT a " +
@@ -47,7 +47,7 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "SELECT u.id FROM User u " +
             "JOIN u.groupRoles ugr " +
             "JOIN ugr.group g " +
-            "WHERE g.id IN :groupIds) " +
+            "WHERE g.id IN (:groupIds)) " +
             "AND a.auditActions IN :actions")
     Page<Audit> findAllByGroupAndAction(@Param("groupIds") List<Long> groupIds,
                                         @Param("actions") List<AuditActions> actions, Pageable pageable);

@@ -1,6 +1,8 @@
 package org.patientview.api.service;
 
 import org.patientview.api.model.Audit;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
@@ -15,7 +17,8 @@ public interface AuditService {
 
     org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit);
 
-    Page<Audit> findAll(GetParameters getparameters);
+    Page<Audit> findAll(GetParameters getparameters)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 }
 
 

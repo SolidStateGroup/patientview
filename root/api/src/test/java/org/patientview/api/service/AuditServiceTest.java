@@ -8,9 +8,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.AuditServiceImpl;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
@@ -54,7 +57,8 @@ public class AuditServiceTest {
     }
 
     @Test
-    public void testFindAll() {
+    public void testFindAll() throws ResourceNotFoundException, ResourceForbiddenException {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 
         Audit audit = new Audit();
         audit.setActorId(1L);

@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
@@ -86,6 +85,7 @@ public class AuditRepositoryTest {
 
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
+        groupIds.add(1L);
 
         Page<Audit> audits = auditRepository.findAllByGroup(groupIds, new PageRequest(0, Integer.MAX_VALUE));
 
@@ -107,6 +107,7 @@ public class AuditRepositoryTest {
 
         List<AuditActions> actions = new ArrayList<>();
         actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.CHANGE_PASSWORD);
 
         Page<Audit> audits = auditRepository.findAllByAction(actions, new PageRequest(0, Integer.MAX_VALUE));
 
@@ -131,6 +132,7 @@ public class AuditRepositoryTest {
 
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
+        groupIds.add(1L);
 
         Page<Audit> audits
                 = auditRepository.findAllByGroupAndAction(groupIds, actions, new PageRequest(0, Integer.MAX_VALUE));

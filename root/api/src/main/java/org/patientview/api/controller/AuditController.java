@@ -2,6 +2,8 @@ package org.patientview.api.controller;
 
 import org.patientview.api.service.AuditService;
 import org.patientview.api.model.Audit;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -25,7 +27,9 @@ public class AuditController extends BaseController<AuditController> {
 
     @RequestMapping(value = "/audit", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Page<Audit>> findAll(GetParameters getParameters) {
+    public ResponseEntity<Page<Audit>> findAll(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
         return new ResponseEntity<>(auditService.findAll(getParameters), HttpStatus.OK);
     }
 }
