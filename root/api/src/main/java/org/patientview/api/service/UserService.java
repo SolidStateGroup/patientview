@@ -42,13 +42,13 @@ public interface UserService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
-    @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
+    //@AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId) throws ResourceNotFoundException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
-    @AuditTrail(value = AuditActions.VIEW, objectType = User.class)
+    //@AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
