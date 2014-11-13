@@ -107,8 +107,21 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
         String filterText = getParameters.getFilterText();
-        Date start = new Date(getParameters.getStart());
-        Date end = new Date(getParameters.getEnd());
+
+        Date start;
+        Date end;
+
+        if (getParameters.getStart() != null) {
+            start = new Date(getParameters.getStart());
+        } else {
+            start = new Date(0);
+        }
+
+        if (getParameters.getEnd() != null) {
+            end = new Date(getParameters.getEnd());
+        } else {
+            end = new Date();
+        }
 
         PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
