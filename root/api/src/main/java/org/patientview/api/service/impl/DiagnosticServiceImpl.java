@@ -97,7 +97,8 @@ public class DiagnosticServiceImpl extends BaseController<DiagnosticServiceImpl>
     }
 
     @Override
-    public void addDiagnosticReport(FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink) throws FhirResourceException {
+    public void addDiagnosticReport(FhirDiagnosticReport fhirDiagnosticReport, FhirLink fhirLink)
+            throws FhirResourceException {
 
         // build diagnostic result observation
         Observation observation = new Observation();

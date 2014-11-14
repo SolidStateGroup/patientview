@@ -136,7 +136,8 @@ public class UserController extends BaseController<UserController> {
     }
 
     // Migration Only
-    @RequestMapping(value = "/migrate/observations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/migrate/observations", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void migrateObservations(@RequestBody MigrationUser migrationUser)
             throws ResourceNotFoundException, EntityExistsException, MigrationException {
@@ -144,11 +145,14 @@ public class UserController extends BaseController<UserController> {
     }
 
     // Migration Only, used to get list of UserMigration migration status objects by status
-    @RequestMapping(value = "/usermigration/{migrationstatus}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/usermigration/{migrationstatus}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Long>> getPatientview1IdsByStatus(@PathVariable("migrationstatus") String migrationStatus)
+    public ResponseEntity<List<Long>> getPatientview1IdsByStatus(
+            @PathVariable("migrationstatus") String migrationStatus)
             throws ResourceNotFoundException, EntityExistsException, MigrationException {
-        return new ResponseEntity<>(userMigrationService.getPatientview1IdsByStatus(MigrationStatus.valueOf(migrationStatus)), HttpStatus.OK);
+        return new ResponseEntity<>(userMigrationService.getPatientview1IdsByStatus(
+                MigrationStatus.valueOf(migrationStatus)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)

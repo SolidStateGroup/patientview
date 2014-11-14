@@ -530,7 +530,7 @@ public class AuditRepositoryTest {
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(user2.getId());
         audit2.setSourceObjectType(AuditObjectTypes.User);
-        audit2.setAuditActions(AuditActions.CREATE);
+        audit2.setAuditActions(AuditActions.CREATE_USER);
         audit2.setActorId(user.getId());
         audit2.setCreationDate(new Date());
         auditRepository.save(audit2);
@@ -557,7 +557,7 @@ public class AuditRepositoryTest {
         Audit audit5 = new Audit();
         audit5.setSourceObjectId(user.getId());
         audit5.setSourceObjectType(AuditObjectTypes.User);
-        audit5.setAuditActions(AuditActions.CREATE);
+        audit5.setAuditActions(AuditActions.CREATE_USER);
         audit5.setActorId(user2.getId());
         audit5.setCreationDate(new Date());
         auditRepository.save(audit5);

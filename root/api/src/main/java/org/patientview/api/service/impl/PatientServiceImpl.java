@@ -16,32 +16,32 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
+import org.patientview.api.service.CodeService;
+import org.patientview.api.service.ConditionService;
 import org.patientview.api.service.DiagnosticService;
+import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.FhirLinkService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.api.service.LetterService;
+import org.patientview.api.service.LookupService;
 import org.patientview.api.service.MedicationService;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.ObservationService;
+import org.patientview.api.service.PatientService;
 import org.patientview.api.service.PractitionerService;
 import org.patientview.api.service.UserService;
+import org.patientview.api.util.Util;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirContact;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirDiagnosticReport;
 import org.patientview.persistence.model.FhirDocumentReference;
 import org.patientview.persistence.model.FhirEncounter;
-import org.patientview.api.service.CodeService;
-import org.patientview.api.service.ConditionService;
-import org.patientview.api.service.EncounterService;
-import org.patientview.api.service.LookupService;
-import org.patientview.api.service.PatientService;
-import org.patientview.api.util.Util;
-import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirIdentifier;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
@@ -53,7 +53,6 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
-import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -70,7 +69,6 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -241,7 +239,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
     private org.patientview.api.model.Patient setConditions(org.patientview.api.model.Patient patient,
                                                             List<Condition> conditions) {
-        for(Condition condition : conditions) {
+        for (Condition condition : conditions) {
             patient.getFhirConditions().add(new FhirCondition(condition));
         }
 
@@ -309,7 +307,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             deleteExistingPatientData(fhirLinks);
             deleteAllExistingObservationData(fhirLinks);
 
-            for(FhirLink fhirLink : entityUser.getFhirLinks()) {
+            for (FhirLink fhirLink : entityUser.getFhirLinks()) {
                 fhirLinkService.delete(fhirLink.getId());
             }
             entityUser.setFhirLinks(new HashSet<FhirLink>());
@@ -402,7 +400,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
                 UUID practitionerUuid;
                 List<UUID> practitionerUuids
-                        = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
+                    = practitionerService.getPractitionerLogicalUuidsByName(fhirPatient.getPractitioner().getName());
 
                 if (CollectionUtils.isEmpty(practitionerUuids)) {
                     practitionerUuid = practitionerService.addPractitioner(fhirPatient.getPractitioner());
@@ -474,9 +472,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         // generate large sql statement to insert
         if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
             StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO observation (logical_id, version_id, resource_type, published, updated, content) VALUES ");
+            sb.append("INSERT INTO observation (logical_id, version_id, resource_type, published, updated, content) ");
+            sb.append("VALUES ");
 
-            for (int i = 0; i < fhirDatabaseObservations.size() ; i++) {
+            for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
                 FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
                 sb.append("(");
                 sb.append("'").append(obs.getLogicalId().toString()).append("','");
@@ -555,7 +554,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 : migrationUser.getMedicationStatements()) {
             Identifier identifier = identifierMap.get(fhirMedicationStatement.getIdentifier());
             FhirLink fhirLink
-                    = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
+                = getFhirLink(fhirMedicationStatement.getGroup(), fhirMedicationStatement.getIdentifier(), fhirLinks);
 
             if (fhirLink == null) {
                 fhirLink = createPatientAndFhirLink(entityUser, fhirMedicationStatement.getGroup(), identifier);
@@ -696,7 +695,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             StringBuilder sb = new StringBuilder();
             sb.append("DELETE FROM observation WHERE logical_id IN (");
 
-            for (int i = 0; i < observationsUuidsToDelete.size() ; i++) {
+            for (int i = 0; i < observationsUuidsToDelete.size(); i++) {
                 UUID uuid = observationsUuidsToDelete.get(i);
 
                 sb.append("'").append(uuid).append("'");

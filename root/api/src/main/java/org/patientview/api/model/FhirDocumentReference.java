@@ -24,7 +24,7 @@ public class FhirDocumentReference extends BaseModel {
         this.date = fhirDocumentReference.getDate();
         this.type = fhirDocumentReference.getType();
         this.content = fhirDocumentReference.getContent();
-        if (fhirDocumentReference.getGroup() != null){
+        if (fhirDocumentReference.getGroup() != null) {
             this.group = new BaseGroup(fhirDocumentReference.getGroup());
         }
     }

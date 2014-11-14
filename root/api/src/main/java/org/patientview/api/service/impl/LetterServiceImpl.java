@@ -34,7 +34,8 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
     private UserRepository userRepository;
 
     @Override
-    public List<FhirDocumentReference> getByUserId(final Long userId) throws ResourceNotFoundException, FhirResourceException {
+    public List<FhirDocumentReference> getByUserId(final Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
         if (user == null) {
@@ -59,7 +60,8 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
                 // for each, create new transport object
                 for (DocumentReference documentReference : documentReferences) {
                     org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference
-                            = new org.patientview.persistence.model.FhirDocumentReference(documentReference, fhirLink.getGroup());
+                            = new org.patientview.persistence.model.FhirDocumentReference(
+                            documentReference, fhirLink.getGroup());
                     fhirDocumentReferences.add(new FhirDocumentReference(fhirDocumentReference));
                 }
             }

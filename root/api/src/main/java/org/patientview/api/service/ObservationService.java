@@ -35,12 +35,12 @@ public interface ObservationService {
     void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 
-    public FhirDatabaseObservation buildFhirDatabaseObservation(
+    FhirDatabaseObservation buildFhirDatabaseObservation(
             org.patientview.persistence.model.FhirObservation fhirObservation,
             ObservationHeading observationHeading, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException;
 
-    public List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCodes(
+    List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCodes(
             final FhirLink fhirLink, final List<String> codes)
             throws ResourceNotFoundException, FhirResourceException;
 }

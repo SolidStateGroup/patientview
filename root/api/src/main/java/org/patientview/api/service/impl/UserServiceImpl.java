@@ -116,7 +116,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private Role memberRole;
 
     @Inject
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
 
     @PostConstruct

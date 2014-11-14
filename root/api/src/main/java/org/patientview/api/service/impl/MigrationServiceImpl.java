@@ -31,16 +31,16 @@ import java.util.concurrent.TimeUnit;
 public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceImpl> implements MigrationService {
 
     @Inject
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Inject
-    UserService userService;
+    private UserService userService;
 
     @Inject
-    PatientService patientService;
+    private PatientService patientService;
 
     @Inject
-    UserMigrationService userMigrationService;
+    private UserMigrationService userMigrationService;
 
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
@@ -149,8 +149,8 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                     || userMigration.getStatus().equals(MigrationStatus.OBSERVATIONS_FAILED)
                     || userMigration.getStatus().equals(MigrationStatus.OBSERVATIONS_MIGRATED)
             )) {
-                throw new MigrationException("Cannot migrate observation data if previously failed to migrate " +
-                        "patient data or already migrating observation data. Status: "
+                throw new MigrationException("Cannot migrate observation data if previously failed to migrate "
+                        + "patient data or already migrating observation data. Status: "
                         + userMigration.getStatus().toString() + ", PatientView1 ID: "
                         + userMigration.getPatientview1UserId() + ", PatientView2 ID: "
                         + userMigration.getPatientview2UserId());
@@ -167,7 +167,8 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
             userMigration = userMigrationService.save(userMigration);
 
-            UserMigration userMigration1 = userMigrationService.getByPatientview1Id(userMigration.getPatientview1UserId());
+            UserMigration userMigration1
+                    = userMigrationService.getByPatientview1Id(userMigration.getPatientview1UserId());
 
             if (userMigration1.getPatientview2UserId() == null) {
                 userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);

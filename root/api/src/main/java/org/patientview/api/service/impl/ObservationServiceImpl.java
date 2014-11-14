@@ -86,8 +86,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
 
     @Override
-    public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code, final String orderBy,
-                                     final String orderDirection, final Long limit)
+    public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code,
+                                                   final String orderBy, final String orderDirection, final Long limit)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -146,7 +146,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     }
 
     @Override
-    public List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCodes(final FhirLink fhirLink, final List<String> codes)
+    public List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCodes(final FhirLink fhirLink,
+                                                                                 final List<String> codes)
             throws ResourceNotFoundException, FhirResourceException {
 
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
@@ -167,7 +168,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append(codes.get(i).toUpperCase());
                 query.append("' ");
 
-                if(i != codes.size()-1) {
+                if (i != codes.size() - 1) {
                     query.append(",");
                 }
             }
@@ -416,7 +417,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                     sb.append("INSERT INTO observation ");
                     sb.append("(logical_id, version_id, resource_type, published, updated, content) VALUES ");
 
-                    for (int i = 0; i < fhirDatabaseObservations.size() ; i++) {
+                    for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
                         FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
                         sb.append("(");
                         sb.append("'").append(obs.getLogicalId().toString()).append("','");

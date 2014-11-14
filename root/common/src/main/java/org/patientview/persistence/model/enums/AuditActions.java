@@ -6,9 +6,6 @@ package org.patientview.persistence.model.enums;
  */
 public enum AuditActions {
 
-    CREATE("Create"),
-    EDIT("Edit"),
-
     // group
     CREATE_GROUP("Create Group"),
     EDIT_GROUP("Edit Group"),
@@ -27,6 +24,8 @@ public enum AuditActions {
     REMOVE_FEATURE("Remove Feature"),
 
     // user
+    CREATE_USER("Create User"),
+    EDIT_USER("Edit User"),
     RESET_PASSWORD("Reset Password"),
     VERIFY_EMAIL("Verify Email"),
     LOGON_SUCCESS("Log on"),

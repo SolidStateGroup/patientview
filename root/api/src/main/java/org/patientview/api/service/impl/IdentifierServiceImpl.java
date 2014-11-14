@@ -2,7 +2,6 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.model.UserIdentifier;
 import org.patientview.config.exception.ResourceInvalidException;
-import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.api.service.IdentifierService;
 import org.patientview.config.exception.ResourceForbiddenException;

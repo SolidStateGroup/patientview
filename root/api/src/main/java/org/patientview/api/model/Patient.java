@@ -1,6 +1,5 @@
 package org.patientview.api.model;
 
-import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.patientview.persistence.model.BaseModel;
 import org.patientview.persistence.model.Code;
