@@ -49,7 +49,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
      * @param data
      */
     @Override
-    public UUID add(final Patientview data) throws ResourceNotFoundException {
+    public UUID add(final Patientview data) throws ResourceNotFoundException, FhirResourceException {
 
         LOG.info("Starting Organization Process");
 
@@ -83,7 +83,6 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
 
                 LOG.info("Existing Organization, " + updatedResourceId);
                 return updatedResourceId;
-
             } else {
                 // create new FHIR organization
                 JSONObject jsonObject = create(importOrganization);
@@ -93,7 +92,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
 
         } catch (FhirResourceException e) {
             LOG.error("Unable to build organization");
-            return null;
+            throw e;
         }
     }
 

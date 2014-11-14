@@ -136,10 +136,10 @@ public class QueueProcessor extends DefaultConsumer {
             // Process XML
             if (!fail) {
                 try {
-                    importManager.process(patient);
+                    importManager.process(patient, message, importerUserId);
                 } catch (ImportResourceException ire) {
                     LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + ": could not add, {}", ire);
-                    createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
+                    createAudit(AuditActions.PATIENT_DATA_FAIL,
                             patient.getPatient().getPersonaldetails().getNhsno(),
                             patient.getCentredetails().getCentrecode(), ire.getMessage(), message);
                 }

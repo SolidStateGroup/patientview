@@ -1,6 +1,7 @@
 package org.patientview.importer.service;
 
 import generated.Patientview;
+import org.patientview.config.exception.FhirResourceException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,6 @@ import java.util.UUID;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface PractitionerService {
 
-    public UUID add(Patientview data);
+    public UUID add(Patientview data) throws FhirResourceException;
 
 }

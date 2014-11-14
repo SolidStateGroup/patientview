@@ -44,7 +44,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
      * @param data
      */
     @Override
-    public UUID add(final Patientview data) {
+    public UUID add(final Patientview data) throws FhirResourceException {
 
         LOG.info("Starting Practitioner Process");
         PractitionerBuilder practitionerBuilder = new PractitionerBuilder(data);
@@ -80,7 +80,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
 
         } catch (FhirResourceException e) {
             LOG.error("Unable to build practitioner");
-            return null;
+            throw e;
         }
     }
 

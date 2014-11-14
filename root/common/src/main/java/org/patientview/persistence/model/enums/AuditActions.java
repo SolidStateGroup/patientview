@@ -13,9 +13,9 @@ public enum AuditActions {
     DELETE("Delete User"),
     RESET_PASSWORD("Reset Password"),
     VERIFY_EMAIL("Verify Email"),
-    LOGON_SUCCESS("Logon Success"),
+    LOGON_SUCCESS("Log on"),
     MAP("Map"),
-    LOGON_FAIL("Logon failed"),
+    LOGON_FAIL("Log on failed"),
     LOGOFF("Log off"),
     SWITCH_USER("Switch User"),
 

@@ -2,9 +2,12 @@ package org.patientview.importer.manager.impl;
 
 import generated.Patientview;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.importer.Utility.Util;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
+import org.patientview.importer.service.AuditService;
 import org.patientview.importer.service.ConditionService;
 import org.patientview.importer.service.DiagnosticService;
 import org.patientview.importer.service.DocumentReferenceService;
@@ -15,15 +18,17 @@ import org.patientview.importer.service.OrganizationService;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.service.PractitionerService;
 import org.patientview.importer.service.impl.AbstractServiceImpl;
-import org.patientview.importer.Utility.Util;
-import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -62,8 +67,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private DocumentReferenceService documentReferenceService;
 
     @Inject
-    private Properties properties;
-
+    private AuditService auditService;
 
     @Override
     public void validate(Patientview patientview) throws ImportResourceException {
@@ -88,7 +92,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     }
 
     @Override
-    public void process(Patientview patientview) throws ImportResourceException {
+    public void process(Patientview patientview, String xml, Long importerUserId) throws ImportResourceException {
 
         ResourceReference practitionerReference;
         ResourceReference organizationReference;
@@ -133,6 +137,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                     + patientview.getPatient().getPersonaldetails().getNhsno()
                     + ". Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
 
+            createAudit(AuditActions.PATIENT_DATA_SUCCESS, patientview.getPatient().getPersonaldetails().getNhsno(),
+                    patientview.getCentredetails().getCentrecode(), null, xml, importerUserId);
+
         } catch (FhirResourceException | ResourceNotFoundException | SQLException e) {
             LOG.error(patientview.getPatient().getPersonaldetails().getNhsno()
                     + ": unable to build patient. Message: " + e.getMessage());
@@ -145,5 +152,36 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
         long diffInMilliseconds = date2.getTime() - date1.getTime();
         return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
+    }
+
+
+    private void createAudit(AuditActions auditActions, String identifier, String unitCode,
+                             String information, String xml, Long importerUserId) {
+
+        Audit audit = new Audit();
+        audit.setAuditActions(auditActions);
+        audit.setActorId(importerUserId);
+        audit.setInformation(information);
+        audit.setXml(xml);
+
+        // attempt to set identifier and user being imported from identifier
+        if (identifier != null) {
+            audit.setIdentifier(identifier);
+            User patientUser = auditService.getUserByIdentifier(identifier);
+            if (patientUser != null) {
+                audit.setSourceObjectId(patientUser.getId());
+                audit.setSourceObjectType(AuditObjectTypes.User);
+            }
+        }
+
+        // attempt to set group doing the importing
+        if (unitCode != null) {
+            Group group = auditService.getGroupByCode(unitCode);
+            if (group != null) {
+                audit.setGroup(group);
+            }
+        }
+
+        auditService.save(audit);
     }
 }

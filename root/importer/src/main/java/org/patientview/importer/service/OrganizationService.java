@@ -1,6 +1,7 @@
 package org.patientview.importer.service;
 
 import generated.Patientview;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface OrganizationService {
 
-    public UUID add(Patientview data) throws ResourceNotFoundException;
+    public UUID add(Patientview data) throws ResourceNotFoundException, FhirResourceException;
 
     public boolean groupWithCodeExists(String code);
 }

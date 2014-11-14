@@ -184,8 +184,8 @@
                     <td>{{audit.group.shortName}}</td>
                     <td>{{audit.identifier}}</td>
                     <td>
-                        {{audit.information}}
-                        <span data-ng-show="audit.xml"><br/><a href="" data-ng-click="viewXml(audit)">View XML</a></span>
+                        <span data-ng-show="audit.information">{{audit.information}}<br/></span>
+                        <span data-ng-show="audit.xml"><a href="" data-ng-click="viewXml(audit)">View XML</a></span>
                     </td>
                 </tr>
                 </tbody>

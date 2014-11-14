@@ -14,5 +14,5 @@ public interface ImportManager {
 
     public void validate(Patientview patientview) throws ImportResourceException;
 
-    public void process(Patientview patientview) throws ImportResourceException;
+    public void process(Patientview patientview, String xml, Long importerUserId) throws ImportResourceException;
 }
