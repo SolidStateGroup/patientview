@@ -635,7 +635,7 @@ public class AuditRepositoryTest {
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(user2.getId());
         audit2.setSourceObjectType(AuditObjectTypes.User);
-        audit2.setAuditActions(AuditActions.DELETE);
+        audit2.setAuditActions(AuditActions.DELETE_USER);
         audit2.setActorId(user.getId());
         audit2.setCreationDate(new Date());
         auditRepository.save(audit2);

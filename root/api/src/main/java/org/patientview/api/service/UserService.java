@@ -44,7 +44,7 @@ public interface UserService {
 
     User get(Long userId) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.DELETE, objectType = User.class)
+    @AuditTrail(value = AuditActions.DELETE_USER, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
@@ -55,12 +55,12 @@ public interface UserService {
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
-    @AuditTrail(value = AuditActions.DELETE_GROUP_ROLE, objectType = User.class)
+    @AuditTrail(value = AuditActions.REMOVE_GROUP_ROLE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void deleteGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    @AuditTrail(value = AuditActions.DELETE_GROUP_ROLES, objectType = User.class)
+    @AuditTrail(value = AuditActions.REMOVE_GROUP_ROLES, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void removeAllGroupRoles(Long userId) throws ResourceNotFoundException;
 
@@ -81,12 +81,15 @@ public interface UserService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Boolean sendVerificationEmail(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @AuditTrail(value = AuditActions.VERIFY_EMAIL, objectType = User.class)
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
 
+    @AuditTrail(value = AuditActions.ADD_FEATURE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void addFeature(Long userId, Long featureId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @AuditTrail(value = AuditActions.REMOVE_FEATURE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void deleteFeature(Long userId, Long featureId)
             throws ResourceNotFoundException, ResourceForbiddenException;

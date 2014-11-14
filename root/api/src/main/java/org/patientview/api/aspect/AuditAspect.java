@@ -1,7 +1,7 @@
 package org.patientview.api.aspect;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -52,7 +52,7 @@ public class AuditAspect {
     @Pointcut("execution(public * *(..))")
     public void publicMethod() { }
 
-    @After(value = "@annotation(org.patientview.api.annotation.AuditTrail)")
+    @AfterReturning(value = "@annotation(org.patientview.api.annotation.AuditTrail)")
     public void auditObject(JoinPoint joinPoint) {
 
         AuditTrail auditTrail = getAuditAction(joinPoint);

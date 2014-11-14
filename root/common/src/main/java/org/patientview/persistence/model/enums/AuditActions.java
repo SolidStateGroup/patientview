@@ -12,19 +12,26 @@ public enum AuditActions {
     // group
     CREATE_GROUP("Create Group"),
     EDIT_GROUP("Edit Group"),
+    ADD_PARENT_GROUP("Add parent Group"),
+    REMOVE_PARENT_GROUP("Remove parent Group"),
+    ADD_CHILD_GROUP("Add child Group"),
+    REMOVE_CHILD_GROUP("Remove child Group"),
 
     // user group roles
     ADD_GROUP_ROLE("Add Group Role"),
-    DELETE_GROUP_ROLE("Delete Group Role"),
-    DELETE_GROUP_ROLES("Delete all Groups and Roles"),
+    REMOVE_GROUP_ROLE("Remove Group Role"),
+    REMOVE_GROUP_ROLES("Remove all Groups and Roles"),
 
-    VIEW("View"),
-    CHANGE_PASSWORD("Change Password"),
-    DELETE("Delete User"),
+    // user and group
+    ADD_FEATURE("Add Feature"),
+    REMOVE_FEATURE("Remove Feature"),
+
+    // user
     RESET_PASSWORD("Reset Password"),
     VERIFY_EMAIL("Verify Email"),
     LOGON_SUCCESS("Log on"),
-    MAP("Map"),
+    CHANGE_PASSWORD("Change Password"),
+    DELETE_USER("Delete User"),
     LOGON_FAIL("Log on failed"),
     LOGOFF("Log off"),
     SWITCH_USER("Switch User"),
@@ -32,7 +39,11 @@ public enum AuditActions {
     // importer
     PATIENT_DATA_SUCCESS("Patient data imported"),
     PATIENT_DATA_VALIDATE_FAIL("Patient data failed validation"),
-    PATIENT_DATA_FAIL("Patient data failed import");
+    PATIENT_DATA_FAIL("Patient data failed import"),
+
+    // not used
+    VIEW("View"),
+    MAP("Map");
 
     private String name;
     AuditActions(String name) { this.name = name; }
