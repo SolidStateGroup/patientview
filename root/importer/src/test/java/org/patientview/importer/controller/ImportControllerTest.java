@@ -110,10 +110,15 @@ public class ImportControllerTest {
     }
 
     String getTestFile() throws IOException, URISyntaxException {
-        URL xmlPath =
-                //Thread.currentThread().getContextClassLoader().getResource("data/xml/milestone5/SAC02_01439_41737438900.xml");
-                Thread.currentThread().getContextClassLoader().getResource("data/xml/SAC02_01436_1111111111_single.xml");
-                //Thread.currentThread().getContextClassLoader().getResource("data/xml/IMPORTGROUP_1111111111.xml");
+
+        //String fileName = "data/xml/milestone5/SAC02_01439_41737438900.xml";
+        //String fileName = "data/xml/SAC02_01436_1111111111_single.xml";
+        //String fileName = "data/xml/IMPORTGROUP_1111111111.xml";
+        //String fileName = "data/xml/errors/1111111111_damaged.xml";
+        //String fileName = "data/xml/errors/abc123_unknown_identifier.xml";
+        String fileName = "data/xml/errors/1111111111_unknown_group.xml";
+
+        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource(fileName);
         File file = new File(xmlPath.toURI());
         return new String(Files.readAllBytes(Paths.get(file.getPath())));
     }

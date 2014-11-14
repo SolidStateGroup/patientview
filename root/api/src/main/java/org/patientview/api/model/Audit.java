@@ -18,6 +18,12 @@ public class Audit extends BaseModel {
     private Long actorId;
     private Date creationDate;
 
+    // importer
+    private String identifier;
+    private String information;
+    private String xml;
+    private BaseGroup group;
+
     // new for transport object
     private User actor;
     private User sourceObjectUser;
@@ -38,6 +44,15 @@ public class Audit extends BaseModel {
         this.postValue = audit.getPostValue();
         this.actorId = audit.getActorId();
         this.creationDate = audit.getCreationDate();
+
+        // importer
+        this.identifier = audit.getIdentifier();
+        this.information = audit.getInformation();
+        this.xml = audit.getXml();
+
+        if (audit.getGroup() != null) {
+            this.setGroup(new BaseGroup(audit.getGroup()));
+        }
     }
 
     public String getAuditActions() {
@@ -110,5 +125,37 @@ public class Audit extends BaseModel {
 
     public void setSourceObjectUser(User sourceObjectUser) {
         this.sourceObjectUser = sourceObjectUser;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getInformation() {
+        return information;
+    }
+
+    public void setInformation(String information) {
+        this.information = information;
+    }
+
+    public String getXml() {
+        return xml;
+    }
+
+    public void setXml(String xml) {
+        this.xml = xml;
+    }
+
+    public BaseGroup getGroup() {
+        return group;
+    }
+
+    public void setGroup(BaseGroup group) {
+        this.group = group;
     }
 }

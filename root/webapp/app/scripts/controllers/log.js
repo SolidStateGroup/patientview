@@ -1,7 +1,16 @@
 'use strict';
 
-angular.module('patientviewApp').controller('LogCtrl',['$scope', '$timeout', 'AuditService',
-function ($scope, $timeout, AuditService) {
+// view XML modal instance controller
+var ViewXmlModalInstanceCtrl = ['$scope', '$modalInstance', 'audit',
+function ($scope, $modalInstance, audit) {
+    $scope.audit = audit;
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
+angular.module('patientviewApp').controller('LogCtrl',['$scope', '$timeout', '$modal', 'AuditService',
+function ($scope, $timeout, $modal, AuditService) {
 
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
@@ -257,6 +266,25 @@ function ($scope, $timeout, AuditService) {
                 }
             }
         }
+    };
+
+    $scope.viewXml = function(audit) {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/viewXmlModal.html',
+            controller: ViewXmlModalInstanceCtrl,
+            size: 'lg',
+            resolve: {
+                audit: function(){
+                    return audit;
+                }
+            }
+        });
+
+        modalInstance.result.then(function () {
+            // ok (not used)
+        }, function () {
+            // closed
+        });
     };
 
     init();

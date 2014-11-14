@@ -340,6 +340,10 @@ CREATE TABLE PV_Audit (
   Pre_Value     VARCHAR(500),
   Post_Value    VARCHAR(500),
   Actor_Id      BIGINT   REFERENCES PV_User (Id),
+  Identifier    VARCHAR(50),
+  Group_Id      BIGINT   REFERENCES PV_User (Id),
+  Information   TEXT,
+  Xml           TEXT,
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
 );

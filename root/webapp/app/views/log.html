@@ -156,6 +156,8 @@
                     <th>Group (Role)</th>
                     <th>Action</th>
                     <th>Actor</th>
+                    <th>Group <br/>(importer)</th>
+                    <th>Identifier <br/>(importer)</th>
                     <th>Information</th>
                 </tr>
                 </thead>
@@ -179,7 +181,12 @@
                     </td>
                     <td>{{audit.auditActions}}</td>
                     <td>{{audit.actor.username}}</td>
-                    <td>{{audit.information}}</td>
+                    <td>{{audit.group.shortName}}</td>
+                    <td>{{audit.identifier}}</td>
+                    <td>
+                        {{audit.information}}
+                        <span data-ng-show="audit.xml"><br/><a href="" data-ng-click="viewXml(audit)">View XML</a></span>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -188,7 +195,6 @@
             <div class="alert alert-warning" data-ng-show="!pagedItems.length">
                 <p>No log entries found</p>
             </div>
-
 
             <!-- pagination -->
             <div ng-include src="'views/partials/pagination.html'"></div>

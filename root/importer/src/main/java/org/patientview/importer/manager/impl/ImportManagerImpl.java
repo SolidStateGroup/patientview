@@ -66,29 +66,25 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
 
     @Override
-    public boolean validate(Patientview patientview) {
+    public void validate(Patientview patientview) throws ImportResourceException {
 
-        // patient exists
+        // Patient exists with this identifier
         try {
             patientService.matchPatientByIdentifierValue(patientview);
         } catch (ResourceNotFoundException rnf) {
-            LOG.error("Patient with NHS Number " + patientview.getPatient().getPersonaldetails().getNhsno()
-                    + " does not exist in PatientView");
-            return false;
+            String errorMessage = patientview.getPatient().getPersonaldetails().getNhsno()
+                    + ": patient with identifier does not exist in PatientView";
+            LOG.error(errorMessage);
+            throw new ImportResourceException(errorMessage);
         }
 
-        // organization/unit/group exists
-        if (patientview.getCentredetails() == null) {
-            LOG.error("Group not set in XML");
-            return false;
-        }
-
+        // Group exists
         if (!organizationService.groupWithCodeExists(patientview.getCentredetails().getCentrecode())) {
-            LOG.error("Group does not exist in PatientView");
-            return false;
+            String errorMessage = patientview.getCentredetails().getCentrecode()
+                    + ": group does not exist in PatientView";
+            LOG.error(errorMessage);
+            throw new ImportResourceException(errorMessage);
         }
-
-        return true;
     }
 
     @Override
@@ -138,9 +134,11 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
                     + ". Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
 
         } catch (FhirResourceException | ResourceNotFoundException | SQLException e) {
-            LOG.error("Unable to build patient " + patientview.getPatient().getPersonaldetails().getNhsno()
-                + ". Message: " + e.getMessage());
-            throw new ImportResourceException("Could not process patient data");
+            LOG.error(patientview.getPatient().getPersonaldetails().getNhsno()
+                    + ": unable to build patient. Message: " + e.getMessage());
+
+            throw new ImportResourceException(patientview.getPatient().getPersonaldetails().getNhsno()
+                    + ": " + e.getMessage());
         }
     }
 
