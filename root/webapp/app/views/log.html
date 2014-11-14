@@ -156,8 +156,6 @@
                     <th>Group (Role)</th>
                     <th>Action</th>
                     <th>Actor</th>
-                    <th>Group <br/>(importer)</th>
-                    <th>Identifier <br/>(importer)</th>
                     <th>Information</th>
                 </tr>
                 </thead>
@@ -188,11 +186,11 @@
                     </td>
                     <td>{{audit.auditActions}}</td>
                     <td>{{audit.actor.username}}</td>
-                    <td>{{audit.group.shortName}}</td>
-                    <td>{{audit.identifier}}</td>
                     <td>
-                        <span data-ng-show="audit.information">{{audit.information}}<br/></span>
-                        <span data-ng-show="audit.xml"><a href="" data-ng-click="viewXml(audit)">View XML</a></span>
+                        <span data-ng-show="audit.group.shortName">Group: {{audit.group.shortName}} <br/></span>
+                        <span data-ng-show="audit.identifier">Identifier: {{audit.identifier}}</span>
+                        <span data-ng-show="audit.information"><br/>{{audit.information}}</span>
+                        <span data-ng-show="audit.xml"><br/><a href="" data-ng-click="viewXml(audit)">View XML</a></span>
                     </td>
                 </tr>
                 </tbody>
