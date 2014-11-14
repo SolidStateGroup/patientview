@@ -542,16 +542,21 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * Get users based on a list of groups and roles
      * @return Page of api User
      */
-    public Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters) {
+    public Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException {
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
 
-        // TODO: security
-        // check if any groupIds are not in allowed list of groups
-        //if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
-        //    return true;
-        //}
-
+        // check current user is member of groups passed in
+        for (Long groupId : groupIds) {
+            Group entityGroup = groupRepository.findOne(groupId);
+            if (entityGroup == null) {
+                throw new ResourceNotFoundException("Unknown Group");
+            }
+            if (!isCurrentUserMemberOfGroup(entityGroup)) {
+                throw new ResourceForbiddenException("Forbidden");
+            }
+        }
 
         List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
         String size = getParameters.getSize();

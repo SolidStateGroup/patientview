@@ -90,7 +90,7 @@ public class ConversationController extends BaseController<ConversationControlle
     @ResponseBody
     public ResponseEntity<List<BaseUser>> getRecipients(@PathVariable("userId") Long userId,
             @RequestParam(value = "featuretype", required = false) String[] featureTypes)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(conversationService.getRecipients(userId, featureTypes), HttpStatus.OK);
     }
 

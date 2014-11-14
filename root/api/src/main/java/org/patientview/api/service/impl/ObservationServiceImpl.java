@@ -107,8 +107,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("' ");
 
                 if (StringUtils.isNotEmpty(code)) {
-                    query.append("AND content-> 'name' ->> 'text' = '");
-                    query.append(code);
+                    query.append("AND UPPER(content-> 'name' ->> 'text') = '");
+                    query.append(code.toUpperCase());
                     query.append("' ");
                 }
 
@@ -159,12 +159,12 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         query.append("' ");
 
         if (!codes.isEmpty()) {
-            query.append("AND content-> 'name' ->> 'text' IN (");
+            query.append("AND UPPER(content-> 'name' ->> 'text') IN (");
 
             for (int i = 0; i < codes.size(); i++) {
 
                 query.append("'");
-                query.append(codes.get(i));
+                query.append(codes.get(i).toUpperCase());
                 query.append("' ");
 
                 if(i != codes.size()-1) {

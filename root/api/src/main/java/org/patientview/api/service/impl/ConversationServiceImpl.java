@@ -395,7 +395,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     public List<org.patientview.api.model.BaseUser> getRecipients(Long userId, String[] featureTypes)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
 
         // global admin can contact all users

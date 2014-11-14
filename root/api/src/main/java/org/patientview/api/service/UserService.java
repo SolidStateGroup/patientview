@@ -63,7 +63,8 @@ public interface UserService {
     void removeAllGroupRoles(Long userId) throws ResourceNotFoundException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
-    Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters);
+    Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters);
 
