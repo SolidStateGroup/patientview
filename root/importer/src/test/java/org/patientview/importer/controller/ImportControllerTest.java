@@ -94,12 +94,12 @@ public class ImportControllerTest {
 
         List<String> files = new ArrayList<>();
         files.add("data/xml/milestone4/SAC02_01439_41737438900.xml"); // 336 observations
-        files.add("data/xml/milestone4/SGC04_01436_57703939407.xml"); // big
+        /*files.add("data/xml/milestone4/SGC04_01436_57703939407.xml"); // big
         files.add("data/xml/milestone4/SGC04_01436_64098149107.xml"); // big, 6372 observations
         files.add("data/xml/milestone4/SGC04_01456_12314191702.xml");
         files.add("data/xml/milestone4/SGC04_01459_14018849809.xml");
         files.add("data/xml/milestone4/SGC04_01459_28039602801.xml");
-        files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");
+        files.add("data/xml/milestone4/SGC04_01459_74569958609.xml");*/
 
         // 46 seconds local 10/11/14 fhir_delete and native create observations
         // 5 seconds local 11/11/14 native delete and create observations
@@ -132,8 +132,8 @@ public class ImportControllerTest {
     private static org.apache.http.HttpResponse post(String json) throws Exception {
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
-        //String postUrl="https://staging.patientview.org/importer/import";// put in your url
-        String postUrl="http://localhost:8081/importer/import";// put in your url
+        String postUrl="https://staging.patientview.org/importer/import";// put in your url
+        //String postUrl="http://localhost:8081/importer/import";// put in your url
         //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);

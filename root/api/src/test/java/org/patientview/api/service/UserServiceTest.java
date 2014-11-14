@@ -320,7 +320,7 @@ public class UserServiceTest {
         user.setChangePassword(Boolean.TRUE);
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         userService.changePassword(user.getId(), password);
-        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
+        verify(userRepository, Mockito.times(2)).findOne(eq(user.getId()));
     }
 
     /**
