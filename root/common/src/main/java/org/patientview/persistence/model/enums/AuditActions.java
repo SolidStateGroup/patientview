@@ -38,11 +38,11 @@ public enum AuditActions {
     // importer
     PATIENT_DATA_SUCCESS("Patient data imported"),
     PATIENT_DATA_VALIDATE_FAIL("Patient data failed validation"),
-    PATIENT_DATA_FAIL("Patient data failed import"),
+    PATIENT_DATA_FAIL("Patient data failed import");
 
     // not used
-    VIEW("View"),
-    MAP("Map");
+    //VIEW("View"),
+    //MAP("Map");
 
     private String name;
     AuditActions(String name) { this.name = name; }
