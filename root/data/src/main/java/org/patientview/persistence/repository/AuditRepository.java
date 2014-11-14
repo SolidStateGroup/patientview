@@ -31,6 +31,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
 
     @Query("SELECT a " +
             "FROM Audit a " +
+
+            // filter
             "WHERE (((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User)) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
@@ -51,20 +53,30 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
 
     @Query("SELECT a " +
             "FROM Audit a " +
-            "WHERE a.sourceObjectId IN (" +
-            "SELECT u.id FROM User u " +
-            "JOIN u.groupRoles ugr " +
-            "JOIN ugr.group g " +
-            "WHERE g.id IN (:groupIds)) ")
-    Page<Audit> findAllBySourceGroup(@Param("groupIds") List<Long> groupIds, Pageable pageable);
 
-    @Query("SELECT a " +
-            "FROM Audit a " +
+            // groups
             "WHERE a.sourceObjectId IN (" +
             "SELECT u.id FROM User u " +
             "JOIN u.groupRoles ugr " +
             "JOIN ugr.group g " +
             "WHERE g.id IN (:groupIds)) " +
+            "OR ((a.sourceObjectId IN (SELECT g.id FROM Group g WHERE (g.id IN (:groupIds)))) " +
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group)")
+    Page<Audit> findAllBySourceGroup(@Param("groupIds") List<Long> groupIds, Pageable pageable);
+
+    @Query("SELECT a " +
+            "FROM Audit a " +
+
+            // groups
+            "WHERE ((a.sourceObjectId IN (" +
+            "SELECT u.id FROM User u " +
+            "JOIN u.groupRoles ugr " +
+            "JOIN ugr.group g " +
+            "WHERE g.id IN (:groupIds))) " +
+            "OR ((a.sourceObjectId IN (SELECT g.id FROM Group g WHERE (g.id IN (:groupIds)))) " +
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group)) " +
+
+            // filter
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
@@ -76,13 +88,17 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
 
     @Query("SELECT a " +
             "FROM Audit a " +
-            "WHERE a.auditActions IN :actions")
+            "WHERE a.auditActions IN (:actions)")
     Page<Audit> findAllByAction(@Param("actions") List<AuditActions> actions, Pageable pageable);
 
 
     @Query("SELECT a " +
             "FROM Audit a " +
+
+            // actions
             "WHERE a.auditActions IN :actions " +
+
+            // filter
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
@@ -94,23 +110,37 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
 
     @Query("SELECT a " +
             "FROM Audit a " +
-            "WHERE a.sourceObjectId IN (" +
+
+            // groups
+            "WHERE ((a.sourceObjectId IN (" +
             "SELECT u.id FROM User u " +
             "JOIN u.groupRoles ugr " +
             "JOIN ugr.group g " +
-            "WHERE g.id IN (:groupIds)) " +
-            "AND a.auditActions IN :actions")
+            "WHERE g.id IN (:groupIds))) " +
+            "OR ((a.sourceObjectId IN (SELECT g.id FROM Group g WHERE (g.id IN (:groupIds)))) " +
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group)) " +
+
+            // actions
+            "AND a.auditActions IN (:actions)")
     Page<Audit> findAllByGroupAndAction(@Param("groupIds") List<Long> groupIds,
                                         @Param("actions") List<AuditActions> actions, Pageable pageable);
 
     @Query("SELECT a " +
             "FROM Audit a " +
-            "WHERE a.sourceObjectId IN (" +
+
+            // groups
+            "WHERE ((a.sourceObjectId IN (" +
             "SELECT u.id FROM User u " +
             "JOIN u.groupRoles ugr " +
             "JOIN ugr.group g " +
-            "WHERE g.id IN (:groupIds)) " +
-            "AND a.auditActions IN :actions " +
+            "WHERE g.id IN (:groupIds))) " +
+            "OR ((a.sourceObjectId IN (SELECT g.id FROM Group g WHERE (g.id IN (:groupIds)))) " +
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group)) " +
+
+            // actions
+            "AND a.auditActions IN (:actions) " +
+
+            // filter
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +

@@ -218,22 +218,31 @@ public class AuditRepositoryTest {
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
         dataTestUtils.createGroupRole(user, group, role);
 
+        // someone doing something to user in my group (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
         audit.setActorId(user.getId());
         auditRepository.save(audit);
 
+        // one of my users doing something somewhere else (no)
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(1L);
         audit2.setActorId(user.getId());
         auditRepository.save(audit2);
+
+        // another user does something to my group (yes)
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(group.getId());
+        audit3.setSourceObjectType(AuditObjectTypes.Group);
+        audit3.setActorId(1L);
+        auditRepository.save(audit3);
 
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
         groupIds.add(1L);
 
         Page<Audit> audits = auditRepository.findAllBySourceGroup(groupIds, new PageRequest(0, Integer.MAX_VALUE));
-        Assert.assertEquals("Should be 1 audit returned", 1, audits.getContent().size());
+        Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
 
     @Test
@@ -241,7 +250,7 @@ public class AuditRepositoryTest {
         User user = dataTestUtils.createUser("testUser");
         User user2 = dataTestUtils.createUser("test2User");
         Group group = dataTestUtils.createGroup("testGroup");
-        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Group group2 = dataTestUtils.createGroup("test2Group");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
 
         dataTestUtils.createGroupRole(user, group, role);
@@ -256,13 +265,13 @@ public class AuditRepositoryTest {
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
 
-        // 1L looking at user2 (no)
-        Audit audit3 = new Audit();
-        audit3.setSourceObjectId(user2.getId());
-        audit3.setSourceObjectType(AuditObjectTypes.User);
-        audit3.setActorId(2L);
-        audit3.setCreationDate(new Date());
-        auditRepository.save(audit3);
+        // 1L looking at my group (no)
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(group.getId());
+        audit2.setSourceObjectType(AuditObjectTypes.Group);
+        audit2.setActorId(1L);
+        audit2.setCreationDate(new Date());
+        auditRepository.save(audit2);
 
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
@@ -272,7 +281,8 @@ public class AuditRepositoryTest {
         Date end = new Date();
 
         String filterText = "%" + user.getUsername().toUpperCase() + "%";
-        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, filterText, groupIds, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, filterText, groupIds,
+                new PageRequest(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 1 audit returned", 1, audits.getContent().size());
     }
 
@@ -281,7 +291,64 @@ public class AuditRepositoryTest {
         User user = dataTestUtils.createUser("testUser");
         User user2 = dataTestUtils.createUser("test2User");
         Group group = dataTestUtils.createGroup("testGroup");
-        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user2, group2, role);
+
+        // user looking at user2 (yes)
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user2.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setActorId(user.getId());
+        audit.setCreationDate(new Date());
+        auditRepository.save(audit);
+
+        // 1L looking at my group (yes)
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(group.getId());
+        audit2.setSourceObjectType(AuditObjectTypes.Group);
+        audit2.setActorId(1L);
+        audit2.setCreationDate(new Date());
+        auditRepository.save(audit2);
+
+        // 1L looking at user2 (yes)
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(user2.getId());
+        audit3.setSourceObjectType(AuditObjectTypes.User);
+        audit3.setActorId(1L);
+        audit3.setCreationDate(new Date());
+        auditRepository.save(audit3);
+
+        // 1L looking at another group (no)
+        Audit audit4 = new Audit();
+        audit4.setSourceObjectId(1L);
+        audit4.setSourceObjectType(AuditObjectTypes.Group);
+        audit4.setActorId(1L);
+        audit4.setCreationDate(new Date());
+        auditRepository.save(audit4);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+        groupIds.add(1L);
+
+        Date start = new Date(0);
+        Date end = new Date();
+
+        String filterText = "%%";
+        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, filterText, groupIds,
+                new PageRequest(0, Integer.MAX_VALUE));
+        Assert.assertEquals("Should be 3 audit returned", 3, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllBySourceGroupFiltered3() {
+        User user = dataTestUtils.createUser("testUser");
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
 
         dataTestUtils.createGroupRole(user, group, role);
@@ -353,7 +420,7 @@ public class AuditRepositoryTest {
         User user = dataTestUtils.createUser("testUser");
         User user2 = dataTestUtils.createUser("test2User");
         Group group = dataTestUtils.createGroup("testGroup");
-        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Group group2 = dataTestUtils.createGroup("test2Group");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
 
         dataTestUtils.createGroupRole(user, group, role);
@@ -514,14 +581,24 @@ public class AuditRepositoryTest {
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
         dataTestUtils.createGroupRole(user, group, role);
 
+        // someone looking at a user in my group (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
         audit.setAuditActions(AuditActions.SWITCH_USER);
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
 
+        // someone looking at my group (yes)
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(group.getId());
+        audit2.setSourceObjectType(AuditObjectTypes.Group);
+        audit2.setAuditActions(AuditActions.CREATE_GROUP);
+        audit2.setCreationDate(new Date());
+        auditRepository.save(audit2);
+
         List<AuditActions> actions = new ArrayList<>();
         actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.CREATE_GROUP);
 
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
@@ -530,15 +607,15 @@ public class AuditRepositoryTest {
         Page<Audit> audits
                 = auditRepository.findAllByGroupAndAction(groupIds, actions, new PageRequest(0, Integer.MAX_VALUE));
 
-        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+        Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
 
     @Test
-    public void testFindAllByGroupAndActionFiltered() {
+    public void testFindAllByGroupAndActionFiltered1() {
         User user = dataTestUtils.createUser("testUser");
         User user2 = dataTestUtils.createUser("test2User");
         Group group = dataTestUtils.createGroup("testGroup");
-        Group group2 = dataTestUtils.createGroup("testGroup2");
+        Group group2 = dataTestUtils.createGroup("test2Group");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
 
         dataTestUtils.createGroupRole(user, group, role);
@@ -571,6 +648,14 @@ public class AuditRepositoryTest {
         audit3.setCreationDate(new Date());
         auditRepository.save(audit3);
 
+        // 1L CREATE_GROUP group (no)
+        Audit audit4 = new Audit();
+        audit4.setSourceObjectId(group.getId());
+        audit4.setSourceObjectType(AuditObjectTypes.Group);
+        audit4.setActorId(1L);
+        audit4.setCreationDate(new Date());
+        auditRepository.save(audit4);
+
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
         groupIds.add(1L);
@@ -585,5 +670,57 @@ public class AuditRepositoryTest {
         Page<Audit> audits = auditRepository.findAllBySourceGroupAndActionFiltered(start, end, filterText, groupIds, actions,
                 new PageRequest(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 1 audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllByGroupAndActionFiltered2() {
+        User user = dataTestUtils.createUser("testUser");
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user2, group, role);
+        dataTestUtils.createGroupRole(user2, group2, role);
+
+        // outside user
+        User user3 = dataTestUtils.createUser("test3User");
+        Group group3 = dataTestUtils.createGroup("test3Group");
+        dataTestUtils.createGroupRole(user3, group3, role);
+
+        // user SWITCH_USER user2 (yes)
+        Audit audit = new Audit();
+        audit.setSourceObjectId(user2.getId());
+        audit.setSourceObjectType(AuditObjectTypes.User);
+        audit.setAuditActions(AuditActions.SWITCH_USER);
+        audit.setActorId(user.getId());
+        audit.setCreationDate(new Date());
+        auditRepository.save(audit);
+
+        // user3 CREATE_GROUP group (yes)
+        Audit audit4 = new Audit();
+        audit4.setSourceObjectId(group.getId());
+        audit4.setSourceObjectType(AuditObjectTypes.Group);
+        audit4.setAuditActions(AuditActions.CREATE_GROUP);
+        audit4.setActorId(user3.getId());
+        audit4.setCreationDate(new Date());
+        auditRepository.save(audit4);
+
+        List<Long> groupIds = new ArrayList<>();
+        groupIds.add(group.getId());
+        groupIds.add(1L);
+
+        List<AuditActions> actions = new ArrayList<>();
+        actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.CREATE_GROUP);
+
+        Date start = new Date(0);
+        Date end = new Date();
+
+        String filterText = "%%";
+        Page<Audit> audits = auditRepository.findAllBySourceGroupAndActionFiltered(start, end, filterText, groupIds, actions,
+                new PageRequest(0, Integer.MAX_VALUE));
+        Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
 }
