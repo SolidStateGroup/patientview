@@ -3,6 +3,7 @@ package org.patientview.api.aspect;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -10,6 +11,7 @@ import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.service.AuditService;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * TODO test needs to be improved to test for return types
@@ -37,6 +40,9 @@ public class AuditTrailAspectTest {
 
     @Mock
     AuditService auditService;
+
+    @Mock
+    UserRepository userRepository;
 
     @InjectMocks
     AuditAspect auditAspect = AuditAspect.aspectOf();
@@ -69,6 +75,8 @@ public class AuditTrailAspectTest {
         User user = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(user);
 
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+
         annotatedObjectMethod(user);
         // when create a user and then hit our test method
         verify(auditService, Mockito.times(2)).save(any(org.patientview.persistence.model.Audit.class));
@@ -85,6 +93,8 @@ public class AuditTrailAspectTest {
     public void testAuditWithAnId() {
         User user = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(user);
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
 
         annotatedIdMethod(user.getId());
         verify(auditService, Mockito.times(2)).save(any(org.patientview.persistence.model.Audit.class));
