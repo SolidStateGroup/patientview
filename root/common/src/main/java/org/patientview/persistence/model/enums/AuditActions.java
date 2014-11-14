@@ -8,6 +8,16 @@ public enum AuditActions {
 
     CREATE("Create"),
     EDIT("Edit"),
+
+    // group
+    CREATE_GROUP("Create Group"),
+    EDIT_GROUP("Edit Group"),
+
+    // user group roles
+    ADD_GROUP_ROLE("Add Group Role"),
+    DELETE_GROUP_ROLE("Delete Group Role"),
+    DELETE_GROUP_ROLES("Delete all Groups and Roles"),
+
     VIEW("View"),
     CHANGE_PASSWORD("Change Password"),
     DELETE("Delete User"),

@@ -58,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by james@solidstategroup.com
@@ -872,5 +871,4 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         email.setSubject("PatientView - Password Reset");
         return email;
     }
-
 }

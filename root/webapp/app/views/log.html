@@ -172,11 +172,18 @@
                     </td>
                     <td>{{audit.sourceObjectUser.username}}</td>
                     <td>
-                        <span data-ng-repeat="groupRole in audit.sourceObjectUser.groupRoles"
-                              data-ng-hide="groupRole.group.code === 'Generic' || groupRole.role.name === 'MEMBER'
-                                || groupRole.group.groupType.value === 'SPECIALTY'">
-                            {{groupRole.group.shortName}} ({{groupRole.role.description}})
-                            <br/>
+                        <span data-ng-show="audit.sourceObjectType === 'User'">
+                            <span data-ng-repeat="groupRole in audit.sourceObjectUser.groupRoles"
+                                  data-ng-hide="groupRole.group.code === 'Generic' || groupRole.role.name === 'MEMBER'
+                                    || groupRole.group.groupType.value === 'SPECIALTY'">
+                                {{groupRole.group.shortName}} ({{groupRole.role.description}})
+                                <br/>
+                            </span>
+                        </span>
+                        <span data-ng-show="audit.sourceObjectType === 'Group'">
+                            <span>
+                                {{audit.sourceObjectGroup.shortName}}
+                            </span>
                         </span>
                     </td>
                     <td>{{audit.auditActions}}</td>

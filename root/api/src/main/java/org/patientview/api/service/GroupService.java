@@ -37,10 +37,11 @@ public interface GroupService {
 
     List<Group> findGroupByUser(User user);
 
+    @AuditTrail(value = AuditActions.EDIT_GROUP, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException;
 
-    @AuditTrail(value = AuditActions.CREATE, objectType = Group.class)
+    @AuditTrail(value = AuditActions.CREATE_GROUP, objectType = Group.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Long add(Group group);
 

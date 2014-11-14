@@ -42,23 +42,25 @@ public interface UserService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
-    //@AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     User get(Long userId) throws ResourceNotFoundException;
 
+    @AuditTrail(value = AuditActions.DELETE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
-    //@AuditTrail(value = AuditActions.VIEW, objectType = User.class)
     org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @AuditTrail(value = AuditActions.ADD_GROUP_ROLE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
+    @AuditTrail(value = AuditActions.DELETE_GROUP_ROLE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void deleteGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
+    @AuditTrail(value = AuditActions.DELETE_GROUP_ROLES, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void removeAllGroupRoles(Long userId) throws ResourceNotFoundException;
 
@@ -72,7 +74,7 @@ public interface UserService {
     @UserOnly
     void changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
+    @AuditTrail(value = AuditActions.RESET_PASSWORD, objectType = User.class)
     org.patientview.api.model.User resetPassword(Long userId, String password)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
@@ -99,5 +101,6 @@ public interface UserService {
     @UserOnly
     List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException;
 
+    @AuditTrail(value = AuditActions.CREATE, objectType = User.class)
     public Long add(User user) throws EntityExistsException;
 }

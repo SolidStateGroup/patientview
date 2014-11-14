@@ -27,6 +27,7 @@ public class Audit extends BaseModel {
     // new for transport object
     private User actor;
     private User sourceObjectUser;
+    private BaseGroup sourceObjectGroup;
 
     public Audit() {
 
@@ -125,6 +126,14 @@ public class Audit extends BaseModel {
 
     public void setSourceObjectUser(User sourceObjectUser) {
         this.sourceObjectUser = sourceObjectUser;
+    }
+
+    public BaseGroup getSourceObjectGroup() {
+        return sourceObjectGroup;
+    }
+
+    public void setSourceObjectGroup(BaseGroup sourceObjectGroup) {
+        this.sourceObjectGroup = sourceObjectGroup;
     }
 
     public String getIdentifier() {

@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.BaseGroup;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.model.Audit;
 import org.patientview.api.util.Util;
@@ -186,15 +187,22 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             }
 
             // if source object is User get source user if exists
-            if (audit.getSourceObjectType() != null
-                    && audit.getSourceObjectType().equals(AuditObjectTypes.User)
-                    && audit.getSourceObjectId() != null) {
+            if (audit.getSourceObjectType() != null && audit.getSourceObjectId() != null) {
 
-                org.patientview.persistence.model.User sourceObjectUser
-                        = userRepository.findOne(audit.getSourceObjectId());
+                if (audit.getSourceObjectType().equals(AuditObjectTypes.User)) {
+                    org.patientview.persistence.model.User sourceObject
+                            = userRepository.findOne(audit.getSourceObjectId());
 
-                if (sourceObjectUser != null) {
-                    transportAudit.setSourceObjectUser(new User(sourceObjectUser, null));
+                    if (sourceObject != null) {
+                        transportAudit.setSourceObjectUser(new User(sourceObject, null));
+                    }
+                } else if (audit.getSourceObjectType().equals(AuditObjectTypes.Group)) {
+                    org.patientview.persistence.model.Group sourceObject
+                            = groupRepository.findOne(audit.getSourceObjectId());
+
+                    if (sourceObject != null) {
+                        transportAudit.setSourceObjectGroup(new BaseGroup(sourceObject));
+                    }
                 }
             }
 
