@@ -182,7 +182,7 @@
                     <div class="row-item hidden">{{user.id}}</div>
                     <div class="row-item accordion-heading-text">{{user.surname}}</div>
                     <div class="row-item accordion-heading-text">{{user.forename}}</div>
-                    <div class="row-item accordion-heading-text"><a href="mailto:{{user.email}}">{{user.email}}</a></div>
+                    <div class="row-item accordion-heading-text row-break"><a href="mailto:{{user.email}}">{{user.email}}</a></div>
                     <div class="row-item accordion-heading-text">
                         <ul data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled"
                                 data-ng-show="groupRole.role.name !== 'MEMBER'">

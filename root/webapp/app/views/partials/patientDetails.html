@@ -67,7 +67,7 @@
                     <span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span>
                 </li>
                 <li class="group-list-role pull-left">
-                    ( <span class="group-list-role">{{groupRole.role.description}}</span> )
+                    <span class="bracket">(</span> <span class="group-role">{{groupRole.role.description}}</span> <span class="bracket">)</span>
                 </li>
                 <li class="group-list-delete pull-left"
                     data-ng-show="permissions.allGroupsIds[groupRole.group.id] && permissions.canDeleteGroupRolesDuringEdit && permissions.canEditPatients">

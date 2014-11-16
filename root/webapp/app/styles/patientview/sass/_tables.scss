@@ -98,21 +98,11 @@
         .row-item{
             display:table-cell;
             text-align:left;
-            padding:0 10px;
+            padding:0 5px;
             color:$textlight;
             text-decoration:none;
             vertical-align: middle;
-            word-break: break-word;
             font-family: 'Lato', sans-serif;
-
-            /*temp wrapping fix */
-            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
-            white-space: -pre-wrap; /* Opera 4-6 */
-            white-space: -o-pre-wrap; /* Opera 7 */
-            white-space: pre-wrap; /* css-3 */
-            word-wrap: break-word; /* Internet Explorer 5.5+ */
-            word-break: break-all;
-            white-space: normal;
 
             &.plot-this{
                 width:40px;
@@ -123,9 +113,20 @@
                 float:right;
             }
 
+            &.row-break{
+                /*temp wrapping fix */
+                white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+                white-space: -pre-wrap; /* Opera 4-6 */
+                white-space: -o-pre-wrap; /* Opera 7 */
+                white-space: pre-wrap; /* css-3 */
+                word-wrap: break-word; /* Internet Explorer 5.5+ */
+                word-break: break-all;
+                white-space: normal;
+            }
 
             &.actions{
                 text-align:center;
+                padding:0 10px;
 
                 .button-dropdown-group{
                     width: 120px;

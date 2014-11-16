@@ -17,7 +17,7 @@
                             <li><a data-ng-click="removeAllStatuses()"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                             <li class="divider"></li>
                             <li data-ng-repeat="status in statuses">
-                                <a data-ng-click="setSelectedStatus(status)">
+                                <a class="clearfix" data-ng-click="setSelectedStatus(status)">
                                     <span class="pull-left">{{status}}</span>
                                     <span data-ng-class="isStatusChecked(status)"></span>
                                 </a>
