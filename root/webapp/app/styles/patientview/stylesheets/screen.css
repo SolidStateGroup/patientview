@@ -2483,10 +2483,12 @@ textarea.form-control.article-content {
 }
 /* line 2, ../sass/_components.scss */
 .pagination.results {
-  margin: 0;
+  display: block;
+  margin: 0 auto;
+  width: 200px;
 }
 
-/* line 8, ../sass/_components.scss */
+/* line 10, ../sass/_components.scss */
 .tab-panel-item .aside-actions {
   height: 180px;
   position: absolute;
@@ -2494,72 +2496,72 @@ textarea.form-control.article-content {
   right: 0;
   bottom: 0;
 }
-/* line 15, ../sass/_components.scss */
+/* line 17, ../sass/_components.scss */
 .tab-panel-item .aside-actions li {
   height: 75px;
 }
-/* line 18, ../sass/_components.scss */
+/* line 20, ../sass/_components.scss */
 .tab-panel-item .aside-actions li a {
   height: 100%;
   line-height: 15px;
   padding-top: 15px;
 }
-/* line 26, ../sass/_components.scss */
+/* line 28, ../sass/_components.scss */
 .tab-panel-item .item-detail {
   padding: 20px;
 }
-/* line 29, ../sass/_components.scss */
+/* line 31, ../sass/_components.scss */
 .tab-panel-item .item-detail dl {
   margin-bottom: 10px;
 }
-/* line 34, ../sass/_components.scss */
+/* line 36, ../sass/_components.scss */
 .tab-panel-item .item-detail dl dd {
   color: #768696;
 }
 
-/* line 41, ../sass/_components.scss */
+/* line 43, ../sass/_components.scss */
 .user-details {
   margin-bottom: 20px;
   padding: 20px;
   min-height: 170px;
 }
-/* line 46, ../sass/_components.scss */
+/* line 48, ../sass/_components.scss */
 .user-details h3 {
   margin-top: 0;
 }
-/* line 50, ../sass/_components.scss */
+/* line 52, ../sass/_components.scss */
 .user-details h4 {
   margin-bottom: 5px;
 }
 
 /** MODALS **/
-/* line 57, ../sass/_components.scss */
+/* line 59, ../sass/_components.scss */
 .modal-dialog {
   width: 75%;
 }
-/* line 60, ../sass/_components.scss */
+/* line 62, ../sass/_components.scss */
 .modal-dialog label {
   font-size: 1.5rem;
 }
-/* line 64, ../sass/_components.scss */
+/* line 66, ../sass/_components.scss */
 .modal-dialog .added-container {
   margin-top: 30px;
 }
 
 /** GRAPHS **/
-/* line 74, ../sass/_components.scss */
+/* line 76, ../sass/_components.scss */
 .graph-selector h3 {
   margin: 0;
   line-height: 35px;
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 83, ../sass/_components.scss */
+  /* line 85, ../sass/_components.scss */
   .tab-panel-item .item-detail {
     padding: 5px 20px;
   }
 
-  /* line 87, ../sass/_components.scss */
+  /* line 89, ../sass/_components.scss */
   .modal-dialog {
     width: auto;
   }
