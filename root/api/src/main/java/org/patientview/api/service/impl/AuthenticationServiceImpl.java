@@ -287,8 +287,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         Date expiration = userTokenRepository.getExpiration(authToken);
 
         if (expiration == null) {
-            userTokenRepository.setExpiration(authToken, future);
-            return false;
+            return true;
         } else {
             if (userTokenRepository.sessionExpired(authToken)) {
                 return true;
