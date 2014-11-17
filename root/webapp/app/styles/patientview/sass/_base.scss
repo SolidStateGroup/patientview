@@ -9,6 +9,12 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
+hr{
+    margin-top:23px;
+    margin-bottom:10px;
+    border-top: 1px dashed #eeeeee;
+}
+
 .back-to-admin{
     margin-bottom:20px;
     background:#fff;
@@ -184,7 +190,7 @@ body {
 .add-container{
     margin-top:10px;
     padding-top:10px;
-    border-top:1px solid #e2e2e2;
+    border-top:1px dashed #e2e2e2;
 
     .add-feature{
         button{
@@ -230,7 +236,7 @@ body {
 
 
 .add-form{
-    margin-top:30px;
+    margin-top:10px;
 }
 
 /** lists **/
@@ -412,6 +418,12 @@ ul {
 .modal-dialog{
     &.modal-sm{
         width:45%;
+    }
+}
+
+.stats-modal{
+    .modal-dialog{
+        margin:165px auto
     }
 }
 

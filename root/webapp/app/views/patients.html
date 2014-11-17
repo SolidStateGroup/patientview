@@ -231,7 +231,7 @@
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="button-dropdown-group">
-                            <button type="button" class="btn blue pull-left btn-wide" data-ng-click="opened(user)" data-ng-show="permissions.canEditPatients">Edit</button>
+                            <button type="button" class="btn blue pull-left edit-button btn-wide" data-ng-click="opened(user)" data-ng-show="permissions.canEditPatients">Edit</button>
                             <button type="button" class="btn blue pull-left" data-ng-click="opened(user)" data-ng-show="permissions.canViewPatients">View</button>
                             <div class="dropdown pull-left">
                                 <button type="button" class="btn blue dropdown-toggle" id="dropdown-toggle-{{user.id}}">
@@ -257,7 +257,7 @@
                         <hr>
                         <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                         <div class="user-save-cancel pull-right">
-                            <button type="button" class="btn btn-grey" data-ng-click="user.showEdit = false">Cancel</button>
+                            <button type="button" class="btn btn-grey close-edit" data-ng-click="user.showEdit = false">Cancel</button>
                         </div>
                     </div>
                 </div>
