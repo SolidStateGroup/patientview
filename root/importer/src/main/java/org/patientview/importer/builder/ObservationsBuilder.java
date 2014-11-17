@@ -328,7 +328,7 @@ public class ObservationsBuilder {
         observation.setName(name);
 
         Identifier identifier = new Identifier();
-        identifier.setLabelSimple("resultcode");
+        //identifier.setLabelSimple("resultcode");
         identifier.setValueSimple(type);
         observation.setIdentifier(identifier);
 

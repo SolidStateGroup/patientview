@@ -53,6 +53,7 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
+import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -346,11 +347,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // DocumentReferences (letters)
         migrateFhirDocumentReferences(migrationUser, entityUser, fhirLinks, identifierMap);
+
+        // non test observation types (delete first)
+        deleteExistingNonTestObservationData(fhirLinks);
+        migrateFhirNonTestObservations(migrationUser, entityUser, fhirLinks, identifierMap);
     }
 
-    // migration only, migrate observations
+    // migration only, migrate test observations
     @Override
-    public void migrateObservations(Long userId, MigrationUser migrationUser)
+    public void migrateTestObservations(Long userId, MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
         //LOG.info("3: " + new Date().getTime());
@@ -385,7 +390,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         // store Observations (results), creating FHIR Patients and FhirLinks if not present
         // native sql statement method, much faster but doesn't use stored procedure
-        migrateFhirObservationsNative(migrationUser, entityUser, fhirLinks, identifierMap);
+        migrateFhirTestObservations(migrationUser, entityUser, fhirLinks, identifierMap);
     }
 
     private void migrateFhirPatientsAndPractitioners(MigrationUser migrationUser, User entityUser,
@@ -424,7 +429,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     }
 
     // fast method, inserts observations in bulk after converting to correct JSON
-    private void migrateFhirObservationsNative(MigrationUser migrationUser, User entityUser,
+    private void migrateFhirTestObservations(MigrationUser migrationUser, User entityUser,
                                          Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
@@ -433,13 +438,24 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         Long start = migrationUser.getObservationStartDate();
         Long end = migrationUser.getObservationEndDate();
 
-        //LOG.info("6: " + new Date().getTime());
+        // only migrate test observation types (not non-test and diagnostic)
+        List<String> nonTestObservationTypes = new ArrayList<>();
+        for (NonTestObservationTypes observationType : NonTestObservationTypes.class.getEnumConstants()) {
+            nonTestObservationTypes.add(observationType.toString());
+        }
 
-        // store Observations (results), creating FHIR Patients and FhirLinks if not present
+        for (DiagnosticReportObservationTypes observationType
+                : DiagnosticReportObservationTypes.class.getEnumConstants()) {
+            nonTestObservationTypes.add(observationType.toString());
+        }
+
+        //LOG.info("6: " + new Date().getTime());
+        // store test Observations (results), creating FHIR Patients and FhirLinks if not present
         for (FhirObservation fhirObservation : migrationUser.getObservations()) {
 
-            // only add observations between start and end
-            if (fhirObservation.getApplies().getTime() >= start && fhirObservation.getApplies().getTime() <= end) {
+            // only add test observations between start and end
+            if (fhirObservation.getApplies().getTime() >= start && fhirObservation.getApplies().getTime() <= end
+                    && !nonTestObservationTypes.contains(fhirObservation.getName().toUpperCase())) {
 
                 // get identifier for this user and observation heading for this observation
                 Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());
@@ -468,7 +484,50 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         //LOG.info("7: " + new Date().getTime());
+        insertObservations(fhirDatabaseObservations);
+        //LOG.info("8: " + new Date().getTime());
+    }
 
+    // natively insert non test observations
+    private void migrateFhirNonTestObservations(MigrationUser migrationUser, User entityUser,
+                                                Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
+            throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
+
+        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+
+        // only migrate non test observation types (not test and diagnostic)
+        List<String> nonTestObservationTypes = new ArrayList<>();
+        for (NonTestObservationTypes observationType : NonTestObservationTypes.class.getEnumConstants()) {
+            nonTestObservationTypes.add(observationType.toString());
+        }
+
+        // Observations (non test)
+        for (FhirObservation fhirObservation : migrationUser.getObservations()) {
+            if (nonTestObservationTypes.contains(fhirObservation.getName().toUpperCase())) {
+                Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());
+
+                if (identifier == null) {
+                    throw new FhirResourceException("Identifier not found");
+                }
+
+                FhirLink fhirLink
+                        = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
+                if (fhirLink == null) {
+                    fhirLink = createPatientAndFhirLink(entityUser, fhirObservation.getGroup(), identifier);
+                    fhirLinks.add(fhirLink);
+                }
+
+                // create FHIR database observation with correct JSON content
+                fhirDatabaseObservations.add(
+                        observationService.buildFhirDatabaseNonTestObservation(fhirObservation, fhirLink));
+            }
+        }
+
+        insertObservations(fhirDatabaseObservations);
+    }
+
+    private void insertObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
+            throws FhirResourceException {
         // generate large sql statement to insert
         if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
             StringBuilder sb = new StringBuilder();
@@ -491,8 +550,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
             fhirResource.executeSQL(sb.toString());
         }
-
-        //LOG.info("8: " + new Date().getTime());
     }
 
     private void migrateFhirConditions(MigrationUser migrationUser, User entityUser,
@@ -685,6 +742,26 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 deleteObservations(fhirResource.getLogicalIdsBySubjectIdAppliesIgnoreNames(
                         "observation", subjectId, nonTestObservationTypes, migrationUser.getObservationStartDate(),
                         migrationUser.getObservationEndDate()));
+            }
+        }
+    }
+
+    // delete all FHIR related Observation data for this patient (not other patient data), non test data only
+    private void deleteExistingNonTestObservationData(Set<FhirLink> fhirLinks)
+            throws FhirResourceException {
+
+        if (fhirLinks != null) {
+            for (FhirLink fhirLink : fhirLinks) {
+                UUID subjectId = fhirLink.getResourceId();
+
+                // only delete non test observation types
+                List<String> nonTestObservationTypes = new ArrayList<>();
+                for (NonTestObservationTypes observationType : NonTestObservationTypes.class.getEnumConstants()) {
+                    nonTestObservationTypes.add(observationType.toString());
+                }
+
+                deleteObservations(fhirResource.getLogicalIdsBySubjectIdAndNames(
+                        "observation", subjectId, nonTestObservationTypes));
             }
         }
     }
