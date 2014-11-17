@@ -40,6 +40,10 @@ public interface ObservationService {
             ObservationHeading observationHeading, FhirLink fhirLink)
             throws ResourceNotFoundException, FhirResourceException;
 
+    FhirDatabaseObservation buildFhirDatabaseNonTestObservation(
+            org.patientview.persistence.model.FhirObservation fhirObservation, FhirLink fhirLink)
+            throws ResourceNotFoundException, FhirResourceException;
+
     List<org.patientview.api.model.FhirObservation> getByFhirLinkAndCodes(
             final FhirLink fhirLink, final List<String> codes)
             throws ResourceNotFoundException, FhirResourceException;

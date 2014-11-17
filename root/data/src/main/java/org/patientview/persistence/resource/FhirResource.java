@@ -443,15 +443,16 @@ public class FhirResource {
         query.append("SELECT logical_id, content->'appliesDateTime' ");
         query.append("FROM ");
         query.append(tableName);
-        query.append(" WHERE   content -> 'subject' ->> 'display' = '");
+        query.append(" WHERE content -> 'subject' ->> 'display' = '");
         query.append(subjectId);
         query.append("' ");
 
         if (!CollectionUtils.isEmpty(namesToIgnore)) {
             // names to ignore
-            query.append("AND content -> 'name' -> 'text' NOT IN (");
+            query.append("AND UPPER(content -> 'name' ->> 'text') NOT IN (");
             for (int i = 0; i < namesToIgnore.size(); i++) {
-                query.append("'\"").append(namesToIgnore.get(i)).append("\"'");
+                //query.append("'\"").append(namesToIgnore.get(i).toUpperCase()).append("\"'");
+                query.append("'").append(namesToIgnore.get(i).toUpperCase()).append("'");
 
                 if (i != (namesToIgnore.size() - 1)) {
                     query.append(",");
@@ -502,6 +503,66 @@ public class FhirResource {
                     uuids.add(UUID.fromString(results.getString(1)));
                 }
 
+            }
+
+            connection.close();
+            return uuids;
+        } catch (SQLException e) {
+            LOG.error("Unable to get logical ids by subject id {}", e);
+
+            // try and close the open connection
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+
+            throw new FhirResourceException(e.getMessage());
+        }
+    }
+
+    public List<UUID> getLogicalIdsBySubjectIdAndNames(
+            final String tableName, final UUID subjectId, final List<String> names) throws FhirResourceException {
+
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id, content->'appliesDateTime' ");
+        query.append("FROM ");
+        query.append(tableName);
+        query.append(" WHERE content -> 'subject' ->> 'display' = '");
+        query.append(subjectId);
+        query.append("' ");
+
+        if (!CollectionUtils.isEmpty(names)) {
+            // names to ignore
+            query.append("AND UPPER(content -> 'name' ->> 'text') IN (");
+            for (int i = 0; i < names.size(); i++) {
+                query.append("'").append(names.get(i).toUpperCase()).append("'");
+
+                if (i != (names.size() - 1)) {
+                    query.append(",");
+                }
+            }
+
+            query.append(") ");
+        } else {
+            throw new FhirResourceException("Must have names");
+        }
+
+        Connection connection = null;
+
+        // execute and return UUIDs
+        try {
+            connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
+            List<UUID> uuids = new ArrayList<>();
+
+            while ((results.next())) {
+                uuids.add(UUID.fromString(results.getString(1)));
             }
 
             connection.close();

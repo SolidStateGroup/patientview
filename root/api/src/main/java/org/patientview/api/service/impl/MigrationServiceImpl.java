@@ -183,7 +183,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 Long userId = userMigration1.getPatientview2UserId();
                 try {
                     //LOG.info("{} migrating {} observations", userId, migrationUser.getObservations().size());
-                    patientService.migrateObservations(userId, migrationUser);
+                    patientService.migrateTestObservations(userId, migrationUser);
 
                     userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
                     userMigration.setInformation(null);

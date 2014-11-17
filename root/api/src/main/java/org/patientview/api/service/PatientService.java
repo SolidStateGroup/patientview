@@ -37,7 +37,7 @@ public interface PatientService {
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
 
     // migration only
-    void migrateObservations(Long userId, MigrationUser migrationUser)
+    void migrateTestObservations(Long userId, MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException;
 
     void deleteExistingPatientData(Set<FhirLink> fhirLinks) throws FhirResourceException;

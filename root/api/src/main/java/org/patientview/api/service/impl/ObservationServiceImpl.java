@@ -457,6 +457,23 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         }
     }
 
+    @Override
+    public FhirDatabaseObservation buildFhirDatabaseNonTestObservation(
+            FhirObservation fhirObservation, FhirLink fhirLink)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        // build actual FHIR observation and set subject
+        Observation observation = buildNonTestObservation(fhirObservation);
+        observation.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
+
+        // return new FhirDatabaseObservation with correct JSON content
+        try {
+            return new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation));
+        } catch (NullArgumentException nae) {
+            throw new FhirResourceException(nae.getMessage());
+        }
+    }
+
     private UUID getVersionId(final JSONObject bundle) {
         JSONArray resultArray = (JSONArray) bundle.get("entry");
         JSONObject resource = (JSONObject) resultArray.get(0);
@@ -502,6 +519,43 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         observation.setName(name);
         observation.setIdentifier(createIdentifier(observationHeading.getCode()));
         observation.setCommentsSimple(comments);
+
+        return observation;
+    }
+
+    private Observation buildNonTestObservation(FhirObservation fhirObservation)
+            throws FhirResourceException {
+
+        Observation observation = new Observation();
+        observation.setApplies(createDateTime(fhirObservation.getApplies()));
+        observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
+        observation.setStatusSimple(Observation.ObservationStatus.registered);
+
+        try {
+            Quantity quantity = new Quantity();
+            quantity.setValue(createDecimal(fhirObservation.getValue()));
+            quantity.setComparatorSimple(getComparator(fhirObservation.getComparator()));
+            observation.setValue(quantity);
+        } catch (ParseException pe) {
+            // parse exception, likely to be a string, e.g. comments store as text
+            CodeableConcept comment = new CodeableConcept();
+            comment.setTextSimple(fhirObservation.getValue());
+            observation.setValue(comment);
+        }
+
+        CodeableConcept name = new CodeableConcept();
+        name.setTextSimple(fhirObservation.getName().toUpperCase());
+        name.addCoding().setDisplaySimple(fhirObservation.getName().toUpperCase());
+
+        observation.setName(name);
+        observation.setIdentifier(createIdentifier(fhirObservation.getName().toUpperCase()));
+        observation.setCommentsSimple(fhirObservation.getComments());
+
+        if (fhirObservation.getBodySite() != null) {
+            CodeableConcept bodySite = new CodeableConcept();
+            bodySite.setTextSimple(fhirObservation.getBodySite());
+            observation.setBodySite(bodySite);
+        }
 
         return observation;
     }

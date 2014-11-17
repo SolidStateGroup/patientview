@@ -28,6 +28,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.enums.BodySites;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportTypes;
@@ -268,8 +269,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // set patientview1 id
                 migrationUser.setPatientview1Id(time);
 
-                // todo: eye and foot checkup observations
-
                 if (userRole.getRoleType().getValue().equals(RoleType.PATIENT)) {
                     // add comment Observation (comment table in pv1), attach to group (not present in pv1)
                     FhirObservation comment = new FhirObservation();
@@ -500,6 +499,36 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     patient.getIdentifiers().add(nhsNumber);
 
                     migrationUser.getPatients().add(patient2);
+
+                    // Non test observation types
+                    // foot checkup
+                    FhirObservation footCheckup1 = new FhirObservation();
+                    footCheckup1.setBodySite(BodySites.LEFT_FOOT.toString());
+                    footCheckup1.setIdentifier(time.toString());
+                    footCheckup1.setName(NonTestObservationTypes.DPPULSE.toString());
+                    footCheckup1.setValue("O/E - L.dorsalis pedis absent");
+                    footCheckup1.setGroup(group1);
+                    footCheckup1.setApplies(new Date(time));
+                    migrationUser.getObservations().add(footCheckup1);
+
+                    // eye checkup
+                    FhirObservation eyeCheckup1 = new FhirObservation();
+                    eyeCheckup1.setBodySite(BodySites.LEFT_EYE.toString());
+                    eyeCheckup1.setIdentifier(time.toString());
+                    eyeCheckup1.setName(NonTestObservationTypes.MGRADE.toString());
+                    eyeCheckup1.setValue("Mx");
+                    eyeCheckup1.setGroup(group1);
+                    eyeCheckup1.setApplies(new Date(time));
+                    migrationUser.getObservations().add(eyeCheckup1);
+
+                    // blood group
+                    FhirObservation bloodGroup = new FhirObservation();
+                    bloodGroup.setIdentifier(time.toString());
+                    bloodGroup.setName(NonTestObservationTypes.BLOOD_GROUP.toString());
+                    bloodGroup.setValue("A");
+                    bloodGroup.setGroup(group1);
+                    bloodGroup.setApplies(new Date(time));
+                    migrationUser.getObservations().add(bloodGroup);
 
                     // set to a patient user
                     migrationUser.setPatient(true);
