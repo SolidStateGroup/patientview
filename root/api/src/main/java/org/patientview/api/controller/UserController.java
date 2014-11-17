@@ -162,6 +162,15 @@ public class UserController extends BaseController<UserController> {
         userService.save(user);
     }
 
+    @RequestMapping(value = "/user/{userId}/settings", method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void updateOwnSettings(@RequestBody org.patientview.persistence.model.User user,
+                                  @PathVariable("userId") Long userId)
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+        userService.updateOwnSettings(userId, user);
+    }
+
     // reset password, done by users for other staff or patients
     @RequestMapping(value = "/user/{userId}/resetPassword", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

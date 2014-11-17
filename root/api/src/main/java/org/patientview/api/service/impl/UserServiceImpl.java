@@ -507,6 +507,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         userRepository.save(entityUser);
     }
 
+    @Override
+    public void updateOwnSettings(Long UserId, User user)
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+        User entityUser = findUser(user.getId());
+        entityUser.setEmail(user.getEmail());
+        entityUser.setContactNumber(user.getContactNumber());
+        userRepository.save(entityUser);
+    }
+
     private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
         List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
 

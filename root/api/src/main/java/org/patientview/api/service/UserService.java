@@ -42,6 +42,10 @@ public interface UserService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
+    @AuditTrail(value = AuditActions.EDIT_USER, objectType = User.class)
+    @UserOnly
+    void updateOwnSettings(Long userId, User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
+
     User get(Long userId) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.DELETE_USER, objectType = User.class)

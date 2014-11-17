@@ -99,6 +99,22 @@ function ($q, Restangular, UtilService) {
 
             return deferred.promise;
         },
+        // Save own user settings
+        saveOwnSettings: function (userId, inputUser) {
+            var deferred = $q.defer();
+
+            // clean user object
+            var user = UtilService.cleanObject(inputUser, 'userDetails');
+
+            // PUT /user/{userId}/settings
+            Restangular.one('user', userId).all('settings').customPUT(user).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+
+            return deferred.promise;
+        },
         // Create new user
         create: function (inputUser) {
             var deferred = $q.defer();

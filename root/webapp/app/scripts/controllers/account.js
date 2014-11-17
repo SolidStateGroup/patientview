@@ -22,7 +22,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['UserService', 'Auth
                 if (UtilService.validateEmail($scope.userdetails.email)) {
                     $scope.errorMessage = 'Invalid format for email';
                 } else {
-                    UserService.save($scope.userdetails).then(function () {
+                    UserService.saveOwnSettings($scope.loggedInUser.id, $scope.userdetails).then(function () {
                         $scope.successMessage = 'The settings have been saved';
                     }, function (result) {
                         $scope.errorMessage = 'The settings have not been saved ' + result;
