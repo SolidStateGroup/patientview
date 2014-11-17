@@ -621,14 +621,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private Decimal createDecimal(String result) throws ParseException {
         Decimal decimal = new Decimal();
 
-        // try parsing long, exception will be caught
-        try {
-            Long parsedLong = Long.parseLong(result);
-        } catch (NumberFormatException nfe) {
-            throw new ParseException(nfe.getMessage(), 0);
-        }
+        // remove all but numeric and . -
+        String resultString = result.replaceAll("/[^\\d.-]+/", "");
 
-        String resultString = result.replaceAll("[^.\\d]", "");
+        // attempt to parse remaining
         NumberFormat decimalFormat = DecimalFormat.getInstance();
 
         try {
