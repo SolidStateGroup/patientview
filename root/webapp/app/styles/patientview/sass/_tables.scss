@@ -87,7 +87,7 @@
         display:table;
         width:100%;
         padding:5px 0;
-        font-size:1.5rem;
+        font-size:1.4rem;
         background:#fff;
         border-bottom:1px solid $border-default;
 
@@ -194,6 +194,26 @@
     clear:left;
     margin-top:5px;
     width:100%;
+}
+.log-container{
+    margin-top:20px;
+
+    table{
+        thead{
+            background: #f3f6f9;
+            height: 40px;
+            border-bottom: 1px solid #e4e9f0;
+            th{
+                height: 100%;
+                border-right: 1px solid #e4e9f0;
+                display: table-cell;
+                vertical-align: middle;
+                text-align: left;
+                padding: 10px;
+                font-weight: bold;
+            }
+        }
+    }
 }
 
 @media (max-width: $screen-xs-max) {

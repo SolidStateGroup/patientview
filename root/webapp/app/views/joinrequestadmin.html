@@ -24,7 +24,6 @@
                             </li>
                         </ul>
                     </div>
-                    <span data-ng-repeat="status in statuses" data-ng-show="isStatusChecked(status)"><span class="label label-info">{{status}}</span>&nbsp;</span>
                 </div>
                 <!-- filter by group -->
                 <div class="select-container pull-left">
@@ -36,8 +35,12 @@
                             <li data-ng-repeat="group in allGroups"> <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix"><span class="pull-left">{{group.name}}</span><span data-ng-class="isGroupChecked(group.id)"></span></a></li>
                         </ul>
                     </div>
-                    <span data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</span>
+
                 </div>
+                <ul class="unstyled pull-left filter-tags-container">
+                    <li class="status-tag pull-left" data-ng-repeat="status in statuses" data-ng-show="isStatusChecked(status)"><span class="label label-info">{{status}}</span>&nbsp;</li>
+                    <li class="all-groups-tag pull-left" data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</li>
+                </ul>
             </div>
         </div>
     </div>

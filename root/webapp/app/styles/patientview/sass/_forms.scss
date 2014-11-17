@@ -83,6 +83,16 @@ label{
     overflow: visible;
 }
 
+.filter-tags-container{
+    clear:left;
+    margin:15px 0 0;
+
+    li{
+        margin-right:3px;
+    }
+
+}
+
 .search-container {
     position:relative;
     height:60px;
@@ -209,6 +219,10 @@ label{
     margin-top:0px;
 }
 
+.set-date-range{
+    margin-top:25px;
+}
+
 .group-list-item{
     li{
         width:auto;
@@ -274,6 +288,10 @@ label{
             }
         }
     }
+}
+
+.data-range-container{
+    margin-top:20px;
 }
 
 .custom-select{

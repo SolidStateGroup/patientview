@@ -68,7 +68,6 @@
                                 <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role clearfix"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
                             </ul>
                         </div>
-                        <span data-ng-repeat="role in allRoles" data-ng-show="isRoleChecked(role.id)"><span class="label label-info">{{role.description}}</span>&nbsp;</span>
                     </div>
                         <!-- filter by group
                     <div class="select-container pull-left">
@@ -148,8 +147,11 @@
                                 </li>
                             </ul>
                         </div>
-                        &nbsp;<span data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</span>
                     </div>
+                    <ul class="unstyled pull-left filter-tags-container">
+                        <li class="all-roles-tag pull-left" data-ng-repeat="role in allRoles" data-ng-show="isRoleChecked(role.id)"><span class="label label-info">{{role.description}}</span>&nbsp;</li>
+                        <li class="all-groups-tag pull-left" data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</li>
+                    </ul>
                 </div>
             </div>
             <div class="pull-right" data-ng-show="pagedItems.length  > 0">
