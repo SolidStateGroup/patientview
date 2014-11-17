@@ -551,6 +551,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             templateUrl: 'newStaffModal.html',
             controller: NewStaffModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 permissions: function(){
                     return $scope.permissions;

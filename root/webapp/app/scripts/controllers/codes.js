@@ -287,6 +287,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
             templateUrl: 'newCodeModal.html',
             controller: NewCodeModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 codeTypes: function(){
                     return $scope.codeTypes;

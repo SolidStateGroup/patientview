@@ -205,6 +205,7 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                 templateUrl: 'newObservationHeadingModal.html',
                 controller: NewObservationHeadingModalInstanceCtrl,
                 size: size,
+                backdrop: 'static',
                 resolve: {
                     GroupService: function() {
                         return GroupService;

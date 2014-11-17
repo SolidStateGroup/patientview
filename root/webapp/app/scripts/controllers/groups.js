@@ -493,6 +493,7 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             templateUrl: 'newGroupModal.html',
             controller: NewGroupModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 permissions: function(){
                     return $scope.permissions;

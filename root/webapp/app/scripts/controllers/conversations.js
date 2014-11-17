@@ -275,6 +275,7 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
             templateUrl: 'newConversationModal.html',
             controller: NewConversationModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 ConversationService: function () {
                     return ConversationService;

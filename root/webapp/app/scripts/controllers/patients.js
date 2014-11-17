@@ -690,6 +690,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             templateUrl: 'newPatientModal.html',
             controller: NewPatientModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 permissions: function(){
                     return $scope.permissions;
@@ -757,6 +758,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             templateUrl: 'findExistingPatientModal.html',
             controller: FindExistingPatientModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 permissions: function(){
                     return $scope.permissions;
