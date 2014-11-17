@@ -47,5 +47,21 @@
             height:15px;
         }
     }
+
+    .faux-table .faux-row .actions.row-item {
+        .button-dropdown-group {
+            width:130px;
+            > button {
+                width:44px;
+            }
+
+            .dropdown {
+                > button {
+                    width: 44px;
+                }
+            }
+        }
+    }
+
 }
 

@@ -80,6 +80,9 @@
         <div class="group-add-container add-container" data-ng-show="allGroups.length > 0 && permissions.canEditPatients">
             <label class="inner-title">Add New Group &amp; Role </label>
             <div class="select-add-group">
+                <button type="button" class="btn blue pull-right group-add-button"
+                        data-ng-click="addGroupRole(userForm, editUser, editUser.groupToAdd, editUser.selectedRole)"
+                        data-ng-disabled="!editUser.selectedRole">Add</button>
                 <select class="form-control" data-ng-model="editUser.groupToAdd"
                     data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in allGroups | orderBy:[orderGroups,'name']">
                 </select>
@@ -90,9 +93,6 @@
                     </select>
                     <span class="bracket post">)</span>
                 </div>
-                <button type="button" class="btn blue group-add-button"
-                        data-ng-click="addGroupRole(userForm, editUser, editUser.groupToAdd, editUser.selectedRole)"
-                        data-ng-disabled="!editUser.selectedRole">Add</button>
             </div>
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
@@ -119,13 +119,14 @@
         <div class="added-container">
             <label class="inner-title">Identifiers</label>
             <div class="identifier-list-item row" data-ng-repeat="identifier in editUser.identifiers">
-                <div class="col-sm-5"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}"
-                     placeholder="NHS or CHI Number" name="identifier" data-ng-model="identifier.identifier" required data-ng-disabled="!permissions.canEditPatients"></div>
-                <div class="col-sm-3"><span class="identifier-identifier">{{identifier.identifierType.description}}</span></div>
-                <div class="btn-group" data-ng-show="permissions.canEditPatients">
+                <div class="btn-group pull-right" data-ng-show="permissions.canEditPatients">
                     <button type="button" class="btn blue link-update-button" data-ng-click="updateIdentifier($event, userForm, editUser, identifier)">Update</button>
                     <button type="button" class="btn negative link-delete-button" data-ng-click="removeIdentifier(userForm, editUser, identifier)">Delete</button>
                 </div>
+                <div class="col-sm-5"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}"
+                     placeholder="NHS or CHI Number" name="identifier" data-ng-model="identifier.identifier" required data-ng-disabled="!permissions.canEditPatients"></div>
+                <div class="col-sm-3"><span class="identifier-identifier">{{identifier.identifierType.description}}</span></div>
+
                 <span class="saved-notification" data-ng-show="identifier.saved">&nbsp; Saved Successfully!</span>
             </div>
         </div>
