@@ -3,12 +3,11 @@ package org.patientview.persistence.model;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -21,11 +20,9 @@ public class ResultCluster extends BaseModel {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable(name="pv_result_cluster_observation_heading",
-            joinColumns = @JoinColumn(name="result_cluster_id", referencedColumnName="id"),
-            inverseJoinColumns = @JoinColumn(name="observation_heading_id", referencedColumnName="id"))
-    private Set<ObservationHeading> observationHeadings = new HashSet<>();
+    @OneToMany(mappedBy = "resultCluster", cascade = {CascadeType.ALL})
+    @OrderBy("order asc")
+    private List<ResultClusterObservationHeading> resultClusterObservationHeadings = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -35,11 +32,11 @@ public class ResultCluster extends BaseModel {
         this.name = name;
     }
 
-    public Set<ObservationHeading> getObservationHeadings() {
-        return observationHeadings;
+    public List<ResultClusterObservationHeading> getResultClusterObservationHeadings() {
+        return resultClusterObservationHeadings;
     }
 
-    public void setObservationHeadings(Set<ObservationHeading> observationHeadings) {
-        this.observationHeadings = observationHeadings;
+    public void setResultClusterObservationHeadings(List<ResultClusterObservationHeading> resultClusterObservationHeadings) {
+        this.resultClusterObservationHeadings = resultClusterObservationHeadings;
     }
 }

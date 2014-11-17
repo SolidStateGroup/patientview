@@ -18,6 +18,7 @@ import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ResultCluster;
+import org.patientview.persistence.model.ResultClusterObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
@@ -276,9 +277,20 @@ public class ObservationHeadingServiceTest {
 
         ResultCluster resultCluster = new ResultCluster();
         resultCluster.setName("TEST_RESULT_CLUSTER");
-        resultCluster.setObservationHeadings(new HashSet<ObservationHeading>());
-        resultCluster.getObservationHeadings().add(observationHeading1);
-        resultCluster.getObservationHeadings().add(observationHeading2);
+
+        List<ResultClusterObservationHeading> resultClusterObservationHeadings = new ArrayList<>();
+
+        ResultClusterObservationHeading resultClusterObservationHeading = new ResultClusterObservationHeading();
+        resultClusterObservationHeading.setObservationHeading(observationHeading1);
+        resultClusterObservationHeading.setResultCluster(resultCluster);
+        resultClusterObservationHeadings.add(resultClusterObservationHeading);
+
+        ResultClusterObservationHeading resultClusterObservationHeading2 = new ResultClusterObservationHeading();
+        resultClusterObservationHeading2.setObservationHeading(observationHeading2);
+        resultClusterObservationHeading2.setResultCluster(resultCluster);
+        resultClusterObservationHeadings.add(resultClusterObservationHeading2);
+
+        resultCluster.setResultClusterObservationHeadings(resultClusterObservationHeadings);
 
         resultClusters.add(resultCluster);
 
@@ -288,7 +300,7 @@ public class ObservationHeadingServiceTest {
 
         Assert.assertEquals("Should have 1 result cluster", 1, results.size());
         Assert.assertEquals("Should have 2 observation headings in result cluster", 2,
-                results.get(0).getObservationHeadings().size());
+                results.get(0).getResultClusterObservationHeadings().size());
 
         verify(resultClusterRepository, Mockito.times(1)).findAll();
     }

@@ -93,9 +93,9 @@
                 </div>
                 <div class="row inline-row">
                     <div class="col-md-12">
-                        <span data-ng-repeat="observationHeading in userResultCluster.resultCluster.observationHeadings">
-                            <input type="text" data-ng-model="userResultCluster.values[observationHeading.id]"
-                                placeholder="{{getObservationHeadingPlaceholder(observationHeading)}}" class="form-control input-value" only-num-decimal/>
+                        <span data-ng-repeat="clusterObservation in userResultCluster.resultCluster.resultClusterObservationHeadings">
+                            <input type="text" data-ng-model="userResultCluster.values[clusterObservation.observationHeading.id]"
+                                placeholder="{{getObservationHeadingPlaceholder(clusterObservation.observationHeading)}}" class="form-control input-value" only-num-decimal/>
                         </span>
                     </div>
                 </div>
