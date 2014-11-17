@@ -71,6 +71,10 @@
                 padding-left:5px;
                 padding-right:5px;
                 width:160px;
+
+                &:last-child{
+                    margin-right:10px;
+                }
             }
         }
     }
@@ -83,36 +87,26 @@
         display:table;
         width:100%;
         padding:5px 0;
-        font-size:1.5rem;
+        font-size:1.4rem;
         background:#fff;
         border-bottom:1px solid $border-default;
 
-//        &.dull{
-//            @include bootstrap-opacity(50);
-//        }
-//
-//        &.highlight{
-//            @include bootstrap-opacity(100);
-//        }
+        &.dull{
+            @include bootstrap-opacity(50);
+        }
+
+        &.highlight{
+            @include bootstrap-opacity(100);
+        }
 
         .row-item{
             display:table-cell;
             text-align:left;
-            padding:0 10px;
+            padding:0 5px;
             color:$textlight;
             text-decoration:none;
             vertical-align: middle;
-            word-break: break-word;
             font-family: 'Lato', sans-serif;
-
-            /*temp wrapping fix */
-            white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
-            white-space: -pre-wrap; /* Opera 4-6 */
-            white-space: -o-pre-wrap; /* Opera 7 */
-            white-space: pre-wrap; /* css-3 */
-            word-wrap: break-word; /* Internet Explorer 5.5+ */
-            word-break: break-all;
-            white-space: normal;
 
             &.plot-this{
                 width:40px;
@@ -123,9 +117,20 @@
                 float:right;
             }
 
+            &.row-break{
+                /*temp wrapping fix */
+                white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+                white-space: -pre-wrap; /* Opera 4-6 */
+                white-space: -o-pre-wrap; /* Opera 7 */
+                white-space: pre-wrap; /* css-3 */
+                word-wrap: break-word; /* Internet Explorer 5.5+ */
+                word-break: break-all;
+                white-space: normal;
+            }
 
             &.actions{
                 text-align:center;
+                padding:0 10px;
 
                 .button-dropdown-group{
                     width: 120px;
@@ -189,6 +194,26 @@
     clear:left;
     margin-top:5px;
     width:100%;
+}
+.log-container{
+    margin-top:20px;
+
+    table{
+        thead{
+            background: #f3f6f9;
+            height: 40px;
+            border-bottom: 1px solid #e4e9f0;
+            th{
+                height: 100%;
+                border-right: 1px solid #e4e9f0;
+                display: table-cell;
+                vertical-align: middle;
+                text-align: left;
+                padding: 10px;
+                font-weight: bold;
+            }
+        }
+    }
 }
 
 @media (max-width: $screen-xs-max) {

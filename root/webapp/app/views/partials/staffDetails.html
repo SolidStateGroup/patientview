@@ -25,8 +25,7 @@
         <input type="hidden" data-ng-model="editUser.contactNumber">
     </div>
 </div>
-<br/>
-<button type="button" class="btn blue pull-right" data-ng-click="save(userForm, editUser)" data-ng-disabled="userForm.$pristine || !userForm.$valid">Save</button>
+<button type="button" class="btn blue pull-right form-save" data-ng-click="save(userForm, editUser)" data-ng-disabled="userForm.$pristine || !userForm.$valid">Save</button>
 <span class="saved-notification pull-right" data-ng-show="userForm.$pristine && saved">Saved Successfully! &nbsp;</span>
 <div class="row form-edit-row">
     <hr/>
@@ -34,19 +33,22 @@
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles </label>
             <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles" data-ng-show="groupRole.group.visible === true">
-                <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span></li>
-                <li class="group-list-role pull-left">( <span class="group-list-role">{{groupRole.role.description}}</span> )</li>
-                <li class="group-list-delete pull-left" data-ng-show="permissions.allGroupsIds[groupRole.group.id] && permissions.canDeleteGroupRolesDuringEdit">
+                <li class="group-list-delete pull-right" data-ng-show="permissions.allGroupsIds[groupRole.group.id] && permissions.canDeleteGroupRolesDuringEdit">
                     <span class="group-list-delete">
                         <button class="btn negative" id="remove-group-{{groupRole.group.id}}"
-                            data-ng-click="removeGroupRole(userForm, editUser, groupRole)" >Delete</button>
+                                data-ng-click="removeGroupRole(userForm, editUser, groupRole)" >Delete</button>
                     </span>
                 </li>
+                <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span></li>
+                <li class="group-list-role pull-left"><span class="bracket">(</span> <span class="group-role">{{groupRole.role.description}}</span> <span class="bracket">)</span></li>
             </ul>
         </div>
         <div class="group-add-container add-container" data-ng-show="allGroups.length > 0 ">
             <label class="inner-title">Add New Group &amp; Role </label>
             <div class="select-add-group">
+                <button type="button" class="btn blue pull-right group-add-button"
+                        data-ng-click="addGroupRole(userForm, editUser, editUser.groupToAdd, editUser.selectedRole)"
+                        data-ng-disabled="!editUser.selectedRole">Add</button>
                 <select class="form-control" data-ng-model="editUser.groupToAdd"
                     data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in allGroups | orderBy:[orderGroups,'name']">
                 </select>
@@ -57,9 +59,6 @@
                     </select>
                     <span class="bracket post">)</span>
                 </div>
-                <button type="button" class="btn blue group-add-button"
-                        data-ng-click="addGroupRole(userForm, editUser, editUser.groupToAdd, editUser.selectedRole)"
-                        data-ng-disabled="!editUser.selectedRole">Add</button>
             </div>
             <span class="hidden">{{editUser.selectedRole}}</span>
         </div>
@@ -77,8 +76,8 @@
         <div class="feature-add-container add-container" data-ng-show="editUser.availableFeatures.length > 0 ">
             <label class="inner-title">Add New Feature </label>
             <div class="add-feature">
+                <button type="button" class="btn blue pull-right feature-add-button" data-ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
                 <select class="form-control feature-select" data-ng-model="editUser.featureToAdd" data-ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
-                <button type="button" class="btn blue feature-add-button" data-ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
             </div>
         </div>
     </div>

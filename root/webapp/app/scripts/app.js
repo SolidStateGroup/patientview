@@ -357,18 +357,21 @@ $('html').click(function(e){
     var tableElement = target.closest('.faux-table');
 
     if(target.hasClass('edit-button')){
+        tableElement.find('.faux-row').removeClass('highlight');
         if(!target.hasClass('editing')){
+            $('.edit-button').removeClass('editing');
             target.addClass('editing');
             rowElement.addClass('highlight');
             tableElement.find('.faux-row').addClass('dull');
         } else{
-            target.removeClass('editing');
+            $('.edit-button').removeClass('editing');
             tableElement.find('.highlight').removeClass('highlight');
             tableElement.find('.faux-row').removeClass('dull');
         }
     } else if(target.hasClass('close-edit')){
+        tableElement.find('.faux-row').removeClass('highlight');
         tableElement.find('.highlight').removeClass('highlight');
         tableElement.find('.faux-row').removeClass('dull');
-        target.removeClass('editing');
+        tableElement.find('.edit-button').removeClass('editing');
     }
 });

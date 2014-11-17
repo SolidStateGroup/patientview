@@ -88,6 +88,7 @@ function ($scope, $modal, ObservationService) {
             templateUrl: 'views/partials/observationHeadingInfoModal.html',
             controller: ObservationHeadingInfoModalInstanceCtrl,
             size: 'sm',
+            windowClass: 'results-modal',
             resolve: {
                 result: function(){
                     return result;

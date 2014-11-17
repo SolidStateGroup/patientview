@@ -60,7 +60,6 @@
                                     <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
-                            <span data-ng-repeat="type in codeTypes" data-ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
                         </div>
                         <div class="select-container pull-left">
                             <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
@@ -71,8 +70,11 @@
                                     <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
-                            <span data-ng-repeat="type in standardTypes" data-ng-show="isStandardTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
                         </div>
+                        <ul class="unstyled pull-left filter-tags-container">
+                            <li class="code-type-tags pull-left" data-ng-repeat="type in codeTypes" data-ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span></li>
+                            <li class="standard-type-tags pull-left" data-ng-repeat="type in standardTypes" data-ng-show="isStandardTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -101,7 +103,7 @@
                     <div class="row-item actions">
                         <!-- Edit, Actions dropdown buttons -->
                         <div class="btn-group pull-right">
-                            <button type="button" class="btn blue" data-ng-click="opened(code)">Edit</button>
+                            <button type="button" class="btn blue edit-button" data-ng-click="opened(code)">Edit</button>
                             <button type="button" class="btn aquamarine" data-ng-click="clone(code.id, $event)">Copy</button>
                             <button type="button" class="btn negative" data-ng-click="remove(code.id, $event)">Delete</button>
                         </div>
@@ -114,7 +116,7 @@
                         <form name="codeForm" class="edit-code">
                             <div data-ng-include src="'views/partials/codeDetails.html'" data-ng-controller="CodeDetailsCtrl"></div>
                         </form>
-                        <div class="panel-body-footer"><button class="btn btn-grey pull-right" data-ng-click="code.showEdit = false">Cancel</button></div>
+                        <div class="panel-body-footer"><button class="btn btn-grey close-edit pull-right" data-ng-click="code.showEdit = false">Cancel</button></div>
                     </div>
                 </div>
             </div>
