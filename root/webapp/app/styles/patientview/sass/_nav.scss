@@ -319,10 +319,6 @@ and (max-width : 1023px) {
         }
     }
 
-    .nav-account{
-        display:none;
-    }
-
     .footer{
         .legal-links{
             width:20%;
@@ -375,6 +371,10 @@ and (max-width : 1023px) {
                 }
             }
         }
+    }
+
+    .nav-account{
+        display:none;
     }
 
     .footer .legal-links{

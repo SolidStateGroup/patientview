@@ -9,6 +9,14 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
+hr{
+    margin-top:15px;
+    margin-bottom:10px;
+    border-top: 1px dashed #eeeeee;
+    float:left;
+    width:100%;
+}
+
 .back-to-admin{
     margin-bottom:20px;
     background:#fff;
@@ -174,23 +182,44 @@ body {
 
 
 .edit-code-input{
-    margin-bottom:20px;
+    margin-bottom:10px;
 }
 
 .added-container{
     min-height:120px;
+
+    .identifier-list-item{
+        > .btn-group{
+            margin-right:15px;
+        }
+    }
 }
 
 .add-container{
     margin-top:10px;
     padding-top:10px;
-    border-top:1px solid #e2e2e2;
+    border-top:1px dashed #e2e2e2;
 
     .add-feature{
         button{
-            margin:3px 0 0 10px;
+            margin:0 0 0 10px;
         }
     }
+}
+
+.identifier-add-container{
+    input[type="text"]{
+        width:40%;
+        float:left;
+        margin-right:10px;
+    }
+    select{
+        width:25%;
+    }
+}
+
+.added-specialty{
+    margin-bottom:5px;
 }
 
 .notification-dialog{
@@ -230,7 +259,7 @@ body {
 
 
 .add-form{
-    margin-top:30px;
+    margin-top:10px;
 }
 
 /** lists **/
@@ -342,7 +371,7 @@ ul {
     @include bootstrap-border-radius(4px);
     color: $white;
     font-size: 1.4rem;
-    min-height:34px;
+    min-height:40px;
     min-width: 34px;
     line-height:20px;
 
@@ -411,7 +440,13 @@ ul {
 
 .modal-dialog{
     &.modal-sm{
-        width:30%;
+        width:45%;
+    }
+}
+
+.stats-modal{
+    .modal-dialog{
+        margin:165px auto
     }
 }
 
@@ -432,6 +467,22 @@ ul {
 
 .showHideLink {
     font-size: 16px;
+}
+
+.alert-block{
+    margin-top:20px;
+    padding: 8px 35px 8px 14px;
+    margin-bottom: 20px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    background-color: #fcf8e3;
+    border: 1px solid #fbeed5;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+
+    h3{
+        color: #c09853;
+    }
 }
 
 /** temporary icons stuff **/
@@ -607,6 +658,16 @@ and (max-width : 1024px) {
             margin-bottom:5px;
         }
     }
+}
 
-
+@media only screen
+and (max-width : 1024px) {
+    .results-modal {
+        .modal-dialog {
+            &.modal-sm {
+                width: 95%;
+                margin: 5% auto;
+            }
+        }
+    }
 }

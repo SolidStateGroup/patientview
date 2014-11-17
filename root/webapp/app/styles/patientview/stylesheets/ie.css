@@ -44,3 +44,11 @@
   right: 6px;
   height: 15px;
 }
+/* line 52, ../sass/ie.scss */
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group {
+  width: 130px;
+}
+/* line 56, ../sass/ie.scss */
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button {
+  width: 44px;
+}

@@ -50,7 +50,9 @@
                                 </ul>
                             </div>
                         </div>
-                        <span data-ng-repeat="type in filterGroupTypes" data-ng-show="isGroupTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</span>
+                        <ul class="unstyled pull-left filter-tags-container">
+                            <li class="pull-left" data-ng-repeat="type in filterGroupTypes" data-ng-show="isGroupTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</li>
+                        </ul>
                     </div>
                 </div>
             </div>
