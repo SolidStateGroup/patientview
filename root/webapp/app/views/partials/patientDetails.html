@@ -62,18 +62,18 @@
             <label class="inner-title">Groups &amp; Roles </label>
             <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles"
                 data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
+                <li class="group-list-delete pull-right"
+                    data-ng-show="permissions.allGroupsIds[groupRole.group.id] && permissions.canDeleteGroupRolesDuringEdit && permissions.canEditPatients">
+                    <span class="group-list-delete">
+                        <button class="btn negative" id="remove-group-{{groupRole.group.id}}"
+                                data-ng-click="removeGroupRole(userForm, editUser, groupRole)" >Delete</button>
+                    </span>
+                </li>
                 <li class="group-list-name pull-left">
                     <span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span>
                 </li>
                 <li class="group-list-role pull-left">
                     <span class="bracket">(</span> <span class="group-role">{{groupRole.role.description}}</span> <span class="bracket">)</span>
-                </li>
-                <li class="group-list-delete pull-left"
-                    data-ng-show="permissions.allGroupsIds[groupRole.group.id] && permissions.canDeleteGroupRolesDuringEdit && permissions.canEditPatients">
-                    <span class="group-list-delete">
-                        <button class="btn negative" id="remove-group-{{groupRole.group.id}}"
-                            data-ng-click="removeGroupRole(userForm, editUser, groupRole)" >Delete</button>
-                    </span>
                 </li>
             </ul>
         </div>
@@ -108,8 +108,8 @@
         <div class="feature-add-container add-container" data-ng-show="editUser.availableFeatures.length > 0 && permissions.canEditPatients">
             <label class="inner-title">Add New Feature </label>
             <div class="add-feature">
+                <button type="button" class="btn blue feature-add-button pull-right" data-ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
                 <select class="form-control feature-select" data-ng-model="editUser.featureToAdd" data-ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
-                <button type="button" class="btn blue feature-add-button" data-ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
             </div>
         </div>
     </div>
@@ -131,10 +131,10 @@
         </div>
         <div class="feature-add-container add-container" data-ng-show="permissions.canEditPatients">
             <label class="inner-title">Add Identifier</label>
-            <div class="row" data-ng-model="newIdentifier">
-                <div class="col-sm-5"><input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="NHS or CHI Number" name="newIdentifier" data-ng-model="newIdentifier.identifier"></div>
-                <div class="col-sm-3"><select class="form-control indentifierType-select" data-ng-model="newIdentifier.identifierType" data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select></div>
-                <div class="col-sm-2"><button type="button" class="btn btn-primary identifier-add-button" data-ng-click="addIdentifier(userForm, editUser, newIdentifier)" data-ng-disabled="!(newIdentifier.identifier && newIdentifier.identifierType)">Add</button></div>
+            <div class="identifier-add-container" data-ng-model="newIdentifier">
+                <button type="button" class="btn blue pull-right identifier-add-button" data-ng-click="addIdentifier(userForm, editUser, newIdentifier)" data-ng-disabled="!(newIdentifier.identifier && newIdentifier.identifierType)">Add</button>
+                <input type="text" class="form-control" id="identifier-newIdentifier-identifier" placeholder="NHS or CHI Number" name="newIdentifier" data-ng-model="newIdentifier.identifier">
+                <select class="form-control indentifierType-select" data-ng-model="newIdentifier.identifierType" data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select>
             </div>
         </div>
     </div>
