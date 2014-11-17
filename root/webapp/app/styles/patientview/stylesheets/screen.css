@@ -1650,26 +1650,25 @@ label {
   -webkit-border-radius: 0 4px 4px 0;
   -moz-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
-  width: 44px;
 }
-/* line 181, ../sass/_forms.scss */
+/* line 180, ../sass/_forms.scss */
 .button-dropdown-group .dropdown-menu {
   position: absolute;
   min-width: 100px;
   left: -75px;
 }
-/* line 186, ../sass/_forms.scss */
+/* line 185, ../sass/_forms.scss */
 .button-dropdown-group .dropdown-menu > li a {
   text-align: left;
   padding: 5px;
   font-size: 1.5rem;
 }
 
-/* line 194, ../sass/_forms.scss */
+/* line 193, ../sass/_forms.scss */
 .capsule-list {
   padding-left: 10px;
 }
-/* line 196, ../sass/_forms.scss */
+/* line 195, ../sass/_forms.scss */
 .capsule-list li {
   background: #00aa9e;
   -webkit-border-radius: 5px;
@@ -1679,17 +1678,17 @@ label {
   padding: 5px;
   color: white;
 }
-/* line 204, ../sass/_forms.scss */
+/* line 203, ../sass/_forms.scss */
 .capsule-list > li:first-child {
   padding-left: 5px;
 }
 
-/* line 209, ../sass/_forms.scss */
+/* line 208, ../sass/_forms.scss */
 .form-edit-row {
   margin-top: 0px;
 }
 
-/* line 214, ../sass/_forms.scss */
+/* line 213, ../sass/_forms.scss */
 .group-list-item li {
   width: auto;
   height: 40px;
@@ -1701,7 +1700,7 @@ label {
   text-align: center;
   line-height: 30px;
 }
-/* line 225, ../sass/_forms.scss */
+/* line 224, ../sass/_forms.scss */
 .group-list-item li.group-list-name {
   width: 50%;
   font-size: 1.5rem;
@@ -1709,7 +1708,7 @@ label {
   background: #f8f8f8;
   border: 1px solid #e4e9f0;
 }
-/* line 233, ../sass/_forms.scss */
+/* line 232, ../sass/_forms.scss */
 .group-list-item li.group-list-role {
   color: #e0e0e0;
   font-size: 3rem;
@@ -1717,7 +1716,7 @@ label {
   font-weight: bold;
   width: 130px;
 }
-/* line 240, ../sass/_forms.scss */
+/* line 239, ../sass/_forms.scss */
 .group-list-item li.group-list-role span {
   font-size: 1.35rem;
   height: 100%;
@@ -1728,7 +1727,7 @@ label {
   float: left;
   display: block;
 }
-/* line 250, ../sass/_forms.scss */
+/* line 249, ../sass/_forms.scss */
 .group-list-item li.group-list-role span.bracket {
   display: block;
   float: left;
@@ -1738,17 +1737,17 @@ label {
   font-weight: bold;
   width: 15px;
 }
-/* line 260, ../sass/_forms.scss */
+/* line 259, ../sass/_forms.scss */
 .group-list-item li.group-list-role span.group-role {
   min-width: 80px;
   top: 3px;
 }
-/* line 267, ../sass/_forms.scss */
+/* line 266, ../sass/_forms.scss */
 .group-list-item li.group-list-delete {
   font-size: 2rem;
   padding: 0;
 }
-/* line 270, ../sass/_forms.scss */
+/* line 269, ../sass/_forms.scss */
 .group-list-item li.group-list-delete a {
   color: #f20d2e;
   display: block;
@@ -1756,7 +1755,7 @@ label {
   width: 100%;
 }
 
-/* line 280, ../sass/_forms.scss */
+/* line 279, ../sass/_forms.scss */
 .custom-select {
   position: relative;
   height: 34px;
@@ -1765,24 +1764,24 @@ label {
   margin-right: 10px;
   cursor: pointer;
 }
-/* line 288, ../sass/_forms.scss */
+/* line 287, ../sass/_forms.scss */
 .custom-select .caret-container {
   position: absolute;
   right: 0;
   top: 0;
   cursor: pointer;
 }
-/* line 294, ../sass/_forms.scss */
+/* line 293, ../sass/_forms.scss */
 .custom-select .caret-container .caret {
   margin-left: 12px;
   cursor: pointer;
 }
 
-/* line 301, ../sass/_forms.scss */
+/* line 300, ../sass/_forms.scss */
 .radio-button-list {
   padding-left: 10px;
 }
-/* line 303, ../sass/_forms.scss */
+/* line 302, ../sass/_forms.scss */
 .radio-button-list .btn {
   background: #e0e0e0;
   color: #585858;
@@ -1796,11 +1795,11 @@ label {
   width: 58px;
   font-size: 1.2rem;
 }
-/* line 314, ../sass/_forms.scss */
+/* line 313, ../sass/_forms.scss */
 .radio-button-list .btn:first-child {
   border-left: 0;
 }
-/* line 318, ../sass/_forms.scss */
+/* line 317, ../sass/_forms.scss */
 .radio-button-list .btn.active, .radio-button-list .btn:hover {
   background: #00adc6;
   border-left: 1px solid #039288;
@@ -1810,40 +1809,40 @@ label {
   color: white;
 }
 
-/* line 328, ../sass/_forms.scss */
+/* line 327, ../sass/_forms.scss */
 .select-add-group select {
   width: 50%;
   float: left;
   height: 40px;
 }
-/* line 334, ../sass/_forms.scss */
+/* line 333, ../sass/_forms.scss */
 .select-add-group .group-list-item {
   width: auto;
   float: left;
   clear: left;
 }
-/* line 339, ../sass/_forms.scss */
+/* line 338, ../sass/_forms.scss */
 .select-add-group .group-list-item .radio-button-list {
   padding-left: 0;
   margin-top: 10px;
 }
-/* line 343, ../sass/_forms.scss */
+/* line 342, ../sass/_forms.scss */
 .select-add-group .group-list-item .radio-button-list li.active {
   background: #00adc6;
 }
-/* line 349, ../sass/_forms.scss */
+/* line 348, ../sass/_forms.scss */
 .select-add-group button {
   float: left;
   margin-top: 2px;
 }
 
-/* line 356, ../sass/_forms.scss */
+/* line 355, ../sass/_forms.scss */
 .add-feature select {
   float: left;
   width: 80%;
 }
 
-/* line 362, ../sass/_forms.scss */
+/* line 361, ../sass/_forms.scss */
 .bracket {
   font-size: 3rem;
   font-weight: bold;
@@ -1854,12 +1853,12 @@ label {
   line-height: 38px;
   color: #e0e0e0;
 }
-/* line 372, ../sass/_forms.scss */
+/* line 371, ../sass/_forms.scss */
 .bracket.pre {
   margin-left: 5px;
 }
 
-/* line 381, ../sass/_forms.scss */
+/* line 380, ../sass/_forms.scss */
 .bracket-input input, .bracket-input select {
   width: 120px;
   float: left;
@@ -1867,20 +1866,20 @@ label {
   margin-top: 5px;
 }
 
-/* line 390, ../sass/_forms.scss */
+/* line 389, ../sass/_forms.scss */
 .clamped {
   line-height: 1.5;
   overflow: hidden;
   position: relative;
 }
 
-/* line 396, ../sass/_forms.scss */
+/* line 395, ../sass/_forms.scss */
 .clamped-2 {
   /* Clamp to 2 lines, ie line-height x 2: */
   max-height: 3em;
 }
 
-/* line 401, ../sass/_forms.scss */
+/* line 400, ../sass/_forms.scss */
 .ellipsis {
   background: #fff;
   bottom: 0;
@@ -1888,7 +1887,7 @@ label {
   right: 10px;
 }
 
-/* line 408, ../sass/_forms.scss */
+/* line 407, ../sass/_forms.scss */
 .fill {
   background: #fff;
   height: 100%;
@@ -1896,7 +1895,7 @@ label {
   width: 100%;
 }
 
-/* line 416, ../sass/_forms.scss */
+/* line 415, ../sass/_forms.scss */
 textarea.form-control.article-content {
   height: 200px;
 }
