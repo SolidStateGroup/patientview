@@ -7,6 +7,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.Utility.Util;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
+import org.patientview.importer.service.AllergyService;
 import org.patientview.importer.service.AuditService;
 import org.patientview.importer.service.ConditionService;
 import org.patientview.importer.service.DiagnosticService;
@@ -65,6 +66,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Inject
     private DocumentReferenceService documentReferenceService;
+
+    @Inject
+    private AllergyService allergyService;
 
     @Inject
     private AuditService auditService;
@@ -131,6 +135,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             // add DocumentReference, deleting those with the same date (letters)
             documentReferenceService.add(patientview, fhirLink);
+
+            // add AllergyIntolerance, Substance and AdverseReaction (allergy), deleting existing
+            allergyService.add(patientview, fhirLink);
 
             Date end = new Date();
             LOG.info("Finished processing data for NHS number: "
