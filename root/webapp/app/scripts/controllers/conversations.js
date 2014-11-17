@@ -175,6 +175,9 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
     };
 
     $scope.viewMessages = function(conversation) {
+        delete $scope.successMessage;
+        delete $scope.errorMessage;
+
         if (conversation.showMessages) {
             ConversationService.get(conversation.id).then(function(successResult) {
                 conversation.messages = successResult.messages;
@@ -228,9 +231,13 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
     };
 
     $scope.addMessage = function(conversation) {
+        delete $scope.successMessage;
+        delete $scope.errorMessage;
+
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent)
             .then(function() {
             conversation.addMessageContent = '';
+            $scope.successMessage = 'Successfully replied';
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
@@ -247,10 +254,14 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
     };
 
     $scope.quickReply = function(conversation) {
+        delete $scope.successMessage;
+        delete $scope.errorMessage;
+
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.quickReplyContent)
             .then(function() {
             conversation.quickReplyContent = '';
             conversation.quickReplyOpen = false;
+            $scope.successMessage = 'Successfully replied';
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
@@ -268,7 +279,8 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
 
     // open modal for new conversation
     $scope.openModalNewConversation = function (size) {
-        $scope.errorMessage = '';
+        delete $scope.errorMessage;
+        delete $scope.successMessage;
 
         // open modal
         var modalInstance = $modal.open({
@@ -291,7 +303,7 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
                 $scope.loading = false;
-                $scope.successMessage = 'Conversation successfully created';
+                $scope.successMessage = 'Successfully sent message';
             }, function () {
                 $scope.loading = false;
                 // error
