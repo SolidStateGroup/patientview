@@ -421,6 +421,20 @@
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
+                            <xs:element maxOccurs="unbounded" minOccurs="0" name="allergy">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="allergysubstance" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="allergytypecode" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="allergyreaction" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="allergyconfidencelevel" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="allergyinfosource" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="allergystatus" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="allergydescription" type="xs:string"/>
+                                        <xs:element maxOccurs="1" minOccurs="1" name="allergyrecordeddate" type="xs:date"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>

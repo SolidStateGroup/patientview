@@ -214,5 +214,15 @@ Increased due to infection </drugdose>
             <diagnosticdate>2014-08-09T15:58:25</diagnosticdate>
         </diagnostic>
     </diagnostics>
+    <allergy>
+        <allergysubstance>Some substance</allergysubstance>
+        <allergytypecode>Drug</allergytypecode>
+        <allergyreaction>Itching</allergyreaction>
+        <allergyconfidencelevel>Confirmed no YC</allergyconfidencelevel>
+        <allergyinfosource>Patient</allergyinfosource>
+        <allergystatus>Active</allergystatus>
+        <allergydescription>Causes itching</allergydescription>
+        <allergyrecordeddate>2014-08-09</allergyrecordeddate>
+    </allergy>
 </patient>
 </patientview>

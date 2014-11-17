@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Address;
+import org.hl7.fhir.instance.model.AllergyIntolerance;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.Contact;
@@ -709,6 +710,24 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 // DocumentReferences (letters)
                 for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", subjectId)) {
                     fhirResource.delete(uuid, ResourceType.DocumentReference);
+                }
+
+                // AllergyIntolerance and Substance (allergy)
+                for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("allergyintolerance", subjectId)) {
+
+                    // delete Substance associated with AllergyIntolerance
+                    AllergyIntolerance allergyIntolerance
+                            = (AllergyIntolerance) fhirResource.get(uuid, ResourceType.AllergyIntolerance);
+                    fhirResource.delete(UUID.fromString(allergyIntolerance.getSubstance().getDisplaySimple()),
+                            ResourceType.Substance);
+
+                    // delete AllergyIntolerance
+                    fhirResource.delete(uuid, ResourceType.AllergyIntolerance);
+                }
+
+                // AdverseReaction (allergy)
+                for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("adversereaction", subjectId)) {
+                    fhirResource.delete(uuid, ResourceType.AdverseReaction);
                 }
             }
         }
