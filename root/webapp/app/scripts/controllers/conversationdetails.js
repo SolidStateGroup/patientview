@@ -1,6 +1,47 @@
 'use strict';
 
-angular.module('patientviewApp').controller('ConversationDetailsCtrl', ['$scope', function ($scope) {
+angular.module('patientviewApp').controller('ConversationDetailsCtrl', ['$scope', 'ConversationService',
+function ($scope, ConversationService) {
+
+    $scope.conversationGroups = [];
+
+    for (var i = 0; i < $scope.loggedInUser.groupRoles.length; i++) {
+        if ($scope.loggedInUser.groupRoles[i].group.code !== 'Generic') {
+            $scope.conversationGroups.push($scope.loggedInUser.groupRoles[i].group);
+        }
+    }
+
+    $scope.selectGroup = function(conversation, groupId) {
+        $scope.modalLoading = true;
+        var featureTypes = ['MESSAGING'];
+
+        // if patientMessagingFeatureTypes is set then restrict to this
+        if ($scope.loggedInUser.userInformation.patientMessagingFeatureTypes) {
+            featureTypes = $scope.loggedInUser.userInformation.patientMessagingFeatureTypes;
+        }
+
+        ConversationService.getRecipients($scope.loggedInUser.id, groupId, featureTypes).then(function (recipients) {
+            conversation.availableRecipients = _.clone(recipients);
+            conversation.allRecipients = [];
+
+            for (var i = 0; i < recipients.length; i++) {
+                conversation.allRecipients[recipients[i].id] = recipients[i];
+            }
+
+            if (recipients[0] !== undefined) {
+                $scope.recipientToAdd = recipients[0].id;
+            }
+
+            $scope.modalLoading = false;
+        }, function (failureResult) {
+            if (failureResult.status === 404) {
+                $scope.modalLoading = false;
+            } else {
+                $scope.modalLoading = false;
+                alert('Error loading message recipients');
+            }
+        });
+    };
 
     $scope.addRecipient = function (form, conversation, userId) {
         for (var i = 0; i < conversation.availableRecipients.length; i++) {

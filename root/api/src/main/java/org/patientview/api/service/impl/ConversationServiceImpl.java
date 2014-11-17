@@ -394,7 +394,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return transportUsers;
     }
 
-    public List<org.patientview.api.model.BaseUser> getRecipients(Long userId, String[] featureTypes)
+    public List<org.patientview.api.model.BaseUser> getRecipients(Long userId, Long groupId, String[] featureTypes)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
 
@@ -422,6 +422,15 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 groupIdList.add(group.getId().toString());
             }
             getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
+
+            // if restricted to one group
+            if (groupId != null) {
+                if (groupIdList.contains(groupId.toString())) {
+                    getParameters.setGroupIds(new String[]{groupId.toString()});
+                } else {
+                    throw new ResourceForbiddenException("Forbidden");
+                }
+            }
 
             return convertApiUsersToTransportBaseUsers(
                     userService.getUsersByGroupsAndRoles(getParameters).getContent());

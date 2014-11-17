@@ -89,9 +89,10 @@ public class ConversationController extends BaseController<ConversationControlle
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<BaseUser>> getRecipients(@PathVariable("userId") Long userId,
-            @RequestParam(value = "featuretype", required = false) String[] featureTypes)
+            @RequestParam(value = "featuretype", required = false) String[] featureTypes,
+            @RequestParam(value = "groupId", required = false) Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(conversationService.getRecipients(userId, featureTypes), HttpStatus.OK);
+        return new ResponseEntity<>(conversationService.getRecipients(userId, groupId, featureTypes), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/conversation/{conversationId}/messages", method = RequestMethod.POST,
