@@ -116,7 +116,7 @@
             <label>Add Contact Points</label>
         </div>
         <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" data-ng-model="newContactPoint.contactPointTypeId" data-ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
-        <div class="col-md-3"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" data-ng-model="newContactPoint.content"></div>
+        <div class="col-md-5"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" data-ng-model="newContactPoint.content"></div>
         <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" data-ng-click="addContactPoint(groupForm, editGroup, newContactPoint)" data-ng-disabled="!(newContactPoint.content)">Add</button></div>
     </div>
 </div>    

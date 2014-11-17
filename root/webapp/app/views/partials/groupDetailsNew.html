@@ -98,7 +98,7 @@
     </div>
     <div class="add-form" data-ng-model="newContactPoint">
         <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" data-ng-model="newContactPoint.contactPointTypeId" data-ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
-        <div class="col-md-3"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" data-ng-model="newContactPoint.content"></div>
+        <div class="col-md-5"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" data-ng-model="newContactPoint.content"></div>
         <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" data-ng-click="addContactPoint(groupFormNew, editGroup, newContactPoint)" data-ng-disabled="!(newContactPoint.content)">Add</button></div>
     </div>
 </div>    
@@ -122,7 +122,7 @@
         </div>
         <div class="add-form cleared-row" data-ng-model="newLink">
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" data-ng-model="newLink.link"></div>
-            <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" data-ng-model="newLink.name"></div>
+            <div class="col-md-5"><input type="text" class="form-control" id="group-newLink-name" placeholder="Description" name="newLink" data-ng-model="newLink.name"></div>
             <div class="col-md-1 hidden">
                 <select id="group-newLink-displayOrder" class="form-control" data-ng-model="newLink.displayOrder" data-ng-init="newLink.displayOrder='1'" >
                     <option data-ng-show="newLink.displayOrder" data-ng-repeat="link in editGroup.links">{{$index + 1}}</option>
