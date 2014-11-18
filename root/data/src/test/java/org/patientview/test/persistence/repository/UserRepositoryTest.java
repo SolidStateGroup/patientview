@@ -162,7 +162,35 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void findByGroupsRolesFeaturesWithIdentifier() {
+    public void findStaffByGroupsRolesFeatures() {
+
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = dataTestUtils.createGroupRole(user, group, role);
+
+        Feature feature = dataTestUtils.createFeature("MESSAGING");
+        UserFeature userFeature = new UserFeature();
+        userFeature.setId(1L);
+        userFeature.setUser(user);
+        userFeature.setFeature(feature);
+        userFeature.setCreator(creator);
+        user.setUserFeatures(new HashSet<UserFeature>());
+        user.getUserFeatures().add(userFeature);
+        userRepository.save(user);
+
+        Long[] groupIdsArr = {group.getId()};
+        Long[] roleIdsArr = {role.getId()};
+        Long[] featureIdsArr = {feature.getId()};
+
+        Page<User> users = userRepository.findStaffByGroupsRolesFeatures("%%", Arrays.asList(groupIdsArr)
+                , Arrays.asList(roleIdsArr), Arrays.asList(featureIdsArr), new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
+    }
+
+    @Test
+    public void findPatientByGroupsRolesFeaturesWithIdentifier() {
 
         User user = dataTestUtils.createUser("testUser");
         Group group = dataTestUtils.createGroup("testGroup");
@@ -191,7 +219,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
         Long[] featureIdsArr = {feature.getId()};
 
-        Page<User> users = userRepository.findByGroupsRolesFeatures("%" + identifier.getIdentifier() + "%",
+        Page<User> users = userRepository.findPatientByGroupsRolesFeatures("%" + identifier.getIdentifier() + "%",
                 Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr), Arrays.asList(featureIdsArr),
                 new PageRequest(0, Integer.MAX_VALUE));
 

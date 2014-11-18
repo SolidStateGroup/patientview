@@ -32,11 +32,11 @@ function ($http, $q, Restangular, $rootScope) {
             });
             return deferred.promise;
         },
-        getRecipients: function (userId, groupId, featureTypes) {
+        getRecipients: function (userId, groupId) {
             var deferred = $q.defer();
-            // GET /user/{userId}/conversations/recipients?groupId=123featuretype=MESSAGING
+            // GET /user/{userId}/conversations/recipients?groupId=123
             Restangular.one('user', userId).one('conversations/recipients')
-                .get({'groupId' : groupId, 'featuretype' : featureTypes}).then(function(successResult) {
+                .get({'groupId' : groupId}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

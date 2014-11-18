@@ -89,7 +89,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Page<org.patientview.api.model.User>> getUsers(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(userService.getUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getApiUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
     }
 
     // required by migration

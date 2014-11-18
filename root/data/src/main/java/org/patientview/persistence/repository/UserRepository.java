@@ -92,10 +92,51 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "GROUP BY u.id")
     List<User> findByGroupAndFeature(@Param("userGroup") Group userGroup, @Param("feature") Feature feature);
 
+
+    @Query("SELECT u " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "LEFT JOIN u.identifiers i " +
+            "JOIN u.userFeatures uf " +
+            "JOIN uf.feature f " +
+            "WHERE gr.role.id IN :roleIds " +
+            "AND gr.group.id IN :groupIds " +
+            "AND f.id IN :featureIds " +
+            "AND ((UPPER(u.username) LIKE :filterText) " +
+            "OR (UPPER(u.forename) LIKE :filterText) " +
+            "OR (UPPER(u.surname) LIKE :filterText) " +
+            "OR (UPPER(u.email) LIKE :filterText) " +
+            "OR (UPPER(i.identifier) LIKE :filterText)) " +
+            "GROUP BY u.id")
+    Page<User> findByGroupsRolesFeatures(@Param("filterText") String filterText,
+                                         @Param("groupIds") List<Long> groupIds,
+                                         @Param("roleIds") List<Long> roleIds,
+                                         @Param("featureIds") List<Long> featureIds,
+                                         Pageable pageable);
+
     @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
-           "LEFT JOIN u.identifiers i " +
+           "JOIN u.userFeatures uf " +
+           "JOIN uf.feature f " +
+           "WHERE gr.role.id IN :roleIds " +
+           "AND gr.group.id IN :groupIds " +
+           "AND f.id IN :featureIds " +
+           "AND ((UPPER(u.username) LIKE :filterText) " +
+           "OR (UPPER(u.forename) LIKE :filterText) " +
+           "OR (UPPER(u.surname) LIKE :filterText) " +
+           "OR (UPPER(u.email) LIKE :filterText)) " +
+            "GROUP BY u.id")
+    Page<User> findStaffByGroupsRolesFeatures(@Param("filterText") String filterText,
+                                 @Param("groupIds") List<Long> groupIds,
+                                 @Param("roleIds") List<Long> roleIds,
+                                 @Param("featureIds") List<Long> featureIds,
+                                 Pageable pageable);
+
+    @Query("SELECT u " +
+           "FROM User u " +
+           "JOIN u.groupRoles gr " +
+           "JOIN u.identifiers i " +
            "JOIN u.userFeatures uf " +
            "JOIN uf.feature f " +
            "WHERE gr.role.id IN :roleIds " +
@@ -105,9 +146,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText) " +
-           "OR (UPPER(i.identifier) LIKE :filterText)) " +
+           "OR (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :filterText))) " +
             "GROUP BY u.id")
-    Page<User> findByGroupsRolesFeatures(@Param("filterText") String filterText,
+    Page<User> findPatientByGroupsRolesFeatures(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
                                  @Param("featureIds") List<Long> featureIds,

@@ -69,10 +69,13 @@ public interface UserService {
     void removeAllGroupRoles(Long userId) throws ResourceNotFoundException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN })
-    Page<org.patientview.api.model.User> getUsersByGroupsAndRoles(GetParameters getParameters)
+    Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    Page<org.patientview.api.model.User> getUsersByGroupsRolesFeatures(GetParameters getParameters);
+    Page<User> getUsersByGroupsAndRoles(GetParameters getParameters)
+            throws ResourceNotFoundException, ResourceForbiddenException;
+
+    Page<User> getUsersByGroupsRolesFeatures(GetParameters getParameters) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
     @UserOnly

@@ -22,6 +22,7 @@ import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.model.enums.StaffMessagingFeatureType;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -39,9 +40,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -395,7 +398,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return transportUsers;
     }
 
-    public List<org.patientview.api.model.BaseUser> getRecipients(Long userId, Long groupId, String[] featureTypes)
+    public List<org.patientview.api.model.BaseUser> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         User entityUser = findEntityUser(userId);
@@ -411,13 +414,25 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         getParameters.setRoleIds(roleIdList.toArray(new String[roleIdList.size()]));
 
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            if (groupId == null) {
-                return convertUsersToTransportBaseUsers(userRepository.findAll());
-            } else {
+
+            if (groupId != null) {
                 getParameters.setGroupIds(new String[]{groupId.toString()});
-                return convertApiUsersToTransportBaseUsers(
-                        userService.getUsersByGroupsAndRoles(getParameters).getContent());
+            } else {
+                for (Group group : groupService.findAll()) {
+                    groupIdList.add(group.getId().toString());
+                }
             }
+
+            // add patients
+            for (Role role : roleService.getRolesByType(RoleType.PATIENT)) {
+                roleIdList.add(role.getId().toString());
+            }
+
+            List<User> users
+                    = userService.getUsersByGroupsAndRoles(getParameters).getContent();
+
+            return convertUsersToTransportBaseUsers(users);
+
         } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN)) {
 
             // specialty/unit staff and admin can contact all users in specialty/unit
@@ -436,22 +451,55 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 }
             }
 
-            return convertApiUsersToTransportBaseUsers(
-                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+            // restrict features to StaffMessagingFeatureType (subset of Feature Type)
+            List<String> featureIdList = new ArrayList<>();
+            for (StaffMessagingFeatureType featureType : StaffMessagingFeatureType.class.getEnumConstants()) {
+                Feature feat = featureRepository.findByName(featureType.toString());
+                if (feat != null) {
+                    featureIdList.add(feat.getId().toString());
+                }
+            }
+
+            if (featureIdList.isEmpty()) {
+                throw new ResourceNotFoundException("No suitable recipients (by feature)");
+            }
+
+            getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
+
+            List<User> staffUsers
+                    = userService.getUsersByGroupsRolesFeatures(getParameters).getContent();
+
+            // now get users with PATIENT roles in this unit
+            roleIdList = new ArrayList<>();
+            for (Role role : roleService.getRolesByType(RoleType.PATIENT)) {
+                roleIdList.add(role.getId().toString());
+            }
+            getParameters.setRoleIds(roleIdList.toArray(new String[roleIdList.size()]));
+
+            List<User> patientUsers
+                    = userService.getUsersByGroupsAndRoles(getParameters).getContent();
+
+            List<User> allUsers = new ArrayList<>();
+            if (staffUsers != null) {
+                allUsers.addAll(staffUsers);
+            }
+            if (patientUsers != null) {
+                allUsers.addAll(patientUsers);
+            }
+
+            return convertUsersToTransportBaseUsers(allUsers);
         }
 
         // patients can only contact staff in their units with feature names passed in
         if (doesContainRoles(RoleName.PATIENT)) {
 
             List<String> featureIdList = new ArrayList<>();
-            for (String featureType : featureTypes) {
 
-                // restrict features to PatientMessagingFeatureType (subset of Feature Type)
-                if (Util.isInEnum(featureType, PatientMessagingFeatureType.class)) {
-                    Feature feat = featureRepository.findByName(featureType);
-                    if (feat != null) {
-                        featureIdList.add(feat.getId().toString());
-                    }
+            // restrict features to PatientMessagingFeatureType (subset of Feature Type)
+            for (PatientMessagingFeatureType featureType : PatientMessagingFeatureType.class.getEnumConstants()) {
+                Feature feat = featureRepository.findByName(featureType.toString());
+                if (feat != null) {
+                    featureIdList.add(feat.getId().toString());
                 }
             }
 
@@ -486,7 +534,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 throw new ResourceNotFoundException("No suitable recipients (by group)");
             }
 
-            return convertApiUsersToTransportBaseUsers(
+            return convertUsersToTransportBaseUsers(
                     userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
         }
 
