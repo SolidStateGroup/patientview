@@ -2,7 +2,6 @@
 <style>
     option.disabledoption {
         color: #368de8;
-        margin-top: 5px;
     }
 </style>
 
@@ -46,8 +45,8 @@
                 <select class="form-control recipient-select" id="conversation-add-recipient" data-ng-model="recipientToAdd">
                     <option data-ng-repeat="user in newConversation.availableRecipients" value="{{user.id}}"
                             data-ng-disabled="user.description.length" data-ng-class="{disabledoption: user.description.length}">
-                        {{ user.description.length ? user.description : '&nbsp;'}}
-                        {{user.forename}} {{user.surname}}
+                        {{ user.description.length ? user.description : '&nbsp;' }}
+                        {{ user.forename }} {{ user.surname }}
                         {{ user.dateOfBirth ? '(' + (user.dateOfBirth | date:'dd-MMM-yyyy') + ')' : '' }}
                     </option>
                 </select>

@@ -7,31 +7,58 @@ function ($scope, ConversationService) {
         $scope.modalLoading = true;
 
         ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientMap) {
-            conversation.availableRecipients = [];
-            conversation.recipientMap = {};
-
+            var availableRecipients = [];
             var restangularObjects
                 = ['route','reqParams','fromServer','parentResource','restangularCollection','singleOne'];
+            var sortOrder = ['Unit Admin', 'Unit Staff', 'Patient'];
+            var keys = [];
+            var i, j;
 
             for (var key in recipientMap) {
                 if (recipientMap.hasOwnProperty(key) && typeof(recipientMap[key]) !== 'function'
                     && !(restangularObjects.indexOf(key) > -1)) {
-
-                    if (recipientMap[key].length) {
-                        var element = {};
-                        element.description = key;
-                        conversation.availableRecipients.push(element);
-                    }
-
-                    var temp = [];
-                    for (var i = 0; i < recipientMap[key].length ; i++) {
-                        conversation.availableRecipients.push(recipientMap[key][i]);
-                        temp.push(recipientMap[key][i]);
-                    }
-                    conversation.recipientMap[key] = temp;
+                    keys.push(key);
                 }
             }
 
+            // order keys accordingly
+            var result = [];
+            for(i=0; i<sortOrder.length; i++) {
+                for (j=0; j<keys.length; j++) {
+                    if (keys[j] == sortOrder[i] && !(result.indexOf(keys[j]) > -1)) {
+                        result.push(keys[j]);
+                    }
+                }
+            }
+
+            // add any remaining keys
+            for (i=0; i<keys.length; i++) {
+                if (!(result.indexOf(keys[i]) > -1)) {
+                    result.push(keys[i]);
+                }
+            }
+
+            // add in order to recipients, with disabled option describing role
+            for (i=0; i<result.length; i++) {
+                if (recipientMap[result[i]] !== undefined) {
+                    if (recipientMap[result[i]].length) {
+                        var element = {};
+                        element.description = ' ';
+                        availableRecipients.push(element);
+                        element = {};
+                        element.description = result[i];
+                        availableRecipients.push(element);
+                    }
+
+                    var temp = [];
+                    for (j = 0; j < recipientMap[result[i]].length; j++) {
+                        availableRecipients.push(recipientMap[result[i]][j]);
+                        temp.push(recipientMap[result[i]][j]);
+                    }
+                }
+            }
+
+            conversation.availableRecipients = availableRecipients;
             $scope.modalLoading = false;
         }, function (failureResult) {
             if (failureResult.status === 404) {

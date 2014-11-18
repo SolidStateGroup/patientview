@@ -8,7 +8,7 @@ public enum RoleName {
 
     PATIENT("Patient"),
     UNIT_ADMIN("Unit Admin"),
-    STAFF_ADMIN("Staff Admin"),
+    STAFF_ADMIN("Unit Staff"),
     SPECIALTY_ADMIN("Specialty Admin"),
     GLOBAL_ADMIN("Global Admin"),
     GP_ADMIN("GP Admin"),
