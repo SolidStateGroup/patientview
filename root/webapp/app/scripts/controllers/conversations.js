@@ -4,39 +4,27 @@
 var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'GroupService', 'RoleService', 'UserService', 'ConversationService',
     function ($scope, $rootScope, $modalInstance, GroupService, RoleService, UserService, ConversationService) {
         var i;
-        $scope.newConversation = {};
-        $scope.newConversation.recipients = [];
-        $scope.modalLoading = true;
-        var featureTypes = ['MESSAGING'];
 
-        // if patientMessagingFeatureTypes is set then restrict to this
-        if ($scope.loggedInUser.userInformation.patientMessagingFeatureTypes) {
-            featureTypes = $scope.loggedInUser.userInformation.patientMessagingFeatureTypes;
-        }
+        var init = function() {
+            delete $scope.errorMessage;
+            $scope.newConversation = {};
+            $scope.newConversation.recipients = [];
+            $scope.conversationGroups = [];
 
-        ConversationService.getRecipients($scope.loggedInUser.id, featureTypes).then(function (recipients) {
-            $scope.newConversation.availableRecipients = _.clone(recipients);
-            $scope.newConversation.allRecipients = [];
-
-            for (i = 0; i < recipients.length; i++) {
-                $scope.newConversation.allRecipients[recipients[i].id] = recipients[i];
-            }
-
-            if (recipients[0] !== undefined) {
-                $scope.recipientToAdd = recipients[0].id;
-            }
-
-            $scope.modalLoading = false;
-        }, function (failureResult) {
-            if (failureResult.status === 404) {
-                $scope.modalLoading = false;
-            } else {
-                $scope.modalLoading = false;
-                alert('Error loading message recipients');
-            }
-        });
+            GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
+                for (var i = 0; i < successResult.length; i++) {
+                    if (successResult[i].code !== 'Generic') {
+                        $scope.conversationGroups.push(successResult[i]);
+                    }
+                }
+            }, function(failResult) {
+                $scope.errorMessage = failResult.data;
+            });
+        };
 
         $scope.ok = function () {
+            delete $scope.errorMessage;
+
             // build correct conversation from newConversation
             var conversation = {};
             conversation.type = 'MESSAGE';
@@ -82,13 +70,16 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
         };
 
         $scope.cancel = function () {
+            delete $scope.errorMessage;
             $modalInstance.dismiss('cancel');
         };
+
+        init();
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', 'ConversationService',
-    function ($scope, $modal, $q, ConversationService) {
+angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService',
+    function ($scope, $modal, $q, ConversationService, GroupService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -175,6 +166,9 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
     };
 
     $scope.viewMessages = function(conversation) {
+        delete $scope.successMessage;
+        delete $scope.errorMessage;
+
         if (conversation.showMessages) {
             ConversationService.get(conversation.id).then(function(successResult) {
                 conversation.messages = successResult.messages;
@@ -228,9 +222,13 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
     };
 
     $scope.addMessage = function(conversation) {
+        delete $scope.successMessage;
+        delete $scope.errorMessage;
+
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.addMessageContent)
             .then(function() {
             conversation.addMessageContent = '';
+            $scope.successMessage = 'Successfully replied';
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
@@ -247,10 +245,14 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
     };
 
     $scope.quickReply = function(conversation) {
+        delete $scope.successMessage;
+        delete $scope.errorMessage;
+
         ConversationService.addMessage($scope.loggedInUser, conversation, conversation.quickReplyContent)
             .then(function() {
             conversation.quickReplyContent = '';
             conversation.quickReplyOpen = false;
+            $scope.successMessage = 'Successfully replied';
 
             ConversationService.get(conversation.id).then(function(successResult) {
                 for(var i =0; i<$scope.pagedItems.length;i++) {
@@ -268,16 +270,21 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
 
     // open modal for new conversation
     $scope.openModalNewConversation = function (size) {
-        $scope.errorMessage = '';
+        delete $scope.errorMessage;
+        delete $scope.successMessage;
 
         // open modal
         var modalInstance = $modal.open({
             templateUrl: 'newConversationModal.html',
             controller: NewConversationModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 ConversationService: function () {
                     return ConversationService;
+                },
+                GroupService: function () {
+                    return GroupService;
                 }
             }
         });
@@ -290,7 +297,7 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
                 $scope.total = page.totalElements;
                 $scope.totalPages = page.totalPages;
                 $scope.loading = false;
-                $scope.successMessage = 'Conversation successfully created';
+                $scope.successMessage = 'Successfully sent message';
             }, function () {
                 $scope.loading = false;
                 // error

@@ -221,6 +221,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 newUser.setUsername(time.toString());
                 newUser.setIdentifiers(new HashSet<Identifier>());
                 newUser.setLastLogin(now);
+                newUser.setDateOfBirth(now);
 
                 // todo: do we need to migrate user.accounthidden?
 

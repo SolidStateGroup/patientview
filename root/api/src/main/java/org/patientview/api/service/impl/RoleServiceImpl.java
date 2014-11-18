@@ -28,4 +28,8 @@ public class RoleServiceImpl extends AbstractServiceImpl<RoleServiceImpl> implem
     public List<Role> getRolesByType(RoleType type) {
         return Util.convertIterable(roleRepository.findByRoleType(type));
     }
+
+    public List<Role> getUserRoles(Long userId) {
+        return Util.convertIterable(roleRepository.findValidRolesByUser(userId));
+    }
 }

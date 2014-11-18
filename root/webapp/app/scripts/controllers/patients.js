@@ -299,7 +299,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
     $scope.filterText = '';
-    $scope.sortField = 'forename';
+    $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
 
@@ -690,6 +690,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             templateUrl: 'newPatientModal.html',
             controller: NewPatientModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 permissions: function(){
                     return $scope.permissions;
@@ -757,6 +758,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             templateUrl: 'findExistingPatientModal.html',
             controller: FindExistingPatientModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 permissions: function(){
                     return $scope.permissions;

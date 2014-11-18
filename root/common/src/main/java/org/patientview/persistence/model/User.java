@@ -64,6 +64,10 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "surname")
     private String surname;
 
+    @Column(name = "date_of_birth")
+    @Temporal(TemporalType.DATE)
+    private Date dateOfBirth;
+
     @Transient
     private String name;
 
@@ -71,7 +75,6 @@ public class User extends RangeModel implements UserDetails {
     private Set<UserInformation> userInformation;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    //@SortNatural
     private Set<GroupRole> groupRoles;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.LAZY)
@@ -307,5 +310,13 @@ public class User extends RangeModel implements UserDetails {
         if (this.failedLogonAttempts == null) {
             this.failedLogonAttempts = 0;
         }
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 }

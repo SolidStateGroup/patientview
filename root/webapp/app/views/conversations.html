@@ -6,6 +6,7 @@
     <script type="text/ng-template" id="newConversationModal.html">
         <div class="modal-header">
             <h3 class="modal-title">Create New Conversation</h3>
+            <p>Select Group and Recipient, then add to this conversation by clicking "Add Recipient"</p>
         </div>
         <div class="modal-body">
             <form name="conversationFormNew" data-ng-model="newConversation">
@@ -15,11 +16,15 @@
         <div class="modal-footer">
             <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
-            <button class="btn btn-primary" data-ng-click="ok()" data-ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)" data-ng-show="newConversation.allRecipients.length">Create New Conversation</button>
+            <button class="btn btn-primary" data-ng-click="ok()"
+                    data-ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)"
+                    data-ng-show="newConversation.recipients.length">Create New Conversation</button>
         </div>
     </script>
 
     <div>
+        <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+
         <div class="panel panel-info">
             <div class="panel-body">
             <p>Click on <strong>View Messages</strong> to see the full conversation or <strong>Quick Reply</strong> to reply to it. To send a new message, click

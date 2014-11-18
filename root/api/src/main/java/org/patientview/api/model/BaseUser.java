@@ -1,5 +1,7 @@
 package org.patientview.api.model;
 
+import java.util.Date;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
@@ -10,6 +12,7 @@ public class BaseUser {
     private String username;
     private String forename;
     private String surname;
+    private Date dateOfBirth;
 
     public BaseUser() {
 
@@ -20,6 +23,7 @@ public class BaseUser {
         setUsername(user.getUsername());
         setForename(user.getForename());
         setSurname(user.getSurname());
+        setDateOfBirth(user.getDateOfBirth());
     }
 
     public BaseUser(org.patientview.api.model.User user) {
@@ -27,6 +31,7 @@ public class BaseUser {
         setUsername(user.getUsername());
         setForename(user.getForename());
         setSurname(user.getSurname());
+        setDateOfBirth(user.getDateOfBirth());
     }
 
     public Long getId() {
@@ -59,5 +64,13 @@ public class BaseUser {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 }

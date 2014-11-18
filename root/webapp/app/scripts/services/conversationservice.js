@@ -32,10 +32,11 @@ function ($http, $q, Restangular, $rootScope) {
             });
             return deferred.promise;
         },
-        getRecipients: function (userId, featureTypes) {
+        getRecipients: function (userId, groupId) {
             var deferred = $q.defer();
-            // GET /user/{userId}/conversations/recipients?featuretype=MESSAGING
-            Restangular.one('user', userId).one('conversations/recipients').get({'featuretype' : featureTypes}).then(function(successResult) {
+            // GET /user/{userId}/conversations/recipients?groupId=123
+            Restangular.one('user', userId).one('conversations/recipients')
+                .get({'groupId' : groupId}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -45,7 +46,6 @@ function ($http, $q, Restangular, $rootScope) {
         getAll: function (user, page, size) {
             var deferred = $q.defer();
             // GET /user/{userId}/conversations?page=0&size=5
-            // returns page
             Restangular.one('user', user.id).one('conversations').get({'page': page, 'size': size})
                 .then(function(successResult) {
                 deferred.resolve(successResult);
@@ -55,7 +55,6 @@ function ($http, $q, Restangular, $rootScope) {
             return deferred.promise;
         },
         addMessage: function (user, conversation, messageContent) {
-
             var message = {};
             message.user = {};
             message.user.id = user.id;

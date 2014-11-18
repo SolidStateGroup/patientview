@@ -77,7 +77,7 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
             var resultCluster = $scope.userResultClusters[i];
 
             // check date is ok
-            if (!UtilService.validationDate(resultCluster.day, resultCluster.month, resultCluster.year)) {
+            if (!UtilService.validationDateNoFuture(resultCluster.day, resultCluster.month, resultCluster.year)) {
                 return false;
             }
 

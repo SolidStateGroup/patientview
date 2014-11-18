@@ -89,7 +89,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<Page<org.patientview.api.model.User>> getUsers(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(userService.getUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getApiUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
     }
 
     // required by migration
@@ -160,6 +160,15 @@ public class UserController extends BaseController<UserController> {
     public void updateUser(@RequestBody org.patientview.persistence.model.User user)
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         userService.save(user);
+    }
+
+    @RequestMapping(value = "/user/{userId}/settings", method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void updateOwnSettings(@RequestBody org.patientview.persistence.model.User user,
+                                  @PathVariable("userId") Long userId)
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+        userService.updateOwnSettings(userId, user);
     }
 
     // reset password, done by users for other staff or patients

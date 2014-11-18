@@ -18,6 +18,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupServiceImpl;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
@@ -39,6 +40,7 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.CollectionUtils;
 
 import javax.persistence.EntityManager;
@@ -437,4 +439,53 @@ public class GroupServiceTest {
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
         verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
     }
+
+
+    /**
+     * Test: Call the find all method if a User has the superadmin role
+     * Fail: Find All was not called (SuperAdmin -> findAll, Anyone else -> findGroupsByUser)
+     *
+     * @return
+     */
+    @Test
+    public void testGetUserGroupsWithSuperAdmin() {
+
+        GetParameters getParameters = new GetParameters();
+        User testUser = TestUtils.createUser("testUser");
+        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(RoleName.GLOBAL_ADMIN));
+        when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
+
+        TestUtils.authenticateTest(testUser, RoleName.GLOBAL_ADMIN);
+        groupService.getUserGroups(testUser.getId(), getParameters);
+
+        String filterText = "%%";
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        verify(groupRepository, Mockito.times(1)).findAll(filterText, pageable);
+    }
+
+    /**
+     * Test: Call the findGroupsByUser method if a User does not have a globaladmin role
+     * Fail: FindGroupByUser was not called (SuperAdmin -> findAll, Anyone else -> findGroupsByUser)
+     *
+     * @return
+     */
+    @Test
+    public void testGetUserGroups() {
+        GetParameters getParameters = new GetParameters();
+        User testUser = TestUtils.createUser("testUser");
+        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        List<Role> roles = new ArrayList<>();
+        roles.add(TestUtils.createRole(RoleName.UNIT_ADMIN));
+        when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
+
+        TestUtils.authenticateTest(testUser, RoleName.UNIT_ADMIN);
+        groupService.getUserGroups(testUser.getId(), getParameters);
+
+        String filterText = "%%";
+        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        verify(groupRepository, Mockito.times(1)).findGroupsByUserNoSpecialties(filterText, testUser, pageable);
+    }
+
 }

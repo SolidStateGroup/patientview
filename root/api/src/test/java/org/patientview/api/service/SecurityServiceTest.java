@@ -91,53 +91,6 @@ public class SecurityServiceTest {
         Assert.assertEquals("There should be only 6 routes", routes.size(), 6);
     }
 
-    /**
-     * Test: Call the find all method if a User has the superadmin role
-     * Fail: Find All was not called (SuperAdmin -> findAll, Anyone else -> findGroupByUser)
-     *
-     * @return
-     */
-    @Test
-    public void testGetUserGroupsWithSuperAdmin() {
-
-        GetParameters getParameters = new GetParameters();
-        User testUser = TestUtils.createUser("testUser");
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(RoleName.GLOBAL_ADMIN));
-        when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
-
-        TestUtils.authenticateTest(testUser, RoleName.GLOBAL_ADMIN);
-        securityService.getUserGroups(testUser.getId(), getParameters);
-
-        String filterText = "%%";
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
-        verify(groupRepository, Mockito.times(1)).findAll(filterText, pageable);
-    }
-
-    /**
-     * Test: Call the findGroupByUser method if a User does not have a globaladmin role
-     * Fail: FindGroupByUser was not called (SuperAdmin -> findAll, Anyone else -> findGroupByUser)
-     *
-     * @return
-     */
-    @Test
-    public void testGetUserGroups() {
-        GetParameters getParameters = new GetParameters();
-        User testUser = TestUtils.createUser("testUser");
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
-        List<Role> roles = new ArrayList<>();
-        roles.add(TestUtils.createRole(RoleName.UNIT_ADMIN));
-        when(roleRepository.findValidRolesByUser(Matchers.eq(testUser.getId()))).thenReturn(roles);
-
-        TestUtils.authenticateTest(testUser, RoleName.UNIT_ADMIN);
-        securityService.getUserGroups(testUser.getId(), getParameters);
-
-        String filterText = "%%";
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
-        verify(groupRepository, Mockito.times(1)).findGroupsByUserNoSpecialties(filterText, testUser, pageable);
-    }
-
     private Iterable<Route> getRoutes() {
         Set<Route> routes = new HashSet<>();
         for (long i = 1; i< 7; i ++) {

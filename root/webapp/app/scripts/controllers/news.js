@@ -196,6 +196,7 @@ angular.module('patientviewApp').controller('NewsCtrl',['$scope', '$modal', '$q'
             templateUrl: 'newNewsModal.html',
             controller: NewNewsModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 GroupService: function(){
                     return GroupService;

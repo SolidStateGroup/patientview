@@ -153,7 +153,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
     $scope.filterText = '';
-    $scope.sortField = 'forename';
+    $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
 
@@ -551,6 +551,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             templateUrl: 'newStaffModal.html',
             controller: NewStaffModalInstanceCtrl,
             size: size,
+            backdrop: 'static',
             resolve: {
                 permissions: function(){
                     return $scope.permissions;

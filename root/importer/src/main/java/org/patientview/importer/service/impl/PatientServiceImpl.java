@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.importer.builder.PatientBuilder;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PatientService;
 import org.patientview.importer.Utility.Util;
@@ -79,7 +80,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
         if (fhirLink != null) {
             // link to FHIR exists, update patient
-            JSONObject jsonObject = fhirResource.updateFhirObject(newFhirPatient, fhirLink.getResourceId(), fhirLink.getVersionId());
+            JSONObject jsonObject
+                    = fhirResource.updateFhirObject(newFhirPatient, fhirLink.getResourceId(), fhirLink.getVersionId());
             versionId = Util.getVersionId(jsonObject);
 
             // update link
@@ -90,6 +92,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             // Create a new Fhir record and add the link to the User and Unit
             JSONObject jsonObject = create(newFhirPatient);
             fhirLink = addLink(identifier, group, jsonObject);
+        }
+
+        // update User date of birth
+        if (patient.getPatient().getPersonaldetails().getDateofbirth() != null) {
+            User entityUser = userRepository.findOne(fhirLink.getUser().getId());
+            entityUser.setDateOfBirth(
+                    patient.getPatient().getPersonaldetails().getDateofbirth().toGregorianCalendar().getTime());
+            userRepository.save(entityUser);
         }
 
         LOG.info("Processed Patient Data for NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());

@@ -116,7 +116,7 @@
             <label>Add Contact Points</label>
         </div>
         <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" data-ng-model="newContactPoint.contactPointTypeId" data-ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
-        <div class="col-md-3"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" data-ng-model="newContactPoint.content"></div>
+        <div class="col-md-5"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" data-ng-model="newContactPoint.content"></div>
         <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" data-ng-click="addContactPoint(groupForm, editGroup, newContactPoint)" data-ng-disabled="!(newContactPoint.content)">Add</button></div>
     </div>
 </div>    
@@ -196,8 +196,7 @@
         </ul>
         <div class="parent-group-add-container item-add-container" data-ng-show="editGroup.availableParentGroups.length > 0 && permissions.canEditParentGroups">
             <div class="custom-select">
-                <select class="form-control parent-group-select group-select" data-ng-model="parentGroupToAdd" data-ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select>
-                <!--<span class="caret-container"><span class="caret"></span></span>-->
+                <select class="form-control parent-group-select group-select" data-ng-model="parentGroupToAdd" data-ng-options="parentGroup.id as parentGroup.name + ' &nbsp;(' + parentGroup.groupType.description + ')' for parentGroup in editGroup.availableParentGroups | orderBy:[orderGroups,'name']"></select>
             </div>
             <button type="button" class="btn blue parent-group-add-button pull-left" data-ng-click="addParentGroup(groupForm, editGroup, parentGroupToAdd)">Add</button>
         </div>
@@ -216,7 +215,7 @@
         </ul>
         <div class="parent-group-add-container item-add-container" data-ng-show="editGroup.availableChildGroups.length > 0 && permissions.canEditChildGroups">
             <div class="custom-select">
-                <select class="form-control child-group-select group-select" data-ng-model="childGroupToAdd" data-ng-options="childGroup.id as childGroup.name for childGroup in editGroup.availableChildGroups"></select>
+                <select class="form-control child-group-select group-select" data-ng-model="childGroupToAdd" data-ng-options="childGroup.id as childGroup.name + ' &nbsp;(' + childGroup.groupType.description + ')' for childGroup in editGroup.availableChildGroups | orderBy:[orderGroups,'name']"></select>
             </div>
             <button type="button" class="btn blue child-group-add-button pull-left" data-ng-click="addChildGroup(groupForm, editGroup, childGroupToAdd)">Add</button>
         </div>

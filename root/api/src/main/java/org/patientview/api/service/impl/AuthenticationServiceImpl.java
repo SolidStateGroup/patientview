@@ -349,7 +349,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private org.patientview.api.model.UserToken setSecurityRoles(org.patientview.api.model.UserToken userToken) {
         List<org.patientview.persistence.model.Role> availableRoles
-                = Util.convertIterable(securityService.getUserRoles(userToken.getUser().getId()));
+                = Util.convertIterable(roleService.getUserRoles(userToken.getUser().getId()));
 
         userToken.setSecurityRoles(new ArrayList<Role>());
 
@@ -361,7 +361,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private org.patientview.api.model.UserToken setUserGroups(org.patientview.api.model.UserToken userToken) {
         List<org.patientview.persistence.model.Group> userGroups
-                = securityService.getAllUserGroupsAllDetails(userToken.getUser().getId());
+                = groupService.getAllUserGroupsAllDetails(userToken.getUser().getId());
 
         userToken.setUserGroups(new ArrayList<BaseGroup>());
 

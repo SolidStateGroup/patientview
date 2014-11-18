@@ -33,7 +33,7 @@ public class User extends BaseUser {
     private Group latestDataReceivedBy;
 
     // FHIR
-    private Date dateOfBirth;
+    private Date fhirDateOfBirth;
 
     public User() {
 
@@ -54,6 +54,7 @@ public class User extends BaseUser {
         setContactNumber(user.getContactNumber());
         setCreated(user.getCreated());
         setChangePassword(user.getChangePassword());
+        setDateOfBirth(user.getDateOfBirth());
 
         if (user.getGroupRoles() != null) {
             for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
@@ -66,7 +67,7 @@ public class User extends BaseUser {
             // set date of birth
             if (patient.getBirthDateSimple() != null) {
                 DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
-                    setDateOfBirth(new Date(new GregorianCalendar(fhirDateOfBirth.getYear(),
+                    setFhirDateOfBirth(new Date(new GregorianCalendar(fhirDateOfBirth.getYear(),
                         fhirDateOfBirth.getMonth() - 1, fhirDateOfBirth.getDay()).getTimeInMillis()));
             }
         }
@@ -178,12 +179,12 @@ public class User extends BaseUser {
         this.latestDataReceivedBy = latestDataReceivedBy;
     }
 
-    public Date getDateOfBirth() {
-        return dateOfBirth;
+    public Date getFhirDateOfBirth() {
+        return fhirDateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setFhirDateOfBirth(Date dateOfBirth) {
+        this.fhirDateOfBirth = dateOfBirth;
     }
 
     public Boolean getChangePassword() {

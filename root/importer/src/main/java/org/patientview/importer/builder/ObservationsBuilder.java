@@ -370,11 +370,12 @@ public class ObservationsBuilder {
     private Decimal createDecimal(Patientview.Patient.Testdetails.Test.Result result) throws FhirResourceException {
         Decimal decimal = new Decimal();
 
-        // remove all but numeric and .
-        String resultString = result.getValue().replaceAll("[^.\\d]", "");
+        // remove all but numeric and . -
+        String resultString = result.getValue().replaceAll("/[^\\d.-]+/", "");
 
         // attempt to parse remaining
         NumberFormat decimalFormat = DecimalFormat.getInstance();
+
         if (StringUtils.isNotEmpty(resultString)) {
             try {
                 decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));

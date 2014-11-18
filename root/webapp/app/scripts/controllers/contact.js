@@ -101,6 +101,7 @@ function ($scope, $modal, GroupService, ConversationService) {
         var modalInstance = $modal.open({
             templateUrl: 'contactUnitModal.html',
             controller: ContactUnitModalInstanceCtrl,
+            backdrop: 'static',
             resolve: {
                 group: function () {
                     return group;

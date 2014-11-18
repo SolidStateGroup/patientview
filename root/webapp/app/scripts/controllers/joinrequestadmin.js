@@ -5,8 +5,8 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
 
     $scope.itemsPerPage = 20;
     $scope.currentPage = 0;
-    $scope.sortField = '';
-    $scope.sortDirection = '';
+    $scope.sortField = 'created';
+    $scope.sortDirection = 'DESC';
 
     // update page when currentPage is changed (and at start)
     $scope.$watch('currentPage', function(value) {
