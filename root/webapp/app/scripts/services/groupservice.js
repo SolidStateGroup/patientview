@@ -33,8 +33,8 @@ function ($q, Restangular, UtilService) {
         },
         getGroupsForUser: function (userId, getParameters) {
             var deferred = $q.defer();
-            // GET /security/user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
-            Restangular.all('security').one('user',userId).customGET('groups', getParameters).then(function(successResult) {
+            // GET /user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
+            Restangular.one('user',userId).customGET('groups', getParameters).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);
@@ -53,8 +53,8 @@ function ($q, Restangular, UtilService) {
         },
         getGroupsForUserAllDetails: function (userId, getParameters) {
             var deferred = $q.defer();
-            // GET /security/user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
-            Restangular.all('security').one('user',userId).customGET('groups/alldetails', getParameters).then(function(successResult) {
+            // GET /user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code
+            Restangular.one('user',userId).customGET('groups/alldetails', getParameters).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);
@@ -63,8 +63,8 @@ function ($q, Restangular, UtilService) {
         },
         getAllowedRelationshipGroups: function (userId) {
             var deferred = $q.defer();
-            // GET /security/user/allowedrelationshipgroups
-            Restangular.all('security').one('user',userId).customGET('allowedrelationshipgroups').then(function(successResult) {
+            // GET /user/allowedrelationshipgroups
+            Restangular.one('user',userId).customGET('allowedrelationshipgroups').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);

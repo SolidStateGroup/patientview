@@ -8,7 +8,9 @@ import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -122,7 +124,32 @@ public class GroupController extends BaseController<GroupController> {
 
     @RequestMapping(value = "/user/{userId}/groups", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<BaseGroup>> getBaseGroupsForUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
+    public ResponseEntity<List<BaseGroup>> getBaseGroupsForUser(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
         return new ResponseEntity<>(groupService.findBaseGroupsByUserId(userId), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/groups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<org.patientview.api.model.Group>> getUserGroups(@PathVariable("userId") Long userId
+            , GetParameters getParameters) {
+        return new ResponseEntity<>(groupService.getUserGroups(userId, getParameters), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/groups/alldetails", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<Group>> getUserGroupsFull(@PathVariable("userId") Long userId
+            , GetParameters getParameters) {
+        return new ResponseEntity<>(groupService.getUserGroupsAllDetails(userId, getParameters), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/allowedrelationshipgroups", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Page<org.patientview.api.model.Group>> getAllowedRelationshipGroups(
+            @PathVariable("userId") Long userId) {
+        return new ResponseEntity<>(groupService.getAllowedRelationshipGroups(userId), HttpStatus.OK);
     }
 }

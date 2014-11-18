@@ -7,7 +7,7 @@ function ($scope, ConversationService) {
         $scope.modalLoading = true;
         var featureTypes = ['MESSAGING'];
 
-        // if patientMessagingFeatureTypes is set then restrict to this
+        // if patientMessagingFeatureTypes is set then restrict to this (PATIENT only, e.g. DEFAULT_MESSAGING_CONTACT)
         if ($scope.loggedInUser.userInformation.patientMessagingFeatureTypes) {
             featureTypes = $scope.loggedInUser.userInformation.patientMessagingFeatureTypes;
         }

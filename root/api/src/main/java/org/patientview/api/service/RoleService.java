@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.RoleType;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,4 +17,7 @@ public interface RoleService {
     List<Role> getAllRoles();
 
     List<Role> getRolesByType(RoleType type);
+
+    @UserOnly
+    List<Role> getUserRoles(Long userId);
 }

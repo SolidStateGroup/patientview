@@ -9,10 +9,12 @@ import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.RoleName;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,4 +85,29 @@ public interface GroupService {
     List<UUID> getOrganizationLogicalUuidsByCode(final String code) throws FhirResourceException;
 
     UUID addOrganization(Group group) throws FhirResourceException;
+
+    // previously security service
+
+    /**
+     * Get the groups that are assigned to the user.
+     * N.B. SuperAdmin gets them all/
+     *
+     * @param userId
+     * @return
+     */
+    @UserOnly
+    Page<org.patientview.api.model.Group> getUserGroups(Long userId, GetParameters getParameters);
+
+    @UserOnly
+    List<Group> getAllUserGroupsAllDetails(Long userId);
+
+    @UserOnly
+    Page<Group> getUserGroupsAllDetails(Long userId, GetParameters getParameters);
+
+    // allowed relationship groups are those that can be added as parents or children to existing groups
+    // GLOBAL_ADMIN can see all groups so allowedRelationshipGroups is identical to those returned from getGroupsForUser
+    // SPECIALTY_ADMIN can only edit their specialty and add relationships
+    // all other users cannot add parents/children
+    @UserOnly
+    Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId);
 }

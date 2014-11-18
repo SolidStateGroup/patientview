@@ -176,7 +176,7 @@
         </ul>
         <div class="parent-group-add-container item-add-container" data-ng-show="editGroup.availableParentGroups.length > 0 && permissions.canEditParentGroups">
             <div class="custom-select">
-                <select class="form-control parent-group-select group-select" data-ng-model="parentGroupToAdd" data-ng-options="parentGroup.id as parentGroup.name for parentGroup in editGroup.availableParentGroups"></select>
+                <select class="form-control parent-group-select group-select" data-ng-model="parentGroupToAdd" data-ng-options="parentGroup.id as parentGroup.name + ' &nbsp;(' + parentGroup.groupType.description + ')' for parentGroup in editGroup.availableParentGroups | orderBy:[orderGroups,'name']"></select>
             </div>
             <button type="button" class="btn blue parent-group-add-button pull-left" data-ng-click="addParentGroup(groupFormNew, editGroup, parentGroupToAdd)">Add</button>
         </div>
@@ -192,7 +192,7 @@
         </ul>
         <div class="parent-group-add-container item-add-container" data-ng-show="editGroup.availableChildGroups.length > 0 && permissions.canEditChildGroups">
             <div class="custom-select">
-                <select class="form-control child-group-select group-select" data-ng-model="childGroupToAdd" data-ng-options="childGroup.id as childGroup.name for childGroup in editGroup.availableChildGroups"></select>
+                <select class="form-control child-group-select group-select" data-ng-model="childGroupToAdd" data-ng-options="childGroup.id as childGroup.name + ' &nbsp;(' + childGroup.groupType.description + ')' for childGroup in editGroup.availableChildGroups | orderBy:[orderGroups,'name']"></select>
             </div>
             <button type="button" class="btn blue child-group-add-button pull-left" data-ng-click="addChildGroup(groupFormNew, editGroup, childGroupToAdd)">Add</button>
         </div>
