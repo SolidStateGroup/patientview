@@ -422,7 +422,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
             // specialty/unit staff and admin can contact all users in specialty/unit
             // staff & patient users can only contact those in their groups
-            for (BaseGroup group : groupService.findBaseGroupsByUserId(entityUser.getId())) {
+            for (BaseGroup group : groupService.findMessagingGroupsByUserId(entityUser.getId())) {
                 groupIdList.add(group.getId().toString());
             }
             getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));

@@ -26,6 +26,7 @@ import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
@@ -149,7 +150,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     @Override
-    public List<BaseGroup> findBaseGroupsByUserId(Long userId) throws ResourceNotFoundException {
+    public List<BaseGroup> findMessagingGroupsByUserId(Long userId) throws ResourceNotFoundException {
         User entityUser = userRepository.findOne(userId);
         if (entityUser == null) {
             throw new ResourceNotFoundException("User does not exist");
@@ -182,12 +183,16 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             }
         }
 
-        // convert to base groups
-        List<BaseGroup> baseGroups = new ArrayList<>();
+        // keep only groups with MESSAGING feature and convert to base groups
+        Set<BaseGroup> baseGroups = new HashSet<>();
         for (Group group : groups) {
-            baseGroups.add(new BaseGroup(group));
+            for (GroupFeature groupFeature : group.getGroupFeatures()) {
+                if (groupFeature.getFeature().getName().equals(FeatureType.MESSAGING.toString())) {
+                    baseGroups.add(new BaseGroup(group));
+                }
+            }
         }
-        return baseGroups;
+        return new ArrayList<>(baseGroups);
     }
 
     public void save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {

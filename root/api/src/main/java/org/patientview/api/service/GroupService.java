@@ -42,7 +42,7 @@ public interface GroupService {
     List<Group> findGroupsByUser(User user);
 
     @UserOnly
-    List<BaseGroup> findBaseGroupsByUserId(Long userId) throws ResourceNotFoundException;
+    List<BaseGroup> findMessagingGroupsByUserId(Long userId) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.EDIT_GROUP, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })

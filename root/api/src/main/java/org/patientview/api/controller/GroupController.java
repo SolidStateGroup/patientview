@@ -122,11 +122,11 @@ public class GroupController extends BaseController<GroupController> {
         groupService.passwordRequest(groupId, unitRequest);
     }
 
-    @RequestMapping(value = "/user/{userId}/basegroups", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/messaginggroups", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<List<BaseGroup>> getBaseGroupsForUser(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<BaseGroup>> getMessagingGroupsForUser(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
-        return new ResponseEntity<>(groupService.findBaseGroupsByUserId(userId), HttpStatus.OK);
+        return new ResponseEntity<>(groupService.findMessagingGroupsByUserId(userId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/groups", method = RequestMethod.GET,

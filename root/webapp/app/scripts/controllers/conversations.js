@@ -11,7 +11,7 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
             $scope.newConversation.recipients = [];
             $scope.conversationGroups = [];
 
-            GroupService.getBaseGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
+            GroupService.getMessagingGroupsForUser($scope.loggedInUser.id).then(function(successResult) {
                 for (var i = 0; i < successResult.length; i++) {
                     if (successResult[i].code !== 'Generic') {
                         $scope.conversationGroups.push(successResult[i]);
