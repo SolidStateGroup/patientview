@@ -4,7 +4,7 @@
         <div class="col-md-8">
             <div class="tab-panel-item">
                 <div class="content-panel">
-                    <ul class="pull-right aside-actions unstyled">
+                    <ul class="pull-right aside-actions dashboard unstyled">
                         <li><a href="#/conversations" class="aside-link active">Unread Messages<span class="message-count">{{unreadConversationCount}}</span></a></li>
                         <li data-ng-show="permissions.showJoinRequestButton"><a href="#/joinrequestadmin" class="aside-link reply">Join Requests<span class="message-count">{{submittedJoinRequestCount}}</span></a></li>
                     </ul>
@@ -13,7 +13,7 @@
                             <dt>{{loggedInUser.forename}} {{loggedInUser.surname}}</dt>
                             <dd>Joined {{loggedInUser.created | date:'dd-MMM-yyyy HH:mm'}}</dd>
                         </dl>
-                        <dl class="col-md-6">
+                        <dl class="col-md-6 last-login">
                             <dt>Last Login</dt>
                             <dd data-ng-show="loggedInUser.lastLogin">{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
                                 <span class="sub-text">from {{loggedInUser.lastLoginIpAddress}}</span>

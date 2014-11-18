@@ -71,7 +71,7 @@
     </div>
     <div class="location-list-item cleared-row"  data-ng-repeat="location in editGroup.locations | orderBy:'id'">
         <div class="col-md-1 hidden">{{location.id}}</div>
-        <div class="col-md-1"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="label" name="label" data-ng-model="location.label" required></div>
+        <div class="col-md-1 first-child"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="label" name="label" data-ng-model="location.label" required></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="name" name="name" data-ng-model="location.name" required></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-phone-{{location.id}}" placeholder="phone" name="phone" data-ng-model="location.phone" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" data-ng-model="location.address" ></div>

@@ -48,6 +48,7 @@
         </div>
 
         <div class="message-item" data-ng-repeat="conversation in pagedItems">
+            <span data-ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> New</span>
             <div class="content-panel">
                 <ul class="pull-right aside-actions unstyled">
                     <li><a href="" class="aside-link active" data-ng-click="viewMessages(conversation)">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
@@ -55,7 +56,6 @@
                 </ul>
                 <div class="message-summary">
                     <h2 class="message-title">
-                        <span data-ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> New</span>
                         <a href="" class="pull-left" data-ng-click="viewMessages(conversation)">{{conversation.title}}</a>
                         <span class="recipient pull-left">with:
                             <span data-ng-repeat="conversationUser in conversation.conversationUsers" data-ng-show="conversationUser.user.id != loggedInUser.id">
