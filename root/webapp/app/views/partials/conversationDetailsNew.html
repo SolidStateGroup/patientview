@@ -20,12 +20,10 @@
 
     <div class="row">
         <div class="col-md-12">
-            <h4>Select Group and Recipient, then add to this conversation by clicking "Add Recipient"</h4>
             <div class="error" data-ng-show="newConversation.recipients.length < 1">There must be at least one recipient</div>
             <br/>
         </div>
     </div>
-
 
     <div>
         <div class="row">
@@ -37,12 +35,18 @@
                         data-ng-change="selectGroup(newConversation, selectedGroupId)">
                 </select>
             </div>
+
             <div class="col-md-5" data-ng-show="newConversation.availableRecipients.length" >
                 <label for="conversation-add-recipient">Recipient</label>
                 <select class="form-control recipient-select" id="conversation-add-recipient"
                         data-ng-model="recipientToAdd"
                         data-ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
             </div>
+            <div class="col-md-5" data-ng-show="!newConversation.allRecipients.length && selectedGroupId">
+                <br/><br/>
+                <p>There are no recipients available for this group</p>
+            </div>
+
             <div class="col-md-2">
                 <label for="add-recipient-button"></label>
                 <button type="button" class="btn blue recipient-add-button pull-left" id="add-recipient-button"
@@ -53,14 +57,14 @@
         </div>
         <hr/>
         <div class="row">
-                <div class="col-md-12">
-                    <label for="conversation-title" class="control-label">Title
-                        <span class="error" data-ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span>
-                    </label>
-                    <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title"
-                                         name="title" data-ng-model="newConversation.title"
-                                         data-ng-disabled="!newConversation.availableRecipients.length" required></div>
-                </div>
+            <div class="col-md-12">
+                <label for="conversation-title" class="control-label">Title
+                    <span class="error" data-ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span>
+                </label>
+                <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title"
+                                     name="title" data-ng-model="newConversation.title"
+                                     data-ng-disabled="!newConversation.availableRecipients.length && !newConversation.recipients.length" required></div>
+            </div>
         </div>
         <div class="row">
             <div class="form-horizontal" role="form">
@@ -70,17 +74,14 @@
                     </label>
                     <textarea class="form-control article-content" id="conversation-message" placeholder="Message"
                               name="message" data-ng-model="newConversation.message"
-                              data-ng-disabled="!newConversation.availableRecipients.length" required></textarea>
+                              data-ng-disabled="!newConversation.availableRecipients.length && !newConversation.recipients.length" required></textarea>
                 </div>
             </div>
         </div>
         <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
     </div>
 
-    <div data-ng-show="!newConversation.allRecipients.length && selectedGroupId">
-        <br/>
-        <h4>There are no recipients available for this group</h4>
-    </div>
+
 </div>
 
 <div data-ng-show="modalLoading" class="row"><br/>
