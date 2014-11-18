@@ -72,6 +72,10 @@
                 padding-right:5px;
                 width:160px;
 
+                &:first-child, &.first-child{
+                    padding-left:15px;
+                }
+
                 &:last-child{
                     margin-right:10px;
                 }
@@ -103,7 +107,7 @@
             display:table-cell;
             text-align:left;
             padding:0 5px;
-            color:$textlight;
+            color:#585858;
             text-decoration:none;
             vertical-align: middle;
             font-family: 'Lato', sans-serif;
@@ -189,6 +193,19 @@
     }
 }
 
+.result-link{
+    a{
+        /*temp wrapping fix */
+        white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        white-space: pre-wrap; /* css-3 */
+        word-wrap: break-word; /* Internet Explorer 5.5+ */
+        word-break: break-all;
+        white-space: normal;
+    }
+}
+
 .cleared-row{
     float:left;
     clear:left;
@@ -211,6 +228,10 @@
                 text-align: left;
                 padding: 10px;
                 font-weight: bold;
+
+                a{
+                    color:#585858;
+                }
             }
         }
     }
