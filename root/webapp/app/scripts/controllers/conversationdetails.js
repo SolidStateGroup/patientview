@@ -8,11 +8,6 @@ function ($scope, ConversationService) {
 
         ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipients) {
             conversation.availableRecipients = _.clone(recipients);
-            conversation.allRecipients = [];
-
-            for (var i = 0; i < recipients.length; i++) {
-                conversation.allRecipients[recipients[i].id] = recipients[i];
-            }
 
             if (recipients[0] !== undefined) {
                 $scope.recipientToAdd = recipients[0].id;
@@ -30,10 +25,23 @@ function ($scope, ConversationService) {
     };
 
     $scope.addRecipient = function (form, conversation, userId) {
-        for (var i = 0; i < conversation.availableRecipients.length; i++) {
-            if (conversation.availableRecipients[i].id === userId) {
-                conversation.recipients.push(conversation.allRecipients[userId]);
-                conversation.availableRecipients.splice(i, 1);
+
+        var found = false;
+        var i;
+
+        // check not already added
+        for (i = 0; i < conversation.recipients.length; i++) {
+            // need to cast string to number using == not === for id
+            if (conversation.recipients[i].id == userId) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            for (i = 0; i < conversation.availableRecipients.length; i++) {
+                if (conversation.availableRecipients[i].id == userId) {
+                    conversation.recipients.push(conversation.availableRecipients[i]);
+                }
             }
         }
     };
@@ -42,7 +50,6 @@ function ($scope, ConversationService) {
         for (var i = 0; i < conversation.recipients.length; i++) {
             if (conversation.recipients[i].id === user.id) {
                 conversation.recipients.splice(i, 1);
-                conversation.availableRecipients.push(conversation.allRecipients[user.id]);
             }
         }
     };

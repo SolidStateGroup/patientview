@@ -1,6 +1,3 @@
-
-
-<!--<div data-ng-show="!modalLoading && newConversation.allRecipients.length">-->
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
 
     <div class="row" data-ng-show="newConversation.recipients.length">
@@ -38,11 +35,14 @@
 
             <div class="col-md-5" data-ng-show="newConversation.availableRecipients.length" >
                 <label for="conversation-add-recipient">Recipient</label>
-                <select class="form-control recipient-select" id="conversation-add-recipient"
-                        data-ng-model="recipientToAdd"
-                        data-ng-options="user.id as user.forename + ' ' + user.surname for user in newConversation.availableRecipients | orderBy:'forename'"></select>
+                <select class="form-control recipient-select" id="conversation-add-recipient" data-ng-model="recipientToAdd">
+                    <option data-ng-repeat="user in newConversation.availableRecipients" value="{{user.id}}">
+                        {{user.forename}} {{user.surname}}
+                        {{ user.dateOfBirth ? '(' + (user.dateOfBirth | date:'dd-MMM-yyyy') + ')' : '' }}
+                    </option>
+                </select>
             </div>
-            <div class="col-md-5" data-ng-show="!newConversation.allRecipients.length && selectedGroupId">
+            <div class="col-md-5" data-ng-show="!newConversation.availableRecipients.length && selectedGroupId">
                 <br/><br/>
                 <p>There are no recipients available for this group</p>
             </div>

@@ -18,7 +18,7 @@
             <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
             <button class="btn btn-primary" data-ng-click="ok()"
                     data-ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)"
-                    data-ng-show="newConversation.allRecipients.length || newConversation.recipients">Create New Conversation</button>
+                    data-ng-show="newConversation.recipients.length">Create New Conversation</button>
         </div>
     </script>
 
