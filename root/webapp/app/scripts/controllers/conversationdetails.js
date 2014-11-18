@@ -56,7 +56,7 @@ function ($scope, ConversationService) {
             }
         }
 
-        if (!found) {
+        if (!found && userId !== undefined) {
             for (i = 0; i < conversation.availableRecipients.length; i++) {
                 if (conversation.availableRecipients[i].id == userId) {
                     conversation.recipients.push(conversation.availableRecipients[i]);
