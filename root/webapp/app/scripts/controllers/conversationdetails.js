@@ -5,7 +5,7 @@ function ($scope, ConversationService) {
 
     $scope.selectGroup = function(conversation, groupId) {
         $scope.modalLoading = true;
-        var featureTypes = ['MESSAGING'];
+        var featureTypes = ['MESSAGING','DEFAULT_MESSAGING_CONTACT'];
 
         // if patientMessagingFeatureTypes is set then restrict to this (PATIENT only, e.g. DEFAULT_MESSAGING_CONTACT)
         if ($scope.loggedInUser.userInformation.patientMessagingFeatureTypes) {
