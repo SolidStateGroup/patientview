@@ -43,8 +43,8 @@ function ($q, Restangular, UtilService) {
         },
         getBaseGroupsForUser: function (userId) {
             var deferred = $q.defer();
-            // GET /user/{userId}/groups
-            Restangular.one('user',userId).customGET('groups').then(function(successResult) {
+            // GET /user/{userId}/basegroups
+            Restangular.one('user',userId).customGET('basegroups').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function (failureResult) {
                 deferred.reject(failureResult);

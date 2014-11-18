@@ -122,7 +122,7 @@ public class GroupController extends BaseController<GroupController> {
         groupService.passwordRequest(groupId, unitRequest);
     }
 
-    @RequestMapping(value = "/user/{userId}/groups", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{userId}/basegroups", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<BaseGroup>> getBaseGroupsForUser(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException {
