@@ -3,6 +3,8 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
+import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -35,7 +37,10 @@ public interface GroupService {
 
     Group findByCode(String code);
 
-    List<Group> findGroupByUser(User user);
+    List<Group> findGroupsByUser(User user);
+
+    @UserOnly
+    List<BaseGroup> findBaseGroupsByUserId(Long userId) throws ResourceNotFoundException;
 
     @AuditTrail(value = AuditActions.EDIT_GROUP, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })

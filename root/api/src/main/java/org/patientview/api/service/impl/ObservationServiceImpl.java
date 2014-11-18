@@ -274,7 +274,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        List<Group> groups = groupService.findGroupByUser(user);
+        List<Group> groups = groupService.findGroupsByUser(user);
         List<Group> specialties = new ArrayList<>();
 
         for (Group group : groups) {

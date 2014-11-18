@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.GroupService;
@@ -117,5 +118,11 @@ public class GroupController extends BaseController<GroupController> {
     public void passwordRequest(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
             throws ResourceNotFoundException {
         groupService.passwordRequest(groupId, unitRequest);
+    }
+
+    @RequestMapping(value = "/user/{userId}/groups", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<List<BaseGroup>> getBaseGroupsForUser(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
+        return new ResponseEntity<>(groupService.findBaseGroupsByUserId(userId), HttpStatus.OK);
     }
 }

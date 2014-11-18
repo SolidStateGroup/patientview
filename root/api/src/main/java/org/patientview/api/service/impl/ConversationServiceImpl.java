@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.model.BaseGroup;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
@@ -396,13 +397,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     public List<org.patientview.api.model.BaseUser> getRecipients(Long userId, Long groupId, String[] featureTypes)
             throws ResourceNotFoundException, ResourceForbiddenException {
+
         User entityUser = findEntityUser(userId);
-
-        // global admin can contact all users
-        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-            return convertUsersToTransportBaseUsers(userRepository.findAll());
-        }
-
         List<String> groupIdList = new ArrayList<>();
         List<String> roleIdList = new ArrayList<>();
 
@@ -414,11 +410,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         GetParameters getParameters = new GetParameters();
         getParameters.setRoleIds(roleIdList.toArray(new String[roleIdList.size()]));
 
-        // specialty/unit staff and admin can contact all users in specialty/unit
-        if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN)) {
+        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            if (groupId == null) {
+                return convertUsersToTransportBaseUsers(userRepository.findAll());
+            } else {
+                getParameters.setGroupIds(new String[]{groupId.toString()});
+                return convertApiUsersToTransportBaseUsers(
+                        userService.getUsersByGroupsAndRoles(getParameters).getContent());
+            }
+        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN)) {
 
+            // specialty/unit staff and admin can contact all users in specialty/unit
             // staff & patient users can only contact those in their groups
-            for (Group group : groupService.findGroupByUser(entityUser)) {
+            for (BaseGroup group : groupService.findBaseGroupsByUserId(entityUser.getId())) {
                 groupIdList.add(group.getId().toString());
             }
             getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
@@ -468,6 +472,15 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
 
             getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
+
+            // if restricted to one group
+            if (groupId != null) {
+                if (groupIdList.contains(groupId.toString())) {
+                    getParameters.setGroupIds(new String[]{groupId.toString()});
+                } else {
+                    throw new ResourceForbiddenException("Forbidden");
+                }
+            }
 
             if (featureIdList.isEmpty()) {
                 throw new ResourceNotFoundException("No suitable recipients (by group)");

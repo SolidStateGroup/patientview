@@ -41,6 +41,16 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getBaseGroupsForUser: function (userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/groups
+            Restangular.one('user',userId).customGET('groups').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function (failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getGroupsForUserAllDetails: function (userId, getParameters) {
             var deferred = $q.defer();
             // GET /security/user/{userId}/groups?filterText=something&groupTypes=1&page=0&size=5&sortDirection=ASC&sortField=code

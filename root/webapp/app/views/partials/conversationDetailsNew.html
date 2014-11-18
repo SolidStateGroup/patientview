@@ -1,7 +1,7 @@
 
 
 <!--<div data-ng-show="!modalLoading && newConversation.allRecipients.length">-->
-<div data-ng-show="!modalLoading">
+<div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
 
     <div class="row" data-ng-show="newConversation.recipients.length">
         <div class="form-horizontal" role="form">
@@ -31,7 +31,7 @@
             <div class="custom-select col-md-12">
                 <select class="form-control recipient-select" id="conversation-select-group"
                         data-ng-model="selectedGroupId"
-                        data-ng-options="group.id as group.name for group in conversationGroups | orderBy:'group.name'"
+                        data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in conversationGroups | orderBy:[orderGroups,'name']"
                         data-ng-change="selectGroup(newConversation, selectedGroupId)">
                 </select>
             </div>
@@ -67,6 +67,11 @@
             </div>
         </div>
         <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+    </div>
+
+    <div data-ng-show="!newConversation.allRecipients.length && selectedGroupId">
+        <br/>
+        <h4>There are no recipients available for this group</h4>
     </div>
 </div>
 

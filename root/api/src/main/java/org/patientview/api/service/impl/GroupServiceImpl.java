@@ -5,6 +5,7 @@ import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Organization;
+import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Email;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.EmailService;
@@ -22,6 +23,7 @@ import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.ContactPointRepository;
@@ -133,9 +135,51 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return addSingleParentAndChildGroup(groupRepository.findOne(id));
     }
 
-    public List<Group> findGroupByUser(User user) {
+    public List<Group> findGroupsByUser(User user) {
         List<Group> groups = Util.convertIterable(groupRepository.findGroupByUser(user));
         return addParentAndChildGroups(groups);
+    }
+
+    @Override
+    public List<BaseGroup> findBaseGroupsByUserId(Long userId) throws ResourceNotFoundException {
+        User entityUser = userRepository.findOne(userId);
+        if (entityUser == null) {
+            throw new ResourceNotFoundException("User does not exist");
+        }
+
+        List<Group> groups = new ArrayList<>();
+
+        if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
+            // GLOBAL_ADMIN can reach all groups
+            groups = Util.convertIterable(groupRepository.findAll());
+        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)){
+            // SPECIALTY_ADMIN gets groups and child groups if available
+            List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
+            parentGroups = addParentAndChildGroups(parentGroups);
+
+            // add child groups
+            Set<Group> groupSet = new HashSet<>();
+            for (Group parentGroup : parentGroups) {
+                groupSet.addAll(findChildren(parentGroup.getId()));
+            }
+
+            groups = new ArrayList<>(groupSet);
+        } else {
+            // UNIT_ADMIN, STAFF_ADMIN, PATIENT do not add specialty type groups
+            List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
+            for (Group parentGroup : parentGroups) {
+                if (!parentGroup.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                    groups.add(parentGroup);
+                }
+            }
+        }
+
+        // convert to base groups
+        List<BaseGroup> baseGroups = new ArrayList<>();
+        for (Group group : groups) {
+            baseGroups.add(new BaseGroup(group));
+        }
+        return baseGroups;
     }
 
     public void save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {

@@ -3,14 +3,6 @@
 angular.module('patientviewApp').controller('ConversationDetailsCtrl', ['$scope', 'ConversationService',
 function ($scope, ConversationService) {
 
-    $scope.conversationGroups = [];
-
-    for (var i = 0; i < $scope.loggedInUser.groupRoles.length; i++) {
-        if ($scope.loggedInUser.groupRoles[i].group.code !== 'Generic') {
-            $scope.conversationGroups.push($scope.loggedInUser.groupRoles[i].group);
-        }
-    }
-
     $scope.selectGroup = function(conversation, groupId) {
         $scope.modalLoading = true;
         var featureTypes = ['MESSAGING'];
