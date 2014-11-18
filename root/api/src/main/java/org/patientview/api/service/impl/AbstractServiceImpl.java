@@ -126,6 +126,13 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
                     return true;
                 }
             }
+        } else if (Util.doesContainRoles(RoleName.PATIENT)) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                // check if have direct membership of group
+                if (groupRole.getRole().getName().equals(RoleName.PATIENT) && groupRole.getGroup().equals(group)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

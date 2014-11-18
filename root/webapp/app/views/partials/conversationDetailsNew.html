@@ -1,3 +1,11 @@
+<!-- todo: put in main css -->
+<style>
+    option.disabledoption {
+        color: #368de8;
+        margin-top: 5px;
+    }
+</style>
+
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
 
     <div class="row" data-ng-show="newConversation.recipients.length">
@@ -36,7 +44,9 @@
             <div class="col-md-5" data-ng-show="newConversation.availableRecipients.length" >
                 <label for="conversation-add-recipient">Recipient</label>
                 <select class="form-control recipient-select" id="conversation-add-recipient" data-ng-model="recipientToAdd">
-                    <option data-ng-repeat="user in newConversation.availableRecipients" value="{{user.id}}">
+                    <option data-ng-repeat="user in newConversation.availableRecipients" value="{{user.id}}"
+                            data-ng-disabled="user.description.length" data-ng-class="{disabledoption: user.description.length}">
+                        {{ user.description.length ? user.description : '&nbsp;'}}
                         {{user.forename}} {{user.surname}}
                         {{ user.dateOfBirth ? '(' + (user.dateOfBirth | date:'dd-MMM-yyyy') + ')' : '' }}
                     </option>

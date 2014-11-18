@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -39,6 +40,6 @@ public interface ConversationService extends CrudService<Conversation> {
     Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException;
 
     @UserOnly
-    List<BaseUser> getRecipients(Long userId, Long groupId)
+    HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 }

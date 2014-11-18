@@ -6,11 +6,30 @@ function ($scope, ConversationService) {
     $scope.selectGroup = function(conversation, groupId) {
         $scope.modalLoading = true;
 
-        ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipients) {
-            conversation.availableRecipients = _.clone(recipients);
+        ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientMap) {
+            conversation.availableRecipients = [];
+            conversation.recipientMap = {};
 
-            if (recipients[0] !== undefined) {
-                $scope.recipientToAdd = recipients[0].id;
+            var restangularObjects
+                = ['route','reqParams','fromServer','parentResource','restangularCollection','singleOne'];
+
+            for (var key in recipientMap) {
+                if (recipientMap.hasOwnProperty(key) && typeof(recipientMap[key]) !== 'function'
+                    && !(restangularObjects.indexOf(key) > -1)) {
+
+                    if (recipientMap[key].length) {
+                        var element = {};
+                        element.description = key;
+                        conversation.availableRecipients.push(element);
+                    }
+
+                    var temp = [];
+                    for (var i = 0; i < recipientMap[key].length ; i++) {
+                        conversation.availableRecipients.push(recipientMap[key][i]);
+                        temp.push(recipientMap[key][i]);
+                    }
+                    conversation.recipientMap[key] = temp;
+                }
             }
 
             $scope.modalLoading = false;

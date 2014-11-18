@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -88,7 +89,7 @@ public class ConversationController extends BaseController<ConversationControlle
     @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<BaseUser>> getRecipients(@PathVariable("userId") Long userId,
+    public ResponseEntity<HashMap<String, List<BaseUser>>> getRecipients(@PathVariable("userId") Long userId,
             @RequestParam(value = "groupId", required = false) Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(conversationService.getRecipients(userId, groupId), HttpStatus.OK);
