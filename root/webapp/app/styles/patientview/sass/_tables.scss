@@ -87,6 +87,12 @@
         text-decoration:none;
     }
 
+    .item-header{
+        &.open{
+            border:2px solid $primary;
+        }
+    }
+
     .faux-row{
         display:table;
         width:100%;
@@ -140,6 +146,10 @@
                     width: 120px;
                     margin: 0 auto;
                 }
+            }
+
+            ul{
+                margin-bottom:0;
             }
         }
     }
