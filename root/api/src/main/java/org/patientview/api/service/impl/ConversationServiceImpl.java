@@ -403,15 +403,20 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         User entityUser = findEntityUser(userId);
         List<String> groupIdList = new ArrayList<>();
-        List<String> roleIdList = new ArrayList<>();
+        List<String> staffRoleIdList = new ArrayList<>();
+        List<String> patientRoleIdList = new ArrayList<>();
 
         // assuming patients cannot contact other patients
         for (Role role : roleService.getRolesByType(RoleType.STAFF)) {
-            roleIdList.add(role.getId().toString());
+            staffRoleIdList.add(role.getId().toString());
+        }
+
+        // add patients
+        for (Role role : roleService.getRolesByType(RoleType.PATIENT)) {
+            patientRoleIdList.add(role.getId().toString());
         }
 
         GetParameters getParameters = new GetParameters();
-        getParameters.setRoleIds(roleIdList.toArray(new String[roleIdList.size()]));
 
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
 
@@ -423,10 +428,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 }
             }
 
-            // add patients
-            for (Role role : roleService.getRolesByType(RoleType.PATIENT)) {
-                roleIdList.add(role.getId().toString());
-            }
+            staffRoleIdList.addAll(patientRoleIdList);
+            getParameters.setRoleIds(staffRoleIdList.toArray(new String[staffRoleIdList.size()]));
 
             List<User> users
                     = userService.getUsersByGroupsAndRoles(getParameters).getContent();
@@ -465,16 +468,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
 
             getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
+            getParameters.setRoleIds(staffRoleIdList.toArray(new String[staffRoleIdList.size()]));
 
             List<User> staffUsers
                     = userService.getUsersByGroupsRolesFeatures(getParameters).getContent();
 
             // now get users with PATIENT roles in this unit
-            roleIdList = new ArrayList<>();
-            for (Role role : roleService.getRolesByType(RoleType.PATIENT)) {
-                roleIdList.add(role.getId().toString());
-            }
-            getParameters.setRoleIds(roleIdList.toArray(new String[roleIdList.size()]));
+            getParameters.setRoleIds(patientRoleIdList.toArray(new String[patientRoleIdList.size()]));
 
             List<User> patientUsers
                     = userService.getUsersByGroupsAndRoles(getParameters).getContent();
@@ -492,6 +492,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // patients can only contact staff in their units with feature names passed in
         if (doesContainRoles(RoleName.PATIENT)) {
+
+            getParameters.setRoleIds(staffRoleIdList.toArray(new String[staffRoleIdList.size()]));
 
             List<String> featureIdList = new ArrayList<>();
 
