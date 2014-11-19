@@ -1,9 +1,13 @@
 'use strict';
 
-angular.module('patientviewApp').controller('AccountCtrl', ['UserService', 'AuthService', '$scope', '$rootScope', 'UtilService',
-    function (UserService, AuthService, $scope, $rootScope, UtilService) {
+angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService', 'UserService', 'AuthService', '$scope', '$rootScope', 'UtilService',
+    function (localStorageService, UserService, AuthService, $scope, $rootScope, UtilService) {
 
     $scope.pw ='';
+
+    if ($rootScope.loggedInUser == null) {
+        $rootScope.logout();
+    }
 
     UserService.get($rootScope.loggedInUser.id).then(function(data) {
         $scope.userdetails = data;
@@ -24,8 +28,28 @@ angular.module('patientviewApp').controller('AccountCtrl', ['UserService', 'Auth
                 } else {
                     UserService.saveOwnSettings($scope.loggedInUser.id, $scope.userdetails).then(function () {
                         $scope.successMessage = 'The settings have been saved';
+                        AuthService.getUserInformation($scope.loggedInUser.userInformation.token)
+                            .then(function (userInformation) {
+
+                            // get user information, store in session
+                            var user = userInformation.user;
+                            delete userInformation.user;
+                            user.userInformation = userInformation;
+
+                            $rootScope.loggedInUser = user;
+                            localStorageService.set('loggedInUser', user);
+
+                        }, function(result) {
+                            if (result.data) {
+                                $scope.errorMessage = result.data;
+                            } else {
+                                delete $scope.errorMessage;
+                            }
+                            $scope.loading = false;
+                        });
+
                     }, function (result) {
-                        $scope.errorMessage = 'The settings have not been saved ' + result;
+                        $scope.errorMessage = 'The settings have not been saved ' + result.data;
                     });
                 }
             } else {
