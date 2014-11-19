@@ -94,7 +94,9 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         // unit admins / specialty admins can only add groups they belong to
         if (Util.doesContainRoles(RoleName.GLOBAL_ADMIN)) {
             return true;
-        } else if (Util.doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
+        }
+
+        if (Util.doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getRoleType().getValue().equals(RoleType.STAFF)) {
 
@@ -112,33 +114,42 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
                     }
                 }
             }
-        } else if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
+        }
+
+        if (Util.doesContainRoles(RoleName.UNIT_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // check if have direct membership of group
                 if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }
-        } else if (Util.doesContainRoles(RoleName.STAFF_ADMIN)) {
+        }
+
+        if (Util.doesContainRoles(RoleName.STAFF_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.STAFF_ADMIN) && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }
-        } else if (Util.doesContainRoles(RoleName.DISEASE_GROUP_ADMIN)) {
+        }
+
+        if (Util.doesContainRoles(RoleName.DISEASE_GROUP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.DISEASE_GROUP_ADMIN)
                         && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }
-        } else if (Util.doesContainRoles(RoleName.PATIENT)) {
+        }
+
+        if (Util.doesContainRoles(RoleName.PATIENT)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.PATIENT) && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 
