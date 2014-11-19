@@ -132,7 +132,11 @@ hr{
     }
 
     .panel-body{
-        h4, h5, h6{
+        h4{
+            margin-top:0px;
+            margin-bottom:0px;
+        }
+        h5, h6{
             margin-top:20px;
             margin-bottom:5px;
         }

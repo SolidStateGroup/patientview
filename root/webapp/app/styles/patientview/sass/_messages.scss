@@ -1,5 +1,16 @@
 .message-item, .tab-panel-item{
     margin-bottom:20px;
+    position:relative;
+
+    span.new-message{
+        font-size:1.5rem;
+        font-weight:normal;
+        margin-right:20px;
+        position:absolute;
+        top:-10px;
+        left:-10px;
+        z-index:2;
+    }
 
     .content-panel{
         position:relative;
@@ -52,16 +63,11 @@
         margin:0;
         font-size:2rem;
         font-weight:bold;
-        max-width:90%;
-
-        span.new-message{
-            font-size:1.5rem;
-            font-weight:normal;
-            margin-right:20px;
-        }
+        max-width:84%;
 
         a{
             padding-right:10px;
+            width:94%;
         }
 
         .recipient{
