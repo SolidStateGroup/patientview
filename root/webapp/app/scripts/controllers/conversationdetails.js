@@ -50,10 +50,10 @@ function ($scope, ConversationService) {
                         availableRecipients.push(element);
                     }
 
-                    var temp = [];
-                    for (j = 0; j < recipientMap[result[i]].length; j++) {
-                        availableRecipients.push(recipientMap[result[i]][j]);
-                        temp.push(recipientMap[result[i]][j]);
+                    var sorted = _.sortBy(recipientMap[result[i]], 'forename');
+
+                    for (j = 0; j < sorted.length; j++) {
+                        availableRecipients.push(sorted[j]);
                     }
                 }
             }
