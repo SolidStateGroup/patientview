@@ -424,7 +424,7 @@ public class GroupServiceTest {
      * Fail: Doesnt raise an exception
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testContactUnit_NoGroupExists() throws Exception {
+    public void testPasswordRequest_NoGroupExists() throws Exception {
         UnitRequest unitRequest = new UnitRequest();
         unitRequest.setNhsNumber("234234234");
         unitRequest.setDateOfBirth(new Date());

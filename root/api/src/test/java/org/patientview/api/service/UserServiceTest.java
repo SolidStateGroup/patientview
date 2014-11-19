@@ -329,7 +329,7 @@ public class UserServiceTest {
      * @throws ResourceNotFoundException
      */
     @Test
-    public void testGetUserByUsernameAndPassword() throws ResourceNotFoundException {
+    public void testResetPassword() throws ResourceNotFoundException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
@@ -346,7 +346,7 @@ public class UserServiceTest {
      * Fail: Does not throw an exception
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testGetUserByUsernameAndPassword_WrongEmail() throws ResourceNotFoundException {
+    public void testResetPassword_WrongEmail() throws ResourceNotFoundException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
@@ -364,7 +364,7 @@ public class UserServiceTest {
      * Fail: Does not throw an exception
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testGetUserByUsernameAndPassword_WrongUsername() throws ResourceNotFoundException {
+    public void testResetPassword_WrongUsername() throws ResourceNotFoundException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);

@@ -46,6 +46,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -459,7 +460,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return Util.convertIterable(groupRepository.findChildren(group));
     }
 
-    public void passwordRequest(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException {
+    public void passwordRequest(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException, MailException {
         Group group = findGroup(groupId);
 
         if (group == null) {

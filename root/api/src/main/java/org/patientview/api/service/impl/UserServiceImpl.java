@@ -42,6 +42,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -828,7 +829,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     /**
      * Send a email to the user email address to verify have access to the email account
      */
-    public Boolean sendVerificationEmail(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public Boolean sendVerificationEmail(Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException, MailException {
         User user = findUser(userId);
 
         if (!canGetUser(user)) {
@@ -897,7 +899,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     // Forgotten Password
-    public void resetPasswordByUsernameAndEmail(String username, String email) throws ResourceNotFoundException {
+    public void resetPasswordByUsernameAndEmail(String username, String email)
+            throws ResourceNotFoundException, MailException {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find account");

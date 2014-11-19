@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -19,7 +20,7 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
     @Inject
     private JavaMailSenderImpl javaMailSender;
 
-    public boolean sendEmail(Email email) {
+    public boolean sendEmail(Email email) throws MailException {
         // set email content
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setFrom(email.getSender());
@@ -29,10 +30,12 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
         try {
             javaMailSender.send(msg);
+            LOG.info("Sent email to " + Arrays.toString(email.getRecipients()) + " with subject '"
+                    + email.getSubject() + "'");
             return true;
         } catch (MailException ex) {
-            // todo: temporarily return true even if email failed
-            return true;
+            LOG.error("Could not send email with subject: " + email.getSubject());
+            throw ex;
         }
     }
 }

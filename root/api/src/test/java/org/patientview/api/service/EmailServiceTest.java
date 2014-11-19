@@ -7,6 +7,8 @@ import org.junit.runner.RunWith;
 import org.patientview.api.config.TestCommonConfig;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.impl.EmailServiceImpl;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.test.util.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -22,13 +24,14 @@ public class EmailServiceTest {
     @Autowired
     private EmailServiceImpl emailService;
 
-    @Ignore("Cannot currently load host/username/password from application.properties, see TestCommonConfig")
+    @Ignore("Email should be tested manually")
     @Test
     public void testSendEmail() {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 
         Email email = new Email();
         email.setBody("test body");
-        email.setRecipients(new String[]{"test@solidstategroup.com"});
+        email.setRecipients(new String[]{"jamesr@solidstategroup.com"});
         email.setSubject("test subject");
         email.setSender("no-reply@solidstategroup.com");
         Assert.assertTrue("should have sent email", emailService.sendEmail(email));

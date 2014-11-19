@@ -7,6 +7,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -109,6 +110,14 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public String handleMigrationException(MigrationException e) {
         LOG.error("Migration exception {}", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(MailException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleMailException(MailException e) {
+        LOG.error("Mail exception {}", e);
         return e.getMessage();
     }
 }
