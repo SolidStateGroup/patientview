@@ -398,6 +398,14 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     $scope.groupIds.push(group.id);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
+
+                    if (group.groupType.value === 'UNIT') {
+                        $scope.showUnitFilter = true;
+                    } else if (group.groupType.value === 'DISEASE_GROUP') {
+                        $scope.showDiseaseGroupFilter = true;
+                    } else if (group.groupType.value === 'SPECIALTY') {
+                        $scope.showSpecialtyFilter = true;
+                    }
                 }
             }
 

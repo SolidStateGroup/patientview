@@ -442,7 +442,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 userMap.put(role.getName().getName(), users);
             }
 
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.STAFF_ADMIN)) {
+        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
+                RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN)) {
 
             // specialty/unit staff and admin can contact all users in specialty/unit
             // staff & patient users can only contact those in their groups

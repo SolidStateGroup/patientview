@@ -110,7 +110,7 @@
             <div class="content-inner">
                 <div class="form-horizontal" role="form">
                     <!-- filter by specialty -->
-                    <div class="select-container pull-left">
+                    <div class="select-container pull-left" data-ng-show="showSpecialtyFilter">
                         <div class="btn-group filter-select" id="filter-specialty" dropdown>
                             <button class="btn dropdown-toggle">
                                 Filter By Specialty <span class="caret-container"><span class="caret"></span></span>
@@ -132,7 +132,7 @@
                         </div>
                     </div>
                     <!-- filter by unit -->
-                    <div class="select-container pull-left">
+                    <div class="select-container pull-left" data-ng-show="showUnitFilter">
                         <div class="btn-group filter-select" id="filter-group" dropdown>
                             <button class="btn dropdown-toggle">
                                 Filter By Unit <span class="caret-container"><span class="caret"></span></span>
@@ -154,7 +154,7 @@
                         </div>
                     </div>
                     <!-- filter by disease group -->
-                    <div class="select-container pull-left">
+                    <div class="select-container pull-left" data-ng-show="showDiseaseGroupFilter">
                         <div class="btn-group filter-select" id="filter-diseasegroup" dropdown>
                             <button class="btn dropdown-toggle">
                                 Filter By Disease Group <span class="caret-container"><span class="caret"></span></span>

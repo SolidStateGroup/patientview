@@ -175,7 +175,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
             groups = new ArrayList<>(groupSet);
         } else {
-            // UNIT_ADMIN, STAFF_ADMIN, PATIENT do not add specialty type groups
+            // UNIT_ADMIN, STAFF_ADMIN, DISEASE_GROUP_ADMIN PATIENT do not add specialty type groups
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             for (Group parentGroup : parentGroups) {
                 if (!parentGroup.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {

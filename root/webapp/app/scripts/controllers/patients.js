@@ -511,7 +511,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.permissions.canSendVerificationEmails = true;
         }
 
-        // STAFF_ADMIN can only view
+        // STAFF_ADMIN, DISEASE_GROUP_ADMIN can only view
         if (!($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin
             || $scope.permissions.isUnitAdmin)) {
             $scope.permissions.canViewPatients = true;
@@ -543,6 +543,14 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     $scope.groupIds.push(group.id);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
+
+                    if (group.groupType.value === 'UNIT') {
+                        $scope.showUnitFilter = true;
+                    } else if (group.groupType.value === 'DISEASE_GROUP') {
+                        $scope.showDiseaseGroupFilter = true;
+                    } else if (group.groupType.value === 'SPECIALTY') {
+                        $scope.showSpecialtyFilter = true;
+                    }
                 }
             }
 
