@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -61,6 +62,9 @@ import static org.mockito.Mockito.when;
  * Created on 09/07/2014
  */
 public class GroupServiceTest {
+
+    @Mock
+    Properties properties;
 
     @Mock
     EmailService emailService;
@@ -391,7 +395,10 @@ public class GroupServiceTest {
         Group group = TestUtils.createGroup("TestGroup");
         group.setContactPoints(new HashSet<ContactPoint>());
         group.getContactPoints().add(TestUtils.createContactPoint("83", ContactPointTypes.PV_ADMIN_EMAIL));
+
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(properties.getProperty(eq("site.url"))).thenReturn("");
+
         groupService.passwordRequest(group.getId(), unitRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
@@ -412,7 +419,10 @@ public class GroupServiceTest {
 
         Group group = TestUtils.createGroup("TestGroup");
         group.setContactPoints(new HashSet<ContactPoint>());
+
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(properties.getProperty(eq("site.url"))).thenReturn("");
+
         groupService.passwordRequest(group.getId(), unitRequest);
 
         verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));

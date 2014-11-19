@@ -37,7 +37,9 @@ import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserInformationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
+import org.springframework.mail.MailException;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -324,12 +326,12 @@ public class UserServiceTest {
     }
 
     /**
-     * Test: Update a user with a new password and set the change flag.
+     * Test: User has forgotten password. Update a user with a new password and set the change flag.
      * Fail: Does not find the Resource
      * @throws ResourceNotFoundException
      */
     @Test
-    public void testResetPassword() throws ResourceNotFoundException {
+    public void testResetPassword() throws ResourceNotFoundException, MailException, MessagingException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
@@ -342,11 +344,11 @@ public class UserServiceTest {
     }
 
     /**
-     * Test: Update a user with a new password but the user's email is wrong
+     * Test: User has forgotten password. Update a user with a new password but the user's email is wrong
      * Fail: Does not throw an exception
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testResetPassword_WrongEmail() throws ResourceNotFoundException {
+    public void testResetPassword_WrongEmail() throws ResourceNotFoundException, MailException, MessagingException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
@@ -360,11 +362,11 @@ public class UserServiceTest {
     }
 
     /**
-     * Test: Update a user with a new password but the username does not exist
+     * Test: User has forgotten password. Update a user with a new password but the username does not exist
      * Fail: Does not throw an exception
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testResetPassword_WrongUsername() throws ResourceNotFoundException {
+    public void testResetPassword_WrongUsername() throws ResourceNotFoundException, MailException, MessagingException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
@@ -487,9 +489,9 @@ public class UserServiceTest {
         verify(userRepository, Mockito.times(1)).delete(any(User.class));
     }
 
-
     @Test
-    public void testSendVerificationEmail() throws ResourceNotFoundException, ResourceForbiddenException {
+    public void testSendVerificationEmail()
+            throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");

@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.util.List;
 
@@ -211,7 +213,7 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Boolean> sendVerificationEmail(@PathVariable("userId") Long userId)
-        throws ResourceNotFoundException, ResourceForbiddenException {
+        throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException {
         return new ResponseEntity<>(userService.sendVerificationEmail(userId), HttpStatus.OK);
     }
 

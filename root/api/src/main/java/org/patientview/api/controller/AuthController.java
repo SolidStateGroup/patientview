@@ -13,6 +13,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 
 /**
  * Created by james@solidstategroup.com
@@ -87,12 +89,13 @@ public class AuthController extends BaseController<AuthController> {
         return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
     }
 
+    // Stage 1 of Forgotten Password, user knows username and email
     @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void forgottenPassword(@RequestBody ForgottenCredentials credentials) throws ResourceNotFoundException {
+    public void forgottenPassword(@RequestBody ForgottenCredentials credentials)
+            throws ResourceNotFoundException, MailException, MessagingException  {
         userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail());
     }
-
 
     @RequestMapping(value = "/auth/logout/{token}", method = RequestMethod.DELETE)
     @ResponseBody

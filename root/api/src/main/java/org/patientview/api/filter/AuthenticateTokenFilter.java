@@ -42,9 +42,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     public void init() {
         LOG.info("Authentication token filter initialised");
 
-        // all users login/logout/error
+        // all users login/logout/error/forgotten password
         publicUrls.add("/auth/login");
         publicUrls.add("/auth/logout");
+        publicUrls.add("/auth/forgottenpassword");
         publicUrls.add("/error");
 
         // public news

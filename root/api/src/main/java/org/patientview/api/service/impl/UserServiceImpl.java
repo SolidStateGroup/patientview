@@ -50,6 +50,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -831,26 +832,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * Send a email to the user email address to verify have access to the email account
      */
     public Boolean sendVerificationEmail(Long userId)
-            throws ResourceNotFoundException, ResourceForbiddenException, MailException {
+            throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException {
         User user = findUser(userId);
 
         if (!canGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Email email = new Email();
-        email.setSender(properties.getProperty("smtp.sender"));
-        email.setSubject("PatientView - Please verify your account");
-        email.setRecipients(new String[]{user.getEmail()});
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Please visit http://www.patientview.org/#/verify?userId=");
-        sb.append(user.getId());
-        sb.append("&verificationCode=");
-        sb.append(user.getVerificationCode());
-        sb.append(" to validate your account.");
-        email.setBody(sb.toString());
-        return emailService.sendEmail(email);
+        return emailService.sendEmail(getVerifyEmailEmail(user));
     }
 
     public Boolean verify(Long userId, String verificationCode)
@@ -901,9 +890,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         userFeatureRepository.delete(userFeatureRepository.findByUserAndFeature(user, feature));
     }
 
-    // Forgotten Password
+    // Stage 1 of Forgotten Password, user knows username and email
     public void resetPasswordByUsernameAndEmail(String username, String email)
-            throws ResourceNotFoundException, MailException {
+            throws ResourceNotFoundException, MailException, MessagingException {
+
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find account");
@@ -914,10 +904,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             // Set the new password
             user.setPassword(CommonUtils.getAuthToken());
-            emailService.sendEmail(getForgottenPassword(user));
-            // Hash the password
-            user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
 
+            // email the user
+            emailService.sendEmail(getPasswordResetEmail(user));
+
+            // Hash the password and save user
+            user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
             userRepository.save(user);
         } else {
             throw new ResourceNotFoundException("Could not find account");
@@ -981,15 +973,47 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return user;
     }
 
-    private Email getForgottenPassword(User user) {
+    private Email getPasswordResetEmail(User user) {
         Email email = new Email();
+        email.setSender(properties.getProperty("smtp.sender"));
+        email.setRecipients(new String[]{user.getEmail()});
+        email.setSubject("PatientView - Your Password Has Been Reset");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Dear ");
+        sb.append(user.getForename());
+        sb.append(" ");
+        sb.append(user.getSurname());
+        sb.append(", <br/><br/>Your password on <a href=\"");
+        sb.append(properties.getProperty("site.url"));
+        sb.append("\">PatientView</a> ");
+        sb.append("has been reset. Your new password is: <br/><br/>");
+        sb.append(user.getPassword());
+        email.setBody(sb.toString());
+
+        return email;
+    }
+
+    private Email getVerifyEmailEmail(User user) {
+        Email email = new Email();
+        email.setSender(properties.getProperty("smtp.sender"));
+        email.setSubject("PatientView - Please Verify Your Account");
         email.setRecipients(new String[]{user.getEmail()});
 
-        StringBuilder body = new StringBuilder();
-        body.append("Your password has been reset\n");
-        body.append("Your new password is :").append(user.getPassword()).append("\n");
-        email.setBody(body.toString());
-        email.setSubject("PatientView - Password Reset");
+        StringBuilder sb = new StringBuilder();
+        sb.append("Dear ");
+        sb.append(user.getForename());
+        sb.append(" ");
+        sb.append(user.getSurname());
+        sb.append(", <br/><br/>Please <a href=\"");
+        sb.append(properties.getProperty("site.url"));
+        sb.append("/#/verify?userId=");
+        sb.append(user.getId());
+        sb.append("&verificationCode=");
+        sb.append(user.getVerificationCode());
+        sb.append("\">click here</a> to validate the email address associated with your account on PatientView.");
+        email.setBody(sb.toString());
+
         return email;
     }
 }

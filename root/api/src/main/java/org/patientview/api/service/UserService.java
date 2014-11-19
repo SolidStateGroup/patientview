@@ -14,9 +14,11 @@ import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
+import org.springframework.mail.MailException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.util.List;
 
@@ -88,7 +90,8 @@ public interface UserService {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
-    Boolean sendVerificationEmail(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+    Boolean sendVerificationEmail(Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException;
 
     @AuditTrail(value = AuditActions.VERIFY_EMAIL, objectType = User.class)
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
@@ -103,7 +106,9 @@ public interface UserService {
     void deleteFeature(Long userId, Long featureId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    void resetPasswordByUsernameAndEmail(String username, String email) throws ResourceNotFoundException;
+    // Stage 1 of Forgotten Password, user knows username and email
+    void resetPasswordByUsernameAndEmail(String username, String email)
+            throws ResourceNotFoundException, MailException, MessagingException ;
 
     @UserOnly
     void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;

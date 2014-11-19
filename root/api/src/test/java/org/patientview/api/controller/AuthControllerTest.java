@@ -14,10 +14,13 @@ import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.springframework.http.MediaType;
+import org.springframework.mail.MailException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import javax.mail.MessagingException;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -84,7 +87,7 @@ public class AuthControllerTest {
      *
      */
     @Test
-    public void testForgottenPassword() throws ResourceNotFoundException {
+    public void testForgottenPassword() throws ResourceNotFoundException, MailException, MessagingException {
 
         ForgottenCredentials forgottenCredentials = new ForgottenCredentials();
         forgottenCredentials.setEmail("rememberedEmail");

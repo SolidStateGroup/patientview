@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import java.util.Collection;
 import java.util.List;
 
@@ -115,10 +117,11 @@ public class GroupController extends BaseController<GroupController> {
         return new ResponseEntity<>(groupStatisticTO, HttpStatus.OK);
     }
 
+    // Second stage of forgotten password, if username or email have been forgotten
     @RequestMapping(value = "/public/passwordrequest/group/{groupId}", method = RequestMethod.POST)
     @ResponseBody
     public void passwordRequest(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, MailException, MessagingException {
         groupService.passwordRequest(groupId, unitRequest);
     }
 

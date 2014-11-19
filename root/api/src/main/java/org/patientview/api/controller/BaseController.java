@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.lang.reflect.ParameterizedType;
 
@@ -119,6 +120,14 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public String handleMailException(MailException e) {
         LOG.error("Mail exception {}", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(MessagingException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleMessagingException(MessagingException e) {
+        LOG.error("Messaging exception {}", e);
         return e.getMessage();
     }
 

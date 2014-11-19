@@ -52,16 +52,19 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -111,6 +114,9 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    private Properties properties;
 
     /**
      * Get all the groups and put the children and parents into the transient objects
@@ -460,14 +466,16 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return Util.convertIterable(groupRepository.findChildren(group));
     }
 
-    public void passwordRequest(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException, MailException {
+    // Second stage of forgotten password, if username or email have been forgotten
+    public void passwordRequest(Long groupId, UnitRequest unitRequest)
+            throws ResourceNotFoundException, MailException, MessagingException {
         Group group = findGroup(groupId);
 
         if (group == null) {
             throw new ResourceNotFoundException("The unit has not been found");
         }
 
-        Email email = createPasswordResetEmail(unitRequest, group);
+        Email email = createPasswordRequestEmail(unitRequest, group);
         ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
 
         if (contactPoint == null) {
@@ -632,21 +640,30 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return group;
     }
 
-    //Sprint 3 - velocity templates
-    private Email createPasswordResetEmail(UnitRequest unitRequest, Group group) {
+    // Sprint 3 - velocity templates
+    // Second stage of forgotten password, if username or email have been forgotten
+    private Email createPasswordRequestEmail(UnitRequest unitRequest, Group group) {
         Email email = new Email();
-        email.setSubject("PatientView - Request for password reset");
+        email.setSender(properties.getProperty("smtp.sender"));
+        email.setSubject("PatientView - Request for Password Reset");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
+        String date = sdf.format(unitRequest.getDateOfBirth());
 
         StringBuilder body = new StringBuilder();
-        body.append("The following user would like to request a password reset");
-        body.append("Forename: ").append(unitRequest.getForename());
-        body.append("Surname: ").append(unitRequest.getSurname());
-        body.append("DOB: ").append(unitRequest.getDateOfBirth());
-        body.append("NHS Number: ").append(unitRequest.getNhsNumber());
-        body.append("Associated Unit: ").append(group.getName());
+        body.append("Dear Sir/Madam, <br/><br/>");
+        body.append("The following user would like to request a password reset on ");
+        body.append("<a href=\"");
+        body.append(properties.getProperty("site.url"));
+        body.append("\">PatientView</a>: ");
+        body.append("<br/><br/>Forename: ").append(unitRequest.getForename());
+        body.append("<br/>Surname: ").append(unitRequest.getSurname());
+        body.append("<br/>DOB: ");
+        body.append(date);
+        body.append("<br/>NHS Number: ").append(unitRequest.getNhsNumber());
+        body.append("<br/>Associated Unit: ").append(group.getName());
 
         email.setBody(body.toString());
-
         return email;
     }
 

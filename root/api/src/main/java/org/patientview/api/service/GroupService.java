@@ -15,9 +15,11 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
+import org.springframework.mail.MailException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import java.util.List;
 import java.util.UUID;
@@ -78,7 +80,8 @@ public interface GroupService {
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteFeature(Long groupId, Long featureId);
 
-    void passwordRequest(Long groupId, UnitRequest unitRequest) throws ResourceNotFoundException;
+    void passwordRequest(Long groupId, UnitRequest unitRequest)
+            throws ResourceNotFoundException, MailException, MessagingException;
 
     List<Group> addParentAndChildGroups(List<Group> groups);
 

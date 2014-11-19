@@ -1,8 +1,11 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
+import org.patientview.api.model.Email;
 import org.patientview.api.service.ConversationService;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
@@ -33,10 +36,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.MailException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,6 +50,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -78,6 +84,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private EmailService emailService;
+
+    @Inject
+    private Properties properties;
 
     public Conversation get(Long conversationId) {
         return anonymiseConversation(conversationRepository.findOne(conversationId));
@@ -328,14 +340,52 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newConversation.setMessages(messageSet);
 
         // set conversation users
-        newConversation.setConversationUsers(createEntityConversationUserSet(conversation.getConversationUsers(),
-                newConversation, creator));
+        Set<ConversationUser> conversationUsers = createEntityConversationUserSet(conversation.getConversationUsers(),
+                newConversation, creator);
+        newConversation.setConversationUsers(conversationUsers);
+
+        // send email notification to conversation users
+        sendNewConversationEmails(conversationUsers);
 
         // set updated, used in UI to order conversations
         newConversation.setLastUpdate(new Date());
 
         // persist conversation
         conversationRepository.save(newConversation);
+    }
+
+    private void sendNewConversationEmails(Set<ConversationUser> conversationUsers) {
+
+        for (ConversationUser conversationUser : conversationUsers) {
+            User user = conversationUser.getUser();
+
+            // only send messages to other users, not current user and only if user has email address
+            if (!user.equals(getCurrentUser()) && StringUtils.isNotEmpty(user.getEmail())) {
+
+                Email email = new Email();
+                email.setSender(properties.getProperty("smtp.sender"));
+                email.setSubject("PatientView - you have a new message");
+                email.setRecipients(new String[]{user.getEmail()});
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Dear ");
+                sb.append(user.getForename());
+                sb.append(" ");
+                sb.append(user.getSurname());
+                sb.append(", <br/><br/>You have a new message on PatientView.");
+                sb.append("<br/><br/>Please visit <a href=\"");
+                sb.append(properties.getProperty("site.url"));
+                sb.append("\">the PatientView website</a> and log in to view your message.");
+                email.setBody(sb.toString());
+
+                // try and send but ignore if exception and log
+                try {
+                    emailService.sendEmail(email);
+                } catch (MailException | MessagingException me) {
+                    LOG.error("Cannot send email: {}", me);
+                }
+            }
+        }
     }
 
     public void addMessageReadReceipt(Long messageId, Long userId)

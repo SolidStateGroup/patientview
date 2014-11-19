@@ -10,8 +10,11 @@ import org.patientview.api.service.impl.EmailServiceImpl;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.mail.MessagingException;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -26,7 +29,7 @@ public class EmailServiceTest {
 
     @Ignore("Email should be tested manually")
     @Test
-    public void testSendEmail() {
+    public void testSendEmail() throws MailException, MessagingException {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
 
         Email email = new Email();

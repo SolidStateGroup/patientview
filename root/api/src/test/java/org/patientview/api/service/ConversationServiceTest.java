@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.mockito.Matchers.eq;
@@ -50,6 +51,12 @@ public class ConversationServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    Properties properties;
+
+    @Mock
+    EmailService emailService;
 
     @InjectMocks
     ConversationService conversationService = new ConversationServiceImpl();
@@ -107,6 +114,7 @@ public class ConversationServiceTest {
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
         when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
         when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(properties.getProperty(eq("site.url"))).thenReturn("");
 
         TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
 
