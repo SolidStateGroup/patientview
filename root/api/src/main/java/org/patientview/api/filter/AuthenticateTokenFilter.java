@@ -57,6 +57,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // patient password request (contact unit)
         publicUrls.add("/public/passwordrequest");
 
+        // verify email
+        publicUrls.add("/verify");
+
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
         }

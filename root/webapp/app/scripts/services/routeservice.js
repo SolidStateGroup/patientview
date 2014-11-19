@@ -2,23 +2,21 @@
 
 angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', function ($q, Restangular) {
     return {
-        getDefault: function() {
+        getVerifyRoute: function() {
             return {
-                'routes': [{
-                    'url': '/verify',
-                    'templateUrl': 'views/verify.html',
-                    'controller': 'VerifyCtrl',
-                    'title': 'Verify',
-                    'lookup': {
-                        'id': 5,
-                        'value': 'NOT_DISPLAYED',
-                        'lookupType': {
-                            'id': 2,
-                            'type': 'MENU',
-                            'description': 'Type of menu'
-                        }
+                'url': '/verify',
+                'templateUrl': 'views/verify.html',
+                'controller': 'VerifyCtrl',
+                'title': 'Verify',
+                'lookup': {
+                    'id': 5,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 2,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
                     }
-                }]
+                }
             };
         },
         getMainRoute: function() {

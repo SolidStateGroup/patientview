@@ -37,10 +37,8 @@ var patientviewApp = angular.module('patientviewApp', [
     'restangular',          // restangular rest
     'ui.bootstrap',         // angular ui boostrap
     'ngSanitize',           // angular sanitize for more html parsing
-    'googlechart',          // angular-google-chart https://github.com/bouil/angular-google-chart
     'ngCookies',
     'ngResource',
-    'ngSanitize',
     'ngRoute'
 ]);
 
@@ -79,22 +77,21 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     // rebuild routes from cookie, allow refresh of page
     var buildRoute = function() {
         var data = { 'default': '/' };
+        data.routes = [];
         var menu = localStorageService.get('routes');
 
         if (menu !== null) {
             // handle caching issue where routes are []
             if (menu.length === 0) {
                 $rootScope.logout();
-                data.routes = RouteService.getDefault().routes;
             } else {
                 data.routes = menu;
             }
-        } else {
-            data.routes = RouteService.getDefault().routes;
         }
 
         // add main/login/logout routes (for all users)
         data.routes.push(RouteService.getMainRoute());
+        data.routes.push(RouteService.getVerifyRoute());
         data.routes.push(RouteService.getLogoutRoute());
         data.routes.push(RouteService.getLoginRoute());
         data.routes.push(RouteService.getAccountRoute());

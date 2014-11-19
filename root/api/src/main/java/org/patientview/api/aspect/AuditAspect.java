@@ -72,23 +72,28 @@ public class AuditAspect {
         auditService.save(audit);
     }
 
-    // todo: better error handling
     private Audit createAudit(AuditTrail auditTrail, Long objectId) {
 
         User user = null;
         try {
-            user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            }
         } catch (NullPointerException npe) {
             LOG.debug("Audit cannot get security context");
         }
 
-        User entityUser = userRepository.findOne(user.getId());
-
         Audit audit = new Audit();
-        if (entityUser != null) {
-            audit.setActorId(entityUser.getId());
-        }
         audit.setSourceObjectId(objectId);
+
+        // handle audit when no currently logged in user (e.g. verify email)
+        if (user != null) {
+            User entityUser = userRepository.findOne(user.getId());
+
+            if (entityUser != null) {
+                audit.setActorId(entityUser.getId());
+            }
+        }
 
         for (AuditObjectTypes auditObjectType : AuditObjectTypes.class.getEnumConstants()) {
             if (auditObjectType.getName().equals(auditTrail.objectType().getSimpleName())) {

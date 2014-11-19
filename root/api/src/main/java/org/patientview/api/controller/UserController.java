@@ -9,6 +9,7 @@ import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.api.model.User;
 import org.patientview.persistence.model.MigrationUser;
@@ -218,8 +219,8 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Boolean> verify(@PathVariable("userId") Long userId,
-        @PathVariable("verificationCode") String verificationCode) throws ResourceNotFoundException {
-        LOG.debug("User with userId : {} is verifying with code {}", userId, verificationCode);
+        @PathVariable("verificationCode") String verificationCode)
+            throws ResourceNotFoundException, VerificationException {
         return new ResponseEntity<>(userService.verify(userId, verificationCode), HttpStatus.OK);
     }
 

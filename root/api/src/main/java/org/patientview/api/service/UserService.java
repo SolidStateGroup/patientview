@@ -6,6 +6,7 @@ import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
@@ -89,7 +90,7 @@ public interface UserService {
     Boolean sendVerificationEmail(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     @AuditTrail(value = AuditActions.VERIFY_EMAIL, objectType = User.class)
-    Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException;
+    Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
 
     @AuditTrail(value = AuditActions.ADD_FEATURE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })

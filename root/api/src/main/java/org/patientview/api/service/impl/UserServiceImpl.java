@@ -13,6 +13,7 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
@@ -852,14 +853,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return emailService.sendEmail(email);
     }
 
-    public Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException {
+    public Boolean verify(Long userId, String verificationCode)
+            throws ResourceNotFoundException, VerificationException {
         User user = findUser(userId);
         if (user.getVerificationCode().equals(verificationCode)) {
             user.setEmailVerified(true);
             userRepository.save(user);
             return true;
+        } else {
+            throw new VerificationException("Verification code does not match");
         }
-        return false;
     }
 
     public void addFeature(Long userId, Long featureId)

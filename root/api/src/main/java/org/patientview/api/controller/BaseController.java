@@ -4,6 +4,7 @@ import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.VerificationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -118,6 +119,14 @@ public abstract class BaseController<T extends BaseController> {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public String handleMailException(MailException e) {
         LOG.error("Mail exception {}", e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(VerificationException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleMailException(VerificationException e) {
+        LOG.error("Verification exception {}", e);
         return e.getMessage();
     }
 }
