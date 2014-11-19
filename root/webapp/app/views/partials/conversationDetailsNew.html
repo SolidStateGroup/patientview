@@ -42,7 +42,7 @@
                         user.id as
                         user.description.length ? user.description : '&nbsp;' + '&nbsp;&nbsp;' +
                         user.forename + ' ' + user.surname +
-                        (user.dateOfBirth ? '(' + (user.dateOfBirth | date:'dd-MMM-yyyy') + ')' : '')
+                        (user.dateOfBirth ? ' &nbsp;(' + (user.dateOfBirth | date:'dd-MMM-yyyy') + ')' : '')
                         for user in newConversation.availableRecipients
                         "></select>
 
