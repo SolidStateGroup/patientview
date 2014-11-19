@@ -128,10 +128,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private void redirectFailedAuthentication(HttpServletResponse response) {
         try {
-            response.sendRedirect("/api/error");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         } catch (IOException ioe) {
-            LOG.error("Could not redirect response");
-            throw new RuntimeException("Error redirecting unauthorised request");
+            LOG.error("Could not send 401");
+            throw new RuntimeException("Error sending 401 for unauthorised request");
         }
     }
 
