@@ -187,7 +187,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public void deleteGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        deleteGroupRoleRelationship(userId, groupId, roleId);
+        deleteGroupRoleRelationship(userId, groupId, roleId, true);
 
         // if a user is removed from all child groups the parent group (if present) is also removed
         // e.g. remove Renal (specialty) if RenalA (unit) is removed and these are the only 2 groups present
@@ -228,7 +228,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // remove any specialty groups with no children
         for (GroupRole groupRole : toRemove) {
             deleteGroupRoleRelationship(groupRole.getUser().getId(), groupRole.getGroup().getId(),
-                    groupRole.getRole().getId());
+                    groupRole.getRole().getId(), false);
         }
     }
 
@@ -237,7 +237,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRoleRepository.removeAllGroupRoles(findUser(userId));
     }
 
-    private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId)
+    private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId, boolean checkGroupMembership)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         Group entityGroup = groupRepository.findOne(groupId);
@@ -246,7 +246,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // check if current user is a member of the group to be removed
-        if (!isCurrentUserMemberOfGroup(entityGroup)) {
+        if (checkGroupMembership && !isCurrentUserMemberOfGroup(entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
