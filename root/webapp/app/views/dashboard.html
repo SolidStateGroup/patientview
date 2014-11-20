@@ -37,7 +37,7 @@
                                 </ul>
                             </dd>
                         </dl>
-                        <dl class="col-md-6" data-ng-show="permissions.isPatient">
+                        <dl class="col-md-6 last-login" data-ng-show="permissions.isPatient">
                             <dt>Data last received:</dt>
                             <dd data-ng-show="loggedInUser.latestDataReceivedDate && loggedInUser.latestDataReceivedBy">
                                 <a href="#/results">{{loggedInUser.latestDataReceivedDate | date:'dd-MMM-yyyy HH:mm'}}</a>

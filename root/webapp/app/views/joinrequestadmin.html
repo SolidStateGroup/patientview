@@ -71,7 +71,7 @@
             <div class="row-item accordion-heading-text">{{joinRequest.forename}} {{joinRequest.surname}}</div>
             <div class="row-item accordion-heading-text">{{joinRequest.dateOfBirth  | date:'dd-MMM-yyyy'}}</div>
             <div class="row-item accordion-heading-text">{{joinRequest.nhsNumber}}</div>
-            <div class="row-item accordion-heading-text">{{joinRequest.email}}</div>
+            <div class="row-item accordion-heading-text row-break">{{joinRequest.email}}</div>
             <div class="row-item accordion-heading-text">{{joinRequest.group.name}}</div>
             <div class="row-item accordion-heading-text">{{joinRequest.created  | date:'dd-MMM-yyyy'}}</div>
             <div class="row-item accordion-heading-text">
@@ -83,7 +83,7 @@
                 {{joinRequest.status}}
             </div>
             <div class="row-item accordion-heading-text">
-                <button type="button" class="btn blue" data-ng-click="opened(joinRequest)">Edit</button>
+                <button type="button" class="btn blue edit-button" data-ng-click="opened(joinRequest)">Edit</button>
             </div>
         </div>
         <div class="panel-body" data-ng-show="joinRequest.showEdit">
