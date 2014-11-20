@@ -55,6 +55,12 @@
             .dropdown {
                 > button {
                     width: 44px;
+                    padding-left:8px;
+                    padding-right:8px;
+
+                    .caret{
+                        margin-right:12px;
+                    }
                 }
             }
         }
