@@ -46,9 +46,24 @@
 }
 /* line 52, ../sass/ie.scss */
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group {
-  width: 130px;
+  width: 140px;
 }
-/* line 56, ../sass/ie.scss */
+/* line 55, ../sass/ie.scss */
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .btn {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+/* line 59, ../sass/ie.scss */
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .btn .caret {
+  margin-right: 12px;
+}
+/* line 65, ../sass/ie.scss */
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button {
   width: 44px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+/* line 70, ../sass/ie.scss */
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button .caret {
+  margin-right: 12px;
 }
