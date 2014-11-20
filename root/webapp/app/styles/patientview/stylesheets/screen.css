@@ -1776,8 +1776,8 @@ label {
 }
 /* line 238, ../sass/_forms.scss */
 .group-list-item li.group-list-name {
-  width: 62%;
-  font-size: 1.5rem;
+  width: 52%;
+  font-size: 1.3rem;
   color: #4a4a4a;
   background: #f8f8f8;
   border: 1px solid #e4e9f0;
@@ -1788,7 +1788,7 @@ label {
   font-size: 3rem;
   padding: 0 10px;
   font-weight: bold;
-  width: 130px;
+  width: 180px;
 }
 /* line 253, ../sass/_forms.scss */
 .group-list-item li.group-list-role span {
