@@ -269,7 +269,7 @@ public class UserServiceTest {
      * Fail: Service is not called and the change password flag is not set
      */
     @Test
-    public void testPasswordReset() throws ResourceNotFoundException, ResourceForbiddenException {
+    public void testPasswordReset() throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
