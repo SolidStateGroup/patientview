@@ -231,6 +231,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         entityConversation.setLastUpdate(new Date());
 
         conversationRepository.save(entityConversation);
+
+        // send email notification to conversation users
+        sendNewMessageEmails(entityConversation.getConversationUsers());
     }
 
     private User findEntityUser(Long userId) throws ResourceNotFoundException {
@@ -242,8 +245,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     private Set<ConversationUser> createEntityConversationUserSet(Set<ConversationUser> conversationUsers,
-                                                                  Conversation conversation, User creator)
-            throws ResourceNotFoundException {
+            Conversation conversation, User creator) throws ResourceNotFoundException {
 
         Set<ConversationUser> conversationUserSet = new HashSet<>();
 
@@ -345,7 +347,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newConversation.setConversationUsers(conversationUsers);
 
         // send email notification to conversation users
-        sendNewConversationEmails(conversationUsers);
+        sendNewMessageEmails(conversationUsers);
 
         // set updated, used in UI to order conversations
         newConversation.setLastUpdate(new Date());
@@ -354,7 +356,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         conversationRepository.save(newConversation);
     }
 
-    private void sendNewConversationEmails(Set<ConversationUser> conversationUsers) {
+    private void sendNewMessageEmails(Set<ConversationUser> conversationUsers) {
 
         for (ConversationUser conversationUser : conversationUsers) {
             User user = conversationUser.getUser();

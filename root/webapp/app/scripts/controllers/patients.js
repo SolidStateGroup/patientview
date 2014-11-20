@@ -189,13 +189,35 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         // can delete permanently
         $scope.user.canDelete = permissions.canDeleteUsers;
 
-        // remove from my units
+        // remove from my groups
         $scope.removeFromMyGroups = function () {
             var promises = [];
+            var groupsToRemove = [];
+            var userNonSpecialtyGroups = [];
+
+            // get userNonSpecialtyGroups
+            for (j=0;j<user.groupRoles.length;j++) {
+                var groupRoleGroupCode = user.groupRoles[j].group.code;
+                var groupRoleGroupType = user.groupRoles[j].group.groupType.value;
+
+                if (groupRoleGroupCode !== 'Generic' && groupRoleGroupType !== 'SPECIALTY') {
+                    userNonSpecialtyGroups.push(user.groupRoles[j].group);
+                }
+            }
+
+            // find intersection of userNonSpecialtyGroups and allGroups
+            for (i = 0; i< allGroups.length; i++) {
+                for (j = 0; j < userNonSpecialtyGroups.length; j++) {
+                    if (allGroups[i].id === userNonSpecialtyGroups[j].id) {
+                        groupsToRemove.push(allGroups[i]);
+                    }
+                }
+            }
+
             // remove group roles from user where group is my unit with multiple deleteGroupRole
-            for (i=0;i<allGroups.length;i++) {
+            for (i=0;i<groupsToRemove.length;i++) {
                 for (j=0;j<allRoles.length;j++) {
-                    promises.push(UserService.deleteGroupRole(user, allGroups[i].id, allRoles[j].id));
+                    promises.push(UserService.deleteGroupRole(user, groupsToRemove[i].id, allRoles[j].id));
                 }
             }
             $q.all(promises).then(function () {
