@@ -674,12 +674,19 @@ public class UserServiceTest {
         // create group relationships
         group3.getGroupRelationships().add(TestUtils.createGroupRelationship(group3, group1, RelationshipTypes.PARENT));
 
-        Role roleUnitAdmin = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        Role roleUnitStaff = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
+        roleType.setValue(RoleType.STAFF);
+        roleUnitStaff.setRoleType(roleType);
+
         Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        org.patientview.persistence.model.RoleType roleType2 = new org.patientview.persistence.model.RoleType();
+        roleType2.setValue(RoleType.PATIENT);
+        rolePatient.setRoleType(roleType2);
 
         // current user and security
         User user = TestUtils.createUser("testUser");
-        GroupRole groupRole = TestUtils.createGroupRole(roleUnitAdmin, group1, user);
+        GroupRole groupRole = TestUtils.createGroupRole(roleUnitStaff, group1, user);
         Set<GroupRole> groupRoles = new HashSet<>();
         groupRoles.add(groupRole);
         user.setGroupRoles(groupRoles);
@@ -697,12 +704,18 @@ public class UserServiceTest {
         User switchUser3 = TestUtils.createUser("switch3");
         switchUser3.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group3, switchUser3));
 
+        // unit admin in same group (no)
+        User switchUser4 = TestUtils.createUser("switch4");
+        switchUser4.getGroupRoles().add(TestUtils.createGroupRole(roleUnitStaff, group1, switchUser4));
+
         Assert.assertEquals("Should be able to get patient in same unit", true,
                 userService.currentUserCanSwitchToUser(switchUser1));
         Assert.assertEquals("Should not be able to get patient in another unit", false,
                 userService.currentUserCanSwitchToUser(switchUser2));
         Assert.assertEquals("Should not be able to get patient in same specialty", false,
                 userService.currentUserCanSwitchToUser(switchUser3));
+        Assert.assertEquals("Should not be able to get unit admin in same unit", false,
+                userService.currentUserCanSwitchToUser(switchUser4));
     }
 
     @Test
@@ -715,7 +728,14 @@ public class UserServiceTest {
         group3.getGroupRelationships().add(TestUtils.createGroupRelationship(group3, group1, RelationshipTypes.PARENT));
 
         Role roleUnitAdmin = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
+        roleType.setValue(RoleType.STAFF);
+        roleUnitAdmin.setRoleType(roleType);
+
         Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        org.patientview.persistence.model.RoleType roleType2 = new org.patientview.persistence.model.RoleType();
+        roleType2.setValue(RoleType.PATIENT);
+        rolePatient.setRoleType(roleType2);
 
         // current user and security
         User user = TestUtils.createUser("testUser");
@@ -737,12 +757,18 @@ public class UserServiceTest {
         User switchUser3 = TestUtils.createUser("switch3");
         switchUser3.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group3, switchUser3));
 
+        // unit admin in same group (no)
+        User switchUser4 = TestUtils.createUser("switch4");
+        switchUser4.getGroupRoles().add(TestUtils.createGroupRole(roleUnitAdmin, group1, switchUser4));
+
         Assert.assertEquals("Should be able to get patient in same unit", true,
                 userService.currentUserCanSwitchToUser(switchUser1));
         Assert.assertEquals("Should not be able to get patient in another unit", false,
                 userService.currentUserCanSwitchToUser(switchUser2));
         Assert.assertEquals("Should not be able to get patient in same specialty", false,
                 userService.currentUserCanSwitchToUser(switchUser3));
+        Assert.assertEquals("Should not be able to get unit admin in same unit", false,
+                userService.currentUserCanSwitchToUser(switchUser4));
     }
 
     @Test
@@ -759,7 +785,13 @@ public class UserServiceTest {
         roleType.setValue(RoleType.STAFF);
         roleSpecialtyAdmin.setRoleType(roleType);
 
+        Role roleUnitAdmin = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        roleUnitAdmin.setRoleType(roleType);
+
         Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        org.patientview.persistence.model.RoleType roleType2 = new org.patientview.persistence.model.RoleType();
+        roleType2.setValue(RoleType.PATIENT);
+        rolePatient.setRoleType(roleType2);
 
         // current user and security
         User user = TestUtils.createUser("testUser");
@@ -781,11 +813,17 @@ public class UserServiceTest {
         User switchUser3 = TestUtils.createUser("switch3");
         switchUser3.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group3, switchUser3));
 
+        // unit admin in same group (no)
+        User switchUser4 = TestUtils.createUser("switch4");
+        switchUser4.getGroupRoles().add(TestUtils.createGroupRole(roleUnitAdmin, group1, switchUser4));
+
         Assert.assertEquals("Should be able to get patient in same unit", true,
                 userService.currentUserCanSwitchToUser(switchUser1));
         Assert.assertEquals("Should not be able to get patient in another unit", false,
                 userService.currentUserCanSwitchToUser(switchUser2));
         Assert.assertEquals("Should be able to get patient in same specialty", true,
                 userService.currentUserCanSwitchToUser(switchUser3));
+        Assert.assertEquals("Should not be able to get unit admin in same unit", false,
+                userService.currentUserCanSwitchToUser(switchUser4));
     }
 }

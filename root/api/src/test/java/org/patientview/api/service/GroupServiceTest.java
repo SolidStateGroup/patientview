@@ -332,7 +332,6 @@ public class GroupServiceTest {
         }
     }
 
-
     /**
      * Test: To simple call to the repository to retrieve child groups
      *
