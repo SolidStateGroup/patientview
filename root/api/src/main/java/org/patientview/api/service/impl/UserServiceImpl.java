@@ -816,15 +816,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * On a password reset the user should change on login
      */
     public org.patientview.api.model.User resetPassword(Long userId, String password)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
         User user = findUser(userId);
 
         if (!canGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        user.setChangePassword(Boolean.TRUE);
+        emailService.sendEmail(getPasswordResetEmail(user, password));
+
         user.setPassword(DigestUtils.sha256Hex(password));
+        user.setChangePassword(Boolean.TRUE);
         return new org.patientview.api.model.User(userRepository.save(user), null);
     }
 
@@ -903,13 +905,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             user.setChangePassword(Boolean.TRUE);
 
             // Set the new password
-            user.setPassword(CommonUtils.getAuthToken());
+            String password = CommonUtils.generatePassword();
 
             // email the user
-            emailService.sendEmail(getPasswordResetEmail(user));
+            emailService.sendEmail(getPasswordResetEmail(user, password));
 
             // Hash the password and save user
-            user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+            user.setPassword(DigestUtils.sha256Hex(password));
             userRepository.save(user);
         } else {
             throw new ResourceNotFoundException("Could not find account");
@@ -973,7 +975,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return user;
     }
 
-    private Email getPasswordResetEmail(User user) {
+    private Email getPasswordResetEmail(User user, String password) {
         Email email = new Email();
         email.setSender(properties.getProperty("smtp.sender"));
         email.setRecipients(new String[]{user.getEmail()});
@@ -988,7 +990,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         sb.append(properties.getProperty("site.url"));
         sb.append("\">PatientView</a> ");
         sb.append("has been reset. Your new password is: <br/><br/>");
-        sb.append(user.getPassword());
+        sb.append(password);
         email.setBody(sb.toString());
 
         return email;

@@ -87,7 +87,7 @@ public interface UserService {
 
     @AuditTrail(value = AuditActions.RESET_PASSWORD, objectType = User.class)
     org.patientview.api.model.User resetPassword(Long userId, String password)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException, MessagingException;
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Boolean sendVerificationEmail(Long userId)

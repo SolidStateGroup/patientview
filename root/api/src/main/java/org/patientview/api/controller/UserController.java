@@ -179,7 +179,8 @@ public class UserController extends BaseController<UserController> {
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> resetPassword(@PathVariable("userId") Long userId,
-            @RequestBody Credentials credentials) throws ResourceNotFoundException, ResourceForbiddenException {
+            @RequestBody Credentials credentials)
+            throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
 
         if (StringUtils.isEmpty(credentials.getPassword())) {
             LOG.debug("A password must be supplied");

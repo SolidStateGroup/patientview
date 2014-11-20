@@ -15,4 +15,9 @@ public final class CommonUtils {
         return RandomStringUtils.randomAlphanumeric(48);
     }
 
+
+    public static String generatePassword() {
+        return RandomStringUtils.randomAlphanumeric(12);
+    }
+
 }
