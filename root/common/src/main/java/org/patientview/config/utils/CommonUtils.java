@@ -12,7 +12,7 @@ public final class CommonUtils {
     }
 
     public static String getAuthToken() {
-        return RandomStringUtils.randomAlphanumeric(12);
+        return RandomStringUtils.randomAlphanumeric(48);
     }
 
 }
