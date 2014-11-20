@@ -9,6 +9,7 @@ import org.patientview.api.service.GroupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.SecurityService;
 import org.patientview.api.service.StaticDataManager;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
@@ -87,6 +88,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private GroupService groupService;
 
     @Inject
+    private UserService userService;
+
+    @Inject
     private StaticDataManager staticDataManager;
 
     @Inject
@@ -110,12 +114,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("Cannot switch user, user not found");
         }
 
-        // TODO handled with aspects
-        createAudit(AuditActions.SWITCH_USER, user.getUsername(), getCurrentUser(),
-                user.getId(), AuditObjectTypes.User);
+        if (!userService.currentUserCanSwitchToUser(user)) {
+            throw new AuthenticationServiceException("Forbidden");
+        }
 
         Date now = new Date();
-
         UserToken userToken = new UserToken();
         userToken.setUser(user);
         userToken.setToken(CommonUtils.getAuthToken());
@@ -123,6 +126,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setExpiration(new Date(now.getTime() + sessionLength));
         userToken = userTokenRepository.save(userToken);
         userRepository.save(user);
+
+        createAudit(AuditActions.SWITCH_USER, user.getUsername(), getCurrentUser(),
+                user.getId(), AuditObjectTypes.User);
 
         return userToken.getToken();
     }

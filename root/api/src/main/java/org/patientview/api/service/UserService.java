@@ -120,4 +120,8 @@ public interface UserService {
 
     @AuditTrail(value = AuditActions.CREATE_USER, objectType = User.class)
     Long add(User user) throws EntityExistsException;
+
+    boolean currentUserCanGetUser(User user);
+
+    boolean currentUserCanSwitchToUser(User user);
 }

@@ -405,7 +405,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceNotFoundException("User with this ID does not exist");
         }
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -421,7 +421,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return transportUser;
     }
 
-    private boolean canGetUser(User user) {
+    @Override
+    public boolean currentUserCanGetUser(User user) {
         // if i am trying to access myself
         if (getCurrentUser().equals(user)) {
             return true;
@@ -438,6 +439,27 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
 
             return true;
+        }
+
+        // if i have staff group role in same groups
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean currentUserCanSwitchToUser(User user) {
+        // if i am trying to access myself
+        if (getCurrentUser().equals(user)) {
+            return true;
+        }
+
+        // if i am trying to access a non patient user
+        if (!isUserAPatient(user)) {
+            return false;
         }
 
         // if i have staff group role in same groups
@@ -495,7 +517,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        if (!canGetUser(entityUser)) {
+        if (!currentUserCanGetUser(entityUser)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -517,36 +539,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setEmail(user.getEmail());
         entityUser.setContactNumber(user.getContactNumber());
         userRepository.save(entityUser);
-    }
-
-    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
-        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
-
-        for (User user : users) {
-            // if patient, add patient specific FHIR details
-            Set<FhirLink> fhirLinks = user.getFhirLinks();
-            if (fhirLinks.isEmpty()) {
-                transportUsers.add(new org.patientview.api.model.User(user, null));
-            } else {
-                // is a patient (has FHIR content), get most recent FHIR data and populate transport object
-                FhirLink recentFhirData = fhirLinks.iterator().next();
-                for (FhirLink fhirLink : fhirLinks) {
-                    if (fhirLink.getCreated().after(recentFhirData.getCreated())) {
-                        recentFhirData = fhirLink;
-                    }
-                }
-
-                try {
-                    Patient fhirPatient = patientService.get(recentFhirData.getResourceId());
-                    transportUsers.add(new org.patientview.api.model.User(user, fhirPatient));
-                } catch (FhirResourceException fre) {
-                    LOG.error("FhirResourceException on retrieving patient data");
-                    transportUsers.add(new org.patientview.api.model.User(user, null));
-                }
-            }
-        }
-
-        return transportUsers;
     }
 
     /**
@@ -789,7 +781,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         User user = findUser(userId);
 
-        if (canGetUser(user)) {
+        if (currentUserCanGetUser(user)) {
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
                 patientService.deleteExistingPatientData(user.getFhirLinks());
@@ -819,7 +811,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
         User user = findUser(userId);
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -837,7 +829,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException {
         User user = findUser(userId);
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -865,7 +857,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Feature not found");
         }
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -885,7 +877,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Feature not found");
         }
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -965,6 +957,47 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException {
         User user = findUser(userId);
         return userInformationRepository.findByUser(user);
+    }
+
+    private List<org.patientview.api.model.User> convertUsersToTransportUsers(List<User> users) {
+        List<org.patientview.api.model.User> transportUsers = new ArrayList<>();
+
+        for (User user : users) {
+            // if patient, add patient specific FHIR details
+            Set<FhirLink> fhirLinks = user.getFhirLinks();
+            if (fhirLinks.isEmpty()) {
+                transportUsers.add(new org.patientview.api.model.User(user, null));
+            } else {
+                // is a patient (has FHIR content), get most recent FHIR data and populate transport object
+                FhirLink recentFhirData = fhirLinks.iterator().next();
+                for (FhirLink fhirLink : fhirLinks) {
+                    if (fhirLink.getCreated().after(recentFhirData.getCreated())) {
+                        recentFhirData = fhirLink;
+                    }
+                }
+
+                try {
+                    Patient fhirPatient = patientService.get(recentFhirData.getResourceId());
+                    transportUsers.add(new org.patientview.api.model.User(user, fhirPatient));
+                } catch (FhirResourceException fre) {
+                    LOG.error("FhirResourceException on retrieving patient data");
+                    transportUsers.add(new org.patientview.api.model.User(user, null));
+                }
+            }
+        }
+
+        return transportUsers;
+    }
+
+    private boolean isUserAPatient(User user) {
+
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (!groupRole.getRole().getRoleType().getValue().equals(RoleType.PATIENT)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private User findUser(Long userId) throws ResourceNotFoundException {

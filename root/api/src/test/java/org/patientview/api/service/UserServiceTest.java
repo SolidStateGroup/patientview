@@ -25,6 +25,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
@@ -661,7 +662,168 @@ public class UserServiceTest {
         org.patientview.api.model.User user2 = userService.getByIdentifierValue(identifier.getIdentifier());
 
         verify(identifierRepository, Mockito.times(1)).findByValue(eq(identifier.getIdentifier()));
-
         Assert.assertNotNull("The user should be returned", user2);
+    }
+
+    @Test
+    public void testCurrentUserCanSwitchToUser_UnitStaff() {
+        Group group1 = TestUtils.createGroup("test1Group");
+        Group group2 = TestUtils.createGroup("test2Group");
+        Group group3 = TestUtils.createGroup("test3Group");
+
+        // create group relationships
+        group3.getGroupRelationships().add(TestUtils.createGroupRelationship(group3, group1, RelationshipTypes.PARENT));
+
+        Role roleUnitStaff = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
+        roleType.setValue(RoleType.STAFF);
+        roleUnitStaff.setRoleType(roleType);
+
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        org.patientview.persistence.model.RoleType roleType2 = new org.patientview.persistence.model.RoleType();
+        roleType2.setValue(RoleType.PATIENT);
+        rolePatient.setRoleType(roleType2);
+
+        // current user and security
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(roleUnitStaff, group1, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // patient in same group (yes)
+        User switchUser1 = TestUtils.createUser("switch1");
+        switchUser1.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group1, switchUser1));
+
+        // patient in another group (no)
+        User switchUser2 = TestUtils.createUser("switch2");
+        switchUser2.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group2, switchUser2));
+
+        // patient in another group in same specialty (no)
+        User switchUser3 = TestUtils.createUser("switch3");
+        switchUser3.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group3, switchUser3));
+
+        // unit admin in same group (no)
+        User switchUser4 = TestUtils.createUser("switch4");
+        switchUser4.getGroupRoles().add(TestUtils.createGroupRole(roleUnitStaff, group1, switchUser4));
+
+        Assert.assertEquals("Should be able to get patient in same unit", true,
+                userService.currentUserCanSwitchToUser(switchUser1));
+        Assert.assertEquals("Should not be able to get patient in another unit", false,
+                userService.currentUserCanSwitchToUser(switchUser2));
+        Assert.assertEquals("Should not be able to get patient in same specialty", false,
+                userService.currentUserCanSwitchToUser(switchUser3));
+        Assert.assertEquals("Should not be able to get unit admin in same unit", false,
+                userService.currentUserCanSwitchToUser(switchUser4));
+    }
+
+    @Test
+    public void testCurrentUserCanSwitchToUser_UnitAdmin() {
+        Group group1 = TestUtils.createGroup("test1Group");
+        Group group2 = TestUtils.createGroup("test2Group");
+        Group group3 = TestUtils.createGroup("test3Group");
+
+        // create group relationships
+        group3.getGroupRelationships().add(TestUtils.createGroupRelationship(group3, group1, RelationshipTypes.PARENT));
+
+        Role roleUnitAdmin = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
+        roleType.setValue(RoleType.STAFF);
+        roleUnitAdmin.setRoleType(roleType);
+
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        org.patientview.persistence.model.RoleType roleType2 = new org.patientview.persistence.model.RoleType();
+        roleType2.setValue(RoleType.PATIENT);
+        rolePatient.setRoleType(roleType2);
+
+        // current user and security
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(roleUnitAdmin, group1, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // patient in same group (yes)
+        User switchUser1 = TestUtils.createUser("switch1");
+        switchUser1.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group1, switchUser1));
+
+        // patient in another group (no)
+        User switchUser2 = TestUtils.createUser("switch2");
+        switchUser2.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group2, switchUser2));
+
+        // patient in another group in same specialty (no)
+        User switchUser3 = TestUtils.createUser("switch3");
+        switchUser3.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group3, switchUser3));
+
+        // unit admin in same group (no)
+        User switchUser4 = TestUtils.createUser("switch4");
+        switchUser4.getGroupRoles().add(TestUtils.createGroupRole(roleUnitAdmin, group1, switchUser4));
+
+        Assert.assertEquals("Should be able to get patient in same unit", true,
+                userService.currentUserCanSwitchToUser(switchUser1));
+        Assert.assertEquals("Should not be able to get patient in another unit", false,
+                userService.currentUserCanSwitchToUser(switchUser2));
+        Assert.assertEquals("Should not be able to get patient in same specialty", false,
+                userService.currentUserCanSwitchToUser(switchUser3));
+        Assert.assertEquals("Should not be able to get unit admin in same unit", false,
+                userService.currentUserCanSwitchToUser(switchUser4));
+    }
+
+    @Test
+    public void testCurrentUserCanSwitchToUser_SpecialtyAdmin() {
+        Group group1 = TestUtils.createGroup("test1Group");
+        Group group2 = TestUtils.createGroup("test2Group");
+        Group group3 = TestUtils.createGroup("test3Group");
+
+        // create group relationships
+        group3.getGroupRelationships().add(TestUtils.createGroupRelationship(group3, group1, RelationshipTypes.PARENT));
+
+        Role roleSpecialtyAdmin = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
+        roleType.setValue(RoleType.STAFF);
+        roleSpecialtyAdmin.setRoleType(roleType);
+
+        Role roleUnitAdmin = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        roleUnitAdmin.setRoleType(roleType);
+
+        Role rolePatient = TestUtils.createRole(RoleName.PATIENT);
+        org.patientview.persistence.model.RoleType roleType2 = new org.patientview.persistence.model.RoleType();
+        roleType2.setValue(RoleType.PATIENT);
+        rolePatient.setRoleType(roleType2);
+
+        // current user and security
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(roleSpecialtyAdmin, group1, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // patient in same group (yes)
+        User switchUser1 = TestUtils.createUser("switch1");
+        switchUser1.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group1, switchUser1));
+
+        // patient in another group (no)
+        User switchUser2 = TestUtils.createUser("switch2");
+        switchUser2.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group2, switchUser2));
+
+        // patient in another group in same specialty (yes)
+        User switchUser3 = TestUtils.createUser("switch3");
+        switchUser3.getGroupRoles().add(TestUtils.createGroupRole(rolePatient, group3, switchUser3));
+
+        // unit admin in same group (no)
+        User switchUser4 = TestUtils.createUser("switch4");
+        switchUser4.getGroupRoles().add(TestUtils.createGroupRole(roleUnitAdmin, group1, switchUser4));
+
+        Assert.assertEquals("Should be able to get patient in same unit", true,
+                userService.currentUserCanSwitchToUser(switchUser1));
+        Assert.assertEquals("Should not be able to get patient in another unit", false,
+                userService.currentUserCanSwitchToUser(switchUser2));
+        Assert.assertEquals("Should be able to get patient in same specialty", true,
+                userService.currentUserCanSwitchToUser(switchUser3));
+        Assert.assertEquals("Should not be able to get unit admin in same unit", false,
+                userService.currentUserCanSwitchToUser(switchUser4));
     }
 }

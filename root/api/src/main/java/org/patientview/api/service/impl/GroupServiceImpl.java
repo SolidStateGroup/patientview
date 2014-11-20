@@ -138,8 +138,19 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Override
     public List<org.patientview.api.model.Group> findAllPublic() {
-        return convertToTransportGroups(
+        List<org.patientview.api.model.Group> groups = convertToTransportGroups(
                 addParentAndChildGroups(groupRepository.findAllVisibleToJoin()));
+
+        // remove unneeded fields (features etc)
+        for (org.patientview.api.model.Group group : groups) {
+            group.setVisible(null);
+            group.setGroupFeatures(null);
+            group.setChildGroups(null);
+            group.setLinks(null);
+            group.setLocations(null);
+        }
+
+        return groups;
     }
 
     @Override
