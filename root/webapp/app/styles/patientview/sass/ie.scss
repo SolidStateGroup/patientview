@@ -50,7 +50,16 @@
 
     .faux-table .faux-row .actions.row-item {
         .button-dropdown-group {
-            width:130px;
+            width:140px;
+
+            .btn{
+                padding-left:8px;
+                padding-right:8px;
+
+                .caret{
+                    margin-right:12px;
+                }
+            }
 
             .dropdown {
                 > button {
