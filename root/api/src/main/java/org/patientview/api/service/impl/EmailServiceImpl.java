@@ -37,7 +37,9 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(email.getSender());
-            helper.setText(email.getBody(), true);
+
+            helper.setText(properties.getProperty("email.header") + email.getBody()
+                    + properties.getProperty("email.footer"), true);
 
             // if redirect enabled in properties the send to redirect email not actual recipient
             if (Boolean.parseBoolean(properties.getProperty("email.redirect.enabled"))) {
