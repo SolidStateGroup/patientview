@@ -9,6 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.AuthenticationServiceImpl;
+import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
@@ -28,8 +32,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -46,6 +52,9 @@ public class AuthenticationServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private UserTokenRepository userTokenRepository;
@@ -231,5 +240,75 @@ public class AuthenticationServiceTest {
 
         when(userRepository.findByUsername(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), "NotThePasswordWanted");
+    }
+
+    @Test
+    public void testSwitchUser() throws AuthenticationServiceException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to switch to
+        User switchUser = TestUtils.createUser("switch");
+        Role switchRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(switchRole, group, switchUser);
+        Set<GroupRole> groupRolesSwitch = new HashSet<>();
+        groupRolesSwitch.add(groupRoleStaff);
+        switchUser.setGroupRoles(groupRolesSwitch);
+
+        Date now = new Date();
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken(CommonUtils.getAuthToken());
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime()));
+
+        when(userRepository.findOne(eq(switchUser.getId()))).thenReturn(switchUser);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+        when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(true);
+
+        authenticationService.switchToUser(switchUser.getId());
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testSwitchUser_CurrentlyPatient() throws AuthenticationServiceException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to switch to
+        User switchUser = TestUtils.createUser("switch");
+        Role switchRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(switchRole, group, switchUser);
+        Set<GroupRole> groupRolesSwitch = new HashSet<>();
+        groupRolesSwitch.add(groupRoleStaff);
+        switchUser.setGroupRoles(groupRolesSwitch);
+
+        Date now = new Date();
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+        userToken.setToken(CommonUtils.getAuthToken());
+        userToken.setCreated(now);
+        userToken.setExpiration(new Date(now.getTime()));
+
+        when(userRepository.findOne(eq(switchUser.getId()))).thenReturn(switchUser);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+        when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(true);
+
+        authenticationService.switchToUser(switchUser.getId());
     }
 }

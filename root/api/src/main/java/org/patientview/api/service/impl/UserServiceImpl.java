@@ -405,7 +405,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceNotFoundException("User with this ID does not exist");
         }
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -421,7 +421,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         return transportUser;
     }
 
-    private boolean canGetUser(User user) {
+    @Override
+    public boolean currentUserCanGetUser(User user) {
         // if i am trying to access myself
         if (getCurrentUser().equals(user)) {
             return true;
@@ -437,6 +438,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 }
             }
 
+            return true;
+        }
+
+        // if i have staff group role in same groups
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (isCurrentUserMemberOfGroup(groupRole.getGroup())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean currentUserCanSwitchToUser(User user) {
+        // if i am trying to access myself
+        if (getCurrentUser().equals(user)) {
             return true;
         }
 
@@ -495,7 +512,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        if (!canGetUser(entityUser)) {
+        if (!currentUserCanGetUser(entityUser)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -789,7 +806,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         User user = findUser(userId);
 
-        if (canGetUser(user)) {
+        if (currentUserCanGetUser(user)) {
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
                 patientService.deleteExistingPatientData(user.getFhirLinks());
@@ -819,7 +836,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
         User user = findUser(userId);
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -837,7 +854,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException {
         User user = findUser(userId);
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -865,7 +882,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Feature not found");
         }
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -885,7 +902,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Feature not found");
         }
 
-        if (!canGetUser(user)) {
+        if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
