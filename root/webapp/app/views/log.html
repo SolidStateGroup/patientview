@@ -10,12 +10,10 @@
 
     <!-- Filter -->
     <div class="content-panel filter-panel">
-        <div class="">
-            <div class="search-container">
-                <i class="icon-search-black"></i>
-                <input type="text" data-ng-model="searchText" placeholder="Search by Identifier, User or Actor..."
-                       class="form-control input-block-level" />
-            </div>
+        <div class="search-container">
+            <i class="icon-search-black"></i>
+            <input type="text" data-ng-model="searchText" placeholder="Search by Identifier, User or Actor..."
+                   class="form-control input-block-level" />
         </div>
         <div class="panel-footer clearfix">
             <div class="content-inner">
@@ -141,10 +139,9 @@
         </div>
     </div>
 
-    <div class="log-container">
+    <div class="log-container" data-ng-show="!loading">
         <div class="content-panel">
-
-            <table class="table" data-ng-show="pagedItems.length  > 0">
+            <table class="table" data-ng-show="pagedItems.length  > 0 && !loading">
                 <thead class="table-head">
                 <tr>
                     <th><a href="" data-ng-click="sortBy('creationDate');" class="sort-title">Date <i class="icon-sort pull-right"></i></a></th>
@@ -204,8 +201,8 @@
         </div>
     </div>
 </div>
-<div data-ng-show="loading" class="container"><br/><br/>
-    <div data-ng-show="loading" class="loading">
-        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Log</h3>
-    </div>
+
+<div data-ng-show="loading" class="loading">
+    <br/><br/>
+    <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Log</h3>
 </div>
