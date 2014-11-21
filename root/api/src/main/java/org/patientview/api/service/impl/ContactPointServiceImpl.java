@@ -91,7 +91,7 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
             throw new ResourceNotFoundException("Contact point does not exist");
         }
 
-        if (!isCurrentUserMemberOfGroup(contactPoint.getGroup())) {
+        if (!isCurrentUserMemberOfGroup(entityContactPoint.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
