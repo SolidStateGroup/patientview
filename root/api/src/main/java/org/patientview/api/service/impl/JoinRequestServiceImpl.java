@@ -89,9 +89,11 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
     private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,
                                                 ContactPointTypes contactPointTypes) {
-        for (ContactPoint contactPoint: contactPoints) {
-            if (contactPoint.getContactPointType().getValue().equals(contactPointTypes)) {
-                return contactPoint;
+        if (contactPoints != null && contactPointTypes != null) {
+            for (ContactPoint contactPoint : contactPoints) {
+                if (contactPoint.getContactPointType().getValue().equals(contactPointTypes)) {
+                    return contactPoint;
+                }
             }
         }
         return null;

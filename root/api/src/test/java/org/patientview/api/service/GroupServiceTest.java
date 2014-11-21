@@ -64,10 +64,10 @@ import static org.mockito.Mockito.when;
 public class GroupServiceTest {
 
     @Mock
-    Properties properties;
+    private Properties properties;
 
     @Mock
-    EmailService emailService;
+    private EmailService emailService;
 
     @Mock
     private UserRepository userRepository;

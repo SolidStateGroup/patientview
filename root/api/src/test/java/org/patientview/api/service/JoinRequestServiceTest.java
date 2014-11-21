@@ -8,12 +8,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.Email;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.JoinRequestServiceImpl;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
@@ -25,9 +28,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -49,6 +55,12 @@ public class JoinRequestServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    EmailService emailService;
+
+    @Mock
+    Properties properties;
+
     @InjectMocks
     JoinRequestService joinRequestService = new JoinRequestServiceImpl();
 
@@ -68,9 +80,11 @@ public class JoinRequestServiceTest {
      * @throws ResourceNotFoundException
      */
     @Test
-    public void testAddJoinRequest() throws ResourceNotFoundException {
+    public void testAddJoinRequest() throws ResourceNotFoundException, MessagingException {
 
         Group group = TestUtils.createGroup("TestGroup");
+        group.setContactPoints(new HashSet<ContactPoint>());
+        group.getContactPoints().add(TestUtils.createContactPoint("123", ContactPointTypes.PV_ADMIN_EMAIL));
 
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setForename("Test");
@@ -85,6 +99,7 @@ public class JoinRequestServiceTest {
 
         verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
         verify(joinRequestRepository, Mockito.times(1)).save(any(JoinRequest.class));
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
 
         Assert.assertNotNull("The return join request should not be null", joinRequest);
         Assert.assertNotNull("The group should not be null", joinRequest.getGroup());
