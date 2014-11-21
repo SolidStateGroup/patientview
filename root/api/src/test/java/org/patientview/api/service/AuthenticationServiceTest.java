@@ -109,7 +109,7 @@ public class AuthenticationServiceTest {
         userToken.setUser(user);
 
         try {
-            when(userRepository.findByUsername(any(String.class))).thenReturn(user);
+            when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
             when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
             authenticationService.authenticate(user.getUsername(), password);
         } catch (Exception e) {
@@ -219,7 +219,7 @@ public class AuthenticationServiceTest {
         user.setEmailVerified(Boolean.TRUE);
         user.setLocked(Boolean.TRUE);
 
-        when(userRepository.findByUsername(any(String.class))).thenReturn(user);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), password);
     }
 
@@ -238,7 +238,7 @@ public class AuthenticationServiceTest {
         user.setLocked(Boolean.FALSE);
         user.setFailedLogonAttempts(3);
 
-        when(userRepository.findByUsername(any(String.class))).thenReturn(user);
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), "NotThePasswordWanted");
     }
 

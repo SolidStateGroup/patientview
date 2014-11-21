@@ -159,10 +159,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         LOG.debug("Authenticating user: {}", username);
 
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsernameCaseInsensitive(username);
 
         if (user == null) {
-            throw new UsernameNotFoundException("The username provided has not been found");
+            throw new UsernameNotFoundException("Incorrect username or password");
         }
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
@@ -206,7 +206,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsernameCaseInsensitive(username);
     }
 
     @Caching(evict = { @CacheEvict(value = "unreadConversationCount", allEntries = true),

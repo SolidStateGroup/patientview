@@ -336,7 +336,7 @@ public class UserServiceTest {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
-        when(userRepository.findByUsername(eq(user.getUsername()))).thenReturn(user);
+        when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(user);
         userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail());
 
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
@@ -353,7 +353,7 @@ public class UserServiceTest {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
-        when(userRepository.findByUsername(eq(user.getUsername()))).thenReturn(user);
+        when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(user);
 
         userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail");
 
@@ -371,7 +371,7 @@ public class UserServiceTest {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
-        when(userRepository.findByUsername(eq(user.getUsername()))).thenReturn(null);
+        when(userRepository.findByUsernameCaseInsensitive(eq(user.getUsername()))).thenReturn(null);
 
         userService.resetPasswordByUsernameAndEmail(user.getUsername(), user.getEmail() + "fail");
 

@@ -253,7 +253,7 @@ public class UserRepositoryTest {
     public void usernameExists() {
         User user = dataTestUtils.createUser("testUser");
         userRepository.save(user);
-        Assert.assertTrue("Username should exist", userRepository.usernameExists(user.getUsername()));
+        Assert.assertTrue("Username should exist", userRepository.usernameExistsCaseInsensitive(user.getUsername()));
     }
 
     @Test

@@ -279,7 +279,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public Long add(User user) throws EntityExistsException {
 
-        if (userRepository.usernameExists(user.getUsername())) {
+        if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
             throw new EntityExistsException("User already exists (username)");
         }
 
@@ -382,7 +382,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        if (userRepository.usernameExists(user.getUsername())) {
+        if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
             throw new EntityExistsException("User already exists (username)");
         }
 
@@ -473,7 +473,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public org.patientview.api.model.User getByUsername(String username) {
-        User foundUser = userRepository.findByUsername(username);
+        User foundUser = userRepository.findByUsernameCaseInsensitive(username);
         if (foundUser == null) {
             return null;
         } else {
@@ -888,7 +888,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public void resetPasswordByUsernameAndEmail(String username, String email)
             throws ResourceNotFoundException, MailException, MessagingException {
 
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsernameCaseInsensitive(username);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find account");
         }

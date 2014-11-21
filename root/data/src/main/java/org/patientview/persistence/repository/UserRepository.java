@@ -23,14 +23,15 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT CASE WHEN (count(user) > 0) THEN TRUE ELSE FALSE END " +
-            "FROM User user WHERE user.username = :username")
-    public boolean usernameExists(@Param("username") String username);
+            "FROM User user WHERE UPPER(user.username) = UPPER(:username)")
+    public boolean usernameExistsCaseInsensitive(@Param("username") String username);
 
     @Query("SELECT CASE WHEN (count(user) > 0) THEN TRUE ELSE FALSE END " +
             "FROM User user WHERE user.email = :email")
     public boolean emailExists(@Param("email") String email);
 
-    User findByUsername(String username);
+    @Query("SELECT u FROM User u WHERE UPPER(u.username) = UPPER(:username)")
+    User findByUsernameCaseInsensitive(@Param("username") String username);
 
     User findByEmail(String email);
 
