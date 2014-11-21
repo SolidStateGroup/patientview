@@ -11,20 +11,24 @@ import org.patientview.api.service.SecurityService;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
 import org.springframework.cache.annotation.CacheEvict;
@@ -71,6 +75,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private GroupRepository groupRepository;
 
     @Inject
     private UserTokenRepository userTokenRepository;
@@ -227,7 +234,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     // retrieve static data and user specific data to avoid requerying
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
-    public org.patientview.api.model.UserToken getUserInformation(String token) {
+    public org.patientview.api.model.UserToken getUserInformation(String token) throws ResourceForbiddenException {
         UserToken userToken = userTokenRepository.findByToken(token);
 
         if (userToken == null) {
@@ -243,6 +250,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (doesContainRoles(RoleName.PATIENT)) {
             transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
             transportUserToken = setPatientMessagingFeatureTypes(transportUserToken);
+            transportUserToken.setMessagingEnabled(true);
         }
 
         if (!doesContainRoles(RoleName.PATIENT)) {
@@ -365,16 +373,26 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userToken;
     }
 
-    private org.patientview.api.model.UserToken setUserGroups(org.patientview.api.model.UserToken userToken) {
+    private org.patientview.api.model.UserToken setUserGroups(org.patientview.api.model.UserToken userToken)
+        throws ResourceForbiddenException {
         List<org.patientview.persistence.model.Group> userGroups
                 = groupService.getAllUserGroupsAllDetails(userToken.getUser().getId());
 
         userToken.setUserGroups(new ArrayList<BaseGroup>());
+        userToken.setMessagingEnabled(false);
 
         for (org.patientview.persistence.model.Group userGroup : userGroups) {
-            // do not add groups that have code in GroupCode enum as these are used for patient entered results etc
+            // do not add groups that have code in HiddenGroupCode enum as these are used for patient entered results etc
             if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)) {
                 userToken.getUserGroups().add(new BaseGroup(userGroup));
+
+                // if group has MESSAGING feature then set in transportUserToken
+                Group entityGroup = groupRepository.findOne(userGroup.getId());
+                for (GroupFeature groupFeature : entityGroup.getGroupFeatures()) {
+                    if (groupFeature.getFeature().getName().equals(FeatureType.MESSAGING.toString())) {
+                        userToken.setMessagingEnabled(true);
+                    }
+                }
             }
         }
         return userToken;

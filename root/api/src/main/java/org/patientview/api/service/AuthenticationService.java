@@ -2,6 +2,7 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.model.UserToken;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -35,5 +36,5 @@ public interface AuthenticationService extends UserDetailsService {
 
     void logout(String token) throws AuthenticationServiceException;
 
-    UserToken getUserInformation(String token);
+    UserToken getUserInformation(String token) throws ResourceForbiddenException;
 }

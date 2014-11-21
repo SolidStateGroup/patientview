@@ -6,6 +6,7 @@ import org.patientview.api.model.ForgottenCredentials;
 import org.patientview.api.model.UserToken;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.UserService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public class AuthController extends BaseController<AuthController> {
     // todo: requires security
     @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
     public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
-            throws AuthenticationServiceException {
+            throws AuthenticationServiceException, ResourceForbiddenException {
         return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
     }
 

@@ -30,6 +30,7 @@ public class UserToken {
     private List<Feature> patientFeatures;
     private List<PatientMessagingFeatureType> patientMessagingFeatureTypes;
     private List<String> auditActions;
+    private boolean messagingEnabled;
 
     public UserToken() {
 
@@ -154,5 +155,13 @@ public class UserToken {
 
     public void setAuditActions(List<String> auditActions) {
         this.auditActions = auditActions;
+    }
+
+    public boolean isMessagingEnabled() {
+        return messagingEnabled;
+    }
+
+    public void setMessagingEnabled(boolean messagingEnabled) {
+        this.messagingEnabled = messagingEnabled;
     }
 }

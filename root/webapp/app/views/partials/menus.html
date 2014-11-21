@@ -17,7 +17,9 @@
                             Help
                         </a>
                     </li>
-                    <li><a class="messages-menu-item" data-ng-href="#/conversations">Messages</a></li>
+                    <li data-ng-show="loggedInUser.userInformation.messagingEnabled">
+                        <a class="messages-menu-item" data-ng-href="#/conversations">Messages</a>
+                    </li>
                     <li><a data-ng-href="#/settings">Settings</a></li>
                     <li><a href="#/logout">Logout</a></li>
                 </ul>
@@ -47,7 +49,8 @@
                 </ul>
             </div>
             <ul class="nav-utils pull-right inline " data-ng-hide="!loggedInUser" data-ng-cloak>
-                <li data-ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'" >
+                <li data-ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'"
+                    data-ng-show="!(menuitem.title === 'Messages')">
                     <a  data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Feedback'">
                         <i class="icon-issues"></i>
                         Report Issues
@@ -56,9 +59,13 @@
                         <i class="icon-help"></i>
                         {{menuitem.title}}
                     </a>
-                    <a class="messages-menu-item" data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Messages'">
+                </li>
+
+                <li data-ng-show="loggedInUser.userInformation.messagingEnabled">
+                    <a class="messages-menu-item" data-ng-href="#/conversations">
                         <i class="icon-messages"></i>
-                        {{menuitem.title}} <span data-ng-show="unreadConversationCount > 0" class="badge badge-tiny warning">{{unreadConversationCount}}</span>
+                        Messages
+                        <span data-ng-show="unreadConversationCount > 0" class="badge badge-tiny warning">{{unreadConversationCount}}</span>
                     </a>
                 </li>
             </ul>
