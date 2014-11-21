@@ -679,11 +679,16 @@ module.exports = function (grunt) {
         'build'
     ]);
 
+    // now with minification
     grunt.registerTask('minimal', [
-
         'clean:dist',
         'ngconstant:apilocal',
         'copy:minimal',
+        'useminPrepare',
+        'concat',
+        'uglify',
+        'cssmin',
+        'usemin',
         'war'
     ]);
 
@@ -702,10 +707,16 @@ module.exports = function (grunt) {
         'war'
     ]);
 
+    // now with minification
     grunt.registerTask('minimalssgdev', [
         'clean:dist',
         'ngconstant:apissgdev',
         'copy:minimal',
+        'useminPrepare',
+        'concat',
+        'uglify',
+        'cssmin',
+        'usemin',
         'war'
     ]);
 
