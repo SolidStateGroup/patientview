@@ -43,7 +43,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
 
     @Override
     public Long getImporterUserId() throws ResourceNotFoundException {
-        User importerUser = userRepository.findByUsername(RestrictedUsernames.IMPORTER.getName());
+        User importerUser = userRepository.findByUsernameCaseInsensitive(RestrictedUsernames.IMPORTER.getName());
         if (importerUser == null) {
             throw new ResourceNotFoundException("Could not find importer user (for audit purposes)");
         }
