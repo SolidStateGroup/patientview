@@ -34,7 +34,7 @@ public class EmailServiceTest {
 
         Email email = new Email();
         email.setBody("test body");
-        email.setRecipients(new String[]{"jamesr@solidstategroup.com"});
+        email.setRecipients(new String[]{"nadim@solidstategroup.com","jamesr@solidstategroup.com","andrewmoffatt777@hotmail.com"});
         email.setSubject("test subject");
         email.setSender("no-reply@solidstategroup.com");
         Assert.assertTrue("should have sent email", emailService.sendEmail(email));

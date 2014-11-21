@@ -1,12 +1,16 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.model.Email;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.JoinRequestService;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.JoinRequest;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.JoinRequestStatus;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
@@ -20,10 +24,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by james@solidstategroup.com
@@ -41,6 +49,12 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     @Inject
     private JoinRequestRepository joinRequestRepository;
 
+    @Inject
+    private EmailService emailService;
+
+    @Inject
+    private Properties properties;
+
     @Override
     public JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException {
 
@@ -52,7 +66,35 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
         joinRequest.setGroup(group);
         joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
-        return joinRequestRepository.save(joinRequest);
+        JoinRequest entityJoinRequest = joinRequestRepository.save(joinRequest);
+
+        // attempt to find PV Admin Email address
+        Email email = createJoinRequestEmail(entityJoinRequest);
+        ContactPoint contactPoint = getContactPoint(group.getContactPoints(), ContactPointTypes.PV_ADMIN_EMAIL);
+
+        // send email, but continue if it cant be sent
+        if (contactPoint == null) {
+            LOG.error("No suitable group contact point set for join request email");
+        } else {
+            email.setRecipients(new String[]{contactPoint.getContent()});
+            try {
+                emailService.sendEmail(email);
+            } catch (MessagingException me) {
+                LOG.error("Cannot send join request email");
+            }
+        }
+
+        return entityJoinRequest;
+    }
+
+    private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,
+                                                ContactPointTypes contactPointTypes) {
+        for (ContactPoint contactPoint: contactPoints) {
+            if (contactPoint.getContactPointType().getValue().equals(contactPointTypes)) {
+                return contactPoint;
+            }
+        }
+        return null;
     }
 
     private List<JoinRequestStatus> convertStringArrayToStatusList(String[] statuses) {
@@ -64,6 +106,32 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             }
         }
         return statusList;
+    }
+
+    private Email createJoinRequestEmail(JoinRequest joinRequest) {
+        Email email = new Email();
+        email.setSender(properties.getProperty("smtp.sender"));
+        email.setSubject("PatientView - Join Request");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
+        String date = sdf.format(joinRequest.getDateOfBirth());
+
+        StringBuilder body = new StringBuilder();
+        body.append("Dear Sir/Madam, <br/><br/>");
+        body.append("A patient has made a request on the website to join <a href=\"");
+        body.append(properties.getProperty("site.url"));
+        body.append("\">PatientView</a> with the following details: ");
+        body.append("<br/><br/>Forename: ").append(joinRequest.getForename());
+        body.append("<br/>Surname: ").append(joinRequest.getSurname());
+        body.append("<br/>Date of Birth: ").append(date);
+        body.append("<br/>NHS Number: ").append(joinRequest.getNhsNumber());
+        body.append("<br/>Email Address: ").append(joinRequest.getEmail());
+        body.append("<br/>Associated Unit: ").append(joinRequest.getGroup().getName());
+        body.append("<br/><br/> Please verify these details and follow up this request with the patient using your ");
+        body.append("usual process to consent and add patients to PatientView.");
+
+        email.setBody(body.toString());
+        return email;
     }
 
     private Page<org.patientview.api.model.JoinRequest> convertPageToTransport(
