@@ -628,7 +628,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             return true;
         }
 
-        for (UserFeature userFeature : loggedInUser.getUserFeatures()) {
+        User entityUser = userRepository.findOne(loggedInUser.getId());
+
+        for (UserFeature userFeature : entityUser.getUserFeatures()) {
             if (Util.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
                 return true;
             }
