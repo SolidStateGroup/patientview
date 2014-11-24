@@ -11,7 +11,9 @@ import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.GpMedicationStatus;
+import org.patientview.api.service.GroupService;
 import org.patientview.api.service.MedicationService;
+import org.patientview.api.service.RoleService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -19,10 +21,14 @@ import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.FeatureRepository;
+import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
@@ -53,6 +59,15 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
 
     @Inject
     private UserFeatureRepository userFeatureRepository;
+
+    @Inject
+    private RoleService roleService;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
+    private GroupRoleRepository groupRoleRepository;
 
     @Override
     public void addMedicationStatement(
@@ -171,6 +186,8 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
             throws ResourceNotFoundException {
 
         User user = userRepository.findOne(userId);
+        Role patientRole = roleService.findByRoleTypeAndName(RoleType.PATIENT, RoleName.PATIENT);
+
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
@@ -204,6 +221,46 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
             }
             userFeatureRepository.save(userFeature);
         }
+
+        if (gpMedicationStatus.getOptInStatus() && !userHasGpMedicationGroupRole(user)) {
+            // add to GP_MEDICATION group
+            GroupRole groupRole = new GroupRole();
+            groupRole.setRole(patientRole);
+            groupRole.setGroup(groupService.findByCode(FeatureType.GP_MEDICATION.toString()));
+            groupRole.setUser(user);
+            groupRole.setCreator(user);
+            user.getGroupRoles().add(groupRole);
+            userRepository.save(user);
+        }
+
+        if (!gpMedicationStatus.getOptInStatus() && userHasGpMedicationGroupRole(user)) {
+            // remove from GP_MEDICATION group
+            GroupRole groupRole = null;
+            for (GroupRole entityGroupRole : user.getGroupRoles()) {
+                if (entityGroupRole.getGroup().getCode().equals(FeatureType.GP_MEDICATION.toString())) {
+                    groupRole = entityGroupRole;
+                }
+            }
+
+            if (groupRole != null) {
+                groupRoleRepository.delete(groupRole);
+                user.getGroupRoles().remove(groupRole);
+                userRepository.save(user);
+            }
+        }
+    }
+
+    // check if user's groupRoles include medication groupRole
+    private boolean userHasGpMedicationGroupRole(User user) {
+        User entityUser = userRepository.findOne(user.getId());
+
+        for (GroupRole groupRole : entityUser.getGroupRoles()) {
+            if (groupRole.getGroup().getCode().equals(FeatureType.GP_MEDICATION.toString())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // verify at least one of the user's groups has GP medication feature enabled

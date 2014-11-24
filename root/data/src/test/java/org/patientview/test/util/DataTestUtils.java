@@ -134,6 +134,7 @@ public class DataTestUtils {
         RoleType roleType = new RoleType();
         roleType.setValue(roleTypeEnum);
         role.setRoleType(roleType);
+        role.setVisible(true);
 
         return roleRepository.save(role);
     }

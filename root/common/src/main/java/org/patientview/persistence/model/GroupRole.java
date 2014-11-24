@@ -36,6 +36,16 @@ public class GroupRole extends RangeModel implements GrantedAuthority {
     @JoinColumn(name = "group_id")
     private Group group;
 
+    public GroupRole () {
+
+    }
+
+    public GroupRole (User user, Group group, Role role) {
+        this.setUser(user);
+        this.setGroup(group);
+        this.setRole(role);
+    }
+
     public Role getRole() {
         return role;
     }

@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.RoleRepository;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,10 @@ public class RoleServiceImpl extends AbstractServiceImpl<RoleServiceImpl> implem
 
     public List<Role> getUserRoles(Long userId) {
         return Util.convertIterable(roleRepository.findValidRolesByUser(userId));
+    }
+
+    @Override
+    public Role findByRoleTypeAndName(RoleType roleType, RoleName roleName) {
+        return roleRepository.findByRoleTypeAndName(roleType, roleName);
     }
 }

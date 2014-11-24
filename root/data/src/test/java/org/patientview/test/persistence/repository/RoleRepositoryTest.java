@@ -2,7 +2,6 @@ package org.patientview.test.persistence.repository;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.LookupType;
@@ -11,7 +10,6 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
-import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -20,8 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
 
 /**
  * Created by james@solidstategroup.com
@@ -36,16 +32,10 @@ public class RoleRepositoryTest {
     RoleRepository roleRepository;
 
     @Inject
-    LookupRepository lookupRepository;
-
-    @Inject
     DataTestUtils dataTestUtils;
 
     User creator;
     LookupType lookupType;
-
-    @Inject
-    EntityManager entityManager;
 
     @Before
     public void setup () {
@@ -55,26 +45,12 @@ public class RoleRepositoryTest {
     }
 
     @Test
-    @Ignore
-    public void testGetRole() {
+    public void testGetRoleByTypeAndName() {
         Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
-        entityManager.setFlushMode(FlushModeType.COMMIT);
+        Role entityRole = roleRepository.findByRoleTypeAndName(RoleType.PATIENT, RoleName.PATIENT);
 
-        org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
-        roleType.setLookupType(lookupType);
-        roleType.setValue(RoleType.PATIENT);
-        entityManager.persist(lookupType);
-        entityManager.persist(roleType);
-
-        role.setCreator(creator);
-
-        roleRepository.save(role);
-        entityManager.flush();
-        role = roleRepository.findOne(role.getId());
-
-        Assert.assertEquals("The lookup type should be return",role.getRoleType().getValue() == roleType.getValue());
+        Assert.assertNotNull("Should return Role", entityRole);
+        Assert.assertEquals("Should return same Role", role, entityRole);
+        Assert.assertEquals("Correct Role should be returned", RoleName.PATIENT, entityRole.getName());
     }
-
-
-
 }
