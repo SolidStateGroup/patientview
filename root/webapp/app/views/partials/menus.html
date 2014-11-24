@@ -17,7 +17,7 @@
                             Help
                         </a>
                     </li>
-                    <li data-ng-show="loggedInUser.userInformation.messagingEnabled">
+                    <li data-ng-show="loggedInUser.userInformation.groupMessagingEnabled">
                         <a class="messages-menu-item" data-ng-href="#/conversations">Messages</a>
                     </li>
                     <li><a data-ng-href="#/settings">Settings</a></li>
@@ -61,7 +61,7 @@
                     </a>
                 </li>
 
-                <li data-ng-show="loggedInUser.userInformation.messagingEnabled">
+                <li data-ng-show="loggedInUser.userInformation.groupMessagingEnabled">
                     <a class="messages-menu-item" data-ng-href="#/conversations">
                         <i class="icon-messages"></i>
                         Messages

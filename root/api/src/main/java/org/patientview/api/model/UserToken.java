@@ -21,6 +21,7 @@ public class UserToken {
 
     // set separately after authentication
     private List<Role> securityRoles;
+    private List<Feature> userFeatures;
     private List<BaseGroup> userGroups;
     private Set<Route> routes;
     private List<Role> staffRoles;
@@ -30,7 +31,7 @@ public class UserToken {
     private List<Feature> patientFeatures;
     private List<PatientMessagingFeatureType> patientMessagingFeatureTypes;
     private List<String> auditActions;
-    private boolean messagingEnabled;
+    private boolean groupMessagingEnabled;
 
     public UserToken() {
 
@@ -83,6 +84,14 @@ public class UserToken {
 
     public void setSecurityRoles(List<Role> securityRoles) {
         this.securityRoles = securityRoles;
+    }
+
+    public List<Feature> getUserFeatures() {
+        return userFeatures;
+    }
+
+    public void setUserFeatures(List<Feature> userFeatures) {
+        this.userFeatures = userFeatures;
     }
 
     public List<BaseGroup> getUserGroups() {
@@ -157,11 +166,11 @@ public class UserToken {
         this.auditActions = auditActions;
     }
 
-    public boolean isMessagingEnabled() {
-        return messagingEnabled;
+    public boolean isGroupMessagingEnabled() {
+        return groupMessagingEnabled;
     }
 
-    public void setMessagingEnabled(boolean messagingEnabled) {
-        this.messagingEnabled = messagingEnabled;
+    public void setGroupMessagingEnabled(boolean groupMessagingEnabled) {
+        this.groupMessagingEnabled = groupMessagingEnabled;
     }
 }

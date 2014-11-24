@@ -306,7 +306,19 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
             // cancel
             $scope.editConversation = '';
         });
+    };
 
+    $scope.userHasMessagingFeature = function() {
+        var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT'];
+
+        for (var i = 0; i < $scope.loggedInUser.userInformation.userFeatures.length; i++) {
+            var feature = $scope.loggedInUser.userInformation.userFeatures[i];
+            if (messagingFeatures.indexOf(feature.name) > -1) {
+                return true;
+            }
+        }
+
+        return false;
     };
 
 }]);

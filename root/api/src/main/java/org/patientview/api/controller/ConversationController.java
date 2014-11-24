@@ -54,7 +54,8 @@ public class ConversationController extends BaseController<ConversationControlle
     @ResponseBody
     public ResponseEntity<Page<Conversation>> getConversations(
             @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
-            @RequestParam(value = "page", required = false) String page) throws ResourceNotFoundException {
+            @RequestParam(value = "page", required = false) String page)
+            throws ResourceNotFoundException, ResourceForbiddenException {
 
         Integer pageConverted = null, sizeConverted = null;
         PageRequest pageable;
@@ -106,7 +107,7 @@ public class ConversationController extends BaseController<ConversationControlle
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public void newConversation(@PathVariable("userId") Long userId,
             @RequestBody org.patientview.persistence.model.Conversation conversation)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         conversationService.addConversation(userId, conversation);
     }
 

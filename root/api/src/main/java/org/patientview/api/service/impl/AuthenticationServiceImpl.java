@@ -28,6 +28,7 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
@@ -78,6 +79,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Inject
     private GroupRepository groupRepository;
+
+    @Inject
+    private FeatureRepository featureRepository;
 
     @Inject
     private UserTokenRepository userTokenRepository;
@@ -245,12 +249,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // get information about user's available roles and groups as used in staff and patient views
         transportUserToken = setUserGroups(transportUserToken);
+        transportUserToken = setUserFeatures(transportUserToken);
         transportUserToken = setRoutes(transportUserToken);
 
         if (doesContainRoles(RoleName.PATIENT)) {
             transportUserToken = setFhirInformation(transportUserToken, userToken.getUser());
             transportUserToken = setPatientMessagingFeatureTypes(transportUserToken);
-            transportUserToken.setMessagingEnabled(true);
+            transportUserToken.setGroupMessagingEnabled(true);
         }
 
         if (!doesContainRoles(RoleName.PATIENT)) {
@@ -373,13 +378,18 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userToken;
     }
 
+    private org.patientview.api.model.UserToken setUserFeatures(org.patientview.api.model.UserToken userToken) {
+        userToken.setUserFeatures(featureRepository.findByUser(userRepository.findOne(userToken.getUser().getId())));
+        return userToken;
+    }
+
     private org.patientview.api.model.UserToken setUserGroups(org.patientview.api.model.UserToken userToken)
         throws ResourceForbiddenException {
         List<org.patientview.persistence.model.Group> userGroups
                 = groupService.getAllUserGroupsAllDetails(userToken.getUser().getId());
 
         userToken.setUserGroups(new ArrayList<BaseGroup>());
-        userToken.setMessagingEnabled(false);
+        userToken.setGroupMessagingEnabled(false);
 
         for (org.patientview.persistence.model.Group userGroup : userGroups) {
             // do not add groups that have code in HiddenGroupCode enum as these are used for patient entered results etc
@@ -390,7 +400,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 Group entityGroup = groupRepository.findOne(userGroup.getId());
                 for (GroupFeature groupFeature : entityGroup.getGroupFeatures()) {
                     if (groupFeature.getFeature().getName().equals(FeatureType.MESSAGING.toString())) {
-                        userToken.setMessagingEnabled(true);
+                        userToken.setGroupMessagingEnabled(true);
                     }
                 }
             }

@@ -21,6 +21,7 @@ import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
@@ -97,6 +98,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     public org.patientview.api.model.Conversation findByConversationId(Long conversationId)
             throws ResourceNotFoundException, ResourceForbiddenException {
+
+        if (!loggedInUserHasMessagingFeature()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         Conversation conversation = conversationRepository.findOne(conversationId);
 
         if (conversation == null) {
@@ -104,7 +110,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         if (!loggedInUserIsMemberOfConversation(conversation)) {
-            throw new ResourceForbiddenException("You do not have permission");
+            throw new ResourceForbiddenException("Forbidden");
         }
 
         return new org.patientview.api.model.Conversation(anonymiseConversation(conversation));
@@ -190,8 +196,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     public Page<org.patientview.api.model.Conversation> findByUserId(Long userId, Pageable pageable)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
+
+        if (!loggedInUserHasMessagingFeature()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         Page<Conversation> conversationPage = conversationRepository.findByUser(entityUser, pageable);
         List<org.patientview.api.model.Conversation> conversations = new ArrayList<>();
 
@@ -205,6 +216,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     public void addMessage(Long conversationId, org.patientview.api.model.Message message)
             throws ResourceNotFoundException, ResourceForbiddenException {
+
+        if (!loggedInUserHasMessagingFeature()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
         Conversation entityConversation = conversationRepository.findOne(conversationId);
         if (entityConversation == null) {
             throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversationId));
@@ -307,7 +323,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return conversationUserSet;
     }
 
-    public void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException {
+    public void addConversation(Long userId, Conversation conversation)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        if (!loggedInUserHasMessagingFeature()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
 
         User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         creator = userRepository.findOne(creator.getId());
@@ -439,22 +459,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return transportUsers;
     }
 
-    private List<org.patientview.api.model.BaseUser> convertApiUsersToTransportBaseUsers(
-            List<org.patientview.api.model.User> users) {
-        List<org.patientview.api.model.BaseUser> transportUsers = new ArrayList<>();
-
-        for (org.patientview.api.model.User user : users) {
-            // do not allow users to talk to themselves
-            if (!getCurrentUser().getId().equals(user.getId())) {
-                transportUsers.add(new org.patientview.api.model.BaseUser(user));
-            }
-        }
-
-        return transportUsers;
-    }
-
     public HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
+
+        if (!loggedInUserHasMessagingFeature()) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
 
         User entityUser = findEntityUser(userId);
         List<String> groupIdList = new ArrayList<>();
@@ -609,6 +619,22 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return userMap;
+    }
+
+    // verify logged in user has messaging feature
+    private boolean loggedInUserHasMessagingFeature() {
+        User loggedInUser = getCurrentUser();
+        if (Util.doesContainRoles(RoleName.PATIENT)) {
+            return true;
+        }
+
+        for (UserFeature userFeature : loggedInUser.getUserFeatures()) {
+            if (Util.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // verify logged in user can open conversation

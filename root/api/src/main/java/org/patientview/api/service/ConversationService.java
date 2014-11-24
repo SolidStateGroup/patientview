@@ -25,13 +25,14 @@ public interface ConversationService extends CrudService<Conversation> {
 
     @UserOnly
     Page<org.patientview.api.model.Conversation> findByUserId(Long userId, Pageable pageable)
-            throws ResourceNotFoundException;
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     void addMessage(Long conversationId, org.patientview.api.model.Message message)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     @UserOnly
-    void addConversation(Long userId, Conversation conversation) throws ResourceNotFoundException;
+    void addConversation(Long userId, Conversation conversation)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 
     void addMessageReadReceipt(Long messageId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException;
