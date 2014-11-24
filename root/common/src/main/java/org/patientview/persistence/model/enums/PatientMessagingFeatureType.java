@@ -7,9 +7,7 @@ package org.patientview.persistence.model.enums;
  */
 public enum PatientMessagingFeatureType {
 
-    // 12/11/14 restricted to just default messaging contact
-    //UNIT_TECHNICAL_CONTACT("Unit Technical Contact"),
-    //PATIENT_SUPPORT_CONTACT("Patient Support Contact"),
+    MESSAGING("Messaging"),
     DEFAULT_MESSAGING_CONTACT("Default Messaging Contact");
 
     private String name;

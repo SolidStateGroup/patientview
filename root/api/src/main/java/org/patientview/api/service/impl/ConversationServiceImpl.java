@@ -562,10 +562,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
                 userMap.put(role.getName().getName(), users);
             }
-        }
-
-        // patients can only contact staff in their units with feature names passed in
-        if (doesContainRoles(RoleName.PATIENT)) {
+        } else  if (doesContainRoles(RoleName.PATIENT)) {
+            // patients can only contact staff in their units with PatientMessagingFeatureType
             List<String> featureIdList = new ArrayList<>();
 
             // restrict features to PatientMessagingFeatureType (subset of Feature Type)
