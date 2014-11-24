@@ -624,7 +624,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     // verify logged in user has messaging feature
     private boolean loggedInUserHasMessagingFeature() {
         User loggedInUser = getCurrentUser();
-        if (Util.doesContainRoles(RoleName.PATIENT)) {
+        if (Util.doesContainRoles(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
             return true;
         }
 

@@ -8,15 +8,25 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.ConversationServiceImpl;
 import org.patientview.persistence.model.Conversation;
 import org.patientview.persistence.model.ConversationUser;
+import org.patientview.persistence.model.Feature;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.ConversationTypes;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.MessageTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.StaffMessagingFeatureType;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -31,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -73,12 +84,25 @@ public class ConversationServiceTest {
     }
 
     @Test
-    public void testCreateConversation() {
+    public void testCreateConversation() throws ResourceForbiddenException {
 
         User user1 = TestUtils.createUser("newTestUser1");
         User user2 = TestUtils.createUser("newTestUser2");
 
-        TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
+        Group testGroup = TestUtils.createGroup("testGroup");
+        Feature testFeature = TestUtils.createFeature(FeatureType.MESSAGING.getName());
+        TestUtils.createGroupFeature(testFeature, testGroup);
+
+        // add user as specialty admin to group
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN);
+        GroupRole groupRole = TestUtils.createGroupRole(role, testGroup, user1);
+        user1.setGroupRoles(new TreeSet<GroupRole>());
+        user1.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(user1, user1.getGroupRoles());
+        Feature messagingFeature = TestUtils.createFeature(StaffMessagingFeatureType.MESSAGING.toString());
+        UserFeature userFeature = TestUtils.createUserFeature(messagingFeature, user1);
+        user1.setUserFeatures(new HashSet<UserFeature>());
+        user1.getUserFeatures().add(userFeature);
 
         Conversation conversation = new Conversation();
         conversation.setId(3L);
@@ -130,8 +154,6 @@ public class ConversationServiceTest {
 
         User user1 = TestUtils.createUser("newTestUser1");
         User user2 = TestUtils.createUser("newTestUser2");
-
-        TestUtils.authenticateTest(user1, Collections.EMPTY_LIST);
 
         Conversation conversation = new Conversation();
         conversation.setId(3L);

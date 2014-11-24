@@ -78,8 +78,8 @@ var NewConversationModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance'
     }];
 
 // pagination following http://fdietz.github.io/recipes-with-angular-js/common-user-interface-patterns/paginating-through-server-side-data.html
-angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService',
-    function ($scope, $modal, $q, ConversationService, GroupService) {
+angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$modal', '$q', 'ConversationService', 'GroupService', 'UserService',
+    function ($scope, $modal, $q, ConversationService, GroupService, UserService) {
 
     $scope.itemsPerPage = 5;
     $scope.currentPage = 0;
@@ -309,6 +309,11 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
     };
 
     $scope.userHasMessagingFeature = function() {
+
+        if(UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser)) {
+            return true;
+        }
+
         var messagingFeatures = ['MESSAGING', 'DEFAULT_MESSAGING_CONTACT'];
 
         for (var i = 0; i < $scope.loggedInUser.userInformation.userFeatures.length; i++) {
