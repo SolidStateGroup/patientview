@@ -26,6 +26,8 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -266,6 +268,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         groupRoleRepository.delete(entityGroupRole);
+
+        // remove from user features if GP_MEDICATION group
+        if (entityGroupRole.getGroup().getCode().equals(GpMedicationGroupCodes.ECS.toString())) {
+            Feature entityFeature = featureRepository.findByName(FeatureType.GP_MEDICATION.toString());
+            UserFeature userFeature = userFeatureRepository.findByUserAndFeature(entityUser, entityFeature);
+            userFeatureRepository.delete(userFeature);
+        }
     }
 
     private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {

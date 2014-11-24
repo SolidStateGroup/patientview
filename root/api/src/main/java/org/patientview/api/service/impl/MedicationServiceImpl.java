@@ -25,6 +25,7 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.FeatureRepository;
@@ -226,7 +227,7 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
             // add to GP_MEDICATION group
             GroupRole groupRole = new GroupRole();
             groupRole.setRole(patientRole);
-            groupRole.setGroup(groupService.findByCode(FeatureType.GP_MEDICATION.toString()));
+            groupRole.setGroup(groupService.findByCode(GpMedicationGroupCodes.ECS.toString()));
             groupRole.setUser(user);
             groupRole.setCreator(user);
             user.getGroupRoles().add(groupRole);
@@ -237,7 +238,7 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
             // remove from GP_MEDICATION group
             GroupRole groupRole = null;
             for (GroupRole entityGroupRole : user.getGroupRoles()) {
-                if (entityGroupRole.getGroup().getCode().equals(FeatureType.GP_MEDICATION.toString())) {
+                if (entityGroupRole.getGroup().getCode().equals(GpMedicationGroupCodes.ECS.toString())) {
                     groupRole = entityGroupRole;
                 }
             }
@@ -255,7 +256,7 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
         User entityUser = userRepository.findOne(user.getId());
 
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
-            if (groupRole.getGroup().getCode().equals(FeatureType.GP_MEDICATION.toString())) {
+            if (groupRole.getGroup().getCode().equals(GpMedicationGroupCodes.ECS.toString())) {
                 return true;
             }
         }
