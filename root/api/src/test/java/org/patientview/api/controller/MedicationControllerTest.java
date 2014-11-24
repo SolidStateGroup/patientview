@@ -67,6 +67,26 @@ public class MedicationControllerTest {
             fail("Exception throw");
         }
     }
+
+    @Test
+    public void testGetGpMedicationStatusByUserId() {
+
+        // user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/gpmedicationstatus"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception throw");
+        }
+    }
 }
 
 

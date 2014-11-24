@@ -37,24 +37,23 @@ angular.module('patientviewApp').filter('sourceGroupFilter', [function () {
     };
 }]);
 
-// TODO: ECS functionality following discussion
 angular.module('patientviewApp').controller('MedicinesCtrl', ['$scope', '$timeout', 'MedicationService',
 function ($scope, $timeout, MedicationService) {
 
-    var getNonECS = function(medicationStatements) {
+    var getNonGpMedication = function(medicationStatements) {
         var medications = [];
         for (var i=0;i<medicationStatements.length;i++) {
-            if (medicationStatements[i].group.code !== 'ECS') {
+            if (medicationStatements[i].group.code !== 'GP_MEDICATION') {
                 medications.push(medicationStatements[i]);
             }
         }
         return medications;
     };
 
-    var getECS = function(medicationStatements) {
+    var getGpMedication = function(medicationStatements) {
         var medications = [];
         for (var i=0;i<medicationStatements.length;i++) {
-            if (medicationStatements[i].group.code === 'ECS') {
+            if (medicationStatements[i].group.code === 'GP_MEDICATION') {
                 medications.push(medicationStatements[i]);
             }
         }
@@ -62,10 +61,10 @@ function ($scope, $timeout, MedicationService) {
     };
 
     var separateMedicationStatements = function(medicationStatements) {
-        $scope.medicationStatementsNonEcs = getNonECS(medicationStatements);
-        $scope.allMedicationStatementsNonEcs = getNonECS(medicationStatements);
-        $scope.medicationStatementsEcs = getECS(medicationStatements);
-        $scope.allMedicationStatementsEcs = getECS(medicationStatements);
+        $scope.medicationStatementsNonGp = getNonGpMedication(medicationStatements);
+        $scope.allMedicationStatementsNonGp = getNonGpMedication(medicationStatements);
+        $scope.medicationStatementsGp = getGpMedication(medicationStatements);
+        $scope.allMedicationStatementsGp = getGpMedication(medicationStatements);
     };
 
     var getSourceGroups = function(medicationStatements) {
@@ -91,7 +90,14 @@ function ($scope, $timeout, MedicationService) {
             $scope.loading = false;
         }, function () {
             alert('Cannot get medication');
-        })
+        });
+
+        // GP Medicines, check to see if feature is available on any of the current user's groups
+        MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function(gpMedicationStatus) {
+            $scope.gpMedicationStatus = gpMedicationStatus;
+        }, function () {
+            alert('Cannot get GP medication status');
+        });
     };
 
     // client side sorting, pagination
@@ -105,7 +111,7 @@ function ($scope, $timeout, MedicationService) {
 
     // filter by group
     $scope.selectedGroups = [];
-    $scope.setSelectedGroup = function (group) {
+    $scope.setSelectedGroup = function(group) {
         var id = group.id;
         if (_.contains($scope.selectedGroups, id)) {
             $scope.selectedGroups = _.without($scope.selectedGroups, id);
@@ -113,14 +119,59 @@ function ($scope, $timeout, MedicationService) {
             $scope.selectedGroups.push(id);
         }
     };
-    $scope.isGroupChecked = function (id) {
+    $scope.isGroupChecked = function(id) {
         if (_.contains($scope.selectedGroups, id)) {
             return 'glyphicon glyphicon-ok pull-right';
         }
         return false;
     };
-    $scope.removeAllGroups = function () {
+    $scope.removeAllGroups = function() {
         $scope.selectedGroups = [];
+    };
+
+    var saveGpMedicationStatus = function() {
+        MedicationService.saveGpMedicationStatus($scope.loggedInUser.id, $scope.gpMedicationStatus)
+        .then(function() {
+            init();
+        }, function () {
+            alert('Cannot save GP medication status');
+        });
+    };
+
+    $scope.gpMedicinesOptIn = function() {
+        $scope.gpMedicationStatus.optInStatus = true;
+        $scope.gpMedicationStatus.optInHidden = false;
+        $scope.gpMedicationStatus.optOutHidden = false;
+        $scope.gpMedicationStatus.optInDate = new Date().getTime();
+        saveGpMedicationStatus();
+    };
+
+    $scope.gpMedicinesHideOptIn = function() {
+        $scope.gpMedicationStatus.optInHidden = true;
+        saveGpMedicationStatus();
+    };
+
+    $scope.gpMedicinesShowOptIn = function() {
+        $scope.gpMedicationStatus.optInHidden = false;
+        saveGpMedicationStatus();
+    };
+
+    $scope.gpMedicinesOptOut = function() {
+        $scope.gpMedicationStatus.optInStatus = false;
+        $scope.gpMedicationStatus.optInHidden = false;
+        $scope.gpMedicationStatus.optOutHidden = false;
+        $scope.gpMedicationStatus.optInDate = null;
+        saveGpMedicationStatus();
+    };
+
+    $scope.gpMedicinesHideOptOut = function() {
+        $scope.gpMedicationStatus.optOutHidden = true;
+        saveGpMedicationStatus();
+    };
+
+    $scope.gpMedicinesShowOptOut = function() {
+        $scope.gpMedicationStatus.optOutHidden = false;
+        saveGpMedicationStatus();
     };
 
     init();

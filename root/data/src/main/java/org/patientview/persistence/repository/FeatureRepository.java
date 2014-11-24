@@ -17,7 +17,7 @@ import java.util.List;
  * Created on 05/06/2014
  */
 @Repository
-@Transactional(propagation = Propagation.MANDATORY)
+@Transactional(propagation = Propagation.REQUIRED)
 public interface FeatureRepository extends CrudRepository<Feature, Long> {
 
     @Query("SELECT  f " +

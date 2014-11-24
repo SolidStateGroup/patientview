@@ -1,4 +1,47 @@
 <h1>Medicines</h1>
+<p data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === true && gpMedicationStatus.optOutHidden === true">
+    <a href="" data-ng-click="gpMedicinesShowOptOut()">Opt Out of GP Medication</a>
+</p>
+<p data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === false && gpMedicationStatus.optInHidden === true">
+    <a href="" data-ng-click="gpMedicinesShowOptIn()">Opt In to GP Medication</a>
+</p>
+
+<!-- GP Medicines opt in/out -->
+<div class="content-panel" data-ng-show="gpMedicationStatus.available
+    && gpMedicationStatus.optInStatus === true && gpMedicationStatus.optOutHidden !== true">
+    <div class="content-inner alert-success">
+        <div><!-- opted in -->
+            <h4>Medicines from your GP's records</h4>
+            <p>
+                We need your explicit permission to access your GP's records of your medication.
+                <a href="http://www.rixg.org/rpv/ecs-scr.html" target="_blank">(Explain This)</a>
+            </p>
+            <p>You are currently opted in to show medicines from your GP record.</p>
+            <button type="button" class="btn blue" data-ng-click="gpMedicinesOptOut()">Opt Out</button> &nbsp;&nbsp;&nbsp;
+            <a href="" data-ng-click="gpMedicinesHideOptOut()">Hide This Notification</a>
+        </div>
+    </div>
+</div>
+
+<div class="content-panel" data-ng-show="gpMedicationStatus.available
+    && gpMedicationStatus.optInStatus !== true && gpMedicationStatus.optInHidden !== true">
+    <div class="content-inner alert-warning">
+        <div><!-- not opted in -->
+            <h4>Medicines from your GP's records</h4>
+            <p>
+                Please click the Opt In button if you would like PatientView to display the prescription from your GP.
+                This is useful as its usually the most up to date prescription. PatientView can now obtain it for you,
+                with your permission, from your GP's records.
+                <a href="http://www.rixg.org/rpv/ecs-scr.html" target="_blank">(Explain This)</a>
+            </p>
+            <button type="button" class="btn blue" data-ng-click="gpMedicinesOptIn()">Opt In</button> &nbsp;&nbsp;&nbsp;
+            <a href="" data-ng-click="gpMedicinesHideOptIn()">Hide This Notification</a>
+        </div>
+    </div>
+</div>
+
+<br data-ng-show="gpMedicationStatus.available"/>
+
 <div class="content-panel">
     <div class="content-inner">
         <p>Medicine lists come from a hospital or your GP’s computer system. Please read the cautions and explanation:</p>
@@ -27,7 +70,7 @@
 <div data-ng-show="!loading">
     <br/>
     <!-- Filter -->
-    <div class="content-panel filter-panel" ng-show="medicationStatementsNonEcs.length || medicationStatementsEcs.length">
+    <div class="content-panel filter-panel" ng-show="medicationStatementsNonGp.length || medicationStatementsGp.length">
         <div class="search-container">
             <i class="icon-search-black"></i>
             <input type="text" data-ng-model="searchText" placeholder="Search by medicine name or dose..." class="form-control input-block-level" />
@@ -69,7 +112,7 @@
         <div class="content-inner">
             <div>
                 <h3 class="hidden">From Your Units</h3>
-                <table class="table" data-ng-show="nonEcsFiltered.length">
+                <table class="table" data-ng-show="nonGpFiltered.length">
                     <thead class="table-head">
                         <tr>
                             <th><a href="" data-ng-click="sortBy('date');" class="sort-title">Start Date</a></th>
@@ -79,8 +122,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr data-ng-repeat="medicationStatement in nonEcsFiltered =
-                            (medicationStatementsNonEcs | nameAndDoseFilter:searchText | sourceGroupFilter:selectedGroups
+                        <tr data-ng-repeat="medicationStatement in nonGpFiltered =
+                            (medicationStatementsNonGp | nameAndDoseFilter:searchText | sourceGroupFilter:selectedGroups
                             | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
                             <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
                             <td>{{medicationStatement.name}}</td>
@@ -90,13 +133,13 @@
                     </tbody>
                 </table>
 
-                <div data-ng-show="nonEcsFiltered.length > 0">
-                    <div pagination on-select-page="setPage(page)" total-items="nonEcsFiltered.length"
+                <div data-ng-show="nonGpFiltered.length > 0">
+                    <div pagination on-select-page="setPage(page)" total-items="nonGpFiltered.length"
                          items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm"
-                         ng-hide="nonEcsFiltered.length  < entryLimit "></div>
+                         ng-hide="nonGpFiltered.length  < entryLimit "></div>
                 </div>
 
-                <div class="alert alert-warning" data-ng-show="!nonEcsFiltered.length">
+                <div class="alert alert-warning" data-ng-show="!nonGpFiltered.length">
                     <p>No medicine information from your units available</p>
                 </div>
 
@@ -113,7 +156,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <tr data-ng-repeat="medicationStatement in ecsFiltered = (medicationStatementsEcs | nameAndDoseFilter:searchText | orderBy: predicate :reverse)">
+                        <tr data-ng-repeat="medicationStatement in ecsFiltered = (medicationStatementsGp | nameAndDoseFilter:searchText | orderBy: predicate :reverse)">
                                 <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
                                 <td>{{medicationStatement.name}}</td>
                                 <td>{{medicationStatement.dose}}</td>

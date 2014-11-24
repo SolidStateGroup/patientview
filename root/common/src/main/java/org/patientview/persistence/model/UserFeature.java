@@ -46,7 +46,6 @@ public class UserFeature extends RangeModel {
     public UserFeature () {
     }
 
-    // used by migration
     public UserFeature (Feature feature) {
         this.feature = feature;
     }
