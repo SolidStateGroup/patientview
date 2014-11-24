@@ -310,7 +310,9 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
 
     $scope.userHasMessagingFeature = function() {
 
-        if(UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser)) {
+        // GLOBAL_ADMIN and PATIENT both always have messaging enabled
+        if (UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser)
+            || UserService.checkRoleExists('PATIENT', $scope.loggedInUser) ) {
             return true;
         }
 

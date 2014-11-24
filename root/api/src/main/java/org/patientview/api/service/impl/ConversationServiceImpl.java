@@ -17,6 +17,8 @@ import org.patientview.persistence.model.ConversationUser;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
 import org.patientview.persistence.model.Role;
@@ -99,7 +101,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     public org.patientview.api.model.Conversation findByConversationId(Long conversationId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        if (!loggedInUserHasMessagingFeature()) {
+        if (!loggedInUserHasMessagingFeatures()) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -199,7 +201,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
 
-        if (!loggedInUserHasMessagingFeature()) {
+        if (!loggedInUserHasMessagingFeatures()) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -217,7 +219,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     public void addMessage(Long conversationId, org.patientview.api.model.Message message)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        if (!loggedInUserHasMessagingFeature()) {
+        if (!loggedInUserHasMessagingFeatures()) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -325,7 +327,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     public void addConversation(Long userId, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        if (!loggedInUserHasMessagingFeature()) {
+
+        if (!loggedInUserHasMessagingFeatures() || !conversationUsersAndGroupsHaveMessagingFeatures(conversation)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -462,7 +465,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     public HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        if (!loggedInUserHasMessagingFeature()) {
+        if (!loggedInUserHasMessagingFeatures()) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
@@ -621,22 +624,77 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return userMap;
     }
 
-    // verify logged in user has messaging feature
-    private boolean loggedInUserHasMessagingFeature() {
-        User loggedInUser = getCurrentUser();
-        if (Util.doesContainRoles(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
-            return true;
-        }
-
-        User entityUser = userRepository.findOne(loggedInUser.getId());
+    private boolean userHasStaffMessagingFeatures(User user) {
+        User entityUser = userRepository.findOne(user.getId());
 
         for (UserFeature userFeature : entityUser.getUserFeatures()) {
             if (Util.isInEnum(userFeature.getFeature().getName(), StaffMessagingFeatureType.class)) {
                 return true;
             }
         }
+        return false;
+    }
+
+    // verify at least one of the user's groups has messaging enabled
+    private boolean userGroupsHaveMessagingFeature(User user) {
+
+        User entityUser = userRepository.findOne(user.getId());
+
+        for (GroupRole groupRole : entityUser.getGroupRoles()) {
+            for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
+                if (groupFeature.getFeature().getName().equals(FeatureType.MESSAGING.toString())) {
+                    return true;
+                }
+            }
+        }
 
         return false;
+    }
+
+    // if user has any number of roles passed in, return true
+    private boolean UserHasRole(User user, RoleName ... roleNames) {
+        User entityUser = userRepository.findOne(user.getId());
+
+        for (GroupRole groupRole : entityUser.getGroupRoles()) {
+            for (RoleName roleNameArg : roleNames) {
+                if (groupRole.getRole().getName().equals(roleNameArg)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // verify all conversation users have messaging features and member of group with messaging enabled
+    private boolean conversationUsersAndGroupsHaveMessagingFeatures(Conversation conversation) {
+        int usersWithMessagingFeaturesCount = 0;
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+
+            // GLOBAL_ADMIN and PATIENT users always have messaging features
+            if (UserHasRole(conversationUser.getUser(), RoleName.GLOBAL_ADMIN, RoleName.PATIENT)) {
+                usersWithMessagingFeaturesCount++;
+            } else if (userHasStaffMessagingFeatures(conversationUser.getUser())) {
+                usersWithMessagingFeaturesCount++;
+            }
+
+            // check conversation user member of at least one group with messaging enabled
+            if (!userGroupsHaveMessagingFeature(conversationUser.getUser())) {
+                return false;
+            }
+        }
+
+        return (conversation.getConversationUsers().size() == usersWithMessagingFeaturesCount);
+    }
+
+    // verify logged in user has messaging feature
+    private boolean loggedInUserHasMessagingFeatures() {
+        User loggedInUser = getCurrentUser();
+        if (Util.doesContainRoles(RoleName.PATIENT, RoleName.GLOBAL_ADMIN)) {
+            return true;
+        }
+
+        return userHasStaffMessagingFeatures(userRepository.findOne(loggedInUser.getId()));
     }
 
     // verify logged in user can open conversation
