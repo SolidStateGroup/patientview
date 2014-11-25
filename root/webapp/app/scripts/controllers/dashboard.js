@@ -91,7 +91,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
         }
     });
 
-    $scope.init = function() {
+    var init = function() {
         $scope.loading = true;
 
         $scope.allGroups = [];
@@ -146,5 +146,5 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
         });
     };
 
-    $scope.init();
+    init();
 }]);
