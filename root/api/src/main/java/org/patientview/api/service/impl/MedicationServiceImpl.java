@@ -10,12 +10,15 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirMedicationStatement;
+import org.patientview.api.model.GpMedicationStatus;
+import org.patientview.api.service.GpMedicationService;
 import org.patientview.api.service.MedicationService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
@@ -38,6 +41,9 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private GpMedicationService gpMedicationService;
 
     @Override
     public void addMedicationStatement(
@@ -90,7 +96,19 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
         List<FhirMedicationStatement> fhirMedications = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
-            if (fhirLink.getActive()) {
+
+            boolean retrieveMedication = false;
+
+            if (fhirLink.getGroup().getCode().equals(GpMedicationGroupCodes.ECS.toString())) {
+                GpMedicationStatus gpMedicationStatus = gpMedicationService.getGpMedicationStatus(userId);
+                if (gpMedicationStatus.getOptInStatus()) {
+                    retrieveMedication = true;
+                }
+            } else {
+                retrieveMedication = true;
+            }
+
+            if (retrieveMedication) {
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    medicationstatement ");

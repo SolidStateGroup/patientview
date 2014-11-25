@@ -90,8 +90,9 @@ public class GpMedicationServiceImpl extends BaseController<GpMedicationServiceI
             }
         }
 
-        // set if available for user based on group features
-        gpMedicationStatus.setAvailable(userGroupsHaveGpMedicationFeature(user));
+        // set if available for user based on group features or if user has previously opted in
+        gpMedicationStatus.setAvailable((userGroupsHaveGpMedicationFeature(user)
+                || gpMedicationStatus.getOptInStatus()));
 
         return gpMedicationStatus;
     }
