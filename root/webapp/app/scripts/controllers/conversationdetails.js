@@ -45,15 +45,16 @@ function ($scope, ConversationService) {
 
             // add in order to recipients, with disabled option describing role
             for (i=0; i<result.length; i++) {
-                if (recipientMap[result[i]] !== undefined) {
-                    if (recipientMap[result[i]].length) {
+                var userType = result[i];
+                if (recipientMap[userType] !== undefined) {
+                    if (recipientMap[userType].length) {
                         //var element = {};
                         //element.description = ' ';
 
                         //availableRecipients.push(element);
                         //element = {};
                         //element.description = result[i];
-                        optionString += '<option></option><option class="option-header">' + result[i] + '</option>';
+                        optionString += '<option></option><option class="option-header">' + userType + '</option>';
                         //options.append($("<option />"));
                         //options.append($("<option />").val(null).text(result[i]).addClass('option-header'));
                         //availableRecipients.push(element);
@@ -61,9 +62,10 @@ function ($scope, ConversationService) {
 
                     //var sorted = _.sortBy(recipientMap[result[i]], 'forename');
 
-                    for (j = 0; j < recipientMap[result[i]].length; j++) {
+                    for (j = 0; j < recipientMap[userType].length; j++) {
+                        var user = recipientMap[userType][j];
 
-                        optionString += '<option value="'+ recipientMap[result[i]][j].id +'">' + recipientMap[result[i]][j].forename + ' ' + recipientMap[result[i]][j].surname + '</option>';
+                        optionString += '<option value="'+ user.id +'">' + user.forename + ' ' + user.surname + '</option>';
                         //options.append($("<option />").val(recipientMap[result[i]][j].id).text(' ' + recipientMap[result[i]][j].forename + ' ' + recipientMap[result[i]][j].surname));
                         //availableRecipients.push(sorted[j]);
                     }
