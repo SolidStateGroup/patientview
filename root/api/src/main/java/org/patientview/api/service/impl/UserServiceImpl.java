@@ -44,6 +44,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -821,7 +822,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        emailService.sendEmail(getPasswordResetEmail(user, password));
+        try {
+            emailService.sendEmail(getPasswordResetEmail(user, password));
+        } catch (MessagingException | MailException me) {
+            LOG.error("Could not send reset password email {}", me);
+        }
 
         user.setPassword(DigestUtils.sha256Hex(password));
         user.setChangePassword(Boolean.TRUE);
