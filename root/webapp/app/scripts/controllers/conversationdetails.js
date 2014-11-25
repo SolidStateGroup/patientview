@@ -21,7 +21,7 @@ function ($scope, ConversationService) {
                 }
             }
 
-            var options = $("#conversation-add-recipient");
+            //var options = $("#conversation-add-recipient");
 
             // order keys accordingly
             var result = [];
@@ -40,6 +40,8 @@ function ($scope, ConversationService) {
                 }
             }
 
+            var optionString = '';
+
             // add in order to recipients, with disabled option describing role
             for (i=0; i<result.length; i++) {
                 if (recipientMap[result[i]] !== undefined) {
@@ -50,20 +52,24 @@ function ($scope, ConversationService) {
                         //availableRecipients.push(element);
                         //element = {};
                         //element.description = result[i];
-                        options.append($("<option />"));
-                        options.append($("<option />").val(null).text(result[i]).addClass('option-header'));
+                        optionString += '<option></option><option class="option-header">' + result[i] + '</option>';
+                        //options.append($("<option />"));
+                        //options.append($("<option />").val(null).text(result[i]).addClass('option-header'));
                         //availableRecipients.push(element);
                     }
 
                     //var sorted = _.sortBy(recipientMap[result[i]], 'forename');
 
                     for (j = 0; j < recipientMap[result[i]].length; j++) {
-                        options.append($("<option />").val(recipientMap[result[i]][j].id).text(' ' + recipientMap[result[i]][j].forename + ' ' + recipientMap[result[i]][j].surname));
+
+                        optionString += '<option value="'+ recipientMap[result[i]][j].id +'">' + recipientMap[result[i]][j].forename + ' ' + recipientMap[result[i]][j].surname + '</option>';
+                        //options.append($("<option />").val(recipientMap[result[i]][j].id).text(' ' + recipientMap[result[i]][j].forename + ' ' + recipientMap[result[i]][j].surname));
                         //availableRecipients.push(sorted[j]);
                     }
                 }
             }
 
+            $("#conversation-add-recipient").html(optionString);
 
             /*$.each(availableRecipients, function() {
                 if (this.description !== undefined) {
