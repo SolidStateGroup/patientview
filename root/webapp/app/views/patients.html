@@ -258,6 +258,7 @@
                         </form>
                         <hr>
                         <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                        <div class="last-login pull-left" data-ng-show="!user.lastLogin">The user has not yet logged in</div>
                         <div class="user-save-cancel pull-right">
                             <button type="button" class="btn btn-grey close-edit" data-ng-click="user.showEdit = false">Cancel</button>
                         </div>
