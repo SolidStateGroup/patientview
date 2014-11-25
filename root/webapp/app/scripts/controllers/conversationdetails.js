@@ -41,6 +41,7 @@ function ($scope, ConversationService) {
             }
 
             var optionString = '';
+            $("#conversation-add-recipient").html(optionString);
 
             // add in order to recipients, with disabled option describing role
             for (i=0; i<result.length; i++) {
