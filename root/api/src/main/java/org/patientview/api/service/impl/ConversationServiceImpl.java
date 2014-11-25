@@ -681,9 +681,30 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         StringBuilder sb = new StringBuilder();
         boolean addSpacing = false;
 
-        for (Map.Entry<String, List<BaseUser>> entry : userMap.entrySet()) {
-            String userType = entry.getKey();
-            List<BaseUser> users = entry.getValue();
+        // sort correctly
+        List<String> sortOrder = new ArrayList<>();
+        sortOrder.add(RoleName.UNIT_ADMIN.getName());
+        sortOrder.add(RoleName.STAFF_ADMIN.getName());
+        sortOrder.add(RoleName.PATIENT.getName());
+
+        List<String> sortedKeys = new ArrayList<>();
+
+        for (String keySorted : sortOrder) {
+            for (String key : userMap.keySet()) {
+                if (keySorted.equals(key) && !sortedKeys.contains(key)) {
+                    sortedKeys.add(key);
+                }
+            }
+        }
+
+        for (String key : userMap.keySet()) {
+            if (!sortedKeys.contains(key)) {
+                sortedKeys.add(key);
+            }
+        }
+
+        for (String userType : sortedKeys) {
+            List<BaseUser> users = userMap.get(userType);
 
             if (!users.isEmpty()) {
                 if (addSpacing) {
