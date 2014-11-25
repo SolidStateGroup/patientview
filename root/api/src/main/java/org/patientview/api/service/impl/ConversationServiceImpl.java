@@ -46,7 +46,6 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -482,7 +481,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             for (Group group : groupService.findAll()) {
                 groupIdList.add(group.getId().toString());
             }
-            getParameters.setGroupIds((String[])groupIdList.toArray());
+            getParameters.setGroupIds((String[]) groupIdList.toArray());
         }
 
         for (Role role : staffRoles) {
@@ -670,13 +669,17 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         HashMap<String, List<BaseUser>> userMap = getRecipients(userId, groupId);
 
         StringBuilder sb = new StringBuilder();
+        boolean addSpacing = false;
 
         for (Map.Entry<String, List<BaseUser>> entry : userMap.entrySet()) {
             String userType = entry.getKey();
             List<BaseUser> users = entry.getValue();
 
             if (!users.isEmpty()) {
-                sb.append("<option class=\"option-header\" value=\"\">");
+                if (addSpacing) {
+                    sb.append("<option class=\"option-header\" value=\"\" disabled></option>");
+                }
+                sb.append("<option class=\"option-header\" value=\"\" disabled>");
                 sb.append(userType);
                 sb.append("</option>");
 
@@ -690,6 +693,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     sb.append(baseUser.getSurname());
                     sb.append("</option>");
                 }
+
+                addSpacing = true;
             }
         }
 

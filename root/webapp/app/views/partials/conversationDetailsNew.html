@@ -38,7 +38,7 @@
                         data-ng-change="selectGroup(newConversation, selectedGroupId)">
                 </select>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-5" data-ng-show="recipientsExist">
                 <label for="conversation-add-recipient">Recipient</label>
                 <div id="recipient-select-container"></div>
             </div>
@@ -48,7 +48,7 @@
             </div>
 
             <div class="col-md-2" data-ng-show="recipientsExist">
-                <label for="add-recipient-button">&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <label for="add-recipient-button">Add</label>
                 <button type="button" class="btn blue recipient-add-button pull-left" id="add-recipient-button"
                         data-ng-click="addRecipient(conversationFormNew, newConversation)">
                     <i class="glyphicon glyphicon-plus-sign"></i> &nbsp;&nbsp;Add Recipient</button>

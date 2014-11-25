@@ -31,8 +31,6 @@ function ($scope, ConversationService) {
 
         var userId = $("#conversation-add-recipient option").filter(":selected").val();
         var userDescription = $("#conversation-add-recipient option").filter(":selected").text();
-
-        console.log(userId);
         var found = false;
         var i;
 
