@@ -478,6 +478,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
 
         GetParameters getParameters = new GetParameters();
+        getParameters.setSortField("forename");
+        getParameters.setSortDirection("ASC");
 
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
 

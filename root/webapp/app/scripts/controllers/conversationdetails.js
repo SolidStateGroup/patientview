@@ -21,6 +21,8 @@ function ($scope, ConversationService) {
                 }
             }
 
+            var options = $("#conversation-add-recipient");
+
             // order keys accordingly
             var result = [];
             for(i=0; i<sortOrder.length; i++) {
@@ -42,27 +44,34 @@ function ($scope, ConversationService) {
             for (i=0; i<result.length; i++) {
                 if (recipientMap[result[i]] !== undefined) {
                     if (recipientMap[result[i]].length) {
-                        var element = {};
-                        element.description = ' ';
-                        availableRecipients.push(element);
-                        element = {};
-                        element.description = result[i];
-                        availableRecipients.push(element);
+                        //var element = {};
+                        //element.description = ' ';
+
+                        //availableRecipients.push(element);
+                        //element = {};
+                        //element.description = result[i];
+                        options.append($("<option />"));
+                        options.append($("<option />").val(null).text(result[i]).addClass('option-header'));
+                        //availableRecipients.push(element);
                     }
 
-                    var sorted = _.sortBy(recipientMap[result[i]], 'forename');
+                    //var sorted = _.sortBy(recipientMap[result[i]], 'forename');
 
-                    for (j = 0; j < sorted.length; j++) {
-                        availableRecipients.push(sorted[j]);
+                    for (j = 0; j < recipientMap[result[i]].length; j++) {
+                        options.append($("<option />").val(recipientMap[result[i]][j].id).text(' ' + recipientMap[result[i]][j].forename + ' ' + recipientMap[result[i]][j].surname));
+                        //availableRecipients.push(sorted[j]);
                     }
                 }
             }
 
-            var options = $("#conversation-add-recipient");
-            console.log(options);
-            $.each(availableRecipients, function() {
-                options.append($("<option />").val(this.id).text(this.forename + ' ' + this.surname));
-            });
+
+            /*$.each(availableRecipients, function() {
+                if (this.description !== undefined) {
+                    options.append($("<option />").val(null).text(this.description).addClass('option-header'));
+                } else {
+                    options.append($("<option />").val(this.id).text(' ' + this.forename + ' ' + this.surname));
+                }
+            });*/
 
             //conversation.availableRecipients = availableRecipients;
             $scope.modalLoading = false;
