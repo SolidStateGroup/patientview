@@ -9,10 +9,10 @@ function ($scope, ConversationService) {
 
         ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
 
+            $("#conversation-add-recipient").remove();
             var conversationAddRecipient
                 = $('<select>').addClass('form-control').addClass('recipient-select').attr("id","conversation-add-recipient");
             conversationAddRecipient.html(recipientOptions);
-            $("#conversation-add-recipient").remove();
             $("#recipient-select-container").html(conversationAddRecipient);
 
             $scope.recipientsExist = true;
