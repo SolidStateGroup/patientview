@@ -1,10 +1,35 @@
 <h1>Medicines</h1>
-<p data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === true && gpMedicationStatus.optOutHidden === true">
-    <a href="" data-ng-click="gpMedicinesShowOptOut()">Opt Out of GP Medication</a>
-</p>
-<p data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === false && gpMedicationStatus.optInHidden === true">
-    <a href="" data-ng-click="gpMedicinesShowOptIn()">Opt In to GP Medication</a>
-</p>
+
+<div class="content-panel">
+    <div class="content-inner">
+        <p>Medicine lists come from a hospital or your GP’s computer system. Please read the cautions and explanation:</p>
+        <h4>Important</h4>
+        <p>
+            The list of medicines may not be complete or accurate, because (1) Some hospitals do not yet keep full records of
+            medicines for all patients, (2) Changes made in one place may not quickly get to every list. Please point out
+            changes when you next attend an appointment, or send a note or message if it is important. (We may create an easy
+            way to do this).
+        </p>
+        <h4>Two Kinds of List</h4>
+        <p>
+            Most are supposed to list all the different medicines you’re on.  In these lists DOSE shows how to take it,
+            something like “1 daily oral”.  The other kind of list shows all prescriptions written by your GP, so things may
+            appear twice if they have been dispensed twice.  You can spot these because DOSE also has a number in brackets like
+            this: “(20) 1 capsule four times daily”.  The number in brackets is the number of tablets written on the
+            prescription.
+        </p>
+        <p>
+            This link to <a href="http://www.nlm.nih.gov/medlineplus/druginformation.html" target="_blank">Medline Plus</a> is
+            good if you want more information on individual drugs, or on herbs and supplements.
+        </p>
+        <p data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === true && gpMedicationStatus.optOutHidden === true">
+            <a href="" data-ng-click="gpMedicinesShowOptOut()">Opt Out of GP Medication</a>
+        </p>
+        <p data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === false && gpMedicationStatus.optInHidden === true">
+            <a href="" data-ng-click="gpMedicinesShowOptIn()">Opt In to GP Medication</a>
+        </p>
+    </div>
+</div>
 
 <!-- GP Medicines opt in/out -->
 <div class="content-panel" data-ng-show="gpMedicationStatus.available
@@ -39,34 +64,6 @@
         </div>
     </div>
 </div>
-
-<br data-ng-show="gpMedicationStatus.available"/>
-
-<div class="content-panel">
-    <div class="content-inner">
-        <p>Medicine lists come from a hospital or your GP’s computer system. Please read the cautions and explanation:</p>
-        <h4>Important</h4>
-        <p>
-            The list of medicines may not be complete or accurate, because (1) Some hospitals do not yet keep full records of
-            medicines for all patients, (2) Changes made in one place may not quickly get to every list. Please point out
-            changes when you next attend an appointment, or send a note or message if it is important. (We may create an easy
-            way to do this).
-        </p>
-        <h4>Two Kinds of List</h4>
-        <p>
-            Most are supposed to list all the different medicines you’re on.  In these lists DOSE shows how to take it,
-            something like “1 daily oral”.  The other kind of list shows all prescriptions written by your GP, so things may
-            appear twice if they have been dispensed twice.  You can spot these because DOSE also has a number in brackets like
-            this: “(20) 1 capsule four times daily”.  The number in brackets is the number of tablets written on the
-            prescription.
-        </p>
-        <p>
-            This link to <a href="http://www.nlm.nih.gov/medlineplus/druginformation.html" target="_blank">Medline Plus</a> is
-            good if you want more information on individual drugs, or on herbs and supplements.
-        </p>
-    </div>
-</div>
-
 <div data-ng-show="!loading">
     <br/>
     <!-- Filter -->
