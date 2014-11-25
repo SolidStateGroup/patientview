@@ -80,12 +80,12 @@ function ($scope, $timeout, MedicationService) {
     var init = function() {
         $scope.loading = true;
         $scope.currentPage = 1;
-        $scope.entryLimit = 10;
+        $scope.entryLimit = 30;
 
         MedicationService.getByUserId($scope.loggedInUser.id).then(function(medicationStatements) {
             $scope.filterGroups = getSourceGroups(medicationStatements);
             separateMedicationStatements(medicationStatements);
-            $scope.predicate = 'date';
+            $scope.predicate = 'startDate';
             $scope.reverse = true;
             $scope.loading = false;
         }, function () {
