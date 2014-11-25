@@ -58,6 +58,12 @@ function ($scope, ConversationService) {
                 }
             }
 
+            var options = $("#conversation-add-recipient");
+            console.log(options);
+            $.each(availableRecipients, function() {
+                options.append($("<option />").val(this.id).text(this.forename + ' ' + this.surname));
+            });
+
             //conversation.availableRecipients = availableRecipients;
             $scope.modalLoading = false;
         }, function (failureResult) {
