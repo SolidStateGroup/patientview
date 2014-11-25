@@ -1,0 +1,83 @@
+<patientview>
+<sequence>01436</sequence>
+<dateofreport>2013-11-13T16:38:18</dateofreport>
+<flag>Follow-up-report</flag>
+<centredetails>
+<centrecode>ECS</centrecode>
+<centrename>ECS</centrename>
+<centreaddress1>ECS Unit</centreaddress1>
+<centreaddress2>14 Lister Street</centreaddress2>
+<centreaddress3>Kilmarnock</centreaddress3>
+<centreaddress4>Ayrshire</centreaddress4>
+<centrepostcode>KA2 0BE</centrepostcode>
+<centretelephone>01563 521133</centretelephone>
+</centredetails>
+<gpdetails>
+<gpname> z6024459</gpname>
+<gpaddress1>Templehill Surgery</gpaddress1>
+<gpaddress2>23 Templehill</gpaddress2>
+<gpaddress3>Troon</gpaddress3>
+<gpaddress4>Ayrshire</gpaddress4>
+<gppostcode>KA10 6BQ</gppostcode>
+<gptelephone>01292 312012</gptelephone>
+</gpdetails>
+<patient>
+<personaldetails>
+<surname>patbsur</surname>
+<forename>patbfore</forename>
+<dateofbirth>1944-09-27</dateofbirth>
+<sex>Female</sex>
+<nhsno>1111111111</nhsno>
+<hospitalnumber>125634</hospitalnumber>
+<address1>1 street road</address1>
+<address2>townsville</address2>
+<postcode>BS10 5NB</postcode>
+<telephone1>0118 999881</telephone1>
+<mobile>018118181</mobile>
+</personaldetails>
+<clinicaldetails>
+<rrtstatus>TP</rrtstatus>
+<diagnosisedta>80</diagnosisedta>
+    <diagnosisdate>2001-12-24</diagnosisdate>
+<diagnosis>(EDTA PRD) 80 Diabetes Type 1 (Insulin dependent)</diagnosis>
+<diagnosis>A second diagnosis</diagnosis>
+<bloodgroup>B</bloodgroup>
+</clinicaldetails>
+<timelinedetails>
+
+</timelinedetails>
+<testdetails>
+</testdetails>
+
+
+    <drugdetails>
+        <drug>
+            <drugstartdate>2013-10-30</drugstartdate>
+            <drugname>ECS Bisoprolol</drugname>
+            <drugdose>5 mg. Tablet/s Oral Daily </drugdose>
+        </drug>
+        <drug>
+            <drugstartdate>2013-10-28T15:49:40</drugstartdate>
+            <drugname>ECS Furosemide.</drugname>
+            <drugdose>40 mg. Tablet/s Oral In the morning  </drugdose>
+        </drug>
+        <drug>
+            <drugstartdate>2013-10-25T15:47:58</drugstartdate>
+            <drugname>ECS Prednisone</drugname>
+            <drugdose>10 mg. Tablet/s Oral Daily EC DUE TO GI effects
+                Increased due to infection </drugdose>
+        </drug>
+        <drug>
+            <drugstartdate>2013-10-23</drugstartdate>
+            <drugname>ECS Alendronate sodium</drugname>
+            <drugdose>70 mg. Tablet/s Oral weekly. Sundays </drugdose>
+        </drug>
+
+    </drugdetails>
+<letterdetails>
+
+</letterdetails>
+    <diagnostics>
+    </diagnostics>
+</patient>
+</patientview>
