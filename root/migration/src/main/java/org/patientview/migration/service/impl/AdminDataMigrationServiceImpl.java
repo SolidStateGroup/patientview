@@ -334,9 +334,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     public Set<Feature> getUnitFeatures(Unit unit) {
         Set<Feature> unitFeatures = new HashSet<Feature>();
 
-        if (unit.isSharedThoughtEnabled()) {
+        /*if (unit.isSharedThoughtEnabled()) {
             unitFeatures.add(getFeatureByName(FeatureType.SHARING_THOUGHTS.toString()));
-        }
+        }*/
 
         if (unit.isFeedbackEnabled()) {
             unitFeatures.add(getFeatureByName(FeatureType.FEEDBACK.toString()));

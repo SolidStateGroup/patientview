@@ -102,7 +102,7 @@ INSERT INTO pv_user_group_role VALUES(1, 3, 1, 5, now(), null, now(), 1, null, n
 INSERT INTO pv_user_group_role VALUES(2, 2, 1, 5, now(), null, now(), 1, null, null);
 
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (1, 'MESSAGING', 'Messaging', now(), now(), 1);
-INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (2, 'SHARING_THOUGHTS', 'Sharing Thoughts', now(), now(), 1);
+/*INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (2, 'SHARING_THOUGHTS', 'Sharing Thoughts', now(), now(), 1);*/
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (3, 'FEEDBACK', 'Feedback', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (4, 'GP_MEDICATION', 'Medicines From GP', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (5, 'UNIT_TECHNICAL_CONTACT', 'Unit Technical Contact', now(), now(), 1);
