@@ -474,6 +474,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<String> groupIdList = new ArrayList<>();
         List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
         List<Role> patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+        List<String> featureIds = new ArrayList<>();
+
+        // only retrieve users with features
+        for (StaffMessagingFeatureType featureType : StaffMessagingFeatureType.values()) {
+            Feature feature = featureRepository.findByName(featureType.toString());
+            if (feature != null) {
+                featureIds.add(feature.getId().toString());
+            }
+        }
+        getParameters.setFeatureIds(featureIds.toArray(new String[featureIds.size()]));
 
         if (groupId != null) {
             getParameters.setGroupIds(new String[]{groupId.toString()});
@@ -481,14 +491,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             for (Group group : groupService.findAll()) {
                 groupIdList.add(group.getId().toString());
             }
-            getParameters.setGroupIds((String[]) groupIdList.toArray());
+            getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
         }
 
         for (Role role : staffRoles) {
             getParameters.setRoleIds(new String[]{role.getId().toString()});
 
             List<BaseUser> users = convertUsersToTransportBaseUsers(
-                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+                    userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
 
             userMap.put(role.getName().getName(), users);
         }
@@ -620,7 +630,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             getParameters.setRoleIds(new String[]{role.getId().toString()});
 
             List<BaseUser> users = convertUsersToTransportBaseUsers(
-                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+                    userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
 
             userMap.put(role.getName().getName(), users);
         }
@@ -756,7 +766,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
 
             // check conversation user member of at least one group with messaging enabled
-            if (!userGroupsHaveMessagingFeature(conversationUser.getUser())) {
+            if (!userHasRole(conversationUser.getUser(), RoleName.GLOBAL_ADMIN, RoleName.PATIENT)
+                && !userGroupsHaveMessagingFeature(conversationUser.getUser())) {
                 return false;
             }
         }
