@@ -724,6 +724,11 @@ module.exports = function (grunt) {
         'clean:dist',
         'ngconstant:apiie',
         'copy:minimal',
+        'useminPrepare',
+        'concat',
+        'uglify',
+        'cssmin',
+        'usemin'
     ]);
 
     grunt.registerTask('minimalssgstaging', [
