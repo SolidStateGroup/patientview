@@ -181,6 +181,11 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         }
     }
 
+    @Override
+    public List<String> findByGroupCode(String code) {
+        return identifierRepository.findByGroupCode(code);
+    }
+
     private void isValidIdentifier(Identifier identifier) throws ResourceInvalidException {
 
         String value = identifier.getIdentifier();

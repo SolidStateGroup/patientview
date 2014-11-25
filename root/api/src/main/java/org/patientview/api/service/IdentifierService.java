@@ -40,4 +40,6 @@ public interface IdentifierService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void validate(UserIdentifier userIdentifier)
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException;
+
+    List<String> findByGroupCode(String code);
 }

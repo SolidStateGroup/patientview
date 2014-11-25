@@ -61,6 +61,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // verify email
         publicUrls.add("/verify");
 
+        // used for ECS
+        publicUrls.add("/ecs/getpatientidentifiers");
+
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
         }

@@ -179,7 +179,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
             // GLOBAL_ADMIN can reach all groups
             groups = Util.convertIterable(groupRepository.findAll());
-        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)){
+        } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN)) {
             // SPECIALTY_ADMIN gets groups and child groups if available
             List<Group> parentGroups = Util.convertIterable(groupRepository.findGroupByUser(entityUser));
             parentGroups = addParentAndChildGroups(parentGroups);

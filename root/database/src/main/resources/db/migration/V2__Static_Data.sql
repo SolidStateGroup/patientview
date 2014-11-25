@@ -10,6 +10,9 @@ INSERT INTO pv_user (id, username, password, change_password, locked, email, for
 INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by, dummy) VALUES
   (4, 'importer','pppppp', false, false, 'importer@patientview.org', 'importer', 'importer', now(), now(), 1, false);
 
+INSERT INTO pv_user (id, username, password, change_password, locked, email, forename, surname, start_date, creation_date, created_by, dummy) VALUES
+  (5, 'ecs','pppppp', false, false, 'ecs@patientview.org', 'ecs', 'ecs', now(), now(), 1, false);
+
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (1, now(), 'Type of group','GROUP', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (2, now(), 'Type of menu','MENU', '1');
 INSERT INTO pv_lookup_type(id, creation_date, description, lookup_type, created_by)  VALUES (3, now(), 'Type of role','ROLE', '1');

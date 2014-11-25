@@ -29,4 +29,12 @@ public interface IdentifierRepository extends JpaRepository<Identifier, Long> {
            "FROM   Identifier i " +
            "WHERE  i.identifier = :value ")
     List<Identifier> findByValue(@Param("value") String value);
+
+    @Query("SELECT  i.identifier " +
+            "FROM   Identifier i " +
+            "JOIN   i.user u " +
+            "JOIN   u.groupRoles gr " +
+            "JOIN   gr.group g " +
+            "WHERE  g.code = :code")
+    List<String> findByGroupCode(@Param("code") String code);
 }

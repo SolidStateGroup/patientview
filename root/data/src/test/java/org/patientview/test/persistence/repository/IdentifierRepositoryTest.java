@@ -4,10 +4,14 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
@@ -85,5 +89,30 @@ public class IdentifierRepositoryTest {
         List<Identifier> identifiers = identifierRepository.findByValue(testNhsNumber);
 
         Assert.assertEquals("There is 1 identifier returned", 1, identifiers.size());
+    }
+
+    @Test
+    public void testFindByGroupCode() {
+
+        String testNhsNumber = "324234234";
+
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        dataTestUtils.createGroupRole(user, group, role);
+        Lookup lookup = dataTestUtils.createLookup("NHS_NUMBER", LookupTypes.IDENTIFIER);
+
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier(testNhsNumber);
+        identifier.setIdentifierType(lookup);
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        userRepository.save(user);
+
+        List<String> identifiers = identifierRepository.findByGroupCode(group.getCode());
+
+        Assert.assertEquals("There should be 1 identifier returned", 1, identifiers.size());
+        Assert.assertEquals("Should have correct identifier returned", testNhsNumber, identifiers.get(0));
     }
 }

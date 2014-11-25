@@ -650,7 +650,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     // if user has any number of roles passed in, return true
-    private boolean UserHasRole(User user, RoleName ... roleNames) {
+    private boolean userHasRole(User user, RoleName ... roleNames) {
         User entityUser = userRepository.findOne(user.getId());
 
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
@@ -670,7 +670,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
 
             // GLOBAL_ADMIN and PATIENT users always have messaging features
-            if (UserHasRole(conversationUser.getUser(), RoleName.GLOBAL_ADMIN, RoleName.PATIENT)) {
+            if (userHasRole(conversationUser.getUser(), RoleName.GLOBAL_ADMIN, RoleName.PATIENT)) {
                 usersWithMessagingFeaturesCount++;
             } else if (userHasStaffMessagingFeatures(conversationUser.getUser())) {
                 usersWithMessagingFeaturesCount++;

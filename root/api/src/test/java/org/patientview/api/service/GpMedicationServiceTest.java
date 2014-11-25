@@ -9,6 +9,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.GpMedicationStatus;
+import org.patientview.api.service.impl.GpMedicationServiceImpl;
 import org.patientview.api.service.impl.MedicationServiceImpl;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Feature;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.when;
  * Created by jamesr@solidstategroup.com
  * Created on 24/11/2014
  */
-public class MedicationServiceTest {
+public class GpMedicationServiceTest {
 
     User creator;
 
@@ -45,7 +46,7 @@ public class MedicationServiceTest {
     UserRepository userRepository;
 
     @InjectMocks
-    MedicationService medicationService = new MedicationServiceImpl();
+    GpMedicationService gpMedicationService = new GpMedicationServiceImpl();
 
     @Before
     public void setup() {
@@ -93,7 +94,7 @@ public class MedicationServiceTest {
 
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
 
-        GpMedicationStatus gpMedicationStatus = medicationService.getGpMedicationStatus(user.getId());
+        GpMedicationStatus gpMedicationStatus = gpMedicationService.getGpMedicationStatus(user.getId());
 
         Assert.assertEquals("Should be opted in", true, gpMedicationStatus.getOptInStatus());
         Assert.assertEquals("Should be available", true, gpMedicationStatus.isAvailable());

@@ -31,6 +31,8 @@ public interface UserService {
 
     org.patientview.api.model.User getByUsername(String username);
 
+    User findByUsernameCaseInsensitive(String username);
+
     org.patientview.api.model.User getByEmail(String username);
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
@@ -47,7 +49,8 @@ public interface UserService {
 
     @AuditTrail(value = AuditActions.EDIT_USER, objectType = User.class)
     @UserOnly
-    void updateOwnSettings(Long userId, User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
+    void updateOwnSettings(Long userId, User user)
+            throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     User get(Long userId) throws ResourceNotFoundException;
 
@@ -108,7 +111,7 @@ public interface UserService {
 
     // Stage 1 of Forgotten Password, user knows username and email
     void resetPasswordByUsernameAndEmail(String username, String email)
-            throws ResourceNotFoundException, MailException, MessagingException ;
+            throws ResourceNotFoundException, MailException, MessagingException;
 
     @UserOnly
     void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException;

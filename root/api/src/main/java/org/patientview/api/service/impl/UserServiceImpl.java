@@ -7,7 +7,6 @@ import org.patientview.api.model.Email;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
-import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
@@ -54,7 +53,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
-import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -111,17 +109,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private Properties properties;
 
-    @Inject
-    private UserMigrationService userMigrationService;
-
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
     private Group genericGroup;
     private Role memberRole;
-
-    @Inject
-    private EntityManager entityManager;
 
 
     @PostConstruct
@@ -491,6 +483,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
+    public User findByUsernameCaseInsensitive(String username) {
+        return userRepository.findByUsernameCaseInsensitive(username);
+    }
+
+    @Override
     public org.patientview.api.model.User getByEmail(String email) {
         User foundUser = userRepository.findByEmail(email);
         if (foundUser == null) {
@@ -542,7 +539,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public void updateOwnSettings(Long UserId, User user)
+    public void updateOwnSettings(Long userId, User user)
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findUser(user.getId());
         entityUser.setEmail(user.getEmail());

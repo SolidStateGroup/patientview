@@ -38,7 +38,10 @@ public enum AuditActions {
     // importer
     PATIENT_DATA_SUCCESS("Patient data imported"),
     PATIENT_DATA_VALIDATE_FAIL("Patient data failed validation"),
-    PATIENT_DATA_FAIL("Patient data failed import");
+    PATIENT_DATA_FAIL("Patient data failed import"),
+
+    // ECS (GP Medication)
+    GET_PATIENT_IDENTIFIERS_ECS("Get Patient Identifiers (ECS)");
 
     // not used
     //VIEW("View"),

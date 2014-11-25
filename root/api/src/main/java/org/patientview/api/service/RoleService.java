@@ -22,5 +22,5 @@ public interface RoleService {
     @UserOnly
     List<Role> getUserRoles(Long userId);
 
-    public Role findByRoleTypeAndName(RoleType roleType, RoleName roleName);
+    Role findByRoleTypeAndName(RoleType roleType, RoleName roleName);
 }

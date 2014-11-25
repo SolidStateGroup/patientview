@@ -392,7 +392,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken.setGroupMessagingEnabled(false);
 
         for (org.patientview.persistence.model.Group userGroup : userGroups) {
-            // do not add groups that have code in HiddenGroupCode enum as these are used for patient entered results etc
+            // do not add groups that have code in HiddenGroupCode enum as these are used for patient entered results
             if (!Util.isInEnum(userGroup.getCode(), HiddenGroupCodes.class)) {
                 userToken.getUserGroups().add(new BaseGroup(userGroup));
 
@@ -474,7 +474,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         return userTokenRepository.findByToken(token);
     }
 
-    // TODO sprint 3 manage this with annotation
     private void createAudit(AuditActions auditActions, String preValue, User actor,
                              Long sourceObjectId, AuditObjectTypes sourceObjectType) {
 
