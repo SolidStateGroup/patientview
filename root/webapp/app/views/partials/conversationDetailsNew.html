@@ -1,6 +1,6 @@
 <style>
     option.option-header {
-        color:red;
+        color:#428bca;
     }
 </style>
 
@@ -12,7 +12,7 @@
                 <label for="conversation-add-recipient" class="control-label">Recipients </label>
                 <ul class="feature-list unstyled">
                     <li class="feature-list-item" data-ng-repeat="user in newConversation.recipients">
-                        <div class="feature-list-name"><span class="feature-list-name">{{user.forename}} {{user.surname}}</span> &nbsp;
+                        <div class="feature-list-name"><span class="feature-list-name">{{user.description}}</span> &nbsp;
                             <a id="remove-recipient-{{user.id}}" href="" data-ng-click="removeRecipient(conversationFormNew, newConversation, user)" ><i class="glyphicon glyphicon-remove"></i></a>
                         </div>
                     </li>
@@ -38,34 +38,19 @@
                         data-ng-change="selectGroup(newConversation, selectedGroupId)">
                 </select>
             </div>
-
-            <!--<div class="col-md-5" data-ng-show="newConversation.availableRecipients.length" >-->
             <div class="col-md-5">
                 <label for="conversation-add-recipient">Recipient</label>
-                <select class="form-control recipient-select" id="conversation-add-recipient"></select>
-                <!--<select class="form-control recipient-select" id="conversation-add-recipient"
-                        data-ng-model="recipientToAdd"
-                        data-ng-class="{disabledoption: user.description.length}"
-                        data-ng-options="
-                        user.id as
-                        user.description.length ? user.description : '&nbsp;' + '&nbsp;&nbsp;' +
-                        user.forename + ' ' + user.surname +
-                        (user.dateOfBirth ? ' &nbsp;(' + (user.dateOfBirth | date:'dd-MMM-yyyy') + ')' : '')
-                        for user in newConversation.availableRecipients
-                        "></select>-->
-
+                <div id="recipient-select-container"></div>
             </div>
-            <!--<div class="col-md-5" data-ng-show="!newConversation.availableRecipients.length && selectedGroupId">-->
-            <div class="col-md-5">
+            <div class="col-md-5" data-ng-show="!recipientsExist">
                 <br/><br/>
                 <p>There are no recipients available for this group</p>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-2" data-ng-show="recipientsExist">
                 <label for="add-recipient-button">&nbsp;&nbsp;&nbsp;&nbsp;</label>
                 <button type="button" class="btn blue recipient-add-button pull-left" id="add-recipient-button"
-                        data-ng-click="addRecipient(conversationFormNew, newConversation, recipientToAdd)"
-                        data-ng-disabled="!newConversation.availableRecipients.length">
+                        data-ng-click="addRecipient(conversationFormNew, newConversation)">
                     <i class="glyphicon glyphicon-plus-sign"></i> &nbsp;&nbsp;Add Recipient</button>
             </div>
         </div>

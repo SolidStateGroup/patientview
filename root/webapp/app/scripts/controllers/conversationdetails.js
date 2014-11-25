@@ -5,61 +5,17 @@ function ($scope, ConversationService) {
 
     $scope.selectGroup = function(conversation, groupId) {
         $scope.modalLoading = true;
+        $scope.recipientsExist = false;
 
-        ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientMap) {
-            /*var availableRecipients = [];
-            var restangularObjects
-                = ['route','reqParams','fromServer','parentResource','restangularCollection','singleOne'];
-            var sortOrder = ['Unit Admin', 'Unit Staff', 'Patient'];
-            var keys = [];
-            var i, j;
+        ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
 
-            for (var key in recipientMap) {
-                if (recipientMap.hasOwnProperty(key) && typeof(recipientMap[key]) !== 'function'
-                    && !(restangularObjects.indexOf(key) > -1)) {
-                    keys.push(key);
-                }
-            }
+            var conversationAddRecipient
+                = $('<select>').addClass('form-control').addClass('recipient-select').attr("id","conversation-add-recipient");
+            conversationAddRecipient.html(recipientOptions);
+            $("#conversation-add-recipient").remove();
+            $("#recipient-select-container").html(conversationAddRecipient);
 
-            //var options = $("#conversation-add-recipient");
-
-            // order keys accordingly
-            var result = [];
-            for(i=0; i<sortOrder.length; i++) {
-                for (j=0; j<keys.length; j++) {
-                    if (keys[j] == sortOrder[i] && !(result.indexOf(keys[j]) > -1)) {
-                        result.push(keys[j]);
-                    }
-                }
-            }
-
-            // add any remaining keys
-            for (i=0; i<keys.length; i++) {
-                if (!(result.indexOf(keys[i]) > -1)) {
-                    result.push(keys[i]);
-                }
-            }
-
-            var optionString = '';
-            $("#conversation-add-recipient").html(optionString);
-
-            // add in order to recipients, with disabled option describing role
-            for (i=0; i<result.length; i++) {
-                var userType = result[i];
-                if (recipientMap[userType] !== undefined) {
-                    if (recipientMap[userType].length) {
-                        optionString += '<option></option><option class="option-header">' + userType + '</option>';
-                    }
-
-                    for (j = 0; j < recipientMap[userType].length; j++) {
-                        var user = recipientMap[userType][j];
-                        optionString += '<option value="'+ user.id +'">' + user.forename + ' ' + user.surname + '</option>';
-                    }
-                }
-            }
-
-            $("#conversation-add-recipient").html(optionString);*/
-            $("#conversation-add-recipient").html(recipientMap);
+            $scope.recipientsExist = true;
             $scope.modalLoading = false;
         }, function (failureResult) {
             if (failureResult.status === 404) {
@@ -71,8 +27,12 @@ function ($scope, ConversationService) {
         });
     };
 
-    $scope.addRecipient = function (form, conversation, userId) {
+    $scope.addRecipient = function (form, conversation) {
 
+        var userId = $("#conversation-add-recipient option").filter(":selected").val();
+        var userDescription = $("#conversation-add-recipient option").filter(":selected").text();
+
+        console.log(userId);
         var found = false;
         var i;
 
@@ -84,12 +44,11 @@ function ($scope, ConversationService) {
             }
         }
 
-        if (!found && userId !== undefined) {
-            for (i = 0; i < conversation.availableRecipients.length; i++) {
-                if (conversation.availableRecipients[i].id == userId) {
-                    conversation.recipients.push(conversation.availableRecipients[i]);
-                }
-            }
+        if (!found && userId !== '') {
+            var recipient = {};
+            recipient.id = userId;
+            recipient.description = userDescription;
+            conversation.recipients.push(recipient);
         }
     };
 

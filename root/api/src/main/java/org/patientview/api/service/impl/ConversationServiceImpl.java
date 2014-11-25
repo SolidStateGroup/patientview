@@ -650,7 +650,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
             userMap = getGlobalAdminRecipients(groupId);
-
         } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
                 RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN)) {
             userMap = getStaffRecipients(userId, groupId);
@@ -676,19 +675,21 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             String userType = entry.getKey();
             List<BaseUser> users = entry.getValue();
 
-            sb.append("<option class=\"option-header\">");
-            sb.append(userType);
-            sb.append("</option>");
-
-            for (BaseUser baseUser : users) {
-
-                sb.append("<option value=\"");
-                sb.append(baseUser.getId());
-                sb.append("\">");
-                sb.append(baseUser.getForename());
-                sb.append(" ");
-                sb.append(baseUser.getSurname());
+            if (!users.isEmpty()) {
+                sb.append("<option class=\"option-header\" value=\"\">");
+                sb.append(userType);
                 sb.append("</option>");
+
+                for (BaseUser baseUser : users) {
+
+                    sb.append("<option value=\"");
+                    sb.append(baseUser.getId());
+                    sb.append("\">");
+                    sb.append(baseUser.getForename());
+                    sb.append(" ");
+                    sb.append(baseUser.getSurname());
+                    sb.append("</option>");
+                }
             }
         }
 
