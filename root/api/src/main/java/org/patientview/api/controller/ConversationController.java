@@ -96,6 +96,14 @@ public class ConversationController extends BaseController<ConversationControlle
         return new ResponseEntity<>(conversationService.getRecipients(userId, groupId), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/user/{userId}/conversations/recipientsfast", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> getRecipientsFast(@PathVariable("userId") Long userId,
+                                             @RequestParam(value = "groupId", required = false) Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(conversationService.getRecipientsFast(userId, groupId), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/conversation/{conversationId}/messages", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addMessage(@PathVariable("conversationId") Long conversationId, @RequestBody Message message)

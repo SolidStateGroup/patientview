@@ -43,4 +43,8 @@ public interface ConversationService extends CrudService<Conversation> {
     @UserOnly
     HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    @UserOnly
+    String getRecipientsFast(Long userId, Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException;
 }

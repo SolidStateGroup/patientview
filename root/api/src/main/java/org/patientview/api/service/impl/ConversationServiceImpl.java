@@ -46,6 +46,7 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -53,6 +54,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -462,6 +464,180 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         return transportUsers;
     }
 
+    private HashMap<String, List<BaseUser>> getGlobalAdminRecipients(Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        HashMap<String, List<BaseUser>> userMap = new HashMap<>();
+
+        GetParameters getParameters = new GetParameters();
+        getParameters.setSortField("forename");
+        getParameters.setSortDirection("ASC");
+        List<String> groupIdList = new ArrayList<>();
+        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
+        List<Role> patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+
+        if (groupId != null) {
+            getParameters.setGroupIds(new String[]{groupId.toString()});
+        } else {
+            for (Group group : groupService.findAll()) {
+                groupIdList.add(group.getId().toString());
+            }
+            getParameters.setGroupIds((String[])groupIdList.toArray());
+        }
+
+        for (Role role : staffRoles) {
+            getParameters.setRoleIds(new String[]{role.getId().toString()});
+
+            List<BaseUser> users = convertUsersToTransportBaseUsers(
+                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+
+            userMap.put(role.getName().getName(), users);
+        }
+
+        for (Role role : patientRoles) {
+            getParameters.setRoleIds(new String[]{role.getId().toString()});
+
+            List<BaseUser> users = convertUsersToTransportBaseUsers(
+                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+
+            userMap.put(role.getName().getName(), users);
+        }
+
+        return userMap;
+    }
+
+    private HashMap<String, List<BaseUser>> getPatientRecipients(Long userId, Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        User entityUser = findEntityUser(userId);
+        HashMap<String, List<BaseUser>> userMap = new HashMap<>();
+
+        GetParameters getParameters = new GetParameters();
+        getParameters.setSortField("forename");
+        getParameters.setSortDirection("ASC");
+        List<String> groupIdList = new ArrayList<>();
+        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
+
+        // patients can only contact staff in their units with PatientMessagingFeatureType
+        List<String> featureIdList = new ArrayList<>();
+
+        // restrict features to PatientMessagingFeatureType (subset of Feature Type)
+        for (PatientMessagingFeatureType featureType : PatientMessagingFeatureType.class.getEnumConstants()) {
+            Feature feat = featureRepository.findByName(featureType.toString());
+            if (feat != null) {
+                featureIdList.add(feat.getId().toString());
+            }
+        }
+
+        if (featureIdList.isEmpty()) {
+            throw new ResourceNotFoundException("No suitable recipients (by feature)");
+        }
+
+        getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
+
+        // only search for groups patient is in (excluding specialties so only units)
+        List<Group> patientGroups
+                = Util.convertIterable(groupRepository.findGroupsByUserNoSpecialties(
+                "%%", entityUser, new PageRequest(0, Integer.MAX_VALUE)));
+
+        for (Group group : patientGroups) {
+            groupIdList.add(group.getId().toString());
+        }
+
+        getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
+
+        // if restricted to one group
+        if (groupId != null) {
+            if (groupIdList.contains(groupId.toString())) {
+                getParameters.setGroupIds(new String[]{groupId.toString()});
+            } else {
+                throw new ResourceForbiddenException("Forbidden");
+            }
+        }
+
+        if (groupIdList.isEmpty()) {
+            throw new ResourceNotFoundException("No suitable recipients (by group)");
+        }
+
+        for (Role role : staffRoles) {
+            getParameters.setRoleIds(new String[]{role.getId().toString()});
+
+            List<BaseUser> users = convertUsersToTransportBaseUsers(
+                    userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
+
+            userMap.put(role.getName().getName(), users);
+        }
+
+        return userMap;
+    }
+
+    private HashMap<String, List<BaseUser>> getStaffRecipients(Long userId, Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        User entityUser = findEntityUser(userId);
+        HashMap<String, List<BaseUser>> userMap = new HashMap<>();
+
+        GetParameters getParameters = new GetParameters();
+        getParameters.setSortField("forename");
+        getParameters.setSortDirection("ASC");
+        List<String> groupIdList = new ArrayList<>();
+        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
+        List<Role> patientRoles = roleService.getRolesByType(RoleType.PATIENT);
+
+        // specialty/unit staff and admin can contact all users in specialty/unit
+        // staff & patient users can only contact those in their groups
+        for (BaseGroup group : groupService.findMessagingGroupsByUserId(entityUser.getId())) {
+            groupIdList.add(group.getId().toString());
+        }
+        getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
+
+        // if restricted to one group
+        if (groupId != null) {
+            if (groupIdList.contains(groupId.toString())) {
+                getParameters.setGroupIds(new String[]{groupId.toString()});
+            } else {
+                throw new ResourceForbiddenException("Forbidden");
+            }
+        }
+
+        if (groupIdList.isEmpty()) {
+            throw new ResourceNotFoundException("No suitable recipients (by group)");
+        }
+
+        // restrict features to StaffMessagingFeatureType (subset of Feature Type)
+        List<String> featureIdList = new ArrayList<>();
+        for (StaffMessagingFeatureType featureType : StaffMessagingFeatureType.class.getEnumConstants()) {
+            Feature feat = featureRepository.findByName(featureType.toString());
+            if (feat != null) {
+                featureIdList.add(feat.getId().toString());
+            }
+        }
+
+        if (featureIdList.isEmpty()) {
+            throw new ResourceNotFoundException("No suitable recipients (by feature)");
+        }
+
+        getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
+
+        for (Role role : staffRoles) {
+            getParameters.setRoleIds(new String[]{role.getId().toString()});
+
+            List<BaseUser> users = convertUsersToTransportBaseUsers(
+                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+
+            userMap.put(role.getName().getName(), users);
+        }
+
+        for (Role role : patientRoles) {
+            getParameters.setRoleIds(new String[]{role.getId().toString()});
+
+            List<BaseUser> users = convertUsersToTransportBaseUsers(
+                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+
+            userMap.put(role.getName().getName(), users);
+        }
+
+        return userMap;
+    }
+
     public HashMap<String, List<BaseUser>> getRecipients(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -469,152 +645,17 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        User entityUser = findEntityUser(userId);
-        List<String> groupIdList = new ArrayList<>();
-        List<Role> staffRoles = roleService.getRolesByType(RoleType.STAFF);
-        List<Role> patientRoles = roleService.getRolesByType(RoleType.PATIENT);
-
         // to store list of users per role
         HashMap<String, List<BaseUser>> userMap = new HashMap<>();
 
-        GetParameters getParameters = new GetParameters();
-        getParameters.setSortField("forename");
-        getParameters.setSortDirection("ASC");
-
         if (doesContainRoles(RoleName.GLOBAL_ADMIN)) {
-
-            if (groupId != null) {
-                getParameters.setGroupIds(new String[]{groupId.toString()});
-            } else {
-                for (Group group : groupService.findAll()) {
-                    groupIdList.add(group.getId().toString());
-                }
-            }
-
-            for (Role role : staffRoles) {
-                getParameters.setRoleIds(new String[]{role.getId().toString()});
-
-                List<BaseUser> users = convertUsersToTransportBaseUsers(
-                        userService.getUsersByGroupsAndRoles(getParameters).getContent());
-
-                userMap.put(role.getName().getName(), users);
-            }
-
-            for (Role role : patientRoles) {
-                getParameters.setRoleIds(new String[]{role.getId().toString()});
-
-                List<BaseUser> users = convertUsersToTransportBaseUsers(
-                        userService.getUsersByGroupsAndRoles(getParameters).getContent());
-
-                userMap.put(role.getName().getName(), users);
-            }
+            userMap = getGlobalAdminRecipients(groupId);
 
         } else if (doesContainRoles(RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
                 RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN)) {
-
-            // specialty/unit staff and admin can contact all users in specialty/unit
-            // staff & patient users can only contact those in their groups
-            for (BaseGroup group : groupService.findMessagingGroupsByUserId(entityUser.getId())) {
-                groupIdList.add(group.getId().toString());
-            }
-            getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
-
-            // if restricted to one group
-            if (groupId != null) {
-                if (groupIdList.contains(groupId.toString())) {
-                    getParameters.setGroupIds(new String[]{groupId.toString()});
-                } else {
-                    throw new ResourceForbiddenException("Forbidden");
-                }
-            }
-
-            if (groupIdList.isEmpty()) {
-                throw new ResourceNotFoundException("No suitable recipients (by group)");
-            }
-
-            // restrict features to StaffMessagingFeatureType (subset of Feature Type)
-            List<String> featureIdList = new ArrayList<>();
-            for (StaffMessagingFeatureType featureType : StaffMessagingFeatureType.class.getEnumConstants()) {
-                Feature feat = featureRepository.findByName(featureType.toString());
-                if (feat != null) {
-                    featureIdList.add(feat.getId().toString());
-                }
-            }
-
-            if (featureIdList.isEmpty()) {
-                throw new ResourceNotFoundException("No suitable recipients (by feature)");
-            }
-
-            getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
-
-            for (Role role : staffRoles) {
-                getParameters.setRoleIds(new String[]{role.getId().toString()});
-
-                List<BaseUser> users = convertUsersToTransportBaseUsers(
-                        userService.getUsersByGroupsAndRoles(getParameters).getContent());
-
-                userMap.put(role.getName().getName(), users);
-            }
-
-            for (Role role : patientRoles) {
-                getParameters.setRoleIds(new String[]{role.getId().toString()});
-
-                List<BaseUser> users = convertUsersToTransportBaseUsers(
-                        userService.getUsersByGroupsAndRoles(getParameters).getContent());
-
-                userMap.put(role.getName().getName(), users);
-            }
+            userMap = getStaffRecipients(userId, groupId);
         } else  if (doesContainRoles(RoleName.PATIENT)) {
-            // patients can only contact staff in their units with PatientMessagingFeatureType
-            List<String> featureIdList = new ArrayList<>();
-
-            // restrict features to PatientMessagingFeatureType (subset of Feature Type)
-            for (PatientMessagingFeatureType featureType : PatientMessagingFeatureType.class.getEnumConstants()) {
-                Feature feat = featureRepository.findByName(featureType.toString());
-                if (feat != null) {
-                    featureIdList.add(feat.getId().toString());
-                }
-            }
-
-            if (featureIdList.isEmpty()) {
-                throw new ResourceNotFoundException("No suitable recipients (by feature)");
-            }
-
-            getParameters.setFeatureIds(featureIdList.toArray(new String[featureIdList.size()]));
-
-            // only search for groups patient is in (excluding specialties so only units)
-            List<Group> patientGroups
-                    = Util.convertIterable(groupRepository.findGroupsByUserNoSpecialties(
-                    "%%", entityUser, new PageRequest(0, Integer.MAX_VALUE)));
-            groupIdList = new ArrayList<>();
-
-            for (Group group : patientGroups) {
-                groupIdList.add(group.getId().toString());
-            }
-
-            getParameters.setGroupIds(groupIdList.toArray(new String[groupIdList.size()]));
-
-            // if restricted to one group
-            if (groupId != null) {
-                if (groupIdList.contains(groupId.toString())) {
-                    getParameters.setGroupIds(new String[]{groupId.toString()});
-                } else {
-                    throw new ResourceForbiddenException("Forbidden");
-                }
-            }
-
-            if (groupIdList.isEmpty()) {
-                throw new ResourceNotFoundException("No suitable recipients (by group)");
-            }
-
-            for (Role role : staffRoles) {
-                getParameters.setRoleIds(new String[]{role.getId().toString()});
-
-                List<BaseUser> users = convertUsersToTransportBaseUsers(
-                        userService.getUsersByGroupsRolesFeatures(getParameters).getContent());
-
-                userMap.put(role.getName().getName(), users);
-            }
+            userMap = getPatientRecipients(userId, groupId);
         }
 
         if (userMap.entrySet().isEmpty()) {
@@ -622,6 +663,36 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return userMap;
+    }
+
+    @Override
+    public String getRecipientsFast(Long userId, Long groupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        HashMap<String, List<BaseUser>> userMap = getRecipients(userId, groupId);
+
+        StringBuilder sb = new StringBuilder();
+
+        for (Map.Entry<String, List<BaseUser>> entry : userMap.entrySet()) {
+            String userType = entry.getKey();
+            List<BaseUser> users = entry.getValue();
+
+            sb.append("<option class=\"option-header\">");
+            sb.append(userType);
+            sb.append("</option>");
+
+            for (BaseUser baseUser : users) {
+
+                sb.append("<option value=\"");
+                sb.append(baseUser.getId());
+                sb.append("\">");
+                sb.append(baseUser.getForename());
+                sb.append(" ");
+                sb.append(baseUser.getSurname());
+                sb.append("</option>");
+            }
+        }
+
+        return sb.toString();
     }
 
     private boolean userHasStaffMessagingFeatures(User user) {

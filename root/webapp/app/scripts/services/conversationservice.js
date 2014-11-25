@@ -34,8 +34,8 @@ function ($http, $q, Restangular, $rootScope) {
         },
         getRecipients: function (userId, groupId) {
             var deferred = $q.defer();
-            // GET /user/{userId}/conversations/recipients?groupId=123
-            Restangular.one('user', userId).one('conversations/recipients')
+            // GET /user/{userId}/conversations/recipientsfast?groupId=123
+            Restangular.one('user', userId).one('conversations/recipientsfast')
                 .get({'groupId' : groupId}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
