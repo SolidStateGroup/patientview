@@ -112,8 +112,8 @@ INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
-INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (4, 2, 14);
-INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (5, 2, 15);
+/*INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (4, 2, 14);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (5, 2, 15);*/
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (7, 3, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (9, 4, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (10, 5, 15);
