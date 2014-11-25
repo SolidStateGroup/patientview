@@ -58,7 +58,7 @@ function ($scope, ConversationService) {
                 }
             }
 
-            conversation.availableRecipients = availableRecipients;
+            //conversation.availableRecipients = availableRecipients;
             $scope.modalLoading = false;
         }, function (failureResult) {
             if (failureResult.status === 404) {
