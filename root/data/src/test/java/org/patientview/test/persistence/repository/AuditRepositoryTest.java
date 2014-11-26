@@ -495,12 +495,12 @@ public class AuditRepositoryTest {
 
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
-        audit.setAuditActions(AuditActions.SWITCH_USER);
+        audit.setAuditActions(AuditActions.VIEW_USER);
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.VIEW_USER);
         actions.add(AuditActions.CHANGE_PASSWORD);
 
         Page<Audit> audits = auditRepository.findAllByAction(actions, new PageRequest(0, Integer.MAX_VALUE));
@@ -517,11 +517,11 @@ public class AuditRepositoryTest {
         dataTestUtils.createGroupRole(user, group, role);
         dataTestUtils.createGroupRole(user2, group, role);
 
-        // user SWITCH_USER user2 (yes)
+        // user VIEW_USER user2 (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user2.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
-        audit.setAuditActions(AuditActions.SWITCH_USER);
+        audit.setAuditActions(AuditActions.VIEW_USER);
         audit.setActorId(user.getId());
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
@@ -535,20 +535,20 @@ public class AuditRepositoryTest {
         audit2.setCreationDate(new Date());
         auditRepository.save(audit2);
 
-        // 1L SWITCH_USER user2 (no)
+        // 1L VIEW_USER user2 (no)
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(user2.getId());
         audit3.setSourceObjectType(AuditObjectTypes.User);
-        audit3.setAuditActions(AuditActions.SWITCH_USER);
+        audit3.setAuditActions(AuditActions.VIEW_USER);
         audit3.setActorId(2L);
         audit3.setCreationDate(new Date());
         auditRepository.save(audit3);
 
-        // user2 SWITCH_USER user (yes)
+        // user2 VIEW_USER user (yes)
         Audit audit4 = new Audit();
         audit4.setSourceObjectId(user.getId());
         audit4.setSourceObjectType(AuditObjectTypes.User);
-        audit4.setAuditActions(AuditActions.SWITCH_USER);
+        audit4.setAuditActions(AuditActions.VIEW_USER);
         audit4.setActorId(user2.getId());
         audit4.setCreationDate(new Date());
         auditRepository.save(audit4);
@@ -563,7 +563,7 @@ public class AuditRepositoryTest {
         auditRepository.save(audit5);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.VIEW_USER);
         actions.add(AuditActions.CHANGE_PASSWORD);
 
         Date start = new Date(0);
@@ -584,7 +584,7 @@ public class AuditRepositoryTest {
         // someone looking at a user in my group (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
-        audit.setAuditActions(AuditActions.SWITCH_USER);
+        audit.setAuditActions(AuditActions.VIEW_USER);
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
 
@@ -597,7 +597,7 @@ public class AuditRepositoryTest {
         auditRepository.save(audit2);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.VIEW_USER);
         actions.add(AuditActions.CREATE_GROUP);
 
         List<Long> groupIds = new ArrayList<>();
@@ -622,11 +622,11 @@ public class AuditRepositoryTest {
         dataTestUtils.createGroupRole(user2, group, role);
         dataTestUtils.createGroupRole(user2, group2, role);
 
-        // user SWITCH_USER user2 (yes)
+        // user VIEW_USER user2 (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user2.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
-        audit.setAuditActions(AuditActions.SWITCH_USER);
+        audit.setAuditActions(AuditActions.VIEW_USER);
         audit.setActorId(user.getId());
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
@@ -640,7 +640,7 @@ public class AuditRepositoryTest {
         audit2.setCreationDate(new Date());
         auditRepository.save(audit2);
 
-        // 1L SWITCH_USER user2 (no)
+        // 1L VIEW_USER user2 (no)
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(user2.getId());
         audit3.setSourceObjectType(AuditObjectTypes.User);
@@ -661,7 +661,7 @@ public class AuditRepositoryTest {
         groupIds.add(1L);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.VIEW_USER);
 
         Date start = new Date(0);
         Date end = new Date();
@@ -689,11 +689,11 @@ public class AuditRepositoryTest {
         Group group3 = dataTestUtils.createGroup("test3Group");
         dataTestUtils.createGroupRole(user3, group3, role);
 
-        // user SWITCH_USER user2 (yes)
+        // user VIEW_USER user2 (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user2.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
-        audit.setAuditActions(AuditActions.SWITCH_USER);
+        audit.setAuditActions(AuditActions.VIEW_USER);
         audit.setActorId(user.getId());
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
@@ -712,7 +712,7 @@ public class AuditRepositoryTest {
         groupIds.add(1L);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.SWITCH_USER);
+        actions.add(AuditActions.VIEW_USER);
         actions.add(AuditActions.CREATE_GROUP);
 
         Date start = new Date(0);

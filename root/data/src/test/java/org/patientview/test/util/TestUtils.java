@@ -219,6 +219,7 @@ public final class TestUtils {
         lookupType.setType(type);
         lookupType.setCreated(new Date());
         lookupType.setCreator(creator);
+        lookupType.setLookups(new HashSet<Lookup>());
         return lookupType;
     }
 

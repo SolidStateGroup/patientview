@@ -138,7 +138,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken = userTokenRepository.save(userToken);
         userRepository.save(user);
 
-        createAudit(AuditActions.SWITCH_USER, user.getUsername(), getCurrentUser(),
+        createAudit(AuditActions.VIEW_USER, user.getUsername(), getCurrentUser(),
                 user.getId(), AuditObjectTypes.User);
 
         return userToken.getToken();

@@ -9,10 +9,6 @@ public enum AuditActions {
     // group
     CREATE_GROUP("Create Group"),
     EDIT_GROUP("Edit Group"),
-    ADD_PARENT_GROUP("Add parent Group"),
-    REMOVE_PARENT_GROUP("Remove parent Group"),
-    ADD_CHILD_GROUP("Add child Group"),
-    REMOVE_CHILD_GROUP("Remove child Group"),
 
     // user group roles
     ADD_GROUP_ROLE("Add Group Role"),
@@ -33,7 +29,7 @@ public enum AuditActions {
     DELETE_USER("Delete User"),
     LOGON_FAIL("Log on failed"),
     LOGOFF("Log off"),
-    SWITCH_USER("Switch User"),
+    VIEW_USER("View User"),
 
     // importer
     PATIENT_DATA_SUCCESS("Patient data imported"),

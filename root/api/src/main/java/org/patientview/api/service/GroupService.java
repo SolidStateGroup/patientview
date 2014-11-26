@@ -54,21 +54,17 @@ public interface GroupService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Long add(Group group);
 
-    @AuditTrail(value = AuditActions.ADD_PARENT_GROUP, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addParentGroup(Long groupId, Long parentGroupId);
 
-    @AuditTrail(value = AuditActions.REMOVE_PARENT_GROUP, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteParentGroup(Long groupId, Long parentGroupId);
 
     List<Group> findChildren(Long groupId) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.ADD_CHILD_GROUP, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addChildGroup(Long groupId, Long childGroupId);
 
-    @AuditTrail(value = AuditActions.REMOVE_CHILD_GROUP, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteChildGroup(Long groupId, Long childGroupId);
 
