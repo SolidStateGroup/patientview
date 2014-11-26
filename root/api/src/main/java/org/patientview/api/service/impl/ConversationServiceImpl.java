@@ -31,8 +31,10 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.StaffMessagingFeatureType;
 import org.patientview.persistence.repository.ConversationRepository;
+import org.patientview.persistence.repository.ConversationUserRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
+import org.patientview.persistence.repository.MessageReadReceiptRepository;
 import org.patientview.persistence.repository.MessageRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -54,7 +56,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -73,7 +74,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     private ConversationRepository conversationRepository;
 
     @Inject
+    private ConversationUserRepository conversationUserRepository;
+
+    @Inject
     private MessageRepository messageRepository;
+
+    @Inject
+    private MessageReadReceiptRepository messageReadReceiptRepository;
 
     @Inject
     private FeatureRepository featureRepository;
@@ -173,10 +180,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setReadReceipts(message.getReadReceipts());
             newMessage.setCreated(message.getCreated());
 
-            if (anonUserIds.contains(message.getUser().getId())) {
-                newMessage.setUser(anonUser);
-            } else {
-                newMessage.setUser(message.getUser());
+            if (message.getUser() != null) {
+                if (anonUserIds.contains(message.getUser().getId())) {
+                    newMessage.setUser(anonUser);
+                } else {
+                    newMessage.setUser(message.getUser());
+                }
             }
             newMessages.add(newMessage);
         }
@@ -742,6 +751,63 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public void deleteUserFromConversations(User user) {
+
+        // remove from all conversations where user is a member (including messages)
+        List<Conversation> conversations
+                = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
+
+        for (Conversation conversation : conversations) {
+            // remove from conversation user list
+            Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
+            for (ConversationUser conversationUser :conversation.getConversationUsers()) {
+                if (!conversationUser.getUser().getId().equals(user.getId())) {
+
+                    // remove as creator if set
+                    if (conversationUser.getCreator().getId().equals(user.getId())) {
+                        conversationUser.setCreator(null);
+                    }
+
+                    removedUserConversationUsers.add(conversationUser);
+                } else {
+                    conversationUserRepository.delete(conversationUser);
+                }
+            }
+            conversation.setConversationUsers(removedUserConversationUsers);
+
+            // remove from messages
+            List<Message> removedUserMessages = new ArrayList<>();
+            for (Message message : conversation.getMessages()) {
+                if (message.getUser().getId().equals(user.getId())) {
+                    message.setUser(null);
+                }
+
+                // remove read receipts for this user
+                Set<MessageReadReceipt> removedUserMessageReadReceipts = new HashSet<>();
+                for (MessageReadReceipt messageReadReceipt : message.getReadReceipts()) {
+                    if (!messageReadReceipt.getUser().getId().equals(user.getId())) {
+                        removedUserMessageReadReceipts.add(messageReadReceipt);
+                    } else {
+                        messageReadReceiptRepository.delete(messageReadReceipt);
+                    }
+                }
+                message.setReadReceipts(removedUserMessageReadReceipts);
+
+                removedUserMessages.add(message);
+            }
+            conversation.setMessages(removedUserMessages);
+
+            if (conversation.getCreator() != null && conversation.getCreator().getId().equals(user.getId())) {
+                conversation.setCreator(null);
+            }
+            conversationRepository.save(conversation);
+        }
+
+        user.setConversationUsers(new HashSet<ConversationUser>());
+        userRepository.save(user);
     }
 
     private boolean userHasStaffMessagingFeatures(User user) {

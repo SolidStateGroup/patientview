@@ -192,6 +192,11 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         return new PageImpl<>(transportContent, pageable, audits.getTotalElements());
     }
 
+    @Override
+    public void deleteUserFromAudit(org.patientview.persistence.model.User user) {
+        auditRepository.removeActorId(user.getId());
+    }
+
     private List<Audit> convertToTransport(List<org.patientview.persistence.model.Audit> audits) {
         List<Audit> transportAudits = new ArrayList<>();
 

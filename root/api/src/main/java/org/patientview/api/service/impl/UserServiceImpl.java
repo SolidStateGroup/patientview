@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.patientview.api.model.Email;
 import org.patientview.api.service.AuditService;
+import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
@@ -111,6 +112,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private AuditService auditService;
+
+    @Inject
+    private ConversationService conversationService;
 
     @Inject
     private Properties properties;
@@ -332,7 +336,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole = groupRoleRepository.save(groupRole);
                     addParentGroupRoles(groupRole, creator);
 
-                    if (roleRepository.findOne(groupRole.getRole().getId()).getName().equals(RoleName.PATIENT)) {
+                    if (roleRepository.findOne(groupRole.getRole().getId())
+                            .getRoleType().getValue().equals(RoleType.PATIENT)) {
                         isPatient = true;
                     }
                 }
@@ -362,9 +367,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         AuditActions auditActions;
         if (isPatient) {
-            auditActions = AuditActions.CREATE_PATIENT;
+            auditActions = AuditActions.PATIENT_ADD;
         } else {
-            auditActions = AuditActions.CREATE_ADMIN;
+            auditActions = AuditActions.ADMIN_ADD;
         }
 
         auditService.createAudit(auditActions, newUser.getUsername(), getCurrentUser(),
@@ -539,9 +544,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new EntityExistsException("Username in use by another User");
         }
 
+        boolean isPatient = false;
+
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
             if (!groupRepository.exists(groupRole.getGroup().getId())) {
                 throw new ResourceNotFoundException("Group does not exist");
+            }
+
+            Role role = roleRepository.findOne(groupRole.getRole().getId());
+            if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
+                isPatient = true;
             }
         }
 
@@ -557,7 +569,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setLocked(user.getLocked());
         entityUser.setDummy(user.getDummy());
         entityUser.setContactNumber(user.getContactNumber());
-        userRepository.save(entityUser);
+        entityUser = userRepository.save(entityUser);
+
+        AuditActions auditActions;
+        if (isPatient) {
+            auditActions = AuditActions.PATIENT_EDIT;
+        } else {
+            auditActions = AuditActions.ADMIN_EDIT;
+        }
+
+        auditService.createAudit(auditActions, entityUser.getUsername(), getCurrentUser(),
+                entityUser.getId(), AuditObjectTypes.User);
     }
 
     @Override
@@ -808,15 +830,45 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         User user = findUser(userId);
+        boolean isPatient = false;
+        String username = user.getUsername();
 
         if (currentUserCanGetUser(user)) {
+
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                Role role = roleRepository.findOne(groupRole.getRole().getId());
+                if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
+                    isPatient = true;
+                }
+            }
+
+            if (isUserAPatient(user)) {
+                isPatient = true;
+            }
+
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
                 patientService.deleteExistingPatientData(user.getFhirLinks());
                 patientService.deleteAllExistingObservationData(user.getFhirLinks());
             }
+
+            // delete from conversations and associated messages
+            conversationService.deleteUserFromConversations(user);
+            auditService.deleteUserFromAudit(user);
+
             userRepository.delete(user);
+        } else {
+            throw new ResourceForbiddenException("Forbidden");
         }
+
+        AuditActions auditActions;
+        if (isPatient) {
+            auditActions = AuditActions.PATIENT_DELETE;
+        } else {
+            auditActions = AuditActions.ADMIN_DELETE;
+        }
+
+        auditService.createAudit(auditActions, username, getCurrentUser(), userId, AuditObjectTypes.User);
     }
 
     /**
@@ -931,8 +983,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             // Set the new password
             String password = CommonUtils.generatePassword();
 
-            // email the user
-            emailService.sendEmail(getPasswordResetEmail(user, password));
+            // email the user but ignore if exception and log
+            try {
+                emailService.sendEmail(getPasswordResetEmail(user, password));
+            } catch (MailException | MessagingException me) {
+                LOG.error("Cannot send email: {}", me);
+            }
 
             // Hash the password and save user
             user.setPassword(DigestUtils.sha256Hex(password));
@@ -941,6 +997,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceNotFoundException("Could not find account");
         }
 
+        auditService.createAudit(AuditActions.PASSWORD_RESET_FORGOTTEN, user.getUsername(),
+                user, user.getId(), AuditObjectTypes.User);
     }
 
     public void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException {

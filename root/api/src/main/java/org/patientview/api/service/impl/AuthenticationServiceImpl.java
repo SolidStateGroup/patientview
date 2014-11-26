@@ -137,7 +137,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken = userTokenRepository.save(userToken);
         userRepository.save(user);
 
-        auditService.createAudit(AuditActions.VIEW_PATIENT, user.getUsername(), getCurrentUser(),
+        auditService.createAudit(AuditActions.PATIENT_VIEW, user.getUsername(), getCurrentUser(),
                 user.getId(), AuditObjectTypes.User);
 
         return userToken.getToken();
@@ -188,7 +188,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         Date now = new Date();
 
-        auditService.createAudit(AuditActions.LOGON_SUCCESS, user.getUsername(), user,
+        auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
                 user.getId(), AuditObjectTypes.User);
 
         UserToken userToken = new UserToken();
@@ -226,7 +226,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (userToken == null) {
             throw new AuthenticationServiceException("User is not currently logged in");
         }
-        auditService.createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername(), userToken.getUser(),
+        auditService.createAudit(AuditActions.LOGGED_OFF, userToken.getUser().getUsername(), userToken.getUser(),
                 userToken.getUser().getId(), AuditObjectTypes.User);
 
         // delete all user tokens associated with this user (should only ever be one per user)

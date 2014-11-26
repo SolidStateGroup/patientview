@@ -54,12 +54,12 @@ public class AuditTrailAspectTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    @AuditTrail(AuditActions.CHANGE_PASSWORD)
+    @AuditTrail(AuditActions.PASSWORD_CHANGE)
     public void annotatedObjectMethod(User user) {
         LOG.info("Executed object annotated method");
     }
 
-    @AuditTrail(value = AuditActions.RESET_PASSWORD, objectType =  User.class)
+    @AuditTrail(value = AuditActions.PASSWORD_RESET, objectType =  User.class)
     public void annotatedIdMethod(Long userId) {
         LOG.info("Executed Id method");
     }

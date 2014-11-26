@@ -5,6 +5,7 @@ import org.patientview.api.model.BaseUser;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Conversation;
+import org.patientview.persistence.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
@@ -47,4 +48,6 @@ public interface ConversationService extends CrudService<Conversation> {
     @UserOnly
     String getRecipientsFast(Long userId, Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    void deleteUserFromConversations(User user);
 }

@@ -495,13 +495,13 @@ public class AuditRepositoryTest {
 
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
-        audit.setAuditActions(AuditActions.VIEW_PATIENT);
+        audit.setAuditActions(AuditActions.PATIENT_VIEW);
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.VIEW_PATIENT);
-        actions.add(AuditActions.CHANGE_PASSWORD);
+        actions.add(AuditActions.PATIENT_VIEW);
+        actions.add(AuditActions.PASSWORD_CHANGE);
 
         Page<Audit> audits = auditRepository.findAllByAction(actions, new PageRequest(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
@@ -517,11 +517,11 @@ public class AuditRepositoryTest {
         dataTestUtils.createGroupRole(user, group, role);
         dataTestUtils.createGroupRole(user2, group, role);
 
-        // user VIEW_PATIENT user2 (yes)
+        // user PATIENT_VIEW user2 (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user2.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
-        audit.setAuditActions(AuditActions.VIEW_PATIENT);
+        audit.setAuditActions(AuditActions.PATIENT_VIEW);
         audit.setActorId(user.getId());
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
@@ -530,25 +530,25 @@ public class AuditRepositoryTest {
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(user2.getId());
         audit2.setSourceObjectType(AuditObjectTypes.User);
-        audit2.setAuditActions(AuditActions.DELETE_USER);
+        audit2.setAuditActions(AuditActions.PATIENT_DELETE);
         audit2.setActorId(user.getId());
         audit2.setCreationDate(new Date());
         auditRepository.save(audit2);
 
-        // 1L VIEW_PATIENT user2 (no)
+        // 1L PATIENT_VIEW user2 (no)
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(user2.getId());
         audit3.setSourceObjectType(AuditObjectTypes.User);
-        audit3.setAuditActions(AuditActions.VIEW_PATIENT);
+        audit3.setAuditActions(AuditActions.PATIENT_VIEW);
         audit3.setActorId(2L);
         audit3.setCreationDate(new Date());
         auditRepository.save(audit3);
 
-        // user2 VIEW_PATIENT user (yes)
+        // user2 PATIENT_VIEW user (yes)
         Audit audit4 = new Audit();
         audit4.setSourceObjectId(user.getId());
         audit4.setSourceObjectType(AuditObjectTypes.User);
-        audit4.setAuditActions(AuditActions.VIEW_PATIENT);
+        audit4.setAuditActions(AuditActions.PATIENT_VIEW);
         audit4.setActorId(user2.getId());
         audit4.setCreationDate(new Date());
         auditRepository.save(audit4);
@@ -557,14 +557,14 @@ public class AuditRepositoryTest {
         Audit audit5 = new Audit();
         audit5.setSourceObjectId(user.getId());
         audit5.setSourceObjectType(AuditObjectTypes.User);
-        audit5.setAuditActions(AuditActions.DELETE_USER);
+        audit5.setAuditActions(AuditActions.PATIENT_DELETE);
         audit5.setActorId(user2.getId());
         audit5.setCreationDate(new Date());
         auditRepository.save(audit5);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.VIEW_PATIENT);
-        actions.add(AuditActions.CHANGE_PASSWORD);
+        actions.add(AuditActions.PATIENT_VIEW);
+        actions.add(AuditActions.PASSWORD_CHANGE);
 
         Date start = new Date(0);
         Date end = new Date();
@@ -584,7 +584,7 @@ public class AuditRepositoryTest {
         // someone looking at a user in my group (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user.getId());
-        audit.setAuditActions(AuditActions.VIEW_PATIENT);
+        audit.setAuditActions(AuditActions.PATIENT_VIEW);
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
 
@@ -592,13 +592,13 @@ public class AuditRepositoryTest {
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(group.getId());
         audit2.setSourceObjectType(AuditObjectTypes.Group);
-        audit2.setAuditActions(AuditActions.CREATE_GROUP);
+        audit2.setAuditActions(AuditActions.GROUP_ADD);
         audit2.setCreationDate(new Date());
         auditRepository.save(audit2);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.VIEW_PATIENT);
-        actions.add(AuditActions.CREATE_GROUP);
+        actions.add(AuditActions.PATIENT_VIEW);
+        actions.add(AuditActions.GROUP_ADD);
 
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
@@ -622,11 +622,11 @@ public class AuditRepositoryTest {
         dataTestUtils.createGroupRole(user2, group, role);
         dataTestUtils.createGroupRole(user2, group2, role);
 
-        // user VIEW_PATIENT user2 (yes)
+        // user PATIENT_VIEW user2 (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user2.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
-        audit.setAuditActions(AuditActions.VIEW_PATIENT);
+        audit.setAuditActions(AuditActions.PATIENT_VIEW);
         audit.setActorId(user.getId());
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
@@ -635,12 +635,12 @@ public class AuditRepositoryTest {
         Audit audit2 = new Audit();
         audit2.setSourceObjectId(user2.getId());
         audit2.setSourceObjectType(AuditObjectTypes.User);
-        audit2.setAuditActions(AuditActions.DELETE_USER);
+        audit2.setAuditActions(AuditActions.PATIENT_DELETE);
         audit2.setActorId(user.getId());
         audit2.setCreationDate(new Date());
         auditRepository.save(audit2);
 
-        // 1L VIEW_PATIENT user2 (no)
+        // 1L PATIENT_VIEW user2 (no)
         Audit audit3 = new Audit();
         audit3.setSourceObjectId(user2.getId());
         audit3.setSourceObjectType(AuditObjectTypes.User);
@@ -648,7 +648,7 @@ public class AuditRepositoryTest {
         audit3.setCreationDate(new Date());
         auditRepository.save(audit3);
 
-        // 1L CREATE_GROUP group (no)
+        // 1L GROUP_ADD group (no)
         Audit audit4 = new Audit();
         audit4.setSourceObjectId(group.getId());
         audit4.setSourceObjectType(AuditObjectTypes.Group);
@@ -661,7 +661,7 @@ public class AuditRepositoryTest {
         groupIds.add(1L);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.VIEW_PATIENT);
+        actions.add(AuditActions.PATIENT_VIEW);
 
         Date start = new Date(0);
         Date end = new Date();
@@ -689,20 +689,20 @@ public class AuditRepositoryTest {
         Group group3 = dataTestUtils.createGroup("test3Group");
         dataTestUtils.createGroupRole(user3, group3, role);
 
-        // user VIEW_PATIENT user2 (yes)
+        // user PATIENT_VIEW user2 (yes)
         Audit audit = new Audit();
         audit.setSourceObjectId(user2.getId());
         audit.setSourceObjectType(AuditObjectTypes.User);
-        audit.setAuditActions(AuditActions.VIEW_PATIENT);
+        audit.setAuditActions(AuditActions.PATIENT_VIEW);
         audit.setActorId(user.getId());
         audit.setCreationDate(new Date());
         auditRepository.save(audit);
 
-        // user3 CREATE_GROUP group (yes)
+        // user3 GROUP_ADD group (yes)
         Audit audit4 = new Audit();
         audit4.setSourceObjectId(group.getId());
         audit4.setSourceObjectType(AuditObjectTypes.Group);
-        audit4.setAuditActions(AuditActions.CREATE_GROUP);
+        audit4.setAuditActions(AuditActions.GROUP_ADD);
         audit4.setActorId(user3.getId());
         audit4.setCreationDate(new Date());
         auditRepository.save(audit4);
@@ -712,8 +712,8 @@ public class AuditRepositoryTest {
         groupIds.add(1L);
 
         List<AuditActions> actions = new ArrayList<>();
-        actions.add(AuditActions.VIEW_PATIENT);
-        actions.add(AuditActions.CREATE_GROUP);
+        actions.add(AuditActions.PATIENT_VIEW);
+        actions.add(AuditActions.GROUP_ADD);
 
         Date start = new Date(0);
         Date end = new Date();

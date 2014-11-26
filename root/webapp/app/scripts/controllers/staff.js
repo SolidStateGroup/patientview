@@ -100,9 +100,9 @@ function ($scope, $modalInstance, user, UserService) {
         UserService.remove(user).then(function() {
             // successfully deleted user
             $modalInstance.close();
-        }, function() {
+        }, function(failure) {
             // error
-            $scope.errorMessage = 'There was an error';
+            $scope.errorMessage = 'There was an error: ' + failure;
         });
     };
     $scope.cancel = function () {

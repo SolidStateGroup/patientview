@@ -26,7 +26,9 @@ public class Message {
     public Message(org.patientview.persistence.model.Message message) {
         setId(message.getId());
         setType(message.getType());
-        setUser(new BaseUser(message.getUser()));
+        if (message.getUser() != null) {
+            setUser(new BaseUser(message.getUser()));
+        }
         setMessage(message.getMessage());
         setCreated(message.getCreated());
 

@@ -1,9 +1,11 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Audit;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +23,10 @@ import java.util.List;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface AuditRepository extends CrudRepository<Audit, Long> {
+
+    @Modifying
+    @Query("UPDATE Audit a SET a.actorId = NULL WHERE a.actorId = :actorId")
+    void removeActorId(@Param("actorId") Long actorId);
 
     public List<Audit> findAll();
 

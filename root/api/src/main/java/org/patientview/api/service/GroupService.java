@@ -46,11 +46,11 @@ public interface GroupService {
     @UserOnly
     List<BaseGroup> findMessagingGroupsByUserId(Long userId) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.EDIT_GROUP, objectType = Group.class)
+    @AuditTrail(value = AuditActions.GROUP_EDIT, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException;
 
-    @AuditTrail(value = AuditActions.CREATE_GROUP, objectType = Group.class)
+    @AuditTrail(value = AuditActions.GROUP_ADD, objectType = Group.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     Long add(Group group);
 
@@ -68,11 +68,9 @@ public interface GroupService {
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteChildGroup(Long groupId, Long childGroupId);
 
-    @AuditTrail(value = AuditActions.ADD_FEATURE, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addFeature(Long groupId, Long featureId);
 
-    @AuditTrail(value = AuditActions.REMOVE_FEATURE, objectType = Group.class)
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void deleteFeature(Long groupId, Long featureId);
 

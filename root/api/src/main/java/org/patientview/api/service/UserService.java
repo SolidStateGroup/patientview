@@ -42,34 +42,31 @@ public interface UserService {
     Long createUserWithPasswordEncryption(User user)
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
-    @AuditTrail(value = AuditActions.EDIT_USER, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
-    @AuditTrail(value = AuditActions.EDIT_USER, objectType = User.class)
     @UserOnly
     void updateOwnSettings(Long userId, User user)
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException;
 
     User get(Long userId) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.DELETE_USER, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
-    @AuditTrail(value = AuditActions.ADD_GROUP_ROLE, objectType = User.class)
+    @AuditTrail(value = AuditActions.GROUP_ROLE_ADD, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     GroupRole addGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
 
-    @AuditTrail(value = AuditActions.REMOVE_GROUP_ROLE, objectType = User.class)
+    @AuditTrail(value = AuditActions.GROUP_ROLE_DELETE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void deleteGroupRole(Long userId, Long groupId, Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    @AuditTrail(value = AuditActions.REMOVE_GROUP_ROLES, objectType = User.class)
+    @AuditTrail(value = AuditActions.GROUP_ROLE_DELETE_ALL, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void removeAllGroupRoles(Long userId) throws ResourceNotFoundException;
 
@@ -83,11 +80,12 @@ public interface UserService {
 
     Page<User> getUsersByGroupsRolesFeatures(GetParameters getParameters) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.CHANGE_PASSWORD, objectType = User.class)
+    @AuditTrail(value = AuditActions.PASSWORD_CHANGE, objectType = User.class)
     @UserOnly
     void changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.RESET_PASSWORD, objectType = User.class)
+    // reset password, done by users for other staff or patients
+    @AuditTrail(value = AuditActions.PASSWORD_RESET, objectType = User.class)
     org.patientview.api.model.User resetPassword(Long userId, String password)
             throws ResourceNotFoundException, ResourceForbiddenException, MessagingException;
 
@@ -95,15 +93,13 @@ public interface UserService {
     Boolean sendVerificationEmail(Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException, MailException, MessagingException;
 
-    @AuditTrail(value = AuditActions.VERIFY_EMAIL, objectType = User.class)
+    @AuditTrail(value = AuditActions.EMAIL_VERIFY, objectType = User.class)
     Boolean verify(Long userId, String verificationCode) throws ResourceNotFoundException, VerificationException;
 
-    @AuditTrail(value = AuditActions.ADD_FEATURE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void addFeature(Long userId, Long featureId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    @AuditTrail(value = AuditActions.REMOVE_FEATURE, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void deleteFeature(Long userId, Long featureId)
             throws ResourceNotFoundException, ResourceForbiddenException;

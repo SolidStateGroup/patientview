@@ -63,6 +63,9 @@ import static org.mockito.Mockito.when;
 public class UserServiceTest {
 
     @Mock
+    private ConversationService conversationService;
+
+    @Mock
     private UserRepository userRepository;
 
     @Mock
@@ -119,7 +122,7 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
@@ -136,7 +139,7 @@ public class UserServiceTest {
         newUser.getUserFeatures().add(userFeature);
 
         // Add test role group
-        Role role2 = TestUtils.createRole(RoleName.PATIENT);
+        Role role2 = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
         GroupRole groupRole2 = TestUtils.createGroupRole(role2, group, newUser);
         newUser.setGroupRoles(new HashSet<GroupRole>());
         newUser.getGroupRoles().add(groupRole2);
@@ -222,15 +225,18 @@ public class UserServiceTest {
 
         // user to save
         User staffUser = TestUtils.createUser("staff");
-        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
         Set<GroupRole> groupRolesStaff = new HashSet<>();
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
         when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(userRepository.save(any(User.class))).thenReturn(staffUser);
         when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
 
         userService.save(staffUser);
         verify(userRepository, Mockito.times(1)).save(any(User.class));
@@ -479,13 +485,15 @@ public class UserServiceTest {
 
         // user to delete
         User staffUser = TestUtils.createUser("staff");
-        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
         Set<GroupRole> groupRolesStaff = new HashSet<>();
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
         when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
 
         userService.delete(staffUser.getId());
         verify(userRepository, Mockito.times(1)).delete(any(User.class));
@@ -497,7 +505,7 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
         Set<GroupRole> groupRoles = new HashSet<>();
@@ -507,7 +515,7 @@ public class UserServiceTest {
 
         // user to send verification email
         User staffUser = TestUtils.createUser("staff");
-        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
         Set<GroupRole> groupRolesStaff = new HashSet<>();
         groupRolesStaff.add(groupRoleStaff);

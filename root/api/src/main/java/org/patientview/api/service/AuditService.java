@@ -4,6 +4,7 @@ import org.patientview.api.model.Audit;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,8 @@ public interface AuditService {
 
     Page<Audit> findAll(GetParameters getparameters)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    void deleteUserFromAudit(User user);
 }
 
 

@@ -256,7 +256,7 @@ CREATE TABLE PV_Message (
   Conversation_Id BIGINT    NOT NULL  REFERENCES PV_Conversation (Id),
   Type            VARCHAR(255) NOT NULL,
   Message         TEXT      NOT NULL,
-  User_Id         BIGINT    NOT NULL REFERENCES PV_User (Id),
+  User_Id         BIGINT    REFERENCES PV_User (Id),
   Creation_Date   TIMESTAMP NOT NULL,
   Created_By      BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,
