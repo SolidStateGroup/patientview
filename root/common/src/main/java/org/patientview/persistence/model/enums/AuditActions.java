@@ -23,7 +23,6 @@ public enum AuditActions {
     VIEW_PATIENT("View Patient"),
 
     DELETE_USER("Delete User"),
-    CREATE_USER("Create User"),
     EDIT_USER("Edit User"),
 
     // user
