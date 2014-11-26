@@ -9,11 +9,16 @@ function ($scope, ConversationService) {
 
         ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
 
-            $("#conversation-add-recipient").remove();
-            var conversationAddRecipient
-                = $('<select>').addClass('form-control').addClass('recipient-select').attr("id","conversation-add-recipient");
-            conversationAddRecipient.html(recipientOptions);
-            $("#recipient-select-container").html(conversationAddRecipient);
+            var element = document.getElementById("conversation-add-recipient");
+            if (element !== null) {
+                element.parentNode.removeChild(element);
+            }
+
+            var select = document.createElement('select');
+            select.setAttribute('class', 'form-control recipient-select');
+            select.setAttribute('id', 'conversation-add-recipient');
+            select.innerHTML = recipientOptions;
+            document.getElementById('recipient-select-container').appendChild(select);
 
             $scope.recipientsExist = true;
             $scope.modalLoading = false;
