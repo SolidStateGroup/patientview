@@ -38,7 +38,6 @@ public interface UserService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     org.patientview.api.model.User getByIdentifierValue(String identifier) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.CREATE_USER, objectType = User.class)
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Long createUserWithPasswordEncryption(User user)
         throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException;
@@ -121,7 +120,6 @@ public interface UserService {
     @UserOnly
     List<UserInformation> getInformation(Long userId) throws ResourceNotFoundException;
 
-    @AuditTrail(value = AuditActions.CREATE_USER, objectType = User.class)
     Long add(User user) throws EntityExistsException;
 
     boolean currentUserCanGetUser(User user);
