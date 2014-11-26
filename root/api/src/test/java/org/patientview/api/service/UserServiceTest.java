@@ -153,6 +153,7 @@ public class UserServiceTest {
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
         when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(role2.getId()))).thenReturn(role2);
         when(groupRoleRepository.userGroupRoleExists(any(Long.class), any(Long.class), any(Long.class)))
                 .thenReturn(false);
         when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(groupRole2);

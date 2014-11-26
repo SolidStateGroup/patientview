@@ -63,8 +63,8 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 'UNIQUE_LOGON_COUNT', 'SELECT COUNT(DISTINCT source_object_id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (37, now(),
 'VIEW_PATIENT_COUNT','SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''VIEW_PATIENT'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
-
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (38, now(), 'ADD_PATIENT_COUNT', 'SELECT  COUNT(1) FROM    pv_audit adt,       pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (38, now(),
+'ADD_PATIENT_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''CREATE_PATIENT'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (39, now(), 'IMPORT_FAIL_COUNT', 'SELECT  COUNT(DISTINCT source_object_id) FROM    pv_audit adt,       pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (40, now(), 'IMPORT_COUNT','SELECT  COUNT(1) FROM    pv_user_group_role WHERE   role_id = 1 AND     group_id = :groupId AND creation_date BETWEEN :startDate AND :endDate','1','10');
