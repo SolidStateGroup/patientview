@@ -19,17 +19,20 @@ public enum AuditActions {
     ADD_FEATURE("Add Feature"),
     REMOVE_FEATURE("Remove Feature"),
 
-    // user
+    // patient
+    VIEW_PATIENT("View Patient"),
+
+    DELETE_USER("Delete User"),
     CREATE_USER("Create User"),
     EDIT_USER("Edit User"),
+
+    // user
     RESET_PASSWORD("Reset Password"),
     VERIFY_EMAIL("Verify Email"),
     LOGON_SUCCESS("Log on"),
     CHANGE_PASSWORD("Change Password"),
-    DELETE_USER("Delete User"),
     LOGON_FAIL("Log on failed"),
     LOGOFF("Log off"),
-    VIEW_USER("View User"),
 
     // importer
     PATIENT_DATA_SUCCESS("Patient data imported"),

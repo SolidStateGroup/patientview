@@ -14,7 +14,6 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
-import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
@@ -87,9 +86,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private UserTokenRepository userTokenRepository;
 
     @Inject
-    private AuditService auditService;
-
-    @Inject
     private SecurityService securityService;
 
     @Inject
@@ -100,6 +96,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private AuditService auditService;
 
     @Inject
     private StaticDataManager staticDataManager;
@@ -138,7 +137,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userToken = userTokenRepository.save(userToken);
         userRepository.save(user);
 
-        createAudit(AuditActions.VIEW_USER, user.getUsername(), getCurrentUser(),
+        auditService.createAudit(AuditActions.VIEW_PATIENT, user.getUsername(), getCurrentUser(),
                 user.getId(), AuditObjectTypes.User);
 
         return userToken.getToken();
@@ -177,8 +176,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
-            // TODO handled with aspects
-            createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
+            auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
                     user.getId(), AuditObjectTypes.User);
             incrementFailedLogon(user);
             throw new AuthenticationServiceException("Incorrect username or password");
@@ -190,7 +188,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         Date now = new Date();
 
-        createAudit(AuditActions.LOGON_SUCCESS, user.getUsername(), user,
+        auditService.createAudit(AuditActions.LOGON_SUCCESS, user.getUsername(), user,
                 user.getId(), AuditObjectTypes.User);
 
         UserToken userToken = new UserToken();
@@ -228,7 +226,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (userToken == null) {
             throw new AuthenticationServiceException("User is not currently logged in");
         }
-        createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername(), userToken.getUser(),
+        auditService.createAudit(AuditActions.LOGOFF, userToken.getUser().getUsername(), userToken.getUser(),
                 userToken.getUser().getId(), AuditObjectTypes.User);
 
         // delete all user tokens associated with this user (should only ever be one per user)
@@ -472,25 +470,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     private UserToken getToken(String token) {
         return userTokenRepository.findByToken(token);
-    }
-
-    private void createAudit(AuditActions auditActions, String preValue, User actor,
-                             Long sourceObjectId, AuditObjectTypes sourceObjectType) {
-
-        Audit audit = new Audit();
-        audit.setAuditActions(auditActions);
-        audit.setPreValue(preValue);
-
-        if (actor != null) {
-            audit.setActorId(actor.getId());
-        }
-
-        audit.setSourceObjectId(sourceObjectId);
-        if (sourceObjectType != null) {
-            audit.setSourceObjectType(sourceObjectType);
-        }
-
-        auditService.save(audit);
     }
 
     private void incrementFailedLogon(User user) {

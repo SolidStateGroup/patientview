@@ -55,11 +55,15 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (32, now(), 'OUT_OF_HOURS_INFO','Out of Hours Information','1','9');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (33, now(), 'PUBLIC','Public','1','3');
 
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (34, now(), 'PATIENT_COUNT','SELECT COUNT(1) FROM pv_user_group_role WHERE role_id = 1 AND group_id = :groupId AND creation_date BETWEEN :startDate AND :endDate','1','10');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (35, now(), 'LOGON_COUNT', 'SELECT COUNT(1) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (36, now(), 'UNIQUE_LOGON_COUNT', 'SELECT  COUNT(DISTINCT source_object_id) FROM    pv_audit adt,       pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (34, now(),
+'PATIENT_COUNT','SELECT COUNT(id) FROM pv_user_group_role WHERE role_id = 1 AND group_id = :groupId AND creation_date BETWEEN :startDate AND :endDate','1','10');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (35, now(),
+'LOGON_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (36, now(),
+'UNIQUE_LOGON_COUNT', 'SELECT COUNT(DISTINCT source_object_id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (37, now(),
+'VIEW_PATIENT_COUNT','SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''VIEW_PATIENT'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (37, now(), 'VIEW_PATIENT_COUNT','SELECT  COUNT(1) FROM    pv_user_group_role WHERE   role_id = 1 AND     group_id = :groupId AND creation_date BETWEEN :startDate AND :endDate','1','10');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (38, now(), 'ADD_PATIENT_COUNT', 'SELECT  COUNT(1) FROM    pv_audit adt,       pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (39, now(), 'IMPORT_FAIL_COUNT', 'SELECT  COUNT(DISTINCT source_object_id) FROM    pv_audit adt,       pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 

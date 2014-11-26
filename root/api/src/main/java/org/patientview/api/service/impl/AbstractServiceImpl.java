@@ -156,5 +156,4 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
     protected User getCurrentUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
-
 }

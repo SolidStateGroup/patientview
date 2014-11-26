@@ -311,6 +311,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User newUser = userRepository.save(user);
         LOG.info("New user with id: {}, username: {}", user.getId(), user.getUsername());
 
+        boolean isPatient = false;
+
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // only save if group role doesn't already exist for this user

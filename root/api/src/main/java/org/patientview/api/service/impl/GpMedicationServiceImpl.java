@@ -2,7 +2,6 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.GpMedicationStatus;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.GpMedicationService;
@@ -12,7 +11,6 @@ import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Audit;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
@@ -41,7 +39,8 @@ import java.util.Properties;
  * Created on 29/09/2014
  */
 @Service
-public class GpMedicationServiceImpl extends BaseController<GpMedicationServiceImpl> implements GpMedicationService {
+public class GpMedicationServiceImpl extends AbstractServiceImpl<GpMedicationServiceImpl>
+        implements GpMedicationService {
 
     @Inject
     private FeatureRepository featureRepository;
@@ -59,9 +58,6 @@ public class GpMedicationServiceImpl extends BaseController<GpMedicationServiceI
     private GroupService groupService;
 
     @Inject
-    private AuditService auditService;
-
-    @Inject
     private GroupRoleRepository groupRoleRepository;
 
     @Inject
@@ -69,6 +65,9 @@ public class GpMedicationServiceImpl extends BaseController<GpMedicationServiceI
 
     @Inject
     private IdentifierService identifierService;
+
+    @Inject
+    private AuditService auditService;
 
     @Inject
     private Properties properties;
@@ -185,7 +184,7 @@ public class GpMedicationServiceImpl extends BaseController<GpMedicationServiceI
 
         // handle authentication of user for this method only (not added to session)
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
-            createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
+            auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
                     user.getId(), AuditObjectTypes.User);
             incrementFailedLogon(user);
             throw new ResourceForbiddenException("Incorrect username or password");
@@ -197,7 +196,7 @@ public class GpMedicationServiceImpl extends BaseController<GpMedicationServiceI
 
         List<String> identifiers = identifierService.findByGroupCode(properties.getProperty("ecs.groupcode"));
 
-        createAudit(AuditActions.GET_PATIENT_IDENTIFIERS_ECS, null, user, null, null);
+        auditService.createAudit(AuditActions.GET_PATIENT_IDENTIFIERS_ECS, null, user, null, null);
 
         return identifiers;
     }
@@ -229,24 +228,6 @@ public class GpMedicationServiceImpl extends BaseController<GpMedicationServiceI
         }
 
         return false;
-    }
-
-    private void createAudit(AuditActions auditActions, String preValue, User actor,
-                             Long sourceObjectId, AuditObjectTypes sourceObjectType) {
-        Audit audit = new Audit();
-        audit.setAuditActions(auditActions);
-        audit.setPreValue(preValue);
-
-        if (actor != null) {
-            audit.setActorId(actor.getId());
-        }
-
-        audit.setSourceObjectId(sourceObjectId);
-        if (sourceObjectType != null) {
-            audit.setSourceObjectType(sourceObjectType);
-        }
-
-        auditService.save(audit);
     }
 
     private void incrementFailedLogon(User user) {
