@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -719,9 +720,20 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     sb.append("<option value=\"");
                     sb.append(baseUser.getId());
                     sb.append("\">");
-                    sb.append(baseUser.getForename().replace("<","").replace(">",""));
+                    sb.append(baseUser.getForename().replace("<", "").replace(">",""));
                     sb.append(" ");
                     sb.append(baseUser.getSurname());
+
+                    if (baseUser.getDateOfBirth() != null) {
+                        Date dob = baseUser.getDateOfBirth();
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+                        String dobString = dateFormat.format(dob);
+
+                        sb.append(" (");
+                        sb.append(dobString);
+                        sb.append(")");
+                    }
+
                     sb.append("</option>");
                 }
 
