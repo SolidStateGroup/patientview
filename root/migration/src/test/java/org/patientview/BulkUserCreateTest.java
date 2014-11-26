@@ -43,8 +43,8 @@ public class BulkUserCreateTest {
     public void test01BulkUserCreate() {
         Long usersToCreate = 1L;
         Date start = new Date();
-        RoleName role = RoleName.PATIENT;
-        //RoleName role = RoleName.UNIT_ADMIN;
+        //RoleName role = RoleName.PATIENT;
+        RoleName role = RoleName.UNIT_ADMIN;
 
         // servers
         //-Durl=http://localhost:8080/api

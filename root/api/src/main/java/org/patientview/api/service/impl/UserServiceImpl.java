@@ -4,6 +4,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.patientview.api.model.Email;
+import org.patientview.api.service.AuditService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.PatientService;
@@ -25,6 +26,8 @@ import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
+import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
 import org.patientview.persistence.model.enums.GroupTypes;
@@ -105,6 +108,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private EmailService emailService;
+
+    @Inject
+    private AuditService auditService;
 
     @Inject
     private Properties properties;
@@ -325,6 +331,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setCreator(creator);
                     groupRole = groupRoleRepository.save(groupRole);
                     addParentGroupRoles(groupRole, creator);
+
+                    if (roleRepository.findOne(groupRole.getRole().getId()).getName().equals(RoleName.PATIENT)) {
+                        isPatient = true;
+                    }
                 }
             }
         }
@@ -349,6 +359,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 identifierRepository.save(identifier);
             }
         }
+
+        AuditActions auditActions;
+        if (isPatient) {
+            auditActions = AuditActions.CREATE_PATIENT;
+        } else {
+            auditActions = AuditActions.CREATE_ADMIN;
+        }
+
+        auditService.createAudit(auditActions, newUser.getUsername(), getCurrentUser(),
+                newUser.getId(), AuditObjectTypes.User);
 
         return newUser.getId();
     }
