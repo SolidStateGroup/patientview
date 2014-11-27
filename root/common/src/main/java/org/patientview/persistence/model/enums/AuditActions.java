@@ -35,7 +35,7 @@ public enum AuditActions {
 
     PatientView 1 live server audit actions logged in unitstats table, SELECT DISTINCT(action) FROM unitstats:
         admin add
-        email changed
+        email changed // not in pv2
         email verified
         logon
         password change
@@ -75,7 +75,8 @@ public enum AuditActions {
     PASSWORD_RESET_FORGOTTEN("Password reset forgotten"),
     PASSWORD_RESET("Password reset"),
     PASSWORD_CHANGE("Password change"),
-    EMAIL_VERIFY("Verify Email"),
+    EMAIL_VERIFY("Email verified"),
+    EMAIL_CHANGED("Email changed"),
     LOGGED_ON("Logon"),
 
     // user (new in pv2)

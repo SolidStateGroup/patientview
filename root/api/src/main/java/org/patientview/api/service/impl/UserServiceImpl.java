@@ -580,6 +580,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findUser(user.getId());
+        String originalEmail = entityUser.getEmail();
 
         // don't allow setting username to same as other users
         org.patientview.api.model.User existingUser = getByUsername(user.getUsername());
@@ -604,10 +605,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        // check if account locked or unlocked
-        boolean isLocked =  (user.getLocked() && !entityUser.getLocked());
-        boolean isUnlocked =  (!user.getLocked() && entityUser.getLocked());
-
         entityUser.setForename(user.getForename());
         entityUser.setSurname(user.getSurname());
         entityUser.setUsername(user.getUsername());
@@ -618,23 +615,28 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setContactNumber(user.getContactNumber());
         entityUser = userRepository.save(entityUser);
 
-        AuditActions auditActions;
+        // audit changed
         if (isPatient) {
-            auditActions = AuditActions.PATIENT_EDIT;
+            auditService.createAudit(AuditActions.PATIENT_EDIT, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
         } else {
-            auditActions = AuditActions.ADMIN_EDIT;
+            auditService.createAudit(AuditActions.ADMIN_EDIT, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
         }
 
-        auditService.createAudit(auditActions, entityUser.getUsername(), getCurrentUser(),
-                entityUser.getId(), AuditObjectTypes.User, null);
-
-        // log if locked or unlocked
-        if (isLocked) {
+        // audit locked or unlocked
+        if (user.getLocked() && !entityUser.getLocked()) {
             auditService.createAudit(AuditActions.ACCOUNT_LOCKED, entityUser.getUsername(), getCurrentUser(),
                     entityUser.getId(), AuditObjectTypes.User, null);
         }
-        if (isUnlocked) {
+        if (!user.getLocked() && entityUser.getLocked()) {
             auditService.createAudit(AuditActions.ACCOUNT_UNLOCKED, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
+        }
+
+        // audit email changed
+        if (!user.getEmail().equals(originalEmail)) {
+            auditService.createAudit(AuditActions.EMAIL_CHANGED, entityUser.getUsername(), getCurrentUser(),
                     entityUser.getId(), AuditObjectTypes.User, null);
         }
     }
@@ -643,9 +645,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public void updateOwnSettings(Long userId, User user)
             throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findUser(user.getId());
+
+        String originalEmail = entityUser.getEmail();
+
         entityUser.setEmail(user.getEmail());
         entityUser.setContactNumber(user.getContactNumber());
         userRepository.save(entityUser);
+
+        // audit email changed
+        if (!user.getEmail().equals(originalEmail)) {
+            auditService.createAudit(AuditActions.EMAIL_CHANGED, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User, null);
+        }
     }
 
     /**
