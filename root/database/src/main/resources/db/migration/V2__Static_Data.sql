@@ -75,7 +75,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 'ACCOUNT_LOCKED_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''ACCOUNT_LOCKED'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (43, now(),
-'REMOVE_PATIENT_COUNT', 'SELECT  COUNT(DISTINCT source_object_id) FROM    pv_audit adt,       pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+'PATIENT_GROUP_ROLE_DELETE_COUNT', 'SELECT  COUNT(DISTINCT source_object_id) FROM    pv_audit adt,       pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (44, now(),
 'DELETE_PATIENT_COUNT', 'SELECT  COUNT(DISTINCT source_object_id) FROM    pv_audit adt,       pv_user_group_role upr WHERE   adt.source_object_id = upr.user_id AND     upr.group_id = :groupId AND     adt.action = ''LOGON_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (45, now(),

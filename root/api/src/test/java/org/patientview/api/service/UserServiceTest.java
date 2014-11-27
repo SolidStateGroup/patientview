@@ -303,7 +303,7 @@ public class UserServiceTest {
 
         org.patientview.api.model.User user1 = userService.resetPassword(staffUser.getId(), password);
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(staffUser.getId()));
+        verify(userRepository, Mockito.times(2)).findOne(eq(staffUser.getId()));
         verify(userRepository, Mockito.times(1)).save(eq(staffUser));
         Assert.assertTrue("The user now has the change password flag set", user1.getChangePassword());
     }
@@ -330,7 +330,7 @@ public class UserServiceTest {
         user.setChangePassword(Boolean.TRUE);
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         userService.changePassword(user.getId(), password);
-        verify(userRepository, Mockito.times(2)).findOne(eq(user.getId()));
+        verify(userRepository, Mockito.times(3)).findOne(eq(user.getId()));
     }
 
     /**
