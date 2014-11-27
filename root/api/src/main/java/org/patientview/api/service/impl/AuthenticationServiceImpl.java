@@ -138,7 +138,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         userRepository.save(user);
 
         auditService.createAudit(AuditActions.PATIENT_VIEW, user.getUsername(), getCurrentUser(),
-                user.getId(), AuditObjectTypes.User);
+                user.getId(), AuditObjectTypes.User, null);
 
         return userToken.getToken();
     }
@@ -177,7 +177,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
             auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
-                    user.getId(), AuditObjectTypes.User);
+                    user.getId(), AuditObjectTypes.User, null);
             incrementFailedLogon(user);
             throw new AuthenticationServiceException("Incorrect username or password");
         }
@@ -189,7 +189,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         Date now = new Date();
 
         auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
-                user.getId(), AuditObjectTypes.User);
+                user.getId(), AuditObjectTypes.User, null);
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);
@@ -227,7 +227,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("User is not currently logged in");
         }
         auditService.createAudit(AuditActions.LOGGED_OFF, userToken.getUser().getUsername(), userToken.getUser(),
-                userToken.getUser().getId(), AuditObjectTypes.User);
+                userToken.getUser().getId(), AuditObjectTypes.User, null);
 
         // delete all user tokens associated with this user (should only ever be one per user)
         userTokenRepository.deleteByUserId(userToken.getUser().getId());

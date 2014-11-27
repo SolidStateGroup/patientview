@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.patientview.api.model.Audit;
+import org.patientview.persistence.model.Group;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -19,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AuditService {
 
     void createAudit(AuditActions auditActions, String preValue, org.patientview.persistence.model.User actor,
-                            Long sourceObjectId, AuditObjectTypes sourceObjectType);
+                            Long sourceObjectId, AuditObjectTypes sourceObjectType, Group group);
 
     org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit);
 

@@ -49,26 +49,6 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
     private GroupRepository groupRepository;
 
     @Override
-    public void createAudit(AuditActions auditActions, String preValue, org.patientview.persistence.model.User actor,
-                               Long sourceObjectId, AuditObjectTypes sourceObjectType) {
-
-        org.patientview.persistence.model.Audit audit = new org.patientview.persistence.model.Audit();
-        audit.setAuditActions(auditActions);
-        audit.setPreValue(preValue);
-
-        if (actor != null) {
-            audit.setActorId(actor.getId());
-        }
-
-        audit.setSourceObjectId(sourceObjectId);
-        if (sourceObjectType != null) {
-            audit.setSourceObjectType(sourceObjectType);
-        }
-
-        save(audit);
-    }
-
-    @Override
     public org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit) {
         return auditRepository.save(audit);
     }
@@ -197,6 +177,30 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         auditRepository.removeActorId(user.getId());
     }
 
+    @Override
+    public void createAudit(AuditActions auditActions, String username, org.patientview.persistence.model.User actor,
+                            Long sourceObjectId, AuditObjectTypes sourceObjectType, Group group) {
+
+        org.patientview.persistence.model.Audit audit = new org.patientview.persistence.model.Audit();
+        audit.setAuditActions(auditActions);
+        audit.setUsername(username);
+
+        if (actor != null) {
+            audit.setActorId(actor.getId());
+        }
+
+        if (group != null) {
+            audit.setGroup(groupRepository.findOne(group.getId()));
+        }
+
+        audit.setSourceObjectId(sourceObjectId);
+        if (sourceObjectType != null) {
+            audit.setSourceObjectType(sourceObjectType);
+        }
+
+        save(audit);
+    }
+
     private List<Audit> convertToTransport(List<org.patientview.persistence.model.Audit> audits) {
         List<Audit> transportAudits = new ArrayList<>();
 
@@ -230,6 +234,8 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
                     }
                 }
             }
+
+            transportAudit.setUsername(audit.getUsername());
 
             transportAudits.add(transportAudit);
         }

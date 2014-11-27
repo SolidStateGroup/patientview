@@ -348,6 +348,7 @@ CREATE TABLE PV_Audit (
   Group_Id      BIGINT   REFERENCES PV_User (Id),
   Information   TEXT,
   Xml           TEXT,
+  Username      TEXT,
   Creation_Date TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
 );

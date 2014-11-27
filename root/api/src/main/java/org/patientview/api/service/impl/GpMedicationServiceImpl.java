@@ -185,7 +185,7 @@ public class GpMedicationServiceImpl extends AbstractServiceImpl<GpMedicationSer
         // handle authentication of user for this method only (not added to session)
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
             auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
-                    user.getId(), AuditObjectTypes.User);
+                    user.getId(), AuditObjectTypes.User, null);
             incrementFailedLogon(user);
             throw new ResourceForbiddenException("Incorrect username or password");
         }
@@ -196,7 +196,7 @@ public class GpMedicationServiceImpl extends AbstractServiceImpl<GpMedicationSer
 
         List<String> identifiers = identifierService.findByGroupCode(properties.getProperty("ecs.groupcode"));
 
-        auditService.createAudit(AuditActions.GET_PATIENT_IDENTIFIERS_ECS, null, user, null, null);
+        auditService.createAudit(AuditActions.GET_PATIENT_IDENTIFIERS_ECS, null, user, null, null, null);
 
         return identifiers;
     }

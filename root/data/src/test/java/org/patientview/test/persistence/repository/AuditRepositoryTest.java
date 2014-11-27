@@ -182,6 +182,70 @@ public class AuditRepositoryTest {
     }
 
     @Test
+    public void testFindAllFiltered_Information() {
+        String information = "username: 1234";
+
+        Audit audit = new Audit();
+        audit.setSourceObjectId(1L);
+        audit.setSourceObjectType("");
+        audit.setCreationDate(new Date());
+        audit.setInformation(information);
+
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(1L);
+        audit2.setSourceObjectType("");
+        audit2.setCreationDate(new Date());
+
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(2L);
+        audit3.setSourceObjectType("");
+        audit3.setCreationDate(new Date());
+
+        auditRepository.save(audit);
+        auditRepository.save(audit2);
+        auditRepository.save(audit3);
+
+        Date start = new Date(0);
+        Date end = new Date();
+
+        String filterText = "%" + information + "%";
+        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
+    public void testFindAllFiltered_Username() {
+        String username = "1234";
+
+        Audit audit = new Audit();
+        audit.setSourceObjectId(1L);
+        audit.setSourceObjectType("");
+        audit.setCreationDate(new Date());
+        audit.setUsername(username);
+
+        Audit audit2 = new Audit();
+        audit2.setSourceObjectId(1L);
+        audit2.setSourceObjectType("");
+        audit2.setCreationDate(new Date());
+
+        Audit audit3 = new Audit();
+        audit3.setSourceObjectId(2L);
+        audit3.setSourceObjectType("");
+        audit3.setCreationDate(new Date());
+
+        auditRepository.save(audit);
+        auditRepository.save(audit2);
+        auditRepository.save(audit3);
+
+        Date start = new Date(0);
+        Date end = new Date();
+
+        String filterText = "%" + username + "%";
+        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
+    }
+
+    @Test
     public void testFindAllFiltered_Actor() {
         User user = dataTestUtils.createUser("testUser");
 
@@ -237,12 +301,17 @@ public class AuditRepositoryTest {
         audit3.setActorId(1L);
         auditRepository.save(audit3);
 
+        // anything but has my group set (yes)
+        Audit audit4 = new Audit();
+        audit4.setGroup(group);
+        auditRepository.save(audit4);
+
         List<Long> groupIds = new ArrayList<>();
         groupIds.add(group.getId());
         groupIds.add(1L);
 
         Page<Audit> audits = auditRepository.findAllBySourceGroup(groupIds, new PageRequest(0, Integer.MAX_VALUE));
-        Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
+        Assert.assertEquals("Should be 3 audit returned", 3, audits.getContent().size());
     }
 
     @Test

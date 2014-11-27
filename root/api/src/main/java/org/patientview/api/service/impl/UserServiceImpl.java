@@ -133,7 +133,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         genericGroup = groupRepository.findOne(GENERIC_GROUP_ID);
     }
 
-    private void addParentGroupRoles(GroupRole groupRole, User creator) {
+    private void addParentGroupRoles(Long userId, GroupRole groupRole, User creator) {
 
         Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
 
@@ -151,6 +151,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         parentGroupRole.setUser(groupRole.getUser());
                         parentGroupRole.setCreator(creator);
                         groupRoleRepository.save(parentGroupRole);
+
+                        auditService.createAudit(AuditActions.GROUP_ROLE_ADD, groupRole.getUser().getUsername(),
+                                getCurrentUser(), userId, AuditObjectTypes.User, parentGroupRole.getGroup());
                     }
                 }
             }
@@ -184,7 +187,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRole.setRole(role);
         groupRole.setCreator(creator);
         groupRole = groupRoleRepository.save(groupRole);
-        addParentGroupRoles(groupRole, creator);
+
+        auditService.createAudit(AuditActions.GROUP_ROLE_ADD, user.getUsername(),
+                getCurrentUser(), userId, AuditObjectTypes.User, group);
+
+        addParentGroupRoles(userId, groupRole, creator);
         return groupRole;
     }
 
@@ -277,6 +284,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             UserFeature userFeature = userFeatureRepository.findByUserAndFeature(entityUser, entityFeature);
             userFeatureRepository.delete(userFeature);
         }
+
+        // audit
+        auditService.createAudit(AuditActions.GROUP_ROLE_DELETE, entityUser.getUsername(), getCurrentUser(),
+                entityUser.getId(), AuditObjectTypes.User, entityGroup);
     }
 
     private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
@@ -321,7 +332,28 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User newUser = userRepository.save(user);
         LOG.info("New user with id: {}, username: {}", user.getId(), user.getUsername());
 
+        // check if patient
         boolean isPatient = false;
+
+        if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (roleRepository.findOne(groupRole.getRole().getId())
+                        .getRoleType().getValue().equals(RoleType.PATIENT)) {
+                    isPatient = true;
+                }
+            }
+        }
+
+        // audit creation
+        AuditActions auditActions;
+        if (isPatient) {
+            auditActions = AuditActions.PATIENT_ADD;
+        } else {
+            auditActions = AuditActions.ADMIN_ADD;
+        }
+
+        auditService.createAudit(auditActions, newUser.getUsername(), getCurrentUser(),
+                newUser.getId(), AuditObjectTypes.User, null);
 
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
             for (GroupRole groupRole : user.getGroupRoles()) {
@@ -334,12 +366,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     groupRole.setUser(newUser);
                     groupRole.setCreator(creator);
                     groupRole = groupRoleRepository.save(groupRole);
-                    addParentGroupRoles(groupRole, creator);
 
-                    if (roleRepository.findOne(groupRole.getRole().getId())
-                            .getRoleType().getValue().equals(RoleType.PATIENT)) {
-                        isPatient = true;
-                    }
+                    auditService.createAudit(AuditActions.GROUP_ROLE_ADD, newUser.getUsername(),
+                            getCurrentUser(), newUser.getId(), AuditObjectTypes.User, groupRole.getGroup());
+
+                    addParentGroupRoles(newUser.getId(), groupRole, creator);
                 }
             }
         }
@@ -364,16 +395,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 identifierRepository.save(identifier);
             }
         }
-
-        AuditActions auditActions;
-        if (isPatient) {
-            auditActions = AuditActions.PATIENT_ADD;
-        } else {
-            auditActions = AuditActions.ADMIN_ADD;
-        }
-
-        auditService.createAudit(auditActions, newUser.getUsername(), getCurrentUser(),
-                newUser.getId(), AuditObjectTypes.User);
 
         return newUser.getId();
     }
@@ -583,16 +604,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         auditService.createAudit(auditActions, entityUser.getUsername(), getCurrentUser(),
-                entityUser.getId(), AuditObjectTypes.User);
+                entityUser.getId(), AuditObjectTypes.User, null);
 
         // log if locked or unlocked
         if (isLocked) {
             auditService.createAudit(AuditActions.ACCOUNT_LOCKED, entityUser.getUsername(), getCurrentUser(),
-                    entityUser.getId(), AuditObjectTypes.User);
+                    entityUser.getId(), AuditObjectTypes.User, null);
         }
         if (isUnlocked) {
             auditService.createAudit(AuditActions.ACCOUNT_UNLOCKED, entityUser.getUsername(), getCurrentUser(),
-                    entityUser.getId(), AuditObjectTypes.User);
+                    entityUser.getId(), AuditObjectTypes.User, null);
         }
     }
 
@@ -833,7 +854,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             return userRepository.findPatientByGroupsRolesFeatures(filterText, groupIds, roleIds, featureIds, pageable);
         }
 
-        if (staff && !patient) {
+        if (staff) {
             return userRepository.findStaffByGroupsRolesFeatures(filterText, groupIds, roleIds, featureIds, pageable);
         }
 
@@ -848,11 +869,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         String username = user.getUsername();
 
         if (currentUserCanGetUser(user)) {
-
             for (GroupRole groupRole : user.getGroupRoles()) {
                 Role role = roleRepository.findOne(groupRole.getRole().getId());
                 if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
                     isPatient = true;
+                }
+
+                // audit removal (apart from MEMBER)
+                if (!role.getName().equals(RoleName.MEMBER)) {
+                    auditService.createAudit(AuditActions.GROUP_ROLE_DELETE, user.getUsername(),
+                            getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
                 }
             }
 
@@ -875,6 +901,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        // audit deletion
         AuditActions auditActions;
         if (isPatient) {
             auditActions = AuditActions.PATIENT_DELETE;
@@ -882,7 +909,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             auditActions = AuditActions.ADMIN_DELETE;
         }
 
-        auditService.createAudit(auditActions, username, getCurrentUser(), userId, AuditObjectTypes.User);
+        auditService.createAudit(auditActions, username, getCurrentUser(), userId, AuditObjectTypes.User, null);
     }
 
     /**
@@ -1012,7 +1039,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         auditService.createAudit(AuditActions.PASSWORD_RESET_FORGOTTEN, user.getUsername(),
-                user, user.getId(), AuditObjectTypes.User);
+                user, user.getId(), AuditObjectTypes.User, null);
     }
 
     public void addInformation(Long userId, List<UserInformation> userInformation) throws ResourceNotFoundException {

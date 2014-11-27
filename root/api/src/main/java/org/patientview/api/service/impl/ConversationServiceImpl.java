@@ -729,7 +729,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     sb.append("<option value=\"");
                     sb.append(baseUser.getId());
                     sb.append("\">");
-                    sb.append(baseUser.getForename().replace("<", "").replace(">",""));
+                    sb.append(baseUser.getForename().replace("<", "").replace(">", ""));
                     sb.append(" ");
                     sb.append(baseUser.getSurname());
 

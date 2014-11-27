@@ -16,7 +16,7 @@ public enum AuditActions {
         PATIENT_DATA_CORRUPT = "patient data corrupt"; // PATIENT_DATA_VALIDATE_FAIL in pv2 (not used in pv1)
         LOGGED_ON = "logon";
         PATIENT_ADD = "patient add";
-        PATIENT_DELETE = "patient delete";
+        PATIENT_DELETE = "patient delete"; // used for both removing mapping AND user deletion in pv1
         PATIENT_VIEW = "patient view";
         ADMIN_ADD = "admin add";
         EMAIL_VERIFY = "email verified";

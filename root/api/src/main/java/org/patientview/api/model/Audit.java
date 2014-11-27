@@ -17,6 +17,7 @@ public class Audit extends BaseModel {
     private String postValue;
     private Long actorId;
     private Date creationDate;
+    private String username;
 
     // importer
     private String identifier;
@@ -166,5 +167,13 @@ public class Audit extends BaseModel {
 
     public void setGroup(BaseGroup group) {
         this.group = group;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

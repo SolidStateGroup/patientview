@@ -64,6 +64,10 @@ public class Audit extends BaseModel {
     @Column(name = "xml")
     private String xml;
 
+    // required as may be needed when users are deleted etc
+    @Column(name = "username")
+    private String username;
+
     public AuditActions getAuditActions() {
         return auditActions;
     }
@@ -159,5 +163,13 @@ public class Audit extends BaseModel {
 
     public void setXml(String xml) {
         this.xml = xml;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

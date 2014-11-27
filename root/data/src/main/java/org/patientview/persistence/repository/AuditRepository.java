@@ -1,7 +1,6 @@
 package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.Audit;
-import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +41,9 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "WHERE (((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User)) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
-            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))))" +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))) " +
+            "OR (a.information LIKE :filterText) " +
+            "OR (a.username LIKE :filterText)) " +
             "AND (a.creationDate >= :start AND a.creationDate <= :end) ")
     Page<Audit> findAllFiltered(@Param("start") Date start, @Param("end") Date end,
                                 @Param("filterText") String filterText, Pageable pageable);
@@ -52,7 +53,9 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "WHERE (((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User)) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
-            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText)))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))) " +
+            "OR (a.information LIKE :filterText) " +
+            "OR (a.username LIKE :filterText)) " +
             "AND (a.creationDate >= :start AND a.creationDate <= :end) ")
     Page<Audit> findAllByIdentifierFiltered(@Param("start") Date start, @Param("end") Date end,
                                             @Param("filterText") String filterText, Pageable pageable);
@@ -67,7 +70,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "JOIN ugr.group g " +
             "WHERE g.id IN (:groupIds)) " +
             "OR ((a.sourceObjectId IN (SELECT g.id FROM Group g WHERE (g.id IN (:groupIds)))) " +
-            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group)")
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group) " +
+            "OR a.group.id IN (:groupIds)")
     Page<Audit> findAllBySourceGroup(@Param("groupIds") List<Long> groupIds, Pageable pageable);
 
     @Query("SELECT a " +
@@ -80,13 +84,16 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "JOIN ugr.group g " +
             "WHERE g.id IN (:groupIds))) " +
             "OR ((a.sourceObjectId IN (SELECT g.id FROM Group g WHERE (g.id IN (:groupIds)))) " +
-            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group)) " +
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group) " +
+            "OR a.group.id IN (:groupIds)) " +
 
             // filter
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
-            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText)))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))) " +
+            "OR (a.information LIKE :filterText) " +
+            "OR (a.username LIKE :filterText)) " +
             "AND (a.creationDate >= :start AND a.creationDate <= :end) ")
     Page<Audit> findAllBySourceGroupFiltered(@Param("start") Date start, @Param("end") Date end,
                                              @Param("filterText") String filterText,
@@ -108,7 +115,9 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
-            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText)))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))) " +
+            "OR (a.information LIKE :filterText) " +
+            "OR (a.username LIKE :filterText)) " +
             "AND (a.creationDate >= :start AND a.creationDate <= :end) ")
     Page<Audit> findAllByActionFiltered(@Param("start") Date start, @Param("end") Date end,
                                         @Param("filterText") String filterText,
@@ -124,7 +133,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "JOIN ugr.group g " +
             "WHERE g.id IN (:groupIds))) " +
             "OR ((a.sourceObjectId IN (SELECT g.id FROM Group g WHERE (g.id IN (:groupIds)))) " +
-            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group)) " +
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group) " +
+            "OR a.group.id IN (:groupIds)) " +
 
             // actions
             "AND a.auditActions IN (:actions)")
@@ -141,7 +151,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "JOIN ugr.group g " +
             "WHERE g.id IN (:groupIds))) " +
             "OR ((a.sourceObjectId IN (SELECT g.id FROM Group g WHERE (g.id IN (:groupIds)))) " +
-            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group)) " +
+            "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.Group) " +
+            "OR a.group.id IN (:groupIds)) " +
 
             // actions
             "AND a.auditActions IN (:actions) " +
@@ -150,7 +161,9 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "AND ((a.sourceObjectId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText)) " +
             "AND a.sourceObjectType = org.patientview.persistence.model.enums.AuditObjectTypes.User) " +
             "OR (a.actorId IN (SELECT u.id FROM User u WHERE (UPPER(u.username) LIKE :filterText))) " +
-            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText)))) " +
+            "OR (a.sourceObjectId IN (SELECT u.id FROM User u JOIN u.identifiers i WHERE (i.identifier LIKE :filterText))) " +
+            "OR (a.information LIKE :filterText) " +
+            "OR (a.username LIKE :filterText)) " +
             "AND (a.creationDate >= :start AND a.creationDate <= :end) ")
     Page<Audit> findAllBySourceGroupAndActionFiltered(@Param("start") Date start, @Param("end") Date end,
                                                       @Param("filterText") String filterText,
