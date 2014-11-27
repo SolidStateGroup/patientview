@@ -98,6 +98,14 @@ public class AuditAspect {
         for (AuditObjectTypes auditObjectType : AuditObjectTypes.class.getEnumConstants()) {
             if (auditObjectType.getName().equals(auditTrail.objectType().getSimpleName())) {
                 audit.setSourceObjectType(auditObjectType);
+
+                // set username if User type object
+                if (auditObjectType.equals(AuditObjectTypes.User)) {
+                    User sourceObjectUser = userRepository.findOne(objectId);
+                    if (sourceObjectUser != null) {
+                        audit.setUsername(sourceObjectUser.getUsername());
+                    }
+                }
             }
         }
 
