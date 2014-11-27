@@ -77,6 +77,8 @@ public enum AuditActions {
     // user (new in pv2)
     LOGON_FAIL("Log on failed"),
     LOGGED_OFF("Log off"),
+    ACCOUNT_LOCKED("Account locked"), // PASSWORD_LOCKED in pv1
+    ACCOUNT_UNLOCKED("Account unlocked"), // PASSWORD_UNLOCKED in pv1
 
     // group (new in pv2)
     GROUP_ADD("Group add"),

@@ -561,6 +561,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        // check if account locked or unlocked
+        boolean isLocked =  (user.getLocked() && !entityUser.getLocked());
+        boolean isUnlocked =  (!user.getLocked() && entityUser.getLocked());
+
         entityUser.setForename(user.getForename());
         entityUser.setSurname(user.getSurname());
         entityUser.setUsername(user.getUsername());
@@ -580,6 +584,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         auditService.createAudit(auditActions, entityUser.getUsername(), getCurrentUser(),
                 entityUser.getId(), AuditObjectTypes.User);
+
+        // log if locked or unlocked
+        if (isLocked) {
+            auditService.createAudit(AuditActions.ACCOUNT_LOCKED, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User);
+        }
+        if (isUnlocked) {
+            auditService.createAudit(AuditActions.ACCOUNT_UNLOCKED, entityUser.getUsername(), getCurrentUser(),
+                    entityUser.getId(), AuditObjectTypes.User);
+        }
     }
 
     @Override
