@@ -32,7 +32,29 @@ public enum AuditActions {
         PATIENT_UNHIDE = "patient unhide";
         PATIENT_COUNT = "patient count";
         UKT_DATA_REPLACE = "ukt data";
-    */
+
+    PatientView 1 live server audit actions logged in unitstats table, SELECT DISTINCT(action) FROM unitstats:
+        admin add
+        email changed
+        email verified
+        logon
+        password change
+        password locked
+        password reset
+        password reset forgotten
+        password unlocked
+        patient add
+        patient data fail
+        patient data load
+        patient data remove
+        patient delete
+        patient hide
+        patient unhide
+        patient view
+        ukt data
+        unique data load
+        unique logon
+     */
 
     // patient
     PATIENT_VIEW("Patient view"),

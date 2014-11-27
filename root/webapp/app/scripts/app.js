@@ -89,19 +89,21 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             }
         }
 
-        // add main/login/logout routes (for all users)
-        data.routes.push(RouteService.getMainRoute());
-        data.routes.push(RouteService.getVerifyRoute());
-        data.routes.push(RouteService.getLogoutRoute());
-        data.routes.push(RouteService.getLoginRoute());
-        data.routes.push(RouteService.getAccountRoute());
-        data.routes.push(RouteService.getJoinRequestRoute());
-        data.routes.push(RouteService.getForgottenPasswordRoute());
-        data.routes.push(RouteService.getContactUnitRoute());
-        data.routes.push(RouteService.getTermsRoute());
-        data.routes.push(RouteService.getPrivacyRoute());
+        // if cookies is disabled then data.routes will not be an array (will be false)
+        if (data !== undefined && data.routes) {
 
-        if (data !== undefined) {
+            // add main/login/logout routes (for all users)
+            data.routes.push(RouteService.getMainRoute());
+            data.routes.push(RouteService.getVerifyRoute());
+            data.routes.push(RouteService.getLogoutRoute());
+            data.routes.push(RouteService.getLoginRoute());
+            data.routes.push(RouteService.getAccountRoute());
+            data.routes.push(RouteService.getJoinRequestRoute());
+            data.routes.push(RouteService.getForgottenPasswordRoute());
+            data.routes.push(RouteService.getContactUnitRoute());
+            data.routes.push(RouteService.getTermsRoute());
+            data.routes.push(RouteService.getPrivacyRoute());
+
             for (var j=0 ; j < data.routes.length; j++ ) {
 
                 var path = data.routes[j].url;
@@ -132,6 +134,8 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
             $routeProviderReference.otherwise({ 'redirectTo': '/'});
             $route.reload();
+        } else {
+            alert("You must have cookies enabled to use PatientView");
         }
     };
 
