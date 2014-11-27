@@ -61,11 +61,15 @@ public enum AuditActions {
     PATIENT_ADD("Patient add"),
     PATIENT_EDIT("Patient edit"), // new in pv2
     PATIENT_DELETE("Patient delete"),
+    PATIENT_GROUP_ROLE_ADD("Patient Group Role add"), // new in pv2
+    PATIENT_GROUP_ROLE_DELETE("Patient Group Role delete"), // new in pv2
 
     // admin
     ADMIN_ADD("Admin add"),
     ADMIN_EDIT("Admin edit"), // new in pv2
     ADMIN_DELETE("Admin delete"), // new in pv2
+    ADMIN_GROUP_ROLE_ADD("Admin Group Role add"), // new in pv2
+    ADMIN_GROUP_ROLE_DELETE("Admin Group Role delete"), // new in pv2
 
     // user
     PASSWORD_RESET_FORGOTTEN("Password reset forgotten"),
@@ -83,11 +87,6 @@ public enum AuditActions {
     // group (new in pv2)
     GROUP_ADD("Group add"),
     GROUP_EDIT("Group edit"),
-
-    // user group roles (new in pv2)
-    GROUP_ROLE_ADD("Group Role add"),
-    GROUP_ROLE_DELETE("Group Role delete"),
-    GROUP_ROLE_DELETE_ALL("Group Role delete all"),
 
     // importer
     PATIENT_DATA_SUCCESS("Patient data imported"), // PATIENT_DATA_FOLLOWUP in pv1

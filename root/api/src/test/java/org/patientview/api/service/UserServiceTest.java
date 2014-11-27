@@ -396,7 +396,7 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -408,14 +408,14 @@ public class UserServiceTest {
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
         User staffUser = TestUtils.createUser("staff");
-        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
         Set<GroupRole> groupRolesStaff = new HashSet<>();
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
         // new role
-        Role newStaffRole = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role newStaffRole = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
 
         when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
@@ -439,7 +439,7 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -451,7 +451,7 @@ public class UserServiceTest {
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
         User staffUser = TestUtils.createUser("staff");
-        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
         Set<GroupRole> groupRolesStaff = new HashSet<>();
         groupRolesStaff.add(groupRoleStaff);

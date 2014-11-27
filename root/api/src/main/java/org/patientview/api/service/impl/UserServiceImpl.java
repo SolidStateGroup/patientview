@@ -133,7 +133,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         genericGroup = groupRepository.findOne(GENERIC_GROUP_ID);
     }
 
-    private void addParentGroupRoles(Long userId, GroupRole groupRole, User creator) {
+    private void addParentGroupRoles(Long userId, GroupRole groupRole, User creator, boolean isPatient) {
 
         Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
 
@@ -152,8 +152,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         parentGroupRole.setCreator(creator);
                         groupRoleRepository.save(parentGroupRole);
 
-                        auditService.createAudit(AuditActions.GROUP_ROLE_ADD, groupRole.getUser().getUsername(),
-                                getCurrentUser(), userId, AuditObjectTypes.User, parentGroupRole.getGroup());
+                        if (isPatient) {
+                            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD,
+                                    groupRole.getUser().getUsername(),
+                                    getCurrentUser(), userId, AuditObjectTypes.User, parentGroupRole.getGroup());
+                        } else {
+                            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD,
+                                    groupRole.getUser().getUsername(),
+                                    getCurrentUser(), userId, AuditObjectTypes.User, parentGroupRole.getGroup());
+                        }
                     }
                 }
             }
@@ -188,10 +195,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         groupRole.setCreator(creator);
         groupRole = groupRoleRepository.save(groupRole);
 
-        auditService.createAudit(AuditActions.GROUP_ROLE_ADD, user.getUsername(),
-                getCurrentUser(), userId, AuditObjectTypes.User, group);
+        boolean isPatient = role.getRoleType().getValue().equals(RoleType.PATIENT);
 
-        addParentGroupRoles(userId, groupRole, creator);
+        if (isPatient) {
+            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
+                    getCurrentUser(), userId, AuditObjectTypes.User, group);
+        } else {
+            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, user.getUsername(),
+                    getCurrentUser(), userId, AuditObjectTypes.User, group);
+        }
+
+        addParentGroupRoles(userId, groupRole, creator, isPatient);
         return groupRole;
     }
 
@@ -286,8 +300,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // audit
-        auditService.createAudit(AuditActions.GROUP_ROLE_DELETE, entityUser.getUsername(), getCurrentUser(),
-                entityUser.getId(), AuditObjectTypes.User, entityGroup);
+        boolean isPatient = entityRole.getRoleType().getValue().equals(RoleType.PATIENT);
+
+        if (isPatient) {
+            auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, entityUser.getUsername(),
+                    getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
+        } else {
+            auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_DELETE, entityUser.getUsername(),
+                    getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
+        }
     }
 
     private boolean groupRolesContainsGroup(Set<GroupRole> groupRoles, Group group) {
@@ -345,15 +366,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // audit creation
-        AuditActions auditActions;
         if (isPatient) {
-            auditActions = AuditActions.PATIENT_ADD;
+            auditService.createAudit(AuditActions.PATIENT_ADD, newUser.getUsername(), getCurrentUser(),
+                    newUser.getId(), AuditObjectTypes.User, null);
         } else {
-            auditActions = AuditActions.ADMIN_ADD;
+            auditService.createAudit(AuditActions.ADMIN_ADD, newUser.getUsername(), getCurrentUser(),
+                    newUser.getId(), AuditObjectTypes.User, null);
         }
-
-        auditService.createAudit(auditActions, newUser.getUsername(), getCurrentUser(),
-                newUser.getId(), AuditObjectTypes.User, null);
 
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
             for (GroupRole groupRole : user.getGroupRoles()) {
@@ -361,16 +380,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 if (!groupRoleRepository.userGroupRoleExists(
                         newUser.getId(), groupRole.getGroup().getId(), groupRole.getRole().getId())) {
 
-                    groupRole.setGroup(groupRole.getGroup());
-                    groupRole.setRole(groupRole.getRole());
                     groupRole.setUser(newUser);
                     groupRole.setCreator(creator);
                     groupRole = groupRoleRepository.save(groupRole);
 
-                    auditService.createAudit(AuditActions.GROUP_ROLE_ADD, newUser.getUsername(),
-                            getCurrentUser(), newUser.getId(), AuditObjectTypes.User, groupRole.getGroup());
+                    if (isPatient) {
+                        auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, newUser.getUsername(),
+                                getCurrentUser(), newUser.getId(), AuditObjectTypes.User, groupRole.getGroup());
+                    } else {
+                        auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, newUser.getUsername(),
+                                getCurrentUser(), newUser.getId(), AuditObjectTypes.User, groupRole.getGroup());
+                    }
 
-                    addParentGroupRoles(newUser.getId(), groupRole, creator);
+                    addParentGroupRoles(newUser.getId(), groupRole, creator, isPatient);
                 }
             }
         }
@@ -877,8 +899,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
                 // audit removal (apart from MEMBER)
                 if (!role.getName().equals(RoleName.MEMBER)) {
-                    auditService.createAudit(AuditActions.GROUP_ROLE_DELETE, user.getUsername(),
-                            getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
+                    if (isPatient) {
+                        auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, user.getUsername(),
+                                getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
+                    } else {
+                        auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_DELETE, user.getUsername(),
+                                getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
+                    }
                 }
             }
 
