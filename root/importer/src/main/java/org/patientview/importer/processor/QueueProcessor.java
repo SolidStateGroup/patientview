@@ -168,6 +168,7 @@ public class QueueProcessor extends DefaultConsumer {
             if (patientUser != null) {
                 audit.setSourceObjectId(patientUser.getId());
                 audit.setSourceObjectType(AuditObjectTypes.User);
+                audit.setUsername(patientUser.getUsername());
             }
         }
 

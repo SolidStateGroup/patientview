@@ -178,6 +178,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             if (patientUser != null) {
                 audit.setSourceObjectId(patientUser.getId());
                 audit.setSourceObjectType(AuditObjectTypes.User);
+                audit.setUsername(patientUser.getUsername());
             }
         }
 
