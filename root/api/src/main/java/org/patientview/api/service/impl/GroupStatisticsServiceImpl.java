@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -8,6 +9,7 @@ import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
+import org.patientview.persistence.model.enums.StatisticType;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupStatisticRepository;
 import org.patientview.persistence.repository.LookupTypeRepository;
@@ -18,7 +20,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by james@solidstategroup.com
@@ -43,12 +47,12 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     /**
      * Summary view of the statistics month by month
      *
-     * @param groupId
-     * @return
+     * @param groupId ID of group to get statistics
+     * @return Map by date of group statistics
      * @throws ResourceNotFoundException
      */
     @Override
-    public List<GroupStatistic> getMonthlyGroupStatistics(final Long groupId)
+    public Map<Long, GroupStatisticTO> getMonthlyGroupStatistics(final Long groupId)
             throws ResourceNotFoundException {
 
         Group group = groupRepository.findOne(groupId);
@@ -60,7 +64,30 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
                 Util.convertIterable(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
                         StatisticPeriod.MONTH));
 
-        return groupStatistics;
+        return convertToTransportObject(groupStatistics);
+    }
+
+    private Map<Long, GroupStatisticTO> convertToTransportObject(List<GroupStatistic> groupStatistics) {
+
+        Map<Long, GroupStatisticTO> statisticTOMap = new HashMap<>();
+
+        for (GroupStatistic groupStatistic : groupStatistics) {
+
+            if (statisticTOMap.get(groupStatistic.getStartDate().getTime()) == null) {
+                GroupStatisticTO groupStatisticTO = new GroupStatisticTO();
+                groupStatisticTO.setStatistics(new HashMap<StatisticType, BigInteger>());
+                statisticTOMap.put(groupStatistic.getStartDate().getTime(), groupStatisticTO);
+            }
+
+            StatisticType statisticType = StatisticType.valueOf(groupStatistic.getStatisticType().getValue());
+
+            GroupStatisticTO groupStatisticTO = statisticTOMap.get(groupStatistic.getStartDate().getTime());
+            groupStatisticTO.getStatistics().put(statisticType, groupStatistic.getValue());
+            groupStatisticTO.setStartDate(groupStatistic.getStartDate());
+            groupStatisticTO.setEndDate(groupStatistic.getEndDate());
+        }
+
+        return statisticTOMap;
     }
 
     /**

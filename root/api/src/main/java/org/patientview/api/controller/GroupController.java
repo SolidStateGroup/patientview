@@ -5,7 +5,6 @@ import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.GroupStatisticService;
-import org.patientview.api.util.Util;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -24,8 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by james@solidstategroup.com
@@ -108,13 +107,11 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET,
-                    produces = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Collection<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
+    public ResponseEntity<Map<Long, GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        Collection<GroupStatisticTO> groupStatisticTO
-            = Util.convertGroupStatistics(groupStatisticService.getMonthlyGroupStatistics(groupId));
-        return new ResponseEntity<>(groupStatisticTO, HttpStatus.OK);
+        return new ResponseEntity<>(groupStatisticService.getMonthlyGroupStatistics(groupId), HttpStatus.OK);
     }
 
     // Second stage of forgotten password, if username or email have been forgotten

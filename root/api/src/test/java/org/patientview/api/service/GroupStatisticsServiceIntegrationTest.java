@@ -3,15 +3,14 @@ package org.patientview.api.service;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.api.config.TestPersistenceConfig;
+import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.GroupStatisticsServiceImpl;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.User;
@@ -33,7 +32,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import javax.inject.Inject;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Integration test for the statistic count. We needed this for the interaction with the entity manager. However
@@ -98,9 +97,9 @@ public class GroupStatisticsServiceIntegrationTest {
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
 
         try {
-            List<GroupStatistic> groupStatistics = groupStatisticService.getMonthlyGroupStatistics(testGroup.getId());
+            Map<Long, GroupStatisticTO> groupStatistics = groupStatisticService.getMonthlyGroupStatistics(testGroup.getId());
             // Expect the generate statistics to have create 2 statistics from the lookups below
-            Assert.assertTrue("We have created 2 statistics for our group", groupStatistics.size() == 2);
+            Assert.assertEquals("Should have one date of statistics", 1, groupStatistics.keySet().size());
         } catch (ResourceForbiddenException rfe) {
             Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
         }
@@ -120,7 +119,7 @@ public class GroupStatisticsServiceIntegrationTest {
         lookupRepository.save(lookup);
 
         lookup = new Lookup();
-        lookup.setValue(StatisticType.LOGON_COUNT.name());
+        lookup.setValue(StatisticType.LOGGED_ON_COUNT.name());
         lookup.setDescription("SELECT COUNT(1) FROM pv_audit WHERE creation_date BETWEEN :startDate AND :endDate AND id > :groupId");
         lookup.setLookupType(lookupType);
         lookup.setId(2L);

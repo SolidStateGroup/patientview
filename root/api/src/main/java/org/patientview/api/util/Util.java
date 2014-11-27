@@ -5,14 +5,11 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.annotation.RoleOnly;
-import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
-import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
-import org.patientview.persistence.model.enums.StatisticType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,8 +23,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -110,71 +105,6 @@ public final class Util {
         }
         throw new RuntimeException("No value() method returning a Roles[] roles was found in annotation "
                         + annotation.getClass().getCanonicalName());
-    }
-
-    // TODO sprint 3 included in the ENUM fix
-    public static Collection<GroupStatisticTO> convertGroupStatistics(final List<GroupStatistic> groupStatistics) {
-
-        Map<Date, GroupStatisticTO> groupStatisticTOs = new TreeMap<>();
-
-        for (GroupStatistic groupStatistic : groupStatistics) {
-            StatisticType statisticType = StatisticType.valueOf(groupStatistic.getStatisticType().getValue());
-            GroupStatisticTO groupStatisticTO = getGroupStatisticTO(groupStatisticTOs, groupStatistic.getStartDate());
-            groupStatisticTO.setStartDate(groupStatistic.getStartDate());
-            groupStatisticTO.setEndDate(groupStatistic.getEndDate());
-            switch (statisticType) {
-                case ADD_PATIENT_COUNT:
-                    groupStatisticTO.setCountOfPatientAdds(groupStatistic.getValue());
-                    break;
-                case DELETE_PATIENT_COUNT:
-                    groupStatisticTO.setCountOfPatientDeletes(groupStatistic.getValue());
-                    break;
-                case IMPORT_COUNT:
-                    groupStatisticTO.setCountOfImportLoads(groupStatistic.getValue());
-                    break;
-                case IMPORT_FAIL_COUNT:
-                    groupStatisticTO.setCountOfImportFails(groupStatistic.getValue());
-                    break;
-                case LOGON_COUNT:
-                    groupStatisticTO.setCountOfLogons(groupStatistic.getValue());
-                    break;
-                case UNIQUE_LOGON_COUNT:
-                    groupStatisticTO.setCountOfUniqueLogons(groupStatistic.getValue());
-                    break;
-                case PASSWORD_CHANGE_COUNT:
-                    groupStatisticTO.setCountOfPasswordChanges(groupStatistic.getValue());
-                    break;
-                case ACCOUNT_LOCKED_COUNT:
-                    groupStatisticTO.setCountOfAccountLocks(groupStatistic.getValue());
-                    break;
-                case VIEW_PATIENT_COUNT:
-                    groupStatisticTO.setCountOfPatientViews(groupStatistic.getValue());
-                    break;
-                case PATIENT_COUNT:
-                    groupStatisticTO.setCountOfPatients(groupStatistic.getValue());
-                    break;
-                case REMOVE_PATIENT_COUNT:
-                    groupStatisticTO.setCountOfPatientRemoves(groupStatistic.getValue());
-                    break;
-                case INACTIVE_USER_COUNT:
-                    groupStatisticTO.setCountOfUserInactive(groupStatistic.getValue());
-                    break;
-                case LOCKED_USER_COUNT:
-                    groupStatisticTO.setCountOfUserLocked(groupStatistic.getValue());
-                    break;
-                default:
-                    break;
-            }
-        }
-        return groupStatisticTOs.values();
-    }
-
-    private static GroupStatisticTO getGroupStatisticTO(Map<Date, GroupStatisticTO> groupStatisticTOMap,
-                                                        Date startDate) {
-        if (groupStatisticTOMap.get(startDate) == null) {
-            groupStatisticTOMap.put(startDate, new GroupStatisticTO());
-        }
-        return groupStatisticTOMap.get(startDate);
     }
 
     public static <T> List<T> convertAuthorities(Collection<? extends GrantedAuthority>  grantedAuthorities) {

@@ -73,40 +73,6 @@ public class UtilTest {
         Assert.assertTrue("We have 10 results in our list", groupList.size() == sizeOfList);
     }
 
-
-    /**
-     * Test: Convert the statistics into viewed bean
-     * Fail: The values are not populated correctly
-     *
-     */
-    @Test
-    @Ignore("infrequent failures on dev")
-    public void convertStatisticListToModelObject() {
-        Group testGroup = TestUtils.createGroup("testGroup");
-        List<GroupStatistic> groupStatistics = createGroupStatistics(testGroup);
-        Collection<GroupStatisticTO> groupStatisticTOs = Util.convertGroupStatistics(groupStatistics);
-
-        // Get the only statistic
-        GroupStatisticTO groupStatisticTO = (GroupStatisticTO) groupStatisticTOs.toArray()[0];
-
-        LOG.info("GroupStatistics : {}", groupStatisticTO.toString());
-
-        // Make sure the count is set to ten for all the properties
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatients().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfUniqueLogons().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfImportFails().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfImportLoads().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfLogons().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfUniqueLogons().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPasswordChanges().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfAccountLocks().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientViews().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientRemoves().equals(BigInteger.TEN));
-        Assert.assertTrue("The count should be 10", groupStatisticTO.getCountOfPatientDeletes().equals(BigInteger.TEN));
-
-
-    }
-
     // Create a list containing all the GroupStatistic types
     private List<GroupStatistic> createGroupStatistics(Group group) {
         List<GroupStatistic> groupStatistics = new ArrayList<>();

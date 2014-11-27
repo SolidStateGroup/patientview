@@ -15,6 +15,16 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                 GroupService.getStatistics(newValue).then(function (data) {
 
                     if (data.length) {
+                        var xAxisNames = [];
+
+                        for (var date in data){
+                            if (data.hasOwnProperty(date)) {
+                                //alert("Key is " + k + ", value is" + target[k]);
+                            }
+                        }
+                    }
+
+                    /*if (data.length) {
                         var patients = [];
                         var uniqueLogons = [];
                         var logons = [];
@@ -64,7 +74,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                             },
                             series: [
                                 {
-                                    name: 'Patients Added',
+                                    name: 'Patient Count',
                                     data: patients
                                 },
                                 {
@@ -83,7 +93,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                                 enabled: false
                             }
                         });
-                    }
+                    }*/
                     $scope.chartLoading = false;
 
                 });

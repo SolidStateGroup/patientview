@@ -16,15 +16,16 @@ public enum AuditActions {
         PATIENT_DATA_CORRUPT = "patient data corrupt"; // PATIENT_DATA_VALIDATE_FAIL in pv2 (not used in pv1)
         LOGGED_ON = "logon";
         PATIENT_ADD = "patient add";
-        PATIENT_DELETE = "patient delete"; // used for both removing mapping AND user deletion in pv1
+        PATIENT_DELETE = "patient delete";  // used for both removing mapping AND user deletion in pv1
+                                            // PATIENT_GROUP_ROLE_DELETE in pv2
         PATIENT_VIEW = "patient view";
         ADMIN_ADD = "admin add";
         EMAIL_VERIFY = "email verified";
+        EMAIL_CHANGED = "email changed";
+        PASSWORD_LOCKED = "password locked"; // ACCOUNT_LOCKED in pv2
+        PASSWORD_UNLOCKED = "password unlocked"; // ACCOUNT_UNLOCKED in pv2
     
     PatientView 1 audit actions (not used in PatientView 2):
-        PASSWORD_LOCKED = "password locked";
-        PASSWORD_UNLOCKED = "password unlocked";
-        EMAIL_CHANGED = "email changed";
         ACTOR_SYSTEM = "system";
         PATIENT_DATA = "patient data";
         PATIENT_DATA_REMOVE = "patient data remove";
@@ -33,27 +34,29 @@ public enum AuditActions {
         PATIENT_COUNT = "patient count";
         UKT_DATA_REPLACE = "ukt data";
 
-    PatientView 1 live server audit actions logged in unitstats table, SELECT DISTINCT(action) FROM unitstats:
-        admin add
-        email changed // not in pv2
-        email verified
-        logon
-        password change
-        password locked
-        password reset
-        password reset forgotten
-        password unlocked
-        patient add
-        patient data fail
-        patient data load
-        patient data remove
-        patient delete
-        patient hide
-        patient unhide
-        patient view
-        ukt data
-        unique data load
-        unique logon
+    PatientView 1 live server audit actions logged in unitstats table, SELECT DISTINCT(action) FROM unitstats;
+    pv2 group statistics lookups (SQL) shown after //
+
+        admin add // ADMIN_GROUP_ROLE_ADD_COUNT
+        email changed // EMAIL_CHANGED_COUNT
+        email verified // EMAIL_VERIFY_COUNT
+        logon // LOGGED_ON_COUNT
+        password change // PASSWORD_CHANGE_COUNT
+        password locked // ACCOUNT_LOCKED_COUNT
+        password reset // PASSWORD_RESET_COUNT
+        password reset forgotten // PASSWORD_RESET_FORGOTTEN_COUNT
+        password unlocked // ACCOUNT_UNLOCKED_COUNT
+        patient add // PATIENT_GROUP_ROLE_ADD_COUNT
+        patient data fail // PATIENT_DATA_FAIL_COUNT
+        patient data load // PATIENT_DATA_SUCCESS_COUNT
+        patient data remove // not in pv2
+        patient delete // PATIENT_GROUP_ROLE_DELETE_COUNT
+        patient hide // not in pv2
+        patient unhide // not in pv2
+        patient view // PATIENT_VIEW_COUNT
+        ukt data // not in pv2
+        unique data load // UNIQUE_PATIENT_DATA_SUCCESS_COUNT
+        unique logon // UNIQUE_LOGGED_ON_COUNT
      */
 
     // patient

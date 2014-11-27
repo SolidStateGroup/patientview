@@ -55,42 +55,83 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (32, now(), 'OUT_OF_HOURS_INFO','Out of Hours Information','1','9');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (33, now(), 'PUBLIC','Public','1','3');
 
-/* Group Statistics */
+/* Group Statistics (see AuditActions.java) */
 
 /* pv1 "admin add" */
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (44, now(),
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (34, now(),
 'ADMIN_GROUP_ROLE_ADD_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_GROUP_ROLE_ADD'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 
 /* pv1 "email verified" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (35, now(),
 'EMAIL_VERIFY_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''EMAIL_VERIFY'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (34, now(),
-'PATIENT_COUNT','SELECT COUNT(id) FROM pv_user_group_role WHERE role_id = 1 AND group_id = :groupId AND creation_date BETWEEN :startDate AND :endDate','1','10');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (35, now(),
-'LOGGED_ON_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''LOGGED_ON'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+/* pv1 "email changed" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (36, now(),
-'UNIQUE_LOGGED_ON_COUNT', 'SELECT COUNT(DISTINCT source_object_id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''LOGGED_ON'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+'EMAIL_CHANGED_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''EMAIL_CHANGED'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "logon" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (37, now(),
-'PATIENT_VIEW_COUNT','SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PATIENT_VIEW'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+'LOGGED_ON_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''LOGGED_ON'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "password change" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (38, now(),
-'PATIENT_GROUP_ROLE_ADD_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_GROUP_ROLE_ADD'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+'PASSWORD_CHANGE_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PASSWORD_CHANGE'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "password locked" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (39, now(),
-'PATIENT_DATA_FAIL_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PATIENT_DATA_FAIL'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (40, now(),
-'PATIENT_DATA_SUCCESS_COUNT','SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PATIENT_DATA_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (41, now(),
-'PASSWORD_RESET_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PASSWORD_RESET'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (42, now(),
 'ACCOUNT_LOCKED_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''ACCOUNT_LOCKED'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "password reset" */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (40, now(),
+'PASSWORD_RESET_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PASSWORD_RESET'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "password reset forgotten" */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (41, now(),
+'PASSWORD_RESET_FORGOTTEN_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PASSWORD_RESET_FORGOTTEN'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "password unlocked" */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (42, now(),
+'ACCOUNT_UNLOCKED_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''ACCOUNT_UNLOCKED'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "patient add" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (43, now(),
-'PATIENT_GROUP_ROLE_DELETE_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_GROUP_ROLE_DELETE'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+'PATIENT_GROUP_ROLE_ADD_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_GROUP_ROLE_ADD'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "patient data fail" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (44, now(),
-'ADMIN_GROUP_ROLE_ADD_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_GROUP_ROLE_ADD'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+'PATIENT_DATA_FAIL_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_DATA_FAIL'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "patient data load" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (45, now(),
-'INACTIVE_USER_COUNT', 'SELECT COUNT(u) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN :startDate AND :endDate) OR u.last_login IS NULL)','1','10');
+'PATIENT_DATA_SUCCESS_COUNT','SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_DATA_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "patient delete" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (46, now(),
-'LOCKED_USER_COUNT',   'SELECT COUNT(u) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true AND :startDate = :startDate AND :endDate = :endDate','1','10');
+'PATIENT_GROUP_ROLE_DELETE_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_GROUP_ROLE_DELETE'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "patient view" */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (50, now(),
+'PATIENT_VIEW_COUNT','SELECT COUNT(adt.id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PATIENT_VIEW'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "unique data load" */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (51, now(),
+'UNIQUE_PATIENT_DATA_SUCCESS_COUNT','SELECT COUNT(DISTINCT source_object_id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''PATIENT_DATA_SUCCESS'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* pv1 "unique logon" */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (52, now(),
+'UNIQUE_LOGGED_ON_COUNT', 'SELECT COUNT(DISTINCT source_object_id) FROM pv_audit adt, pv_user_group_role upr WHERE adt.source_object_id = upr.user_id AND upr.group_id = :groupId AND adt.action = ''LOGGED_ON'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* new in pv2 */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (53, now(),
+'PATIENT_COUNT','SELECT COUNT(id) FROM pv_user_group_role WHERE role_id = 1 AND group_id = :groupId AND creation_date BETWEEN :startDate AND :endDate','1','10');
+
+/* new in pv2 */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (54, now(),
+'INACTIVE_USER_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN :startDate AND :endDate) OR u.last_login IS NULL)','1','10');
+
+/* new in pv2 */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (55, now(),
+'LOCKED_USER_COUNT',   'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true AND :startDate = :startDate AND :endDate = :endDate','1','10');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (47, now(), 'HSC_NUMBER','H&SC Number','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (48, now(), 'HOSPITAL_NUMBER','Hospital Number','1','8');

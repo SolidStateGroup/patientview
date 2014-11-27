@@ -5,7 +5,28 @@ package org.patientview.persistence.model.enums;
  * Created on 07/08/2014
  */
 public enum StatisticType {
-    PATIENT_COUNT, LOGON_COUNT, UNIQUE_LOGON_COUNT, VIEW_PATIENT_COUNT, ADD_PATIENT_COUNT, IMPORT_FAIL_COUNT,
-    IMPORT_COUNT, PASSWORD_CHANGE_COUNT, ACCOUNT_LOCKED_COUNT, REMOVE_PATIENT_COUNT, DELETE_PATIENT_COUNT,
-    INACTIVE_USER_COUNT, LOCKED_USER_COUNT;
+    ACCOUNT_LOCKED_COUNT("Account locks"),
+    ACCOUNT_UNLOCKED_COUNT("Account unlocks"),
+    ADMIN_GROUP_ROLE_ADD_COUNT("Admin users added"),
+    EMAIL_CHANGED_COUNT("Emails changed"),
+    EMAIL_VERIFY_COUNT("Emails verified"),
+    INACTIVE_USER_COUNT("Inactive users"),
+    LOCKED_USER_COUNT("Locked users"),
+    LOGGED_ON_COUNT("Logons"),
+    PASSWORD_CHANGE_COUNT("Password changed count"),
+    PASSWORD_RESET_COUNT("Password reset count"),
+    PASSWORD_RESET_FORGOTTEN_COUNT("Forgotten password count"),
+    PATIENT_COUNT("Patients"),
+    PATIENT_DATA_FAIL_COUNT("Failed imports"),
+    PATIENT_DATA_SUCCESS_COUNT("Successful imports"),
+    PATIENT_GROUP_ROLE_ADD_COUNT("Patients added"),
+    PATIENT_GROUP_ROLE_DELETE_COUNT("Patients removed"),
+    PATIENT_VIEW_COUNT("Patients viewed"),
+    UNIQUE_LOGGED_ON_COUNT("Unique logons"),
+    UNIQUE_PATIENT_DATA_SUCCESS_COUNT("Unique successful imports");
+
+    private String name;
+    StatisticType(String name) { this.name = name; }
+    public String getName() { return this.name; }
+    public String getId() { return this.name(); }
 }
