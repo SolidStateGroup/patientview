@@ -10,7 +10,7 @@
         </div>
         <div class="col-md-3">
             <label for="group-short-name" class="control-label">Short Name (20 characters)<span class="error" data-ng-show="groupFormNew.shortName.$error.required"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="group-short-name" placeholder="Short Name" name="shortName" data-ng-model="editGroup.shortName" required></div>
+            <div class=""><input type="text" class="form-control" id="group-short-name" placeholder="Short Name" name="shortName" data-ng-model="editGroup.shortName" required maxlength="20"></div>
         </div>
         <div class="col-md-3">
             <label for="group-groupType" class="ccontrol-label">Group Type <span class="error" data-ng-show="!editGroup.groupTypeId"> *required</span></label>

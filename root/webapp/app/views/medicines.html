@@ -89,9 +89,9 @@
                                     </a>
                                 </li>
                                 <li class="divider"></li>
-                                <li data-ng-repeat="group in filterGroups">
+                                <li data-ng-repeat="group in filterGroups | orderBy:['shortName']">
                                     <a data-ng-click="setSelectedGroup(group)" class="a-filter-group-type clearfix">
-                                        <span class="pull-left">{{group.name}}</span>
+                                        <span class="pull-left">{{group.shortName}}</span>
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
                                     </a>
                                 </li>
