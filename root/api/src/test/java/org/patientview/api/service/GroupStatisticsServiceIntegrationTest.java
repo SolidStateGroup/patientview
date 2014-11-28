@@ -32,7 +32,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import javax.inject.Inject;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Integration test for the statistic count. We needed this for the interaction with the entity manager. However
@@ -97,9 +97,9 @@ public class GroupStatisticsServiceIntegrationTest {
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
 
         try {
-            Map<Long, GroupStatisticTO> groupStatistics = groupStatisticService.getMonthlyGroupStatistics(testGroup.getId());
+            List<GroupStatisticTO> groupStatistics = groupStatisticService.getMonthlyGroupStatistics(testGroup.getId());
             // Expect the generate statistics to have create 2 statistics from the lookups below
-            Assert.assertEquals("Should have one date of statistics", 1, groupStatistics.keySet().size());
+            Assert.assertEquals("Should have one date of statistics", 1, groupStatistics.size());
         } catch (ResourceForbiddenException rfe) {
             Assert.fail("ResourceForbiddenException: " + rfe.getMessage());
         }
