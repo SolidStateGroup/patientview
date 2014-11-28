@@ -39,7 +39,7 @@ public class BulkUserCreateTest {
     @Test
     @Transactional
     @Rollback(false)
-    //@Ignore
+    @Ignore
     public void test01BulkUserCreate() {
         Long usersToCreate = 1L;
         Date start = new Date();

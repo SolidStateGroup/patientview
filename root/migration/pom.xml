@@ -10,11 +10,10 @@
         <groupId>org.patientview2</groupId>
         <version>0.2-SNAPSHOT</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>migration</artifactId>
-    <packaging>jar</packaging>
-
+    <packaging>war</packaging>
     <name>migration</name>
     <url>http://maven.apache.org</url>
 
