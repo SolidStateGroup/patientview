@@ -31,7 +31,8 @@
            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
     <!-- check for annotations -->
-    <context:component-scan base-package="org.patientview.repository, org.patientview.model, org.patientview.migration,org.patientview.migration" />
+    <context:component-scan base-package="org.patientview.repository, org.patientview.model,
+        org.patientview.migration" />
 
     <tx:annotation-driven/>
 
@@ -75,4 +76,13 @@
 
     <bean id="exceptionTranslation" class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
+    <!-- web -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix">
+            <value>/WEB-INF/pages/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+    </bean>
 </beans>
