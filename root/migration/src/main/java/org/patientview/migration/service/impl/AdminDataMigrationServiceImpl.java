@@ -1,6 +1,7 @@
 package org.patientview.migration.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -76,28 +77,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private List<Lookup> lookups;
     private List<Feature> features;
 
-    private Group renal;
-    private Group diabetes;
-    private Group ibd;
-
     private @Value("${migration.username}") String migrationUsername;
     private @Value("${migration.password}") String migrationPassword;
     private @Value("${patientview.api.url}") String patientviewApiUrl;
-
-    @Override
-    public Group getRenal() {
-        return renal;
-    }
-
-    @Override
-    public Group getDiabetes() {
-        return diabetes;
-    }
-
-    @Override
-    public Group getIbd() {
-        return ibd;
-    }
 
     public void init() throws JsonMigrationException {
         try {
@@ -124,18 +106,15 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     }
 
     public void createGroups() {
-        // Export a dummy group to test hibernate
-        //sendDummyUnit();
-
         for (Unit unit : unitDao.getAll(false)) {
 
+            // get group features
             Set<Feature> unitFeatures = getUnitFeatures(unit);
-
-            LOG.info("Got unit from PatientView 1: {}", unit.getUnitcode());
 
             // Create the unit
             Group group = createGroup(unit);
 
+            // get the id
             Long groupId = callApiCreateGroup(group);
 
             if (groupId != null) {
@@ -296,7 +275,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         String url = JsonUtil.pvUrl + "/contactpoint/type/" + type;
         try {
             newLink = JsonUtil.jsonRequest(url, ContactPointType.class, null , HttpGet.class, true);
-            //LOG.info("Got Contact Point Type");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to get contact point: ", jme.getMessage());
         } catch (JsonMigrationExistsException jee) {
@@ -451,28 +429,28 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private List<ContactPoint> createGroupContactPoints(Unit unit) {
         List<ContactPoint> contactPoints = new ArrayList<ContactPoint>();
 
-        if (unit.getAppointmentphone() != null) {
+        if (StringUtils.isNotEmpty(unit.getAppointmentphone())) {
             ContactPoint contactPoint = new ContactPoint();
             contactPoint.setContactPointType(callApiGetType(ContactPointTypes.APPOINTMENT_PHONE.toString()));
             contactPoint.setContent(unit.getAppointmentphone());
             contactPoints.add(contactPoint);
         }
 
-        if (unit.getAppointmentemail() != null) {
+        if (StringUtils.isNotEmpty(unit.getAppointmentemail())) {
             ContactPoint contactPoint = new ContactPoint();
             contactPoint.setContactPointType(callApiGetType(ContactPointTypes.APPOINTMENT_EMAIL.toString()));
             contactPoint.setContent(unit.getAppointmentemail());
             contactPoints.add(contactPoint);
         }
 
-        if (unit.getUnitenquiriesemail() != null) {
+        if (StringUtils.isNotEmpty(unit.getUnitenquiriesemail())) {
             ContactPoint contactPoint = new ContactPoint();
             contactPoint.setContactPointType(callApiGetType(ContactPointTypes.UNIT_ENQUIRIES_EMAIL.toString()));
             contactPoint.setContent(unit.getUnitenquiriesemail());
             contactPoints.add(contactPoint);
         }
 
-        if (unit.getOutofhours() != null) {
+        if (StringUtils.isNotEmpty(unit.getOutofhours())) {
             ContactPoint contactPoint = new ContactPoint();
             contactPoint.setContactPointType(callApiGetType(ContactPointTypes.OUT_OF_HOURS_INFO.toString()));
             contactPoint.setContent(unit.getOutofhours());

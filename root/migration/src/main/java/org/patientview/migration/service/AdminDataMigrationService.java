@@ -18,12 +18,6 @@ public interface AdminDataMigrationService {
 
     void init() throws JsonMigrationException;
 
-    Group getRenal();
-
-    Group getDiabetes();
-
-    Group getIbd();
-
     Lookup getLookupByName(String value);
 
     Feature getFeatureByName(String value);
