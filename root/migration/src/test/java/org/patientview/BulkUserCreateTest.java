@@ -1,13 +1,16 @@
 package org.patientview;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.persistence.model.enums.RoleName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +34,16 @@ public class BulkUserCreateTest {
 
     @Inject
     private UserDataMigrationService userDataMigrationService;
+
+    @Inject
+    private AdminDataMigrationService adminDataMigrationService;
+
     protected final Logger LOG = LoggerFactory.getLogger(BulkUserCreateTest.class);
+
+    @Before
+    public void setup() throws JsonMigrationException {
+        adminDataMigrationService.init();
+    }
 
     /**
      * Order(1) Bulk create users given 2 groups and number of users
@@ -39,7 +51,7 @@ public class BulkUserCreateTest {
     @Test
     @Transactional
     @Rollback(false)
-    @Ignore
+    //@Ignore
     public void test01BulkUserCreate() {
         Long usersToCreate = 1L;
         Date start = new Date();

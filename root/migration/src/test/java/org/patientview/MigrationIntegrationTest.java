@@ -3,6 +3,7 @@ package org.patientview;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -26,6 +27,7 @@ import javax.inject.Inject;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(value = "classpath:source-repository.xml")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Ignore
 public class MigrationIntegrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MigrationIntegrationTest.class);
@@ -38,7 +40,7 @@ public class MigrationIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-
+        adminDataMigrationService.init();
     }
 
     /**

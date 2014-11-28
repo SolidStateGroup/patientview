@@ -17,7 +17,6 @@
     <name>migration</name>
     <url>http://maven.apache.org</url>
 
-
     <properties>
         <jetty.version>8.1.3.v20120416</jetty.version>
         <spring.version>3.2.4.RELEASE</spring.version>
@@ -26,7 +25,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.patientview2</groupId>
             <artifactId>common</artifactId>
@@ -66,7 +64,7 @@
             <groupId>org.patientview</groupId>
             <artifactId>common</artifactId>
             <version>1.4.3-RELEASE</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <!-- POI - USED FOR EXCEL API -->
@@ -146,6 +144,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-struts</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
             <version>${spring.version}</version>
         </dependency>
 
@@ -512,7 +516,6 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.4.0</version>
         </dependency>
-
     </dependencies>
 
     <build>

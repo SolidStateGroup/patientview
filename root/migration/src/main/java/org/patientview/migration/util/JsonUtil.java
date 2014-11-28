@@ -28,7 +28,7 @@ import org.patientview.DateDeserializer;
 import org.patientview.DateSerializer;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
-import org.patientview.model.LoginDetails;
+import org.patientview.migration.model.LoginDetails;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Lookup;
@@ -59,18 +59,14 @@ public final class JsonUtil {
             .create();
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtil.class);
-
     public static String pvUrl;
-
     public static String token;
 
-    static {
-        if ((pvUrl = System.getProperty("url")) == null) {
-            throw new RuntimeException("Please specify an environment by using -Durl=apiUrl");
-        }
-    }
-
     private JsonUtil() {}
+
+    public static void setPatientviewApiUrl(String url) {
+        pvUrl = url;
+    }
 
     public static String authenticate(String username, String password)
             throws JsonMigrationException, JsonMigrationExistsException {

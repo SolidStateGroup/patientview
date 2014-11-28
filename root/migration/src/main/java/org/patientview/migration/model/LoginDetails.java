@@ -1,4 +1,4 @@
-package org.patientview.model;
+package org.patientview.migration.model;
 
 /**
  * Created by jamesr@solidstategroup.com

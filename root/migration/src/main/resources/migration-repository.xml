@@ -34,6 +34,11 @@
     <context:component-scan base-package="org.patientview.repository, org.patientview.model,
         org.patientview.migration" />
 
+    <!-- Beans for DAOs to work -->
+    <bean name="securityUserManager" class="org.patientview.service.impl.SecurityUserManagerImpl"/>
+    <bean name="userManager" class="org.patientview.service.impl.UserManagerImpl"/>
+    <bean name="logEntryManager" class="org.patientview.service.impl.LogEntryManagerImpl"/>
+    <bean name="unitManager" class="org.patientview.service.impl.UnitManagerImpl"/>
     <tx:annotation-driven/>
 
     <!-- boiler plate jpa stuff -->
@@ -75,14 +80,4 @@
     </bean>
 
     <bean id="exceptionTranslation" class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
-
-    <!-- web -->
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix">
-            <value>/WEB-INF/pages/</value>
-        </property>
-        <property name="suffix">
-            <value>.jsp</value>
-        </property>
-    </bean>
 </beans>

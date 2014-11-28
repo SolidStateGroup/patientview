@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -83,6 +82,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
 
     private @Value("${migration.username}") String migrationUsername;
     private @Value("${migration.password}") String migrationPassword;
+    private @Value("${patientview.api.url}") String patientviewApiUrl;
 
     @Override
     public Group getRenal() {
@@ -99,9 +99,9 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return ibd;
     }
 
-    @PostConstruct
     public void init() throws JsonMigrationException {
         try {
+            JsonUtil.setPatientviewApiUrl(patientviewApiUrl);
             JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
             lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
             features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");

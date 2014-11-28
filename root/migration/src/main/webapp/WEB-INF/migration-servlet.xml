@@ -1,16 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
         http://www.springframework.org/schema/beans     
         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
         http://www.springframework.org/schema/context 
-        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-	<context:component-scan base-package="org.patientview.migration.controller" />
+    <!-- check for annotations -->
+    <context:component-scan base-package="org.patientview.repository, org.patientview.model, org.patientview.utils,
+        org.patientview.migration.service, org.patientview.migration.controller" />
 
-	<bean
-		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <!-- Beans for DAOs to work -->
+    <bean name="securityUserManager" class="org.patientview.service.impl.SecurityUserManagerImpl"/>
+    <bean name="userManager" class="org.patientview.service.impl.UserManagerImpl"/>
+    <bean name="logEntryManager" class="org.patientview.service.impl.LogEntryManagerImpl"/>
+    <bean name="unitManager" class="org.patientview.service.impl.UnitManagerImpl"/>
+    <bean name="asyncService" class="org.patientview.migration.service.impl.AsyncServiceImpl"/>
+
+    <tx:annotation-driven/>
+
+    <!--Properties Placeholder-->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:migration.properties"/>
+    </bean>
+
+    <!-- boiler plate jpa stuff -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan" value="org.patientview.model, org.patientview.patientview.model, org.patientview.ibd.model, org.patientview.migration.service"/>
+        <property name="jpaVendorAdapter" ref="jpaVendorAdaptor"/>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">false</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.connection.useUnicode">true</prop>
+                <prop key="hibernate.connection.characterEncoding">UTF-8</prop>
+                <prop key="hibernate.connection.charSet">UTF-8</prop>
+                <prop key="hibernate.connection.zeroDateTimeBehavior">convertToNull</prop>
+                <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+
+                <prop key="hibernate.c3p0.acquire_increment">${hibernate.c3p0.acquireIncrement}</prop>
+                <prop key="hibernate.c3p0.idle_test_period">${hibernate.c3p0.idleConnectionTestPeriod}</prop>
+                <prop key="hibernate.c3p0.timeout">${hibernate.c3p0.maxIdleTime}</prop>
+                <prop key="hibernate.c3p0.minPoolSize">${hibernate.c3p0.minPoolSize}</prop>
+                <prop key="hibernate.c3p0.maxPoolSize">${hibernate.c3p0.maxPoolSize}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="jpaVendorAdaptor" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <bean id="exceptionTranslation" class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix">
 			<value>/WEB-INF/pages/</value>
 		</property>
