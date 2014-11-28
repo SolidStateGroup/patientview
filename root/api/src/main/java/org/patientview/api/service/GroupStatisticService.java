@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -21,7 +21,7 @@ public interface GroupStatisticService {
 
     @GroupMemberOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
             RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
-    Map<Long, GroupStatisticTO> getMonthlyGroupStatistics(Long groupId)
+    List<GroupStatisticTO> getMonthlyGroupStatistics(Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod);

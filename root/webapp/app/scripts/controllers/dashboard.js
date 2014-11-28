@@ -12,88 +12,78 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
             $('#chart_div').html('');
 
             if (newValue !== undefined) {
-                GroupService.getStatistics(newValue).then(function (data) {
+                GroupService.getStatistics(newValue).then(function (statisticsArray) {
+                    var patients = [];
+                    var uniqueLogons = [];
+                    var logons = [];
+                    var xAxisCategories = [];
 
-                    if (data.length) {
-                        var xAxisNames = [];
+                    for (var i = 0; i < statisticsArray.length; i++) {
+                        var statistics = statisticsArray[i];
+                        var dateObject = new Date(statistics.startDate);
+                        xAxisCategories.push(
+                                UtilService.getMonthText(dateObject.getMonth()) + ' ' + dateObject.getFullYear());
+                        patients.push(statistics.statistics.PATIENT_COUNT);
+                        uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
+                        logons.push(statistics.statistics.LOGGED_ON_COUNT);
 
-                        for (var date in data){
-                            if (data.hasOwnProperty(date)) {
-                                //alert("Key is " + k + ", value is" + target[k]);
-                            }
-                        }
+                        $scope.statisticsDate = statistics.endDate;
+                        $scope.lockedUsers = statistics.statistics.LOCKED_USER_COUNT;
+                        $scope.inactiveUsers = statistics.statistics.INACTIVE_USER_COUNT;
                     }
 
-                    /*if (data.length) {
-                        var patients = [];
-                        var uniqueLogons = [];
-                        var logons = [];
-                        var xAxisCategories = [];
-
-                        for (i = 0; i < data.length; i++) {
-                            var date = new Date(data[i].endDate);
-                            xAxisCategories.push(UtilService.getMonthText(date.getMonth()) + ' ' + date.getFullYear());
-                            patients.push(data[i].countOfPatients);
-                            uniqueLogons.push(data[i].countOfUniqueLogons);
-                            logons.push(data[i].countOfLogons);
-                        }
-                        $scope.statisticsDate = data[data.length - 1].endDate;
-                        $scope.lockedUsers = data[data.length - 1].countOfUserLocked;
-                        $scope.inactiveUsers = data[data.length - 1].countOfUserInactive;
-
-                        // using highcharts
-                        $('#chart_div').highcharts({
-                            chart: {
-                                zoomType: 'xy'
-                            },
+                    // using highcharts
+                    $('#chart_div').highcharts({
+                        chart: {
+                            zoomType: 'xy'
+                        },
+                        title: {
+                            text: null
+                        },
+                        xAxis: {
+                            categories: xAxisCategories
+                        },
+                        yAxis: {
                             title: {
                                 text: null
                             },
-                            xAxis: {
-                                categories: xAxisCategories
-                            },
-                            yAxis: {
-                                title: {
-                                    text: null
-                                },
-                                plotLines: [
-                                    {
-                                        value: 0,
-                                        width: 1,
-                                        color: '#808080'
-                                    }
-                                ],
-                                min: 0,
-                                allowDecimals: false
-                            },
-                            legend: {
-                                layout: 'vertical',
-                                align: 'right',
-                                verticalAlign: 'middle',
-                                borderWidth: 0
-                            },
-                            series: [
+                            plotLines: [
                                 {
-                                    name: 'Patient Count',
-                                    data: patients
-                                },
-                                {
-                                    name: 'Unique Logons',
-                                    data: uniqueLogons
-                                },
-                                {
-                                    name: 'Logons',
-                                    data: logons
+                                    value: 0,
+                                    width: 1,
+                                    color: '#808080'
                                 }
                             ],
-                            credits: {
-                                text: null
+                            min: 0,
+                            allowDecimals: false
+                        },
+                        legend: {
+                            layout: 'vertical',
+                            align: 'right',
+                            verticalAlign: 'middle',
+                            borderWidth: 0
+                        },
+                        series: [
+                            {
+                                name: 'Patient Count',
+                                data: patients
                             },
-                            exporting: {
-                                enabled: false
+                            {
+                                name: 'Unique Logons',
+                                data: uniqueLogons
+                            },
+                            {
+                                name: 'Logons',
+                                data: logons
                             }
-                        });
-                    }*/
+                        ],
+                        credits: {
+                            text: null
+                        },
+                        exporting: {
+                            enabled: false
+                        }
+                    });
                     $scope.chartLoading = false;
 
                 });
@@ -108,7 +98,6 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
         $scope.permissions = {};
         var i;
 
-        $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
         $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
         $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
         $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
@@ -120,11 +109,14 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
         // set the list of groups to show in the data grid
         $scope.graphGroups = $scope.loggedInUser.userInformation.userGroups;
 
+        // hide Generic group
+        _.remove($scope.graphGroups, {code: 'Generic'});
+
         for(i=0;i<$scope.graphGroups.length;i++) {
-            $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
+                $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
         }
 
-        // set feature (avoid blank option)
+        // set group (avoid blank option)
         if ($scope.graphGroups && $scope.graphGroups.length > 0) {
             $scope.graphGroupId = $scope.graphGroups[0].id;
         }

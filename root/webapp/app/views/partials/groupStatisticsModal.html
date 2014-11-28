@@ -14,21 +14,19 @@
             <th>Passwords Changed</th>
             <th>Accounts Locked</th>
             <th>Patients Removed</th>
-            <th>Patients Deleted</th>
         </tr>
         <tbody>
-            <tr data-ng-repeat="statistic in statistics">
-                <td>{{formatDate(statistic.endDate)}}</td>
-                <td>{{statistic.countOfPatients}}</td>
-                <td>{{statistic.countOfLogons}}</td>
-                <td>{{statistic.countOfUniqueLogons}}</td>
-                <td>{{statistic.countOfPatientViews}}</td>
-                <td>{{statistic.countOfImportLoads}}</td>
-                <td>{{statistic.countOfImportFails}}</td>
-                <td>{{statistic.countOfPasswordChanges}}</td>
-                <td>{{statistic.countOfAccountLocks}}</td>
-                <td>{{statistic.countOfPatientRemoves}}</td>
-                <td>{{statistic.countOfPatientDeletes}}</td>
+            <tr data-ng-repeat="stat in statistics">
+                <td>{{formatDate(stat.startDate)}}</td>
+                <td>{{stat.statistics.PATIENT_COUNT}}</td>
+                <td>{{stat.statistics.LOGGED_ON_COUNT}}</td>
+                <td>{{stat.statistics.UNIQUE_LOGGED_ON_COUNT}}</td>
+                <td>{{stat.statistics.PATIENT_VIEW_COUNT}}</td>
+                <td>{{stat.statistics.PATIENT_DATA_SUCCESS_COUNT}}</td>
+                <td>{{stat.statistics.PATIENT_DATA_FAIL_COUNT}}</td>
+                <td>{{stat.statistics.PASSWORD_CHANGE_COUNT}}</td>
+                <td>{{stat.statistics.ACCOUNT_LOCKED_COUNT}}</td>
+                <td>{{stat.statistics.PATIENT_GROUP_ROLE_DELETE_COUNT}}</td>
             </tr>
         </tbody>
     </table>

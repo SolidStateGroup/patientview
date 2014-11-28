@@ -19,6 +19,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +54,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
      * @throws ResourceNotFoundException
      */
     @Override
-    public Map<Long, GroupStatisticTO> getMonthlyGroupStatistics(final Long groupId)
+    public List<GroupStatisticTO> getMonthlyGroupStatistics(final Long groupId)
             throws ResourceNotFoundException {
 
         Group group = groupRepository.findOne(groupId);
@@ -67,7 +69,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         return convertToTransportObject(groupStatistics);
     }
 
-    private Map<Long, GroupStatisticTO> convertToTransportObject(List<GroupStatistic> groupStatistics) {
+    private List<GroupStatisticTO> convertToTransportObject(List<GroupStatistic> groupStatistics) {
 
         Map<Long, GroupStatisticTO> statisticTOMap = new HashMap<>();
 
@@ -87,7 +89,14 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             groupStatisticTO.setEndDate(groupStatistic.getEndDate());
         }
 
-        return statisticTOMap;
+        // convert to list of group statistics ordered by start date
+        List<GroupStatisticTO> statisticTOList = new ArrayList<>();
+        for (GroupStatisticTO groupStatisticTO : statisticTOMap.values()) {
+            statisticTOList.add(groupStatisticTO);
+        }
+        Collections.sort(statisticTOList);
+
+        return statisticTOList;
     }
 
     /**

@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by james@solidstategroup.com
@@ -109,7 +108,7 @@ public class GroupController extends BaseController<GroupController> {
     @RequestMapping(value = "/group/{groupId}/statistics", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Map<Long, GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
+    public ResponseEntity<List<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(groupStatisticService.getMonthlyGroupStatistics(groupId), HttpStatus.OK);
     }

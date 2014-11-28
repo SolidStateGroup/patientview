@@ -14,9 +14,6 @@ import java.util.Date;
 
 /**
  * This is the class that executes the job to collate the stats.
- *
- * Sprint 3 - after this is seems Lookup/GenericLookup types need reimplementing.
- *
  * Created by james@solidstategroup.com
  * Created on 07/08/2014
  */
@@ -24,9 +21,6 @@ import java.util.Date;
 public class StatisticsTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticsTask.class);
-
-    // todo: correct this for daily stats
-    private static final long DAILY_RATE = 5000000L;
 
     @Inject
     private Timer timer;
@@ -36,42 +30,52 @@ public class StatisticsTask {
 
     /**
      * TODO this needs hardening and possibly JMX bean to run the job
-     * The days statistics should be collated the day after.
-     * The monthly statistics should be collated on the first day of the following month.
+     * Statistics for the previous month, collected on the first day of the month.
+     * "0 0 12 1 * ?" = 12:00 on the first day of the month
      */
-    //@Scheduled(cron = "0 0 12 1 * *") -- 12 oclock of the first day of the month
-    public void executeMonthly() {
-        LOG.info("Executing monthly");
+    @Scheduled(cron = "0 0 12 1 * ?")
+    public void generatePreviousMonthStatistics() {
         Calendar calendar = timer.getCurrentDate();
-        // Run of the first day of the month for last month
+
+        // Only run of the first day of the month
         if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
+
+            // set end date to now
             Date endDate = calendar.getTime();
+
+            // set start date to one month ago
             calendar.roll(Calendar.MONTH, -1);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
             Date startDate = calendar.getTime();
-            groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.CUMULATIVE_MONTH);
+
+            LOG.info("Creating statistics (monthly) for period " + startDate.toString() + " to " + endDate.toString());
+            groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
         }
     }
 
     /**
-     * Cumulative stats for the month, run once a day.
+     * Statistics for the current month, run every 5 minutes
      */
-    //@Scheduled(cron = "*/5 * * * * *") //every five minutes
-    @Scheduled(fixedRate = DAILY_RATE)
-    public void executeDaily() {
-        LOG.info("Executing daily statistics");
+    @Scheduled(cron = "0 */5 * * * ?") // every five minutes
+    //@Scheduled(cron = "0 0 1 * * ?") // every day at 01:00
+    public void generateThisMonthStatistics() {
         Calendar calendar = timer.getCurrentDate();
 
-        // Run of the first day of the month for last month
+        // set end date to now
         Date endDate = calendar.getTime();
 
         // Set the start date to the beginning of the month
-        calendar.roll(Calendar.DAY_OF_MONTH, -calendar.get(Calendar.DAY_OF_MONTH) + 1);
-
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         Date startDate = calendar.getTime();
+
+        LOG.info("Creating statistics (every 5m) for period " + startDate.toString() + " to " + endDate.toString());
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
     }
 }
-
-
-
-

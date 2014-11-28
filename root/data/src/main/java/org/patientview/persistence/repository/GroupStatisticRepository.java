@@ -21,10 +21,18 @@ import java.util.Date;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface GroupStatisticRepository extends JpaRepository<GroupStatistic, Long> {
 
-    Iterable<GroupStatistic> findByGroupAndStatisticPeriod(Group group, StatisticPeriod month);
+    @Query("SELECT gs FROM GroupStatistic gs " +
+            "WHERE gs.group = :group " +
+            "AND gs.statisticPeriod = :statisticPeriod " +
+            "ORDER BY gs.id ASC")
+    Iterable<GroupStatistic> findByGroupAndStatisticPeriod(@Param("group") Group group,
+                                                           @Param("statisticPeriod") StatisticPeriod month);
 
     @Modifying
-    @Query("DELETE FROM GroupStatistic WHERE group = :group AND startDate = :startDate AND statisticPeriod = :statisticPeriod")
+    @Query("DELETE FROM GroupStatistic " +
+            "WHERE group = :group " +
+            "AND startDate = :startDate " +
+            "AND statisticPeriod = :statisticPeriod")
     void deleteByGroupStartDateAndPeriod(@Param("group") Group group,
                                          @Param("startDate") Date startDate,
                                          @Param("statisticPeriod") StatisticPeriod statisticPeriod);
