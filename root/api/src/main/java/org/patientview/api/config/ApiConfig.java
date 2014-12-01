@@ -72,7 +72,7 @@ public class ApiConfig {
         javaMailProperties.setProperty("mail.smtp.auth", "true");
         javaMailProperties.setProperty("mail.smtp.ssl.enable", "true");
         javaMailProperties.setProperty("mail.smtp.starttls.enable", "true");
-        javaMailProperties.setProperty("mail.smtp.port", "465");
+        javaMailProperties.setProperty(properties.getProperty("mail.smtp.port"), "465");
         javaMailSender.setJavaMailProperties(javaMailProperties);
 
         return javaMailSender;

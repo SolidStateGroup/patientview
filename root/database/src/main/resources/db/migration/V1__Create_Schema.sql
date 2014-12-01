@@ -345,7 +345,7 @@ CREATE TABLE PV_Audit (
   Post_Value    VARCHAR(500),
   Actor_Id      BIGINT   REFERENCES PV_User (Id),
   Identifier    VARCHAR(50),
-  Group_Id      BIGINT   REFERENCES PV_User (Id),
+  Group_Id      BIGINT   REFERENCES PV_Group (Id),
   Information   TEXT,
   Xml           TEXT,
   Username      TEXT,

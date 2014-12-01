@@ -84,9 +84,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private AdminDataMigrationService adminDataMigrationService;
 
     @Inject
-    private AsyncService asyncService;
-
-    @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
 
     private List<Group> groups;
@@ -121,6 +118,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         Role patientRole = adminDataMigrationService.getRoleByName(RoleName.PATIENT);
         Lookup nhsNumberIdentifier = adminDataMigrationService.getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+
+        ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
             Set<String> identifiers = new HashSet<String>();
@@ -206,11 +205,20 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // call REST to store migrated patient
                 try {
-                    asyncService.callApiMigrateUser(migrationUser);
+                    concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
                 } catch (Exception e) {
                     LOG.error(e.getMessage());
                 }
             }
+
+        }
+
+        try {
+            // wait forever until all threads are finished
+            concurrentTaskExecutor.shutdown();
+            concurrentTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
         }
     }
 
@@ -605,10 +613,35 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setUsername(user.getUsername());
         newUser.setEmailVerified(user.isEmailverified());
 
+
+
+        newUser.setLastLogin(user.getLastlogon());
+        if (StringUtils.isNotEmpty(user.getDateofbirthFormatted())) {
+            newUser.setDateOfBirth(new Date(user.getDateofbirthFormatted()));
+        }
+
         newUser.setIdentifiers(new HashSet<Identifier>());
         newUser.setGroupRoles(new HashSet<GroupRole>());
         newUser.setUserFeatures(new HashSet<UserFeature>());
 
         return newUser;
+
+        // create user
+       /* User newUser = new User();
+        newUser.setForename("sfore" + time.toString());
+        newUser.setSurname("ssur");
+        newUser.setChangePassword(true);
+        newUser.setPassword("pppppp");
+        newUser.setLocked(false);
+        newUser.setDummy(true);
+        newUser.setFailedLogonAttempts(0);
+        newUser.setEmail("test" + time.toString() + "@solidstategroup.com");
+        newUser.setEmailVerified(false);
+        // todo: needs consideration during migration
+        newUser.setVerificationCode("emailverify" + time);
+        newUser.setUsername(time.toString());
+        newUser.setIdentifiers(new HashSet<Identifier>());
+        newUser.setLastLogin(now);
+        newUser.setDateOfBirth(now);*/
     }
 }
