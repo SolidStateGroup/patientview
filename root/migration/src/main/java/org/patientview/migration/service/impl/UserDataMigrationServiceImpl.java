@@ -59,7 +59,6 @@ import org.patientview.repository.TestResultDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
 import org.patientview.service.DiagnosisManager;
-import org.patientview.service.DiagnosticManager;
 import org.patientview.service.EyeCheckupManager;
 import org.patientview.service.FootCheckupManager;
 import org.patientview.service.LetterManager;
@@ -72,9 +71,12 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -650,7 +652,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         List<Letter> letters = letterManager.getByNhsNoAndUnit(nhsNo, unit.getCode());
 
         if (CollectionUtils.isNotEmpty(letters)) {
+
+            // remove duplicates
+            Map<Calendar, Letter> letterMap = new HashMap<Calendar, Letter>();
             for (Letter letter : letters) {
+                letterMap.put(letter.getDate(), letter);
+            }
+
+            for (Letter letter : letterMap.values()) {
                 FhirDocumentReference documentReference = new FhirDocumentReference();
                 documentReference.setGroup(unit);
                 documentReference.setDate(letter.getDate().getTime());
