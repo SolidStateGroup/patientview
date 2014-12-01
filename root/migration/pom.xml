@@ -54,7 +54,7 @@
         <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>patientview</artifactId>
-            <version>1.4.3-RELEASE</version>
+            <version>1.4.7-RELEASE</version>
             <type>jar</type>
             <classifier>classes</classifier>
         </dependency>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>org.patientview</groupId>
             <artifactId>common</artifactId>
-            <version>1.4.3-RELEASE</version>
+            <version>1.4.7-RELEASE</version>
             <!--<scope>provided</scope>-->
         </dependency>
 

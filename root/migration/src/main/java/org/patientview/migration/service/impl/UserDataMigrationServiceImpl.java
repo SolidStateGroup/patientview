@@ -7,6 +7,7 @@ import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
+import org.patientview.patientview.model.EmailVerification;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
@@ -616,7 +617,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setUsername(user.getUsername());
         newUser.setEmailVerified(user.isEmailverified());
 
-
+        List<EmailVerification> emailVerifications = emailVerificationDao.getByEmail(user.getEmail());
+        if (CollectionUtils.isNotEmpty(emailVerifications)) {
+            newUser.setVerificationCode(emailVerifications.get(0).getVerificationcode());
+        }
 
         newUser.setLastLogin(user.getLastlogon());
         if (StringUtils.isNotEmpty(user.getDateofbirthFormatted())) {

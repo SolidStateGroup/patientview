@@ -10,6 +10,7 @@ import org.junit.runners.MethodSorters;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.persistence.model.enums.RoleName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class MigrationIntegrationTest {
     @Test
     @Transactional
     @Rollback(false)
-    public void test02UserMigration() {
+    public void test02UserMigration() throws JsonMigrationException {
         userDataMigrationService.migrate();
     }
 
