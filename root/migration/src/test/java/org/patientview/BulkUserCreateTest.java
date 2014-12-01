@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.patientview.migration.service.AdminDataMigrationService;
+import org.patientview.migration.service.ObservationDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
@@ -37,6 +38,9 @@ public class BulkUserCreateTest {
 
     @Inject
     private AdminDataMigrationService adminDataMigrationService;
+
+    @Inject
+    private ObservationDataMigrationService observationDataMigrationService;
 
     protected final Logger LOG = LoggerFactory.getLogger(BulkUserCreateTest.class);
 
@@ -88,7 +92,7 @@ public class BulkUserCreateTest {
         //-Durl=http://diabetes-pv.dev.solidstategroup.com/api
         //-Durl=https://staging.patientview.org/api
 
-        userDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
+        observationDataMigrationService.bulkObservationCreate("RENALB", "SGC04", usersToInsertObservations, observationsToCreate);
         //userDataMigrationService.bulkObservationCreate("RW402", "SAC02", usersToInsertObservations, observationsToCreate);
 
         LOG.info("Submission of " + usersToInsertObservations + " patients with "
