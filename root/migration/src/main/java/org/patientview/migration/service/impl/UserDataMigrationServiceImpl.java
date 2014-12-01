@@ -7,9 +7,17 @@ import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
+import org.patientview.model.Patient;
+import org.patientview.patientview.model.Aboutme;
+import org.patientview.patientview.model.Diagnosis;
+import org.patientview.patientview.model.Diagnostic;
 import org.patientview.patientview.model.EmailVerification;
+import org.patientview.patientview.model.EyeCheckup;
+import org.patientview.patientview.model.FootCheckup;
+import org.patientview.patientview.model.Letter;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
+import org.patientview.patientview.model.enums.DiagnosticType;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirContact;
@@ -42,11 +50,19 @@ import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
+import org.patientview.repository.AboutmeDao;
+import org.patientview.repository.DiagnosticDao;
 import org.patientview.repository.EmailVerificationDao;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.TestResultDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
+import org.patientview.service.DiagnosisManager;
+import org.patientview.service.DiagnosticManager;
+import org.patientview.service.EyeCheckupManager;
+import org.patientview.service.FootCheckupManager;
+import org.patientview.service.LetterManager;
+import org.patientview.service.PatientManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,6 +92,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private UserDao userDao;
 
     @Inject
+    private AboutmeDao aboutMeDao;
+
+    @Inject
     private EmailVerificationDao emailVerificationDao;
 
     @Inject
@@ -85,7 +104,25 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private UserMappingDao userMappingDao;
 
     @Inject
+    private DiagnosisManager diagnosisManager;
+
+    @Inject
+    private DiagnosticDao diagnosticDao;
+
+    @Inject
+    private PatientManager patientManager;
+
+    @Inject
     private AdminDataMigrationService adminDataMigrationService;
+
+    @Inject
+    private EyeCheckupManager eyeCheckupManager;
+
+    @Inject
+    private FootCheckupManager footCheckupManager;
+
+    @Inject
+    private LetterManager letterManager;
 
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
@@ -132,6 +169,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             User newUser = createUser(oldUser);
             boolean isPatient = false;
 
+            // set group roles and calculate if patient
             for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT") && newUser != null) {
 
@@ -139,6 +177,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
 
                         // is a patient
+                        isPatient = true;
                         identifiers.add(userMapping.getNhsno());
 
                         // add group (specialty is added automatically when creating user within a UNIT group)
@@ -150,6 +189,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             groupRole.setRole(patientRole);
                             newUser.getGroupRoles().add(groupRole);
                         }
+
                     } else {
 
                         // is a staff member
@@ -180,41 +220,109 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 }
             }
 
-            if (newUser != null) {
-                // identifiers (will only be for patient)
+            // identifiers and about me (will only be for patient)
+            if (isPatient) {
                 for (String identifierText : identifiers) {
                     Identifier identifier = new Identifier();
                     identifier.setIdentifier(identifierText);
                     identifier.setIdentifierType(nhsNumberIdentifier);
                     newUser.getIdentifiers().add(identifier);
-                }
 
-                // features
-                if (oldUser.isIsrecipient()) {
-                    Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString());
-                    if (feature != null) {
-                        newUser.getUserFeatures().add(new UserFeature(feature));
+                    Aboutme aboutMe = aboutMeDao.get(identifierText);
+                    if (aboutMe != null) {
+                        newUser.setUserInformation(new HashSet<UserInformation>());
+
+                        UserInformation shouldKnow = new UserInformation();
+                        shouldKnow.setType(UserInformationTypes.SHOULD_KNOW);
+                        shouldKnow.setValue(aboutMe.getAboutme());
+                        newUser.getUserInformation().add(shouldKnow);
+
+                        UserInformation talkAbout = new UserInformation();
+                        talkAbout.setType(UserInformationTypes.TALK_ABOUT);
+                        talkAbout.setValue(aboutMe.getTalkabout());
+                        newUser.getUserInformation().add(talkAbout);
                     }
-                }
-                if (oldUser.isFeedbackRecipient()) {
-                    Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString());
-                    if (feature != null) {
-                        newUser.getUserFeatures().add(new UserFeature(feature));
-                    }
-                }
-
-                // convert to transport object
-                MigrationUser migrationUser = new MigrationUser(newUser);
-                migrationUser.setPatient(isPatient);
-
-                // call REST to store migrated patient
-                try {
-                    concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                } catch (Exception e) {
-                    LOG.error(e.getMessage());
                 }
             }
 
+            // messaging recipient
+            if (oldUser.isIsrecipient()) {
+                Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString());
+                if (feature != null) {
+                    newUser.getUserFeatures().add(new UserFeature(feature));
+                }
+            }
+
+            // feedback recipient
+            if (oldUser.isFeedbackRecipient()) {
+                Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.FEEDBACK.toString());
+                if (feature != null) {
+                    newUser.getUserFeatures().add(new UserFeature(feature));
+                }
+            }
+
+            // ECS / GP Medication
+            if (oldUser.isEcrOptInStatus()) {
+                Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.GP_MEDICATION.toString());
+                if (feature != null) {
+                    UserFeature userFeature = new UserFeature(feature);
+                    userFeature.setOptInStatus(true);
+                    if (oldUser.getEcrOptInDate() != null) {
+                        userFeature.setOptInDate(oldUser.getEcrOptInDate());
+                    }
+                    newUser.getUserFeatures().add(userFeature);
+                }
+            }
+
+            if (oldUser.getCreated() != null) {
+                newUser.setCreated(oldUser.getCreated());
+            }
+
+            if (oldUser.getUpdated() != null) {
+                newUser.setLastUpdate(oldUser.getUpdated());
+            }
+
+            // convert to transport object
+            MigrationUser migrationUser = new MigrationUser(newUser);
+            migrationUser.setPatient(isPatient);
+            migrationUser.setPatientview1Id(oldUser.getId());
+            migrationUser.setPatients(new ArrayList<FhirPatient>());
+            migrationUser.setConditions(new ArrayList<FhirCondition>());
+            migrationUser.setEncounters(new ArrayList<FhirEncounter>());
+            migrationUser.setObservations(new ArrayList<FhirObservation>());
+            migrationUser.setDiagnosticReports(new ArrayList<FhirDiagnosticReport>());
+            migrationUser.setDocumentReferences(new ArrayList<FhirDocumentReference>());
+            migrationUser.setMedicationStatements(new ArrayList<FhirMedicationStatement>());
+
+            // FHIR related patient data (not test result observations)
+            if (isPatient) {
+                List<Patient> pv1PatientRecords = patientManager.getByUsername(oldUser.getUsername());
+
+                if (pv1PatientRecords != null) {
+                    for (Patient pv1PatientRecord : pv1PatientRecords) {
+                        Group unit = getGroupByCode(pv1PatientRecord.getUnitcode());
+
+                        if (unit != null) {
+                            migrationUser = addPatientTableData(migrationUser, pv1PatientRecord, unit);
+                            migrationUser = addCheckupTablesData(migrationUser, unit);
+                            migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+                            migrationUser = addDiagnosticTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+                            migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+
+
+                        } else {
+                            LOG.error("Patient group not found from unitcode: " + pv1PatientRecord.getUnitcode());
+                        }
+                    }
+                }
+            }
+
+            // call REST to store migrated user
+            try {
+                concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+            } catch (Exception e) {
+                LOG.error(e.getMessage());
+            }
         }
 
         try {
@@ -224,6 +332,331 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
+    }
+
+    private MigrationUser addPatientTableData(MigrationUser migrationUser, Patient pv1PatientRecord, Group unit) {
+
+        // - basic patient data
+        FhirPatient patient = new FhirPatient();
+        patient.setForename(pv1PatientRecord.getForename());
+        patient.setSurname(pv1PatientRecord.getSurname());
+        patient.setGender(pv1PatientRecord.getSex());
+        patient.setAddress1(pv1PatientRecord.getAddress1());
+        patient.setAddress2(pv1PatientRecord.getAddress2());
+        patient.setAddress3(pv1PatientRecord.getAddress3());
+        patient.setAddress4(pv1PatientRecord.getAddress4());
+        patient.setPostcode(pv1PatientRecord.getPostcode());
+        patient.setDateOfBirth(pv1PatientRecord.getDateofbirth());
+        patient.setIdentifier(pv1PatientRecord.getNhsno());
+        patient.setGroup(unit);
+
+        // - patient identifiers (FHIR identifiers to be stored in FHIR patient record,
+        // not patientview identifiers)
+        FhirIdentifier nhsNumber = new FhirIdentifier();
+        nhsNumber.setValue(pv1PatientRecord.getNhsno());
+        nhsNumber.setLabel(IdentifierTypes.NHS_NUMBER.toString());
+        patient.getIdentifiers().add(nhsNumber);
+
+        // hospital number (not shown on ui)
+        FhirIdentifier hospitalNumber = new FhirIdentifier();
+        hospitalNumber.setValue(pv1PatientRecord.getHospitalnumber());
+        hospitalNumber.setLabel(IdentifierTypes.HOSPITAL_NUMBER.toString());
+        patient.getIdentifiers().add(hospitalNumber);
+
+        // - patient contact data
+        patient.setContacts(new ArrayList<FhirContact>());
+
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getTelephone1())) {
+            FhirContact fhirContact = new FhirContact();
+            fhirContact.setUse("home");
+            fhirContact.setSystem("phone");
+            fhirContact.setValue(pv1PatientRecord.getTelephone1());
+            patient.getContacts().add(fhirContact);
+        }
+
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getTelephone2())) {
+            FhirContact fhirContact = new FhirContact();
+            fhirContact.setUse("home");
+            fhirContact.setSystem("phone");
+            fhirContact.setValue(pv1PatientRecord.getTelephone2());
+            patient.getContacts().add(fhirContact);
+        }
+
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getMobile())) {
+            FhirContact fhirContact = new FhirContact();
+            fhirContact.setUse("home");
+            fhirContact.setSystem("mobile");
+            fhirContact.setValue(pv1PatientRecord.getMobile());
+            patient.getContacts().add(fhirContact);
+        }
+
+        // add Condition / EDTA diagnosis (pv1 patient table) - note genericDiagnosis is RADAR
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getDiagnosis())) {
+            FhirCondition conditionEdta = new FhirCondition();
+            conditionEdta.setCategory(DiagnosisTypes.DIAGNOSIS_EDTA.toString());
+            conditionEdta.setCode(pv1PatientRecord.getDiagnosis());
+            conditionEdta.setNotes(pv1PatientRecord.getDiagnosis());
+            conditionEdta.setGroup(unit);
+            conditionEdta.setIdentifier(pv1PatientRecord.getNhsno());
+            conditionEdta.setDate(pv1PatientRecord.getDiagnosisDate());
+            migrationUser.getConditions().add(conditionEdta);
+        }
+
+        // add Encounter / treatment  (pv1 patient table)
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getTreatment())) {
+            FhirEncounter treatment = new FhirEncounter();
+            treatment.setEncounterType(EncounterTypes.TREATMENT.toString());
+            treatment.setStatus(pv1PatientRecord.getTreatment());
+            treatment.setIdentifier(pv1PatientRecord.getNhsno());
+            migrationUser.getEncounters().add(treatment);
+        }
+
+        // add Encounter / transplant status (pv1 patient table)
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getTransplantstatus())) {
+            FhirEncounter transplant = new FhirEncounter();
+            transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS.toString());
+            transplant.setStatus(pv1PatientRecord.getTransplantstatus());
+            transplant.setIdentifier(pv1PatientRecord.getNhsno());
+            migrationUser.getEncounters().add(transplant);
+        }
+
+        // - practitioner (gp)
+        FhirPractitioner practitioner = new FhirPractitioner();
+        practitioner.setName(pv1PatientRecord.getGpname());
+        practitioner.setAddress1(pv1PatientRecord.getGpaddress1());
+        practitioner.setAddress2(pv1PatientRecord.getGpaddress2());
+        practitioner.setAddress3(pv1PatientRecord.getGpaddress3());
+        practitioner.setPostcode(pv1PatientRecord.getGppostcode());
+        practitioner.setContacts(new ArrayList<FhirContact>());
+
+        // - practitioner contact data
+        FhirContact practitionerContact = new FhirContact();
+        practitionerContact.setUse("work");
+        practitionerContact.setSystem("phone");
+        practitionerContact.setValue(pv1PatientRecord.getGptelephone());
+        practitioner.getContacts().add(practitionerContact);
+        patient.setPractitioner(practitioner);
+
+        // blood group
+        FhirObservation bloodGroup = new FhirObservation();
+        bloodGroup.setIdentifier(pv1PatientRecord.getBloodgroup());
+        bloodGroup.setName(NonTestObservationTypes.BLOOD_GROUP.toString());
+        bloodGroup.setValue(pv1PatientRecord.getBloodgroup());
+        bloodGroup.setGroup(unit);
+        bloodGroup.setApplies(pv1PatientRecord.getDateofbirth());
+        migrationUser.getObservations().add(bloodGroup);
+
+        migrationUser.getPatients().add(patient);
+        return migrationUser;
+    }
+
+    private MigrationUser addCheckupTablesData(MigrationUser migrationUser, Group unit) {
+
+        List<EyeCheckup> eyeCheckups = eyeCheckupManager.get(migrationUser.getUser().getUsername());
+
+        if (CollectionUtils.isNotEmpty(eyeCheckups)) {
+            for (EyeCheckup eyeCheckup : eyeCheckups) {
+                if (eyeCheckup.getUnitcode().equals(unit.getCode())) {
+
+                    // leftMGrade
+                    FhirObservation eyeCheckupLeftMGrade = new FhirObservation();
+                    eyeCheckupLeftMGrade.setBodySite(BodySites.LEFT_EYE.toString());
+                    eyeCheckupLeftMGrade.setIdentifier(eyeCheckup.getNhsno());
+                    eyeCheckupLeftMGrade.setName(NonTestObservationTypes.MGRADE.toString());
+                    eyeCheckupLeftMGrade.setValue(eyeCheckup.getLeftMGrade());
+                    eyeCheckupLeftMGrade.setGroup(unit);
+                    eyeCheckupLeftMGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                    migrationUser.getObservations().add(eyeCheckupLeftMGrade);
+
+                    // leftRGrade
+                    FhirObservation eyeCheckupLeftRGrade = new FhirObservation();
+                    eyeCheckupLeftRGrade.setBodySite(BodySites.LEFT_EYE.toString());
+                    eyeCheckupLeftRGrade.setIdentifier(eyeCheckup.getNhsno());
+                    eyeCheckupLeftRGrade.setName(NonTestObservationTypes.RGRADE.toString());
+                    eyeCheckupLeftRGrade.setValue(eyeCheckup.getLeftRGrade());
+                    eyeCheckupLeftRGrade.setGroup(unit);
+                    eyeCheckupLeftRGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                    migrationUser.getObservations().add(eyeCheckupLeftRGrade);
+
+                    // leftVA
+                    FhirObservation eyeCheckupLeftVA = new FhirObservation();
+                    eyeCheckupLeftVA.setBodySite(BodySites.LEFT_EYE.toString());
+                    eyeCheckupLeftVA.setIdentifier(eyeCheckup.getNhsno());
+                    eyeCheckupLeftVA.setName(NonTestObservationTypes.VA.toString());
+                    eyeCheckupLeftVA.setValue(eyeCheckup.getLeftVA());
+                    eyeCheckupLeftVA.setGroup(unit);
+                    eyeCheckupLeftVA.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                    migrationUser.getObservations().add(eyeCheckupLeftVA);
+
+                    // rightMGrade
+                    FhirObservation eyeCheckupRightMGrade = new FhirObservation();
+                    eyeCheckupRightMGrade.setBodySite(BodySites.RIGHT_EYE.toString());
+                    eyeCheckupRightMGrade.setIdentifier(eyeCheckup.getNhsno());
+                    eyeCheckupRightMGrade.setName(NonTestObservationTypes.MGRADE.toString());
+                    eyeCheckupRightMGrade.setValue(eyeCheckup.getRightMGrade());
+                    eyeCheckupRightMGrade.setGroup(unit);
+                    eyeCheckupRightMGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                    migrationUser.getObservations().add(eyeCheckupRightMGrade);
+
+                    // rightRGrade
+                    FhirObservation eyeCheckupRightRGrade = new FhirObservation();
+                    eyeCheckupRightRGrade.setBodySite(BodySites.RIGHT_EYE.toString());
+                    eyeCheckupRightRGrade.setIdentifier(eyeCheckup.getNhsno());
+                    eyeCheckupRightRGrade.setName(NonTestObservationTypes.RGRADE.toString());
+                    eyeCheckupRightRGrade.setValue(eyeCheckup.getRightRGrade());
+                    eyeCheckupRightRGrade.setGroup(unit);
+                    eyeCheckupRightRGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                    migrationUser.getObservations().add(eyeCheckupRightRGrade);
+
+                    // rightVA
+                    FhirObservation eyeCheckupRightVA = new FhirObservation();
+                    eyeCheckupRightVA.setBodySite(BodySites.RIGHT_EYE.toString());
+                    eyeCheckupRightVA.setIdentifier(eyeCheckup.getNhsno());
+                    eyeCheckupRightVA.setName(NonTestObservationTypes.VA.toString());
+                    eyeCheckupRightVA.setValue(eyeCheckup.getRightVA());
+                    eyeCheckupRightVA.setGroup(unit);
+                    eyeCheckupRightVA.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                    migrationUser.getObservations().add(eyeCheckupRightVA);
+                }
+            }
+        }
+
+        List<FootCheckup> footCheckups = footCheckupManager.get(migrationUser.getUser().getUsername());
+
+        if (CollectionUtils.isNotEmpty(footCheckups)) {
+            for (FootCheckup footCheckup : footCheckups) {
+                if (footCheckup.getUnitcode().equals(unit.getCode())) {
+
+                    // leftDpPulse
+                    FhirObservation footCheckupLeftDpPulse = new FhirObservation();
+                    footCheckupLeftDpPulse.setBodySite(BodySites.LEFT_FOOT.toString());
+                    footCheckupLeftDpPulse.setIdentifier(footCheckup.getNhsno());
+                    footCheckupLeftDpPulse.setName(NonTestObservationTypes.DPPULSE.toString());
+                    footCheckupLeftDpPulse.setValue(footCheckup.getLeftDpPulse());
+                    footCheckupLeftDpPulse.setGroup(unit);
+                    footCheckupLeftDpPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                    migrationUser.getObservations().add(footCheckupLeftDpPulse);
+
+                    // leftPtPulse
+                    FhirObservation footCheckupLeftPtPulse = new FhirObservation();
+                    footCheckupLeftPtPulse.setBodySite(BodySites.LEFT_FOOT.toString());
+                    footCheckupLeftPtPulse.setIdentifier(footCheckup.getNhsno());
+                    footCheckupLeftPtPulse.setName(NonTestObservationTypes.PTPULSE.toString());
+                    footCheckupLeftPtPulse.setValue(footCheckup.getLeftPtPulse());
+                    footCheckupLeftPtPulse.setGroup(unit);
+                    footCheckupLeftPtPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                    migrationUser.getObservations().add(footCheckupLeftPtPulse);
+
+                    // rightDpPulse
+                    FhirObservation footCheckupRightDpPulse = new FhirObservation();
+                    footCheckupRightDpPulse.setBodySite(BodySites.RIGHT_FOOT.toString());
+                    footCheckupRightDpPulse.setIdentifier(footCheckup.getNhsno());
+                    footCheckupRightDpPulse.setName(NonTestObservationTypes.DPPULSE.toString());
+                    footCheckupRightDpPulse.setValue(footCheckup.getRightDpPulse());
+                    footCheckupRightDpPulse.setGroup(unit);
+                    footCheckupRightDpPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                    migrationUser.getObservations().add(footCheckupRightDpPulse);
+
+                    // rightPtPulse
+                    FhirObservation footCheckupRightPtPulse = new FhirObservation();
+                    footCheckupRightPtPulse.setBodySite(BodySites.RIGHT_FOOT.toString());
+                    footCheckupRightPtPulse.setIdentifier(footCheckup.getNhsno());
+                    footCheckupRightPtPulse.setName(NonTestObservationTypes.PTPULSE.toString());
+                    footCheckupRightPtPulse.setValue(footCheckup.getRightPtPulse());
+                    footCheckupRightPtPulse.setGroup(unit);
+                    footCheckupRightPtPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                    migrationUser.getObservations().add(footCheckupRightPtPulse);
+                }
+            }
+        }
+
+        return migrationUser;
+    }
+
+    private MigrationUser addDiagnosisTableData(MigrationUser migrationUser, String nhsNo, Group unit) {
+        List<Diagnosis> diagnoses = diagnosisManager.getOtherDiagnoses(nhsNo, unit.getCode());
+
+        if (CollectionUtils.isNotEmpty(diagnoses)) {
+            for (Diagnosis diagnosis : diagnoses) {
+                FhirCondition condition = new FhirCondition();
+                condition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
+                condition.setCode(diagnosis.getDiagnosis());
+                condition.setNotes(diagnosis.getDiagnosis());
+                condition.setGroup(unit);
+                condition.setIdentifier(nhsNo);
+                migrationUser.getConditions().add(condition);
+            }
+        }
+
+        return migrationUser;
+    }
+
+    private MigrationUser addDiagnosticTableData(MigrationUser migrationUser, String nhsNo, Group unit) {
+
+        //pv1
+        //IMAGING(1, "Imaging"),
+        //ENDOSCOPY(2, "Endoscopy");
+        Set nhsNos = new HashSet<String>();
+        nhsNos.add(nhsNo);
+
+        List<Diagnostic> imagingDiagnostics = diagnosticDao.get(nhsNos, DiagnosticType.IMAGING);
+
+        if (CollectionUtils.isNotEmpty(imagingDiagnostics)) {
+            for (Diagnostic diagnostic : imagingDiagnostics) {
+                FhirObservation observation = new FhirObservation();
+                observation.setValue(diagnostic.getDescription());
+                observation.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
+
+                FhirDiagnosticReport diagnosticReport = new FhirDiagnosticReport();
+                diagnosticReport.setGroup(unit);
+                diagnosticReport.setDate(diagnostic.getDatestamp().getTime());
+                diagnosticReport.setType(DiagnosticReportTypes.IMAGING.toString());
+                diagnosticReport.setName(diagnostic.getDescription());
+                diagnosticReport.setResult(observation);
+                diagnosticReport.setIdentifier(nhsNo);
+                migrationUser.getDiagnosticReports().add(diagnosticReport);
+            }
+        }
+
+        List<Diagnostic> endoscopyDiagnostics = diagnosticDao.get(nhsNos, DiagnosticType.ENDOSCOPY);
+
+        if (CollectionUtils.isNotEmpty(endoscopyDiagnostics)) {
+            for (Diagnostic diagnostic : endoscopyDiagnostics) {
+                FhirObservation observation = new FhirObservation();
+                observation.setValue(diagnostic.getDescription());
+                observation.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
+
+                FhirDiagnosticReport diagnosticReport = new FhirDiagnosticReport();
+                diagnosticReport.setGroup(unit);
+                diagnosticReport.setDate(diagnostic.getDatestamp().getTime());
+                diagnosticReport.setType(DiagnosticReportTypes.ENDOSCOPY.toString());
+                diagnosticReport.setName(diagnostic.getDescription());
+                diagnosticReport.setResult(observation);
+                diagnosticReport.setIdentifier(nhsNo);
+                migrationUser.getDiagnosticReports().add(diagnosticReport);
+            }
+        }
+
+        return migrationUser;
+    }
+
+    private MigrationUser addLetterTableData(MigrationUser migrationUser, String nhsNo, Group unit) {
+
+        List<Letter> letters = letterManager.getByNhsNoAndUnit(nhsNo, unit.getCode());
+
+        if (CollectionUtils.isNotEmpty(letters)) {
+            for (Letter letter : letters) {
+                /*FhirDocumentReference documentReference = new FhirDocumentReference();
+                documentReference.setGroup(unit);
+                documentReference.setDate(letter.getDate().getTime());
+                documentReference.setType(LetterTypes.GENERAL_LETTER.getName());
+                documentReference.setContent("Letter content: text text text " + time + " etc.");
+                documentReference.setIdentifier(time.toString());
+                migrationUser.getDocumentReferences().add(documentReference);*/
+            }
+        }
+
+        return migrationUser;
     }
 
     public void bulkUserCreate(String unitCode1, String unitCode2, Long count, RoleName roleName) {
@@ -599,7 +1032,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
-    public User createUser(org.patientview.patientview.model.User user) {
+    private User createUser(org.patientview.patientview.model.User user) {
         User newUser = new User();
         newUser.setForename(user.getFirstName());
         newUser.setSurname(user.getLastName());
@@ -632,23 +1065,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setUserFeatures(new HashSet<UserFeature>());
 
         return newUser;
+    }
 
-        // create user
-       /* User newUser = new User();
-        newUser.setForename("sfore" + time.toString());
-        newUser.setSurname("ssur");
-        newUser.setChangePassword(true);
-        newUser.setPassword("pppppp");
-        newUser.setLocked(false);
-        newUser.setDummy(true);
-        newUser.setFailedLogonAttempts(0);
-        newUser.setEmail("test" + time.toString() + "@solidstategroup.com");
-        newUser.setEmailVerified(false);
-        // todo: needs consideration during migration
-        newUser.setVerificationCode("emailverify" + time);
-        newUser.setUsername(time.toString());
-        newUser.setIdentifiers(new HashSet<Identifier>());
-        newUser.setLastLogin(now);
-        newUser.setDateOfBirth(now);*/
+
+    private Group getGroupByCode(String code) {
+        for (Group group : groups) {
+            if (group.getCode().equalsIgnoreCase(code)) {
+                return group;
+            }
+        }
+        return null;
     }
 }
