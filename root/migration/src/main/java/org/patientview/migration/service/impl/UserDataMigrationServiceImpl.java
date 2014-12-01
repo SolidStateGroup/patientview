@@ -3,7 +3,6 @@ package org.patientview.migration.service.impl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.migration.service.AdminDataMigrationService;
-import org.patientview.migration.service.AsyncService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
@@ -42,6 +41,7 @@ import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
+import org.patientview.repository.EmailVerificationDao;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.TestResultDao;
 import org.patientview.repository.UserDao;
@@ -73,6 +73,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     @Inject
     private UserDao userDao;
+
+    @Inject
+    private EmailVerificationDao emailVerificationDao;
 
     @Inject
     private TestResultDao testResultDao;
