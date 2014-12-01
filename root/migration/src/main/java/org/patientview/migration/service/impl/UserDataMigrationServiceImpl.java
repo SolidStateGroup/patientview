@@ -15,6 +15,7 @@ import org.patientview.patientview.model.EmailVerification;
 import org.patientview.patientview.model.EyeCheckup;
 import org.patientview.patientview.model.FootCheckup;
 import org.patientview.patientview.model.Letter;
+import org.patientview.patientview.model.Medicine;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.patientview.model.enums.DiagnosticType;
@@ -62,6 +63,7 @@ import org.patientview.service.DiagnosticManager;
 import org.patientview.service.EyeCheckupManager;
 import org.patientview.service.FootCheckupManager;
 import org.patientview.service.LetterManager;
+import org.patientview.service.MedicineManager;
 import org.patientview.service.PatientManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +125,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     @Inject
     private LetterManager letterManager;
+
+    @Inject
+    private MedicineManager medicineManager;
 
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
@@ -308,8 +313,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addDiagnosticTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
-                            //migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
-
+                            migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
 
                         } else {
                             LOG.error("Patient group not found from unitcode: " + pv1PatientRecord.getUnitcode());
@@ -654,6 +658,25 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 documentReference.setContent(letter.getContent());
                 documentReference.setIdentifier(nhsNo);
                 migrationUser.getDocumentReferences().add(documentReference);
+            }
+        }
+
+        return migrationUser;
+    }
+
+    private MigrationUser addMedicineTableData(MigrationUser migrationUser, String nhsNo, Group unit) {
+
+        List<Medicine> medicines = medicineManager.getByNhsnoAndUnitcode(nhsNo, unit.getCode());
+
+        if (CollectionUtils.isNotEmpty(medicines)) {
+            for (Medicine medicine : medicines) {
+                FhirMedicationStatement medicationStatement = new FhirMedicationStatement();
+                medicationStatement.setDose(medicine.getDose());
+                medicationStatement.setName(medicine.getName());
+                medicationStatement.setStartDate(medicine.getStartdate().getTime());
+                medicationStatement.setGroup(unit);
+                medicationStatement.setIdentifier(nhsNo);
+                migrationUser.getMedicationStatements().add(medicationStatement);
             }
         }
 
