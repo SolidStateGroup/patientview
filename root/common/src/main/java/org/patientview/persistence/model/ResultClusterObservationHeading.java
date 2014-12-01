@@ -25,8 +25,8 @@ public class ResultClusterObservationHeading extends BaseModel {
     @JoinColumn(name = "observation_heading_id", nullable = false)
     private ObservationHeading observationHeading;
 
-    @Column(name = "order")
-    private Long order;
+    @Column(name = "display_order")
+    private Long displayOrder;
 
     public ResultCluster getResultCluster() {
         return resultCluster;
@@ -44,11 +44,11 @@ public class ResultClusterObservationHeading extends BaseModel {
         this.observationHeading = observationHeading;
     }
 
-    public Long getOrder() {
-        return order;
+    public Long getDisplayOrder() {
+        return displayOrder;
     }
 
-    public void setOrder(Long order) {
-        this.order = order;
+    public void setDisplayOrder(Long displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }

@@ -24,6 +24,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
@@ -43,7 +44,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,13 +108,19 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     public void createGroups() {
         for (Unit unit : unitDao.getAll(false)) {
 
-            // get group features
+            // get group features (added individually with API call)
             Set<Feature> unitFeatures = getUnitFeatures(unit);
 
             // Create the unit
             Group group = createGroup(unit);
 
-            // get the id
+            // set group contact points (added to Group object)
+            group.setContactPoints(createGroupContactPoints(unit));
+
+            // set group additional locations (added to Group object)
+            group.setLocations(createGroupLocations(unit));
+
+            // call API to create unit, get the id
             Long groupId = callApiCreateGroup(group);
 
             if (groupId != null) {
@@ -129,19 +135,12 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
                     }
                 }
 
-                // Assign a specialty
+                // Assign a specialty (will likely give HTTP conflict as probably already exists)
                 Group parentGroup = getGroupParent(unit);
                 if (parentGroup != null && group != null) {
                     callApiCreateParentGroup(group, parentGroup);
                 } else {
                     LOG.error("Unable to find parent group");
-                }
-
-                // Add the contact points
-                if (group != null) {
-                    for (ContactPoint contactPoint : createGroupContactPoints(unit)) {
-                        callApiCreateContactPoint(group, contactPoint);
-                    }
                 }
             }
         }
@@ -324,6 +323,10 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             unitFeatures.add(getFeatureByName(FeatureType.MESSAGING.toString()));
         }
 
+        if (unit.isEcrEnabled()) {
+            unitFeatures.add(getFeatureByName(FeatureType.GP_MEDICATION.toString()));
+        }
+
         return  unitFeatures;
     }
 
@@ -426,23 +429,58 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return null;
     }
 
-    private List<ContactPoint> createGroupContactPoints(Unit unit) {
-        List<ContactPoint> contactPoints = new ArrayList<ContactPoint>();
+    private Set<ContactPoint> createGroupContactPoints(Unit unit) {
+        Set<ContactPoint> contactPoints = new HashSet<ContactPoint>();
 
-        if (StringUtils.isNotEmpty(unit.getAppointmentphone())) {
+        // unit.uniturl
+        if (StringUtils.isNotEmpty(unit.getUniturl())) {
             ContactPoint contactPoint = new ContactPoint();
-            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.APPOINTMENT_PHONE.toString()));
-            contactPoint.setContent(unit.getAppointmentphone());
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.UNIT_WEB_ADDRESS.toString()));
+            contactPoint.setContent(unit.getUniturl());
             contactPoints.add(contactPoint);
         }
 
-        if (StringUtils.isNotEmpty(unit.getAppointmentemail())) {
+        // unit.trusturl
+        if (StringUtils.isNotEmpty(unit.getTrusturl())) {
             ContactPoint contactPoint = new ContactPoint();
-            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.APPOINTMENT_EMAIL.toString()));
-            contactPoint.setContent(unit.getAppointmentemail());
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.TRUST_WEB_ADDRESS.toString()));
+            contactPoint.setContent(unit.getTrusturl());
             contactPoints.add(contactPoint);
         }
 
+        // unit.renaladminname
+        if (StringUtils.isNotEmpty(unit.getRenaladminname())) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.PV_ADMIN_NAME.toString()));
+            contactPoint.setContent(unit.getRenaladminname());
+            contactPoints.add(contactPoint);
+        }
+
+        // unit.renaladminphone
+        if (StringUtils.isNotEmpty(unit.getRenaladminphone())) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.PV_ADMIN_PHONE.toString()));
+            contactPoint.setContent(unit.getRenaladminphone());
+            contactPoints.add(contactPoint);
+        }
+
+        // unit.renaladminemail
+        if (StringUtils.isNotEmpty(unit.getRenaladminemail())) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.PV_ADMIN_EMAIL.toString()));
+            contactPoint.setContent(unit.getRenaladminemail());
+            contactPoints.add(contactPoint);
+        }
+
+        // unit.unitenquiriesphone
+        if (StringUtils.isNotEmpty(unit.getUnitenquiriesphone())) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.UNIT_ENQUIRIES_PHONE.toString()));
+            contactPoint.setContent(unit.getUnitenquiriesphone());
+            contactPoints.add(contactPoint);
+        }
+
+        // unit.unitenquiriesemail
         if (StringUtils.isNotEmpty(unit.getUnitenquiriesemail())) {
             ContactPoint contactPoint = new ContactPoint();
             contactPoint.setContactPointType(callApiGetType(ContactPointTypes.UNIT_ENQUIRIES_EMAIL.toString()));
@@ -450,6 +488,23 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
             contactPoints.add(contactPoint);
         }
 
+        // unit.appointmentphone
+        if (StringUtils.isNotEmpty(unit.getAppointmentphone())) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.APPOINTMENT_PHONE.toString()));
+            contactPoint.setContent(unit.getAppointmentphone());
+            contactPoints.add(contactPoint);
+        }
+
+        // unit.appointmentemail
+        if (StringUtils.isNotEmpty(unit.getAppointmentemail())) {
+            ContactPoint contactPoint = new ContactPoint();
+            contactPoint.setContactPointType(callApiGetType(ContactPointTypes.APPOINTMENT_EMAIL.toString()));
+            contactPoint.setContent(unit.getAppointmentemail());
+            contactPoints.add(contactPoint);
+        }
+
+        // unit.outofhours
         if (StringUtils.isNotEmpty(unit.getOutofhours())) {
             ContactPoint contactPoint = new ContactPoint();
             contactPoint.setContactPointType(callApiGetType(ContactPointTypes.OUT_OF_HOURS_INFO.toString()));
@@ -460,18 +515,280 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return contactPoints;
     }
 
+    private Set<Location> createGroupLocations(Unit unit) {
+        Set<Location> locations = new HashSet<Location>();
+
+        String haemoUnit = "Haemodialysis Unit";
+        String peritoUnit = "Peritoneal Dialysis Location";
+
+        // unit.peritonealdialysisphone
+        if (StringUtils.isNotEmpty(unit.getPeritonealdialysisphone())
+                || StringUtils.isNotEmpty(unit.getPeritonealdialysisemail())) {
+
+            Location location = new Location();
+            location.setLabel(peritoUnit);
+            if (StringUtils.isNotEmpty(unit.getPeritonealdialysisphone())) {
+                location.setPhone(unit.getPeritonealdialysisphone());
+            }
+            if (StringUtils.isNotEmpty(unit.getPeritonealdialysisemail())) {
+                location.setEmail(unit.getPeritonealdialysisemail());
+            }
+            locations.add(location);
+        }
+
+        // unit.haemodialysisunit 1
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname1())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname1());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone1())) {
+                location.setPhone(unit.getHaemodialysisunitphone1());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation1())) {
+                location.setAddress(unit.getHaemodialysisunitlocation1());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl1())) {
+                location.setWeb(unit.getHaemodialysisuniturl1());
+            }
+            locations.add(location);
+        }
+
+        // unit.haemodialysisunit 2
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname2())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname2());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone2())) {
+                location.setPhone(unit.getHaemodialysisunitphone2());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation2())) {
+                location.setAddress(unit.getHaemodialysisunitlocation2());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl2())) {
+                location.setWeb(unit.getHaemodialysisuniturl2());
+            }
+            locations.add(location);
+        }
+
+        // unit.haemodialysisunit 3
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname3())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname3());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone3())) {
+                location.setPhone(unit.getHaemodialysisunitphone3());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation3())) {
+                location.setAddress(unit.getHaemodialysisunitlocation3());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl3())) {
+                location.setWeb(unit.getHaemodialysisuniturl3());
+            }
+            locations.add(location);
+        }
+
+        // unit.haemodialysisunit 4
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname4())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname4());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone4())) {
+                location.setPhone(unit.getHaemodialysisunitphone4());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation4())) {
+                location.setAddress(unit.getHaemodialysisunitlocation4());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl4())) {
+                location.setWeb(unit.getHaemodialysisuniturl4());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 5
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname5())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname5());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone5())) {
+                location.setPhone(unit.getHaemodialysisunitphone5());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation5())) {
+                location.setAddress(unit.getHaemodialysisunitlocation5());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl5())) {
+                location.setWeb(unit.getHaemodialysisuniturl5());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 6
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname6())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname6());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone6())) {
+                location.setPhone(unit.getHaemodialysisunitphone6());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation6())) {
+                location.setAddress(unit.getHaemodialysisunitlocation6());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl6())) {
+                location.setWeb(unit.getHaemodialysisuniturl6());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 7
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname7())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname7());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone7())) {
+                location.setPhone(unit.getHaemodialysisunitphone7());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation7())) {
+                location.setAddress(unit.getHaemodialysisunitlocation7());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl7())) {
+                location.setWeb(unit.getHaemodialysisuniturl7());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 8
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname8())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname8());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone8())) {
+                location.setPhone(unit.getHaemodialysisunitphone8());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation8())) {
+                location.setAddress(unit.getHaemodialysisunitlocation8());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl8())) {
+                location.setWeb(unit.getHaemodialysisuniturl8());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 9
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname9())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname9());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone9())) {
+                location.setPhone(unit.getHaemodialysisunitphone9());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation9())) {
+                location.setAddress(unit.getHaemodialysisunitlocation9());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl9())) {
+                location.setWeb(unit.getHaemodialysisuniturl9());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 3
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname3())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname3());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone3())) {
+                location.setPhone(unit.getHaemodialysisunitphone3());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation3())) {
+                location.setAddress(unit.getHaemodialysisunitlocation3());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl3())) {
+                location.setWeb(unit.getHaemodialysisuniturl3());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 10
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname10())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname10());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone10())) {
+                location.setPhone(unit.getHaemodialysisunitphone10());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation10())) {
+                location.setAddress(unit.getHaemodialysisunitlocation10());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl10())) {
+                location.setWeb(unit.getHaemodialysisuniturl10());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 11
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname11())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname11());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone11())) {
+                location.setPhone(unit.getHaemodialysisunitphone11());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation11())) {
+                location.setAddress(unit.getHaemodialysisunitlocation11());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl11())) {
+                location.setWeb(unit.getHaemodialysisuniturl11());
+            }
+            locations.add(location);
+        }
+        
+        // unit.haemodialysisunit 12
+        if (StringUtils.isNotEmpty(unit.getHaemodialysisunitname12())) {
+            Location location = new Location();
+            location.setLabel(haemoUnit);
+            location.setName(unit.getHaemodialysisunitname12());
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitphone12())) {
+                location.setPhone(unit.getHaemodialysisunitphone12());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisunitlocation12())) {
+                location.setAddress(unit.getHaemodialysisunitlocation12());
+            }
+            if (StringUtils.isNotEmpty(unit.getHaemodialysisuniturl12())) {
+                location.setWeb(unit.getHaemodialysisuniturl12());
+            }
+            locations.add(location);
+        }
+
+        return locations;
+    }
+
     private Group createGroup(Unit unit) {
         Group group = new Group();
+
+        // basic details
         group.setName(unit.getName());
         group.setShortName(unit.getShortname());
         group.setCode(unit.getUnitcode());
         group.setVisibleToJoin(unit.isVisible());
         group.setVisible(true);
 
+        // group type
         if (unit.getSourceType().equalsIgnoreCase("renalunit")) {
             group.setGroupType(getLookupByName(GroupTypes.UNIT.toString()));
         } else {
             group.setGroupType(getLookupByName(GroupTypes.DISEASE_GROUP.toString()));
+        }
+
+        // address
+        if (StringUtils.isNotEmpty(unit.getAddress1())) {
+            group.setAddress1(unit.getAddress1());
+        }
+        if (StringUtils.isNotEmpty(unit.getAddress2())) {
+            group.setAddress2(unit.getAddress2());
+        }
+        if (StringUtils.isNotEmpty(unit.getAddress3())) {
+            group.setAddress3(unit.getAddress3());
+        }
+        if (StringUtils.isNotEmpty(unit.getPostcode())) {
+            group.setPostcode(unit.getPostcode());
         }
 
         return group;

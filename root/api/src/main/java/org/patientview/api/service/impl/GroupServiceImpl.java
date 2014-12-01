@@ -323,7 +323,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             GroupFeature tempGroupFeature = new GroupFeature();
             tempGroupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
             tempGroupFeature.setGroup(newGroup);
-            tempGroupFeature.setCreator(userRepository.findOne(1L));
+            tempGroupFeature.setCreator(userRepository.findOne(getCurrentUser().getId()));
             tempGroupFeature = groupFeatureRepository.save(tempGroupFeature);
             newGroup.getGroupFeatures().add(tempGroupFeature);
         }
@@ -332,7 +332,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         for (ContactPoint contactPoint : contactPoints) {
             ContactPoint tempContactPoint = new ContactPoint();
             tempContactPoint.setGroup(newGroup);
-            tempContactPoint.setCreator(userRepository.findOne(1L));
+            tempContactPoint.setCreator(userRepository.findOne(getCurrentUser().getId()));
             tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class,
                     contactPoint.getContactPointType().getId()));
             tempContactPoint.setContent(contactPoint.getContent());
