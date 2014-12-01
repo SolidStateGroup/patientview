@@ -25,8 +25,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
@@ -83,6 +85,30 @@ public class JoinRequestControllerTest {
                     .content(mapper.writeValueAsString(joinRequest)).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
             verify(joinRequestService, Mockito.times(1)).add(eq(joinRequest));
+        } catch (Exception e) {
+            fail("This call should not fail");
+        }
+    }
+
+    @Test
+    public void testMigrateJoinRequests() {
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setId(1L);
+        joinRequest.setForename("Test");
+        joinRequest.setSurname("User");
+        joinRequest.setDateOfBirth(new Date());
+        joinRequest.setStatus(JoinRequestStatus.SUBMITTED);
+        Long groupId = 2L;
+        joinRequest.setGroupId(groupId);
+
+        List<JoinRequest> joinRequests = new ArrayList<>();
+        joinRequests.add(joinRequest);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.post("/migrate/joinrequests")
+                    .content(mapper.writeValueAsString(joinRequests)).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+            verify(joinRequestService, Mockito.times(1)).migrate(eq(joinRequests));
         } catch (Exception e) {
             fail("This call should not fail");
         }

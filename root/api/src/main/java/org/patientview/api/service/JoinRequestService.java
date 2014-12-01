@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Created by james@solidstategroup.com
@@ -26,6 +27,8 @@ public interface JoinRequestService {
     BigInteger getCount(Long userId) throws ResourceNotFoundException;
 
     JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException;
+
+    void migrate(List<JoinRequest> joinRequests);
 
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     Page<org.patientview.api.model.JoinRequest> getByUser(Long userId, GetParameters getParameters)

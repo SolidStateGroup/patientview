@@ -87,6 +87,11 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         return entityJoinRequest;
     }
 
+    @Override
+    public void migrate(List<JoinRequest> joinRequests) {
+        joinRequestRepository.save(joinRequests);
+    }
+
     private ContactPoint getContactPoint(Collection<ContactPoint> contactPoints,
                                                 ContactPointTypes contactPointTypes) {
         if (contactPoints != null && contactPointTypes != null) {
