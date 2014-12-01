@@ -3,6 +3,7 @@ package org.patientview.persistence.model.enums;
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
+ * Only used for testing
  */
 public enum LetterTypes {
     CLINIC_LETTER("Clinic Letter"),

@@ -308,6 +308,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addDiagnosticTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                             migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+                            //migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
 
 
                         } else {
@@ -646,13 +647,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         if (CollectionUtils.isNotEmpty(letters)) {
             for (Letter letter : letters) {
-                /*FhirDocumentReference documentReference = new FhirDocumentReference();
+                FhirDocumentReference documentReference = new FhirDocumentReference();
                 documentReference.setGroup(unit);
                 documentReference.setDate(letter.getDate().getTime());
-                documentReference.setType(LetterTypes.GENERAL_LETTER.getName());
-                documentReference.setContent("Letter content: text text text " + time + " etc.");
-                documentReference.setIdentifier(time.toString());
-                migrationUser.getDocumentReferences().add(documentReference);*/
+                documentReference.setType(letter.getType());
+                documentReference.setContent(letter.getContent());
+                documentReference.setIdentifier(nhsNo);
+                migrationUser.getDocumentReferences().add(documentReference);
             }
         }
 

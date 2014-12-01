@@ -101,6 +101,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
         $scope.permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
         $scope.permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
         $scope.permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+        $scope.permissions.isPatient = UserService.checkRoleExists('PATIENT', $scope.loggedInUser);
 
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
             $scope.permissions.showJoinRequestButton = true;
