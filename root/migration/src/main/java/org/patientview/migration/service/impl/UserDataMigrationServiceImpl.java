@@ -6,6 +6,8 @@ import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.AsyncService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.exception.JsonMigrationException;
+import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.Feature;
@@ -36,7 +38,6 @@ import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LetterTypes;
-import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -47,6 +48,7 @@ import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -87,8 +89,36 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
 
+    private List<Group> groups;
+    private List<Role> roles;
+    private List<Lookup> lookups;
+    private List<Feature> features;
+
+    private @Value("${migration.username}") String migrationUsername;
+    private @Value("${migration.password}") String migrationPassword;
+    private @Value("${patientview.api.url}") String patientviewApiUrl;
+
+    private void init() throws JsonMigrationException {
+        try {
+            JsonUtil.setPatientviewApiUrl(patientviewApiUrl);
+            JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
+            lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
+            features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
+            roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
+            groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
+        } catch (JsonMigrationException e) {
+            LOG.error("Could not authenticate {} ", e.getCause());
+            throw new JsonMigrationException(e.getMessage());
+        } catch (JsonMigrationExistsException e) {
+            LOG.error("Could not authenticate {} ", e.getCause());
+        }
+    }
+
     // migrate all user data, not including observations
-    public void migrate() {
+    public void migrate() throws JsonMigrationException {
+
+        init();
+
         Role patientRole = adminDataMigrationService.getRoleByName(RoleName.PATIENT);
         Lookup nhsNumberIdentifier = adminDataMigrationService.getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
 

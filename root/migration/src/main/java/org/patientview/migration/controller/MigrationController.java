@@ -1,6 +1,7 @@
 package org.patientview.migration.controller;
 
 import org.patientview.migration.service.AdminDataMigrationService;
+import org.patientview.migration.service.GroupDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.persistence.model.enums.RoleName;
@@ -21,22 +22,50 @@ public class MigrationController {
     private UserDataMigrationService userDataMigrationService;
 
     @Inject
+    private GroupDataMigrationService groupDataMigrationService;
+
+    @Inject
     private AdminDataMigrationService adminDataMigrationService;
 
     @Inject
     private Executor myExecutor;
 
-    @RequestMapping(value = "/staticdata", method = RequestMethod.GET)
-    public String doStaticData(ModelMap modelMap) throws JsonMigrationException {
+    @RequestMapping(value = "/step1-groups", method = RequestMethod.GET)
+    public String doStep1Groups(ModelMap modelMap) throws JsonMigrationException {
+        Date start = new Date();
+        groupDataMigrationService.createGroups();
+
+        String status = "Migration of Groups "
+                + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
+
+        modelMap.addAttribute("statusMessage", status);
+        return "groups";
+    }
+
+    @RequestMapping(value = "/step2-static-data", method = RequestMethod.GET)
+    public String doStep2StaticData(ModelMap modelMap) throws JsonMigrationException {
         Date start = new Date();
         adminDataMigrationService.init();
         adminDataMigrationService.migrate();
 
-        String status = "Migration of Groups, Codes, Result Headings "
+        String status = "Migration of Codes, Result Headings "
                 + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
 
         modelMap.addAttribute("statusMessage", status);
         return "staticdata";
+    }
+
+    @RequestMapping(value = "/step3-users", method = RequestMethod.GET)
+    public String doStep3Users(ModelMap modelMap) throws JsonMigrationException {
+        Date start = new Date();
+
+        userDataMigrationService.migrate();
+
+        String status = "Migration of Users "
+                + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
+
+        modelMap.addAttribute("statusMessage", status);
+        return "users";
     }
 
     @RequestMapping(value = "/bulkusers", method = RequestMethod.GET)
