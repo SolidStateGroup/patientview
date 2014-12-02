@@ -813,11 +813,19 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         Patient patient = new Patient();
 
         // name
-        HumanName humanName = patient.addName();
-        humanName.addFamilySimple(fhirPatient.getSurname());
-        humanName.addGivenSimple(fhirPatient.getForename());
-        Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
-        humanName.setUse(nameUse);
+        if (StringUtils.isNotEmpty(fhirPatient.getForename()) || StringUtils.isNotEmpty(fhirPatient.getSurname())) {
+            HumanName humanName = patient.addName();
+            if (StringUtils.isNotEmpty(fhirPatient.getSurname())) {
+                humanName.addFamilySimple(fhirPatient.getSurname());
+            }
+
+            if (StringUtils.isNotEmpty(fhirPatient.getForename())) {
+                humanName.addGivenSimple(fhirPatient.getForename());
+            }
+
+            Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
+            humanName.setUse(nameUse);
+        }
 
         // date of birth
         if (fhirPatient.getDateOfBirth() != null) {
@@ -825,38 +833,57 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         // gender
-        CodeableConcept gender = new CodeableConcept();
         if (fhirPatient.getGender() != null) {
+            CodeableConcept gender = new CodeableConcept();
             gender.setTextSimple(fhirPatient.getGender());
+            gender.addCoding().setDisplaySimple(GENDER_CODING);
+            patient.setGender(gender);
         }
-        gender.addCoding().setDisplaySimple(GENDER_CODING);
-        patient.setGender(gender);
 
         // address
-        Address address = patient.addAddress();
-        address.addLineSimple(fhirPatient.getAddress1());
-        address.setCitySimple(fhirPatient.getAddress2());
-        address.setStateSimple(fhirPatient.getAddress3());
-        address.setCountrySimple(fhirPatient.getAddress4());
-        address.setZipSimple(fhirPatient.getPostcode());
+        if (StringUtils.isNotEmpty(fhirPatient.getAddress1())) {
+            Address address = patient.addAddress();
+            address.addLineSimple(fhirPatient.getAddress1());
+            if (StringUtils.isNotEmpty(fhirPatient.getAddress2())) {
+                address.setCitySimple(fhirPatient.getAddress2());
+            }
+            if (StringUtils.isNotEmpty(fhirPatient.getAddress3())) {
+                address.setStateSimple(fhirPatient.getAddress3());
+            }
+            if (StringUtils.isNotEmpty(fhirPatient.getAddress4())) {
+                address.setCountrySimple(fhirPatient.getAddress4());
+            }
+            if (StringUtils.isNotEmpty(fhirPatient.getPostcode())) {
+                address.setZipSimple(fhirPatient.getPostcode());
+            }
+        }
 
         // contact details
         if (!fhirPatient.getContacts().isEmpty()) {
             Patient.ContactComponent contactComponent = patient.addContact();
-
             for (FhirContact fhirContact : fhirPatient.getContacts()) {
                 Contact contact = contactComponent.addTelecom();
-                contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
-                contact.setValueSimple(fhirContact.getValue());
-                contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+                if (StringUtils.isNotEmpty(fhirContact.getSystem())) {
+                    contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
+                }
+                if (StringUtils.isNotEmpty(fhirContact.getValue())) {
+                    contact.setValueSimple(fhirContact.getValue());
+                }
+                if (StringUtils.isNotEmpty(fhirContact.getUse())) {
+                    contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+                }
             }
         }
 
         // identifiers (note: FHIR identifiers attached to FHIR patient not PatientView Identifiers)
         for (FhirIdentifier fhirIdentifier : fhirPatient.getIdentifiers()) {
             org.hl7.fhir.instance.model.Identifier identifier = patient.addIdentifier();
-            identifier.setLabelSimple(fhirIdentifier.getLabel());
-            identifier.setValueSimple(fhirIdentifier.getValue());
+            if (StringUtils.isNotEmpty(fhirIdentifier.getLabel())) {
+                identifier.setLabelSimple(fhirIdentifier.getLabel());
+            }
+            if (StringUtils.isNotEmpty(fhirIdentifier.getValue())) {
+                identifier.setValueSimple(fhirIdentifier.getValue());
+            }
         }
 
         // care provider (practitioner)

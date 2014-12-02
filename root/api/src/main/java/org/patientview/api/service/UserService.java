@@ -8,6 +8,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
+import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserInformation;
@@ -28,6 +29,12 @@ import java.util.List;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserService {
+
+    @RoleOnly
+    void init();
+
+    @RoleOnly
+    Group getGenericGroup();
 
     org.patientview.api.model.User getByUsername(String username);
 

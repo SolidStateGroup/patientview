@@ -67,8 +67,8 @@ public class MigrationController {
         return "groupstats";
     }
 
-    @RequestMapping(value = "/step3-users", method = RequestMethod.GET)
-    public String doStep3Users(ModelMap modelMap) throws JsonMigrationException {
+    @RequestMapping(value = "/step4-users", method = RequestMethod.GET)
+    public String doStep4Users(ModelMap modelMap) throws JsonMigrationException {
         Date start = new Date();
 
         userDataMigrationService.migrate();

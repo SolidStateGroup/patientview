@@ -67,7 +67,14 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigration.setLastUpdater(getCurrentUser());
                 userMigration.setLastUpdate(start);
                 userMigration = userMigrationService.save(userMigration);
+
+                // initialise userService if not already done
+                if (userService.getGenericGroup() == null) {
+                    userService.init();
+                }
+
                 userId = userService.add(user);
+
                 // add user information if present (convert from Set to ArrayList)
                 if (!CollectionUtils.isEmpty(user.getUserInformation())) {
                     userService.addOtherUsersInformation(userId, new ArrayList<>(user.getUserInformation()));

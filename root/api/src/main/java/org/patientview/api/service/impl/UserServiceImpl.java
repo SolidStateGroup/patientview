@@ -1220,4 +1220,20 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         return email;
     }
+
+    public Group getGenericGroup() {
+        return genericGroup;
+    }
+
+    public void setGenericGroup(Group genericGroup) {
+        this.genericGroup = genericGroup;
+    }
+
+    public Role getMemberRole() {
+        return memberRole;
+    }
+
+    public void setMemberRole(Role memberRole) {
+        this.memberRole = memberRole;
+    }
 }

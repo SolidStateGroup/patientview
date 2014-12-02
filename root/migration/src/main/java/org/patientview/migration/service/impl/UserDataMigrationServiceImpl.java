@@ -352,30 +352,54 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         // - basic patient data
         FhirPatient patient = new FhirPatient();
-        patient.setForename(pv1PatientRecord.getForename());
-        patient.setSurname(pv1PatientRecord.getSurname());
-        patient.setGender(pv1PatientRecord.getSex());
-        patient.setAddress1(pv1PatientRecord.getAddress1());
-        patient.setAddress2(pv1PatientRecord.getAddress2());
-        patient.setAddress3(pv1PatientRecord.getAddress3());
-        patient.setAddress4(pv1PatientRecord.getAddress4());
-        patient.setPostcode(pv1PatientRecord.getPostcode());
-        patient.setDateOfBirth(pv1PatientRecord.getDateofbirth());
-        patient.setIdentifier(pv1PatientRecord.getNhsno());
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getForename())) {
+            patient.setForename(pv1PatientRecord.getForename());
+        }
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getSurname())) {
+            patient.setSurname(pv1PatientRecord.getSurname());
+        }
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getSex())) {
+            patient.setGender(pv1PatientRecord.getSex());
+        }
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getAddress1())) {
+            patient.setAddress1(pv1PatientRecord.getAddress1());
+        }
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getAddress2())) {
+            patient.setAddress2(pv1PatientRecord.getAddress2());
+        }
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getAddress3())) {
+            patient.setAddress3(pv1PatientRecord.getAddress3());
+        }
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getAddress4())) {
+            patient.setAddress4(pv1PatientRecord.getAddress4());
+        }
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getPostcode())) {
+            patient.setPostcode(pv1PatientRecord.getPostcode());
+        }
+        if (pv1PatientRecord.getDateofbirth() != null) {
+            patient.setDateOfBirth(pv1PatientRecord.getDateofbirth());
+        }
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getNhsno())) {
+            patient.setIdentifier(pv1PatientRecord.getNhsno());
+        }
         patient.setGroup(unit);
 
         // - patient identifiers (FHIR identifiers to be stored in FHIR patient record,
         // not patientview identifiers)
-        FhirIdentifier nhsNumber = new FhirIdentifier();
-        nhsNumber.setValue(pv1PatientRecord.getNhsno());
-        nhsNumber.setLabel(IdentifierTypes.NHS_NUMBER.toString());
-        patient.getIdentifiers().add(nhsNumber);
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getNhsno())) {
+            FhirIdentifier nhsNumber = new FhirIdentifier();
+            nhsNumber.setValue(pv1PatientRecord.getNhsno());
+            nhsNumber.setLabel(IdentifierTypes.NHS_NUMBER.toString());
+            patient.getIdentifiers().add(nhsNumber);
+        }
 
         // hospital number (not shown on ui)
-        FhirIdentifier hospitalNumber = new FhirIdentifier();
-        hospitalNumber.setValue(pv1PatientRecord.getHospitalnumber());
-        hospitalNumber.setLabel(IdentifierTypes.HOSPITAL_NUMBER.toString());
-        patient.getIdentifiers().add(hospitalNumber);
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getHospitalnumber())) {
+            FhirIdentifier hospitalNumber = new FhirIdentifier();
+            hospitalNumber.setValue(pv1PatientRecord.getHospitalnumber());
+            hospitalNumber.setLabel(IdentifierTypes.HOSPITAL_NUMBER.toString());
+            patient.getIdentifiers().add(hospitalNumber);
+        }
 
         // - patient contact data
         patient.setContacts(new ArrayList<FhirContact>());
