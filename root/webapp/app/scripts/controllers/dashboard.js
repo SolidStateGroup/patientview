@@ -14,6 +14,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
             if (newValue !== undefined) {
                 GroupService.getStatistics(newValue).then(function (statisticsArray) {
                     var patients = [];
+                    var patientsAdded = [];
                     var uniqueLogons = [];
                     var logons = [];
                     var xAxisCategories = [];
@@ -23,14 +24,37 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                         var dateObject = new Date(statistics.startDate);
                         xAxisCategories.push(
                                 UtilService.getMonthText(dateObject.getMonth()) + ' ' + dateObject.getFullYear());
-                        patients.push(statistics.statistics.PATIENT_COUNT);
-                        uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
-                        logons.push(statistics.statistics.LOGGED_ON_COUNT);
+
+                        if (statistics.statistics.PATIENT_COUNT !== undefined) {
+                            patients.push(statistics.statistics.PATIENT_COUNT);
+                        } else {
+                            patients.push(null);
+                        }
+
+                        if (statistics.statistics.PATIENT_GROUP_ROLE_ADD_COUNT !== undefined) {
+                            patientsAdded.push(statistics.statistics.PATIENT_GROUP_ROLE_ADD_COUNT);
+                        } else {
+                            patientsAdded.push(null);
+                        }
+
+                        if (statistics.statistics.UNIQUE_LOGGED_ON_COUNT !== undefined) {
+                            uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
+                        } else {
+                            uniqueLogons.push(null);
+                        }
+
+                        if (statistics.statistics.LOGGED_ON_COUNT !== undefined) {
+                            logons.push(statistics.statistics.LOGGED_ON_COUNT);
+                        } else {
+                            logons.push(null);
+                        }
 
                         $scope.statisticsDate = statistics.endDate;
                         $scope.lockedUsers = statistics.statistics.LOCKED_USER_COUNT;
                         $scope.inactiveUsers = statistics.statistics.INACTIVE_USER_COUNT;
                     }
+
+                    console.log(patients);
 
                     // using highcharts
                     $('#chart_div').highcharts({
@@ -75,6 +99,10 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                             {
                                 name: 'Logons',
                                 data: logons
+                            },
+                            {
+                                name: 'Patients Added',
+                                data: patientsAdded
                             }
                         ],
                         credits: {
