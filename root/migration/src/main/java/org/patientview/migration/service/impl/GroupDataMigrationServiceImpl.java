@@ -37,8 +37,10 @@ import javax.inject.Inject;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -130,6 +132,9 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
         init();
 
         List<GroupStatistic> statistics = new ArrayList<GroupStatistic>();
+        Map<String, Lookup> statisticTypeMap = new HashMap<String, Lookup>();
+
+
 
         for (Group group : groups) {
             List<UnitStat> unitStats = unitManager.getUnitStatsForUnit(group.getCode());
@@ -165,6 +170,9 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
                 endDate.set(Calendar.SECOND, 0);
                 endDate.set(Calendar.MILLISECOND, 0);
                 groupStatistic.setEndDate(endDate.getTime());
+
+                //groupStatistic.setStatisticType();
+
 
                 // actions copied from plaintext
                 /*

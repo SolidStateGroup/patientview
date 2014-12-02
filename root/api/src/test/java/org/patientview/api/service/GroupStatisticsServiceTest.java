@@ -119,8 +119,8 @@ public class GroupStatisticsServiceTest {
         Set<Lookup> lookups = new HashSet<>();
         LookupType lookupType = TestUtils.createLookupType(LookupTypes.STATISTIC_TYPE);
         lookupType.setLookups(lookups);
-        lookupType.getLookups().add(TestUtils.createLookup(lookupType, "TestStatistics1"));
-        lookupType.getLookups().add(TestUtils.createLookup(lookupType, "TestStatistics2"));
+        lookupType.getLookups().add(TestUtils.createLookup(lookupType, "TestStatistics1", "SOME SQL"));
+        lookupType.getLookups().add(TestUtils.createLookup(lookupType, "TestStatistics2", "SOME SQL"));
 
         // Create dates
         Calendar calendar = Calendar.getInstance();

@@ -212,6 +212,18 @@ public final class TestUtils {
         return lookup;
     }
 
+    public static Lookup createLookup(LookupType lookupType, String lookupName, String lookupDescription) {
+
+        Lookup lookup = new Lookup();
+        lookup.setId(getId());
+        lookup.setLookupType(lookupType);
+        lookup.setValue(lookupName);
+        lookup.setDescription(lookupDescription);
+        lookup.setCreated(new Date());
+        lookup.setCreator(creator);
+        return lookup;
+    }
+
     public static LookupType createLookupType(LookupTypes type) {
 
         LookupType lookupType = new LookupType();
