@@ -124,9 +124,15 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
                 groupStatistic.setStatisticType(lookup);
 
                 Query query = entityManager.createNativeQuery(lookup.getDescription());
-                query.setParameter("startDate", startDate);
-                query.setParameter("endDate", endDate);
                 query.setParameter("groupId", group.getId());
+
+                // do start/end date for those with startDate and endDate present
+                if (lookup.getDescription().contains("startDate")) {
+                    query.setParameter("startDate", startDate);
+                }
+                if (lookup.getDescription().contains("endDate")) {
+                    query.setParameter("endDate", endDate);
+                }
 
                 LOG.debug("Process statistic {}", groupStatistic.getStatisticType().getValue());
                 // Direct cast as hibernate returns BigInteger

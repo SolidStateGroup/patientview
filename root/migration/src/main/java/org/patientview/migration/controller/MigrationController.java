@@ -55,6 +55,18 @@ public class MigrationController {
         return "staticdata";
     }
 
+    @RequestMapping(value = "/step3-group-stats", method = RequestMethod.GET)
+    public String doStep3groupstats(ModelMap modelMap) throws JsonMigrationException {
+        Date start = new Date();
+        groupDataMigrationService.createStatistics();
+
+        String status = "Migration of Codes, Result Headings "
+                + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
+
+        modelMap.addAttribute("statusMessage", status);
+        return "staticdata";
+    }
+
     @RequestMapping(value = "/step3-users", method = RequestMethod.GET)
     public String doStep3Users(ModelMap modelMap) throws JsonMigrationException {
         Date start = new Date();

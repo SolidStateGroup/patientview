@@ -12,4 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface GroupDataMigrationService {
 
     void createGroups() throws JsonMigrationException;
+
+    void createStatistics() throws JsonMigrationException;
 }

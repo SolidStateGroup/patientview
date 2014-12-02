@@ -21,7 +21,7 @@ public class ResultCluster extends BaseModel {
     private String name;
 
     @OneToMany(mappedBy = "resultCluster", cascade = {CascadeType.ALL})
-    @OrderBy("order asc")
+    @OrderBy("display_order asc")
     private List<ResultClusterObservationHeading> resultClusterObservationHeadings = new ArrayList<>();
 
     public String getName() {

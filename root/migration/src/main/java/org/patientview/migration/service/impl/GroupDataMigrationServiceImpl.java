@@ -11,25 +11,32 @@ import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Unit;
+import org.patientview.patientview.model.UnitStat;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
+import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.repository.FeatureDao;
 import org.patientview.repository.UnitDao;
+import org.patientview.service.UnitManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +52,9 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
     @Inject
     private UnitDao unitDao;
+
+    @Inject
+    private UnitManager unitManager;
 
     @Inject
     private FeatureDao featureDao;
@@ -74,7 +84,7 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
     public void createGroups() throws JsonMigrationException {
 
-        this.init();
+        init();
 
         for (Unit unit : unitDao.getAll(false)) {
 
@@ -116,8 +126,72 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
         }
     }
 
-    public void createStats() throws JsonMigrationException {
+    public void createStatistics() throws JsonMigrationException {
+        init();
 
+        List<GroupStatistic> statistics = new ArrayList<GroupStatistic>();
+
+        for (Group group : groups) {
+            List<UnitStat> unitStats = unitManager.getUnitStatsForUnit(group.getCode());
+
+            for (UnitStat unitStat : unitStats) {
+                GroupStatistic groupStatistic = new GroupStatistic();
+                groupStatistic.setGroup(group);
+                groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
+                groupStatistic.setValue(BigInteger.valueOf(unitStat.getCount()));
+
+                int year = Integer.parseInt(unitStat.getYearmonth().split("-")[0]);
+                int month = Integer.parseInt(unitStat.getYearmonth().split("-")[1]);
+
+                Calendar startDate = Calendar.getInstance();
+                startDate.set(Calendar.YEAR, year);
+                startDate.set(Calendar.MONTH, month - 1);  // zero based
+                startDate.set(Calendar.HOUR_OF_DAY, 0);
+                startDate.set(Calendar.MINUTE, 0);
+                startDate.set(Calendar.SECOND, 0);
+                startDate.set(Calendar.MILLISECOND, 0);
+                groupStatistic.setStartDate(startDate.getTime());
+
+                if (month > Calendar.DECEMBER) {
+                    year++;
+                    month = Calendar.JANUARY;
+                }
+
+                Calendar endDate = Calendar.getInstance();
+                endDate.set(Calendar.YEAR, year);
+                endDate.set(Calendar.MONTH, month);  // zero based
+                endDate.set(Calendar.HOUR_OF_DAY, 0);
+                endDate.set(Calendar.MINUTE, 0);
+                endDate.set(Calendar.SECOND, 0);
+                endDate.set(Calendar.MILLISECOND, 0);
+                groupStatistic.setEndDate(endDate.getTime());
+
+                // actions copied from plaintext
+                /*
+                admin add // ADMIN_GROUP_ROLE_ADD_COUNT
+                email changed // EMAIL_CHANGED_COUNT
+                email verified // EMAIL_VERIFY_COUNT
+                logon // LOGGED_ON_COUNT
+                password change // PASSWORD_CHANGE_COUNT
+                password locked // ACCOUNT_LOCKED_COUNT
+                password reset // PASSWORD_RESET_COUNT
+                password reset forgotten // PASSWORD_RESET_FORGOTTEN_COUNT
+                password unlocked // ACCOUNT_UNLOCKED_COUNT
+                patient add // PATIENT_GROUP_ROLE_ADD_COUNT
+                patient data fail // PATIENT_DATA_FAIL_COUNT
+                patient data load // PATIENT_DATA_SUCCESS_COUNT
+                patient data remove // not in pv2
+                patient delete // PATIENT_GROUP_ROLE_DELETE_COUNT
+                patient hide // not in pv2
+                patient unhide // not in pv2
+                patient view // PATIENT_VIEW_COUNT
+                ukt data // not in pv2
+                unique data load // UNIQUE_PATIENT_DATA_SUCCESS_COUNT
+                unique logon // UNIQUE_LOGGED_ON_COUNT
+                */
+
+            }
+        }
     }
 
     private void callApiCreateParentGroup(Group group, Group parentGroup) {
