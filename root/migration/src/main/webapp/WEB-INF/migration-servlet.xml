@@ -34,7 +34,7 @@
 
     <!--Properties Placeholder-->
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="classpath:migration.properties"/>
+        <property name="location" value="classpath:conf/${env}-migration.properties"/>
     </bean>
 
     <!-- boiler plate jpa stuff -->
