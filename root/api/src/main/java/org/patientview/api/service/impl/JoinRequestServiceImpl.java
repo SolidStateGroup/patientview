@@ -89,6 +89,13 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
     @Override
     public void migrate(List<JoinRequest> joinRequests) {
+
+        // delete existing join requests by forename, surname, date of birth (guaranteed fields)
+        for (JoinRequest joinRequest: joinRequests) {
+            joinRequestRepository.deleteByForenameSurnameDateOfBirth(joinRequest.getForename(),
+                    joinRequest.getSurname(), joinRequest.getDateOfBirth());
+        }
+
         joinRequestRepository.save(joinRequests);
     }
 

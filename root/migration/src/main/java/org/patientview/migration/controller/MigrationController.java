@@ -48,7 +48,7 @@ public class MigrationController {
         adminDataMigrationService.init();
         adminDataMigrationService.migrate();
 
-        String status = "Migration of Codes, Result Headings "
+        String status = "Migration of Codes, Result Headings, Join Requests "
                 + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
 
         modelMap.addAttribute("statusMessage", status);

@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -225,7 +226,11 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
                 org.patientview.persistence.model.JoinRequest apiJoinRequest
                         = new org.patientview.persistence.model.JoinRequest();
 
-                apiJoinRequest.setCreated(pv1JoinRequest.getDateOfRequest());
+                if (pv1JoinRequest.getDateOfRequest() != null) {
+                    apiJoinRequest.setCreated(pv1JoinRequest.getDateOfRequest());
+                } else {
+                    apiJoinRequest.setCreated(new Date());
+                }
                 apiJoinRequest.setGroup(group);
                 apiJoinRequest.setForename(pv1JoinRequest.getFirstName());
                 apiJoinRequest.setSurname(pv1JoinRequest.getLastName());
@@ -237,7 +242,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
                 if (pv1JoinRequest.getIsComplete()) {
                     apiJoinRequest.setStatus(JoinRequestStatus.COMPLETED);
                 } else {
-                    apiJoinRequest.setStatus(JoinRequestStatus.INCOMPLETE);
+                    apiJoinRequest.setStatus(JoinRequestStatus.SUBMITTED);
                 }
 
                 apiJoinRequests.add(apiJoinRequest);
@@ -248,7 +253,8 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         }
 
         try {
-            JsonUtil.jsonRequest(JsonUtil.pvUrl + "/migrate/joinrequests", null, apiJoinRequests, HttpPost.class, true);
+            JsonUtil.jsonRequest(JsonUtil.pvUrl + "/migrate/joinrequests",
+                    null, apiJoinRequests, HttpPost.class, false);
             LOG.info("Migrated " + apiJoinRequests.size() + " join requests");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to migrate join requests: ", jme.getMessage());

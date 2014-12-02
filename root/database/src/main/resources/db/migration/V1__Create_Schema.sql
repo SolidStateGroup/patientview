@@ -532,14 +532,14 @@ CREATE TABLE PV_Join_Request
   Forename         VARCHAR(500)   NOT NULL,
   Surname          VARCHAR(500) NOT NULL,
   Date_Of_Birth    DATE NOT NULL,
-  Email            VARCHAR(500) NOT NULL,
+  Email            VARCHAR(500),
   Nhs_Number       VARCHAR(10),
   Notes            TEXT,
   Completion_Date  TIMESTAMP,
   Completed_By     BIGINT REFERENCES PV_User (Id),
   Status           VARCHAR(50),
   Group_Id         BIGINT REFERENCES PV_Group (Id),
-  Creation_Date    TIMESTAMP   NOT NULL,
+  Creation_Date    TIMESTAMP NOT NULL,
   PRIMARY KEY (Id)
 );
 

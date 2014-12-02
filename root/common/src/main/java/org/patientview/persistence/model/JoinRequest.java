@@ -33,14 +33,14 @@ public class JoinRequest extends BaseModel {
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
-    @Column(name = "nhs_number")
+    @Column(name = "nhs_number", nullable = true)
     private String nhsNumber;
 
     @OneToOne
     @JoinColumn(name = "group_id")
     private Group group;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = true)
     private String email;
 
     @Column(name = "creation_date")
