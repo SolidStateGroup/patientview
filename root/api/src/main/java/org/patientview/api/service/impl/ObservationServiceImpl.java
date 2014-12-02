@@ -527,28 +527,34 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throws FhirResourceException {
 
         Observation observation = new Observation();
-        observation.setApplies(createDateTime(fhirObservation.getApplies()));
+        if (fhirObservation.getApplies() != null) {
+            observation.setApplies(createDateTime(fhirObservation.getApplies()));
+        }
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
 
-        try {
-            Quantity quantity = new Quantity();
-            quantity.setValue(createDecimal(fhirObservation.getValue()));
-            quantity.setComparatorSimple(getComparator(fhirObservation.getComparator()));
-            observation.setValue(quantity);
-        } catch (ParseException pe) {
-            // parse exception, likely to be a string, e.g. comments store as text
-            CodeableConcept comment = new CodeableConcept();
-            comment.setTextSimple(fhirObservation.getValue());
-            observation.setValue(comment);
+        if (fhirObservation.getValue() != null) {
+            try {
+                Quantity quantity = new Quantity();
+                quantity.setValue(createDecimal(fhirObservation.getValue()));
+                quantity.setComparatorSimple(getComparator(fhirObservation.getComparator()));
+                observation.setValue(quantity);
+            } catch (ParseException pe) {
+                // parse exception, likely to be a string, e.g. comments store as text
+                CodeableConcept comment = new CodeableConcept();
+                comment.setTextSimple(fhirObservation.getValue());
+                observation.setValue(comment);
+            }
         }
 
-        CodeableConcept name = new CodeableConcept();
-        name.setTextSimple(fhirObservation.getName().toUpperCase());
-        name.addCoding().setDisplaySimple(fhirObservation.getName().toUpperCase());
+        if (fhirObservation.getName() != null) {
+            CodeableConcept name = new CodeableConcept();
+            name.setTextSimple(fhirObservation.getName().toUpperCase());
+            name.addCoding().setDisplaySimple(fhirObservation.getName().toUpperCase());
+            observation.setName(name);
+            observation.setIdentifier(createIdentifier(fhirObservation.getName().toUpperCase()));
+        }
 
-        observation.setName(name);
-        observation.setIdentifier(createIdentifier(fhirObservation.getName().toUpperCase()));
         observation.setCommentsSimple(fhirObservation.getComments());
 
         if (fhirObservation.getBodySite() != null) {

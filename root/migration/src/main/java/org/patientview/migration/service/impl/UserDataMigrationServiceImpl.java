@@ -54,6 +54,7 @@ import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.repository.AboutmeDao;
 import org.patientview.repository.DiagnosticDao;
 import org.patientview.repository.EmailVerificationDao;
+import org.patientview.repository.PatientDao;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.TestResultDao;
 import org.patientview.repository.UserDao;
@@ -117,6 +118,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private PatientManager patientManager;
 
     @Inject
+    private PatientDao patientDao;
+
+    @Inject
     private AdminDataMigrationService adminDataMigrationService;
 
     @Inject
@@ -164,8 +168,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         init();
 
-        Role patientRole = adminDataMigrationService.getRoleByName(RoleName.PATIENT);
-        Lookup nhsNumberIdentifier = adminDataMigrationService.getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+        Role patientRole = getRoleByName(RoleName.PATIENT);
+        Lookup nhsNumberIdentifier = getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
 
         ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
 
@@ -189,7 +193,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             identifiers.add(userMapping.getNhsno());
 
                             // add group (specialty is added automatically when creating user within a UNIT group)
-                            Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
+                            Group group = getGroupByCode(userMapping.getUnitcode());
 
                             if (group != null && patientRole != null) {
                                 GroupRole groupRole = new GroupRole();
@@ -209,13 +213,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                 String roleName = specialtyUserRoles.get(0).getRole();
 
                                 if (roleName.equals("unitadmin")) {
-                                    role = adminDataMigrationService.getRoleByName(RoleName.UNIT_ADMIN);
+                                    role = getRoleByName(RoleName.UNIT_ADMIN);
                                 } else if (roleName.equals("unitstaff")) {
-                                    role = adminDataMigrationService.getRoleByName(RoleName.STAFF_ADMIN);
+                                    role = getRoleByName(RoleName.STAFF_ADMIN);
                                 }
 
                                 // add group (specialty is added automatically when creating user within a UNIT group)
-                                Group group = adminDataMigrationService.getGroupByCode(userMapping.getUnitcode());
+                                Group group = getGroupByCode(userMapping.getUnitcode());
 
                                 if (group != null && role != null) {
                                     GroupRole groupRole = new GroupRole();
@@ -255,7 +259,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // messaging recipient
                 if (oldUser.isIsrecipient()) {
-                    Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.MESSAGING.toString());
+                    Feature feature = getFeatureByName(FeatureType.MESSAGING.toString());
                     if (feature != null) {
                         newUser.getUserFeatures().add(new UserFeature(feature));
                     }
@@ -263,7 +267,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // feedback recipient
                 if (oldUser.isFeedbackRecipient()) {
-                    Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.FEEDBACK.toString());
+                    Feature feature = getFeatureByName(FeatureType.FEEDBACK.toString());
                     if (feature != null) {
                         newUser.getUserFeatures().add(new UserFeature(feature));
                     }
@@ -271,7 +275,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // ECS / GP Medication
                 if (oldUser.isEcrOptInStatus()) {
-                    Feature feature = adminDataMigrationService.getFeatureByName(FeatureType.GP_MEDICATION.toString());
+                    Feature feature = getFeatureByName(FeatureType.GP_MEDICATION.toString());
                     if (feature != null) {
                         UserFeature userFeature = new UserFeature(feature);
                         userFeature.setOptInStatus(true);
@@ -304,7 +308,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // FHIR related patient data (not test result observations)
                 if (isPatient) {
-                    List<Patient> pv1PatientRecords = patientManager.getByUsername(oldUser.getUsername());
+                    //List<Patient> pv1PatientRecords = patientManager.getByUsername(oldUser.getUsername());
+                    List<Patient> pv1PatientRecords = patientDao.getByNhsNo(newUser.getIdentifiers().iterator().next().getIdentifier());
 
                     if (pv1PatientRecords != null) {
                         for (Patient pv1PatientRecord : pv1PatientRecords) {
@@ -393,8 +398,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         if (StringUtils.isNotEmpty(pv1PatientRecord.getMobile())) {
             FhirContact fhirContact = new FhirContact();
-            fhirContact.setUse("home");
-            fhirContact.setSystem("mobile");
+            fhirContact.setUse("mobile");
+            fhirContact.setSystem("phone");
             fhirContact.setValue(pv1PatientRecord.getMobile());
             patient.getContacts().add(fhirContact);
         }
@@ -430,30 +435,40 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
         // - practitioner (gp)
-        FhirPractitioner practitioner = new FhirPractitioner();
-        practitioner.setName(pv1PatientRecord.getGpname());
-        practitioner.setAddress1(pv1PatientRecord.getGpaddress1());
-        practitioner.setAddress2(pv1PatientRecord.getGpaddress2());
-        practitioner.setAddress3(pv1PatientRecord.getGpaddress3());
-        practitioner.setPostcode(pv1PatientRecord.getGppostcode());
-        practitioner.setContacts(new ArrayList<FhirContact>());
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getGpname())) {
+            FhirPractitioner practitioner = new FhirPractitioner();
+            practitioner.setName(pv1PatientRecord.getGpname());
+            practitioner.setAddress1(pv1PatientRecord.getGpaddress1());
+            practitioner.setAddress2(pv1PatientRecord.getGpaddress2());
+            practitioner.setAddress3(pv1PatientRecord.getGpaddress3());
+            practitioner.setPostcode(pv1PatientRecord.getGppostcode());
+            practitioner.setContacts(new ArrayList<FhirContact>());
 
-        // - practitioner contact data
-        FhirContact practitionerContact = new FhirContact();
-        practitionerContact.setUse("work");
-        practitionerContact.setSystem("phone");
-        practitionerContact.setValue(pv1PatientRecord.getGptelephone());
-        practitioner.getContacts().add(practitionerContact);
-        patient.setPractitioner(practitioner);
+            // - practitioner contact data
+            FhirContact practitionerContact = new FhirContact();
+            practitionerContact.setUse("work");
+            practitionerContact.setSystem("phone");
+            practitionerContact.setValue(pv1PatientRecord.getGptelephone());
+            practitioner.getContacts().add(practitionerContact);
+            patient.setPractitioner(practitioner);
+        }
 
         // blood group
-        FhirObservation bloodGroup = new FhirObservation();
-        bloodGroup.setIdentifier(pv1PatientRecord.getBloodgroup());
-        bloodGroup.setName(NonTestObservationTypes.BLOOD_GROUP.toString());
-        bloodGroup.setValue(pv1PatientRecord.getBloodgroup());
-        bloodGroup.setGroup(unit);
-        bloodGroup.setApplies(pv1PatientRecord.getDateofbirth());
-        migrationUser.getObservations().add(bloodGroup);
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getBloodgroup())) {
+            FhirObservation bloodGroup = new FhirObservation();
+            bloodGroup.setIdentifier(pv1PatientRecord.getNhsno());
+            bloodGroup.setName(NonTestObservationTypes.BLOOD_GROUP.toString());
+            bloodGroup.setValue(pv1PatientRecord.getBloodgroup());
+            bloodGroup.setGroup(unit);
+
+            // if date of birth is set, set to that, otherwise set to new date
+            if (pv1PatientRecord.getDateofbirth() != null) {
+                bloodGroup.setApplies(pv1PatientRecord.getDateofbirth());
+            } else {
+                bloodGroup.setApplies(new Date());
+            }
+            migrationUser.getObservations().add(bloodGroup);
+        }
 
         migrationUser.getPatients().add(patient);
         return migrationUser;
@@ -468,64 +483,76 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 if (eyeCheckup.getUnitcode().equals(unit.getCode())) {
 
                     // leftMGrade
-                    FhirObservation eyeCheckupLeftMGrade = new FhirObservation();
-                    eyeCheckupLeftMGrade.setBodySite(BodySites.LEFT_EYE.toString());
-                    eyeCheckupLeftMGrade.setIdentifier(eyeCheckup.getNhsno());
-                    eyeCheckupLeftMGrade.setName(NonTestObservationTypes.MGRADE.toString());
-                    eyeCheckupLeftMGrade.setValue(eyeCheckup.getLeftMGrade());
-                    eyeCheckupLeftMGrade.setGroup(unit);
-                    eyeCheckupLeftMGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
-                    migrationUser.getObservations().add(eyeCheckupLeftMGrade);
+                    if (StringUtils.isNotEmpty(eyeCheckup.getLeftMGrade())) {
+                        FhirObservation eyeCheckupLeftMGrade = new FhirObservation();
+                        eyeCheckupLeftMGrade.setBodySite(BodySites.LEFT_EYE.toString());
+                        eyeCheckupLeftMGrade.setIdentifier(eyeCheckup.getNhsno());
+                        eyeCheckupLeftMGrade.setName(NonTestObservationTypes.MGRADE.toString());
+                        eyeCheckupLeftMGrade.setValue(eyeCheckup.getLeftMGrade());
+                        eyeCheckupLeftMGrade.setGroup(unit);
+                        eyeCheckupLeftMGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        migrationUser.getObservations().add(eyeCheckupLeftMGrade);
+                    }
 
                     // leftRGrade
-                    FhirObservation eyeCheckupLeftRGrade = new FhirObservation();
-                    eyeCheckupLeftRGrade.setBodySite(BodySites.LEFT_EYE.toString());
-                    eyeCheckupLeftRGrade.setIdentifier(eyeCheckup.getNhsno());
-                    eyeCheckupLeftRGrade.setName(NonTestObservationTypes.RGRADE.toString());
-                    eyeCheckupLeftRGrade.setValue(eyeCheckup.getLeftRGrade());
-                    eyeCheckupLeftRGrade.setGroup(unit);
-                    eyeCheckupLeftRGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
-                    migrationUser.getObservations().add(eyeCheckupLeftRGrade);
+                    if (StringUtils.isNotEmpty(eyeCheckup.getLeftRGrade())) {
+                        FhirObservation eyeCheckupLeftRGrade = new FhirObservation();
+                        eyeCheckupLeftRGrade.setBodySite(BodySites.LEFT_EYE.toString());
+                        eyeCheckupLeftRGrade.setIdentifier(eyeCheckup.getNhsno());
+                        eyeCheckupLeftRGrade.setName(NonTestObservationTypes.RGRADE.toString());
+                        eyeCheckupLeftRGrade.setValue(eyeCheckup.getLeftRGrade());
+                        eyeCheckupLeftRGrade.setGroup(unit);
+                        eyeCheckupLeftRGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        migrationUser.getObservations().add(eyeCheckupLeftRGrade);
+                    }
 
                     // leftVA
-                    FhirObservation eyeCheckupLeftVA = new FhirObservation();
-                    eyeCheckupLeftVA.setBodySite(BodySites.LEFT_EYE.toString());
-                    eyeCheckupLeftVA.setIdentifier(eyeCheckup.getNhsno());
-                    eyeCheckupLeftVA.setName(NonTestObservationTypes.VA.toString());
-                    eyeCheckupLeftVA.setValue(eyeCheckup.getLeftVA());
-                    eyeCheckupLeftVA.setGroup(unit);
-                    eyeCheckupLeftVA.setApplies(eyeCheckup.getLastRetinalDate().getTime());
-                    migrationUser.getObservations().add(eyeCheckupLeftVA);
+                    if (StringUtils.isNotEmpty(eyeCheckup.getLeftVA())) {
+                        FhirObservation eyeCheckupLeftVA = new FhirObservation();
+                        eyeCheckupLeftVA.setBodySite(BodySites.LEFT_EYE.toString());
+                        eyeCheckupLeftVA.setIdentifier(eyeCheckup.getNhsno());
+                        eyeCheckupLeftVA.setName(NonTestObservationTypes.VA.toString());
+                        eyeCheckupLeftVA.setValue(eyeCheckup.getLeftVA());
+                        eyeCheckupLeftVA.setGroup(unit);
+                        eyeCheckupLeftVA.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        migrationUser.getObservations().add(eyeCheckupLeftVA);
+                    }
 
                     // rightMGrade
-                    FhirObservation eyeCheckupRightMGrade = new FhirObservation();
-                    eyeCheckupRightMGrade.setBodySite(BodySites.RIGHT_EYE.toString());
-                    eyeCheckupRightMGrade.setIdentifier(eyeCheckup.getNhsno());
-                    eyeCheckupRightMGrade.setName(NonTestObservationTypes.MGRADE.toString());
-                    eyeCheckupRightMGrade.setValue(eyeCheckup.getRightMGrade());
-                    eyeCheckupRightMGrade.setGroup(unit);
-                    eyeCheckupRightMGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
-                    migrationUser.getObservations().add(eyeCheckupRightMGrade);
+                    if (StringUtils.isNotEmpty(eyeCheckup.getRightMGrade())) {
+                        FhirObservation eyeCheckupRightMGrade = new FhirObservation();
+                        eyeCheckupRightMGrade.setBodySite(BodySites.RIGHT_EYE.toString());
+                        eyeCheckupRightMGrade.setIdentifier(eyeCheckup.getNhsno());
+                        eyeCheckupRightMGrade.setName(NonTestObservationTypes.MGRADE.toString());
+                        eyeCheckupRightMGrade.setValue(eyeCheckup.getRightMGrade());
+                        eyeCheckupRightMGrade.setGroup(unit);
+                        eyeCheckupRightMGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        migrationUser.getObservations().add(eyeCheckupRightMGrade);
+                    }
 
                     // rightRGrade
-                    FhirObservation eyeCheckupRightRGrade = new FhirObservation();
-                    eyeCheckupRightRGrade.setBodySite(BodySites.RIGHT_EYE.toString());
-                    eyeCheckupRightRGrade.setIdentifier(eyeCheckup.getNhsno());
-                    eyeCheckupRightRGrade.setName(NonTestObservationTypes.RGRADE.toString());
-                    eyeCheckupRightRGrade.setValue(eyeCheckup.getRightRGrade());
-                    eyeCheckupRightRGrade.setGroup(unit);
-                    eyeCheckupRightRGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
-                    migrationUser.getObservations().add(eyeCheckupRightRGrade);
+                    if (StringUtils.isNotEmpty(eyeCheckup.getRightRGrade())) {
+                        FhirObservation eyeCheckupRightRGrade = new FhirObservation();
+                        eyeCheckupRightRGrade.setBodySite(BodySites.RIGHT_EYE.toString());
+                        eyeCheckupRightRGrade.setIdentifier(eyeCheckup.getNhsno());
+                        eyeCheckupRightRGrade.setName(NonTestObservationTypes.RGRADE.toString());
+                        eyeCheckupRightRGrade.setValue(eyeCheckup.getRightRGrade());
+                        eyeCheckupRightRGrade.setGroup(unit);
+                        eyeCheckupRightRGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        migrationUser.getObservations().add(eyeCheckupRightRGrade);
+                    }
 
                     // rightVA
-                    FhirObservation eyeCheckupRightVA = new FhirObservation();
-                    eyeCheckupRightVA.setBodySite(BodySites.RIGHT_EYE.toString());
-                    eyeCheckupRightVA.setIdentifier(eyeCheckup.getNhsno());
-                    eyeCheckupRightVA.setName(NonTestObservationTypes.VA.toString());
-                    eyeCheckupRightVA.setValue(eyeCheckup.getRightVA());
-                    eyeCheckupRightVA.setGroup(unit);
-                    eyeCheckupRightVA.setApplies(eyeCheckup.getLastRetinalDate().getTime());
-                    migrationUser.getObservations().add(eyeCheckupRightVA);
+                    if (StringUtils.isNotEmpty(eyeCheckup.getRightVA())) {
+                        FhirObservation eyeCheckupRightVA = new FhirObservation();
+                        eyeCheckupRightVA.setBodySite(BodySites.RIGHT_EYE.toString());
+                        eyeCheckupRightVA.setIdentifier(eyeCheckup.getNhsno());
+                        eyeCheckupRightVA.setName(NonTestObservationTypes.VA.toString());
+                        eyeCheckupRightVA.setValue(eyeCheckup.getRightVA());
+                        eyeCheckupRightVA.setGroup(unit);
+                        eyeCheckupRightVA.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        migrationUser.getObservations().add(eyeCheckupRightVA);
+                    }
                 }
             }
         }
@@ -537,44 +564,52 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 if (footCheckup.getUnitcode().equals(unit.getCode())) {
 
                     // leftDpPulse
-                    FhirObservation footCheckupLeftDpPulse = new FhirObservation();
-                    footCheckupLeftDpPulse.setBodySite(BodySites.LEFT_FOOT.toString());
-                    footCheckupLeftDpPulse.setIdentifier(footCheckup.getNhsno());
-                    footCheckupLeftDpPulse.setName(NonTestObservationTypes.DPPULSE.toString());
-                    footCheckupLeftDpPulse.setValue(footCheckup.getLeftDpPulse());
-                    footCheckupLeftDpPulse.setGroup(unit);
-                    footCheckupLeftDpPulse.setApplies(footCheckup.getFootCheckDate().getTime());
-                    migrationUser.getObservations().add(footCheckupLeftDpPulse);
+                    if (StringUtils.isNotEmpty(footCheckup.getLeftDpPulse())) {
+                        FhirObservation footCheckupLeftDpPulse = new FhirObservation();
+                        footCheckupLeftDpPulse.setBodySite(BodySites.LEFT_FOOT.toString());
+                        footCheckupLeftDpPulse.setIdentifier(footCheckup.getNhsno());
+                        footCheckupLeftDpPulse.setName(NonTestObservationTypes.DPPULSE.toString());
+                        footCheckupLeftDpPulse.setValue(footCheckup.getLeftDpPulse());
+                        footCheckupLeftDpPulse.setGroup(unit);
+                        footCheckupLeftDpPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                        migrationUser.getObservations().add(footCheckupLeftDpPulse);
+                    }
 
                     // leftPtPulse
-                    FhirObservation footCheckupLeftPtPulse = new FhirObservation();
-                    footCheckupLeftPtPulse.setBodySite(BodySites.LEFT_FOOT.toString());
-                    footCheckupLeftPtPulse.setIdentifier(footCheckup.getNhsno());
-                    footCheckupLeftPtPulse.setName(NonTestObservationTypes.PTPULSE.toString());
-                    footCheckupLeftPtPulse.setValue(footCheckup.getLeftPtPulse());
-                    footCheckupLeftPtPulse.setGroup(unit);
-                    footCheckupLeftPtPulse.setApplies(footCheckup.getFootCheckDate().getTime());
-                    migrationUser.getObservations().add(footCheckupLeftPtPulse);
+                    if (StringUtils.isNotEmpty(footCheckup.getLeftPtPulse())) {
+                        FhirObservation footCheckupLeftPtPulse = new FhirObservation();
+                        footCheckupLeftPtPulse.setBodySite(BodySites.LEFT_FOOT.toString());
+                        footCheckupLeftPtPulse.setIdentifier(footCheckup.getNhsno());
+                        footCheckupLeftPtPulse.setName(NonTestObservationTypes.PTPULSE.toString());
+                        footCheckupLeftPtPulse.setValue(footCheckup.getLeftPtPulse());
+                        footCheckupLeftPtPulse.setGroup(unit);
+                        footCheckupLeftPtPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                        migrationUser.getObservations().add(footCheckupLeftPtPulse);
+                    }
 
                     // rightDpPulse
-                    FhirObservation footCheckupRightDpPulse = new FhirObservation();
-                    footCheckupRightDpPulse.setBodySite(BodySites.RIGHT_FOOT.toString());
-                    footCheckupRightDpPulse.setIdentifier(footCheckup.getNhsno());
-                    footCheckupRightDpPulse.setName(NonTestObservationTypes.DPPULSE.toString());
-                    footCheckupRightDpPulse.setValue(footCheckup.getRightDpPulse());
-                    footCheckupRightDpPulse.setGroup(unit);
-                    footCheckupRightDpPulse.setApplies(footCheckup.getFootCheckDate().getTime());
-                    migrationUser.getObservations().add(footCheckupRightDpPulse);
+                    if (StringUtils.isNotEmpty(footCheckup.getRightDpPulse())) {
+                        FhirObservation footCheckupRightDpPulse = new FhirObservation();
+                        footCheckupRightDpPulse.setBodySite(BodySites.RIGHT_FOOT.toString());
+                        footCheckupRightDpPulse.setIdentifier(footCheckup.getNhsno());
+                        footCheckupRightDpPulse.setName(NonTestObservationTypes.DPPULSE.toString());
+                        footCheckupRightDpPulse.setValue(footCheckup.getRightDpPulse());
+                        footCheckupRightDpPulse.setGroup(unit);
+                        footCheckupRightDpPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                        migrationUser.getObservations().add(footCheckupRightDpPulse);
+                    }
 
                     // rightPtPulse
-                    FhirObservation footCheckupRightPtPulse = new FhirObservation();
-                    footCheckupRightPtPulse.setBodySite(BodySites.RIGHT_FOOT.toString());
-                    footCheckupRightPtPulse.setIdentifier(footCheckup.getNhsno());
-                    footCheckupRightPtPulse.setName(NonTestObservationTypes.PTPULSE.toString());
-                    footCheckupRightPtPulse.setValue(footCheckup.getRightPtPulse());
-                    footCheckupRightPtPulse.setGroup(unit);
-                    footCheckupRightPtPulse.setApplies(footCheckup.getFootCheckDate().getTime());
-                    migrationUser.getObservations().add(footCheckupRightPtPulse);
+                    if (StringUtils.isNotEmpty(footCheckup.getRightPtPulse())) {
+                        FhirObservation footCheckupRightPtPulse = new FhirObservation();
+                        footCheckupRightPtPulse.setBodySite(BodySites.RIGHT_FOOT.toString());
+                        footCheckupRightPtPulse.setIdentifier(footCheckup.getNhsno());
+                        footCheckupRightPtPulse.setName(NonTestObservationTypes.PTPULSE.toString());
+                        footCheckupRightPtPulse.setValue(footCheckup.getRightPtPulse());
+                        footCheckupRightPtPulse.setGroup(unit);
+                        footCheckupRightPtPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                        migrationUser.getObservations().add(footCheckupRightPtPulse);
+                    }
                 }
             }
         }
@@ -613,6 +648,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (CollectionUtils.isNotEmpty(imagingDiagnostics)) {
             for (Diagnostic diagnostic : imagingDiagnostics) {
                 FhirObservation observation = new FhirObservation();
+                observation.setIdentifier(nhsNo);
                 observation.setValue(diagnostic.getDescription());
                 observation.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
 
@@ -632,6 +668,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (CollectionUtils.isNotEmpty(endoscopyDiagnostics)) {
             for (Diagnostic diagnostic : endoscopyDiagnostics) {
                 FhirObservation observation = new FhirObservation();
+                observation.setIdentifier(nhsNo);
                 observation.setValue(diagnostic.getDescription());
                 observation.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
 
@@ -651,7 +688,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     private MigrationUser addLetterTableData(MigrationUser migrationUser, String nhsNo, Group unit) {
 
-        List<Letter> letters = letterManager.getByNhsNoAndUnit(nhsNo, unit.getCode());
+        List<Letter> letters = letterManager.getByNhsnoAndUnitcode(nhsNo, unit.getCode());
 
         if (CollectionUtils.isNotEmpty(letters)) {
 
@@ -1104,11 +1141,37 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         return newUser;
     }
 
-
     private Group getGroupByCode(String code) {
         for (Group group : groups) {
             if (group.getCode().equalsIgnoreCase(code)) {
                 return group;
+            }
+        }
+        return null;
+    }
+
+    private Lookup getLookupByName(String value) {
+        for (Lookup lookup : lookups) {
+            if (lookup.getValue().equalsIgnoreCase(value)) {
+                return  lookup;
+            }
+        }
+        return null;
+    }
+
+    private Role getRoleByName(RoleName name) {
+        for (Role role : roles) {
+            if (role.getName().equals(name)) {
+                return role;
+            }
+        }
+        return null;
+    }
+
+    private Feature getFeatureByName(String value) {
+        for (Feature feature : features) {
+            if (feature.getName().equalsIgnoreCase(value)) {
+                return feature;
             }
         }
         return null;

@@ -80,7 +80,13 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             }
         }
 
-        userMigration.setStatus(MigrationStatus.USER_MIGRATED);
+        if (userMigration == null) {
+            userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_MIGRATED);
+            userMigration.setCreator(getCurrentUser());
+        } else {
+            userMigration.setStatus(MigrationStatus.USER_MIGRATED);
+        }
+
         userMigration.setInformation(null);
         userMigration.setPatientview2UserId(userId);
         userMigration.setLastUpdate(new Date());
@@ -121,7 +127,8 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigration.setInformation(e.getMessage());
                 userMigration.setLastUpdate(new Date());
                 userMigrationService.save(userMigration);
-                throw new MigrationException("Could not migrate patient data: " + e.getMessage());
+                throw new MigrationException("Could not migrate patient data for pv1 id "
+                        + userMigration.getPatientview1UserId() + ": " + e.getMessage());
             }
         } else {
             doneMessage = userId + " Done";
