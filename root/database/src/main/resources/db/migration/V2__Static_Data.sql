@@ -123,7 +123,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (53, now(),
-'PATIENT_COUNT','SELECT COUNT(id) FROM pv_user_group_role WHERE role_id = 1 AND group_id = :groupId AND creation_date BETWEEN :startDate AND :endDate','1','10');
+'PATIENT_COUNT','SELECT COUNT(id) FROM pv_user_group_role WHERE role_id = 1 AND group_id = :groupId','1','10');
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (54, now(),
@@ -131,11 +131,11 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (55, now(),
-'LOCKED_USER_COUNT',   'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true AND :startDate = :startDate AND :endDate = :endDate','1','10');
+'LOCKED_USER_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true','1','10');
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (56, now(),
-'USER_COUNT','SELECT COUNT(DISTINCT(user_id)) FROM pv_user_group_role WHERE group_id = :groupId AND creation_date BETWEEN :startDate AND :endDate','1','10');
+'USER_COUNT','SELECT COUNT(DISTINCT(user_id)) FROM pv_user_group_role WHERE group_id = :groupId','1','10');
 
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (47, now(), 'HSC_NUMBER','H&SC Number','1','8');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (48, now(), 'HOSPITAL_NUMBER','Hospital Number','1','8');

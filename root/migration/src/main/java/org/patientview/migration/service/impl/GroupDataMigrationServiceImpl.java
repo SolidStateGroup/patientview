@@ -116,6 +116,10 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
         }
     }
 
+    public void createStats() throws JsonMigrationException {
+
+    }
+
     private void callApiCreateParentGroup(Group group, Group parentGroup) {
         String featureUrl = JsonUtil.pvUrl + "/group/" + group.getId() + "/parent/" + parentGroup.getId();
 
