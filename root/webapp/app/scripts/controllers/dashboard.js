@@ -54,8 +54,6 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                         $scope.inactiveUsers = statistics.statistics.INACTIVE_USER_COUNT;
                     }
 
-                    console.log(patients);
-
                     // using highcharts
                     $('#chart_div').highcharts({
                         chart: {
