@@ -9,6 +9,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupStatistic;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -111,6 +112,15 @@ public class GroupController extends BaseController<GroupController> {
     public ResponseEntity<List<GroupStatisticTO>> getStatistics(@PathVariable("groupId") Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(groupStatisticService.getMonthlyGroupStatistics(groupId), HttpStatus.OK);
+    }
+
+    // migration only
+    @RequestMapping(value = "/group/{groupId}/migratestatistics", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void migrateStatistics(@PathVariable("groupId") Long groupId, @RequestBody List<GroupStatistic> statistics)
+            throws ResourceNotFoundException {
+        groupStatisticService.migrateStatistics(groupId, statistics);
     }
 
     // Second stage of forgotten password, if username or email have been forgotten

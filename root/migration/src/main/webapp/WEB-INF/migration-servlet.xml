@@ -16,12 +16,19 @@
     <context:component-scan base-package="org.patientview.repository, org.patientview.model, org.patientview.utils,
         org.patientview.migration.service, org.patientview.migration.controller" />
 
-    <!-- Beans for DAOs to work -->
-    <bean name="securityUserManager" class="org.patientview.service.impl.SecurityUserManagerImpl"/>
-    <bean name="userManager" class="org.patientview.service.impl.UserManagerImpl"/>
+    <!-- Beans for pv1 managers to work (cannot be added to component scan due to pv1 configuration -->
+    <bean name="diagnosisManager" class="org.patientview.service.impl.DiagnosisManagerImpl"/>
+    <bean name="edtaCodeManager" class="org.patientview.service.impl.EdtaCodeManagerImpl"/>
+    <bean name="eyeCheckupManager" class="org.patientview.service.impl.EyeCheckupManagerImpl"/>
+    <bean name="footCheckupManager" class="org.patientview.service.impl.FootCheckupManagerImpl"/>
+    <bean name="letterManager" class="org.patientview.service.impl.LetterManagerImpl"/>
     <bean name="logEntryManager" class="org.patientview.service.impl.LogEntryManagerImpl"/>
+    <bean name="medicineManager" class="org.patientview.service.impl.MedicineManagerImpl"/>
+    <bean name="patientManager" class="org.patientview.service.impl.PatientManagerImpl"/>
+    <bean name="securityUserManager" class="org.patientview.service.impl.SecurityUserManagerImpl"/>
+    <bean name="testResultManager" class="org.patientview.service.impl.TestResultManagerImpl"/>
     <bean name="unitManager" class="org.patientview.service.impl.UnitManagerImpl"/>
-    <bean name="asyncService" class="org.patientview.migration.service.impl.AsyncServiceImpl"/>
+    <bean name="userManager" class="org.patientview.service.impl.UserManagerImpl"/>
 
     <tx:annotation-driven/>
 

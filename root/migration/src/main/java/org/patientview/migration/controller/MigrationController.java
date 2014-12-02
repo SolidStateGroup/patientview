@@ -60,11 +60,11 @@ public class MigrationController {
         Date start = new Date();
         groupDataMigrationService.createStatistics();
 
-        String status = "Migration of Codes, Result Headings "
+        String status = "Migration of Group Statistics "
                 + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
 
         modelMap.addAttribute("statusMessage", status);
-        return "staticdata";
+        return "groupstats";
     }
 
     @RequestMapping(value = "/step3-users", method = RequestMethod.GET)

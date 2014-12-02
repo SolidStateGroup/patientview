@@ -11,6 +11,7 @@ import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Unit;
+import org.patientview.patientview.logging.AddLog;
 import org.patientview.patientview.model.UnitStat;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
@@ -23,6 +24,7 @@ import org.patientview.persistence.model.Location;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.ContactPointTypes;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.GroupStatisticLookupValues;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.repository.FeatureDao;
@@ -131,74 +133,103 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
     public void createStatistics() throws JsonMigrationException {
         init();
 
-        List<GroupStatistic> statistics = new ArrayList<GroupStatistic>();
         Map<String, Lookup> statisticTypeMap = new HashMap<String, Lookup>();
 
-
+        statisticTypeMap.put(AddLog.ADMIN_ADD,
+                getLookupByName(GroupStatisticLookupValues.ADMIN_GROUP_ROLE_ADD_COUNT.toString()));
+        statisticTypeMap.put(AddLog.EMAIL_CHANGED,
+                getLookupByName(GroupStatisticLookupValues.EMAIL_CHANGED_COUNT.toString()));
+        statisticTypeMap.put(AddLog.EMAIL_VERIFY,
+                getLookupByName(GroupStatisticLookupValues.EMAIL_VERIFY_COUNT.toString()));
+        statisticTypeMap.put(AddLog.LOGGED_ON,
+                getLookupByName(GroupStatisticLookupValues.LOGGED_ON_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PASSWORD_CHANGE,
+                getLookupByName(GroupStatisticLookupValues.PASSWORD_CHANGE_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PASSWORD_LOCKED,
+                getLookupByName(GroupStatisticLookupValues.ACCOUNT_LOCKED_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PASSWORD_RESET,
+                getLookupByName(GroupStatisticLookupValues.PASSWORD_RESET_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PASSWORD_RESET_FORGOTTEN,
+                getLookupByName(GroupStatisticLookupValues.PASSWORD_RESET_FORGOTTEN_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PASSWORD_UNLOCKED,
+                getLookupByName(GroupStatisticLookupValues.ACCOUNT_UNLOCKED_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PATIENT_ADD,
+                getLookupByName(GroupStatisticLookupValues.PATIENT_GROUP_ROLE_ADD_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PATIENT_DATA_FAIL,
+                getLookupByName(GroupStatisticLookupValues.PATIENT_DATA_FAIL_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PATIENT_DELETE,
+                getLookupByName(GroupStatisticLookupValues.PATIENT_GROUP_ROLE_DELETE_COUNT.toString()));
+        statisticTypeMap.put(AddLog.PATIENT_VIEW,
+                getLookupByName(GroupStatisticLookupValues.PATIENT_VIEW_COUNT.toString()));
+        statisticTypeMap.put("unique data load",
+                getLookupByName(GroupStatisticLookupValues.UNIQUE_PATIENT_DATA_SUCCESS_COUNT.toString()));
+        statisticTypeMap.put("unique logon",
+                getLookupByName(GroupStatisticLookupValues.UNIQUE_LOGGED_ON_COUNT.toString()));
 
         for (Group group : groups) {
-            List<UnitStat> unitStats = unitManager.getUnitStatsForUnit(group.getCode());
+            if (!group.getCode().equals("Generic")) {
+                List<GroupStatistic> statistics = new ArrayList<GroupStatistic>();
+                List<UnitStat> unitStats = unitManager.getUnitStatsForUnit(group.getCode());
 
-            for (UnitStat unitStat : unitStats) {
-                GroupStatistic groupStatistic = new GroupStatistic();
-                groupStatistic.setGroup(group);
-                groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
-                groupStatistic.setValue(BigInteger.valueOf(unitStat.getCount()));
+                if (CollectionUtils.isNotEmpty(unitStats)) {
+                    for (UnitStat unitStat : unitStats) {
+                        GroupStatistic groupStatistic = new GroupStatistic();
+                        groupStatistic.setGroup(group);
+                        groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
+                        groupStatistic.setValue(BigInteger.valueOf(unitStat.getCount()));
 
-                int year = Integer.parseInt(unitStat.getYearmonth().split("-")[0]);
-                int month = Integer.parseInt(unitStat.getYearmonth().split("-")[1]);
+                        int year = Integer.parseInt(unitStat.getYearmonth().split("-")[0]);
+                        int month = Integer.parseInt(unitStat.getYearmonth().split("-")[1]);
 
-                Calendar startDate = Calendar.getInstance();
-                startDate.set(Calendar.YEAR, year);
-                startDate.set(Calendar.MONTH, month - 1);  // zero based
-                startDate.set(Calendar.HOUR_OF_DAY, 0);
-                startDate.set(Calendar.MINUTE, 0);
-                startDate.set(Calendar.SECOND, 0);
-                startDate.set(Calendar.MILLISECOND, 0);
-                groupStatistic.setStartDate(startDate.getTime());
+                        Calendar startDate = Calendar.getInstance();
+                        startDate.set(Calendar.YEAR, year);
+                        startDate.set(Calendar.MONTH, month - 1);  // zero based
+                        startDate.set(Calendar.DAY_OF_MONTH, 1);
+                        startDate.set(Calendar.HOUR_OF_DAY, 0);
+                        startDate.set(Calendar.MINUTE, 0);
+                        startDate.set(Calendar.SECOND, 0);
+                        startDate.set(Calendar.MILLISECOND, 0);
+                        groupStatistic.setStartDate(startDate.getTime());
 
-                if (month > Calendar.DECEMBER) {
-                    year++;
-                    month = Calendar.JANUARY;
+                        if (month > Calendar.DECEMBER) {
+                            year++;
+                            month = Calendar.JANUARY;
+                        }
+
+                        Calendar endDate = Calendar.getInstance();
+                        endDate.set(Calendar.YEAR, year);
+                        endDate.set(Calendar.MONTH, month);  // zero based
+                        endDate.set(Calendar.DAY_OF_MONTH, 1);
+                        endDate.set(Calendar.HOUR_OF_DAY, 0);
+                        endDate.set(Calendar.MINUTE, 0);
+                        endDate.set(Calendar.SECOND, 0);
+                        endDate.set(Calendar.MILLISECOND, 0);
+                        groupStatistic.setEndDate(endDate.getTime());
+
+                        if (statisticTypeMap.get(unitStat.getAction()) != null) {
+                            groupStatistic.setStatisticType(statisticTypeMap.get(unitStat.getAction()));
+                            statistics.add(groupStatistic);
+                        }
+                    }
+
+                    callApiCreateGroupStatistics(group, statistics);
                 }
-
-                Calendar endDate = Calendar.getInstance();
-                endDate.set(Calendar.YEAR, year);
-                endDate.set(Calendar.MONTH, month);  // zero based
-                endDate.set(Calendar.HOUR_OF_DAY, 0);
-                endDate.set(Calendar.MINUTE, 0);
-                endDate.set(Calendar.SECOND, 0);
-                endDate.set(Calendar.MILLISECOND, 0);
-                groupStatistic.setEndDate(endDate.getTime());
-
-                //groupStatistic.setStatisticType();
-
-
-                // actions copied from plaintext
-                /*
-                admin add // ADMIN_GROUP_ROLE_ADD_COUNT
-                email changed // EMAIL_CHANGED_COUNT
-                email verified // EMAIL_VERIFY_COUNT
-                logon // LOGGED_ON_COUNT
-                password change // PASSWORD_CHANGE_COUNT
-                password locked // ACCOUNT_LOCKED_COUNT
-                password reset // PASSWORD_RESET_COUNT
-                password reset forgotten // PASSWORD_RESET_FORGOTTEN_COUNT
-                password unlocked // ACCOUNT_UNLOCKED_COUNT
-                patient add // PATIENT_GROUP_ROLE_ADD_COUNT
-                patient data fail // PATIENT_DATA_FAIL_COUNT
-                patient data load // PATIENT_DATA_SUCCESS_COUNT
-                patient data remove // not in pv2
-                patient delete // PATIENT_GROUP_ROLE_DELETE_COUNT
-                patient hide // not in pv2
-                patient unhide // not in pv2
-                patient view // PATIENT_VIEW_COUNT
-                ukt data // not in pv2
-                unique data load // UNIQUE_PATIENT_DATA_SUCCESS_COUNT
-                unique logon // UNIQUE_LOGGED_ON_COUNT
-                */
-
             }
+        }
+    }
+
+    private void callApiCreateGroupStatistics(Group group, List<GroupStatistic> statistics) {
+        String url = JsonUtil.pvUrl + "/group/" + group.getId() + "/migratestatistics/";
+
+        try {
+            JsonUtil.jsonRequest(url, null, statistics, HttpPost.class, false);
+            LOG.info("Success: migrated statistics for " + group.getCode());
+        } catch (JsonMigrationException jme) {
+            LOG.error("Unable to migrate statistics: ", jme.getMessage());
+        } catch (JsonMigrationExistsException jee) {
+            LOG.error("Unable to migrate statistics: ", jee.getMessage());
+        } catch (Exception e) {
+            LOG.error("Unable to migrate statistics: ", e.getMessage());
         }
     }
 

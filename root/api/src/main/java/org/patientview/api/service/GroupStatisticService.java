@@ -4,6 +4,7 @@ import org.patientview.api.annotation.GroupMemberOnly;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,4 +26,7 @@ public interface GroupStatisticService {
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     void generateGroupStatistic(Date startDate, Date endDate, StatisticPeriod statisticPeriod);
+
+    @GroupMemberOnly
+    void migrateStatistics(Long groupId, List<GroupStatistic> statistics) throws ResourceNotFoundException;
 }

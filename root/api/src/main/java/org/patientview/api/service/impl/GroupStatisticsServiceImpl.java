@@ -149,6 +149,27 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         }
     }
 
+    @Override
+    public void migrateStatistics(Long groupId, List<GroupStatistic> statistics) throws ResourceNotFoundException {
+
+        Group group = groupRepository.findOne(groupId);
+        if (group == null) {
+            throw new ResourceNotFoundException("Group not found");
+        }
+
+        Date latestStartDate = new Date(0);
+
+        for (GroupStatistic groupStatistic : statistics) {
+            if (groupStatistic.getStartDate().after(latestStartDate)) {
+                latestStartDate = groupStatistic.getStartDate();
+            }
+        }
+
+        // delete older than latest start date
+        groupStatisticRepository.deleteByGroupBeforeStartDateAndPeriod(group, latestStartDate, StatisticPeriod.MONTH);
+        groupStatisticRepository.save(statistics);
+    }
+
     // Refresh the group statistic object for the next statistics
     private GroupStatistic createGroupStatistic(GroupStatistic groupStatistic, Group group) {
         GroupStatistic newGroupStatistic = new GroupStatistic();

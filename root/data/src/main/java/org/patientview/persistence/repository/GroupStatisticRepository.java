@@ -36,5 +36,12 @@ public interface GroupStatisticRepository extends JpaRepository<GroupStatistic, 
     void deleteByGroupStartDateAndPeriod(@Param("group") Group group,
                                          @Param("startDate") Date startDate,
                                          @Param("statisticPeriod") StatisticPeriod statisticPeriod);
-
+    @Modifying
+    @Query("DELETE FROM GroupStatistic " +
+            "WHERE group = :group " +
+            "AND startDate <= :startDate " +
+            "AND statisticPeriod = :statisticPeriod")
+    void deleteByGroupBeforeStartDateAndPeriod(@Param("group") Group group,
+                                               @Param("startDate") Date startDate,
+                                               @Param("statisticPeriod") StatisticPeriod statisticPeriod);
 }
