@@ -241,8 +241,8 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                             headerDetails.name = entity.name;
                             headerDetails.normalRange = entity.normalRange;
                             headerDetails.units = entity.units;
-                            headerDetails.minValue = entity.minValue;
-                            headerDetails.maxValue = entity.maxValue;
+                            headerDetails.minGraph = entity.minGraph;
+                            headerDetails.maxGraph = entity.maxGraph;
                         }
                     }
                 });

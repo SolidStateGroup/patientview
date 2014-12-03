@@ -1,6 +1,10 @@
+<!-- todo: add to main style -->
 <style>
     option.option-header {
         color:#428bca;
+    }
+    #add-recipient-button {
+        margin-top:27px;
     }
 </style>
 
@@ -39,7 +43,7 @@
                 </select>
             </div>
             <div class="col-md-5" data-ng-show="recipientsExist">
-                <label for="conversation-add-recipient">Recipient</label>
+                <label for="recipient-select-container">Recipient</label>
                 <div id="recipient-select-container"></div>
             </div>
             <div class="col-md-5" data-ng-show="!recipientsExist">
@@ -48,7 +52,7 @@
             </div>
 
             <div class="col-md-2" data-ng-show="recipientsExist">
-                <label for="add-recipient-button">Add</label>
+                <label for="add-recipient-button"></label>
                 <button type="button" class="btn blue recipient-add-button pull-left" id="add-recipient-button"
                         data-ng-click="addRecipient(conversationFormNew, newConversation)">
                     <i class="glyphicon glyphicon-plus-sign"></i> &nbsp;&nbsp;Add Recipient</button>

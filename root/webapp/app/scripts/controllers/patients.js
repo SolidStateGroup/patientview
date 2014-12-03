@@ -599,7 +599,13 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.identifierTypes = [];
             StaticDataService.getLookupsByType('IDENTIFIER').then(function(identifierTypes) {
                 if (identifierTypes.length > 0) {
-                    $scope.identifierTypes = identifierTypes;
+                    var noHospitalNumber = [];
+                    for (i = 0; i < identifierTypes.length ; i++) {
+                        if (identifierTypes[i].value !== 'HOSPITAL_NUMBER') {
+                            noHospitalNumber.push(identifierTypes[i]);
+                        }
+                    }
+                    $scope.identifierTypes = noHospitalNumber;
                 }
             });
 

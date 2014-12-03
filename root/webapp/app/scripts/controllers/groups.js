@@ -124,6 +124,20 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         });
     };
 
+    $scope.hasAdminEmail = function(group) {
+        if (group !== undefined) {
+            if (group.contactPoints) {
+                var found = false;
+                for (var i = 0; i < group.contactPoints.length; i++) {
+                    if (group.contactPoints[i].contactPointType.value === 'PV_ADMIN_EMAIL') {
+                        found = true;
+                    }
+                }
+                group.hasAdminEmail = found;
+            }
+        }
+    };
+
     // TODO: this needs performance improvements, server currently retrieves all groups
     $scope.getAllowedRelationshipGroups = function() {
         // allowed relationship groups are those that can be added as parents or children to existing groups
