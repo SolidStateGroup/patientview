@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -36,7 +38,13 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
             message.setSubject(email.getSubject());
 
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(email.getSender());
+
+            try {
+                InternetAddress fromAddress = new InternetAddress(email.getSenderEmail(), email.getSenderName());
+                helper.setFrom(fromAddress);
+            } catch (UnsupportedEncodingException uee) {
+                helper.setFrom(email.getSenderEmail());
+            }
 
             helper.setText(properties.getProperty("email.header") + email.getBody()
                     + properties.getProperty("email.footer"), true);

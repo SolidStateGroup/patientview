@@ -399,7 +399,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             if (!user.equals(getCurrentUser()) && StringUtils.isNotEmpty(user.getEmail())) {
 
                 Email email = new Email();
-                email.setSender(properties.getProperty("smtp.sender"));
+                email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+                email.setSenderName(properties.getProperty("smtp.sender.name"));
                 email.setSubject("PatientView - you have a new message");
                 email.setRecipients(new String[]{user.getEmail()});
 

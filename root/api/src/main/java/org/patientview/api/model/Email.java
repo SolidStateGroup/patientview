@@ -7,7 +7,8 @@ package org.patientview.api.model;
 public class Email {
     private String body;
     private String subject;
-    private String sender;
+    private String senderEmail;
+    private String senderName;
     private String[] recipients;
 
     public String getBody() {
@@ -26,12 +27,20 @@ public class Email {
         this.subject = subject;
     }
 
-    public String getSender() {
-        return sender;
+    public String getSenderEmail() {
+        return senderEmail;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    public void setSenderEmail(String senderEmail) {
+        this.senderEmail = senderEmail;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
     }
 
     public String[] getRecipients() {

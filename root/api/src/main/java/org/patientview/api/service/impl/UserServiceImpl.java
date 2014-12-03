@@ -1179,7 +1179,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     private Email getPasswordResetEmail(User user, String password) {
         Email email = new Email();
-        email.setSender(properties.getProperty("smtp.sender"));
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
         email.setRecipients(new String[]{user.getEmail()});
         email.setSubject("PatientView - Your Password Has Been Reset");
 
@@ -1200,7 +1201,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     private Email getVerifyEmailEmail(User user) {
         Email email = new Email();
-        email.setSender(properties.getProperty("smtp.sender"));
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
         email.setSubject("PatientView - Please Verify Your Account");
         email.setRecipients(new String[]{user.getEmail()});
 

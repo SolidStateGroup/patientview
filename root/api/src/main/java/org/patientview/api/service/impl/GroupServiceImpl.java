@@ -655,7 +655,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     // Second stage of forgotten password, if username or email have been forgotten
     private Email createPasswordRequestEmail(UnitRequest unitRequest, Group group) {
         Email email = new Email();
-        email.setSender(properties.getProperty("smtp.sender"));
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
         email.setSubject("PatientView - Request for Password Reset");
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");

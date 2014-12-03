@@ -124,7 +124,8 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
 
     private Email createJoinRequestEmail(JoinRequest joinRequest) {
         Email email = new Email();
-        email.setSender(properties.getProperty("smtp.sender"));
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
         email.setSubject("PatientView - Join Request");
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
