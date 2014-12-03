@@ -5,6 +5,9 @@ import org.patientview.migration.service.GroupDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.persistence.model.enums.RoleName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.inject.Inject;
 import java.util.Date;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @Controller
@@ -28,7 +30,9 @@ public class MigrationController {
     private AdminDataMigrationService adminDataMigrationService;
 
     @Inject
-    private Executor myExecutor;
+    private ThreadPoolTaskExecutor asyncTaskExecutor;
+
+    private static final Logger LOG = LoggerFactory.getLogger(MigrationController.class);
 
     @RequestMapping(value = "/step1-groups", method = RequestMethod.GET)
     public String doStep1Groups(ModelMap modelMap) throws JsonMigrationException {
@@ -69,14 +73,22 @@ public class MigrationController {
 
     @RequestMapping(value = "/step4-users", method = RequestMethod.GET)
     public String doStep4Users(ModelMap modelMap) throws JsonMigrationException {
-        Date start = new Date();
+        asyncTaskExecutor.submit(new Runnable() {
+            public void run() {
+                try {
+                    Date start = new Date();
 
-        userDataMigrationService.migrate();
+                    userDataMigrationService.migrate();
 
-        String status = "Migration of Users "
-                + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
+                    LOG.info("Migration of Users took "
+                            + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+                } catch (JsonMigrationException jme) {
+                    LOG.error("User Migration exception: {}", jme);
+                }
+            }
+        });
 
-        modelMap.addAttribute("statusMessage", status);
+        modelMap.addAttribute("statusMessage", "Started User Migration");
         return "users";
     }
 
