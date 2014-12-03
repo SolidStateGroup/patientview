@@ -8,7 +8,11 @@
         margin-bottom: 3px;
     }
 
-    .row.inline-row .form-control, .row.inline-row .inline-span {
+     .row.inline-row .inline-span, .date-input, .results-enter {
+         float:left;
+    }
+
+    .date-input {
         float:left;
     }
 
@@ -26,6 +30,9 @@
 
     .row.inline-row .form-control.input-comments {
         width: 100%;
+    }
+    .form-control.no-float {
+        float:none;
     }
 </style>
 
@@ -73,37 +80,37 @@
                 <div class="row inline-row">
                     <div class="col-md-12">
                         <span class="inline-span"> Date of result(s): &nbsp;</span>
-                        <select class="form-control" data-ng-model="userResultCluster.day"
+                        <select class="form-control date-input" data-ng-model="userResultCluster.day"
                             data-ng-options="day as day for day in days">
                         </select>
-                        <select class="form-control" data-ng-model="userResultCluster.month"
+                        <select class="form-control date-input" data-ng-model="userResultCluster.month"
                             data-ng-options="month as month for month in months">
                         </select>
-                        <select class="form-control" data-ng-model="userResultCluster.year"
+                        <select class="form-control date-input" data-ng-model="userResultCluster.year"
                             data-ng-options="year as year for year in years">
                         </select>
                         <span class="inline-span"> &nbsp; &nbsp; Time: &nbsp;</span>
-                        <select class="form-control" data-ng-model="userResultCluster.hour"
+                        <select class="form-control date-input" data-ng-model="userResultCluster.hour"
                             data-ng-options="hour as hour for hour in hours">
                         </select>
-                        <select class="form-control" data-ng-model="userResultCluster.minute"
+                        <select class="form-control date-input" data-ng-model="userResultCluster.minute"
                             data-ng-options="minute as minute for minute in minutes">
                     </select>
                     </div>
                 </div>
                 <div class="row inline-row">
                     <div class="col-md-12">
-                        <span data-ng-repeat="clusterObservation in userResultCluster.resultCluster.resultClusterObservationHeadings">
+                        <span data-ng-repeat="clusterObservation in userResultCluster.resultCluster.resultClusterObservationHeadings" class="results-enter">
+                            <span>{{getObservationHeadingPlaceholder(clusterObservation.observationHeading)}}: </span>
                             <input type="text" data-ng-model="userResultCluster.values[clusterObservation.observationHeading.id]"
-                                placeholder="{{getObservationHeadingPlaceholder(clusterObservation.observationHeading)}}" class="form-control input-value" only-num-decimal/>
+                                class="form-control input-value" only-num-decimal/>
                         </span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <input type="text" data-ng-model="userResultCluster.comments"
-                               placeholder="Comments"
-                               class="form-control input-comments"/>
+                        <span>Comments:</span>
+                        <input type="text" data-ng-model="userResultCluster.comments" class="form-control input-comments"/>
                     </div>
                 </div>
             </div>
