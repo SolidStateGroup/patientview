@@ -34,7 +34,7 @@ function ($scope, $timeout, $modal, AuditService) {
             filterTextTimeout = $timeout(function () {
                 $scope.filterText = tempFilterText;
                 $scope.getItems();
-            }, 1000); // delay 1000 ms
+            }, 2000); // delay 2000 ms
         }
     });
 
