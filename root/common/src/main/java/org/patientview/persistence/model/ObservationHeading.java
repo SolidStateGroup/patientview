@@ -54,7 +54,7 @@ public class ObservationHeading extends AuditModel {
     }
 
     public ObservationHeading(Long id, String code, String heading, String name, String normalRange, String units,
-                              Double minGraph, Double maxGraph) {
+                              Double minGraph, Double maxGraph, String infoLink) {
         setId(id);
         setCode(code);
         setHeading(heading);
@@ -63,6 +63,7 @@ public class ObservationHeading extends AuditModel {
         setUnits(units);
         setMinGraph(minGraph);
         setMaxGraph(maxGraph);
+        setInfoLink(infoLink);
     }
 
     public String getCode() {
