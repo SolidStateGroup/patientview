@@ -590,6 +590,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         boolean isPatient = false;
 
+        boolean isLocked = user.getLocked() && !entityUser.getLocked();
+        boolean isUnLocked = !user.getLocked() && entityUser.getLocked();
+
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
             if (!groupRepository.exists(groupRole.getGroup().getId())) {
                 throw new ResourceNotFoundException("Group does not exist");
@@ -625,11 +628,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // audit locked or unlocked
-        if (user.getLocked() && !entityUser.getLocked()) {
+        if (isLocked) {
             auditService.createAudit(AuditActions.ACCOUNT_LOCKED, entityUser.getUsername(), getCurrentUser(),
                     entityUser.getId(), AuditObjectTypes.User, null);
         }
-        if (!user.getLocked() && entityUser.getLocked()) {
+
+        if (isUnLocked) {
             auditService.createAudit(AuditActions.ACCOUNT_UNLOCKED, entityUser.getUsername(), getCurrentUser(),
                     entityUser.getId(), AuditObjectTypes.User, null);
         }
