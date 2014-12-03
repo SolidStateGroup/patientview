@@ -3,7 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
-import org.patientview.api.model.Email;
+import org.patientview.persistence.model.Email;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;

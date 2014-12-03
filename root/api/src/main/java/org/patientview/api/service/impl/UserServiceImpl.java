@@ -3,7 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
-import org.patientview.api.model.Email;
+import org.patientview.persistence.model.Email;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;

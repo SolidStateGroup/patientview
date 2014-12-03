@@ -8,7 +8,7 @@ import org.hl7.fhir.instance.model.Enumeration;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Organization;
 import org.patientview.api.model.BaseGroup;
-import org.patientview.api.model.Email;
+import org.patientview.persistence.model.Email;
 import org.patientview.api.model.UnitRequest;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GroupService;

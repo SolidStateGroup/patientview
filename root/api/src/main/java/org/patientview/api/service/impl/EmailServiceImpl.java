@@ -1,6 +1,6 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.api.model.Email;
+import org.patientview.persistence.model.Email;
 import org.patientview.api.service.EmailService;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;

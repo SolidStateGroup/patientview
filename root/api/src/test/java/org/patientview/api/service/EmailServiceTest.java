@@ -5,7 +5,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.api.config.TestCommonConfig;
-import org.patientview.api.model.Email;
+import org.patientview.persistence.model.Email;
 import org.patientview.api.service.impl.EmailServiceImpl;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.test.util.TestUtils;
@@ -34,7 +34,7 @@ public class EmailServiceTest {
 
         Email email = new Email();
         email.setBody("test body");
-        email.setRecipients(new String[]{"nadim@solidstategroup.com","jamesr@solidstategroup.com","andrewmoffatt777@hotmail.com"});
+        email.setRecipients(new String[]{"nadim@solidstategroup.com", "jamesr@solidstategroup.com", "andrewmoffatt777@hotmail.com"});
         email.setSubject("test subject");
         email.setSenderEmail("no-reply@solidstategroup.com");
         email.setSenderName("PatientView");

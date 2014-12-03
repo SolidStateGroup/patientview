@@ -1,4 +1,4 @@
-package org.patientview.api.model;
+package org.patientview.persistence.model;
 
 /**
  * Created by jamesr@solidstategroup.com
