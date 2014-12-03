@@ -58,7 +58,9 @@ public class User extends BaseUser {
 
         if (user.getGroupRoles() != null) {
             for (org.patientview.persistence.model.GroupRole groupRole : user.getGroupRoles()) {
-                getGroupRoles().add(new GroupRole(groupRole));
+                if (groupRole.getGroup() != null) {
+                    getGroupRoles().add(new GroupRole(groupRole));
+                }
             }
         }
 
