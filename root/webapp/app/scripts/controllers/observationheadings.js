@@ -37,7 +37,7 @@ var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalIns
 angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope', '$timeout', '$modal', 'ObservationHeadingService', 'UserService', 'GroupService',
     function ($scope, $timeout, $modal, ObservationHeadingService, UserService, GroupService) {
 
-        $scope.itemsPerPage = 999;
+        $scope.itemsPerPage = 20;
         $scope.currentPage = 0;
         $scope.sortField = 'code';
         $scope.sortDirection = 'ASC';
