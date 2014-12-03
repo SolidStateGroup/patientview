@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService','UserService', 'AuthService', '$scope', '$rootScope', 'UtilService', 'localStorageService',
-    function (RouteService,UserService,AuthService,$scope,$rootScope,UtilService, localStorageService) {
+angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService','UserService', 'AuthService',
+    '$scope', '$rootScope', 'UtilService', 'localStorageService','$interval','$location',
+    function (RouteService,UserService,AuthService,$scope,$rootScope,UtilService,localStorageService,$interval,$location) {
 
     $scope.userdetails = $rootScope.loggedInUser;
 
@@ -42,6 +43,10 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
                         localStorageService.set('routes', userInformation.routes);
 
                         $scope.loading = false;
+
+                        $interval(function(){
+                            $location.path("/dashboard");
+                        },3000);
 
                     }, function(result) {
                         if (result.data) {
