@@ -3,12 +3,18 @@ package org.patientview.migration.service.impl;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.ObservationDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
+import org.patientview.migration.util.exception.JsonMigrationException;
+import org.patientview.migration.util.exception.JsonMigrationExistsException;
+import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.MigrationUser;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.MigrationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -33,6 +39,45 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
     @Inject
     private AdminDataMigrationService adminDataMigrationService;
 
+    private List<Group> groups;
+    private List<Role> roles;
+    private List<Lookup> lookups;
+    private List<Feature> features;
+
+    private @Value("${migration.username}") String migrationUsername;
+    private @Value("${migration.password}") String migrationPassword;
+    private @Value("${patientview.api.url}") String patientviewApiUrl;
+
+    private void init() throws JsonMigrationException {
+        try {
+            JsonUtil.setPatientviewApiUrl(patientviewApiUrl);
+            JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
+            lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
+            features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
+            roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
+            groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
+        } catch (JsonMigrationException e) {
+            LOG.error("Could not authenticate {} ", e.getCause());
+            throw new JsonMigrationException(e.getMessage());
+        } catch (JsonMigrationExistsException e) {
+            LOG.error("Could not authenticate {} ", e.getCause());
+        }
+    }
+
+    @Override
+    public void migrate() throws JsonMigrationException {
+
+        init();
+
+        List<Long> patientview1IdsMigrated = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
+        List<Long> patientview1IdsFailed = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED);
+
+        Set<Long> idSet = new HashSet<Long>(patientview1IdsMigrated);
+        idSet.addAll(patientview1IdsFailed);
+        List<Long> idList = new ArrayList<Long>(idSet);
+
+        LOG.info(idList.size() + " PATIENT_MIGRATED or OBSERVATION_FAILED records, updating observations");
+    }
 
     @Override
     public void bulkObservationCreate(String unitCode1, String unitCode2, Long usersToInsertObservations, Long observationCount) {

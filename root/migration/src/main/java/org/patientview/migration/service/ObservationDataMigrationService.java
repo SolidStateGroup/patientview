@@ -1,5 +1,6 @@
 package org.patientview.migration.service;
 
+import org.patientview.migration.util.exception.JsonMigrationException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,5 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ObservationDataMigrationService {
-    void bulkObservationCreate(String unitCode1, String unitCode2, Long usersToInsertObservations, Long observationCount);
+
+    void migrate() throws JsonMigrationException;
+
+    void bulkObservationCreate(String unitCode1, String unitCode2, Long usersToInsertObservations,
+                               Long observationCount);
 }

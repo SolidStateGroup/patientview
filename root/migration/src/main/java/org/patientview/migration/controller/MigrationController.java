@@ -2,6 +2,7 @@ package org.patientview.migration.controller;
 
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.GroupDataMigrationService;
+import org.patientview.migration.service.ObservationDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.persistence.model.enums.RoleName;
@@ -21,13 +22,16 @@ import java.util.concurrent.TimeUnit;
 public class MigrationController {
 
     @Inject
-    private UserDataMigrationService userDataMigrationService;
+    private AdminDataMigrationService adminDataMigrationService;
 
     @Inject
     private GroupDataMigrationService groupDataMigrationService;
 
     @Inject
-    private AdminDataMigrationService adminDataMigrationService;
+    private ObservationDataMigrationService observationDataMigrationService;
+
+    @Inject
+    private UserDataMigrationService userDataMigrationService;
 
     @Inject
     private ThreadPoolTaskExecutor asyncTaskExecutor;
@@ -77,9 +81,7 @@ public class MigrationController {
             public void run() {
                 try {
                     Date start = new Date();
-
                     userDataMigrationService.migrate();
-
                     LOG.info("Migration of Users took "
                             + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
                 } catch (JsonMigrationException jme) {
@@ -90,6 +92,25 @@ public class MigrationController {
 
         modelMap.addAttribute("statusMessage", "Started User Migration");
         return "users";
+    }
+
+    @RequestMapping(value = "/step5-observations", method = RequestMethod.GET)
+    public String doStep5Observations(ModelMap modelMap) throws JsonMigrationException {
+        asyncTaskExecutor.submit(new Runnable() {
+            public void run() {
+                try {
+                    Date start = new Date();
+                    observationDataMigrationService.migrate();
+                    LOG.info("Migration of Observations took "
+                            + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+                } catch (JsonMigrationException jme) {
+                    LOG.error("Observation Migration exception: {}", jme);
+                }
+            }
+        });
+
+        modelMap.addAttribute("statusMessage", "Started Observation Migration");
+        return "observations";
     }
 
     @RequestMapping(value = "/bulkusers", method = RequestMethod.GET)
