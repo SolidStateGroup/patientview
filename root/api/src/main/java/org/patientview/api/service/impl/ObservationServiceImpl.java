@@ -237,7 +237,13 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                             fhirObservation.setApplies(date);
                             fhirObservation.setName(json[1].replace("\"", ""));
-                            fhirObservation.setValue(json[2]);
+
+                            if (StringUtils.isNotEmpty(json[2])) {
+                                Double valueDouble = Double.parseDouble(json[2]);
+                                DecimalFormat format = new DecimalFormat("0.#");
+                                fhirObservation.setValue(format.format(valueDouble));
+                            }
+
                             if (StringUtils.isNotEmpty(json[3])) {
                                 fhirObservation.setComparator(json[3].replace("\"", ""));
                             }
