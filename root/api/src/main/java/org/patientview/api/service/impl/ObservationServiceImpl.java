@@ -494,29 +494,33 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throws FhirResourceException {
 
         Observation observation = new Observation();
-        observation.setApplies(applies);
+        if (applies != null) {
+            observation.setApplies(applies);
+        }
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
 
-        try {
-            Quantity quantity = new Quantity();
-            quantity.setValue(createDecimal(value));
-            quantity.setComparatorSimple(getComparator(comparator));
-            quantity.setUnitsSimple(observationHeading.getUnits());
-            observation.setValue(quantity);
-        } catch (ParseException pe) {
-            // parse exception, likely to be a string, e.g. comments store as text
-            CodeableConcept comment = new CodeableConcept();
-            comment.setTextSimple(value);
-            comment.addCoding().setDisplaySimple(observationHeading.getHeading());
-            observation.setValue(comment);
+        if (value != null) {
+            try {
+                Quantity quantity = new Quantity();
+                quantity.setValue(createDecimal(value));
+                quantity.setComparatorSimple(getComparator(comparator));
+                quantity.setUnitsSimple(observationHeading.getUnits());
+                observation.setValue(quantity);
+            } catch (ParseException pe) {
+                // parse exception, likely to be a string, e.g. comments store as text
+                CodeableConcept comment = new CodeableConcept();
+                comment.setTextSimple(value);
+                comment.addCoding().setDisplaySimple(observationHeading.getHeading());
+                observation.setValue(comment);
+            }
         }
 
         CodeableConcept name = new CodeableConcept();
         name.setTextSimple(observationHeading.getCode().toUpperCase());
         name.addCoding().setDisplaySimple(observationHeading.getHeading());
-
         observation.setName(name);
+
         observation.setIdentifier(createIdentifier(observationHeading.getCode()));
         observation.setCommentsSimple(comments);
 

@@ -1,17 +1,21 @@
 package org.patientview.migration.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.ObservationDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
 import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
-import org.patientview.persistence.model.Feature;
+import org.patientview.patientview.model.TestResult;
+import org.patientview.patientview.model.User;
+import org.patientview.patientview.model.UserMapping;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.MigrationUser;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.MigrationStatus;
+import org.patientview.repository.UserDao;
+import org.patientview.repository.UserMappingDao;
+import org.patientview.service.TestResultManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,10 +43,16 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
     @Inject
     private AdminDataMigrationService adminDataMigrationService;
 
+    @Inject
+    private TestResultManager testResultManager;
+
+    @Inject
+    private UserDao userDao;
+
+    @Inject
+    private UserMappingDao userMappingDao;
+
     private List<Group> groups;
-    private List<Role> roles;
-    private List<Lookup> lookups;
-    private List<Feature> features;
 
     private @Value("${migration.username}") String migrationUsername;
     private @Value("${migration.password}") String migrationPassword;
@@ -52,9 +62,6 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
         try {
             JsonUtil.setPatientviewApiUrl(patientviewApiUrl);
             JsonUtil.token = JsonUtil.authenticate(migrationUsername, migrationPassword);
-            lookups = JsonUtil.getStaticDataLookups(JsonUtil.pvUrl + "/lookup");
-            features = JsonUtil.getStaticDataFeatures(JsonUtil.pvUrl + "/feature");
-            roles = JsonUtil.getRoles(JsonUtil.pvUrl + "/role");
             groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
         } catch (JsonMigrationException e) {
             LOG.error("Could not authenticate {} ", e.getCause());
@@ -66,17 +73,78 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
 
     @Override
     public void migrate() throws JsonMigrationException {
-
         init();
 
-        List<Long> patientview1IdsMigrated = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
-        List<Long> patientview1IdsFailed = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED);
+        ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
+
+        List<Long> patientview1IdsMigrated
+                = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
+        List<Long> patientview1IdsFailed
+                = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED);
 
         Set<Long> idSet = new HashSet<Long>(patientview1IdsMigrated);
         idSet.addAll(patientview1IdsFailed);
         List<Long> idList = new ArrayList<Long>(idSet);
 
         LOG.info(idList.size() + " PATIENT_MIGRATED or OBSERVATION_FAILED records, updating observations");
+
+        for (Long patientview1Id : idList) {
+            MigrationUser migrationUser = new MigrationUser();
+            migrationUser.setPatientview1Id(patientview1Id);
+            migrationUser.setPatient(true);
+            migrationUser.setDeleteExistingTestObservations(true);
+            migrationUser.setObservationStartDate(0L);
+            migrationUser.setObservationEndDate(new Date().getTime());
+
+            // get pv1 user based on id
+            User user = userDao.get(patientview1Id);
+            if (user != null) {
+
+                // get all user mappings, ignoring those with no/PATIENT unitcode or no nhs number
+                for (UserMapping userMapping : userMappingDao.getAll(user.getUsername())) {
+                    if (StringUtils.isNotEmpty(userMapping.getUnitcode())
+                            && !userMapping.getUnitcode().equalsIgnoreCase("PATIENT")
+                            && StringUtils.isNotEmpty(userMapping.getNhsno())) {
+
+                        String nhsNo = userMapping.getNhsno();
+                        String unitcode = userMapping.getUnitcode();
+
+                        for (TestResult testResult : testResultManager.get(nhsNo, unitcode)) {
+                            Group group = getGroupByCode(testResult.getUnitcode());
+
+                            if (group != null && StringUtils.isNotEmpty(testResult.getValue())) {
+                                FhirObservation observation = new FhirObservation();
+                                observation.setValue(testResult.getValue());
+
+                                if (testResult.getDatestamped() != null) {
+                                    observation.setApplies(testResult.getDatestamped().getTime());
+                                }
+                                if (StringUtils.isNotEmpty(testResult.getTestcode())) {
+                                    observation.setName(testResult.getTestcode().toLowerCase());
+                                }
+                                if (StringUtils.isNotEmpty(testResult.getPrepost())) {
+                                    observation.setComments(testResult.getPrepost());
+                                }
+
+                                observation.setGroup(group);
+                                observation.setIdentifier(nhsNo);
+                                migrationUser.getObservations().add(observation);
+                            }
+                        }
+                    }
+                }
+
+                concurrentTaskExecutor.submit(new AsyncMigrateObservationTask(migrationUser));
+            }
+        }
+
+        try {
+            // wait forever until all threads are finished
+            concurrentTaskExecutor.shutdown();
+            concurrentTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
     }
 
     @Override
@@ -150,5 +218,14 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
+    }
+
+    private Group getGroupByCode(String code) {
+        for (Group group : groups) {
+            if (group.getCode().equalsIgnoreCase(code)) {
+                return group;
+            }
+        }
+        return null;
     }
 }

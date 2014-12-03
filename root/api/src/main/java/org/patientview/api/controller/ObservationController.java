@@ -3,9 +3,12 @@ package org.patientview.api.controller;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
+import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.ObservationService;
+import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.MigrationUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import javax.persistence.EntityExistsException;
 import java.util.List;
 
 /**
@@ -28,6 +32,9 @@ public class ObservationController extends BaseController<ObservationController>
 
     @Inject
     private ObservationService observationService;
+
+    @Inject
+    private MigrationService migrationService;
 
     private static final String DEFAULT_SORT = "appliesDateTime";
     private static final String DEFAULT_SORT_DIRECTION = "DESC";
@@ -55,5 +62,14 @@ public class ObservationController extends BaseController<ObservationController>
                                   @RequestBody List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException {
         observationService.addUserResultClusters(userId, userResultClusters);
+    }
+
+    // Migration Only
+    @RequestMapping(value = "/migrate/observations", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void migrateObservations(@RequestBody MigrationUser migrationUser)
+            throws ResourceNotFoundException, EntityExistsException, MigrationException {
+        migrationService.migrateObservations(migrationUser);
     }
 }

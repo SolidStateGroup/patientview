@@ -359,12 +359,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     public void migrateTestObservations(Long userId, MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
-        //LOG.info("3: " + new Date().getTime());
-
         User entityUser = userService.get(userId);
         Set<FhirLink> fhirLinks = entityUser.getFhirLinks();
 
-        //LOG.info("4: " + new Date().getTime());
         if (fhirLinks == null) {
             fhirLinks = new HashSet<>();
         } else {
@@ -372,8 +369,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 deleteExistingTestObservationData(migrationUser, fhirLinks);
             }
         }
-
-        //LOG.info("5: " + new Date().getTime());
 
         // set up map of observation headings
         if (observationHeadingMap == null) {
@@ -434,7 +429,6 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                                          Set<FhirLink> fhirLinks, HashMap<String, Identifier> identifierMap)
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
-        //LOG.info("start migration " + new Date().getTime());
         List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
         Long start = migrationUser.getObservationStartDate();
         Long end = migrationUser.getObservationEndDate();
@@ -450,12 +444,14 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             nonTestObservationTypes.add(observationType.toString());
         }
 
-        //LOG.info("6: " + new Date().getTime());
         // store test Observations (results), creating FHIR Patients and FhirLinks if not present
         for (FhirObservation fhirObservation : migrationUser.getObservations()) {
 
             // only add test observations between start and end
-            if (fhirObservation.getApplies().getTime() >= start && fhirObservation.getApplies().getTime() <= end
+            if (fhirObservation.getApplies() != null
+                    && fhirObservation.getApplies().getTime() >= start
+                    && fhirObservation.getApplies().getTime() <= end
+                    && StringUtils.isNotEmpty(fhirObservation.getName())
                     && !nonTestObservationTypes.contains(fhirObservation.getName().toUpperCase())) {
 
                 // get identifier for this user and observation heading for this observation
@@ -468,7 +464,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 }
 
                 if (observationHeading == null) {
-                    throw new FhirResourceException("ObservationHeading not found");
+                    throw new FhirResourceException("ObservationHeading not found: " + fhirObservation.getName());
                 }
 
                 FhirLink fhirLink = getFhirLink(fhirObservation.getGroup(), fhirObservation.getIdentifier(), fhirLinks);
@@ -484,9 +480,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
         }
 
-        //LOG.info("7: " + new Date().getTime());
         insertObservations(fhirDatabaseObservations);
-        //LOG.info("8: " + new Date().getTime());
     }
 
     // natively insert non test observations

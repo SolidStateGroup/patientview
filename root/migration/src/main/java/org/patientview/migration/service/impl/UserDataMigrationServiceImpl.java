@@ -56,7 +56,6 @@ import org.patientview.repository.DiagnosticDao;
 import org.patientview.repository.EmailVerificationDao;
 import org.patientview.repository.PatientDao;
 import org.patientview.repository.SpecialtyUserRoleDao;
-import org.patientview.repository.TestResultDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
 import org.patientview.service.DiagnosisManager;
@@ -64,7 +63,6 @@ import org.patientview.service.EyeCheckupManager;
 import org.patientview.service.FootCheckupManager;
 import org.patientview.service.LetterManager;
 import org.patientview.service.MedicineManager;
-import org.patientview.service.PatientManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,25 +95,19 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private UserDao userDao;
 
     @Inject
+    private UserMappingDao userMappingDao;
+
+    @Inject
     private AboutmeDao aboutMeDao;
 
     @Inject
     private EmailVerificationDao emailVerificationDao;
 
     @Inject
-    private TestResultDao testResultDao;
-
-    @Inject
-    private UserMappingDao userMappingDao;
-
-    @Inject
     private DiagnosisManager diagnosisManager;
 
     @Inject
     private DiagnosticDao diagnosticDao;
-
-    @Inject
-    private PatientManager patientManager;
 
     @Inject
     private PatientDao patientDao;

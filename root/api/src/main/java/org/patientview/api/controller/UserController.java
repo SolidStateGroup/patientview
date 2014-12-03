@@ -138,15 +138,6 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(migrationService.migrateUser(migrationUser), HttpStatus.CREATED);
     }
 
-    // Migration Only
-    @RequestMapping(value = "/migrate/observations", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public void migrateObservations(@RequestBody MigrationUser migrationUser)
-            throws ResourceNotFoundException, EntityExistsException, MigrationException {
-        migrationService.migrateObservations(migrationUser);
-    }
-
     // Migration Only, used to get list of UserMigration migration status objects by status
     @RequestMapping(value = "/usermigration/{migrationstatus}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
