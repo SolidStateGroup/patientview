@@ -109,13 +109,16 @@
                 <h3><span class="badge aqua pull-left"></span>Your Settings</h3>
             </div>
             <div class="user-details content-panel">
-                <a href="/#/settings" class="btn blue pull-right">Edit</a>
                 <ul class="unstyled">
                     <li><h4>Username: {{loggedInUser.username}}</h4></li>
                     <li data-ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>
                     <li data-ng-show="loggedInUser.contactNumber">Phone: {{loggedInUser.contactNumber}}</li>
                     <li data-ng-show="!loggedInUser.contactNumber">Phone: Not Set</li>
                 </ul>
+                <br/>
+                <div class="news-actions">
+                    <a href="/#/settings" class="btn blue">Change Your Settings/Password</a>
+                </div>
             </div>
             <div class="news-container">
                 <div class="panel-header content-panel lowlight">
