@@ -9,6 +9,10 @@
     <h1>Groups <button class="btn blue" data-ng-click="openModalNewGroup('lg')" data-ng-show="permissions.canCreateGroup">Create New</button></h1>
     <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
+    <p>Groups are collections of interrelated users e.g. at the same hospital unit, within the same disease group, etc.
+        Configure the details of your group(s) here. All addresses, contact information and links can be seen by group
+        users when they have logged in.</p>
+
     <div data-ng-show="!fatalErrorMessage && !loading" data-ng-cloak>
         <!-- new group modal template -->
         <script type="text/ng-template" id="newGroupModal.html">

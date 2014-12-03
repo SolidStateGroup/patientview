@@ -35,6 +35,10 @@
         </div>
         <div class="group-add-container add-container" data-ng-show="allGroups.length > 0 ">
             <label class="inner-title">Add New Group &amp; Role </label>
+            <p>Choose which groups/roles this user should belong to. More information
+                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+            </p>
+            <br/>
             <div class="select-add-group">
                 <select class="form-control" data-ng-model="editUser.groupToAdd"
                     data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in allGroups | orderBy:[orderGroups,'name']">
@@ -56,6 +60,7 @@
     <div class="col-md-6">
         <div class="added-container">
             <label class="inner-title">Features</label>
+            <p>Features are additional PatientView functions that can be enabled per user account</p>
             <div class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures">
                 <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
                 <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userFormNew, editUser, feature)" >Delete</a></span></div>

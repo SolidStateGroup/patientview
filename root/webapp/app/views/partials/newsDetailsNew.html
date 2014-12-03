@@ -38,6 +38,9 @@
     <hr/>
     <div class="col-md-6" data-ng-show="!modalLoading">
         <label class="inner-title">Groups &amp; Roles </label>
+        <p>Who should be able to see this News item? Select, then click Add.
+            <br/>You can add multiple groups and roles.
+            <br/>When you've finished, click "Create News Item"</p>
         <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="newsLink in newNews.newsLinks" data-ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">
             <li class="group-list-name pull-left">
                 <span class="group-list-name" data-ng-show="newsLink.group">{{newsLink.group.name}}</span>

@@ -60,6 +60,10 @@
     <div class="col-md-6 grey-right-border">
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles </label>
+            <p>Choose which groups/roles this user should belong to. More information
+                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+            </p>
+            <br/>
             <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles"
                 data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
                 <li class="group-list-delete pull-right"
@@ -100,6 +104,7 @@
     <div class="col-md-6 hidden">
         <div class="added-container">
             <label class="inner-title">Features</label>
+            <p>Features are additional PatientView functions that can be enabled per user account</p>
             <div class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures" data-ng-hide="feature.optInStatus === false">
                 <div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>
                 <div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userForm, editUser, feature)" >Delete</a></span></div>
