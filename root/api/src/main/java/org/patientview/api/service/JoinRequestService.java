@@ -2,6 +2,7 @@ package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.JoinRequest;
@@ -26,7 +27,7 @@ public interface JoinRequestService {
     @UserOnly
     BigInteger getCount(Long userId) throws ResourceNotFoundException;
 
-    JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException;
+    JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException, ResourceForbiddenException;
 
     void migrate(List<JoinRequest> joinRequests);
 

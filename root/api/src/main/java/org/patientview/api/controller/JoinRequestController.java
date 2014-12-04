@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.service.JoinRequestService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.JoinRequest;
@@ -37,7 +38,8 @@ public class JoinRequestController extends BaseController<JoinRequestController>
 
     @RequestMapping(value = "/public/joinrequest", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void addJoinRequest(@RequestBody JoinRequest joinRequest) throws ResourceNotFoundException {
+    public void addJoinRequest(@RequestBody JoinRequest joinRequest)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         joinRequestService.add(joinRequest);
     }
 

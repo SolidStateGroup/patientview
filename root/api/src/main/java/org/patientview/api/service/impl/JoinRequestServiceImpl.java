@@ -1,6 +1,8 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.service.CaptchaService;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.JoinRequestService;
@@ -54,10 +56,17 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
     private EmailService emailService;
 
     @Inject
+    private CaptchaService captchaService;
+
+    @Inject
     private Properties properties;
 
     @Override
-    public JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException {
+    public JoinRequest add(JoinRequest joinRequest) throws ResourceNotFoundException, ResourceForbiddenException {
+
+        if (captchaService.verify(joinRequest.getCaptcha())) {
+            throw new ResourceForbiddenException("Captcha exception");
+        }
 
         Group group = findGroup(joinRequest.getGroupId());
 
