@@ -23,10 +23,13 @@ public class DataUtils {
     }
 
     public static Resource getResource(final JSONObject bundle) throws Exception {
-        JSONArray jsonArray  = (JSONArray) bundle.get("entry");
-        JSONObject element = (JSONObject) jsonArray.get(0);
-
-        return jsonParser.parse(new ByteArrayInputStream(element.get("content").toString().getBytes()));
+        if (bundle.get("entry") != JSONObject.NULL) {
+            JSONArray jsonArray  = (JSONArray) bundle.get("entry");
+            JSONObject element = (JSONObject) jsonArray.get(0);
+            return jsonParser.parse(new ByteArrayInputStream(element.get("content").toString().getBytes()));
+        } else {
+            return null;
+        }
     }
 
 }

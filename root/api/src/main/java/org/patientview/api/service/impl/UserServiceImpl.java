@@ -543,6 +543,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
+    public void deleteFhirLinks(Long userId) {
+        User user = userRepository.findOne(userId);
+        for (FhirLink fhirLink : user.getFhirLinks()) {
+            fhirLinkRepository.delete(fhirLink.getId());
+        }
+
+        user.setFhirLinks(new HashSet<FhirLink>());
+        userRepository.save(user);
+    }
+
+    @Override
     public org.patientview.api.model.User getByUsername(String username) {
         User foundUser = userRepository.findByUsernameCaseInsensitive(username);
         if (foundUser == null) {

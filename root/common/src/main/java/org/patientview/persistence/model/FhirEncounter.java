@@ -19,6 +19,7 @@ public class FhirEncounter extends BaseModel {
 
     // only used during migration
     private String identifier;
+    private Group group;
 
     public FhirEncounter() {
     }
@@ -54,5 +55,13 @@ public class FhirEncounter extends BaseModel {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

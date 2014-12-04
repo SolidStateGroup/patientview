@@ -125,4 +125,6 @@ public interface UserService {
     boolean currentUserCanGetUser(User user);
 
     boolean currentUserCanSwitchToUser(User user);
+
+    void deleteFhirLinks(Long userId);
 }

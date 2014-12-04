@@ -65,7 +65,7 @@
                         <td class="forced-width">Transplant Status</td>
                         <td>
                             <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS'">
-                                {{encounter.status}}
+                                {{encounter.status}}<br/>
                             </span>
                         </td>
                     </tr>

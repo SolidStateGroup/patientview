@@ -308,12 +308,10 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             // wipe existing patient data, observation data and fhir links to start with fresh data
             deleteExistingPatientData(fhirLinks);
             deleteAllExistingObservationData(fhirLinks);
-
-            for (FhirLink fhirLink : entityUser.getFhirLinks()) {
-                fhirLinkService.delete(fhirLink.getId());
-            }
-            entityUser.setFhirLinks(new HashSet<FhirLink>());
+            userService.deleteFhirLinks(userId);
             fhirLinks = new HashSet<>();
+            entityUser.setFhirLinks(new HashSet<FhirLink>());
+
         }
 
         // set up map of observation headings
@@ -569,31 +567,29 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             throws ResourceNotFoundException, FhirResourceException, ResourceForbiddenException {
 
         // store Encounters (treatment and transplant status)
-        // note: the unit that provided this information is not stored in PatientView 1, attach to first fhirlink
         for (FhirEncounter fhirEncounter : migrationUser.getEncounters()) {
             Identifier identifier = identifierMap.get(fhirEncounter.getIdentifier());
-            Group firstUserGroup = migrationUser.getUser().getGroupRoles().iterator().next().getGroup();
-            FhirLink fhirLink = getFhirLink(firstUserGroup, fhirEncounter.getIdentifier(), fhirLinks);
-            Group entityGroup = groupRepository.findOne(firstUserGroup.getId());
+            Group entityGroup = groupRepository.findOne(fhirEncounter.getGroup().getId());
 
-            if (entityGroup != null) {
-                if (fhirLink == null) {
-                    fhirLink = createPatientAndFhirLink(entityUser, entityGroup, identifier);
-                    fhirLinks.add(fhirLink);
-                }
-
-                // create organization in FHIR for this group if it doesn't exist
-                UUID organizationUuid;
-
-                List<UUID> organizationUuids = groupService.getOrganizationLogicalUuidsByCode(entityGroup.getCode());
-                if (CollectionUtils.isEmpty(organizationUuids)) {
-                    organizationUuid = groupService.addOrganization(entityGroup);
-                } else {
-                    organizationUuid = organizationUuids.get(0);
-                }
-
-                encounterService.addEncounter(fhirEncounter, fhirLink, organizationUuid);
+            FhirLink fhirLink
+                    = getFhirLink(fhirEncounter.getGroup(), fhirEncounter.getIdentifier(), fhirLinks);
+            if (fhirLink == null) {
+                fhirLink = createPatientAndFhirLink(entityUser, fhirEncounter.getGroup(), identifier);
+                fhirLinks.add(fhirLink);
             }
+
+            UUID organizationUuid;
+
+            List<UUID> organizationUuids
+                    = groupService.getOrganizationLogicalUuidsByCode(entityGroup.getCode());
+
+            if (CollectionUtils.isEmpty(organizationUuids)) {
+                organizationUuid = groupService.addOrganization(entityGroup);
+            } else {
+                organizationUuid = organizationUuids.get(0);
+            }
+
+            encounterService.addEncounter(fhirEncounter, fhirLink, organizationUuid);
         }
     }
 

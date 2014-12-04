@@ -166,7 +166,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
-            if (!oldUser.getUsername().endsWith("-GP")) {
+            if (!oldUser.getUsername().endsWith("-GP") && oldUser.getUsername().equals("BillyE")) {
                 Set<String> identifiers = new HashSet<String>();
 
                 // basic user information
@@ -436,6 +436,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (StringUtils.isNotEmpty(pv1PatientRecord.getTreatment())) {
             FhirEncounter treatment = new FhirEncounter();
             treatment.setEncounterType(EncounterTypes.TREATMENT.toString());
+            treatment.setGroup(unit);
             treatment.setStatus(pv1PatientRecord.getTreatment());
             treatment.setIdentifier(pv1PatientRecord.getNhsno());
             migrationUser.getEncounters().add(treatment);
@@ -445,6 +446,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (StringUtils.isNotEmpty(pv1PatientRecord.getTransplantstatus())) {
             FhirEncounter transplant = new FhirEncounter();
             transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS.toString());
+            transplant.setGroup(unit);
             transplant.setStatus(pv1PatientRecord.getTransplantstatus());
             transplant.setIdentifier(pv1PatientRecord.getNhsno());
             migrationUser.getEncounters().add(transplant);
