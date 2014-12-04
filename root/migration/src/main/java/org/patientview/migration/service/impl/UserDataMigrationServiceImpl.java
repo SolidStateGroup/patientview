@@ -1140,7 +1140,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setFailedLogonAttempts(user.getFailedlogons());
 
         if (StringUtils.isEmpty(user.getEmail())) {
-            newUser.setEmail("unknown@patientview.org");
+            newUser.setEmail("");
         } else{
             newUser.setEmail(user.getEmail());
         }

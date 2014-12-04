@@ -19,6 +19,11 @@
 
 <div data-ng-show="!loading">
     <h1>Contact Your Unit</h1>
+    <p>
+        Refer to contact details below or
+        <a href="" data-ng-click="openModalContactUnit(group)">send a secure message now in PatientView</a>.
+        Please check that the email we hold for you is correct so that you will get notification of replies.
+    </p>
     <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
     <div class="patient-details">
         <div class="">
@@ -36,11 +41,6 @@
                         <div class="panel panel-default">
                             <div class="panel-heading"><h3>{{group.name}}</h3></div>
                             <div class="panel-body">
-                                <p>
-                                    Refer to contact details below or
-                                    <a href="" data-ng-click="openModalContactUnit(group)">send a secure message now in PatientView</a>.
-                                    Please check that the email we hold for you is correct so that you will get notification of replies.
-                                </p>
                                 <div data-ng-show="group.address1">
                                     <h4>Address</h4>
                                     <table class="">
@@ -52,24 +52,34 @@
                                         <tr><td>{{group.postcode}}</td></tr>
                                     </table>
                                 </div>
-                                <h4>Contact Points</h4>
-                                <table>
-                                    <tr data-ng-repeat="contactPoint in group.contactPoints">
-                                        <td>{{contactPoint.contactPointType.description}}: &nbsp;&nbsp;</td>
-                                        <td ng-bind-html="addAIfRequired(contactPoint.content)"></td>
-                                    </tr>
-                                </table>
-                                <h4 data-ng-show="group.locations">Additional Locations</h4>
+
+                                <div data-ng-show="group.contactPoints">
+                                    <h4>Contact Points</h4>
+                                    <table>
+                                        <tr data-ng-repeat="contactPoint in group.contactPoints">
+                                            <td>{{contactPoint.contactPointType.description}}: &nbsp;&nbsp;</td>
+                                            <td ng-bind-html="addAIfRequired(contactPoint.content)"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
                                 <div data-ng-show="group.locations">
+                                    <br/>
+                                    <h4>Additional Locations</h4>
                                     <div class="locations-list" data-ng-repeat="location in group.locations">
-                                        <strong>{{location.name}}</strong>
+                                        <strong>{{location.label}}</strong>
                                         <table>
+                                            <tr><td>Name:</td><td> {{location.name}}</td></tr>
                                             <tr><td>Phone:</td><td> {{location.phone}}</td></tr>
                                             <tr><td>Address: &nbsp;&nbsp;</td><td> {{location.address}}</td></tr>
                                             <tr><td>Web:</td><td ng-bind-html="addAIfRequired(location.web)"></td></tr>
                                             <tr><td>Email:</td><td ng-bind-html="addAIfRequired(location.email)"></td></tr>
                                         </table>
                                     </div>
+                                </div>
+
+                                <div data-ng-show="!group.address1 && !group.contactPoints.length && !group.locations.length">
+                                    <p>There is no contact information available for this group</p>
                                 </div>
                             </div>
                         </div>
