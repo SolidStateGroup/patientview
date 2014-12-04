@@ -510,7 +510,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api',
-                        reCaptchaPublicKey: ''
+                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH'
                     }
                 }
             },
