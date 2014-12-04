@@ -166,7 +166,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
-            if (!oldUser.getUsername().endsWith("-GP") && oldUser.getUsername().equals("BillyE")) {
+            if (!oldUser.getUsername().endsWith("-GP") /*&& oldUser.getUsername().equals("BillyE")*/) {
                 Set<String> identifiers = new HashSet<String>();
 
                 // basic user information
@@ -341,6 +341,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     }
 
     private MigrationUser addPatientTableData(MigrationUser migrationUser, Patient pv1PatientRecord, Group unit) {
+
+        // date of birth in user object
+        if (pv1PatientRecord.getDateofbirth() != null) {
+            migrationUser.getUser().setDateOfBirth(pv1PatientRecord.getDateofbirth());
+        }
 
         // - basic patient data
         FhirPatient patient = new FhirPatient();
@@ -1148,10 +1153,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
         newUser.setLastLogin(user.getLastlogon());
-        if (StringUtils.isNotEmpty(user.getDateofbirthFormatted())) {
-            newUser.setDateOfBirth(new Date(user.getDateofbirthFormatted()));
-        }
-
         newUser.setIdentifiers(new HashSet<Identifier>());
         newUser.setGroupRoles(new HashSet<GroupRole>());
         newUser.setUserFeatures(new HashSet<UserFeature>());
