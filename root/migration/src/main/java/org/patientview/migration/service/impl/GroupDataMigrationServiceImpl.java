@@ -218,6 +218,11 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
         }
     }
 
+    @Override
+    public int getGroupCount() {
+        return unitDao.getAll(false).size();
+    }
+
     private void callApiCreateGroupStatistics(Group group, List<GroupStatistic> statistics) {
         String url = JsonUtil.pvUrl + "/group/" + group.getId() + "/migratestatistics/";
 

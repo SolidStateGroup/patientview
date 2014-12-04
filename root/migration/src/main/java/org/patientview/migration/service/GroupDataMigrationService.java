@@ -14,4 +14,6 @@ public interface GroupDataMigrationService {
     void createGroups() throws JsonMigrationException;
 
     void createStatistics() throws JsonMigrationException;
+
+    int getGroupCount();
 }
