@@ -92,39 +92,45 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
         for (Unit unit : unitDao.getAll(false)) {
 
-            // get group features (added individually with API call)
-            Set<Feature> unitFeatures = getUnitFeatures(unit);
+            // only copy units of the right sourcetype
+            if (unit.getSourceType().equalsIgnoreCase("renalunit")
+                    || unit.getSourceType().equalsIgnoreCase("diabetesunit")
+                    || unit.getSourceType().equalsIgnoreCase("radargroup")) {
 
-            // Create the unit
-            Group group = createGroup(unit);
+                // get group features (added individually with API call)
+                Set<Feature> unitFeatures = getUnitFeatures(unit);
 
-            // set group contact points (added to Group object)
-            group.setContactPoints(createGroupContactPoints(unit));
+                // Create the unit
+                Group group = createGroup(unit);
 
-            // set group additional locations (added to Group object)
-            group.setLocations(createGroupLocations(unit));
+                // set group contact points (added to Group object)
+                group.setContactPoints(createGroupContactPoints(unit));
 
-            // call API to create unit, get the id
-            Long groupId = callApiCreateGroup(group);
+                // set group additional locations (added to Group object)
+                group.setLocations(createGroupLocations(unit));
 
-            if (groupId != null) {
-                group = callApiGetGroup(groupId);
+                // call API to create unit, get the id
+                Long groupId = callApiCreateGroup(group);
 
-                // Create the features
-                if (CollectionUtils.isNotEmpty(unitFeatures)) {
-                    for (Feature feature : unitFeatures) {
-                        if (group != null) {
-                            callApiCreateGroupFeature(group, feature);
+                if (groupId != null) {
+                    group = callApiGetGroup(groupId);
+
+                    // Create the features
+                    if (CollectionUtils.isNotEmpty(unitFeatures)) {
+                        for (Feature feature : unitFeatures) {
+                            if (group != null) {
+                                callApiCreateGroupFeature(group, feature);
+                            }
                         }
                     }
-                }
 
-                // Assign a specialty (will likely give HTTP conflict as probably already exists)
-                Group parentGroup = getGroupParent(unit);
-                if (parentGroup != null && group != null) {
-                    callApiCreateParentGroup(group, parentGroup);
-                } else {
-                    LOG.error("Unable to find parent group");
+                    // Assign a specialty (will likely give HTTP conflict as probably already exists)
+                    Group parentGroup = getGroupParent(unit);
+                    if (parentGroup != null && group != null) {
+                        callApiCreateParentGroup(group, parentGroup);
+                    } else {
+                        LOG.error("Unable to find parent group");
+                    }
                 }
             }
         }
@@ -739,9 +745,10 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
         group.setVisible(true);
 
         // group type
-        if (unit.getSourceType().equalsIgnoreCase("renalunit")) {
+        if (unit.getSourceType().equalsIgnoreCase("renalunit")
+                || unit.getSourceType().equalsIgnoreCase("diabetesunit")) {
             group.setGroupType(getLookupByName(GroupTypes.UNIT.toString()));
-        } else {
+        } else if (unit.getSourceType().equalsIgnoreCase("radargroup")) {
             group.setGroupType(getLookupByName(GroupTypes.DISEASE_GROUP.toString()));
         }
 
