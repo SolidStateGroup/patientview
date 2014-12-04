@@ -60,6 +60,9 @@ public class JoinRequestServiceTest {
     EmailService emailService;
 
     @Mock
+    CaptchaService captchaService;
+
+    @Mock
     Properties properties;
 
     @InjectMocks
