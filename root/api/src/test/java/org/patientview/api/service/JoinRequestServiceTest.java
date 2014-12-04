@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Email;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.api.service.impl.JoinRequestServiceImpl;
@@ -80,7 +81,7 @@ public class JoinRequestServiceTest {
      * @throws ResourceNotFoundException
      */
     @Test
-    public void testAddJoinRequest() throws ResourceNotFoundException, MessagingException {
+    public void testAddJoinRequest() throws ResourceNotFoundException, MessagingException, ResourceForbiddenException {
 
         Group group = TestUtils.createGroup("TestGroup");
         group.setContactPoints(new HashSet<ContactPoint>());
@@ -112,7 +113,7 @@ public class JoinRequestServiceTest {
      * @throws ResourceNotFoundException
      */
     @Test(expected = ResourceNotFoundException.class)
-    public void testAddJoinRequest_invalidGroup() throws ResourceNotFoundException {
+    public void testAddJoinRequest_invalidGroup() throws ResourceNotFoundException, ResourceForbiddenException {
         Group group = TestUtils.createGroup("TestGroup");
 
         JoinRequest joinRequest = new JoinRequest();
@@ -135,7 +136,7 @@ public class JoinRequestServiceTest {
      * Fail: Appropriate service method not called
      */
     @Test
-    public void testGetJoinRequestUnitAdmin_validGroup() throws ResourceNotFoundException {
+    public void testGetJoinRequestUnitAdmin_validGroup() throws ResourceNotFoundException, ResourceForbiddenException {
 
         User user = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(user, RoleName.UNIT_ADMIN);
