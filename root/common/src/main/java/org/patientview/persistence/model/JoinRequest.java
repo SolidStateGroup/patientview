@@ -66,6 +66,9 @@ public class JoinRequest extends BaseModel {
     @Transient
     private Long groupId;
 
+    @Transient
+    private String captcha;
+
     public String getForename() {
         return forename;
     }
@@ -160,5 +163,13 @@ public class JoinRequest extends BaseModel {
 
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
+    }
+
+    public String getCaptcha() {
+        return captcha;
+    }
+
+    public void setCaptcha(String captcha) {
+        this.captcha = captcha;
     }
 }

@@ -22,6 +22,7 @@ public class JoinRequest {
     private Date completionDate;
     private User completedBy;
     private String notes;
+    private String captcha;
 
     public JoinRequest() {
 
@@ -145,5 +146,13 @@ public class JoinRequest {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getCaptcha() {
+        return captcha;
+    }
+
+    public void setCaptcha(String captcha) {
+        this.captcha = captcha;
     }
 }

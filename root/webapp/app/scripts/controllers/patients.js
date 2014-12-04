@@ -513,7 +513,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
         // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN ...
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin) {
-            // to delete group membership in edit UI
             $scope.permissions.canDeleteGroupRolesDuringEdit = true;
             // to see the option to permanently delete patients
             $scope.permissions.canDeleteUsers = true;
@@ -521,15 +520,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
         // only allow GLOBAL_ADMIN or SPECIALTY_ADMIN or UNIT_ADMIN ...
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
-            // to see the option to delete patients in menu
             $scope.permissions.showDeleteMenuOption = true;
-            // can add patients
             $scope.permissions.canCreatePatients = true;
-            // can edit patients
             $scope.permissions.canEditPatients = true;
-            // can reset passwords
             $scope.permissions.canResetPasswords = true;
-            // can send verification emails
             $scope.permissions.canSendVerificationEmails = true;
         }
 

@@ -425,7 +425,8 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'development',
-                        apiEndpoint: 'http://patientview201.apiary-mock.com/api'
+                        apiEndpoint: 'http://patientview201.apiary-mock.com/api',
+                        reCaptchaPublicKey: ''
                     }
                 }
             },
@@ -436,7 +437,8 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
+                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api',
+                        reCaptchaPublicKey: ''
                     }
                 }
             },
@@ -447,19 +449,20 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                        apiEndpoint: 'http://localhost:' + port + '/api'
+                        apiEndpoint: 'http://localhost:' + port + '/api',
+                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH'
                     }
                 }
             },
-            apiie: {
+            apiproduction: {
                 options: {
                     dest: '<%= yeoman.app %>/scripts/config.js'
                 },
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: '/api'
+                        apiEndpoint: '/api',
+                        reCaptchaPublicKey: ''
                     }
                 }
             },
@@ -470,7 +473,8 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: 'http://10.0.2.2:8080/api'
+                        apiEndpoint: 'http://10.0.2.2:8080/api',
+                        reCaptchaPublicKey: ''
                     }
                 }
             },
@@ -481,7 +485,8 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'development',
-                        apiEndpoint: 'http://patientview201.apiary-mock.com/api'
+                        apiEndpoint: 'http://patientview201.apiary-mock.com/api',
+                        reCaptchaPublicKey: ''
                     }
                 }
             },
@@ -492,8 +497,8 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        //apiEndpoint: 'http://dev.solidstategroup.com:7865/api'
-                        apiEndpoint: 'http://localhost:8089/api'
+                        apiEndpoint: 'http://localhost:8089/api',
+                        reCaptchaPublicKey: ''
                     }
                 }
             },
@@ -504,7 +509,8 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api'
+                        apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api',
+                        reCaptchaPublicKey: ''
                     }
                 }
             },
@@ -515,46 +521,12 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: 'http://patientview2.staging.solidstategroup.com/api'
+                        apiEndpoint: 'http://patientview2.staging.solidstategroup.com/api',
+                        reCaptchaPublicKey: ''
                     }
                 }
             }
         }
-    });
-
-    // grunt serve - uses apiary, no proxy
-    // grunt serveproxy - uses /api, with proxy to apiary (needed to test ie8)
-    // grunt serveapi - uses /api, no proxy
-    // grunt build - uses /api, no proxy
-    // grunt buildapiary - uses apiary, no proxy
-
-    grunt.registerTask('serve', function (target) {
-        if (target === 'dist') {
-            return grunt.task.run(['build', 'connect:dist:keepalive']);
-        }
-
-        grunt.task.run([
-            'clean:server',
-            'ngconstant:apiarydev',
-            'bowerInstall',
-            'concurrent:server',
-            'autoprefixer',
-            'connect:livereload',
-            'watch'
-        ]);
-    });
-
-    grunt.registerTask('serveproxy', function (target) {
-        grunt.task.run([
-            'clean:server',
-            'ngconstant:apiie',
-            'configureProxies',
-            'bowerInstall',
-            'concurrent:server',
-            'autoprefixer',
-            'connect:livereload',
-            'watch'
-        ]);
     });
 
     grunt.registerTask('serveapi', function (target) {
@@ -581,11 +553,6 @@ module.exports = function (grunt) {
         ]);
     });
 
-    grunt.registerTask('server', function (target) {
-        grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-        grunt.task.run(['serve:' + target]);
-    });
-
     grunt.registerTask('test', [
         'newer:jshint',
         'clean:server',
@@ -605,45 +572,6 @@ module.exports = function (grunt) {
         'autoprefixer',
         'concat',
         'ngmin',
-        'copy:dist',
-        'cdnify',
-        'cssmin',
-        'uglify',
-        'rev',
-        'usemin',
-        'htmlmin',
-        'war'
-    ]);
-
-    grunt.registerTask('buildapiary', [
-        'test',
-        'clean:dist',
-        'ngconstant:apiaryprod',
-        'bowerInstall',
-        'useminPrepare',
-        'concurrent:dist',
-        'autoprefixer',
-        'concat',
-        'ngmin',
-        'copy:dist',
-        'cdnify',
-        'cssmin',
-        'uglify',
-        'rev',
-        'usemin',
-        'htmlmin',
-        'war'
-    ]);
-
-    grunt.registerTask('buildsmall', [
-        'clean:dist',
-        //'ngconstant:apiprod',
-        'ngconstant:apiaryprod',
-        'bowerInstall',
-        'useminPrepare',
-        'concurrent:dist',
-        'autoprefixer',
-        'concat',
         'copy:dist',
         'cdnify',
         'cssmin',
@@ -693,7 +621,6 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('minimalievm', [
-
         'clean:dist',
         'ngconstant:apiievm',
         'copy:minimal',
@@ -722,7 +649,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('minimalssgdev_nowar', [
         'clean:dist',
-        'ngconstant:apiie',
+        'ngconstant:apiproduction',
         'copy:minimal',
         'useminPrepare',
         'concat',

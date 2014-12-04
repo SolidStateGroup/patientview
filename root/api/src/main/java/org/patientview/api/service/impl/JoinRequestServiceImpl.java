@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -79,7 +80,7 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
             email.setRecipients(new String[]{contactPoint.getContent()});
             try {
                 emailService.sendEmail(email);
-            } catch (MessagingException me) {
+            } catch (MessagingException | MailException me) {
                 LOG.error("Cannot send join request email");
             }
         }

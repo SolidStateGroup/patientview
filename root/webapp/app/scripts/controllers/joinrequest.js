@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 'JoinRequestService', 'StaticDataService', '$scope', '$rootScope', 'UtilService',
-function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,UtilService) {
+angular.module('patientviewApp').controller('JoinRequestCtrl', ['GroupService', 'JoinRequestService',
+    'StaticDataService', '$scope', '$rootScope', 'UtilService','ENV','$timeout',
+function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,UtilService,ENV,$timeout) {
 
     $scope.joinRequest = {};
     $scope.pw = '';
@@ -27,7 +28,6 @@ function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,Ut
     });
 
     $scope.submit = function () {
-
         var groupId = 0;
         $scope.joinRequest.id = null;
         $scope.successMessage = null;
@@ -86,4 +86,15 @@ function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,Ut
             });
         }
     };
+
+    $scope.reCaptchaCallback = function(response) {
+        $scope.joinRequest.captcha = response;
+        $timeout(function() {
+            $scope.$apply();
+        });
+    };
+
+    $scope.getReCaptchaPublicKey = function() {
+        return ENV.reCaptchaPublicKey;
+    }
 }]);
