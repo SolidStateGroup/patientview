@@ -17,6 +17,7 @@ import org.patientview.patientview.model.FootCheckup;
 import org.patientview.patientview.model.Letter;
 import org.patientview.patientview.model.Medicine;
 import org.patientview.patientview.model.SpecialtyUserRole;
+import org.patientview.patientview.model.UktStatus;
 import org.patientview.patientview.model.UserMapping;
 import org.patientview.patientview.model.enums.DiagnosticType;
 import org.patientview.persistence.model.Feature;
@@ -56,13 +57,16 @@ import org.patientview.repository.DiagnosticDao;
 import org.patientview.repository.EmailVerificationDao;
 import org.patientview.repository.PatientDao;
 import org.patientview.repository.SpecialtyUserRoleDao;
+import org.patientview.repository.UktStatusDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
+import org.patientview.repository.impl.UktStatusDaoImpl;
 import org.patientview.service.DiagnosisManager;
 import org.patientview.service.EyeCheckupManager;
 import org.patientview.service.FootCheckupManager;
 import org.patientview.service.LetterManager;
 import org.patientview.service.MedicineManager;
+import org.patientview.service.UKTransplantManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -129,6 +133,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     @Inject
     private SpecialtyUserRoleDao specialtyUserRoleDao;
+
+    @Inject
+    private UktStatusDao ukTransplantDao;
 
     private List<Group> groups;
     private List<Role> roles;
@@ -301,14 +308,18 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 // FHIR related patient data (not test result observations)
                 if (isPatient) {
                     //List<Patient> pv1PatientRecords = patientManager.getByUsername(oldUser.getUsername());
-                    List<Patient> pv1PatientRecords = patientDao.getByNhsNo(newUser.getIdentifiers().iterator().next().getIdentifier());
+                    List<Patient> pv1PatientRecords
+                        = patientDao.getByNhsNo(newUser.getIdentifiers().iterator().next().getIdentifier());
+
+                    UktStatus uktStatus
+                        = ukTransplantDao.get(newUser.getIdentifiers().iterator().next().getIdentifier());
 
                     if (pv1PatientRecords != null) {
                         for (Patient pv1PatientRecord : pv1PatientRecords) {
                             Group unit = getGroupByCode(pv1PatientRecord.getUnitcode());
 
                             if (unit != null) {
-                                migrationUser = addPatientTableData(migrationUser, pv1PatientRecord, unit);
+                                migrationUser = addPatientTableData(migrationUser, pv1PatientRecord, unit, uktStatus);
                                 migrationUser = addCheckupTablesData(migrationUser, unit);
                                 migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                                 migrationUser = addDiagnosticTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
@@ -340,7 +351,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
-    private MigrationUser addPatientTableData(MigrationUser migrationUser, Patient pv1PatientRecord, Group unit) {
+    private MigrationUser addPatientTableData(MigrationUser migrationUser, Patient pv1PatientRecord,
+                                              Group unit, UktStatus uktStatus) {
 
         // date of birth in user object
         if (pv1PatientRecord.getDateofbirth() != null) {
@@ -455,6 +467,26 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             transplant.setStatus(pv1PatientRecord.getTransplantstatus());
             transplant.setIdentifier(pv1PatientRecord.getNhsno());
             migrationUser.getEncounters().add(transplant);
+        }
+
+        // ukt status
+        if (uktStatus != null) {
+            if (StringUtils.isNotEmpty(uktStatus.getKidney())) {
+                FhirEncounter transplant = new FhirEncounter();
+                transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString());
+                transplant.setGroup(unit);
+                transplant.setStatus(uktStatus.getKidney());
+                transplant.setIdentifier(pv1PatientRecord.getNhsno());
+                migrationUser.getEncounters().add(transplant);
+            }
+            if (StringUtils.isNotEmpty(uktStatus.getPancreas())) {
+                FhirEncounter transplant = new FhirEncounter();
+                transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString());
+                transplant.setGroup(unit);
+                transplant.setStatus(uktStatus.getPancreas());
+                transplant.setIdentifier(pv1PatientRecord.getNhsno());
+                migrationUser.getEncounters().add(transplant);
+            }
         }
 
         // - practitioner (gp)

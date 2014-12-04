@@ -59,6 +59,7 @@ import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
+import org.patientview.persistence.model.enums.TransplantStatus;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
@@ -176,27 +177,17 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
                             fhirPractitioner, fhirLink.getGroup());
 
-                    //LOG.info("patient 1: " + new Date().getTime());
-
                     // set conditions
                     patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
-
-                    //LOG.info("patient 2: " + new Date().getTime());
 
                     // set encounters
                     patient = setEncounters(patient, encounterService.get(fhirLink.getResourceId()));
 
-                    //LOG.info("patient 3: " + new Date().getTime());
-
                     // set edta diagnosis if present based on available codes
                     patient = setDiagnosisCodes(patient);
 
-                    //LOG.info("patient 4: " + new Date().getTime());
-
                     // set non test observations
                     patient = setNonTestObservations(patient, fhirLink);
-
-                    //LOG.info("patient 5: " + new Date().getTime());
 
                     patients.add(patient);
                 }
@@ -277,6 +268,15 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
             if (!codes.isEmpty()) {
                 fhirEncounter.setStatus(codes.get(0).getDescription());
+            }
+
+            if (fhirEncounter.getEncounterType().contains("TRANSPLANT")) {
+                for (TransplantStatus transplantStatus
+                        : TransplantStatus.class.getEnumConstants()) {
+                    if (fhirEncounter.getStatus().equals(transplantStatus.toString())) {
+                        fhirEncounter.setStatus(transplantStatus.getName());
+                    }
+                }
             }
 
             patient.getFhirEncounters().add(fhirEncounter);

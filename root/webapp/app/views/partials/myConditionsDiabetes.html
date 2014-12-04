@@ -65,8 +65,18 @@
                     <tr>
                         <td class="forced-width">Transplant Status</td>
                         <td>
-                            <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS'">
-                                {{encounter.status}}
+                            <span data-ng-repeat="encounter in patient.fhirEncounters"
+                                  data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS'">
+                                From Group: {{encounter.status}}
+                            </span>
+                            <span data-ng-repeat="encounter in patient.fhirEncounters"
+                                  data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS_KIDNEY'">
+                                Kidney: {{encounter.status}}<br/>
+                            </span>
+                            <span data-ng-repeat="encounter in patient.fhirEncounters"
+                                  data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS_PANCREAS'">
+                                Pancreas: {{encounter.status}}<br/>
+                                <a href="http://www.rixg.org/rpv/transplant.html" target="_blank">Explain This</a>
                             </span>
                         </td>
                     </tr>
