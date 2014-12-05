@@ -176,7 +176,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         //ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
-            if (!oldUser.getUsername().endsWith("-GP") /*&& oldUser.getUsername().equals("BillyE")*/) {
+            if (!oldUser.getUsername().endsWith("-GP") && oldUser.getUsername().equals("Fortunes")) {
                 Set<String> identifiers = new HashSet<String>();
 
                 // basic user information
