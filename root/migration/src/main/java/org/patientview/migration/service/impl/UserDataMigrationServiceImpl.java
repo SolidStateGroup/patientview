@@ -285,6 +285,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             userFeature.setOptInDate(oldUser.getEcrOptInDate());
                         }
                         newUser.getUserFeatures().add(userFeature);
+
+                        // add to ECS group
+                        Group ecsGroup = getGroupByCode("ECS");
+                        GroupRole groupRole = new GroupRole();
+                        groupRole.setGroup(ecsGroup);
+                        groupRole.setRole(patientRole);
+                        newUser.getGroupRoles().add(groupRole);
                     }
                 }
 
