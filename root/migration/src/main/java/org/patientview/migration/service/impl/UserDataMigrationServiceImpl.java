@@ -137,6 +137,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     @Inject
     private UktStatusDao ukTransplantDao;
 
+    @Inject
+    private ExecutorService userTaskExecutor;
+
     private List<Group> groups;
     private List<Role> roles;
     private List<Lookup> lookups;
@@ -170,7 +173,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         Role patientRole = getRoleByName(RoleName.PATIENT);
         Lookup nhsNumberIdentifier = getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
 
-        ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
+        //ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
 
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
             if (!oldUser.getUsername().endsWith("-GP") /*&& oldUser.getUsername().equals("BillyE")*/) {
@@ -327,7 +330,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                 migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
 
                             } else {
-                                LOG.error("Patient group not found from unitcode: " + pv1PatientRecord.getUnitcode());
+                                LOG.error("Patient group not found from unitcode: " + pv1PatientRecord.getUnitcode()
+                                        + " for pv1 id: " + pv1PatientRecord.getId());
                             }
                         }
                     }
@@ -335,19 +339,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 // call REST to store migrated user
                 try {
-                    concurrentTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                    userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
                 } catch (Exception e) {
                     LOG.error(e.getMessage());
                 }
             }
-        }
-
-        try {
-            // wait forever until all threads are finished
-            concurrentTaskExecutor.shutdown();
-            concurrentTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
         }
     }
 

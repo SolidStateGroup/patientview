@@ -52,6 +52,9 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
     @Inject
     private UserMappingDao userMappingDao;
 
+    @Inject
+    private ExecutorService observationTaskExecutor;
+
     private List<Group> groups;
 
     private @Value("${migration.username}") String migrationUsername;
@@ -74,8 +77,6 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
     @Override
     public void migrate() throws JsonMigrationException {
         init();
-
-        ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
 
         List<Long> patientview1IdsMigrated
                 = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
@@ -134,16 +135,8 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
                     }
                 }
 
-                concurrentTaskExecutor.submit(new AsyncMigrateObservationTask(migrationUser));
+                observationTaskExecutor.submit(new AsyncMigrateObservationTask(migrationUser));
             }
-        }
-
-        try {
-            // wait forever until all threads are finished
-            concurrentTaskExecutor.shutdown();
-            concurrentTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
         }
     }
 
