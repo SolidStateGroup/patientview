@@ -5,12 +5,14 @@ import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.EncountersBuilder;
+import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.EncounterService;
 import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
@@ -58,7 +60,18 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
         for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("encounter", subjectId)) {
-            fhirResource.delete(uuid, ResourceType.Encounter);
+
+            // do not delete EncounterType TRANSPLANT_STATUS_KIDNEY or TRANSPLANT_STATUS_PANCREAS
+            // as these come from uktstatus table during migration
+            Encounter encounter = (Encounter) fhirResource.get(uuid, ResourceType.Encounter);
+
+            if (!CollectionUtils.isEmpty(encounter.getIdentifier())) {
+                String encounterType = encounter.getIdentifier().get(0).getValueSimple();
+                if (!encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString())
+                        || !encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString())) {
+                    fhirResource.delete(uuid, ResourceType.Encounter);
+                }
+            }
         }
     }
 }
