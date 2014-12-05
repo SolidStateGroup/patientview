@@ -501,6 +501,7 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
             Location location = new Location();
             location.setLabel(peritoUnit);
+            location.setName("");
             if (StringUtils.isNotEmpty(unit.getPeritonealdialysisphone())) {
                 location.setPhone(unit.getPeritonealdialysisphone());
             }

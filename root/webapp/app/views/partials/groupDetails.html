@@ -1,3 +1,10 @@
+<!-- todo: put in main css -->
+    <style>
+        #location-add-button {
+            margin-top: 26px;
+        }
+    </style>
+
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
@@ -84,13 +91,32 @@
         <span class="saved-notification" data-ng-show="location.saved">&nbsp; Saved Successfully!</span>
     </div>
     <div class="add-form add-location cleared-row" data-ng-model="editGroup.newLocation">
-        <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" data-ng-model="editGroup.newLocation.label"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-name" placeholder="Name" name="newLocationName" data-ng-model="editGroup.newLocation.name"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-phone" placeholder="Phone" name="newLocationPhone" data-ng-model="editGroup.newLocation.phone"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-address" placeholder="Address" name="newLocationAddress" data-ng-model="editGroup.newLocation.address"></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-newLocation-web" placeholder="Web" name="newLocationWeb" data-ng-model="editGroup.newLocation.web"></div>
-        <div class="col-md-2"><input type="email" class="form-control" id="group-newLocation-email" placeholder="Email" name="newLocationEmail" data-ng-model="editGroup.newLocation.email"> <span data-ng-show="groupForm.newLocationEmail.$error.email"> Invalid</span></div>
-        <div><button type="button" class="btn blue location-add-button" data-ng-click="addLocation(groupForm, editGroup, editGroup.newLocation)" data-ng-disabled="!(editGroup.newLocation.label && editGroup.newLocation.name && !groupForm.newLocationEmail.$error.email)">Add</button></div>
+        <div class="col-md-1">
+            <label for="group-newLocation-label">Label</label>
+            <input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" data-ng-model="editGroup.newLocation.label">
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-label">Name</label>
+            <input type="text" class="form-control" id="group-newLocation-name" placeholder="Name" name="newLocationName" data-ng-model="editGroup.newLocation.name">
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-label">Phone</label>
+            <input type="text" class="form-control" id="group-newLocation-phone" placeholder="Phone" name="newLocationPhone" data-ng-model="editGroup.newLocation.phone">
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-label">Address</label>
+            <input type="text" class="form-control" id="group-newLocation-address" placeholder="Address" name="newLocationAddress" data-ng-model="editGroup.newLocation.address">
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-label">Web</label>
+            <input type="text" class="form-control" id="group-newLocation-web" placeholder="Web" name="newLocationWeb" data-ng-model="editGroup.newLocation.web">
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-label">Email</label>
+            <span data-ng-show="groupForm.newLocationEmail.$error.email" class="error"> Invalid</span>
+            <input type="email" class="form-control" id="group-newLocation-email" placeholder="Email" name="newLocationEmail" data-ng-model="editGroup.newLocation.email">
+        </div>
+        <div><button type="button" class="btn blue location-add-button" id="location-add-button" data-ng-click="addLocation(groupForm, editGroup, editGroup.newLocation)" data-ng-disabled="!(editGroup.newLocation.label && editGroup.newLocation.name && !groupForm.newLocationEmail.$error.email)">Add</button></div>
     </div>
 </div>
         
@@ -98,13 +124,21 @@
     <hr />
     <div class="col-md-12">
         <label>Additional Contact Points</label>
-        <span class="error" data-ng-show="!hasAdminEmail(editGroup)"> * Must have PatientView Admin Email</span>
+        <span class="error" data-ng-show="!hasAdminEmail(editGroup)"><br/> * Must have PatientView Admin Email</span>
         <div data-ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points</div>
     </div>
     <div class="link-list-item clearfix" data-ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
-        <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" data-ng-model="contactPoint.contactPointType.id" data-ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes"></select></div>
-        <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" data-ng-model="contactPoint.content" required></div>
+        <div class="col-md-3">
+            <select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select"
+                    data-ng-model="contactPoint.contactPointType.id"
+                    data-ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes"></select>
+        </div>
+        <div class="col-md-3">
+            <label for="group-newLocation-label">Content</label>
+            <input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}"
+                   placeholder="Content" name="content" data-ng-model="contactPoint.content" required>
+        </div>
         <div class="btn-group">
             <button type="button" class="btn blue contactPoint-update-button" data-ng-click="updateContactPoint($event, groupForm, editGroup, contactPoint)">Update</button>
             <button type="button" class="btn negative contactPoint-delete-button" data-ng-click="removeContactPoint(groupForm, editGroup, contactPoint)">Delete</button>
