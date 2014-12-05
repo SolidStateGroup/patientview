@@ -175,8 +175,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         //ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
 
+        LOG.info("--- Starting migration ---");
+
         for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
             if (!oldUser.getUsername().endsWith("-GP") && oldUser.getUsername().equals("Fortunes")) {
+
+                LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
+
                 Set<String> identifiers = new HashSet<String>();
 
                 // basic user information
@@ -233,6 +238,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         }
                     }
                 }
+
 
                 // identifiers and about me (will only be for patient)
                 if (isPatient) {
@@ -315,6 +321,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 migrationUser.setDocumentReferences(new ArrayList<FhirDocumentReference>());
                 migrationUser.setMedicationStatements(new ArrayList<FhirMedicationStatement>());
 
+                LOG.info("--- Migrating " + oldUser.getUsername() + ": set basic user information ---");
+
                 // FHIR related patient data (not test result observations)
                 if (isPatient) {
                     //List<Patient> pv1PatientRecords = patientManager.getByUsername(oldUser.getUsername());
@@ -342,10 +350,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             }
                         }
                     }
+
+                    LOG.info("--- Migrating " + oldUser.getUsername() + ": set patient information ---");
                 }
 
                 // call REST to store migrated user
                 try {
+                    LOG.info("--- Migrating " + oldUser.getUsername() + ": submitting to REST ---");
                     userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
                 } catch (Exception e) {
                     LOG.error(e.getMessage());
