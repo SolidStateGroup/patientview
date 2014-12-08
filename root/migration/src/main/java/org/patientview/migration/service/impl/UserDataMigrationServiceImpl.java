@@ -185,7 +185,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 for (Long oldUserId : groupUserIds) {
                     if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
                         org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
-                        
+
                         if (!oldUser.getUsername().endsWith("-GP")) {
                             MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
 
