@@ -11,6 +11,16 @@ angular.module('patientviewApp').factory('LetterService', ['$q', 'Restangular', 
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        remove: function (userId, date) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/letters/{date}
+            Restangular.one('user', userId).one('letters', date).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

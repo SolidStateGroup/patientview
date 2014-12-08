@@ -8,8 +8,8 @@ import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.LetterService;
 import org.patientview.api.util.Util;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.UserRepository;
@@ -95,5 +95,10 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
         }
 
         fhirResource.create(documentReference);
+    }
+
+    @Override
+    public void delete(Long userId, Long date) {
+
     }
 }

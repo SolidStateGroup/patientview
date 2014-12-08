@@ -19,4 +19,7 @@ public interface LetterService {
 
     void addLetter(org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference, FhirLink fhirLink)
             throws FhirResourceException;
+
+    @UserOnly
+    void delete(Long userId, Long date);
 }
