@@ -4,7 +4,7 @@
     <div class="content-inner">
         <form class="form-horizontal" data-ng-cloak id="account-settings-form">
 
-            <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+
 
             <div class="form-group">
                 <label class="col-sm-2 control-label">Username:</label>
@@ -49,9 +49,14 @@
                     <button data-ng-click="saveSettings()" class="btn blue">Save</button>
                 </div>
             </div>
-            <div class="form-group" data-ng-show="errorMessage">
+            <div class="form-group" data-ng-show="settingsErrorMessage">
                 <div class="col-sm-8 col-sm-offset-2 alert alert-danger">
-                    <p><strong>Error saving settings</strong> {{errorMessage}}</p>
+                    <p><strong>Error saving settings</strong> {{settingsErrorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="settingsSuccessMessage">
+                <div class="col-sm-8 col-sm-offset-2 alert alert-success">
+                    <p>{{settingsSuccessMessage}}</p>
                 </div>
             </div>
         </form>
@@ -95,10 +100,14 @@
                     </button>
                 </div>
             </div>
-
             <div class="form-group" data-ng-show="passwordErrorMessage">
-                <div class="col-sm-9 alert alert-danger">
+                <div class="alert alert-danger">
                     <p><strong>Error changing password</strong> {{passwordErrorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="passwordSuccessMessage">
+                <div class="col-sm-8 col-sm-offset-2 alert alert-success">
+                    <p>{{passwordSuccessMessage}}</p>
                 </div>
             </div>
         </form>
