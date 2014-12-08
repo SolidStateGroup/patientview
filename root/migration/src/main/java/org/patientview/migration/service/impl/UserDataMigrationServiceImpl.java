@@ -183,20 +183,20 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             if (CollectionUtils.isNotEmpty(groupUserIds)) {
                 for (Long oldUserId : groupUserIds) {
-                    org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
-                    if (!oldUser.getUsername().endsWith("-GP")
-                            && !migratedPv1IdsThisRun.contains(oldUser.getId())
-                            && !previouslyMigratedPv1Ids.contains(oldUser.getId())) {
+                    if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
+                        org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+                        
+                        if (!oldUser.getUsername().endsWith("-GP")) {
+                            MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
 
-                        MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
-
-                        try {
-                            LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group " + group.getCode()
-                                    + " submitting to REST");
-                            userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                            migratedPv1IdsThisRun.add(oldUser.getId());
-                        } catch (Exception e) {
-                            LOG.error(e.getMessage());
+                            try {
+                                LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group " + group.getCode()
+                                        + " submitting to REST");
+                                userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                                migratedPv1IdsThisRun.add(oldUser.getId());
+                            } catch (Exception e) {
+                                LOG.error(e.getMessage());
+                            }
                         }
                     }
                 }
