@@ -48,6 +48,7 @@ import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LetterTypes;
+import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -169,25 +170,30 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         init();
         Role patientRole = getRoleByName(RoleName.PATIENT);
         Lookup nhsNumberIdentifier = getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
-        List<Long> migratedPv1Ids = new ArrayList<Long>();
+        List<Long> migratedPv1IdsThisRun = new ArrayList<Long>();
+        List<Long> previouslyMigratedPv1Ids
+                = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
         LOG.info("--- Starting migration ---");
 
         for (Group group : groups) {
 
-            LOG.info("--- Migrating from Group: " + group.getCode() + " ---");
+            LOG.info("(Migration) From Group: " + group.getCode());
             List<org.patientview.patientview.model.User> groupUsers = userDao.getByUnitcode(group.getCode());
 
             if (CollectionUtils.isNotEmpty(groupUsers)) {
                 for (org.patientview.patientview.model.User oldUser : groupUsers) {
-                    if (!oldUser.getUsername().endsWith("-GP") && !migratedPv1Ids.contains(oldUser.getId())
-                        /*&& oldUser.getUsername().equals("Fortunes")*/) {
+                    if (!oldUser.getUsername().endsWith("-GP")
+                            && !migratedPv1IdsThisRun.contains(oldUser.getId())
+                            && !previouslyMigratedPv1Ids.contains(oldUser.getId()))
+                        /*&& oldUser.getUsername().equals("Fortunes")*/ {
 
                         MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
 
                         try {
-                            LOG.info("--- Migrating " + oldUser.getUsername() + ": submitting to REST ---");
+                            LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group " + group.getCode()
+                                    + " submitting to REST");
                             userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                            migratedPv1Ids.add(oldUser.getId());
+                            migratedPv1IdsThisRun.add(oldUser.getId());
                         } catch (Exception e) {
                             LOG.error(e.getMessage());
                         }
@@ -199,7 +205,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser,
                                               Role patientRole, Lookup nhsNumberIdentifier) {
-        LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
+        //LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
 
         Set<String> identifiers = new HashSet<String>();
 
@@ -340,7 +346,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         migrationUser.setDocumentReferences(new ArrayList<FhirDocumentReference>());
         migrationUser.setMedicationStatements(new ArrayList<FhirMedicationStatement>());
 
-        LOG.info("--- Migrating " + oldUser.getUsername() + ": set basic user information ---");
+        //LOG.info("--- Migrating " + oldUser.getUsername() + ": set basic user information ---");
 
         // FHIR related patient data (not test result observations)
         if (isPatient) {
@@ -370,7 +376,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 }
             }
 
-            LOG.info("--- Migrating " + oldUser.getUsername() + ": set patient information ---");
+            //LOG.info("--- Migrating " + oldUser.getUsername() + ": set patient information ---");
         }
 
         return migrationUser;
