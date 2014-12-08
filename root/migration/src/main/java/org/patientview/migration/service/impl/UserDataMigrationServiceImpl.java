@@ -60,13 +60,11 @@ import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.UktStatusDao;
 import org.patientview.repository.UserDao;
 import org.patientview.repository.UserMappingDao;
-import org.patientview.repository.impl.UktStatusDaoImpl;
 import org.patientview.service.DiagnosisManager;
 import org.patientview.service.EyeCheckupManager;
 import org.patientview.service.FootCheckupManager;
 import org.patientview.service.LetterManager;
 import org.patientview.service.MedicineManager;
-import org.patientview.service.UKTransplantManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -169,200 +167,213 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     public void migrate() throws JsonMigrationException {
 
         init();
-
         Role patientRole = getRoleByName(RoleName.PATIENT);
         Lookup nhsNumberIdentifier = getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
-
-        //ExecutorService concurrentTaskExecutor = Executors.newFixedThreadPool(10);
-
+        List<Long> migratedPv1Ids = new ArrayList<Long>();
         LOG.info("--- Starting migration ---");
 
-        for (org.patientview.patientview.model.User oldUser : userDao.getAll()) {
-            if (!oldUser.getUsername().endsWith("-GP") && oldUser.getUsername().equals("Fortunes")) {
+        for (Group group : groups) {
 
-                LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
+            LOG.info("--- Migrating from Group: " + group.getCode() + " ---");
+            List<org.patientview.patientview.model.User> groupUsers = userDao.getByUnitcode(group.getCode());
 
-                Set<String> identifiers = new HashSet<String>();
+            if (CollectionUtils.isNotEmpty(groupUsers)) {
+                for (org.patientview.patientview.model.User oldUser : groupUsers) {
+                    if (!oldUser.getUsername().endsWith("-GP") && !migratedPv1Ids.contains(oldUser.getId())
+                        /*&& oldUser.getUsername().equals("Fortunes")*/) {
 
-                // basic user information
-                User newUser = createUser(oldUser);
-                boolean isPatient = false;
+                        MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
 
-                // set group roles and calculate if patient
-                for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
-                    if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT") && newUser != null) {
-
-                        // assume usermapping with nhsnumber is a patient
-                        if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
-
-                            // is a patient
-                            isPatient = true;
-                            identifiers.add(userMapping.getNhsno());
-
-                            // add group (specialty is added automatically when creating user within a UNIT group)
-                            Group group = getGroupByCode(userMapping.getUnitcode());
-
-                            if (group != null && patientRole != null) {
-                                GroupRole groupRole = new GroupRole();
-                                groupRole.setGroup(group);
-                                groupRole.setRole(patientRole);
-                                newUser.getGroupRoles().add(groupRole);
-                            }
-
-                        } else {
-
-                            // is a staff member
-                            Role role = null;
-                            List<SpecialtyUserRole> specialtyUserRoles = specialtyUserRoleDao.get(oldUser);
-                            // TODO: try and fix this - get the first role and apply it to all group (no group role mapping)
-                            // TODO: required hack from original PatientView
-                            if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
-                                String roleName = specialtyUserRoles.get(0).getRole();
-
-                                if (roleName.equals("unitadmin")) {
-                                    role = getRoleByName(RoleName.UNIT_ADMIN);
-                                } else if (roleName.equals("unitstaff")) {
-                                    role = getRoleByName(RoleName.STAFF_ADMIN);
-                                }
-
-                                // add group (specialty is added automatically when creating user within a UNIT group)
-                                Group group = getGroupByCode(userMapping.getUnitcode());
-
-                                if (group != null && role != null) {
-                                    GroupRole groupRole = new GroupRole();
-                                    groupRole.setGroup(group);
-                                    groupRole.setRole(role);
-                                    newUser.getGroupRoles().add(groupRole);
-                                }
-                            }
+                        try {
+                            LOG.info("--- Migrating " + oldUser.getUsername() + ": submitting to REST ---");
+                            userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                            migratedPv1Ids.add(oldUser.getId());
+                        } catch (Exception e) {
+                            LOG.error(e.getMessage());
                         }
                     }
-                }
-
-
-                // identifiers and about me (will only be for patient)
-                if (isPatient) {
-                    for (String identifierText : identifiers) {
-                        Identifier identifier = new Identifier();
-                        identifier.setIdentifier(identifierText);
-                        identifier.setIdentifierType(nhsNumberIdentifier);
-                        newUser.getIdentifiers().add(identifier);
-
-                        Aboutme aboutMe = aboutMeDao.get(identifierText);
-                        if (aboutMe != null) {
-                            newUser.setUserInformation(new HashSet<UserInformation>());
-
-                            UserInformation shouldKnow = new UserInformation();
-                            shouldKnow.setType(UserInformationTypes.SHOULD_KNOW);
-                            shouldKnow.setValue(aboutMe.getAboutme());
-                            newUser.getUserInformation().add(shouldKnow);
-
-                            UserInformation talkAbout = new UserInformation();
-                            talkAbout.setType(UserInformationTypes.TALK_ABOUT);
-                            talkAbout.setValue(aboutMe.getTalkabout());
-                            newUser.getUserInformation().add(talkAbout);
-                        }
-                    }
-                }
-
-                // messaging recipient
-                if (oldUser.isIsrecipient()) {
-                    Feature feature = getFeatureByName(FeatureType.MESSAGING.toString());
-                    if (feature != null) {
-                        newUser.getUserFeatures().add(new UserFeature(feature));
-                    }
-                }
-
-                // feedback recipient
-                if (oldUser.isFeedbackRecipient()) {
-                    Feature feature = getFeatureByName(FeatureType.FEEDBACK.toString());
-                    if (feature != null) {
-                        newUser.getUserFeatures().add(new UserFeature(feature));
-                    }
-                }
-
-                // ECS / GP Medication
-                if (oldUser.isEcrOptInStatus()) {
-                    Feature feature = getFeatureByName(FeatureType.GP_MEDICATION.toString());
-                    if (feature != null) {
-                        UserFeature userFeature = new UserFeature(feature);
-                        userFeature.setOptInStatus(true);
-                        if (oldUser.getEcrOptInDate() != null) {
-                            userFeature.setOptInDate(oldUser.getEcrOptInDate());
-                        }
-                        newUser.getUserFeatures().add(userFeature);
-
-                        // add to ECS group
-                        Group ecsGroup = getGroupByCode("ECS");
-                        GroupRole groupRole = new GroupRole();
-                        groupRole.setGroup(ecsGroup);
-                        groupRole.setRole(patientRole);
-                        newUser.getGroupRoles().add(groupRole);
-                    }
-                }
-
-                if (oldUser.getCreated() != null) {
-                    newUser.setCreated(oldUser.getCreated());
-                }
-
-                if (oldUser.getUpdated() != null) {
-                    newUser.setLastUpdate(oldUser.getUpdated());
-                }
-
-                // convert to transport object
-                MigrationUser migrationUser = new MigrationUser(newUser);
-                migrationUser.setPatient(isPatient);
-                migrationUser.setPatientview1Id(oldUser.getId());
-                migrationUser.setPatients(new ArrayList<FhirPatient>());
-                migrationUser.setConditions(new ArrayList<FhirCondition>());
-                migrationUser.setEncounters(new ArrayList<FhirEncounter>());
-                migrationUser.setObservations(new ArrayList<FhirObservation>());
-                migrationUser.setDiagnosticReports(new ArrayList<FhirDiagnosticReport>());
-                migrationUser.setDocumentReferences(new ArrayList<FhirDocumentReference>());
-                migrationUser.setMedicationStatements(new ArrayList<FhirMedicationStatement>());
-
-                LOG.info("--- Migrating " + oldUser.getUsername() + ": set basic user information ---");
-
-                // FHIR related patient data (not test result observations)
-                if (isPatient) {
-                    //List<Patient> pv1PatientRecords = patientManager.getByUsername(oldUser.getUsername());
-                    List<Patient> pv1PatientRecords
-                        = patientDao.getByNhsNo(newUser.getIdentifiers().iterator().next().getIdentifier());
-
-                    UktStatus uktStatus
-                        = ukTransplantDao.get(newUser.getIdentifiers().iterator().next().getIdentifier());
-
-                    if (pv1PatientRecords != null) {
-                        for (Patient pv1PatientRecord : pv1PatientRecords) {
-                            Group unit = getGroupByCode(pv1PatientRecord.getUnitcode());
-
-                            if (unit != null) {
-                                migrationUser = addPatientTableData(migrationUser, pv1PatientRecord, unit, uktStatus);
-                                migrationUser = addCheckupTablesData(migrationUser, unit);
-                                migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
-                                migrationUser = addDiagnosticTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
-                                migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
-                                migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
-
-                            } else {
-                                LOG.error("Patient group not found from unitcode: " + pv1PatientRecord.getUnitcode()
-                                        + " for pv1 id: " + pv1PatientRecord.getId());
-                            }
-                        }
-                    }
-
-                    LOG.info("--- Migrating " + oldUser.getUsername() + ": set patient information ---");
-                }
-
-                // call REST to store migrated user
-                try {
-                    LOG.info("--- Migrating " + oldUser.getUsername() + ": submitting to REST ---");
-                    userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                } catch (Exception e) {
-                    LOG.error(e.getMessage());
                 }
             }
         }
+    }
+
+    private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser,
+                                              Role patientRole, Lookup nhsNumberIdentifier) {
+        LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
+
+        Set<String> identifiers = new HashSet<String>();
+
+        // basic user information
+        User newUser = createUser(oldUser);
+        boolean isPatient = false;
+
+        // set group roles and calculate if patient
+        for (UserMapping userMapping : userMappingDao.getAll(oldUser.getUsername())) {
+            if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT") && newUser != null) {
+
+                // assume usermapping with nhsnumber is a patient
+                if (StringUtils.isNotEmpty(userMapping.getNhsno())) {
+
+                    // is a patient
+                    isPatient = true;
+                    identifiers.add(userMapping.getNhsno());
+
+                    // add group (specialty is added automatically when creating user within a UNIT group)
+                    Group group = getGroupByCode(userMapping.getUnitcode());
+
+                    if (group != null && patientRole != null) {
+                        GroupRole groupRole = new GroupRole();
+                        groupRole.setGroup(group);
+                        groupRole.setRole(patientRole);
+                        newUser.getGroupRoles().add(groupRole);
+                    }
+
+                } else {
+
+                    // is a staff member
+                    Role role = null;
+                    List<SpecialtyUserRole> specialtyUserRoles = specialtyUserRoleDao.get(oldUser);
+                    // TODO: try and fix this - get the first role and apply it to all group (no group role mapping)
+                    // TODO: required hack from original PatientView
+                    if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
+                        String roleName = specialtyUserRoles.get(0).getRole();
+
+                        if (roleName.equals("unitadmin")) {
+                            role = getRoleByName(RoleName.UNIT_ADMIN);
+                        } else if (roleName.equals("unitstaff")) {
+                            role = getRoleByName(RoleName.STAFF_ADMIN);
+                        }
+
+                        // add group (specialty is added automatically when creating user within a UNIT group)
+                        Group group = getGroupByCode(userMapping.getUnitcode());
+
+                        if (group != null && role != null) {
+                            GroupRole groupRole = new GroupRole();
+                            groupRole.setGroup(group);
+                            groupRole.setRole(role);
+                            newUser.getGroupRoles().add(groupRole);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // identifiers and about me (will only be for patient)
+        if (isPatient) {
+            for (String identifierText : identifiers) {
+                Identifier identifier = new Identifier();
+                identifier.setIdentifier(identifierText);
+                identifier.setIdentifierType(nhsNumberIdentifier);
+                newUser.getIdentifiers().add(identifier);
+
+                Aboutme aboutMe = aboutMeDao.get(identifierText);
+                if (aboutMe != null) {
+                    newUser.setUserInformation(new HashSet<UserInformation>());
+
+                    UserInformation shouldKnow = new UserInformation();
+                    shouldKnow.setType(UserInformationTypes.SHOULD_KNOW);
+                    shouldKnow.setValue(aboutMe.getAboutme());
+                    newUser.getUserInformation().add(shouldKnow);
+
+                    UserInformation talkAbout = new UserInformation();
+                    talkAbout.setType(UserInformationTypes.TALK_ABOUT);
+                    talkAbout.setValue(aboutMe.getTalkabout());
+                    newUser.getUserInformation().add(talkAbout);
+                }
+            }
+        }
+
+        // messaging recipient
+        if (oldUser.isIsrecipient()) {
+            Feature feature = getFeatureByName(FeatureType.MESSAGING.toString());
+            if (feature != null) {
+                newUser.getUserFeatures().add(new UserFeature(feature));
+            }
+        }
+
+        // feedback recipient
+        if (oldUser.isFeedbackRecipient()) {
+            Feature feature = getFeatureByName(FeatureType.FEEDBACK.toString());
+            if (feature != null) {
+                newUser.getUserFeatures().add(new UserFeature(feature));
+            }
+        }
+
+        // ECS / GP Medication
+        if (oldUser.isEcrOptInStatus()) {
+            Feature feature = getFeatureByName(FeatureType.GP_MEDICATION.toString());
+            if (feature != null) {
+                UserFeature userFeature = new UserFeature(feature);
+                userFeature.setOptInStatus(true);
+                if (oldUser.getEcrOptInDate() != null) {
+                    userFeature.setOptInDate(oldUser.getEcrOptInDate());
+                }
+                newUser.getUserFeatures().add(userFeature);
+
+                // add to ECS group
+                Group ecsGroup = getGroupByCode("ECS");
+                GroupRole groupRole = new GroupRole();
+                groupRole.setGroup(ecsGroup);
+                groupRole.setRole(patientRole);
+                newUser.getGroupRoles().add(groupRole);
+            }
+        }
+
+        if (oldUser.getCreated() != null) {
+            newUser.setCreated(oldUser.getCreated());
+        }
+
+        if (oldUser.getUpdated() != null) {
+            newUser.setLastUpdate(oldUser.getUpdated());
+        }
+
+        // convert to transport object
+        MigrationUser migrationUser = new MigrationUser(newUser);
+        migrationUser.setPatient(isPatient);
+        migrationUser.setPatientview1Id(oldUser.getId());
+        migrationUser.setPatients(new ArrayList<FhirPatient>());
+        migrationUser.setConditions(new ArrayList<FhirCondition>());
+        migrationUser.setEncounters(new ArrayList<FhirEncounter>());
+        migrationUser.setObservations(new ArrayList<FhirObservation>());
+        migrationUser.setDiagnosticReports(new ArrayList<FhirDiagnosticReport>());
+        migrationUser.setDocumentReferences(new ArrayList<FhirDocumentReference>());
+        migrationUser.setMedicationStatements(new ArrayList<FhirMedicationStatement>());
+
+        LOG.info("--- Migrating " + oldUser.getUsername() + ": set basic user information ---");
+
+        // FHIR related patient data (not test result observations)
+        if (isPatient) {
+            //List<Patient> pv1PatientRecords = patientManager.getByUsername(oldUser.getUsername());
+            List<Patient> pv1PatientRecords
+                    = patientDao.getByNhsNo(newUser.getIdentifiers().iterator().next().getIdentifier());
+
+            UktStatus uktStatus
+                    = ukTransplantDao.get(newUser.getIdentifiers().iterator().next().getIdentifier());
+
+            if (pv1PatientRecords != null) {
+                for (Patient pv1PatientRecord : pv1PatientRecords) {
+                    Group unit = getGroupByCode(pv1PatientRecord.getUnitcode());
+
+                    if (unit != null) {
+                        migrationUser = addPatientTableData(migrationUser, pv1PatientRecord, unit, uktStatus);
+                        migrationUser = addCheckupTablesData(migrationUser, unit);
+                        migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+                        migrationUser = addDiagnosticTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+                        migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+                        migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+
+                    } else {
+                        LOG.error("Patient group not found from unitcode: " + pv1PatientRecord.getUnitcode()
+                                + " for pv1 id: " + pv1PatientRecord.getId());
+                    }
+                }
+            }
+
+            LOG.info("--- Migrating " + oldUser.getUsername() + ": set patient information ---");
+        }
+
+        return migrationUser;
     }
 
     private MigrationUser addPatientTableData(MigrationUser migrationUser, Patient pv1PatientRecord,

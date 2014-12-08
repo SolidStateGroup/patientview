@@ -27,7 +27,7 @@ public class AsyncMigrateUserTask implements Runnable {
         try {
             Long userId = JsonUtil.jsonRequest(url, Long.class, migrationUser, HttpPost.class, true);
             if (userId != null) {
-                LOG.info("Migrated username: {} OK, Id: {}", migrationUser.getUser().getUsername(), userId);
+                LOG.info("Migrated username: {} OK, Pv2 Id: {}", migrationUser.getUser().getUsername(), userId);
             } else {
                 LOG.error("Failed to migrate username: {}", migrationUser.getUser().getUsername());
             }
