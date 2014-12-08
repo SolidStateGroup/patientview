@@ -179,6 +179,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             LOG.info("(Migration) From Group: " + group.getCode());
             List<org.patientview.patientview.model.User> groupUsers = userDao.getByUnitcode(group.getCode());
+            LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUsers.size() + " users");
 
             if (CollectionUtils.isNotEmpty(groupUsers)) {
                 for (org.patientview.patientview.model.User oldUser : groupUsers) {
@@ -523,7 +524,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         // - practitioner (gp)
         if (StringUtils.isNotEmpty(pv1PatientRecord.getGpname())) {
             FhirPractitioner practitioner = new FhirPractitioner();
-            practitioner.setName(pv1PatientRecord.getGpname());
+
+            // strip ' from practitioner name
+            practitioner.setName(pv1PatientRecord.getGpname().replace("'",""));
             practitioner.setAddress1(pv1PatientRecord.getGpaddress1());
             practitioner.setAddress2(pv1PatientRecord.getGpaddress2());
             practitioner.setAddress3(pv1PatientRecord.getGpaddress3());
