@@ -462,7 +462,7 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: '/api',
-                        reCaptchaPublicKey: ''
+                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH'
                     }
                 }
             },
