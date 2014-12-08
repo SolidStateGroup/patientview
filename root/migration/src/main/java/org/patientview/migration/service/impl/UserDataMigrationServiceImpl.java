@@ -176,27 +176,30 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("--- Starting migration ---");
 
         for (Group group : groups) {
-
             LOG.info("(Migration) From Group: " + group.getCode());
-            List<Long> groupUserIds = userDao.getIdsByUnitcode(group.getCode());
+            List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGp(group.getCode());
             LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
 
             if (CollectionUtils.isNotEmpty(groupUserIds)) {
                 for (Long oldUserId : groupUserIds) {
                     if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
-                        org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+                        try {
+                            org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
 
-                        if (!oldUser.getUsername().endsWith("-GP")) {
-                            MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
+                            if (!oldUser.getUsername().endsWith("-GP")) {
+                                MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
 
-                            try {
-                                LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group " + group.getCode()
-                                        + " submitting to REST");
-                                userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                                migratedPv1IdsThisRun.add(oldUser.getId());
-                            } catch (Exception e) {
-                                LOG.error(e.getMessage());
+                                try {
+                                    LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group " + group.getCode()
+                                            + " submitting to REST");
+                                    userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                                    migratedPv1IdsThisRun.add(oldUser.getId());
+                                } catch (Exception e) {
+                                    LOG.error("REST submit exception: ", e);
+                                }
                             }
+                        } catch (Exception e) {
+                            LOG.error("Exception: ", e);
                         }
                     }
                 }
@@ -207,7 +210,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser,
                                               Role patientRole, Lookup nhsNumberIdentifier) {
         //LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
-
         Set<String> identifiers = new HashSet<String>();
 
         // basic user information
@@ -234,7 +236,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         groupRole.setRole(patientRole);
                         newUser.getGroupRoles().add(groupRole);
                     }
-
                 } else {
 
                     // is a staff member
@@ -264,7 +265,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 }
             }
         }
-
 
         // identifiers and about me (will only be for patient)
         if (isPatient) {
@@ -376,7 +376,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     }
                 }
             }
-
             //LOG.info("--- Migrating " + oldUser.getUsername() + ": set patient information ---");
         }
 
@@ -385,7 +384,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     private MigrationUser addPatientTableData(MigrationUser migrationUser, Patient pv1PatientRecord,
                                               Group unit, UktStatus uktStatus) {
-
         // date of birth in user object
         if (pv1PatientRecord.getDateofbirth() != null) {
             migrationUser.getUser().setDateOfBirth(pv1PatientRecord.getDateofbirth());
