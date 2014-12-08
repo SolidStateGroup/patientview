@@ -178,15 +178,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         for (Group group : groups) {
 
             LOG.info("(Migration) From Group: " + group.getCode());
-            List<org.patientview.patientview.model.User> groupUsers = userDao.getByUnitcode(group.getCode());
-            LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUsers.size() + " users");
+            List<Long> groupUserIds = userDao.getIdsByUnitcode(group.getCode());
+            LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
 
-            if (CollectionUtils.isNotEmpty(groupUsers)) {
-                for (org.patientview.patientview.model.User oldUser : groupUsers) {
+            if (CollectionUtils.isNotEmpty(groupUserIds)) {
+                for (Long oldUserId : groupUserIds) {
+                    org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
                     if (!oldUser.getUsername().endsWith("-GP")
                             && !migratedPv1IdsThisRun.contains(oldUser.getId())
-                            && !previouslyMigratedPv1Ids.contains(oldUser.getId()))
-                        /*&& oldUser.getUsername().equals("Fortunes")*/ {
+                            && !previouslyMigratedPv1Ids.contains(oldUser.getId())) {
 
                         MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
 
