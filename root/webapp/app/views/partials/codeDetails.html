@@ -31,6 +31,18 @@
         <div class="col-md-12">
             <label>Links</label>
         </div>
+        <div class="clearfix">
+            <div class="col-md-3">
+                <label>Url</label>
+            </div>
+            <div class="col-md-3">
+                <label>Description</label>
+            </div>
+            <div class="col-md-3">
+                <label data-ng-show="editCode.links.length > 0">Order</label>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
         <div class="link-list-item clearfix" data-ng-repeat="link in editCode.links | orderBy:'displayOrder'">
             <div class="col-md-3">
                 <input type="text" class="form-control" id="code-link-link-{{link.id}}" placeholder="link" name="link" data-ng-model="link.link" required>

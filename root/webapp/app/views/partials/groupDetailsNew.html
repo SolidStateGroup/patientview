@@ -60,7 +60,27 @@
     <hr />
     <div class="col-md-12">
         <label>Additional Locations</label>
-        <div data-ng-hide="editGroup.locations.length > 0" class="no-items">No additional locations</div>
+        <div data-ng-hide="editGroup.locations.length > 0" class="no-items">No additional locations associated with this group</div>
+    </div>
+    <div>
+        <div class="col-md-1">
+            <label for="group-newLocation-label">Label</label>
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-name">Name</label>
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-phone">Phone</label>
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-address">Address</label>
+        </div>
+        <div class="col-md-2">
+            <label for="group-newLocation-web">Web</label>
+        </div>
+        <div class="col-md-3">
+            <label for="group-newLocation-email">Email</label>
+        </div>
     </div>
     <div class="location-list-item cleared-row"  data-ng-repeat="location in editGroup.locations | orderBy:'id'">
         <div class="col-md-1 hidden">{{location.id}}</div>
@@ -70,7 +90,7 @@
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" data-ng-model="location.address" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" data-ng-model="location.web" ></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" data-ng-model="location.email" ></div>
-        <div><button type="button" class="btn negative location-delete-button" data-ng-click="removeLocation(groupFormNew, editGroup, location)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+        <div><button type="button" class="btn negative location-delete-button" data-ng-click="removeLocation(groupFormNew, editGroup, location)">Delete</button></span></div>
     </div>
     <div class="add-form" data-ng-model="editGroup.newLocation">
         <div class="col-md-1"><input type="text" class="form-control" id="group-newLocation-label" placeholder="Label" name="newLocationLabel" data-ng-model="editGroup.newLocation.label"></div>
@@ -88,13 +108,23 @@
     <div class="col-md-12">
         <label>Additional Contact Points</label>
         <span class="error" data-ng-show="!hasAdminEmail(editGroup)"> * Must have PatientView Admin Email</span>
-        <div data-ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points</div>
+        <div data-ng-hide="editGroup.contactPoints.length > 0" class="no-items">No additional contact points associated with this group<br/><br/></div>
+    </div>
+    <div class="clearfix">
+        <div class="col-md-3">
+            <label for="group-newContactPoint-type">Type</label>
+        </div>
+        <div class="col-md-5">
+            <label for="group-newContactPoint-type">Content</label>
+        </div>
+        <div>
+        </div>
     </div>
     <div class="link-list-item" data-ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
         <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" data-ng-model="contactPoint.contactPointType.id" data-ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes"></select></div>
-        <div class="col-md-3"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" data-ng-model="contactPoint.content" required></div>
-        <div><button type="button" class="btn negative contactPoint-delete-button" data-ng-click="removeContactPoint(groupFormNew, editGroup, contactPoint)"><i class="glyphicon glyphicon-minus-sign"></i></button></span></div>
+        <div class="col-md-5"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" data-ng-model="contactPoint.content" required></div>
+        <div><button type="button" class="btn negative contactPoint-delete-button" data-ng-click="removeContactPoint(groupFormNew, editGroup, contactPoint)">Delete</button></span></div>
     </div>
     <div class="add-form" data-ng-model="newContactPoint">
         <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" data-ng-model="newContactPoint.contactPointTypeId" data-ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
@@ -108,7 +138,18 @@
     <div class="links-container">
         <div class="col-md-12">
             <label>Links </label>
-            <div data-ng-hide="editGroup.links.length > 0" class="no-items"> There are currently no links associated with this group</div>
+            <div data-ng-hide="editGroup.links.length > 0" class="no-items">No links associated with this group<br/><br/></div>
+        </div>
+        <div>
+            <div class="col-md-3">
+                <label>Url</label>
+            </div>
+            <div class="col-md-5">
+                <label>Description</label>
+            </div>
+            <div class="col-md-1">
+                <label data-ng-show="editGroup.links.length > 0">Order</label>
+            </div>
         </div>
         <div class="link-list-item cleared-row" data-ng-repeat="link in editGroup.links | orderBy:'displayOrder'">
             <div class="col-md-3"><input type="text" class="form-control" id="group-link-link-{{link.id}}" placeholder="URL" name="link" data-ng-model="link.link" required></div>
@@ -118,7 +159,7 @@
                     <option data-ng-repeat="link in editGroup.links">{{$index + 1}}</option>
                 </select>
             </div>
-            <button type="button" class="btn negative link-delete-button" data-ng-click="removeLink(groupFormNew, editGroup, link)"><i class="glyphicon glyphicon-minus-sign"></i></button></span>
+            <button type="button" class="btn negative link-delete-button" data-ng-click="removeLink(groupFormNew, editGroup, link)">Delete</button></span>
         </div>
         <div class="add-form cleared-row" data-ng-model="newLink">
             <div class="col-md-3"><input type="text" class="form-control" id="group-newLink-link" placeholder="URL" name="newLink" data-ng-model="newLink.link"></div>
@@ -139,7 +180,7 @@
     <div class="col-md-12">
         <label>Features</label>
         <p>Features are additional PatientView functions available to group members.</p>
-        <div data-ng-hide="editGroup.groupFeatures.length > 0" class="no-items">No features</div>
+        <div data-ng-hide="editGroup.groupFeatures.length > 0" class="no-items">No features associated with this group</div>
     </div>
     <div class="col-md-6">
         <ul class="feature-list inline capsule-list">
