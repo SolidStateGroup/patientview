@@ -54,11 +54,11 @@
                                 <tr>
                                     <td class="forced-width">Address</td>
                                     <td>
-                                        {{patient.fhirPatient.address1}},
-                                        {{patient.fhirPatient.address2}},
-                                        {{patient.fhirPatient.address3}},
-                                        {{patient.fhirPatient.address4}},
-                                        {{patient.fhirPatient.postcode}}
+                                        <span data-ng-show="patient.fhirPatient.address1">{{patient.fhirPatient.address1}}<br/></span>
+                                        <span data-ng-show="patient.fhirPatient.address2">{{patient.fhirPatient.address2}}<br/></span>
+                                        <span data-ng-show="patient.fhirPatient.address3">{{patient.fhirPatient.address3}}<br/></span>
+                                        <span data-ng-show="patient.fhirPatient.address4">{{patient.fhirPatient.address4}}<br/></span>
+                                        <span data-ng-show="patient.fhirPatient.postcode">{{patient.fhirPatient.postcode}}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -83,11 +83,11 @@
                                 <tr>
                                     <td>Address</td>
                                     <td>
-                                        {{patient.fhirPractitioner.address1}},
-                                        {{patient.fhirPractitioner.address2}},
-                                        {{patient.fhirPractitioner.address3}},
-                                        {{patient.fhirPractitioner.address4}},
-                                        {{patient.fhirPractitioner.postcode}}
+                                        <span data-ng-show="patient.fhirPractitioner.address1">{{patient.fhirPractitioner.address1}}<br/></span>
+                                        <span data-ng-show="patient.fhirPractitioner.address2">{{patient.fhirPractitioner.address2}}<br/></span>
+                                        <span data-ng-show="patient.fhirPractitioner.address3">{{patient.fhirPractitioner.address3}}<br/></span>
+                                        <span data-ng-show="patient.fhirPractitioner.address4">{{patient.fhirPractitioner.address4}}<br/></span>
+                                        <span data-ng-show="patient.fhirPractitioner.postcode">{{patient.fhirPractitioner.postcode}}</span>
                                     </td>
                                 </tr>
                                 <tr>
