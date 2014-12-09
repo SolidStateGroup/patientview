@@ -37,6 +37,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserInformationRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.test.util.TestUtils;
 import org.springframework.mail.MailException;
 
@@ -88,6 +89,9 @@ public class UserServiceTest {
 
     @Mock
     private UserInformationRepository userInformationRepository;
+
+    @Mock
+    private UserTokenRepository userTokenRepository;
 
     @Mock
     private EmailService emailService;
