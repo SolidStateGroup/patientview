@@ -35,24 +35,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByEmail(String email);
 
-    @Query("SELECT u " +
-           "FROM User u " +
-           "JOIN u.groupRoles gr " +
-           "LEFT JOIN u.identifiers i " +
-           "WHERE gr.role.id IN :roleIds " +
-           "AND gr.group.id IN :groupIds " +
-           "AND ((UPPER(u.username) LIKE :filterText) " +
-           "OR (UPPER(u.forename) LIKE :filterText) " +
-           "OR (UPPER(u.surname) LIKE :filterText) " +
-           "OR (UPPER(u.email) LIKE :filterText) " +
-           "OR (UPPER(i.identifier) LIKE :filterText)) " +
-            "GROUP BY u.id")
-    Page<User> findByGroupsRoles(@Param("filterText") String filterText,
-                                 @Param("groupIds") List<Long> groupIds,
-                                 @Param("roleIds") List<Long> roleIds,
-                                 Pageable pageable);
+    @Query("select u1 FROM User u1 " +
+            "JOIN u1.groupRoles gr1 " +
+            "WHERE u1 IN (" +
 
-    @Query("SELECT u " +
+            "SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
            "JOIN u.identifiers i " +
@@ -63,25 +50,35 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText) " +
            "OR (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :filterText))) " +
-            "GROUP BY u.id")
+            "GROUP BY u.id" +
+
+            ") GROUP BY u1 HAVING Count(gr1.group.id) = :groupCount")
     Page<User> findPatientByGroupsRoles(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
+                                 @Param("groupCount") Long groupCount,
                                  Pageable pageable);
 
-    @Query("SELECT u " +
+    @Query("select u1 FROM User u1 " +
+            "JOIN u1.groupRoles gr1 " +
+            "WHERE u1 IN (" +
+            
+            "SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
            "WHERE gr.role.id IN :roleIds " +
-           "AND gr.group.id IN :groupIds " +
+           "AND gr.group.id IN (:groupIds) " +
            "AND ((UPPER(u.username) LIKE :filterText) " +
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText)) " +
-            "GROUP BY u.id")
+           "GROUP BY u.id" +
+
+           ") GROUP BY u1 HAVING Count(gr1.group.id) = :groupCount")
     Page<User> findStaffByGroupsRoles(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
+                                 @Param("groupCount") Long groupCount,
                                  Pageable pageable);
 
     @Query("SELECT u " +
@@ -92,28 +89,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND uf.feature = :feature " +
             "GROUP BY u.id")
     List<User> findByGroupAndFeature(@Param("userGroup") Group userGroup, @Param("feature") Feature feature);
-
-
-    @Query("SELECT u " +
-            "FROM User u " +
-            "JOIN u.groupRoles gr " +
-            "LEFT JOIN u.identifiers i " +
-            "JOIN u.userFeatures uf " +
-            "JOIN uf.feature f " +
-            "WHERE gr.role.id IN :roleIds " +
-            "AND gr.group.id IN :groupIds " +
-            "AND f.id IN :featureIds " +
-            "AND ((UPPER(u.username) LIKE :filterText) " +
-            "OR (UPPER(u.forename) LIKE :filterText) " +
-            "OR (UPPER(u.surname) LIKE :filterText) " +
-            "OR (UPPER(u.email) LIKE :filterText) " +
-            "OR (UPPER(i.identifier) LIKE :filterText)) " +
-            "GROUP BY u.id")
-    Page<User> findByGroupsRolesFeatures(@Param("filterText") String filterText,
-                                         @Param("groupIds") List<Long> groupIds,
-                                         @Param("roleIds") List<Long> roleIds,
-                                         @Param("featureIds") List<Long> featureIds,
-                                         Pageable pageable);
 
     @Query("SELECT u " +
            "FROM User u " +

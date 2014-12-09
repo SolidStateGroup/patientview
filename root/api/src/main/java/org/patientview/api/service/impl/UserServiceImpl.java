@@ -747,16 +747,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
 
-        if (staff && patient) {
-            users = userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
-        }
-
         if (!staff && patient) {
-            users = userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            users = userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds,
+                    Long.valueOf(groupIds.size()), pageable);
         }
 
         if (staff && !patient) {
-            users = userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            users = userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds,
+                    Long.valueOf(groupIds.size()), pageable);
         }
 
         // convert to lightweight transport objects, create Page and return
@@ -830,16 +828,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        if (staff && patient) {
-            return userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
-        }
-
         if (!staff && patient) {
-            return userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            return userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds,
+                    Long.valueOf(groupIds.size()), pageable);
         }
 
         if (staff && !patient) {
-            return userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            return userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds,
+                    Long.valueOf(groupIds.size()), pageable);
         }
 
         throw new ResourceNotFoundException("No Users found");
@@ -897,10 +893,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             } else if (roleMap.get(roleId).getRoleType().getValue().equals(RoleType.PATIENT)) {
                 patient = true;
             }
-        }
-
-        if (staff && patient) {
-            return userRepository.findByGroupsRolesFeatures(filterText, groupIds, roleIds, featureIds, pageable);
         }
 
         if (!staff && patient) {
