@@ -54,8 +54,9 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
 import org.patientview.repository.AboutmeDao;
-import org.patientview.repository.DiagnosticDao;
 import org.patientview.repository.EmailVerificationDao;
+import org.patientview.repository.EyeCheckupDao;
+import org.patientview.repository.FootCheckupDao;
 import org.patientview.repository.PatientDao;
 import org.patientview.repository.SpecialtyUserRoleDao;
 import org.patientview.repository.UktStatusDao;
@@ -110,9 +111,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private DiagnosisManager diagnosisManager;
 
     @Inject
-    private DiagnosticDao diagnosticDao;
-
-    @Inject
     private PatientDao patientDao;
 
     @Inject
@@ -120,6 +118,12 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     @Inject
     private EyeCheckupManager eyeCheckupManager;
+
+    @Inject
+    private EyeCheckupDao eyeCheckupDao;
+
+    @Inject
+    private FootCheckupDao footCheckupDao;
 
     @Inject
     private FootCheckupManager footCheckupManager;
@@ -143,6 +147,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private List<Role> roles;
     private List<Lookup> lookups;
     private List<Feature> features;
+
+    private Set<String> eyeCheckupNhsNos;
+    private Set<String> footCheckupNhsNos;
 
     private @Value("${migration.username}") String migrationUsername;
     private @Value("${migration.password}") String migrationPassword;
@@ -173,6 +180,22 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         List<Long> migratedPv1IdsThisRun = new ArrayList<Long>();
         List<Long> previouslyMigratedPv1Ids
                 = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
+        previouslyMigratedPv1Ids.addAll(JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.USER_MIGRATED));
+
+        // create set of nhs numbers with eye checkup
+        eyeCheckupNhsNos = new HashSet<String>();
+        List<EyeCheckup> allEyeCheckup = eyeCheckupDao.getAll();
+        for (EyeCheckup eyeCheckup : allEyeCheckup) {
+            eyeCheckupNhsNos.add(eyeCheckup.getNhsno());
+        }
+
+        // create set of nhs numbers with foot checkup
+        footCheckupNhsNos = new HashSet<String>();
+        List<FootCheckup> allFootCheckup = footCheckupDao.getAll();
+        for (FootCheckup footCheckup : allFootCheckup) {
+            footCheckupNhsNos.add(footCheckup.getNhsno());
+        }
+
         LOG.info("--- Starting migration ---");
 
         for (Group group : groups) {
@@ -187,7 +210,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
 
                             if (!oldUser.getUsername().endsWith("-GP")) {
-                                MigrationUser migrationUser = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
+                                MigrationUser migrationUser
+                                        = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
 
                                 try {
                                     LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group " + group.getCode()
@@ -208,7 +232,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     }
 
     private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser,
-                                              Role patientRole, Lookup nhsNumberIdentifier) {
+            Role patientRole, Lookup nhsNumberIdentifier) {
+
         //LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
         Set<String> identifiers = new HashSet<String>();
 
@@ -351,12 +376,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         // FHIR related patient data (not test result observations)
         if (isPatient) {
-            //List<Patient> pv1PatientRecords = patientManager.getByUsername(oldUser.getUsername());
-            List<Patient> pv1PatientRecords
-                    = patientDao.getByNhsNo(newUser.getIdentifiers().iterator().next().getIdentifier());
 
-            UktStatus uktStatus
-                    = ukTransplantDao.get(newUser.getIdentifiers().iterator().next().getIdentifier());
+            String nhsNo = newUser.getIdentifiers().iterator().next().getIdentifier();
+
+            List<Patient> pv1PatientRecords = patientDao.getByNhsNo(nhsNo);
+            UktStatus uktStatus = ukTransplantDao.get(nhsNo);
 
             if (pv1PatientRecords != null) {
                 for (Patient pv1PatientRecord : pv1PatientRecords) {
@@ -364,11 +388,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                     if (unit != null) {
                         migrationUser = addPatientTableData(migrationUser, pv1PatientRecord, unit, uktStatus);
-                        migrationUser = addCheckupTablesData(migrationUser, unit);
                         migrationUser = addDiagnosisTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
-                        migrationUser = addDiagnosticTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                         migrationUser = addLetterTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
                         migrationUser = addMedicineTableData(migrationUser, pv1PatientRecord.getNhsno(), unit);
+
+                        // eye and foot checkups
+                        if (eyeCheckupNhsNos.contains(nhsNo) || footCheckupNhsNos.contains(nhsNo)) {
+                            migrationUser = addCheckupTablesData(migrationUser, unit);
+                        }
 
                     } else {
                         LOG.error("Patient group not found from unitcode: " + pv1PatientRecord.getUnitcode()
@@ -716,57 +743,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 condition.setGroup(unit);
                 condition.setIdentifier(nhsNo);
                 migrationUser.getConditions().add(condition);
-            }
-        }
-
-        return migrationUser;
-    }
-
-    private MigrationUser addDiagnosticTableData(MigrationUser migrationUser, String nhsNo, Group unit) {
-
-        //pv1
-        //IMAGING(1, "Imaging"),
-        //ENDOSCOPY(2, "Endoscopy");
-        Set nhsNos = new HashSet<String>();
-        nhsNos.add(nhsNo);
-
-        List<Diagnostic> imagingDiagnostics = diagnosticDao.get(nhsNos, DiagnosticType.IMAGING);
-
-        if (CollectionUtils.isNotEmpty(imagingDiagnostics)) {
-            for (Diagnostic diagnostic : imagingDiagnostics) {
-                FhirObservation observation = new FhirObservation();
-                observation.setIdentifier(nhsNo);
-                observation.setValue(diagnostic.getDescription());
-                observation.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
-
-                FhirDiagnosticReport diagnosticReport = new FhirDiagnosticReport();
-                diagnosticReport.setGroup(unit);
-                diagnosticReport.setDate(diagnostic.getDatestamp().getTime());
-                diagnosticReport.setType(DiagnosticReportTypes.IMAGING.toString());
-                diagnosticReport.setName(diagnostic.getDescription());
-                diagnosticReport.setResult(observation);
-                diagnosticReport.setIdentifier(nhsNo);
-                migrationUser.getDiagnosticReports().add(diagnosticReport);
-            }
-        }
-
-        List<Diagnostic> endoscopyDiagnostics = diagnosticDao.get(nhsNos, DiagnosticType.ENDOSCOPY);
-
-        if (CollectionUtils.isNotEmpty(endoscopyDiagnostics)) {
-            for (Diagnostic diagnostic : endoscopyDiagnostics) {
-                FhirObservation observation = new FhirObservation();
-                observation.setIdentifier(nhsNo);
-                observation.setValue(diagnostic.getDescription());
-                observation.setName(DiagnosticReportObservationTypes.DIAGNOSTIC_RESULT.toString());
-
-                FhirDiagnosticReport diagnosticReport = new FhirDiagnosticReport();
-                diagnosticReport.setGroup(unit);
-                diagnosticReport.setDate(diagnostic.getDatestamp().getTime());
-                diagnosticReport.setType(DiagnosticReportTypes.ENDOSCOPY.toString());
-                diagnosticReport.setName(diagnostic.getDescription());
-                diagnosticReport.setResult(observation);
-                diagnosticReport.setIdentifier(nhsNo);
-                migrationUser.getDiagnosticReports().add(diagnosticReport);
             }
         }
 

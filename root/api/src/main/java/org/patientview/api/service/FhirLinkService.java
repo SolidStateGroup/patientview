@@ -11,4 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface FhirLinkService extends CrudService<FhirLink> {
     FhirLink findByVersionId(String versionId);
+
+
 }

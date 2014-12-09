@@ -21,5 +21,5 @@ public interface LetterService {
             throws FhirResourceException;
 
     @UserOnly
-    void delete(Long userId, Long date);
+    void delete(Long userId, Long groupId, Long date) throws ResourceNotFoundException, FhirResourceException;
 }

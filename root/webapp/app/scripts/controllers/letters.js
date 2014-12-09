@@ -16,10 +16,11 @@ function ($scope, $modalInstance, letter, LetterService) {
     $scope.modalMessage = '';
 
     $scope.remove = function () {
-        LetterService.remove($scope.loggedInUser.id, letter.date).then(function() {
-            $scope.modalMessage = '';
+        LetterService.remove($scope.loggedInUser.id, letter.group.id, letter.date).then(function() {
+            $scope.errorMessage = '';
             $scope.successMessage = 'Letter has been deleted.';
         }, function() {
+            $scope.successMessage = '';
             $scope.errorMessage = 'There was an error.';
         });
     };

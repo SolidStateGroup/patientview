@@ -32,10 +32,11 @@ public class LetterController extends BaseController<LetterController> {
         return new ResponseEntity<>(letterService.getByUserId(userId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/{userId}/letters/{date}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/user/{userId}/group/{groupId}/letters/{date}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteLetters(@PathVariable("userId") Long userId, @PathVariable("date") Long date)
+    public void deleteLetter(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
+                             @PathVariable("date") Long date)
             throws FhirResourceException, ResourceNotFoundException {
-        letterService.delete(userId, date);
+        letterService.delete(userId, groupId, date);
     }
 }
