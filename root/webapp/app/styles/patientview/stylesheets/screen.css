@@ -2225,7 +2225,7 @@ textarea.form-control.article-content {
 /* line 31, ../sass/_messages.scss */
 .message-item .quick-reply textarea, .tab-panel-item .quick-reply textarea {
   width: 100%;
-  color: #909090;
+  color: #353535;
   background: #f8f8f8;
   border: 1px solid #e4e9f0;
   height: 80px;
