@@ -20,6 +20,9 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
         $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
     }
 
+    // set role to first
+    $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
+
     // click Create New button
     $scope.create = function () {
         var i;
@@ -654,6 +657,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
                 // set the user being edited to a clone of the existing user (so only updated in UI on save)
                 $scope.editUser = _.clone(user);
+
+                // set role to first
+                $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
+
                 openedUser.editLoading = false;
             }, function(failureResult) {
                 openedUser.showEdit = false;
