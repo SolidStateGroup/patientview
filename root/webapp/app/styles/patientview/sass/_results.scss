@@ -78,6 +78,13 @@
             font-weight:bold;
             margin:0;
             line-height:26px;
+
+            .info-link{
+                font-size:12px;
+                font-weight:normal;
+                color:$aqua;
+                text-decoration:underline;
+            }
         }
     }
 
