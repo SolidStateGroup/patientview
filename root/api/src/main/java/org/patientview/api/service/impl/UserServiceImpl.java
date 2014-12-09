@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
+import org.patientview.api.model.BaseGroup;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.ConversationService;
@@ -489,7 +490,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // get last data received if present
         List<FhirLink> fhirLinks = fhirLinkRepository.findActiveByUser(user);
         if (!fhirLinks.isEmpty()) {
-            transportUser.setLatestDataReceivedBy(new org.patientview.api.model.Group(fhirLinks.get(0).getGroup()));
+            transportUser.setLatestDataReceivedBy(new BaseGroup(fhirLinks.get(0).getGroup()));
             transportUser.setLatestDataReceivedDate(fhirLinks.get(0).getCreated());
         }
 
