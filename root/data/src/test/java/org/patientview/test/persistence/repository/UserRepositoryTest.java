@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -55,6 +56,24 @@ public class UserRepositoryTest {
     }
 
     @Test
+    public void findGroupTest() {
+        User user = dataTestUtils.createUser("testUser");
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+
+        Long[] groupIdsArr = {group.getId()};
+
+        List<User> users = userRepository.findGroupTest(Arrays.asList(groupIdsArr));
+        //List<User> users = userRepository.findGroupTest();
+
+        Assert.assertEquals("Should be one user returned", 1, users.size());
+    }
+
+    @Test
     public void findStaffByGroupsRoles() {
         User user = dataTestUtils.createUser("testUser");
         Group group = dataTestUtils.createGroup("testGroup");
@@ -68,7 +87,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
 
         Page<User> users = userRepository.findStaffByGroupsRoles("%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), 1L, new PageRequest(0, Integer.MAX_VALUE));
+                , Arrays.asList(roleIdsArr), new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
@@ -85,12 +104,15 @@ public class UserRepositoryTest {
         User user3 = dataTestUtils.createUser("test3User");
         Group group3 = dataTestUtils.createGroup("test3Group");
 
+        // yes
         dataTestUtils.createGroupRole(user, group, role);
         dataTestUtils.createGroupRole(user, group2, role);
 
+        // no
         dataTestUtils.createGroupRole(user2, group2, role);
         dataTestUtils.createGroupRole(user2, group3, role);
 
+        // yes
         dataTestUtils.createGroupRole(user3, group, role);
         dataTestUtils.createGroupRole(user3, group2, role);
         dataTestUtils.createGroupRole(user3, group3, role);
@@ -99,7 +121,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
 
         Page<User> users = userRepository.findStaffByGroupsRoles("%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), 2L, new PageRequest(0, Integer.MAX_VALUE));
+                , Arrays.asList(roleIdsArr),  new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 user returned", 2, users.getContent().size());
     }

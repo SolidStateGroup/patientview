@@ -59,27 +59,34 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  @Param("groupCount") Long groupCount,
                                  Pageable pageable);
 
-    @Query("select u1 FROM User u1 " +
-            "JOIN u1.groupRoles gr1 " +
-            "WHERE u1 IN (" +
+    @Query(//"select u1 FROM User u1 " +
+           // "JOIN u1.groupRoles gr1 " +
+           // "WHERE u1 IN (" +
             
             "SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
            "WHERE gr.role.id IN :roleIds " +
-           "AND gr.group.id IN (:groupIds) " +
+           "AND (select g.id from Group g where g.id in (:groupIds)) IN (gr.group.id) " +
            "AND ((UPPER(u.username) LIKE :filterText) " +
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText)) " +
-           "GROUP BY u.id" +
+           "GROUP BY u.id")// +
 
-           ") GROUP BY u1 HAVING Count(gr1.group.id) = :groupCount")
+           //") GROUP BY u1 HAVING Count(gr1.group.id) = :groupCount")
     Page<User> findStaffByGroupsRoles(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
-                                 @Param("groupCount") Long groupCount,
+                                 //@Param("groupCount") Long groupCount,
                                  Pageable pageable);
+    @Query("SELECT u " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "WHERE :groupIds IN gr.group.id " +
+            "GROUP BY u.id")
+        //List<User> findGroupTest(@Param("groupIds") List<Long> groupIds);
+    List<User> findGroupTest(@Param("groupIds") List<Long> groupIds);
 
     @Query("SELECT u " +
             "FROM User u " +
