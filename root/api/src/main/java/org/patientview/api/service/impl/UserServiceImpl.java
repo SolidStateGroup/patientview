@@ -754,7 +754,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         if (staff && !patient) {
             users = userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds,
-                    Long.valueOf(groupIds.size()), pageable);
+                    pageable);
         }
 
         // convert to lightweight transport objects, create Page and return
@@ -835,7 +835,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         if (staff && !patient) {
             return userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds,
-                    Long.valueOf(groupIds.size()), pageable);
+                     pageable);
         }
 
         throw new ResourceNotFoundException("No Users found");

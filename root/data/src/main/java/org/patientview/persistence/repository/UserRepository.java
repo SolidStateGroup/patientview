@@ -67,7 +67,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "FROM User u " +
            "JOIN u.groupRoles gr " +
            "WHERE gr.role.id IN :roleIds " +
-           "AND (select g.id from Group g where g.id in (:groupIds)) IN (gr.group.id) " +
+           "AND (:groupIds) IN (gr.group.id) " +
            "AND ((UPPER(u.username) LIKE :filterText) " +
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
@@ -83,7 +83,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u " +
             "FROM User u " +
             "JOIN u.groupRoles gr " +
-            "WHERE :groupIds IN gr.group.id " +
+            "WHERE (:groupIds) IN (gr.group.id) " +
             "GROUP BY u.id")
         //List<User> findGroupTest(@Param("groupIds") List<Long> groupIds);
     List<User> findGroupTest(@Param("groupIds") List<Long> groupIds);

@@ -59,18 +59,34 @@ public class UserRepositoryTest {
     public void findGroupTest() {
         User user = dataTestUtils.createUser("testUser");
         Group group = dataTestUtils.createGroup("testGroup");
-        Group group2 = dataTestUtils.createGroup("test2Group");
         Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
 
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+
+        User user3 = dataTestUtils.createUser("test3User");
+        Group group3 = dataTestUtils.createGroup("test3Group");
+
+        // yes
         dataTestUtils.createGroupRole(user, group, role);
         dataTestUtils.createGroupRole(user, group2, role);
 
-        Long[] groupIdsArr = {group.getId()};
+        // no
+        dataTestUtils.createGroupRole(user2, group2, role);
+        dataTestUtils.createGroupRole(user2, group3, role);
 
-        List<User> users = userRepository.findGroupTest(Arrays.asList(groupIdsArr));
+        // yes
+        dataTestUtils.createGroupRole(user3, group, role);
+        dataTestUtils.createGroupRole(user3, group2, role);
+        dataTestUtils.createGroupRole(user3, group3, role);
+
+        Long[] groupIdsArr = {group.getId(), group2.getId()};
+
+        //List<User> users = userRepository.findGroupTest(Arrays.asList(groupIdsArr));
+        List<User> users = userRepository.findGroupTest(Arrays.asList(1L,2L,3L));
         //List<User> users = userRepository.findGroupTest();
 
-        Assert.assertEquals("Should be one user returned", 1, users.size());
+        Assert.assertEquals("Should be 2 user returned", 2, users.size());
     }
 
     @Test
@@ -82,6 +98,8 @@ public class UserRepositoryTest {
 
         dataTestUtils.createGroupRole(user, group, role);
         dataTestUtils.createGroupRole(user, group2, role);
+
+
 
         Long[] groupIdsArr = {group.getId()};
         Long[] roleIdsArr = {role.getId()};
