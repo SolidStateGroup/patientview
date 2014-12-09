@@ -318,7 +318,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, UserService, GroupService, RoleService, FeatureService,
               StaticDataService, AuthService, localStorageService, UtilService) {
 
-    $scope.itemsPerPage = 20;
+    $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
     $scope.filterText = '';
     $scope.sortField = 'surname';

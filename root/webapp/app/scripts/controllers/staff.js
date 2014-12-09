@@ -150,7 +150,7 @@ function ($scope, $modalInstance, user, UserService) {
 angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'UtilService',
     function ($rootScope, $scope, $compile, $modal, $timeout, UserService, UtilService) {
 
-    $scope.itemsPerPage = 20;
+    $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
     $scope.filterText = '';
     $scope.sortField = 'surname';

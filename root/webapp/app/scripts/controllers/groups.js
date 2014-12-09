@@ -68,7 +68,7 @@ function ($scope, $rootScope, $modalInstance, permissions, editGroup, allFeature
 angular.module('patientviewApp').controller('GroupsCtrl', ['$scope','$timeout', '$modal','GroupService','StaticDataService','FeatureService','UserService',
 function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureService, UserService) {
 
-    $scope.itemsPerPage = 20;
+    $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
     $scope.filterText = '';
     $scope.sortField = 'code';
