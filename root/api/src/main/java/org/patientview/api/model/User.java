@@ -30,7 +30,7 @@ public class User extends BaseUser {
 
     // from fhirLink
     private Date latestDataReceivedDate;
-    private Group latestDataReceivedBy;
+    private BaseGroup latestDataReceivedBy;
 
     // FHIR
     private Date fhirDateOfBirth;
@@ -165,6 +165,14 @@ public class User extends BaseUser {
         this.created = created;
     }
 
+    public BaseGroup getLatestDataReceivedBy() {
+        return latestDataReceivedBy;
+    }
+
+    public void setLatestDataReceivedBy(BaseGroup latestDataReceivedBy) {
+        this.latestDataReceivedBy = latestDataReceivedBy;
+    }
+
     public Date getLatestDataReceivedDate() {
         return latestDataReceivedDate;
     }
@@ -173,13 +181,6 @@ public class User extends BaseUser {
         this.latestDataReceivedDate = latestDataReceivedDate;
     }
 
-    public Group getLatestDataReceivedBy() {
-        return latestDataReceivedBy;
-    }
-
-    public void setLatestDataReceivedBy(Group latestDataReceivedBy) {
-        this.latestDataReceivedBy = latestDataReceivedBy;
-    }
 
     public Date getFhirDateOfBirth() {
         return fhirDateOfBirth;

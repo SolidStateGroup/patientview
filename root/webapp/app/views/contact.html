@@ -19,11 +19,6 @@
 
 <div data-ng-show="!loading">
     <h1>Contact Your Unit</h1>
-    <p>
-        Refer to contact details below or
-        <a href="" data-ng-click="openModalContactUnit(group)">send a secure message now in PatientView</a>.
-        Please check that the email we hold for you is correct so that you will get notification of replies.
-    </p>
     <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
     <div class="patient-details">
         <div class="">
@@ -39,7 +34,15 @@
                     </div>
                     <div data-ng-repeat="group in groups" data-ng-show="group.selected">
                         <div class="panel panel-default">
-                            <div class="panel-heading"><h3>{{group.name}}</h3></div>
+                            <div class="panel-heading">
+                                <h3>{{group.name}}</h3>
+                                <br/>
+                                <p>
+                                    Refer to contact details below or
+                                    <a href="" data-ng-click="openModalContactUnit(group)">send a secure message now in PatientView</a>.
+                                    Please check that the email we hold for you is correct so that you will get notification of replies.
+                                </p>
+                            </div>
                             <div class="panel-body">
                                 <div data-ng-show="group.address1">
                                     <h4>Address</h4>

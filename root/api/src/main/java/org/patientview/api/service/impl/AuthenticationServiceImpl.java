@@ -349,7 +349,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             for (FhirLink fhirLink : user.getFhirLinks()) {
                 if (fhirLink.getUpdated() != null) {
                     if (fhirLink.getUpdated().after(latestDataReceivedDate)
-                            && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+                            && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())
+                            && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.ECS.toString())) {
                         latestDataReceivedDate = fhirLink.getUpdated();
                         group = fhirLink.getGroup();
                     }

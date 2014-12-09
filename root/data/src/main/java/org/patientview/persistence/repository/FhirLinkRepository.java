@@ -19,7 +19,7 @@ import java.util.UUID;
  * Created on 29/08/2014
  */
 @Repository
-@Transactional(propagation = Propagation.MANDATORY)
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
 
     @Query("SELECT  f " +
@@ -61,4 +61,6 @@ public interface FhirLinkRepository extends CrudRepository<FhirLink, Long> {
             "FROM   FhirLink f " +
             "WHERE  f.versionId = :versionId ")
     FhirLink findByVersionUuid(@Param("versionId") UUID versionId);
+
+    List<FhirLink> findByUserAndGroup(User entityUser, Group entityGroup);
 }

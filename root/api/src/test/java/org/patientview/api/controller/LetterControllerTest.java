@@ -5,9 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.LetterService;
+import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Role;
@@ -23,8 +24,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -52,7 +51,7 @@ public class LetterControllerTest {
     }
 
     @Test
-    public void testGetLettersByUserId() {
+    public void testGetLettersByUserId() throws Exception {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -63,16 +62,12 @@ public class LetterControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/letters"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception throw");
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/letters"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void testDeleteLetter() {
+    public void testDeleteLetter() throws ResourceNotFoundException, FhirResourceException {
 
         Long letterDate = 12345L;
 
@@ -86,7 +81,7 @@ public class LetterControllerTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + user.getId()
+            mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + user.getId() + "/group/" + group.getId()
                     + "/letters/" + letterDate.toString()))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
