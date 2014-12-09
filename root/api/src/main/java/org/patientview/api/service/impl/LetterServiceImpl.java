@@ -155,7 +155,7 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
             String dateString = dateAndTime.toString();
             DateTimeFormatter parser2 = ISODateTimeFormat.dateTimeNoMillis();
             org.joda.time.DateTime dateTime = parser2.parseDateTime(dateString);
-            
+
             if (dateTime.getMillis() == date) {
                 documentReferenceUuidsToDelete.add(uuid);
             }
