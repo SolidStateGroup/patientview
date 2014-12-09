@@ -5,6 +5,9 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.LetterService;
@@ -27,7 +30,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -132,52 +138,25 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
 
         List<UUID> documentReferenceUuids = new ArrayList<>();
 
+        // get all letters
         for (FhirLink fhirLink : fhirLinkRepository.findByUserAndGroup(entityUser, entityGroup)) {
-
             documentReferenceUuids.addAll(
                     fhirResource.getLogicalIdsBySubjectId("documentreference", fhirLink.getResourceId()));
-
-            /*StringBuilder query = new StringBuilder();
-            query.append("SELECT logical_id ");
-            query.append("FROM documentreference ");
-            query.append(" WHERE content -> 'subject' ->> 'display' = '");
-            query.append(fhirLink.getResourceId());
-            query.append("' ");
-            query.append("AND CONTENT -> 'created' = '");
-            query.append(new Timestamp(date));
-            query.append("'");
-
-            Connection connection = null;
-
-            try {
-                connection = dataSource.getConnection();
-                java.sql.Statement statement = connection.createStatement();
-                ResultSet results = statement.executeQuery(query.toString());
-
-                while ((results.next())) {
-                    documentReferenceUuidsToDelete.add(UUID.fromString(results.getString(1)));
-                }
-
-                connection.close();
-            } catch (SQLException se) {
-                // try and close the open connection
-                try {
-                    if (connection != null) {
-                        connection.close();
-                    }
-                } catch (SQLException se2) {
-                    throw new FhirResourceException(se2.getMessage());
-                }
-            }*/
         }
 
         List<UUID> documentReferenceUuidsToDelete = new ArrayList<>();
 
+        // get to be deleted by date
         for (UUID uuid : documentReferenceUuids) {
             DocumentReference documentReference
                     = (DocumentReference) fhirResource.get(uuid, ResourceType.DocumentReference);
 
-            if (documentReference.getCreated().getValue().toCalendar().getTime().getTime() == date) {
+            DateAndTime dateAndTime = documentReference.getCreated().getValue();
+            String dateString = dateAndTime.toString();
+            DateTimeFormatter parser2 = ISODateTimeFormat.dateTimeNoMillis();
+            org.joda.time.DateTime dateTime = parser2.parseDateTime(dateString);
+            
+            if (dateTime.getMillis() == date) {
                 documentReferenceUuidsToDelete.add(uuid);
             }
         }
