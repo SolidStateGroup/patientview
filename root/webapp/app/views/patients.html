@@ -107,18 +107,54 @@
                        class="form-control input-block-level" />
             </div>
         </div>-->
-
+<br/>
         <div class="content-panel row">
             <div class="col-md-1">
                 <h3>Search</h3>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
+                <label for="search-surname" class="control-label">Surname</label>
+                <div>
+                    <input type="text" class="form-control" id="search-surname" placeholder="Surname"
+                           data-ng-model="searchItems.surname">
+                    <br/>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label for="search-forename" class="control-label">Forename</label>
+                <div>
+                    <input type="text" class="form-control" id="search-forename" placeholder="Forename"
+                           data-ng-model="searchItems.forename">
+                    <br/>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label for="search-identifier" class="control-label">Identifier</label>
+                <div>
+                    <input type="text" class="form-control" id="search-identifier" placeholder="Identifier"
+                           data-ng-model="searchItems.identifier">
+                    <br/>
+                </div>
+            </div>
+            <div class="col-md-2">
                 <label for="search-username" class="control-label">Username</label>
                 <div>
                     <input type="text" class="form-control" id="search-username" placeholder="Username"
-                           data-ng-model="editUser.username">
+                           data-ng-model="searchItems.username">
                     <br/>
                 </div>
+            </div>
+            <div class="col-md-2">
+                <label for="search-email" class="control-label">Email</label>
+                <div>
+                    <input type="text" class="form-control" id="search-email" placeholder="Identifier"
+                           data-ng-model="searchItems.email">
+                    <br/>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <!-- todo, styling etc -->
+                <a class="btn blue" href="" style="margin-top:25px;" data-ng-click="search()">Search</a>
             </div>
         </div>
 
