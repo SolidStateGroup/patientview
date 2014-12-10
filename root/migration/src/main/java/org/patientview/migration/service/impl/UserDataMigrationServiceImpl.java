@@ -428,25 +428,31 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         Long NHS_NUMBER_START = 4000000000L;
         Long NHS_NUMBER_END = 9000000000L;
 
-        // if non numeric then assume is dummy and return type as NHS number
-        if (!NumberUtils.isNumber(identifier)) {
-            return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
-        } else {
-            Long identifierNumber = Long.getLong(identifier);
+        try {
 
-            if (CHI_NUMBER_START <= identifierNumber && identifierNumber <= CHI_NUMBER_END) {
-                return getLookupByName(IdentifierTypes.CHI_NUMBER.toString());
-            }
+            // if non numeric then assume is dummy and return type as NHS number
+            if (!NumberUtils.isNumber(identifier)) {
+                return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+            } else {
+                Long identifierNumber = Long.getLong(identifier);
 
-            if (HSC_NUMBER_START <= identifierNumber && identifierNumber <= HSC_NUMBER_END) {
-                return getLookupByName(IdentifierTypes.HSC_NUMBER.toString());
-            }
+                if (CHI_NUMBER_START <= identifierNumber && identifierNumber <= CHI_NUMBER_END) {
+                    return getLookupByName(IdentifierTypes.CHI_NUMBER.toString());
+                }
 
-            if (NHS_NUMBER_START <= identifierNumber && identifierNumber <= NHS_NUMBER_END) {
+                if (HSC_NUMBER_START <= identifierNumber && identifierNumber <= HSC_NUMBER_END) {
+                    return getLookupByName(IdentifierTypes.HSC_NUMBER.toString());
+                }
+
+                if (NHS_NUMBER_START <= identifierNumber && identifierNumber <= NHS_NUMBER_END) {
+                    return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+                }
+
+                // others outside range assume dummy and return type as NHS number
                 return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
             }
-
-            // others outside range assume dummy and return type as NHS number
+        } catch (Exception e) {
+            LOG.error("Identifier type exception: ", e);
             return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
         }
     }
