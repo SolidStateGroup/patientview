@@ -36,6 +36,7 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserInformationRepository;
+import org.patientview.persistence.repository.UserMigrationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.test.util.TestUtils;
@@ -92,6 +93,9 @@ public class UserServiceTest {
 
     @Mock
     private UserTokenRepository userTokenRepository;
+
+    @Mock
+    private UserMigrationRepository userMigrationRepository;
 
     @Mock
     private EmailService emailService;
