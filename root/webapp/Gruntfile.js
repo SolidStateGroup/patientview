@@ -612,11 +612,11 @@ module.exports = function (grunt) {
         'clean:dist',
         'ngconstant:apilocal',
         'copy:minimal',
-        'useminPrepare',
+        /*'useminPrepare',
         'concat',
         'uglify',
         'cssmin',
-        'usemin',
+        'usemin',*/
         'war'
     ]);
 

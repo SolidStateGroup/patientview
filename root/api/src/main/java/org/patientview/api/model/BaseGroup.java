@@ -13,6 +13,7 @@ public class BaseGroup {
     private String shortName;
     private String code;
     private Boolean visible;
+    private Boolean visibleToJoin;
     private Lookup groupType;
 
     public BaseGroup() {
@@ -26,6 +27,7 @@ public class BaseGroup {
         setShortName(group.getShortName());
         setVisible(group.getVisible());
         setGroupType(group.getGroupType());
+        setVisibleToJoin(group.getVisibleToJoin());
     }
 
     public Long getId() {
@@ -74,5 +76,13 @@ public class BaseGroup {
 
     public void setGroupType(Lookup groupType) {
         this.groupType = groupType;
+    }
+
+    public Boolean getVisibleToJoin() {
+        return visibleToJoin;
+    }
+
+    public void setVisibleToJoin(Boolean visibleToJoin) {
+        this.visibleToJoin = visibleToJoin;
     }
 }
