@@ -27,7 +27,7 @@
                 <tbody>
                 <tr data-ng-repeat="letter in letters | orderBy: predicate :reverse
                     | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
-                    <td>{{letter.date | date: 'dd-MMM-yyyy HH:mm'}}</td>
+                    <td>{{letter.date | date: 'dd-MMM-yyyy'}}</td>
                     <td>{{letter.type}}</td>
                     <td>{{letter.group.name}}</td>
                     <td>
