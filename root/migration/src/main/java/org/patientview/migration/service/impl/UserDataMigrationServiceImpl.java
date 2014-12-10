@@ -293,26 +293,28 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         // identifiers and about me (will only be for patient)
         if (isPatient) {
             for (String identifierText : identifiers) {
-                Identifier identifier = new Identifier();
-                identifier.setIdentifier(identifierText);
+                if (StringUtils.isNotEmpty(identifierText)) {
+                    Identifier identifier = new Identifier();
+                    identifier.setIdentifier(identifierText);
 
-                // set type based on numeric value (if possible)
-                identifier.setIdentifierType(getIdentifierType(identifierText));
-                newUser.getIdentifiers().add(identifier);
+                    // set type based on numeric value (if possible)
+                    identifier.setIdentifierType(getIdentifierType(identifierText));
+                    newUser.getIdentifiers().add(identifier);
 
-                Aboutme aboutMe = aboutMeDao.get(identifierText);
-                if (aboutMe != null) {
-                    newUser.setUserInformation(new HashSet<UserInformation>());
+                    Aboutme aboutMe = aboutMeDao.get(identifierText);
+                    if (aboutMe != null) {
+                        newUser.setUserInformation(new HashSet<UserInformation>());
 
-                    UserInformation shouldKnow = new UserInformation();
-                    shouldKnow.setType(UserInformationTypes.SHOULD_KNOW);
-                    shouldKnow.setValue(aboutMe.getAboutme());
-                    newUser.getUserInformation().add(shouldKnow);
+                        UserInformation shouldKnow = new UserInformation();
+                        shouldKnow.setType(UserInformationTypes.SHOULD_KNOW);
+                        shouldKnow.setValue(aboutMe.getAboutme());
+                        newUser.getUserInformation().add(shouldKnow);
 
-                    UserInformation talkAbout = new UserInformation();
-                    talkAbout.setType(UserInformationTypes.TALK_ABOUT);
-                    talkAbout.setValue(aboutMe.getTalkabout());
-                    newUser.getUserInformation().add(talkAbout);
+                        UserInformation talkAbout = new UserInformation();
+                        talkAbout.setType(UserInformationTypes.TALK_ABOUT);
+                        talkAbout.setValue(aboutMe.getTalkabout());
+                        newUser.getUserInformation().add(talkAbout);
+                    }
                 }
             }
         }
