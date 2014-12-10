@@ -2,6 +2,7 @@ package org.patientview.migration.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
@@ -176,7 +177,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         init();
         Role patientRole = getRoleByName(RoleName.PATIENT);
-        Lookup nhsNumberIdentifier = getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+
         List<Long> migratedPv1IdsThisRun = new ArrayList<Long>();
         List<Long> previouslyMigratedPv1Ids
                 = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
@@ -210,8 +211,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                             org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
 
                             if (!oldUser.getUsername().endsWith("-GP")) {
-                                MigrationUser migrationUser
-                                        = createMigrationUser(oldUser, patientRole, nhsNumberIdentifier);
+                                MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
                                 try {
                                     LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group " + group.getCode()
@@ -231,8 +231,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
     }
 
-    private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser,
-            Role patientRole, Lookup nhsNumberIdentifier) {
+    private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser, Role patientRole) {
 
         //LOG.info("--- Migrating " + oldUser.getUsername() + ": starting ---");
         Set<String> identifiers = new HashSet<String>();
@@ -296,7 +295,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             for (String identifierText : identifiers) {
                 Identifier identifier = new Identifier();
                 identifier.setIdentifier(identifierText);
-                identifier.setIdentifierType(nhsNumberIdentifier);
+
+                // set type based on numeric value (if possible)
+                identifier.setIdentifierType(getIdentifierType(identifierText));
                 newUser.getIdentifiers().add(identifier);
 
                 Aboutme aboutMe = aboutMeDao.get(identifierText);
@@ -409,6 +410,38 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         return migrationUser;
     }
 
+    // to set type of identifier based on numeric range
+    private Lookup getIdentifierType(String identifier) {
+        Long CHI_NUMBER_START = 10000010L;
+        Long CHI_NUMBER_END = 3199999999L;
+        Long HSC_NUMBER_START = 3200000010L;
+        Long HSC_NUMBER_END = 3999999999L;
+        Long NHS_NUMBER_START = 4000000000L;
+        Long NHS_NUMBER_END = 9000000000L;
+
+        // if non numeric then assume is dummy and return type as NHS number
+        if (!NumberUtils.isNumber(identifier)) {
+            return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+        } else {
+            Long identifierNumber = Long.getLong(identifier);
+
+            if (CHI_NUMBER_START <= identifierNumber && identifierNumber <= CHI_NUMBER_END) {
+                return getLookupByName(IdentifierTypes.CHI_NUMBER.toString());
+            }
+
+            if (HSC_NUMBER_START <= identifierNumber && identifierNumber <= HSC_NUMBER_END) {
+                return getLookupByName(IdentifierTypes.HSC_NUMBER.toString());
+            }
+
+            if (NHS_NUMBER_START <= identifierNumber && identifierNumber <= NHS_NUMBER_END) {
+                return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+            }
+
+            // others outside range assume dummy and return type as NHS number
+            return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+        }
+    }
+
     private MigrationUser addPatientTableData(MigrationUser migrationUser, Patient pv1PatientRecord,
                                               Group unit, UktStatus uktStatus) {
         // date of birth in user object
@@ -455,7 +488,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (StringUtils.isNotEmpty(pv1PatientRecord.getNhsno())) {
             FhirIdentifier nhsNumber = new FhirIdentifier();
             nhsNumber.setValue(pv1PatientRecord.getNhsno());
+
+            // set label based on contents (NHS/CHI/H&SC
             nhsNumber.setLabel(IdentifierTypes.NHS_NUMBER.toString());
+
             patient.getIdentifiers().add(nhsNumber);
         }
 
