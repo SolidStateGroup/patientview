@@ -2,6 +2,7 @@ package org.patientview.persistence.repository;
 
 import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.MigrationStatus;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -33,4 +34,8 @@ public interface UserMigrationRepository extends CrudRepository<UserMigration, L
 
     @Query("SELECT um FROM UserMigration um WHERE um.patientview2UserId = :patientview2Id")
     UserMigration getByPatientview2Id(@Param("patientview2Id") Long patientview2Id);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM UserMigration WHERE patientview2UserId = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }
