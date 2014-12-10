@@ -201,7 +201,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         for (Group group : groups) {
             // temporary remove RJE01
-            if (!group.getCode().equals("RJE01")) {
+            if (!group.getCode().equals("RJE01") && !group.getCode().equals("MPGN")) {
                 LOG.info("(Migration) From Group: " + group.getCode());
                 List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGp(group.getCode());
                 LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
