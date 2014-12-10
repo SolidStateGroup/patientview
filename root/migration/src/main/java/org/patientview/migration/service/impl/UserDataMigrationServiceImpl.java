@@ -1247,9 +1247,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setUsername(user.getUsername());
         newUser.setEmailVerified(user.isEmailverified());
 
-        List<EmailVerification> emailVerifications = emailVerificationDao.getByEmail(user.getEmail());
-        if (CollectionUtils.isNotEmpty(emailVerifications)) {
-            newUser.setVerificationCode(emailVerifications.get(0).getVerificationcode());
+        try {
+            List<EmailVerification> emailVerifications = emailVerificationDao.getByEmail(user.getEmail());
+            if (CollectionUtils.isNotEmpty(emailVerifications)) {
+                newUser.setVerificationCode(emailVerifications.get(0).getVerificationcode());
+            }
+        } catch (Exception e) {
+            LOG.error("Email verification exception: ", e);
         }
 
         newUser.setLastLogin(user.getLastlogon());
