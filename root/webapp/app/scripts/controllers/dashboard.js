@@ -63,7 +63,8 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                             text: null
                         },
                         xAxis: {
-                            categories: xAxisCategories
+                            categories: xAxisCategories,
+                            labels: {enabled:false}
                         },
                         yAxis: {
                             title: {
