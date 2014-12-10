@@ -200,32 +200,35 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("--- Starting migration ---");
 
         for (Group group : groups) {
-            LOG.info("(Migration) From Group: " + group.getCode());
-            List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGp(group.getCode());
-            LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
+            // temporary remove RJE01
+            if (!group.getCode().equals("RJE01")) {
+                LOG.info("(Migration) From Group: " + group.getCode());
+                List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGp(group.getCode());
+                LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
 
-            if (CollectionUtils.isNotEmpty(groupUserIds)) {
-                for (Long oldUserId : groupUserIds) {
-                    if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
-                        try {
-                            org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+                if (CollectionUtils.isNotEmpty(groupUserIds)) {
+                    for (Long oldUserId : groupUserIds) {
+                        if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
+                            try {
+                                org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
 
-                            if (!oldUser.getUsername().endsWith("-GP")) {
-                                MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+                                if (!oldUser.getUsername().endsWith("-GP")) {
+                                    MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
-                                if (migrationUser != null) {
-                                    try {
-                                        LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
-                                                + group.getCode() + " submitting to REST");
-                                        userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                                        migratedPv1IdsThisRun.add(oldUser.getId());
-                                    } catch (Exception e) {
-                                        LOG.error("REST submit exception: ", e);
+                                    if (migrationUser != null) {
+                                        try {
+                                            LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
+                                                    + group.getCode() + " submitting to REST");
+                                            userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                                            migratedPv1IdsThisRun.add(oldUser.getId());
+                                        } catch (Exception e) {
+                                            LOG.error("REST submit exception: ", e);
+                                        }
                                     }
                                 }
+                            } catch (Exception e) {
+                                LOG.error("Exception: ", e);
                             }
-                        } catch (Exception e) {
-                            LOG.error("Exception: ", e);
                         }
                     }
                 }
@@ -443,23 +446,25 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             } else {
                 Long identifierNumber = Long.getLong(identifier);
 
-                if (CHI_NUMBER_START <= identifierNumber && identifierNumber <= CHI_NUMBER_END) {
-                    return getLookupByName(IdentifierTypes.CHI_NUMBER.toString());
-                }
+                if (identifierNumber != null) {
+                    if (CHI_NUMBER_START <= identifierNumber && identifierNumber <= CHI_NUMBER_END) {
+                        return getLookupByName(IdentifierTypes.CHI_NUMBER.toString());
+                    }
 
-                if (HSC_NUMBER_START <= identifierNumber && identifierNumber <= HSC_NUMBER_END) {
-                    return getLookupByName(IdentifierTypes.HSC_NUMBER.toString());
-                }
+                    if (HSC_NUMBER_START <= identifierNumber && identifierNumber <= HSC_NUMBER_END) {
+                        return getLookupByName(IdentifierTypes.HSC_NUMBER.toString());
+                    }
 
-                if (NHS_NUMBER_START <= identifierNumber && identifierNumber <= NHS_NUMBER_END) {
-                    return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+                    if (NHS_NUMBER_START <= identifierNumber && identifierNumber <= NHS_NUMBER_END) {
+                        return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+                    }
                 }
 
                 // others outside range assume dummy and return type as NHS number
                 return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
             }
         } catch (Exception e) {
-            LOG.error("Identifier type exception: ", e);
+            LOG.error("Identifier type exception with '" + identifier + "'");
             return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
         }
     }
@@ -843,7 +848,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     documentReference.setType(letter.getType());
                 }
                 if (StringUtils.isNotEmpty(letter.getContent())) {
-                    documentReference.setContent(letter.getContent());
+                    String utf8Content = letter.getContent().replaceAll("[^\\u0000-\\uFFFF]", "");
+                    documentReference.setContent(utf8Content);
                 }
                 documentReference.setIdentifier(nhsNo);
                 migrationUser.getDocumentReferences().add(documentReference);
