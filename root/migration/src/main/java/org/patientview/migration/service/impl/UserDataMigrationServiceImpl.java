@@ -552,18 +552,29 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
             // strip ' from practitioner name
             practitioner.setName(pv1PatientRecord.getGpname().replace("'",""));
-            practitioner.setAddress1(pv1PatientRecord.getGpaddress1());
-            practitioner.setAddress2(pv1PatientRecord.getGpaddress2());
-            practitioner.setAddress3(pv1PatientRecord.getGpaddress3());
-            practitioner.setPostcode(pv1PatientRecord.getGppostcode());
+            if (StringUtils.isNotEmpty(pv1PatientRecord.getGpaddress1())) {
+                practitioner.setAddress1(pv1PatientRecord.getGpaddress1());
+            }
+            if (StringUtils.isNotEmpty(pv1PatientRecord.getGpaddress2())) {
+                practitioner.setAddress2(pv1PatientRecord.getGpaddress2());
+            }
+            if (StringUtils.isNotEmpty(pv1PatientRecord.getGpaddress3())) {
+                practitioner.setAddress3(pv1PatientRecord.getGpaddress3());
+            }
+            if (StringUtils.isNotEmpty(pv1PatientRecord.getGppostcode())) {
+                practitioner.setPostcode(pv1PatientRecord.getGppostcode());
+            }
             practitioner.setContacts(new ArrayList<FhirContact>());
 
-            // - practitioner contact data
-            FhirContact practitionerContact = new FhirContact();
-            practitionerContact.setUse("work");
-            practitionerContact.setSystem("phone");
-            practitionerContact.setValue(pv1PatientRecord.getGptelephone());
-            practitioner.getContacts().add(practitionerContact);
+            if (StringUtils.isNotEmpty(pv1PatientRecord.getGptelephone())) {
+                // - practitioner contact data
+                FhirContact practitionerContact = new FhirContact();
+                practitionerContact.setUse("work");
+                practitionerContact.setSystem("phone");
+                practitionerContact.setValue(pv1PatientRecord.getGptelephone());
+                practitioner.getContacts().add(practitionerContact);
+            }
+
             patient.setPractitioner(practitioner);
         }
 
@@ -738,8 +749,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             for (Diagnosis diagnosis : diagnoses) {
                 FhirCondition condition = new FhirCondition();
                 condition.setCategory(DiagnosisTypes.DIAGNOSIS.toString());
-                condition.setCode(diagnosis.getDiagnosis());
-                condition.setNotes(diagnosis.getDiagnosis());
+                if (StringUtils.isNotEmpty(diagnosis.getDiagnosis())) {
+                    condition.setCode(diagnosis.getDiagnosis());
+                    condition.setNotes(diagnosis.getDiagnosis());
+                }
                 condition.setGroup(unit);
                 condition.setIdentifier(nhsNo);
                 migrationUser.getConditions().add(condition);
@@ -766,9 +779,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             for (Letter letter : letterMap.values()) {
                 FhirDocumentReference documentReference = new FhirDocumentReference();
                 documentReference.setGroup(unit);
-                documentReference.setDate(letter.getDate().getTime());
-                documentReference.setType(letter.getType());
-                documentReference.setContent(letter.getContent());
+                if (letter.getDate() != null) {
+                    documentReference.setDate(letter.getDate().getTime());
+                }
+                if (StringUtils.isNotEmpty(letter.getType())) {
+                    documentReference.setType(letter.getType());
+                }
+                if (StringUtils.isNotEmpty(letter.getContent())) {
+                    documentReference.setContent(letter.getContent());
+                }
                 documentReference.setIdentifier(nhsNo);
                 migrationUser.getDocumentReferences().add(documentReference);
             }
@@ -784,9 +803,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (CollectionUtils.isNotEmpty(medicines)) {
             for (Medicine medicine : medicines) {
                 FhirMedicationStatement medicationStatement = new FhirMedicationStatement();
-                medicationStatement.setDose(medicine.getDose());
-                medicationStatement.setName(medicine.getName());
-                medicationStatement.setStartDate(medicine.getStartdate().getTime());
+                if (StringUtils.isNotEmpty(medicine.getDose())) {
+                    medicationStatement.setDose(medicine.getDose());
+                }
+                if (StringUtils.isNotEmpty(medicine.getName())) {
+                    medicationStatement.setName(medicine.getName());
+                }
+                if (medicine.getStartdate() != null) {
+                    medicationStatement.setStartDate(medicine.getStartdate().getTime());
+                }
                 medicationStatement.setGroup(unit);
                 medicationStatement.setIdentifier(nhsNo);
                 migrationUser.getMedicationStatements().add(medicationStatement);

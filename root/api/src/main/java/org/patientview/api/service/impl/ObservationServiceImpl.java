@@ -506,7 +506,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
 
-        if (value != null) {
+        if (StringUtils.isNotEmpty(value)) {
             try {
                 Quantity quantity = new Quantity();
                 quantity.setValue(createDecimal(value));
@@ -528,7 +528,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         observation.setName(name);
 
         observation.setIdentifier(createIdentifier(observationHeading.getCode()));
-        observation.setCommentsSimple(comments);
+
+        if (StringUtils.isNotEmpty(comments)) {
+            observation.setCommentsSimple(comments);
+        }
 
         return observation;
     }
@@ -543,7 +546,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
 
-        if (fhirObservation.getValue() != null) {
+        if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
             try {
                 Quantity quantity = new Quantity();
                 quantity.setValue(createDecimal(fhirObservation.getValue()));
@@ -557,7 +560,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             }
         }
 
-        if (fhirObservation.getName() != null) {
+        if (StringUtils.isNotEmpty(fhirObservation.getName())) {
             CodeableConcept name = new CodeableConcept();
             name.setTextSimple(fhirObservation.getName().toUpperCase());
             name.addCoding().setDisplaySimple(fhirObservation.getName().toUpperCase());
@@ -565,9 +568,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             observation.setIdentifier(createIdentifier(fhirObservation.getName().toUpperCase()));
         }
 
-        observation.setCommentsSimple(fhirObservation.getComments());
+        if (StringUtils.isNotEmpty(fhirObservation.getComments())) {
+            observation.setCommentsSimple(fhirObservation.getComments());
+        }
 
-        if (fhirObservation.getBodySite() != null) {
+        if (StringUtils.isNotEmpty(fhirObservation.getBodySite())) {
             CodeableConcept bodySite = new CodeableConcept();
             bodySite.setTextSimple(fhirObservation.getBodySite());
             observation.setBodySite(bodySite);

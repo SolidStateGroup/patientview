@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
 import org.patientview.api.controller.BaseController;
@@ -80,15 +81,22 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
         Condition condition = new Condition();
         condition.setStatusSimple(Condition.ConditionStatus.confirmed);
         condition.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
-        condition.setNotesSimple(fhirCondition.getNotes());
 
-        CodeableConcept code = new CodeableConcept();
-        code.setTextSimple(fhirCondition.getCode());
-        condition.setCode(code);
+        if (StringUtils.isNotEmpty(fhirCondition.getNotes())) {
+            condition.setNotesSimple(fhirCondition.getNotes());
+        }
 
-        CodeableConcept category = new CodeableConcept();
-        category.setTextSimple(fhirCondition.getCategory());
-        condition.setCategory(category);
+        if (StringUtils.isNotEmpty(fhirCondition.getCode())) {
+            CodeableConcept code = new CodeableConcept();
+            code.setTextSimple(fhirCondition.getCode());
+            condition.setCode(code);
+        }
+
+        if (StringUtils.isNotEmpty(fhirCondition.getCategory())) {
+            CodeableConcept category = new CodeableConcept();
+            category.setTextSimple(fhirCondition.getCategory());
+            condition.setCategory(category);
+        }
 
         fhirResource.create(condition);
     }
