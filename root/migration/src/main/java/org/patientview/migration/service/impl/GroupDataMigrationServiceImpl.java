@@ -12,6 +12,7 @@ import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Unit;
 import org.patientview.patientview.logging.AddLog;
+import org.patientview.patientview.model.PatientCount;
 import org.patientview.patientview.model.UnitStat;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
@@ -28,6 +29,7 @@ import org.patientview.persistence.model.enums.GroupStatisticLookupValues;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.repository.FeatureDao;
+import org.patientview.repository.PatientCountDao;
 import org.patientview.repository.UnitDao;
 import org.patientview.service.UnitManager;
 import org.slf4j.Logger;
@@ -62,6 +64,9 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
     @Inject
     private FeatureDao featureDao;
+
+    @Inject
+    private PatientCountDao patientCountDao;
 
     private List<Group> groups;
     private List<Lookup> lookups;
@@ -220,6 +225,20 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
                     callApiCreateGroupStatistics(group, statistics);
                 }
+
+                // todo: get patient count from userlog table
+                /*List<PatientCount> patientCounts = patientCountDao.get(group.getCode(), "patient");
+
+                if (CollectionUtils.isNotEmpty(patientCounts)) {
+                    for (PatientCount patientCount : patientCounts) {
+                        GroupStatistic groupStatistic = new GroupStatistic();
+                        groupStatistic.setGroup(group);
+                        groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
+                        groupStatistic.setValue(BigInteger.valueOf(patientCount.getCount()));
+                        groupStatistic.setStatisticType(
+                                getLookupByName(GroupStatisticLookupValues.PATIENT_COUNT.toString()));
+                    }
+                }*/
             }
         }
     }
