@@ -242,8 +242,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         User newUser = createUser(oldUser);
         boolean isPatient = false;
 
+        List<UserMapping> userMappings = null;
+
         try {
-            List<UserMapping> userMappings = userMappingDao.getAll(oldUser.getUsername());
+            userMappings = userMappingDao.getAll(oldUser.getUsername());
+        } catch (Exception e) {
+            LOG.error("Usermapping exception for user " + oldUser.getUsername() + " : " , e);
+        }
+
+        if (userMappings != null) {
+
             for (UserMapping userMapping : userMappings) {
                 if (!userMapping.getUnitcode().equalsIgnoreCase("PATIENT") && newUser != null) {
 
@@ -413,8 +421,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
 
             return migrationUser;
-        } catch (Exception e) {
-            LOG.error("Usermapping exception: ", e);
+        } else {
             return null;
         }
     }
