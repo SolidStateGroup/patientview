@@ -14,12 +14,12 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
             if (newValue !== undefined) {
                 GroupService.getStatistics(newValue).then(function (statisticsArray) {
                     var patients = [];
-                    var patientsAdded = [];
+                    //var patientsAdded = [];
                     var uniqueLogons = [];
                     var logons = [];
                     var xAxisCategories = [];
 
-                    for (var i = 0; i < statisticsArray.length; i++) {
+                    for (var i = 0; i < statisticsArray.length - 1; i++) {
                         var statistics = statisticsArray[i];
                         var dateObject = new Date(statistics.startDate);
                         xAxisCategories.push(
@@ -31,11 +31,11 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                             patients.push(null);
                         }
 
-                        if (statistics.statistics.PATIENT_GROUP_ROLE_ADD_COUNT !== undefined) {
+                        /*if (statistics.statistics.PATIENT_GROUP_ROLE_ADD_COUNT !== undefined) {
                             patientsAdded.push(statistics.statistics.PATIENT_GROUP_ROLE_ADD_COUNT);
                         } else {
                             patientsAdded.push(null);
-                        }
+                        }*/
 
                         if (statistics.statistics.UNIQUE_LOGGED_ON_COUNT !== undefined) {
                             uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
@@ -97,11 +97,11 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                             {
                                 name: 'Logons',
                                 data: logons
-                            },
+                            }/*,
                             {
                                 name: 'Patients Added',
                                 data: patientsAdded
-                            }
+                            }*/
                         ],
                         credits: {
                             text: null
