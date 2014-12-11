@@ -102,6 +102,26 @@
                     </div>
                 </div>
             </div>
+
+            <div data-ng-show="permissions.isPatient && gpMedicationStatus.available
+                && gpMedicationStatus.optInStatus !== true && gpMedicationStatus.optInHidden !== true">
+                <!-- GP Medicines opt in/out -->
+                <div class="content-panel">
+                    <div class="content-inner alert-warning">
+                        <div><!-- not opted in -->
+                            <h4>Medicines from your GP's records</h4>
+                            <p>
+                                Please click the Opt In button if you would like PatientView to display the prescription from your GP.
+                                This is useful as its usually the most up to date prescription. PatientView can now obtain it for you,
+                                with your permission, from your GP's records.
+                                <a href="http://www.rixg.org/rpv/ecs-scr.html" target="_blank">(Explain This)</a>
+                            </p>
+                            <button type="button" class="btn blue" data-ng-click="gpMedicinesOptIn()">Opt In</button> &nbsp;&nbsp;&nbsp;
+                            <a href="" data-ng-click="gpMedicinesHideOptIn()">Hide This Notification</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <aside class="col-md-4">

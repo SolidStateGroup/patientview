@@ -95,7 +95,7 @@ function ($scope, $timeout, MedicationService) {
             alert('Cannot get medication');
         });
 
-        // GP Medicines, check to see if feature is available on any of the current user's groups
+        // GP Medicines, check to see if feature is available on any of the current user's groups and their opt in/out status
         MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function(gpMedicationStatus) {
             $scope.gpMedicationStatus = gpMedicationStatus;
         }, function () {

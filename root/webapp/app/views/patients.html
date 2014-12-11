@@ -60,7 +60,7 @@
             <div class="modal-header">
                 <h3 class="modal-title">Delete Patient User</h3>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" data-ng-show="!user.removedFromGroups">
                 <p>There are multiple options for deleting the patient <strong>"{{user.forename}} {{user.surname}}"</strong> with username <strong>"{{user.username}}"</strong>.</p>
                 <br/>
 
@@ -90,6 +90,12 @@
                     <h4>Permanently Delete Patient</h4>
                     <p>This will completely delete a patient from PatientView and cannot be undone.</p>
                     <p><button class="btn btn-primary" data-ng-click="remove()">Permanently Delete Patient</button></p>
+                </div>
+            </div>
+            <div class="modal-body" data-ng-show="user.removedFromGroups">
+                <div class="alert alert-success">
+                    <strong>"{{user.forename}} {{user.surname}}"</strong> with username <strong>"{{user.username}}"</strong>
+                    has been removed from your groups.
                 </div>
             </div>
             <div class="modal-footer">

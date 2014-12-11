@@ -1,7 +1,8 @@
 'use strict';
 
-angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService', 'NewsService', 'UtilService',
-function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
+angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
+    'NewsService', 'UtilService', 'MedicationService',
+function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -14,7 +15,6 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
             if (newValue !== undefined) {
                 GroupService.getStatistics(newValue).then(function (statisticsArray) {
                     var patients = [];
-                    //var patientsAdded = [];
                     var uniqueLogons = [];
                     var logons = [];
                     var xAxisCategories = [];
@@ -30,12 +30,6 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                         } else {
                             patients.push(null);
                         }
-
-                        /*if (statistics.statistics.PATIENT_GROUP_ROLE_ADD_COUNT !== undefined) {
-                            patientsAdded.push(statistics.statistics.PATIENT_GROUP_ROLE_ADD_COUNT);
-                        } else {
-                            patientsAdded.push(null);
-                        }*/
 
                         if (statistics.statistics.UNIQUE_LOGGED_ON_COUNT !== undefined) {
                             uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
@@ -98,11 +92,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
                             {
                                 name: 'Logons',
                                 data: logons
-                            }/*,
-                            {
-                                name: 'Patients Added',
-                                data: patientsAdded
-                            }*/
+                            }
                         ],
                         credits: {
                             text: null
@@ -132,6 +122,15 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
 
         if ($scope.permissions.isSuperAdmin || $scope.permissions.isSpecialtyAdmin || $scope.permissions.isUnitAdmin) {
             $scope.permissions.showJoinRequestButton = true;
+        }
+
+        if ($scope.permissions.isPatient) {
+            // GP Medicines, check to see if feature is available on any of the current user's groups and their opt in/out status
+            MedicationService.getGpMedicationStatus($scope.loggedInUser.id).then(function(gpMedicationStatus) {
+                $scope.gpMedicationStatus = gpMedicationStatus;
+            }, function () {
+                alert('Cannot get GP medication status');
+            });
         }
 
         // set the list of groups to show in the data grid
@@ -174,6 +173,28 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService) {
         }, function () {
             // closed
         });
+    };
+
+    var saveGpMedicationStatus = function() {
+        MedicationService.saveGpMedicationStatus($scope.loggedInUser.id, $scope.gpMedicationStatus)
+            .then(function() {
+                init();
+            }, function () {
+                alert('Cannot save GP medication status');
+            });
+    };
+
+    $scope.gpMedicinesOptIn = function() {
+        $scope.gpMedicationStatus.optInStatus = true;
+        $scope.gpMedicationStatus.optInHidden = false;
+        $scope.gpMedicationStatus.optOutHidden = false;
+        $scope.gpMedicationStatus.optInDate = new Date().getTime();
+        saveGpMedicationStatus();
+    };
+
+    $scope.gpMedicinesHideOptIn = function() {
+        $scope.gpMedicationStatus.optInHidden = true;
+        saveGpMedicationStatus();
     };
 
     init();
