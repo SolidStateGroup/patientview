@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Address;
 import org.hl7.fhir.instance.model.Contact;
 import org.hl7.fhir.instance.model.Enumeration;
@@ -46,18 +47,30 @@ public class PractitionerServiceImpl extends BaseController<PractitionerServiceI
         practitioner.setName(humanName);
 
         Address address = new Address();
-        address.addLineSimple(fhirPractitioner.getAddress1());
-        address.setCitySimple(fhirPractitioner.getAddress2());
-        address.setStateSimple(fhirPractitioner.getAddress3());
-        address.setCountrySimple(fhirPractitioner.getAddress4());
-        address.setZipSimple(fhirPractitioner.getPostcode());
+        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress1())) {
+            address.addLineSimple(fhirPractitioner.getAddress1());
+        }
+        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress2())) {
+            address.setCitySimple(fhirPractitioner.getAddress2());
+        }
+        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress3())) {
+            address.setStateSimple(fhirPractitioner.getAddress3());
+        }
+        if (StringUtils.isNotEmpty(fhirPractitioner.getAddress4())) {
+            address.setCountrySimple(fhirPractitioner.getAddress4());
+        }
+        if (StringUtils.isNotEmpty(fhirPractitioner.getPostcode())) {
+            address.setZipSimple(fhirPractitioner.getPostcode());
+        }
         practitioner.setAddress(address);
 
         for (FhirContact fhirContact : fhirPractitioner.getContacts()) {
-            Contact contact = practitioner.addTelecom();
-            contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
-            contact.setValueSimple(fhirContact.getValue());
-            contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+            if (StringUtils.isNotEmpty(fhirContact.getValue())) {
+                Contact contact = practitioner.addTelecom();
+                contact.setSystem(new Enumeration<>(Contact.ContactSystem.valueOf(fhirContact.getSystem())));
+                contact.setValueSimple(fhirContact.getValue());
+                contact.setUse(new Enumeration<>(Contact.ContactUse.valueOf(fhirContact.getUse())));
+            }
         }
 
         return FhirResource.getLogicalId(fhirResource.create(practitioner));

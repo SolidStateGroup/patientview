@@ -22,6 +22,12 @@ public class GetParameters {
     private Long start;
     private Long end;
 
+    // for multi search
+    private String searchUsername;
+    private String searchForename;
+    private String searchSurname;
+    private String searchIdentifier;
+
     public GetParameters() {
     }
 
@@ -143,5 +149,37 @@ public class GetParameters {
 
     public void setEnd(Long end) {
         this.end = end;
+    }
+
+    public String getSearchUsername() {
+        return searchUsername;
+    }
+
+    public void setSearchUsername(String searchUsername) {
+        this.searchUsername = searchUsername;
+    }
+
+    public String getSearchForename() {
+        return searchForename;
+    }
+
+    public void setSearchForename(String searchForename) {
+        this.searchForename = searchForename;
+    }
+
+    public String getSearchSurname() {
+        return searchSurname;
+    }
+
+    public void setSearchSurname(String searchSurname) {
+        this.searchSurname = searchSurname;
+    }
+
+    public String getSearchIdentifier() {
+        return searchIdentifier;
+    }
+
+    public void setSearchIdentifier(String searchIdentifier) {
+        this.searchIdentifier = searchIdentifier;
     }
 }

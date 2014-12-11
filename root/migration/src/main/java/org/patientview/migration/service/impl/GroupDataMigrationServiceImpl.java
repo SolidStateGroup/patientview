@@ -12,6 +12,7 @@ import org.patientview.migration.util.exception.JsonMigrationException;
 import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Unit;
 import org.patientview.patientview.logging.AddLog;
+import org.patientview.patientview.model.PatientCount;
 import org.patientview.patientview.model.UnitStat;
 import org.patientview.persistence.model.ContactPoint;
 import org.patientview.persistence.model.ContactPointType;
@@ -28,6 +29,7 @@ import org.patientview.persistence.model.enums.GroupStatisticLookupValues;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.StatisticPeriod;
 import org.patientview.repository.FeatureDao;
+import org.patientview.repository.PatientCountDao;
 import org.patientview.repository.UnitDao;
 import org.patientview.service.UnitManager;
 import org.slf4j.Logger;
@@ -62,6 +64,9 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
     @Inject
     private FeatureDao featureDao;
+
+    @Inject
+    private PatientCountDao patientCountDao;
 
     private List<Group> groups;
     private List<Lookup> lookups;
@@ -217,7 +222,52 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
                             statistics.add(groupStatistic);
                         }
                     }
+                }
 
+                List<PatientCount> patientCounts = patientCountDao.get(group.getCode(), "patient");
+
+                if (CollectionUtils.isNotEmpty(patientCounts)) {
+                    for (PatientCount patientCount : patientCounts) {
+                        GroupStatistic groupStatistic = new GroupStatistic();
+                        groupStatistic.setGroup(group);
+                        groupStatistic.setStatisticPeriod(StatisticPeriod.MONTH);
+                        groupStatistic.setValue(BigInteger.valueOf(patientCount.getCount()));
+                        groupStatistic.setStatisticType(
+                                getLookupByName(GroupStatisticLookupValues.PATIENT_COUNT.toString()));
+
+                        int year = patientCount.getDatestamp().get(Calendar.YEAR);
+                        int month = patientCount.getDatestamp().get(Calendar.MONTH);
+
+                        Calendar startDate = Calendar.getInstance();
+                        startDate.set(Calendar.YEAR, year);
+                        startDate.set(Calendar.MONTH, month - 1);  // zero based
+                        startDate.set(Calendar.DAY_OF_MONTH, 1);
+                        startDate.set(Calendar.HOUR_OF_DAY, 0);
+                        startDate.set(Calendar.MINUTE, 0);
+                        startDate.set(Calendar.SECOND, 0);
+                        startDate.set(Calendar.MILLISECOND, 0);
+                        groupStatistic.setStartDate(startDate.getTime());
+
+                        if (month > Calendar.DECEMBER) {
+                            year++;
+                            month = Calendar.JANUARY;
+                        }
+
+                        Calendar endDate = Calendar.getInstance();
+                        endDate.set(Calendar.YEAR, year);
+                        endDate.set(Calendar.MONTH, month);  // zero based
+                        endDate.set(Calendar.DAY_OF_MONTH, 1);
+                        endDate.set(Calendar.HOUR_OF_DAY, 0);
+                        endDate.set(Calendar.MINUTE, 0);
+                        endDate.set(Calendar.SECOND, 0);
+                        endDate.set(Calendar.MILLISECOND, 0);
+                        groupStatistic.setEndDate(endDate.getTime());
+
+                        statistics.add(groupStatistic);
+                    }
+                }
+
+                if (CollectionUtils.isNotEmpty(statistics)) {
                     callApiCreateGroupStatistics(group, statistics);
                 }
             }

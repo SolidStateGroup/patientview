@@ -19,10 +19,12 @@ function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,Ut
 
         // separate SPECIALTY from UNIT groups
         groups.forEach(function(group) {
-            if (group.groupType.value === 'SPECIALTY') {
-                $scope.specialties.push(group);
-            } else if (group.groupType.value === 'UNIT') {
-                $scope.childUnits.push(group);
+            if (group.visibleToJoin) {
+                if (group.groupType.value === 'SPECIALTY') {
+                    $scope.specialties.push(group);
+                } else if (group.groupType.value === 'UNIT') {
+                    $scope.childUnits.push(group);
+                }
             }
         });
     });

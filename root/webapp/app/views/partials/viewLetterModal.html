@@ -2,7 +2,7 @@
     <h3 class="modal-title">{{letter.type}}</h3>
 </div>
 <div class="modal-body">
-    <h5>Sent {{letter.date | date:'dd-MMM-yyyy HH:mm'}} by {{letter.group.name}}</h5>
+    <h5>Sent {{letter.date | date:'dd-MMM-yyyy'}} by {{letter.group.name}}</h5>
     <p data-ng-bind-html="parseHTMLText(letter.content)"></p>
 </div>
 <div class="modal-footer">
