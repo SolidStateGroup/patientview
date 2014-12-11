@@ -1350,8 +1350,8 @@ html .clearFooter, body .clearFooter {
 }
 /* line 104, ../sass/_tables.scss */
 .faux-table .faux-row.dull {
-  opacity: 0.5;
-  filter: alpha(opacity=50);
+  opacity: 0.3;
+  filter: alpha(opacity=30);
 }
 /* line 108, ../sass/_tables.scss */
 .faux-table .faux-row.highlight {
