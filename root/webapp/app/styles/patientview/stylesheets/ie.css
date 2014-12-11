@@ -3,6 +3,10 @@
  * <!--[if IE]>
  *   <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
  * <![endif]--> */
+/* line 7, ../sass/ie.scss */
+.lt-ie9 {
+  /** MESSAGES **/
+}
 /* line 9, ../sass/ie.scss */
 .lt-ie9 .btn {
   padding-left: 4px;
@@ -82,4 +86,28 @@
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button .caret {
   margin-right: 12px;
   float: none;
+}
+/* line 100, ../sass/ie.scss */
+.lt-ie9 .message-summary {
+  font-size: 12px;
+}
+/* line 103, ../sass/ie.scss */
+.lt-ie9 .message-summary .message-title {
+  font-size: 24px;
+}
+/* line 106, ../sass/ie.scss */
+.lt-ie9 .message-summary .message-title .recipient {
+  font-size: 18px;
+}
+/* line 112, ../sass/ie.scss */
+.lt-ie9 .message-summary .last-message h4 {
+  font-size: 18px;
+}
+/* line 115, ../sass/ie.scss */
+.lt-ie9 .message-summary .last-message .message-content {
+  font-size: 18px;
+}
+/* line 118, ../sass/ie.scss */
+.lt-ie9 .message-summary .last-message .date-stamp {
+  font-size: 18px;
 }
