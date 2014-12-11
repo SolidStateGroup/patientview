@@ -159,10 +159,6 @@ hr{
     }
 }
 
-.btn{
-    line-height:26px;
-}
-
 .btn-group-switcher{
     &.btn-group .btn + .btn{
         margin-left:0;
@@ -204,6 +200,7 @@ hr{
     min-height:120px;
 
     .identifier-list-item{
+        margin-bottom:10px;
         > .btn-group{
             margin-right:15px;
         }
