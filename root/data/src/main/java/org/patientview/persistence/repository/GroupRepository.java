@@ -127,4 +127,6 @@ public interface GroupRepository extends CrudRepository <Group, Long> {
             "WHERE  g.visibleToJoin = true")
     public List<Group> findAllVisibleToJoin();
 
+    public List<Group> findAll();
+
 }

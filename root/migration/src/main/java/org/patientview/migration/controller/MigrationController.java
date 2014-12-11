@@ -65,13 +65,20 @@ public class MigrationController {
 
     @RequestMapping(value = "/step3-group-stats", method = RequestMethod.GET)
     public String doStep3groupstats(ModelMap modelMap) throws JsonMigrationException {
-        Date start = new Date();
-        groupDataMigrationService.createStatistics();
+        asyncTaskExecutor.submit(new Runnable() {
+            public void run() {
+                try {
+                    Date start = new Date();
+                    groupDataMigrationService.createStatistics();
+                    LOG.info("Migration of Group Statistics "
+                            + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+                } catch (JsonMigrationException jme) {
+                    LOG.error("Group Statistics exception: {}", jme);
+                }
+            }
+        });
 
-        String status = "Migration of Group Statistics "
-                + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
-
-        modelMap.addAttribute("statusMessage", status);
+        modelMap.addAttribute("statusMessage", "Started Group Statistics Migration");
         return "groupstats";
     }
 

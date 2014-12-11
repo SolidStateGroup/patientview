@@ -210,7 +210,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         try {
             return (Practitioner) DataUtils.getResource(fhirResource.getResource(uuid, ResourceType.Practitioner));
         } catch (Exception e) {
-            throw new FhirResourceException(e);
+            // gracefully throw exception and continue (ignore bad data from migration)
+            LOG.error("Get Practitioner error: ", e);
+            return null;
         }
     }
 

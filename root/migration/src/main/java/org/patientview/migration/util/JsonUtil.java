@@ -3,6 +3,7 @@ package org.patientview.migration.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -101,7 +102,7 @@ public final class JsonUtil {
 
             String json = gson.toJson(requestObject);
             LOG.debug("Adding the following to request: " + json);
-            StringEntity puttingString = new StringEntity(json);
+            StringEntity puttingString = new StringEntity(json, Consts.UTF_8);
             if (method instanceof HttpEntityEnclosingRequestBase) {
                 ((HttpEntityEnclosingRequestBase) method).setEntity(puttingString);
             }
@@ -169,7 +170,7 @@ public final class JsonUtil {
         HttpClient httpClient = new DefaultHttpClient();
         String postUrl="http://dev.solidstategroup.com:7865/api/resource";// put in your url
         HttpPost post = new HttpPost(postUrl);
-        StringEntity postingString = new StringEntity(json);
+        StringEntity postingString = new StringEntity(json, Consts.UTF_8);
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/json");
         post.setHeader("X-Auth-Token", token);
@@ -183,7 +184,7 @@ public final class JsonUtil {
         if (object != null) {
             String json = gson.toJson(object);
             LOG.debug("Putting the following: " + json);
-            StringEntity puttingString = new StringEntity(json);
+            StringEntity puttingString = new StringEntity(json, Consts.UTF_8);
             put.setEntity(puttingString);
         }
 
@@ -199,7 +200,7 @@ public final class JsonUtil {
         // see http://hc.apache.org/httpcomponents-client-4.3.x/quickstart.html
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(postUrl);
-        StringEntity postingString = new StringEntity(json);
+        StringEntity postingString = new StringEntity(json, Consts.UTF_8);
         httpPost.setEntity(postingString);
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setHeader("X-Auth-Token", token);

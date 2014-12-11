@@ -48,17 +48,14 @@ public class FhirMedicationStatement {
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication");
         }
 
-        if (medication.getCode() == null) {
-            throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication code (name)");
+        if (medication.getCode() != null) {
+            setName(medication.getCode().getTextSimple());
         }
 
-        setName(medication.getCode().getTextSimple());
-
-        if (medicationStatement.getDosage().isEmpty() || medicationStatement.getDosage().get(0).getRoute() == null) {
-            throw new FhirResourceException("Cannot convert FHIR medication statement, missing dosage (dose)");
+        if (!medicationStatement.getDosage().isEmpty()
+                && !(medicationStatement.getDosage().get(0).getRoute() == null)) {
+            setDose(medicationStatement.getDosage().get(0).getRoute().getTextSimple());
         }
-
-        setDose(medicationStatement.getDosage().get(0).getRoute().getTextSimple());
 
         if (group == null) {
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing group");

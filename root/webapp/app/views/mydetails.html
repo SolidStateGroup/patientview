@@ -38,7 +38,8 @@
                                 <tr>
                                     <td class="forced-width">NHS Number</td>
                                     <td>
-                                        <span data-ng-repeat="identifier in patient.fhirPatient.identifiers" data-ng-show="identifier.label === 'NHS_NUMBER'">
+                                        <span data-ng-repeat="identifier in patient.fhirPatient.identifiers"
+                                              data-ng-show="identifier.label === 'NHS_NUMBER'">
                                             {{identifier.value}}
                                         </span>
                                     </td>
@@ -46,7 +47,8 @@
                                 <tr>
                                     <td class="forced-width">Hospital Number</td>
                                     <td>
-                                        <span data-ng-repeat="identifier in patient.fhirPatient.identifiers" data-ng-show="identifier.label === 'HOSPITAL_NUMBER'">
+                                        <span data-ng-repeat="identifier in patient.fhirPatient.identifiers"
+                                              data-ng-show="identifier.label === 'HOSPITAL_NUMBER'">
                                             {{identifier.value}}
                                         </span>
                                     </td>
@@ -65,9 +67,7 @@
                                     <td class="forced-width">Phone Number(s)</td>
                                     <td>
                                         <span data-ng-repeat="contact in patient.fhirPatient.contacts">
-                                            {{contact.value}}
-                                            <span data-ng-show="contact.use">&nbsp;({{contact.use}})</span>
-                                            <br/>
+                                            {{contact.value}}<br/>
                                         </span>
                                     </td>
                                 </tr>

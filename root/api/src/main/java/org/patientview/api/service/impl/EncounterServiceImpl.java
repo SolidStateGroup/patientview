@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Identifier;
@@ -85,11 +86,16 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
 
         Encounter encounter = new Encounter();
         encounter.setStatusSimple(Encounter.EncounterState.finished);
-        Identifier identifier = encounter.addIdentifier();
-        identifier.setValueSimple(fhirEncounter.getEncounterType());
 
-        CodeableConcept code = encounter.addType();
-        code.setTextSimple(fhirEncounter.getStatus());
+        if (StringUtils.isNotEmpty(fhirEncounter.getEncounterType())) {
+            Identifier identifier = encounter.addIdentifier();
+            identifier.setValueSimple(fhirEncounter.getEncounterType());
+        }
+
+        if (StringUtils.isNotEmpty(fhirEncounter.getStatus())) {
+            CodeableConcept code = encounter.addType();
+            code.setTextSimple(fhirEncounter.getStatus());
+        }
 
         encounter.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
         encounter.setServiceProvider(Util.createFhirResourceReference(organizationUuid));

@@ -44,6 +44,7 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserInformationRepository;
+import org.patientview.persistence.repository.UserMigrationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
 import org.springframework.data.domain.Page;
@@ -120,6 +121,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private UserTokenRepository userTokenRepository;
+
+    @Inject
+    private UserMigrationRepository userMigrationRepository;
 
     @Inject
     private Properties properties;
@@ -946,6 +950,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             conversationService.deleteUserFromConversations(user);
             auditService.deleteUserFromAudit(user);
             userTokenRepository.deleteByUserId(user.getId());
+            userMigrationRepository.deleteByUserId(user.getId());
             userRepository.delete(user);
         } else {
             throw new ResourceForbiddenException("Forbidden");

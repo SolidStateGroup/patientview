@@ -327,9 +327,15 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
+    $scope.searchItems = {};
 
     var tempFilterText = '';
     var filterTextTimeout;
+
+    // multi search
+    $scope.search = function() {
+        $scope.getItems();
+    };
 
     // watches
     // update page on user typed search text
@@ -470,6 +476,13 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
         getParameters.roleIds = $scope.roleIds;
+
+        // multi search
+        getParameters.searchUsername = $scope.searchItems.username;
+        getParameters.searchForename = $scope.searchItems.searchForename;
+        getParameters.searchSurname = $scope.searchItems.searchSurname;
+        getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
+        getParameters.searchEmail = $scope.searchItems.searchEmail;
 
         if ($scope.selectedGroup.length > 0) {
             getParameters.groupIds = $scope.selectedGroup;

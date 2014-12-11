@@ -1,11 +1,11 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.patientview.api.controller.BaseController;
@@ -26,15 +26,7 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -107,19 +99,25 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
         documentReference.setStatusSimple(DocumentReference.DocumentReferenceStatus.current);
         documentReference.setSubject(Util.createFhirResourceReference(fhirLink.getResourceId()));
 
-        CodeableConcept type = new CodeableConcept();
-        type.setTextSimple(fhirDocumentReference.getType());
-        documentReference.setType(type);
+        if (StringUtils.isNotEmpty(fhirDocumentReference.getType())) {
+            CodeableConcept type = new CodeableConcept();
+            type.setTextSimple(fhirDocumentReference.getType());
+            documentReference.setType(type);
+        }
 
-        documentReference.setDescriptionSimple(fhirDocumentReference.getContent());
+        if (StringUtils.isNotEmpty(fhirDocumentReference.getContent())) {
+            documentReference.setDescriptionSimple(fhirDocumentReference.getContent());
+        }
 
-        try {
-            DateAndTime dateAndTime = new DateAndTime(fhirDocumentReference.getDate());
-            DateTime date = new DateTime();
-            date.setValue(dateAndTime);
-            documentReference.setCreated(date);
-        } catch (NullPointerException npe) {
-            throw new FhirResourceException("Letter timestamp is incorrectly formatted");
+        if (fhirDocumentReference.getDate() != null) {
+            try {
+                DateAndTime dateAndTime = new DateAndTime(fhirDocumentReference.getDate());
+                DateTime date = new DateTime();
+                date.setValue(dateAndTime);
+                documentReference.setCreated(date);
+            } catch (NullPointerException npe) {
+                throw new FhirResourceException("Letter timestamp is incorrectly formatted");
+            }
         }
 
         fhirResource.create(documentReference);

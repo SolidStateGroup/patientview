@@ -9,7 +9,7 @@ public enum GroupStatisticLookupValues {
     /*
     PatientView 1 live server audit actions logged in unitstats table, SELECT DISTINCT(action) FROM unitstats;
     pv2 group statistics lookups (SQL) shown after //
-    USed for migration of unit statistics from pv1 action=String to pv2 lookups
+    Used for migration of unit statistics from pv1 action=String to pv2 lookups
 
         admin add // ADMIN_GROUP_ROLE_ADD_COUNT
         email changed // EMAIL_CHANGED_COUNT
@@ -48,7 +48,10 @@ public enum GroupStatisticLookupValues {
     PATIENT_GROUP_ROLE_DELETE_COUNT("patient delete"),
     PATIENT_VIEW_COUNT("patient view"),
     UNIQUE_PATIENT_DATA_SUCCESS_COUNT("unique data load"),
-    UNIQUE_LOGGED_ON_COUNT("unique logon");
+    UNIQUE_LOGGED_ON_COUNT("unique logon"),
+
+    // from userlog table (done manually)
+    PATIENT_COUNT("patient count");
 
     private String name;
     GroupStatisticLookupValues(String name) { this.name = name; }
