@@ -183,10 +183,10 @@
         <div data-ng-hide="editGroup.groupFeatures.length > 0" class="no-items">No features associated with this group</div>
     </div>
     <div class="col-md-6">
-        <ul class="feature-list inline capsule-list">
+        <ul class="name-action-list inline">
             <li class="feature-list-item" data-ng-repeat="feature in editGroup.groupFeatures">
-                <div class="feature-list-name"><i class="glyphicon glyphicon-ok-circle"></i> <span class="feature-list-name"> {{feature.feature.description}}</span></div>
-                <div class="feature-list-delete" data-ng-show="permissions.canEditFeatures"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(groupFormNew, editGroup, feature)" >Delete</a></span></div>
+                <div class="feature-list-name pull-left"><span class="feature-list-name"> {{feature.feature.description}}</span></div>
+                <div class="feature-list-delete pull-left" data-ng-show="permissions.canEditFeatures"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(groupFormNew, editGroup, feature)" ><i class="glyphicon glyphicon-remove"></i></a></span></div>
             </li>
         </ul>
         <div class="feature-add-container item-add-container" data-ng-show="editGroup.availableFeatures.length > 0 && permissions.canEditFeatures">

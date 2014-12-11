@@ -26,10 +26,10 @@
                 <div data-ng-show="groups.length">
                     <div class="details-filter clearfix">
                         <div class="pull-right">Showing details provided by: &nbsp;&nbsp;
-                        <label data-ng-repeat="group in groups">
+                        <span data-ng-repeat="group in groups">
                             <input type="checkbox" value="{{group.shortName}}" data-ng-model="group.selected">
                             <span class="checkbox-label">{{group.shortName}}</span>
-                        </label>
+                        </span>
                         </div>
                     </div>
                     <div data-ng-repeat="group in groups" data-ng-show="group.selected">
@@ -59,7 +59,7 @@
                                 <div data-ng-show="group.contactPoints">
                                     <h4>Contact Points</h4>
                                     <table>
-                                        <tr data-ng-repeat="contactPoint in group.contactPoints | orderBy: 'contactPointType.description'">
+                                        <tr data-ng-repeat="contactPoint in group.contactPoints">
                                             <td>{{contactPoint.contactPointType.description}}: &nbsp;&nbsp;</td>
                                             <td ng-bind-html="addAIfRequired(contactPoint.content)"></td>
                                         </tr>
@@ -73,10 +73,10 @@
                                         <strong>{{location.label}}</strong>
                                         <table>
                                             <tr><td>Name:</td><td> {{location.name}}</td></tr>
-                                            <tr data-ng-show="location.phone.length"><td>Phone:</td><td> {{location.phone}}</td></tr>
-                                            <tr data-ng-show="location.address.length"><td>Address: &nbsp;&nbsp;</td><td> {{location.address}}</td></tr>
-                                            <tr data-ng-show="location.web.length"><td>Web:</td><td ng-bind-html="addAIfRequired(location.web)"></td></tr>
-                                            <tr data-ng-show="location.email.length"><td>Email:</td><td ng-bind-html="addAIfRequired(location.email)"></td></tr>
+                                            <tr><td>Phone:</td><td> {{location.phone}}</td></tr>
+                                            <tr><td>Address: &nbsp;&nbsp;</td><td> {{location.address}}</td></tr>
+                                            <tr><td>Web:</td><td ng-bind-html="addAIfRequired(location.web)"></td></tr>
+                                            <tr><td>Email:</td><td ng-bind-html="addAIfRequired(location.email)"></td></tr>
                                         </table>
                                     </div>
                                 </div>
