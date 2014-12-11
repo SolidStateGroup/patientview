@@ -46,7 +46,7 @@
                 <div class="bracket-input">
                     <span class="bracket pre">(</span>
                     <select class="form-control" data-ng-model="editUser.selectedRole"
-                        data-ng-options="role.id as role.description for role in allowedRoles">
+                        data-ng-options="role.id as role.description for role in allowedRoles | orderBy:'name'">
                     </select>
                     <span class="bracket post">)</span>
                 </div>
