@@ -6,8 +6,8 @@
         <div class="details-filter clearfix">
             <div class="pull-right">Information provided by: &nbsp;&nbsp;
                 <label data-ng-repeat="patient in patientDetails">
-                    <input type="checkbox" value="{{patient.group.name}}" data-ng-model="patient.group.selected">
-                    <span class="checkbox-label">{{patient.group.name}}</span>
+                    <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected">
+                    <span class="checkbox-label">{{patient.group.shortName}}</span>
                 </label>
             </div>
         </div>
