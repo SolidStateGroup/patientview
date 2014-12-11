@@ -49,7 +49,7 @@
                 </ul>
             </div>
             <ul class="nav-utils pull-right inline " data-ng-hide="!loggedInUser" data-ng-cloak>
-                <li data-ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'"
+                <li class="help-item" data-ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'"
                     data-ng-show="!(menuitem.title === 'Messages')">
                     <a  data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Feedback'">
                         <i class="icon-issues"></i>
