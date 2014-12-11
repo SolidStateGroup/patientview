@@ -91,12 +91,12 @@
     </div>
     <div class="location-list-item cleared-row"  data-ng-repeat="location in editGroup.locations | orderBy:'id'">
         <div class="col-md-1 hidden">{{location.id}}</div>
-        <div class="col-md-1 first-child"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="label" name="label" data-ng-model="location.label" required></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="name" name="name" data-ng-model="location.name" required></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-phone-{{location.id}}" placeholder="phone" name="phone" data-ng-model="location.phone" ></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="address" name="address" data-ng-model="location.address" ></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="web" name="web" data-ng-model="location.web" ></div>
-        <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="email" name="email" data-ng-model="location.email" ></div>
+        <div class="col-md-1 first-child"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="Label" name="label" data-ng-model="location.label" required></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="Name" name="name" data-ng-model="location.name" required></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-phone-{{location.id}}" placeholder="Phone" name="phone" data-ng-model="location.phone" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-address-{{location.id}}" placeholder="Address" name="address" data-ng-model="location.address" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-web-{{location.id}}" placeholder="Web" name="web" data-ng-model="location.web" ></div>
+        <div class="col-md-2"><input type="text" class="form-control" id="group-location-email-{{location.id}}" placeholder="Email" name="email" data-ng-model="location.email" ></div>
         <div class="btn-group">
             <button type="button" class="btn blue location-update-button" data-ng-click="updateLocation($event, groupForm, editGroup, location)">Update</button>
             <button type="button" class="btn negative location-delete-button" data-ng-click="removeLocation(groupForm, editGroup, location)">Delete</button>
