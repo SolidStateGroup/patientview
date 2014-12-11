@@ -44,9 +44,9 @@ angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService
 
                         $scope.loading = false;
 
-                        $interval(function(){
+                        /*$interval(function(){
                             $location.path("/dashboard");
-                        },3000);
+                        },3000);*/
 
                     }, function(result) {
                         if (result.data) {

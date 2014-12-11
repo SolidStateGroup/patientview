@@ -27,8 +27,8 @@
                     <div class="details-filter clearfix">
                         <div class="pull-right">Showing details provided by: &nbsp;&nbsp;
                         <span data-ng-repeat="group in groups">
-                            <input type="checkbox" value="{{group.name}}" data-ng-model="group.selected">
-                            <span class="checkbox-label">{{group.name}}</span>
+                            <input type="checkbox" value="{{group.shortName}}" data-ng-model="group.selected">
+                            <span class="checkbox-label">{{group.shortName}}</span>
                         </span>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                                     </table>
                                 </div>
 
-                                <div class="contact-points" data-ng-show="group.contactPoints">
+                                <div data-ng-show="group.contactPoints">
                                     <h4>Contact Points</h4>
                                     <table>
                                         <tr data-ng-repeat="contactPoint in group.contactPoints">
@@ -66,7 +66,7 @@
                                     </table>
                                 </div>
 
-                                <div class="contact-points" data-ng-show="group.locations">
+                                <div data-ng-show="group.locations">
                                     <br/>
                                     <h4>Additional Locations</h4>
                                     <div class="locations-list" data-ng-repeat="location in group.locations">

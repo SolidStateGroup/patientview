@@ -92,17 +92,6 @@
         <div class="panel-footer clearfix">
             <div class="content-inner">
                 <div class="form-horizontal" role="form">
-                    <div class="select-container pull-left">
-                        <!-- filter by role -->
-                        <div class="btn-group filter-select" id="filter-role" data-ng-class="{open: open2}">
-                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Role <span class="caret-container"><span class="caret"></span></span></button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-                                <li><a data-ng-click="removeAllSelectedRole()" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
-                                <li class="divider"></li>
-                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role clearfix"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
-                            </ul>
-                        </div>
-                    </div>
                     <!-- filter by specialty -->
                     <div class="select-container pull-left" data-ng-show="showSpecialtyFilter">
                         <div class="btn-group filter-select" id="filter-specialty" dropdown>
@@ -166,6 +155,17 @@
                                         <span data-ng-class="isGroupChecked(group.id)"></span>
                                     </a>
                                 </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="select-container pull-left">
+                        <!-- filter by role -->
+                        <div class="btn-group filter-select" id="filter-role" data-ng-class="{open: open2}">
+                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Role <span class="caret-container"><span class="caret"></span></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li><a data-ng-click="removeAllSelectedRole()" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="role in allRoles"> <a data-ng-click="setSelectedRole()" class="a-filter-role clearfix"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
                             </ul>
                         </div>
                     </div>
