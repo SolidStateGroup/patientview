@@ -94,5 +94,32 @@
         }
     }
 
+
+    /** MESSAGES **/
+
+    .message-summary{
+        font-size:12px;
+
+        .message-title{
+            font-size:24px;
+
+            .recipient{
+                font-size:18px;
+            }
+        }
+
+        .last-message{
+            h4{
+                font-size:18px;
+            }
+            .message-content{
+                font-size:18px;
+            }
+            .date-stamp{
+                font-size:18px;
+            }
+        }
+    }
+
 }
 
