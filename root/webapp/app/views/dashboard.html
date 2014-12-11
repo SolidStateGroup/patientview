@@ -20,7 +20,7 @@
                         <dl class="col-md-6 last-login">
                             <dt>Last Login</dt>
                             <dd data-ng-show="loggedInUser.lastLogin">{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
-                                <span class="sub-text">from {{loggedInUser.lastLoginIpAddress}}</span>
+                                <span class="sub-text" data-ng-show="loggedInUser.lastLoginIpAddress">from {{loggedInUser.lastLoginIpAddress}}</span>
                             </dd>
                             <dd data-ng-show="!loggedInUser.lastLogin">
                                 Never logged in
@@ -133,7 +133,6 @@
                     <li><h4>Username: {{loggedInUser.username}}</h4></li>
                     <li data-ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>
                     <li data-ng-show="loggedInUser.contactNumber">Phone: {{loggedInUser.contactNumber}}</li>
-                    <li data-ng-show="!loggedInUser.contactNumber">Phone: Not Set</li>
                 </ul>
                 <br/>
                 <div class="news-actions">

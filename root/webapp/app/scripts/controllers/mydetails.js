@@ -27,6 +27,14 @@ function ($scope, PatientService, UserService) {
                 // set checkboxes
                 for (var i=0;i<$scope.patientDetails.length;i++) {
                     $scope.patientDetails[i].group.selected = true;
+
+                    if ($scope.patientDetails[i].fhirPatient.gender === 'M') {
+                        $scope.patientDetails[i].fhirPatient.gender = 'Male';
+                    }
+
+                    if ($scope.patientDetails[i].fhirPatient.gender === 'F') {
+                        $scope.patientDetails[i].fhirPatient.gender = 'Female';
+                    }
                 }
 
                 $scope.loading = false;

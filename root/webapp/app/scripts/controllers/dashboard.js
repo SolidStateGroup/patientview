@@ -19,28 +19,32 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
                     var logons = [];
                     var xAxisCategories = [];
 
-                    for (var i = 0; i < statisticsArray.length - 1; i++) {
+                    for (var i = 0; i < statisticsArray.length; i++) {
                         var statistics = statisticsArray[i];
-                        var dateObject = new Date(statistics.startDate);
-                        xAxisCategories.push(
-                                UtilService.getMonthText(dateObject.getMonth()) + ' ' + dateObject.getFullYear());
 
-                        if (statistics.statistics.PATIENT_COUNT !== undefined) {
-                            patients.push(statistics.statistics.PATIENT_COUNT);
-                        } else {
-                            patients.push(null);
-                        }
+                        if (i !== statisticsArray.length - 1) {
+                            var dateObject = new Date(statistics.startDate);
 
-                        if (statistics.statistics.UNIQUE_LOGGED_ON_COUNT !== undefined) {
-                            uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
-                        } else {
-                            uniqueLogons.push(null);
-                        }
+                            xAxisCategories.push(
+                                    UtilService.getMonthText(dateObject.getMonth()) + ' ' + dateObject.getFullYear());
 
-                        if (statistics.statistics.LOGGED_ON_COUNT !== undefined) {
-                            logons.push(statistics.statistics.LOGGED_ON_COUNT);
-                        } else {
-                            logons.push(null);
+                            if (statistics.statistics.PATIENT_COUNT !== undefined) {
+                                patients.push(statistics.statistics.PATIENT_COUNT);
+                            } else {
+                                patients.push(null);
+                            }
+
+                            if (statistics.statistics.UNIQUE_LOGGED_ON_COUNT !== undefined) {
+                                uniqueLogons.push(statistics.statistics.UNIQUE_LOGGED_ON_COUNT);
+                            } else {
+                                uniqueLogons.push(null);
+                            }
+
+                            if (statistics.statistics.LOGGED_ON_COUNT !== undefined) {
+                                logons.push(statistics.statistics.LOGGED_ON_COUNT);
+                            } else {
+                                logons.push(null);
+                            }
                         }
 
                         $scope.statisticsDate = statistics.endDate;

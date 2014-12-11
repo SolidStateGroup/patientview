@@ -36,7 +36,7 @@
                 <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
             </p>
             <br/>
-            <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles" data-ng-show="groupRole.group.visible === true">
+            <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-show="groupRole.group.visible === true">
                 <li class="group-list-delete pull-right" data-ng-show="permissions.allGroupsIds[groupRole.group.id] && permissions.canDeleteGroupRolesDuringEdit">
                     <span class="group-list-delete">
                         <button class="btn negative" id="remove-group-{{groupRole.group.id}}"
