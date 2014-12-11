@@ -797,7 +797,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         } else {
             if (!staff && patient) {
                 users = userRepository.findPatientByGroupsRoles(searchUsername, searchForename, searchSurname,
-                        searchIdentifier, searchEmail, groupIds, roleIds, pageable);
+                        searchEmail, searchIdentifier, groupIds, roleIds, pageable);
             }
 
             if (staff && !patient) {
