@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Role;
@@ -82,9 +81,7 @@ public class UserRepositoryTest {
 
         Long[] groupIdsArr = {group.getId(), group2.getId()};
 
-        //List<User> users = userRepository.findGroupTest(Arrays.asList(groupIdsArr));
-        List<User> users = userRepository.findGroupTest(Arrays.asList(1L,2L,3L));
-        //List<User> users = userRepository.findGroupTest();
+        List<User> users = userRepository.findGroupTest(Arrays.asList(groupIdsArr), 2L);
 
         Assert.assertEquals("Should be 2 user returned", 2, users.size());
     }
@@ -99,13 +96,11 @@ public class UserRepositoryTest {
         dataTestUtils.createGroupRole(user, group, role);
         dataTestUtils.createGroupRole(user, group2, role);
 
-
-
         Long[] groupIdsArr = {group.getId()};
         Long[] roleIdsArr = {role.getId()};
 
-        Page<User> users = userRepository.findStaffByGroupsRoles("%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), new PageRequest(0, Integer.MAX_VALUE));
+        Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", Arrays.asList(groupIdsArr)
+                , Arrays.asList(roleIdsArr), 1L, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
@@ -138,8 +133,8 @@ public class UserRepositoryTest {
         Long[] groupIdsArr = {group.getId(), group2.getId()};
         Long[] roleIdsArr = {role.getId()};
 
-        Page<User> users = userRepository.findStaffByGroupsRoles("%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr),  new PageRequest(0, Integer.MAX_VALUE));
+        Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", Arrays.asList(groupIdsArr)
+                , Arrays.asList(roleIdsArr), 2L, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 user returned", 2, users.getContent().size());
     }
@@ -164,7 +159,7 @@ public class UserRepositoryTest {
         Long[] groupIdsArr = {group.getId()};
         Long[] roleIdsArr = {role.getId()};
 
-        Page<User> users = userRepository.findPatientByGroupsRoles("%%", Arrays.asList(groupIdsArr)
+        Page<User> users = userRepository.findPatientByGroupsRolesAnd("%%", Arrays.asList(groupIdsArr)
                 , Arrays.asList(roleIdsArr), 1l, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
@@ -217,7 +212,7 @@ public class UserRepositoryTest {
         Long[] groupIdsArr = {group.getId(), group2.getId()};
         Long[] roleIdsArr = {role.getId()};
 
-        Page<User> users = userRepository.findPatientByGroupsRoles("%%", Arrays.asList(groupIdsArr)
+        Page<User> users = userRepository.findPatientByGroupsRolesAnd("%%", Arrays.asList(groupIdsArr)
                 , Arrays.asList(roleIdsArr), 2l, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 user returned", 2, users.getContent().size());

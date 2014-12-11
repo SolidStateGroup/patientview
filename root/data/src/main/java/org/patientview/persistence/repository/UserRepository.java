@@ -35,11 +35,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByEmail(String email);
 
-    @Query("select u1 FROM User u1 " +
-            "JOIN u1.groupRoles gr1 " +
-            "WHERE u1 IN (" +
+        /*
+        SELECT
+          u.ID, u.surname, count(UGR.group_ID)
+          FROM pv_user u
+         JOIN pv_user_group_role UGR ON u.ID = UGR.user_ID
+         WHERE UGR.role_id IN (1)
+        AND UGR.group_ID IN (2467239,2467263)
+        AND ((UPPER(u.username) LIKE '%E%')
+        OR (UPPER(u.forename) LIKE '%E%')
+        OR (UPPER(u.surname) LIKE '%E%')
+        OR (UPPER(u.email) LIKE '%E%') )
+         GROUP BY u.ID, u.surname
+         HAVING Count(UGR.group_id) = 2
+     */
 
-            "SELECT u " +
+    @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
            "JOIN u.identifiers i " +
@@ -50,43 +61,71 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText) " +
            "OR (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :filterText))) " +
-            "GROUP BY u.id" +
-
-            ") GROUP BY u1 HAVING Count(gr1.group.id) = :groupCount")
-    Page<User> findPatientByGroupsRoles(@Param("filterText") String filterText,
+            "GROUP BY u.id " +
+            "HAVING COUNT(gr) = :groupCount")
+    Page<User> findPatientByGroupsRolesAnd(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
                                  @Param("groupCount") Long groupCount,
                                  Pageable pageable);
 
-    @Query(//"select u1 FROM User u1 " +
-           // "JOIN u1.groupRoles gr1 " +
-           // "WHERE u1 IN (" +
-            
-            "SELECT u " +
+    @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
            "WHERE gr.role.id IN :roleIds " +
-           "AND (:groupIds) IN (gr.group.id) " +
+           "AND (gr.group.id) IN (:groupIds) " +
            "AND ((UPPER(u.username) LIKE :filterText) " +
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText)) " +
-           "GROUP BY u.id")// +
-
-           //") GROUP BY u1 HAVING Count(gr1.group.id) = :groupCount")
-    Page<User> findStaffByGroupsRoles(@Param("filterText") String filterText,
+           "GROUP BY u.id " +
+            "HAVING COUNT(gr) = :groupCount")
+    Page<User> findStaffByGroupsRolesAnd(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
                                  @Param("roleIds") List<Long> roleIds,
-                                 //@Param("groupCount") Long groupCount,
+                                 @Param("groupCount") Long groupCount,
                                  Pageable pageable);
+
     @Query("SELECT u " +
             "FROM User u " +
             "JOIN u.groupRoles gr " +
-            "WHERE (:groupIds) IN (gr.group.id) " +
+            "JOIN u.identifiers i " +
+            "WHERE gr.role.id IN :roleIds " +
+            "AND gr.group.id IN :groupIds " +
+            "AND ((UPPER(u.username) LIKE :filterText) " +
+            "OR (UPPER(u.forename) LIKE :filterText) " +
+            "OR (UPPER(u.surname) LIKE :filterText) " +
+            "OR (UPPER(u.email) LIKE :filterText) " +
+            "OR (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :filterText))) " +
             "GROUP BY u.id")
-        //List<User> findGroupTest(@Param("groupIds") List<Long> groupIds);
-    List<User> findGroupTest(@Param("groupIds") List<Long> groupIds);
+    Page<User> findPatientByGroupsRoles(@Param("filterText") String filterText,
+                                        @Param("groupIds") List<Long> groupIds,
+                                        @Param("roleIds") List<Long> roleIds,
+                                        Pageable pageable);
+
+    @Query("SELECT u " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "WHERE gr.role.id IN :roleIds " +
+            "AND gr.group.id IN :groupIds " +
+            "AND ((UPPER(u.username) LIKE :filterText) " +
+            "OR (UPPER(u.forename) LIKE :filterText) " +
+            "OR (UPPER(u.surname) LIKE :filterText) " +
+            "OR (UPPER(u.email) LIKE :filterText)) " +
+            "GROUP BY u.id")
+    Page<User> findStaffByGroupsRoles(@Param("filterText") String filterText,
+                                      @Param("groupIds") List<Long> groupIds,
+                                      @Param("roleIds") List<Long> roleIds,
+                                      Pageable pageable);
+
+    @Query("SELECT u " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "WHERE (gr.group.id) IN (:groupIds) " +
+            "GROUP BY u.id " +
+            "HAVING COUNT(gr) = :groupCount")
+    List<User> findGroupTest(@Param("groupIds") List<Long> groupIds,
+                             @Param("groupCount") Long groupCount);
 
     @Query("SELECT u " +
             "FROM User u " +

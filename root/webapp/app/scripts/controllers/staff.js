@@ -20,6 +20,9 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
         $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
     }
 
+    // set role to first
+    $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
+
     // click Create New button
     $scope.create = function () {
         var i;
@@ -325,7 +328,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         if ($scope.selectedGroup.length > 0) {
             getParameters.groupIds = $scope.selectedGroup;
         } else {
-            getParameters.groupIds = $scope.groupIds;
+            getParameters.groupIds = [0];
         }
         if ($scope.selectedRole.length > 0) {
             getParameters.roleIds = $scope.selectedRole;
@@ -356,7 +359,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.allGroups = [];
         $scope.allRoles = [];
         $scope.roleIds = [];
-        $scope.groupIds = [];
         $scope.groupMap = [];
 
         $scope.permissions = {};
@@ -395,7 +397,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 group = groups[i];
                 if (group.visible === true) {
                     $scope.allGroups.push(group);
-                    $scope.groupIds.push(group.id);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
 
