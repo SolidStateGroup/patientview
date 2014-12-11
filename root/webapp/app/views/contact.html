@@ -59,7 +59,7 @@
                                 <div data-ng-show="group.contactPoints">
                                     <h4>Contact Points</h4>
                                     <table>
-                                        <tr data-ng-repeat="contactPoint in group.contactPoints">
+                                        <tr data-ng-repeat="contactPoint in group.contactPoints | orderBy: 'contactPointType.description'">
                                             <td>{{contactPoint.contactPointType.description}}: &nbsp;&nbsp;</td>
                                             <td ng-bind-html="addAIfRequired(contactPoint.content)"></td>
                                         </tr>
@@ -73,10 +73,10 @@
                                         <strong>{{location.label}}</strong>
                                         <table>
                                             <tr><td>Name:</td><td> {{location.name}}</td></tr>
-                                            <tr><td>Phone:</td><td> {{location.phone}}</td></tr>
-                                            <tr><td>Address: &nbsp;&nbsp;</td><td> {{location.address}}</td></tr>
-                                            <tr><td>Web:</td><td ng-bind-html="addAIfRequired(location.web)"></td></tr>
-                                            <tr><td>Email:</td><td ng-bind-html="addAIfRequired(location.email)"></td></tr>
+                                            <tr data-ng-show="location.phone.length"><td>Phone:</td><td> {{location.phone}}</td></tr>
+                                            <tr data-ng-show="location.address.length"><td>Address: &nbsp;&nbsp;</td><td> {{location.address}}</td></tr>
+                                            <tr data-ng-show="location.web.length"><td>Web:</td><td ng-bind-html="addAIfRequired(location.web)"></td></tr>
+                                            <tr data-ng-show="location.email.length"><td>Email:</td><td ng-bind-html="addAIfRequired(location.email)"></td></tr>
                                         </table>
                                     </div>
                                 </div>
