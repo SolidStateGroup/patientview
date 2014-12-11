@@ -26,10 +26,10 @@
                 <div data-ng-show="groups.length">
                     <div class="details-filter clearfix">
                         <div class="pull-right">Showing details provided by: &nbsp;&nbsp;
-                        <label data-ng-repeat="group in groups">
+                        <span data-ng-repeat="group in groups">
                             <input type="checkbox" value="{{group.name}}" data-ng-model="group.selected">
                             <span class="checkbox-label">{{group.name}}</span>
-                        </label>
+                        </span>
                         </div>
                     </div>
                     <div data-ng-repeat="group in groups" data-ng-show="group.selected">
