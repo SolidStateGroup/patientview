@@ -6,7 +6,7 @@
 
 <div class="details-filter clearfix" data-ng-show="patientDetails.length">
     <div class="pull-right">Information provided by: &nbsp;&nbsp;
-        <label data-ng-repeat="patient in patientDetails">
+        <label data-ng-repeat="patient in patientDetails | orderBy:'group.name'">
             <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected">
             <span class="checkbox-label">{{patient.group.shortName}}</span>
         </label>
@@ -14,7 +14,7 @@
 </div>
 
 <div data-ng-show="patientDetails.length">
-    <div data-ng-repeat="patient in patientDetails" data-ng-show="patient.group.selected">
+    <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected">
         <div class="panel panel-default">
             <div class="panel-heading"><h3>{{patient.group.name}}</h3></div>
             <div class="panel-body">
