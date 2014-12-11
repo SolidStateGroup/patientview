@@ -9,20 +9,24 @@
   padding-right: 4px;
   min-height: 25px;
 }
-/* line 15, ../sass/ie.scss */
+/* line 16, ../sass/ie.scss */
+.lt-ie9 .nav-utils .help-item {
+  float: left;
+}
+/* line 21, ../sass/ie.scss */
 .lt-ie9 .historical-data .overlay {
   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 }
-/* line 19, ../sass/ie.scss */
+/* line 25, ../sass/ie.scss */
 .lt-ie9 .navbar-collapse {
   padding-right: 0;
 }
-/* line 23, ../sass/ie.scss */
+/* line 29, ../sass/ie.scss */
 .lt-ie9 .hero-panel {
   overflow: hidden;
   position: relative;
 }
-/* line 27, ../sass/ie.scss */
+/* line 33, ../sass/ie.scss */
 .lt-ie9 .hero-panel .ie-hero-image {
   display: block;
   position: absolute;
@@ -35,46 +39,46 @@
   width: 100%;
   height: auto;
 }
-/* line 42, ../sass/ie.scss */
+/* line 48, ../sass/ie.scss */
 .lt-ie9 .navbar-right label {
   min-width: 100px;
 }
-/* line 47, ../sass/ie.scss */
+/* line 53, ../sass/ie.scss */
 .lt-ie9 .messages-menu-item {
   position: relative;
   float: left;
 }
-/* line 51, ../sass/ie.scss */
+/* line 57, ../sass/ie.scss */
 .lt-ie9 .messages-menu-item i {
   margin-top: 8px;
 }
-/* line 55, ../sass/ie.scss */
+/* line 61, ../sass/ie.scss */
 .lt-ie9 .messages-menu-item span {
   position: absolute;
   top: 2px;
   right: 6px;
   height: 15px;
 }
-/* line 64, ../sass/ie.scss */
+/* line 70, ../sass/ie.scss */
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group {
   width: 140px;
 }
-/* line 67, ../sass/ie.scss */
+/* line 73, ../sass/ie.scss */
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .btn {
   padding-left: 8px;
   padding-right: 8px;
 }
-/* line 71, ../sass/ie.scss */
+/* line 77, ../sass/ie.scss */
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .btn .caret {
   margin-right: 12px;
 }
-/* line 77, ../sass/ie.scss */
+/* line 83, ../sass/ie.scss */
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button {
   width: 44px;
   padding-left: 8px;
   padding-right: 8px;
 }
-/* line 82, ../sass/ie.scss */
+/* line 88, ../sass/ie.scss */
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button .caret {
   margin-right: 12px;
   float: none;
