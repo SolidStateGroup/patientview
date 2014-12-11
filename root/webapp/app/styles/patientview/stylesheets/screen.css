@@ -1356,8 +1356,13 @@ html .clearFooter, body .clearFooter {
 .faux-table .faux-row.highlight {
   opacity: 1;
   filter: alpha(opacity=100);
+  background: #f5f5f5;
 }
 /* line 112, ../sass/_tables.scss */
+.faux-table .faux-row.highlight .row-item {
+  font-weight: bold;
+}
+/* line 117, ../sass/_tables.scss */
 .faux-table .faux-row .row-item {
   display: table-cell;
   text-align: left;
@@ -1367,16 +1372,16 @@ html .clearFooter, body .clearFooter {
   vertical-align: middle;
   font-family: 'Lato', sans-serif;
 }
-/* line 121, ../sass/_tables.scss */
+/* line 126, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.plot-this {
   width: 40px;
 }
-/* line 125, ../sass/_tables.scss */
+/* line 130, ../sass/_tables.scss */
 .faux-table .faux-row .row-item span {
   display: block;
   float: right;
 }
-/* line 130, ../sass/_tables.scss */
+/* line 135, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.row-break {
   /*temp wrapping fix */
   white-space: -moz-pre-wrap !important;
@@ -1392,55 +1397,55 @@ html .clearFooter, body .clearFooter {
   word-break: break-all;
   white-space: normal;
 }
-/* line 141, ../sass/_tables.scss */
+/* line 146, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions {
   text-align: center;
   padding: 0 10px;
 }
-/* line 145, ../sass/_tables.scss */
+/* line 150, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.actions .button-dropdown-group {
   width: 120px;
   margin: 0 auto;
 }
-/* line 151, ../sass/_tables.scss */
+/* line 156, ../sass/_tables.scss */
 .faux-table .faux-row .row-item ul {
   margin-bottom: 0;
 }
-/* line 158, ../sass/_tables.scss */
+/* line 163, ../sass/_tables.scss */
 .faux-table.three-col .row-item, .faux-table.three-col .head-item {
   width: 33.33%;
 }
-/* line 164, ../sass/_tables.scss */
+/* line 169, ../sass/_tables.scss */
 .faux-table.four-col .row-item, .faux-table.four-col .head-item {
   width: 25%;
 }
-/* line 170, ../sass/_tables.scss */
+/* line 175, ../sass/_tables.scss */
 .faux-table.five-col .row-item, .faux-table.five-col .head-item {
   width: 20%;
 }
-/* line 176, ../sass/_tables.scss */
+/* line 181, ../sass/_tables.scss */
 .faux-table.six-col .row-item, .faux-table.six-col .head-item {
   width: 16.66%;
 }
-/* line 181, ../sass/_tables.scss */
+/* line 186, ../sass/_tables.scss */
 .faux-table.seven-col .row-item, .faux-table.seven-col .head-item {
   width: 14.44%;
 }
-/* line 186, ../sass/_tables.scss */
+/* line 191, ../sass/_tables.scss */
 .faux-table.eight-col .row-item, .faux-table.eight-col .head-item {
   width: 12.5%;
 }
 
-/* line 192, ../sass/_tables.scss */
+/* line 197, ../sass/_tables.scss */
 .visible-for-col {
   padding-top: 20px;
 }
-/* line 194, ../sass/_tables.scss */
+/* line 199, ../sass/_tables.scss */
 .visible-for-col h5 {
   text-align: left;
   float: left;
 }
-/* line 198, ../sass/_tables.scss */
+/* line 203, ../sass/_tables.scss */
 .visible-for-col input[type="checkbox"] {
   height: auto;
   float: left;
@@ -1448,7 +1453,7 @@ html .clearFooter, body .clearFooter {
   width: auto;
 }
 
-/* line 207, ../sass/_tables.scss */
+/* line 212, ../sass/_tables.scss */
 .result-link a {
   /*temp wrapping fix */
   white-space: -moz-pre-wrap !important;
@@ -1465,7 +1470,7 @@ html .clearFooter, body .clearFooter {
   white-space: normal;
 }
 
-/* line 219, ../sass/_tables.scss */
+/* line 224, ../sass/_tables.scss */
 .cleared-row {
   float: left;
   clear: left;
@@ -1473,17 +1478,17 @@ html .clearFooter, body .clearFooter {
   width: 100%;
 }
 
-/* line 225, ../sass/_tables.scss */
+/* line 230, ../sass/_tables.scss */
 .log-container {
   margin-top: 20px;
 }
-/* line 229, ../sass/_tables.scss */
+/* line 234, ../sass/_tables.scss */
 .log-container table thead {
   background: #f3f6f9;
   height: 40px;
   border-bottom: 1px solid #e4e9f0;
 }
-/* line 233, ../sass/_tables.scss */
+/* line 238, ../sass/_tables.scss */
 .log-container table thead th {
   height: 100%;
   border-right: 1px solid #e4e9f0;
@@ -1493,13 +1498,13 @@ html .clearFooter, body .clearFooter {
   padding: 10px;
   font-weight: bold;
 }
-/* line 242, ../sass/_tables.scss */
+/* line 247, ../sass/_tables.scss */
 .log-container table thead th a {
   color: #585858;
 }
 
 @media (max-width: 767px) {
-  /* line 254, ../sass/_tables.scss */
+  /* line 259, ../sass/_tables.scss */
   .details-container table tr td {
     width: 50%;
   }

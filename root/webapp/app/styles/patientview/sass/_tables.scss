@@ -107,6 +107,11 @@
 
         &.highlight{
             @include bootstrap-opacity(100);
+            background:#f5f5f5;
+
+            .row-item{
+                font-weight:bold;
+            }
         }
 
         .row-item{
