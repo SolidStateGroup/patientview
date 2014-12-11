@@ -77,4 +77,5 @@
 /* line 82, ../sass/ie.scss */
 .lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button .caret {
   margin-right: 12px;
+  float: none;
 }
