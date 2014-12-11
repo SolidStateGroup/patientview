@@ -92,6 +92,9 @@
         <div class="panel-footer clearfix">
             <div class="content-inner">
                 <div class="form-horizontal" role="form">
+                    <div class="pull-right" data-ng-show="pagedItems.length  > 0">
+                        <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
+                    </div>
                     <!-- filter by specialty -->
                     <div class="select-container pull-left" data-ng-show="showSpecialtyFilter">
                         <div class="btn-group filter-select" id="filter-specialty" dropdown>
@@ -175,9 +178,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="pull-right" data-ng-show="pagedItems.length  > 0">
-                <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
-            </div>
+
         </div>
 
         <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
