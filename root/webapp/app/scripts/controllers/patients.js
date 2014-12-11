@@ -223,8 +223,8 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                 }
             }
             $q.all(promises).then(function () {
-                $scope.successMessage = 'Patient has been removed from your groups.';
                 $scope.user.canRemoveFromMyGroups = false;
+                $scope.user.removedFromGroups = true;
             }, function() {
                 $scope.errorMessage = 'There was an error';
             });
