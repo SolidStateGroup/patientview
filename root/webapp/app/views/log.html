@@ -17,12 +17,13 @@
         </div>
         <div class="panel-footer clearfix">
             <div class="content-inner">
-                <div class="pull-right">
-                    <div class="col-md-12" data-ng-show="pagedItems.length  > 0">
-                        <h5 class="pull-right">Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
-                    </div>
-                </div>
+
                 <form class="form-horizontal" role="form">
+                    <div class="pull-right">
+                        <div class="col-md-12" data-ng-show="pagedItems.length  > 0">
+                            <h5 class="pull-right">Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
+                        </div>
+                    </div>
                     <!-- filter by unit -->
                     <div class="select-container pull-left" data-ng-show="unitsAvailable">
                         <div class="btn-group filter-select" id="filter-group" dropdown>

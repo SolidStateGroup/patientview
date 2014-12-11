@@ -102,3 +102,14 @@ and (max-width : 1024px) {
         width:auto;
     }
 }
+
+@media (max-width: $screen-xs-max) {
+    .tab-panel-item {
+        .item-detail {
+            .last-login {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+        }
+    }
+}

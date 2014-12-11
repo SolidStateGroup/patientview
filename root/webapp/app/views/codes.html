@@ -47,10 +47,10 @@
             <div class="panel-footer clearfix">
                 <!-- filter by code type -->
                 <div class="content-inner">
-                    <div class="pull-right" data-ng-show="pagedItems.length  > 0">
-                        <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
-                    </div>
                     <div class="form-horizontal" role="form">
+                        <div class="pull-right" data-ng-show="pagedItems.length  > 0">
+                            <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
+                        </div>
                         <div class="select-container pull-left">
                             <div class="btn-group filter-select" id="filter-code-type" data-ng-class="{open: open1}">
                                 <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Type <span class="caret-container" data-ng-class="{open: open1}"><span class="caret"></span></span></button>

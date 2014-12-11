@@ -4,11 +4,12 @@
 <div class="content-panel filter-panel" data-ng-show="!loading" data-ng-cloak>
     <div class="panel-footer clearfix">
         <div class="content-inner">
-            <div class="pull-right" data-ng-show="pagedItems.length > 0">
-                <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
-            </div>
+
             <div class="form-horizontal" role="form">
                 <!-- filter by status -->
+                <div class="pull-right" data-ng-show="pagedItems.length > 0">
+                    <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
+                </div>
                 <div class="select-container pull-left">
                     <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open1}">
                         <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Status <span class="caret-container"><span class="caret"></span></span></button>

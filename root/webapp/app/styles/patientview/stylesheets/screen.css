@@ -1847,9 +1847,10 @@ label {
 /* line 294, ../sass/_forms.scss */
 .data-range-container {
   margin-top: 20px;
+  width: 100%;
 }
 
-/* line 298, ../sass/_forms.scss */
+/* line 299, ../sass/_forms.scss */
 .custom-select {
   position: relative;
   height: 34px;
@@ -1858,24 +1859,24 @@ label {
   margin-right: 10px;
   cursor: pointer;
 }
-/* line 306, ../sass/_forms.scss */
+/* line 307, ../sass/_forms.scss */
 .custom-select .caret-container {
   position: absolute;
   right: 0;
   top: 0;
   cursor: pointer;
 }
-/* line 312, ../sass/_forms.scss */
+/* line 313, ../sass/_forms.scss */
 .custom-select .caret-container .caret {
   margin-left: 12px;
   cursor: pointer;
 }
 
-/* line 319, ../sass/_forms.scss */
+/* line 320, ../sass/_forms.scss */
 .radio-button-list {
   padding-left: 10px;
 }
-/* line 321, ../sass/_forms.scss */
+/* line 322, ../sass/_forms.scss */
 .radio-button-list .btn {
   background: #e0e0e0;
   color: #585858;
@@ -1889,11 +1890,11 @@ label {
   width: 58px;
   font-size: 1.2rem;
 }
-/* line 332, ../sass/_forms.scss */
+/* line 333, ../sass/_forms.scss */
 .radio-button-list .btn:first-child {
   border-left: 0;
 }
-/* line 336, ../sass/_forms.scss */
+/* line 337, ../sass/_forms.scss */
 .radio-button-list .btn.active, .radio-button-list .btn:hover {
   background: #00adc6;
   border-left: 1px solid #039288;
@@ -1903,40 +1904,40 @@ label {
   color: white;
 }
 
-/* line 346, ../sass/_forms.scss */
+/* line 347, ../sass/_forms.scss */
 .select-add-group select {
   width: 50%;
   float: left;
   height: 40px;
 }
-/* line 352, ../sass/_forms.scss */
+/* line 353, ../sass/_forms.scss */
 .select-add-group .group-list-item {
   width: auto;
   float: left;
   clear: left;
 }
-/* line 357, ../sass/_forms.scss */
+/* line 358, ../sass/_forms.scss */
 .select-add-group .group-list-item .radio-button-list {
   padding-left: 0;
   margin-top: 10px;
 }
-/* line 361, ../sass/_forms.scss */
+/* line 362, ../sass/_forms.scss */
 .select-add-group .group-list-item .radio-button-list li.active {
   background: #00adc6;
 }
-/* line 367, ../sass/_forms.scss */
+/* line 368, ../sass/_forms.scss */
 .select-add-group button {
   float: left;
   margin-top: 2px;
 }
 
-/* line 374, ../sass/_forms.scss */
+/* line 375, ../sass/_forms.scss */
 .add-feature select {
   float: left;
   width: 80%;
 }
 
-/* line 380, ../sass/_forms.scss */
+/* line 381, ../sass/_forms.scss */
 .bracket {
   font-size: 3rem;
   font-weight: bold;
@@ -1947,12 +1948,12 @@ label {
   line-height: 38px;
   color: #e0e0e0;
 }
-/* line 390, ../sass/_forms.scss */
+/* line 391, ../sass/_forms.scss */
 .bracket.pre {
   margin-left: 5px;
 }
 
-/* line 399, ../sass/_forms.scss */
+/* line 400, ../sass/_forms.scss */
 .bracket-input input, .bracket-input select {
   width: 120px;
   float: left;
@@ -1960,20 +1961,20 @@ label {
   margin-top: 5px;
 }
 
-/* line 408, ../sass/_forms.scss */
+/* line 409, ../sass/_forms.scss */
 .clamped {
   line-height: 1.5;
   overflow: hidden;
   position: relative;
 }
 
-/* line 414, ../sass/_forms.scss */
+/* line 415, ../sass/_forms.scss */
 .clamped-2 {
   /* Clamp to 2 lines, ie line-height x 2: */
   max-height: 3em;
 }
 
-/* line 419, ../sass/_forms.scss */
+/* line 420, ../sass/_forms.scss */
 .ellipsis {
   background: #fff;
   bottom: 0;
@@ -1981,7 +1982,7 @@ label {
   right: 10px;
 }
 
-/* line 426, ../sass/_forms.scss */
+/* line 427, ../sass/_forms.scss */
 .fill {
   background: #fff;
   height: 100%;
@@ -1989,7 +1990,7 @@ label {
   width: 100%;
 }
 
-/* line 434, ../sass/_forms.scss */
+/* line 435, ../sass/_forms.scss */
 textarea.form-control.article-content {
   height: 200px;
 }
@@ -2781,5 +2782,12 @@ textarea.form-control.article-content {
   /* line 101, ../sass/_components.scss */
   .modal-dialog {
     width: auto;
+  }
+}
+@media (max-width: 767px) {
+  /* line 109, ../sass/_components.scss */
+  .tab-panel-item .item-detail .last-login {
+    padding-left: 15px;
+    padding-right: 15px;
   }
 }
