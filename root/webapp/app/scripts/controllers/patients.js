@@ -319,35 +319,15 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
-    $scope.filterText = '';
     $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
     $scope.searchItems = {};
 
-    var tempFilterText = '';
-    var filterTextTimeout;
-
     // multi search
     $scope.search = function() {
         $scope.getItems();
     };
-
-    // update page on user typed search text
-    $scope.$watch('searchText', function (value) {
-        if (value !== undefined) {
-            if (filterTextTimeout) {
-                $timeout.cancel(filterTextTimeout);
-            }
-            $scope.currentPage = 0;
-
-            tempFilterText = value;
-            filterTextTimeout = $timeout(function () {
-                $scope.filterText = tempFilterText;
-                $scope.getItems();
-            }, 2000); // delay 2000 ms
-        }
-    });
 
     // update page when currentPage is changed
     $scope.$watch('currentPage', function(value) {
@@ -467,13 +447,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         var getParameters = {};
         getParameters.page = $scope.currentPage;
         getParameters.size = $scope.itemsPerPage;
-        getParameters.filterText = $scope.filterText;
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
         getParameters.roleIds = $scope.roleIds;
 
         // multi search
-        getParameters.searchUsername = $scope.searchItems.username;
+        getParameters.searchUsername = $scope.searchItems.searchUsername;
         getParameters.searchForename = $scope.searchItems.searchForename;
         getParameters.searchSurname = $scope.searchItems.searchSurname;
         getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;

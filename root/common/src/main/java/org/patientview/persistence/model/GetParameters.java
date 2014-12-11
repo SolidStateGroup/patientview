@@ -27,6 +27,7 @@ public class GetParameters {
     private String searchForename;
     private String searchSurname;
     private String searchIdentifier;
+    private String searchEmail;
 
     public GetParameters() {
     }
@@ -181,5 +182,13 @@ public class GetParameters {
 
     public void setSearchIdentifier(String searchIdentifier) {
         this.searchIdentifier = searchIdentifier;
+    }
+
+    public String getSearchEmail() {
+        return searchEmail;
+    }
+
+    public void setSearchEmail(String searchEmail) {
+        this.searchEmail = searchEmail;
     }
 }

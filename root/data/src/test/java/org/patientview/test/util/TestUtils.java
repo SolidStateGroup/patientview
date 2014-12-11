@@ -82,6 +82,8 @@ public final class TestUtils {
         user.setDummy(Boolean.FALSE);
         user.setStartDate(new Date());
         user.setName(name);
+        user.setForename("forename");
+        user.setSurname("surname");
         user.setEmail("test@patientview.org");
         user.setEmailVerified(true);
         user.setPassword("doNotShow");

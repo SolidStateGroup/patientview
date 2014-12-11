@@ -518,7 +518,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             getParameters.setRoleIds(new String[]{role.getId().toString()});
 
             List<BaseUser> users = convertUsersToTransportBaseUsers(
-                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+                    userService.getUsersByGroupsAndRolesNoFilter(getParameters).getContent());
 
             userMap.put(role.getName().getName(), users);
         }
@@ -650,7 +650,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             getParameters.setRoleIds(new String[]{role.getId().toString()});
 
             List<BaseUser> users = convertUsersToTransportBaseUsers(
-                    userService.getUsersByGroupsAndRoles(getParameters).getContent());
+                    userService.getUsersByGroupsAndRolesNoFilter(getParameters).getContent());
 
             userMap.put(role.getName().getName(), users);
         }

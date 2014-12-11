@@ -99,7 +99,7 @@ public class UserRepositoryTest {
         Long[] groupIdsArr = {group.getId()};
         Long[] roleIdsArr = {role.getId()};
 
-        Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", Arrays.asList(groupIdsArr)
+        Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", "%%", "%%", "%%", Arrays.asList(groupIdsArr)
                 , Arrays.asList(roleIdsArr), 1L, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
@@ -133,7 +133,7 @@ public class UserRepositoryTest {
         Long[] groupIdsArr = {group.getId(), group2.getId()};
         Long[] roleIdsArr = {role.getId()};
 
-        Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", Arrays.asList(groupIdsArr)
+        Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", "%%", "%%", "%%", Arrays.asList(groupIdsArr)
                 , Arrays.asList(roleIdsArr), 2L, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 user returned", 2, users.getContent().size());
@@ -159,8 +159,66 @@ public class UserRepositoryTest {
         Long[] groupIdsArr = {group.getId()};
         Long[] roleIdsArr = {role.getId()};
 
-        Page<User> users = userRepository.findPatientByGroupsRolesAnd("%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), 1l, new PageRequest(0, Integer.MAX_VALUE));
+        Page<User> users = userRepository.findPatientByGroupsRolesAnd("%%", "%%", "%%", "%%", "%%",
+                Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr), 1l, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
+    }
+
+    @Test
+    public void findPatientByGroupsRoles_searchUsername() {
+        User user = dataTestUtils.createUser("testUser");
+        user.setForename("forename");
+        user.setSurname("surname");
+        user.setEmail("email");
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier("test");
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        userRepository.save(user);
+
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+
+        Long[] groupIdsArr = {group.getId()};
+        Long[] roleIdsArr = {role.getId()};
+
+        Page<User> users = userRepository.findPatientByGroupsRoles("%" + user.getUsername().toUpperCase() + "%", "%%",
+                "%%", "%%", "%%", Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr),
+                new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
+    }
+
+    @Test
+    public void findPatientByGroupsRoles_searchUsernameAndSurname() {
+        User user = dataTestUtils.createUser("testUser");
+        user.setSurname("surnameExample");
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier("test");
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        userRepository.save(user);
+
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+
+        Long[] groupIdsArr = {group.getId()};
+        Long[] roleIdsArr = {role.getId()};
+
+        Page<User> users = userRepository.findPatientByGroupsRoles("%" + user.getUsername().toUpperCase() + "%", "%%",
+                "%" + user.getSurname().toUpperCase() + "%", "%%", "%%", Arrays.asList(groupIdsArr),
+                Arrays.asList(roleIdsArr), new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
@@ -212,8 +270,8 @@ public class UserRepositoryTest {
         Long[] groupIdsArr = {group.getId(), group2.getId()};
         Long[] roleIdsArr = {role.getId()};
 
-        Page<User> users = userRepository.findPatientByGroupsRolesAnd("%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), 2l, new PageRequest(0, Integer.MAX_VALUE));
+        Page<User> users = userRepository.findPatientByGroupsRolesAnd("%%", "%%", "%%", "%%", "%%",
+                Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr), 2l, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 user returned", 2, users.getContent().size());
     }

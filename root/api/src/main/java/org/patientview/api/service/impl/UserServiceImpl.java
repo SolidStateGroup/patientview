@@ -731,7 +731,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
-        String filterText = getParameters.getFilterText();
 
         PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
@@ -748,11 +747,21 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
-        if (StringUtils.isEmpty(filterText)) {
-            filterText = "%%";
-        } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
-        }
+        // handle searching by field
+        String searchUsername = getParameters.getSearchUsername();
+        searchUsername = StringUtils.isEmpty(searchUsername) ? "%%" : "%" + searchUsername.toUpperCase() + "%";
+
+        String searchForename = getParameters.getSearchForename();
+        searchForename = StringUtils.isEmpty(searchForename) ? "%%" : "%" + searchForename.toUpperCase() + "%";
+
+        String searchSurname = getParameters.getSearchSurname();
+        searchSurname = StringUtils.isEmpty(searchSurname) ? "%%" : "%" + searchSurname.toUpperCase() + "%";
+
+        String searchIdentifier = getParameters.getSearchIdentifier();
+        searchIdentifier = StringUtils.isEmpty(searchIdentifier) ? "%%" : "%" + searchIdentifier.toUpperCase() + "%";
+
+        String searchEmail = getParameters.getSearchEmail();
+        searchEmail = StringUtils.isEmpty(searchEmail) ? "%%" : "%" + searchEmail.toUpperCase() + "%";
 
         // isolate into either staff, patient or both queries (staff or patient much quicker as no outer join)
         boolean staff = false;
@@ -774,23 +783,26 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
 
+        // todo: consider rewrite to avoid large number of parameters
         if (andGroups) {
             if (!staff && patient) {
-                users = userRepository.findPatientByGroupsRolesAnd(filterText, groupIds, roleIds,
-                        Long.valueOf(groupIds.size()), pageable);
+                users = userRepository.findPatientByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
+                        searchIdentifier, searchEmail, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
             }
 
             if (staff && !patient) {
-                users = userRepository.findStaffByGroupsRolesAnd(filterText, groupIds, roleIds,
-                        Long.valueOf(groupIds.size()), pageable);
+                users = userRepository.findStaffByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
+                        searchEmail, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
             }
         } else {
             if (!staff && patient) {
-                users = userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds, pageable);
+                users = userRepository.findPatientByGroupsRoles(searchUsername, searchForename, searchSurname,
+                        searchIdentifier, searchEmail, groupIds, roleIds, pageable);
             }
 
             if (staff && !patient) {
-                users = userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds, pageable);
+                users = userRepository.findStaffByGroupsRoles(searchUsername, searchForename, searchSurname,
+                        searchEmail, groupIds, roleIds, pageable);
             }
         }
 
@@ -803,7 +815,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * Get users based on a list of groups and roles
      * @return Page of standard User
      */
-    public Page<User> getUsersByGroupsAndRoles(GetParameters getParameters)
+    public Page<User> getUsersByGroupsAndRolesNoFilter(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
@@ -824,7 +836,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
-        String filterText = getParameters.getFilterText();
 
         PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
@@ -839,12 +850,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
-        }
-
-        if (StringUtils.isEmpty(filterText)) {
-            filterText = "%%";
-        } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
         }
 
         // isolate into either staff, patient or both queries (staff or patient much quicker as no outer join)
@@ -866,11 +871,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         if (!staff && patient) {
-            return userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            return userRepository.findPatientByGroupsRolesNoFilter(groupIds, roleIds, pageable);
         }
 
         if (staff && !patient) {
-            return userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            return userRepository.findStaffByGroupsRolesNoFilter(groupIds, roleIds, pageable);
         }
 
         throw new ResourceNotFoundException("No Users found");
