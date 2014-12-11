@@ -102,11 +102,16 @@
         border-bottom:1px solid $border-default;
 
         &.dull{
-            @include bootstrap-opacity(50);
+            @include bootstrap-opacity(30);
         }
 
         &.highlight{
             @include bootstrap-opacity(100);
+            background:#f5f5f5;
+
+            .row-item{
+                font-weight:bold;
+            }
         }
 
         .row-item{

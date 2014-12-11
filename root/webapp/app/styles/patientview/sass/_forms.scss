@@ -179,6 +179,7 @@ label{
 .button-dropdown-group{
     > button{
         @include bootstrap-border-radius(4px 0 0 4px);
+        line-height:20px;
     }
 
     .dropdown{
