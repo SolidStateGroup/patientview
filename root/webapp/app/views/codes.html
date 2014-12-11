@@ -57,7 +57,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                     <li><a data-ng-click="removeAllCodeTypes();" class="a-filter-role clearfix"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                     <li class="divider"></li>
-                                    <li data-ng-repeat="type in codeTypes"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
+                                    <li data-ng-repeat="type in codeTypes | orderBy:'description'"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
                         </div>
@@ -67,7 +67,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                     <li><a data-ng-click="removeAllStandardTypes()" class="a-filter-role clearfix"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                                     <li class="divider"></li>
-                                    <li data-ng-repeat="type in standardTypes"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
+                                    <li data-ng-repeat="type in standardTypes | orderBy:'description'"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
                                 </ul>
                             </div>
                         </div>
