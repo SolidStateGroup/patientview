@@ -42,7 +42,7 @@
                 <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
             </p>
             <br/>
-            <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles" data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
+            <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
                 <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span></li>
                 <li class="group-list-role pull-left"><span class="bracket">(</span> <span class="group-role">{{groupRole.role.description}}</span> <span class="bracket">)</span></li>
                 <li class="group-list-delete pull-left" data-ng-show="permissions.allGroupsIds[groupRole.group.id]">
