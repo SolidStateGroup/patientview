@@ -43,7 +43,7 @@ function ($scope, $timeout, MedicationService) {
     var getNonGpMedication = function(medicationStatements) {
         var medications = [];
         for (var i=0;i<medicationStatements.length;i++) {
-            if (medicationStatements[i].group.code !== 'GP_MEDICATION') {
+            if (medicationStatements[i].group.code !== 'ECS') {
                 medications.push(medicationStatements[i]);
             }
         }
@@ -53,7 +53,7 @@ function ($scope, $timeout, MedicationService) {
     var getGpMedication = function(medicationStatements) {
         var medications = [];
         for (var i=0;i<medicationStatements.length;i++) {
-            if (medicationStatements[i].group.code === 'GP_MEDICATION') {
+            if (medicationStatements[i].group.code === 'ECS') {
                 medications.push(medicationStatements[i]);
             }
         }
@@ -80,13 +80,16 @@ function ($scope, $timeout, MedicationService) {
     var init = function() {
         $scope.loading = true;
         $scope.currentPage = 1;
-        $scope.entryLimit = 30;
+        $scope.currentPageGp = 1;
+        $scope.entryLimit = 10;
 
         MedicationService.getByUserId($scope.loggedInUser.id).then(function(medicationStatements) {
             $scope.filterGroups = getSourceGroups(medicationStatements);
             separateMedicationStatements(medicationStatements);
             $scope.predicate = 'startDate';
             $scope.reverse = true;
+            $scope.predicateGp = 'startDate';
+            $scope.reverseGp = true;
             $scope.loading = false;
         }, function () {
             alert('Cannot get medication');
@@ -107,6 +110,13 @@ function ($scope, $timeout, MedicationService) {
     };
     $scope.setPage = function(pageNo) {
         $scope.currentPage = pageNo;
+    };
+    $scope.sortByGp = function(predicateGp) {
+        $scope.predicateGp = predicateGp;
+        $scope.reverseGp = !$scope.reverseGp;
+    };
+    $scope.setPageGp = function(pageNoGp) {
+        $scope.currentPageGp = pageNoGp;
     };
 
     // filter by group

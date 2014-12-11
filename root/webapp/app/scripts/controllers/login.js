@@ -5,6 +5,7 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
 
     $scope.login = function() {
         $scope.errorMessage = '';
+        $scope.showGpLoginMessage = false;
         $scope.loading = true;
         $scope.loadingMessage = 'Logging In';
 
@@ -55,6 +56,14 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
             } else {
                 $scope.errorMessage = ' ';
             }
+
+            var username = $scope.username;
+
+            if (username.length >= 3
+                && username.substring(username.length - 3, username.length).toUpperCase() == '-GP') {
+                $scope.showGpLoginMessage = true;
+            }
+
             $scope.loading = false;
         });
     };
