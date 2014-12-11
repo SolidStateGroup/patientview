@@ -2784,3 +2784,10 @@ textarea.form-control.article-content {
     width: auto;
   }
 }
+@media (max-width: 767px) {
+  /* line 109, ../sass/_components.scss */
+  .tab-panel-item .item-detail .last-login {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
