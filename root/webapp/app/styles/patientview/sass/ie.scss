@@ -5,6 +5,13 @@
  * <![endif]--> */
 
 .lt-ie9{
+
+    .btn{
+        padding-left:4px;
+        padding-right:4px;
+        min-height:25px;
+    }
+
     .historical-data .overlay{
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";;
     }
@@ -39,6 +46,11 @@
 
     .messages-menu-item{
         position:relative;
+        float:left;
+
+        i{
+            margin-top:8px;
+        }
 
         span{
             position:absolute;
