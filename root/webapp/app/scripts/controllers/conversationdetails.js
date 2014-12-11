@@ -14,11 +14,9 @@ function ($scope, ConversationService) {
                 element.parentNode.removeChild(element);
             }
 
-            var select = document.createElement('select');
-            select.setAttribute('class', 'form-control recipient-select');
-            select.setAttribute('id', 'conversation-add-recipient');
-            select.innerHTML = recipientOptions;
-            document.getElementById('recipient-select-container').appendChild(select);
+            $('#recipient-select-container')
+                .html('<select class="form-control recipient-select" id="conversation-add-recipient">'
+                + recipientOptions + '</select>');
 
             $scope.recipientsExist = true;
             $scope.modalLoading = false;

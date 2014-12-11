@@ -683,6 +683,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
+    private List<Long> getUserGroupIds() {
+        List<org.patientview.api.model.Group> groups
+                = groupService.getUserGroups(getCurrentUser().getId(), new GetParameters()).getContent();
+
+        List<Long> groupIds = new ArrayList<>();
+        for (org.patientview.api.model.Group group : groups) {
+            groupIds.add(group.getId());
+        }
+
+        return groupIds;
+    }
+
     /**
      * Get users based on a list of groups and roles
      * @return Page of api User
@@ -690,17 +702,28 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
+        boolean andGroups = false;
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
 
-        // check current user is member of groups passed in
-        for (Long groupId : groupIds) {
-            Group entityGroup = groupRepository.findOne(groupId);
-            if (entityGroup == null) {
-                throw new ResourceNotFoundException("Unknown Group");
+        // if passed in single 0 for group Id then get all user's groups using OR, else use AND
+        if (!CollectionUtils.isEmpty(groupIds)) {
+            if (groupIds.size() == 1 && groupIds.get(0) == 0) {
+                groupIds = getUserGroupIds();
+            } else {
+                // check current user is member of groups passed in
+                for (Long groupId : groupIds) {
+                    Group entityGroup = groupRepository.findOne(groupId);
+                    if (entityGroup == null) {
+                        throw new ResourceNotFoundException("Unknown Group");
+                    }
+                    if (!isCurrentUserMemberOfGroup(entityGroup)) {
+                        throw new ResourceForbiddenException("Forbidden");
+                    }
+                }
+                andGroups = true;
             }
-            if (!isCurrentUserMemberOfGroup(entityGroup)) {
-                throw new ResourceForbiddenException("Forbidden");
-            }
+        } else {
+            groupIds = getUserGroupIds();
         }
 
         List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
@@ -708,7 +731,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
-        String filterText = getParameters.getFilterText();
 
         PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
@@ -725,11 +747,21 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
-        if (StringUtils.isEmpty(filterText)) {
-            filterText = "%%";
-        } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
-        }
+        // handle searching by field
+        String searchUsername = getParameters.getSearchUsername();
+        searchUsername = StringUtils.isEmpty(searchUsername) ? "%%" : "%" + searchUsername.toUpperCase() + "%";
+
+        String searchForename = getParameters.getSearchForename();
+        searchForename = StringUtils.isEmpty(searchForename) ? "%%" : "%" + searchForename.toUpperCase() + "%";
+
+        String searchSurname = getParameters.getSearchSurname();
+        searchSurname = StringUtils.isEmpty(searchSurname) ? "%%" : "%" + searchSurname.toUpperCase() + "%";
+
+        String searchIdentifier = getParameters.getSearchIdentifier();
+        searchIdentifier = StringUtils.isEmpty(searchIdentifier) ? "%%" : "%" + searchIdentifier.toUpperCase() + "%";
+
+        String searchEmail = getParameters.getSearchEmail();
+        searchEmail = StringUtils.isEmpty(searchEmail) ? "%%" : "%" + searchEmail.toUpperCase() + "%";
 
         // isolate into either staff, patient or both queries (staff or patient much quicker as no outer join)
         boolean staff = false;
@@ -751,16 +783,27 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
 
-        if (staff && patient) {
-            users = userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
-        }
+        // todo: consider rewrite to avoid large number of parameters
+        if (andGroups) {
+            if (!staff && patient) {
+                users = userRepository.findPatientByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
+                        searchIdentifier, searchEmail, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
+            }
 
-        if (!staff && patient) {
-            users = userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds, pageable);
-        }
+            if (staff && !patient) {
+                users = userRepository.findStaffByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
+                        searchEmail, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
+            }
+        } else {
+            if (!staff && patient) {
+                users = userRepository.findPatientByGroupsRoles(searchUsername, searchForename, searchSurname,
+                        searchIdentifier, searchEmail, groupIds, roleIds, pageable);
+            }
 
-        if (staff && !patient) {
-            users = userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            if (staff && !patient) {
+                users = userRepository.findStaffByGroupsRoles(searchUsername, searchForename, searchSurname,
+                        searchEmail, groupIds, roleIds, pageable);
+            }
         }
 
         // convert to lightweight transport objects, create Page and return
@@ -772,7 +815,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * Get users based on a list of groups and roles
      * @return Page of standard User
      */
-    public Page<User> getUsersByGroupsAndRoles(GetParameters getParameters)
+    public Page<User> getUsersByGroupsAndRolesNoFilter(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         List<Long> groupIds = convertStringArrayToLongs(getParameters.getGroupIds());
@@ -793,7 +836,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
         String sortDirection = getParameters.getSortDirection();
-        String filterText = getParameters.getFilterText();
 
         PageRequest pageable;
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
@@ -808,12 +850,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
-        }
-
-        if (StringUtils.isEmpty(filterText)) {
-            filterText = "%%";
-        } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
         }
 
         // isolate into either staff, patient or both queries (staff or patient much quicker as no outer join)
@@ -834,16 +870,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        if (staff && patient) {
-            return userRepository.findByGroupsRoles(filterText, groupIds, roleIds, pageable);
-        }
-
         if (!staff && patient) {
-            return userRepository.findPatientByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            return userRepository.findPatientByGroupsRolesNoFilter(groupIds, roleIds, pageable);
         }
 
         if (staff && !patient) {
-            return userRepository.findStaffByGroupsRoles(filterText, groupIds, roleIds, pageable);
+            return userRepository.findStaffByGroupsRolesNoFilter(groupIds, roleIds, pageable);
         }
 
         throw new ResourceNotFoundException("No Users found");
@@ -901,10 +933,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             } else if (roleMap.get(roleId).getRoleType().getValue().equals(RoleType.PATIENT)) {
                 patient = true;
             }
-        }
-
-        if (staff && patient) {
-            return userRepository.findByGroupsRolesFeatures(filterText, groupIds, roleIds, featureIds, pageable);
         }
 
         if (!staff && patient) {

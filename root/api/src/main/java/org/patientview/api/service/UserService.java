@@ -79,7 +79,7 @@ public interface UserService {
     Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
-    Page<User> getUsersByGroupsAndRoles(GetParameters getParameters)
+    Page<User> getUsersByGroupsAndRolesNoFilter(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     Page<User> getUsersByGroupsRolesFeatures(GetParameters getParameters) throws ResourceNotFoundException;

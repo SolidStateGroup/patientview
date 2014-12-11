@@ -82,7 +82,6 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     // click Update Existing button, (after finding user already exists)
     $scope.edit = function () {
         UserService.save($scope.editUser).then(function() {
-            // successfully saved existing user
             $scope.editUser.isNewUser = false;
             $modalInstance.close($scope.editUser);
         }, function(result) {
@@ -261,19 +260,16 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         // delete patient permanently
         $scope.remove = function () {
             UserService.remove(user).then(function() {
-                // successfully deleted user
                 $scope.successMessage = 'Patient has been permanently deleted.';
                 $scope.user.canRemoveFromMyGroups = false;
                 $scope.user.canRemoveFromAllGroups = false;
                 $scope.user.canDelete = false;
             }, function() {
-                // error
                 $scope.errorMessage = 'There was an error';
             });
         };
 
         $scope.cancel = function () {
-            //$modalInstance.dismiss('cancel');
             $modalInstance.close();
         };
     }];
@@ -323,36 +319,15 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
-    $scope.filterText = '';
     $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
     $scope.searchItems = {};
 
-    var tempFilterText = '';
-    var filterTextTimeout;
-
     // multi search
     $scope.search = function() {
         $scope.getItems();
     };
-
-    // watches
-    // update page on user typed search text
-    $scope.$watch('searchText', function (value) {
-        if (value !== undefined) {
-            if (filterTextTimeout) {
-                $timeout.cancel(filterTextTimeout);
-            }
-            $scope.currentPage = 0;
-
-            tempFilterText = value;
-            filterTextTimeout = $timeout(function () {
-                $scope.filterText = tempFilterText;
-                $scope.getItems();
-            }, 2000); // delay 2000 ms
-        }
-    });
 
     // update page when currentPage is changed
     $scope.$watch('currentPage', function(value) {
@@ -472,13 +447,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         var getParameters = {};
         getParameters.page = $scope.currentPage;
         getParameters.size = $scope.itemsPerPage;
-        getParameters.filterText = $scope.filterText;
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
         getParameters.roleIds = $scope.roleIds;
 
         // multi search
-        getParameters.searchUsername = $scope.searchItems.username;
+        getParameters.searchUsername = $scope.searchItems.searchUsername;
         getParameters.searchForename = $scope.searchItems.searchForename;
         getParameters.searchSurname = $scope.searchItems.searchSurname;
         getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
@@ -487,7 +461,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         if ($scope.selectedGroup.length > 0) {
             getParameters.groupIds = $scope.selectedGroup;
         } else {
-            getParameters.groupIds = $scope.groupIds;
+            getParameters.groupIds = [0];
         }
 
         // get staff users by list of staff roles and list of logged in user's groups
@@ -514,7 +488,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.allGroups = [];
         $scope.allRoles = [];
         $scope.roleIds = [];
-        $scope.groupIds = [];
         $scope.groupMap = [];
 
         $scope.permissions = {};
@@ -572,7 +545,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 group = groups[i];
                 if (group.visible === true) {
                     $scope.allGroups.push(group);
-                    $scope.groupIds.push(group.id);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
 
@@ -773,7 +745,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         modalInstance.result.then(function (user) {
             // check if user is newly created
             if (user.isNewUser) {
-                // is a new user
                 $scope.successMessage = 'User successfully created ' +
                     'with username: "' + user.username + '" ' +
                     'and password: "' + user.password + '"';

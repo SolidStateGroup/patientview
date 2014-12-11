@@ -20,6 +20,9 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
         $scope.editUser.featureToAdd = $scope.editUser.availableFeatures[0].feature.id;
     }
 
+    // set role to first
+    $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
+
     // click Create New button
     $scope.create = function () {
         var i;
@@ -152,30 +155,15 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
-    $scope.filterText = '';
     $scope.sortField = 'surname';
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
+    $scope.searchItems = {};
 
-    var tempFilterText = '';
-    var filterTextTimeout;
-
-    // watches
-    // update page on user typed search text
-    $scope.$watch('searchText', function (value) {
-        if (value !== undefined) {
-            if (filterTextTimeout) {
-                $timeout.cancel(filterTextTimeout);
-            }
-            $scope.currentPage = 0;
-
-            tempFilterText = value;
-            filterTextTimeout = $timeout(function () {
-                $scope.filterText = tempFilterText;
-                $scope.getItems();
-            }, 2000); // delay 2000 ms
-        }
-    });
+    // multi search
+    $scope.search = function() {
+        $scope.getItems();
+    };
 
     // update page when currentPage is changed
     $scope.$watch('currentPage', function(value) {
@@ -318,14 +306,20 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         var getParameters = {};
         getParameters.page = $scope.currentPage;
         getParameters.size = $scope.itemsPerPage;
-        getParameters.filterText = $scope.filterText;
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
+
+        // multi search
+        getParameters.searchUsername = $scope.searchItems.searchUsername;
+        getParameters.searchForename = $scope.searchItems.searchForename;
+        getParameters.searchSurname = $scope.searchItems.searchSurname;
+        getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
+        getParameters.searchEmail = $scope.searchItems.searchEmail;
 
         if ($scope.selectedGroup.length > 0) {
             getParameters.groupIds = $scope.selectedGroup;
         } else {
-            getParameters.groupIds = $scope.groupIds;
+            getParameters.groupIds = [0];
         }
         if ($scope.selectedRole.length > 0) {
             getParameters.roleIds = $scope.selectedRole;
@@ -356,7 +350,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.allGroups = [];
         $scope.allRoles = [];
         $scope.roleIds = [];
-        $scope.groupIds = [];
         $scope.groupMap = [];
 
         $scope.permissions = {};
@@ -395,7 +388,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 group = groups[i];
                 if (group.visible === true) {
                     $scope.allGroups.push(group);
-                    $scope.groupIds.push(group.id);
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
 
