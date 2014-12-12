@@ -183,6 +183,9 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
         MedicationService.saveGpMedicationStatus($scope.loggedInUser.id, $scope.gpMedicationStatus)
             .then(function() {
                 init();
+                if ($scope.gpMedicationStatus.optInStatus = true) {
+                    $scope.justOptedIn = true;
+                }
             }, function () {
                 alert('Cannot save GP medication status');
             });
