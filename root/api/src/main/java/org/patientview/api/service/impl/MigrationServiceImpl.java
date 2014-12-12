@@ -22,6 +22,7 @@ import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.resource.FhirResource;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -54,6 +55,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceImpl> implements MigrationService {
+
+    @Inject
+    private FhirResource fhirResource;
 
     @Inject
     private UserRepository userRepository;
@@ -295,12 +299,20 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
                 // get list of pv2 ids to migrate observations for
                 List<Long> pv2ids = userMigrationService.getPatientview2IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
-                LOG.info(pv2ids.size() + " total PATIENT_MIGRATED");
+                pv2ids.addAll(userMigrationService.getPatientview2IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED));
+                LOG.info(pv2ids.size() + " total PATIENT_MIGRATED, OBSERVATIONS_FAILED");
                 Connection connection = null;
 
                 try {
                     connection = dataSource.getConnection();
                     for (Long pv2id : pv2ids) {
+
+                        UserMigration userMigration
+                                = userMigrationService.getByPatientview2Id(pv2id);
+                        userMigration.setLastUpdate(new Date());
+                        userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
+                        userMigration = userMigrationService.save(userMigration);
+
                         List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
                         try {
                             User user = userService.get(pv2id);
@@ -333,20 +345,43 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                                 observationService.buildFhirDatabaseObservation(
                                                         fhirObservation, observationHeading, fhirLink));
                                     } else {
-                                        throw new MigrationException("testcode " + testcode + " not found");
+                                        throw new MigrationException("ObservationHeading not found: " + testcode);
                                     }
                                 }
                             }
+
+                            try {
+                                if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+                                    insertObservations(fhirDatabaseObservations);
+                                }
+
+                                userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
+                                userMigration.setObservationCount(Long.valueOf(fhirDatabaseObservations.size()));
+                                userMigration.setInformation(null);
+                                userMigration.setLastUpdate(new Date());
+                                userMigrationService.save(userMigration);
+                            } catch (FhirResourceException fre) {
+                                userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+                                userMigration.setInformation(fre.getMessage());
+                                userMigration.setLastUpdate(new Date());
+                                userMigrationService.save(userMigration);
+                            }
+
                         } catch (ResourceNotFoundException rnf) {
                             LOG.error("user with pv2 id " + pv2id + " not found");
                         } catch (FhirResourceException fre) {
                             LOG.error("cannot build observations for user with pv2 id " + pv2id);
+                            userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+                            userMigration.setInformation(fre.getMessage());
+                            userMigration.setLastUpdate(new Date());
+                            userMigrationService.save(userMigration);
                         } catch (MigrationException me) {
-                            LOG.error("MigrationException for user with pv2 id " + pv2id);
+                            LOG.error("MigrationException for user with pv2 id " + pv2id + ": " + me.getMessage());
+                            userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+                            userMigration.setInformation(me.getMessage());
+                            userMigration.setLastUpdate(new Date());
+                            userMigrationService.save(userMigration);
                         }
-
-                        LOG.info("pv2 id " + pv2id + " has "
-                                + fhirDatabaseObservations.size() + " observations");
                     }
 
                     connection.close();
@@ -365,6 +400,30 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                         + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
             }
         });
+    }
+
+    private void insertObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
+        throws FhirResourceException {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO observation (logical_id, version_id, resource_type, published, updated, content) ");
+        sb.append("VALUES ");
+
+        for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
+            FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
+            sb.append("(");
+            sb.append("'").append(obs.getLogicalId().toString()).append("','");
+            sb.append(obs.getVersionId().toString()).append("','");
+            sb.append(obs.getResourceType()).append("','");
+            sb.append(obs.getPublished().toString()).append("','");
+            sb.append(obs.getUpdated().toString()).append("','");
+            sb.append(obs.getContent());
+            sb.append("')");
+            if (i != (fhirDatabaseObservations.size() - 1)) {
+                sb.append(",");
+            }
+        }
+        fhirResource.executeSQL(sb.toString());
     }
 
     // Migration Only
