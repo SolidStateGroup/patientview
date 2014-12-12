@@ -2,6 +2,8 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.GroupRoleService;
 import org.patientview.api.service.MigrationService;
+import org.patientview.api.service.ObservationHeadingService;
+import org.patientview.api.service.ObservationService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
@@ -9,11 +11,16 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirDatabaseObservation;
+import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.MigrationUser;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.MigrationStatus;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,12 +29,19 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityExistsException;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +59,9 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private UserRepository userRepository;
 
     @Inject
+    private FhirLinkRepository fhirLinkRepository;
+
+    @Inject
     private GroupRoleService groupRoleService;
 
     @Inject
@@ -57,7 +74,17 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private UserMigrationService userMigrationService;
 
     @Inject
+    private ObservationService observationService;
+
+    @Inject
+    private ObservationHeadingService observationHeadingService;
+
+    @Inject
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+    @Inject
+    @Named("patientView1")
+    private DataSource dataSource;
 
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
@@ -241,23 +268,98 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     @Override
     public void migrateObservationsFast() {
         threadPoolTaskExecutor.execute(new Runnable() {
+
             public void run() {
+                doMigration();
+            }
+
+            @Transactional
+            private void doMigration() {
                 Date start = new Date();
 
+                // get observation headings
+                HashMap<String, ObservationHeading> observationHeadingMap = new HashMap<>();
+                for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+                    observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
+                }
+
+                // log in migration user
                 User migrationUser = userService.findByUsernameCaseInsensitive("migration");
                 Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-
                 for (GroupRole groupRole : groupRoleService.findByUser(migrationUser)) {
                     grantedAuthorities.add(groupRole);
                 }
-
                 SecurityContext ctx = new SecurityContextImpl();
                 ctx.setAuthentication(new UsernamePasswordAuthenticationToken(migrationUser, null, grantedAuthorities));
                 SecurityContextHolder.setContext(ctx);
 
+                // get list of pv2 ids to migrate observations for
                 List<Long> pv2ids = userMigrationService.getPatientview2IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
                 LOG.info(pv2ids.size() + " total PATIENT_MIGRATED");
+                Connection connection = null;
 
+                try {
+                    connection = dataSource.getConnection();
+                    for (Long pv2id : pv2ids) {
+                        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+                        try {
+                            User user = userService.get(pv2id);
+
+                            for (FhirLink fhirLink : fhirLinkRepository.findActiveByUser(user)) {
+
+                                String query = "SELECT testcode, datestamp, prepost, value " +
+                                        "FROM testresult " +
+                                        "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier() +
+                                        "' AND unitcode = '" + fhirLink.getGroup().getCode() + "'";
+
+                                java.sql.Statement statement = connection.createStatement();
+                                ResultSet results = statement.executeQuery(query);
+
+                                while ((results.next())) {
+                                    String testcode = results.getString(1);
+                                    Date datestamp = results.getDate(2);
+                                    String prepost = results.getString(3);
+                                    String value = results.getString(4);
+
+                                    FhirObservation fhirObservation = new FhirObservation();
+                                    fhirObservation.setApplies(datestamp);
+                                    fhirObservation.setComments(prepost);
+                                    fhirObservation.setValue(value);
+                                    ObservationHeading observationHeading
+                                            = observationHeadingMap.get(testcode.toUpperCase());
+
+                                    if (observationHeading != null) {
+                                        fhirDatabaseObservations.add(
+                                                observationService.buildFhirDatabaseObservation(
+                                                        fhirObservation, observationHeading, fhirLink));
+                                    } else {
+                                        throw new MigrationException("testcode " + testcode + " not found");
+                                    }
+                                }
+                            }
+                        } catch (ResourceNotFoundException rnf) {
+                            LOG.error("user with pv2 id " + pv2id + " not found");
+                        } catch (FhirResourceException fre) {
+                            LOG.error("cannot build observations for user with pv2 id " + pv2id);
+                        } catch (MigrationException me) {
+                            LOG.error("MigrationException for user with pv2 id " + pv2id);
+                        }
+
+                        LOG.info("pv2 id " + pv2id + " has "
+                                + fhirDatabaseObservations.size() + " observations");
+                    }
+
+                    connection.close();
+                } catch (SQLException e) {
+                    LOG.error("MySQL exception", e);
+                    try {
+                        if (connection != null) {
+                            connection.close();
+                        }
+                    } catch (SQLException e2) {
+                        LOG.error("Cannot close MySQL connection ", e2);
+                    }
+                }
 
                 LOG.info("Migration of Observations took "
                         + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
