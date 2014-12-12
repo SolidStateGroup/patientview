@@ -17,7 +17,8 @@ public interface MigrationService {
     Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException;
 
-    @RoleOnly
+    // @RoleOnly disabled temporarily for performance reasons
+    //@RoleOnly
     void migrateObservations(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException;
 }

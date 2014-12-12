@@ -9,6 +9,8 @@ import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.MigrationUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,8 @@ public class ObservationController extends BaseController<ObservationController>
 
     private static final String DEFAULT_SORT = "appliesDateTime";
     private static final String DEFAULT_SORT_DIRECTION = "DESC";
+
+    private static final Logger LOG = LoggerFactory.getLogger(ObservationController.class);
 
     @RequestMapping(value = "/user/{userId}/observations/{code}", method = RequestMethod.GET)
     @ResponseBody
@@ -70,6 +74,7 @@ public class ObservationController extends BaseController<ObservationController>
     @ResponseBody
     public void migrateObservations(@RequestBody MigrationUser migrationUser)
             throws ResourceNotFoundException, EntityExistsException, MigrationException {
+        LOG.info(migrationUser.getPatientview1Id() + " pv1 id: received at controller");
         migrationService.migrateObservations(migrationUser);
     }
 }

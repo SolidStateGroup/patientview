@@ -181,10 +181,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
             userMigration = userMigrationService.save(userMigration);
 
-            UserMigration userMigration1
-                    = userMigrationService.getByPatientview1Id(userMigration.getPatientview1UserId());
-
-            if (userMigration1.getPatientview2UserId() == null) {
+            if (userMigration.getPatientview2UserId() == null) {
                 userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
                 userMigration.setInformation("Cannot find corresponding PatientView2 user");
                 userMigrationService.save(userMigration);
@@ -194,10 +191,10 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             //LOG.info("2: " + new Date().getTime());
 
             if (!CollectionUtils.isEmpty(migrationUser.getObservations())) {
-                Long userId = userMigration1.getPatientview2UserId();
+                Long pv2UserId = userMigration.getPatientview2UserId();
                 try {
                     //LOG.info("{} migrating {} observations", userId, migrationUser.getObservations().size());
-                    patientService.migrateTestObservations(userId, migrationUser);
+                    patientService.migrateTestObservations(pv2UserId, migrationUser);
 
                     userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
                     userMigration.setInformation(null);
@@ -211,7 +208,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                     throw new MigrationException("Could not migrate patient data: " + e.getMessage());
                 }
                 Date end = new Date();
-                LOG.info(userId + "  migrated " + migrationUser.getObservations().size() + " observations, took "
+                LOG.info(pv2UserId + "  migrated " + migrationUser.getObservations().size() + " observations, took "
                         + Util.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
             } else {
                 userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
