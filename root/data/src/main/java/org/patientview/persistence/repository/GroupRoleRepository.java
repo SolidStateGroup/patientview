@@ -19,7 +19,7 @@ import java.util.List;
  * Created on 06/06/2014
  */
 @Repository
-@Transactional(propagation = Propagation.REQUIRES_NEW)
+@Transactional(propagation = Propagation.MANDATORY)
 public interface GroupRoleRepository extends CrudRepository<GroupRole, Long> {
 
     @Modifying

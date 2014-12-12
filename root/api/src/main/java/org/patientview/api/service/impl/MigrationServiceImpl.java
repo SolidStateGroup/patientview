@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.service.GroupRoleService;
 import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserMigrationService;
@@ -13,7 +14,6 @@ import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.MigrationStatus;
-import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,7 +45,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private UserRepository userRepository;
 
     @Inject
-    private GroupRoleRepository groupRoleRepository;
+    private GroupRoleService groupRoleService;
 
     @Inject
     private UserService userService;
@@ -247,7 +247,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 User migrationUser = userService.findByUsernameCaseInsensitive("migration");
                 Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
-                for (GroupRole groupRole : groupRoleRepository.findByUser(migrationUser)) {
+                for (GroupRole groupRole : groupRoleService.findByUser(migrationUser)) {
                     grantedAuthorities.add(groupRole);
                 }
 

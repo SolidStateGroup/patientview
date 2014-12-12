@@ -17,7 +17,7 @@ import java.util.List;
  * Created on 04/11/2014
  */
 @Repository
-@Transactional(propagation = Propagation.REQUIRES_NEW)
+@Transactional(propagation = Propagation.MANDATORY)
 public interface UserMigrationRepository extends CrudRepository<UserMigration, Long> {
 
     @Query("SELECT um FROM UserMigration um WHERE um.status = :status")
