@@ -1,6 +1,7 @@
 package org.patientview.importer.controller;
 
 import generated.Patientview;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -142,6 +143,7 @@ public class ImportControllerTest {
 
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/xml");
-        return httpClient.execute(post);
+        HttpResponse httpResponse = httpClient.execute(post);
+        return httpResponse;
     }
 }
