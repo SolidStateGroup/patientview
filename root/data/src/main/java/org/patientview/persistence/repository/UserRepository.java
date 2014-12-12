@@ -19,7 +19,7 @@ import java.util.List;
  * Created on 03/06/2014
  */
 @Repository
-@Transactional(propagation = Propagation.MANDATORY)
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT CASE WHEN (count(user) > 0) THEN TRUE ELSE FALSE END " +

@@ -8,11 +8,19 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.MigrationStatus;
+import org.patientview.persistence.repository.GroupRoleRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -20,6 +28,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,6 +45,9 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private UserRepository userRepository;
 
     @Inject
+    private GroupRoleRepository groupRoleRepository;
+
+    @Inject
     private UserService userService;
 
     @Inject
@@ -41,6 +55,9 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
     @Inject
     private UserMigrationService userMigrationService;
+
+    @Inject
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
@@ -219,5 +236,38 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
             //LOG.info("9: " + new Date().getTime());
         }
+    }
+
+    @Override
+    public void migrateObservationsFast() {
+        threadPoolTaskExecutor.execute(new Runnable() {
+            public void run() {
+                Date start = new Date();
+
+                User migrationUser = userService.findByUsernameCaseInsensitive("migration");
+                Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+
+                for (GroupRole groupRole : groupRoleRepository.findByUser(migrationUser)) {
+                    grantedAuthorities.add(groupRole);
+                }
+
+                SecurityContext ctx = new SecurityContextImpl();
+                ctx.setAuthentication(new UsernamePasswordAuthenticationToken(migrationUser, null, grantedAuthorities));
+                SecurityContextHolder.setContext(ctx);
+
+                List<Long> pv2ids = userMigrationService.getPatientview2IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
+                LOG.info(pv2ids.size() + " total PATIENT_MIGRATED");
+
+
+                LOG.info("Migration of Observations took "
+                        + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+            }
+        });
+    }
+
+    // Migration Only
+    private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMilliseconds = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
     }
 }

@@ -43,4 +43,9 @@ public class UserMigrationServiceImpl extends AbstractServiceImpl<UserMigrationS
     public UserMigration getByPatientview2Id(final Long patientview1Id) {
         return userMigrationRepository.getByPatientview2Id(patientview1Id);
     }
+
+    @Override
+    public List<Long> getPatientview2IdsByStatus(MigrationStatus migrationStatus) {
+        return userMigrationRepository.findPatientview2IdsByStatus(migrationStatus);
+    }
 }

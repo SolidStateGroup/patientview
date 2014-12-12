@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
-    'NewsService', 'UtilService', 'MedicationService',
-function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService) {
+    'NewsService', 'UtilService', 'MedicationService', 'ObservationService',
+function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService, ObservationService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -199,6 +199,15 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
     $scope.gpMedicinesHideOptIn = function() {
         $scope.gpMedicationStatus.optInHidden = true;
         saveGpMedicationStatus();
+    };
+
+    // Migration only
+    $scope.startObservationMigration = function() {
+        ObservationService.startObservationMigration().then(function() {
+            //alert('Started observation migration');
+        }, function () {
+            alert('Cannot start observation migration');
+        });
     };
 
     init();

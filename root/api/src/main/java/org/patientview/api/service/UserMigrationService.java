@@ -25,4 +25,8 @@ public interface UserMigrationService {
     UserMigration getByPatientview1Id(Long patientview1Id);
 
     UserMigration getByPatientview2Id(Long patientview2Id);
+
+    // Migration only
+    @RoleOnly
+    List<Long> getPatientview2IdsByStatus(MigrationStatus migrationStatus);
 }

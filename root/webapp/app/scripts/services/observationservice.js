@@ -3,6 +3,14 @@
 angular.module('patientviewApp').factory('ObservationService', ['$q', 'Restangular', 'UtilService',
 function ($q, Restangular, UtilService) {
     return {
+        // Migration only
+        startObservationMigration: function () {
+            var deferred = $q.defer();
+            Restangular.one('migrate/observationsfast').get().then(function(res) {
+                deferred.resolve(res);
+            });
+            return deferred.promise;
+        },
         getObservation: function (uuid, typeName) {
             var deferred = $q.defer();
             Restangular.one('patient',uuid).getList('observations', {type: typeName}).then(function(res) {

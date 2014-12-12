@@ -17,7 +17,7 @@ import java.util.List;
  * Created on 04/11/2014
  */
 @Repository
-@Transactional(propagation = Propagation.MANDATORY)
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserMigrationRepository extends CrudRepository<UserMigration, Long> {
 
     @Query("SELECT um FROM UserMigration um WHERE um.status = :status")
@@ -38,4 +38,7 @@ public interface UserMigrationRepository extends CrudRepository<UserMigration, L
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM UserMigration WHERE patientview2UserId = :userId")
     void deleteByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT um.patientview2UserId FROM UserMigration um WHERE um.status = :migrationStatus")
+    List<Long> findPatientview2IdsByStatus(@Param("migrationStatus") MigrationStatus migrationStatus);
 }

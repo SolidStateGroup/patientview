@@ -77,4 +77,14 @@ public class ObservationController extends BaseController<ObservationController>
         LOG.info(migrationUser.getPatientview1Id() + " pv1 id: received at controller");
         migrationService.migrateObservations(migrationUser);
     }
+
+    // Migration Only
+    @RequestMapping(value = "/migrate/observationsfast", method = RequestMethod.GET)
+    @ResponseBody
+    public void migrateObservationsFast()
+            throws ResourceNotFoundException, EntityExistsException, MigrationException {
+        LOG.info("Started API based migration");
+        migrationService.migrateObservationsFast();
+    }
+
 }

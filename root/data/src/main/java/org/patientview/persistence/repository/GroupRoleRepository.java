@@ -12,12 +12,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Created by james@solidstategroup.com
  * Created on 06/06/2014
  */
 @Repository
-@Transactional(propagation = Propagation.MANDATORY)
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupRoleRepository extends CrudRepository<GroupRole, Long> {
 
     @Modifying
@@ -34,6 +36,11 @@ public interface GroupRoleRepository extends CrudRepository<GroupRole, Long> {
             "AND     r = :role ")
     public GroupRole findByUserGroupRole(@Param("user") User user, @Param("group") Group group,
                                          @Param("role") Role role);
+    @Query("SELECT   gr " +
+            "FROM    GroupRole gr " +
+            "JOIN    gr.user u " +
+            "WHERE   u = :user ")
+    public List<GroupRole> findByUser(@Param("user") User user);
 
     @Query("SELECT CASE WHEN (count(gr) > 0) THEN TRUE ELSE FALSE END " +
             "FROM    GroupRole gr " +
