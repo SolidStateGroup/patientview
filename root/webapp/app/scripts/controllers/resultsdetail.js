@@ -20,17 +20,6 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         }
 
         $scope.selectedCode = code;
-
-        var chart = new google.visualization.AnnotationChart(document.querySelector('#chart_div'));
-
-        google.visualization.events.addListener(chart, 'rangechange', function(e) {
-            $scope.rangeChanged(e);
-        });
-        //google.visualization.events.addListener(chart, 'select', function() {
-        //    $scope.graphClicked();
-        //});
-        $scope.chart = chart;
-
         $scope.getObservationHeadings(code);
         $scope.getObservations(code);
     };
@@ -46,22 +35,20 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.initialiseChart = function() {
-        // now using standard google charts (not angular-google-chart)
+        // using highstocks
         $('.chart-content-panel').show();
 
-        var data = [
-            ['date', 'Result']
-        ];
+        var data = [];
 
         var minValue = Number.MAX_VALUE;
         var maxValue = Number.MIN_VALUE;
 
-        for (var i = 0; i < $scope.observations.length; i++) {
+        for (var i = $scope.observations.length -1; i > 0; i--) {
 
             var observation = $scope.observations[i];
 
             var row = [];
-            row[0] = new Date(observation.applies);
+            row[0] = observation.applies;
             row[1] = parseFloat(observation.value);
             data.push(row);
 
@@ -75,18 +62,63 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             }
         }
 
-        data = new google.visualization.arrayToDataTable(data);
+        $('#chart_div').highcharts('StockChart', {
+            rangeSelector : {
+                buttons: [{
+                    type: 'month',
+                    count: 1,
+                    text: '1m'
+                }, {
+                    type: 'month',
+                    count: 3,
+                    text: '3m'
+                }, {
+                    type: 'year',
+                    count: 1,
+                    text: '1y'
+                }, {
+                    type: 'year',
+                    count: 3,
+                    text: '3y'
+                }, {
+                    type: 'all',
+                    text: 'All'
+                }],
 
-        var options = {
-            min: minValue,
-            max: maxValue,
-            displayZoomButtons: false,
-            annotationsWidth: '0'
-        };
+                selected: 3
+            },
 
-        $scope.chart.draw(data, options);
+            credits : {
+                enabled: false
+            },
 
-        //$scope.chart = chart;
+            title : {
+                text : null
+            },
+
+            navigator: {
+                enabled: true
+            },
+
+            series : [{
+                name : $scope.selectedObservation.name,
+                data : data,
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }],
+
+            chart: {
+                events: {
+                    zoomType: 'x',
+                    redraw: function (event) {
+                        var minDate = event.target.xAxis[0].min;
+                        var maxDate = event.target.xAxis[0].max;
+                        $scope.showHideObservationsInTable(minDate, maxDate);
+                    }
+                }
+            }
+        });
         $scope.setRangeInDays(1094.75);
         $scope.chartLoading = false;
     };
@@ -160,30 +192,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.selectedObservation = observation;
     };
 
-    $scope.graphClicked = function () {
-        var selection = $scope.chart.getSelection();
-        var range = $scope.chart.getVisibleChartRange();
-        var startIndex, startFound = false;
-
-        for(var i=$scope.tableObservations.length-1;i>0;i--) {
-            if (!startFound) {
-                if ($scope.tableObservations[i].applies >= range.start.getTime()) {
-                    startIndex = $scope.tableObservations.length - i - 1;
-                    startFound = true;
-                }
-            }
-        }
-
-        var index = $scope.tableObservations.length - startIndex - 1 - selection[0].row;
-        $scope.selectedObservation = $scope.tableObservations[index];
-
-        $timeout(function() {
-            $scope.$apply();
-        });
-    };
-
     $scope.getValueChanged = function(observation) {
-
         if (observation !== undefined && $scope.selectedCode !== 'resultcomment') {
             var index = $scope.tableObservationsKey[observation.applies];
             if ($scope.tableObservations[index + 1]) {
@@ -202,7 +211,6 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         var now = new Date();
         now = new Date(now.getTime() + 86400000);
         var start = new Date(now.getTime() - days * 86400000);
-        $scope.chart.setVisibleChartRange(start, now);
         $scope.showHideObservationsInTable(start, now);
     };
 
@@ -212,7 +220,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.tableObservationsKey = [];
 
         for (var i=0;i<$scope.observations.length;i++) {
-            if (start.getTime() < $scope.observations[i].applies && end.getTime() > $scope.observations[i].applies) {
+            if (start <= $scope.observations[i].applies && end >= $scope.observations[i].applies) {
                 $scope.tableObservations.push($scope.observations[i]);
                 $scope.tableObservationsKey[$scope.observations[i].applies] = $scope.tableObservations.length - 1;
             }

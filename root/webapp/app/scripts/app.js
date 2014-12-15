@@ -54,11 +54,6 @@ patientviewApp.filter('startFrom', function() {
     };
 });
 
-// load google charts
-google.load('visualization', '1', {
-    packages: ['corechart','annotationChart','table']
-});
-
 patientviewApp.config(['$routeProvider', '$httpProvider', 'RestangularProvider','ENV',
     function ($routeProvider, $httpProvider, RestangularProvider, ENV) {
         $httpProvider.interceptors.push('HttpRequestInterceptor');
