@@ -39,7 +39,9 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngSanitize',           // angular sanitize for more html parsing
     'ngCookies',
     'ngResource',
-    'ngRoute'
+    'ngRoute',
+    'angulartics',          // http://luisfarzati.github.io/angulartics/
+    'angulartics.google.analytics'
 ]);
 
 patientviewApp.filter('startFrom', function() {
