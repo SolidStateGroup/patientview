@@ -5,10 +5,10 @@
     <div data-ng-show="patientDetails.length">
         <div class="details-filter clearfix">
             <div class="pull-right">Information provided by: &nbsp;&nbsp;
-                <label data-ng-repeat="patient in patientDetails | orderBy:'group.name'">
+                <span data-ng-repeat="patient in patientDetails | orderBy:'group.name'">
                     <input type="checkbox" value="{{patient.group.shortName}}" data-ng-model="patient.group.selected">
                     <span class="checkbox-label">{{patient.group.shortName}}</span>
-                </label>
+                </span>
             </div>
         </div>
         <div data-ng-repeat="patient in patientDetails | orderBy:'group.name'" data-ng-show="patient.group.selected" class="details-container">

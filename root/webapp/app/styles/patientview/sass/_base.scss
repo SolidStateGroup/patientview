@@ -99,6 +99,19 @@ hr{
         }
     }
 
+    &.multi-search{
+        > div{
+            margin:10px 0 15px;
+        }
+    }
+
+    .search-intro{
+        i{
+            display:block;
+            margin:0 auto;
+        }
+    }
+
     .content-inner {
         padding: 10px;
     }
@@ -183,6 +196,13 @@ hr{
                 color:$white;
             }
         }
+    }
+}
+
+.btn.btn-append {
+    color: #585858;
+    &:hover{
+        color: #585858;
     }
 }
 

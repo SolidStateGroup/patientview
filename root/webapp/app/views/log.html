@@ -1,10 +1,3 @@
-<!-- todo: put in main styles -->
-<style>
-    .btn.btn-default {
-        color: #585858;
-    }
-</style>
-
 <div data-ng-show="!loading">
     <h1>Log</h1>
 
@@ -105,7 +98,7 @@
                                        datepicker-options="dateOptions"
                                        ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-default" ng-click="openStart($event)">
+                                    <button type="button" class="btn btn-append" ng-click="openStart($event)">
                                         <i class="glyphicon glyphicon-calendar"></i>
                                     </button>
                                 </span>
@@ -119,14 +112,14 @@
                                        datepicker-options="dateOptions"
                                        ng-required="true" close-text="Close" />
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-default" ng-click="openEnd($event)">
+                                    <button type="button" class="btn btn-append" ng-click="openEnd($event)">
                                         <i class="glyphicon glyphicon-calendar"></i>
                                     </button>
                                 </span>
                             </p>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary set-date-range" data-ng-click="setDateRange(dateStart, dateEnd)">Set Date Range</button>
+                            <button class="btn blue set-date-range" data-ng-click="setDateRange(dateStart, dateEnd)">Set Date Range</button>
                         </div>
                     </div>
                     <ul class="unstyled pull-left filter-tags-container">

@@ -83,7 +83,7 @@
                 font-size:12px;
                 font-weight:normal;
                 color:$aqua;
-                text-decoration:underline;
+                text-decoration:none;
             }
         }
     }
@@ -267,6 +267,15 @@
     .faux-table{
         max-height:600px;
         overflow-y:scroll;
+
+        .faux-row{
+            cursor: pointer;
+
+            &.active div.row-item {
+                color: #368DE8;
+                background: #eee;
+            }
+        }
     }
 
     .overlay{

@@ -93,6 +93,10 @@ label{
 
 }
 
+.add-recipient-button {
+    margin-top:27px;
+}
+
 .search-container {
     position:relative;
     height:60px;
@@ -435,4 +439,38 @@ textarea.form-control{
     &.article-content{
         height:200px;
     }
+}
+
+//ENTER RESULTS
+.input-comments {
+    width: 100%;
+}
+
+.row.inline-row {
+    margin-bottom: 3px;
+    .inline-span, .date-input, .results-enter {
+        float:left;
+    }
+}
+
+.date-input {
+    float:left;
+}
+
+.row.inline-row{
+    .inline-span {
+        width: 80px;
+    }
+    .form-control {
+        width: 80px
+    }
+    .form-control.input-value {
+        width: 160px
+    }
+    .form-control.input-comments {
+        width: 100%;
+    }
+}
+.form-control.no-float {
+    float:none;
 }

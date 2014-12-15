@@ -106,16 +106,18 @@
         </script>
 
         <br/>
-        <div class="content-panel row">
-            <div class="col-md-1">
-                <h3>Search</h3>
+        <div class="content-panel row multi-search">
+            <div class="col-md-1 pull-right">
+                <a class="btn blue" href="" style="margin-top:25px;" data-ng-click="search()">Search</a>
+            </div>
+            <div class="col-md-1 search-intro">
+                <h3><i class="icon-search-black"></i></h3>
             </div>
             <div class="col-md-2">
                 <label for="search-surname" class="control-label">Surname</label>
                 <div>
                     <input type="text" class="form-control" id="search-surname" placeholder="Surname"
                            data-ng-model="searchItems.searchSurname">
-                    <br/>
                 </div>
             </div>
             <div class="col-md-2">
@@ -123,7 +125,6 @@
                 <div>
                     <input type="text" class="form-control" id="search-forename" placeholder="Forename"
                            data-ng-model="searchItems.searchForename">
-                    <br/>
                 </div>
             </div>
             <div class="col-md-2">
@@ -131,7 +132,6 @@
                 <div>
                     <input type="text" class="form-control" id="search-identifier" placeholder="Identifier"
                            data-ng-model="searchItems.searchIdentifier">
-                    <br/>
                 </div>
             </div>
             <div class="col-md-2">
@@ -139,7 +139,6 @@
                 <div>
                     <input type="text" class="form-control" id="search-username" placeholder="Username"
                            data-ng-model="searchItems.searchUsername">
-                    <br/>
                 </div>
             </div>
             <div class="col-md-2">
@@ -147,11 +146,7 @@
                 <div>
                     <input type="text" class="form-control" id="search-email" placeholder="Identifier"
                            data-ng-model="searchItems.searchEmail">
-                    <br/>
                 </div>
-            </div>
-            <div class="col-md-1">
-                <a class="btn blue" href="" style="margin-top:25px;" data-ng-click="search()">Search</a>
             </div>
         </div>
 
