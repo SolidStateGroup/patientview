@@ -1,9 +1,16 @@
+<script>
+    var recipientSelectChange = function() {
+        var scope = angular.element($("#recipient-select-container")).scope();
+        scope.addRecipient(scope.conversationFormNew, scope.newConversation);
+    };
+</script>
+
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
 
     <div class="row" data-ng-show="newConversation.recipients.length">
         <div class="form-horizontal" role="form">
             <div class="col-md-12">
-                <label for="add-recipient-button" class="control-label">Recipients </label>
+                <label for="conversation-select-group" class="control-label">Recipients </label>
                 <ul class="feature-list unstyled">
                     <li class="feature-list-item" data-ng-repeat="user in newConversation.recipients">
                         <div class="feature-list-name"><span class="feature-list-name">{{user.description}}</span> &nbsp;
@@ -24,7 +31,7 @@
 
     <div>
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <label for="conversation-select-group">Group</label>
                 <select class="form-control recipient-select" id="conversation-select-group"
                         data-ng-model="selectedGroupId"
@@ -32,20 +39,17 @@
                         data-ng-change="selectGroup(newConversation, selectedGroupId)">
                 </select>
             </div>
-            <div class="col-md-5" data-ng-show="recipientsExist">
+            <div class="col-md-6" data-ng-show="recipientsExist">
                 <label for="recipient-select-container">Recipient</label>
                 <div id="recipient-select-container"></div>
             </div>
-            <div class="col-md-5" data-ng-show="!recipientsExist">
+            <div class="col-md-6" data-ng-show="!recipientsExist && selectedGroupId">
                 <br/><br/>
                 <p>There are no recipients available for this group</p>
             </div>
-
-            <div class="col-md-2" data-ng-show="recipientsExist">
-                <label for="add-recipient-button"></label>
-                <button type="button" class="btn blue recipient-add-button pull-left add-recipient-button" id="add-recipient-button"
-                        data-ng-click="addRecipient(conversationFormNew, newConversation)">
-                    <i class="glyphicon glyphicon-plus-sign"></i> &nbsp;&nbsp;Add Recipient</button>
+            <div class="col-md-6" data-ng-show="!selectedGroupId">
+                <br/><br/>
+                <p>Please select a group</p>
             </div>
         </div>
         <hr/>

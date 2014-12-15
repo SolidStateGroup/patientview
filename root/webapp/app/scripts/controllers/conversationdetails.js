@@ -14,9 +14,12 @@ function ($scope, ConversationService) {
                 element.parentNode.removeChild(element);
             }
 
+            var blankOption = '<option></option>';
+
+            <!-- pure text, ie8 performance requires this -->
             $('#recipient-select-container')
-                .html('<select class="form-control recipient-select" id="conversation-add-recipient">'
-                + recipientOptions + '</select>');
+                .html('<select class="form-control recipient-select" id="conversation-add-recipient" onchange="recipientSelectChange()">'
+                + blankOption + recipientOptions + '</select>');
 
             $scope.recipientsExist = true;
             $scope.modalLoading = false;
@@ -31,7 +34,6 @@ function ($scope, ConversationService) {
     };
 
     $scope.addRecipient = function (form, conversation) {
-
         var userId = $("#conversation-add-recipient option").filter(":selected").val();
         var userDescription = $("#conversation-add-recipient option").filter(":selected").text();
         var found = false;
