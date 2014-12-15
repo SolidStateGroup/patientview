@@ -1,13 +1,3 @@
-<!-- todo: add to main style -->
-<style>
-    option.option-header {
-        color:#428bca;
-    }
-    #add-recipient-button {
-        margin-top:27px;
-    }
-</style>
-
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
 
     <div class="row" data-ng-show="newConversation.recipients.length">
@@ -53,7 +43,7 @@
 
             <div class="col-md-2" data-ng-show="recipientsExist">
                 <label for="add-recipient-button"></label>
-                <button type="button" class="btn blue recipient-add-button pull-left" id="add-recipient-button"
+                <button type="button" class="btn blue recipient-add-button pull-left add-recipient-button" id="add-recipient-button"
                         data-ng-click="addRecipient(conversationFormNew, newConversation)">
                     <i class="glyphicon glyphicon-plus-sign"></i> &nbsp;&nbsp;Add Recipient</button>
             </div>

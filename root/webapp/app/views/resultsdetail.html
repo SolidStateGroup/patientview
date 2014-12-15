@@ -1,27 +1,3 @@
-<!-- TODO: put in main styles -->
-<style>
-    .faux-row.active div.row-item {
-        color: #368DE8;
-        background: #eee;
-    }
-    .faux-row {
-        cursor: pointer;
-    }
-    #_AnnotationChart_annotationsTd, #annotationsTdContainer, .google-visualization-atl .containerTable .td {
-        display: none;
-    }
-    .google-visualization-atl.container, #chart_div_AnnotationChart_annotationsTd {
-        border: none;
-    }
-    .google-visualization-atl .annotationsTdContainer {
-        border-left: 1px solid #fff;
-    }
-    #chart_div {
-        border:none;
-        width:100%;
-    }
-</style>
-
 <div class="header-select row">
     <div class=" col-md-7">
         <h1><a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading"><i class="icon-back-to pull-left"> </i> Back to Results</a> <span class="blue-text">{{observationHeading.heading}}</span></h1>
@@ -43,7 +19,7 @@
             <div class="content-panel result-item">
                 <div class="result-header">
                     <a href="" data-ng-click="openObservationHeadingInformation(observationHeading)" class="pull-right">
-                        <i class="icon-result-info pull-right"></i>
+                        <span class="info-link pull-right">About</span>
                     </a>
                     <ul class="unstyled info-list">
                         <li><strong>Showing Result:</strong> {{selectedObservation.applies | date:'dd-MMM-yyyy'}}</li>

@@ -1,31 +1,3 @@
-<!-- TODO: put in main styles -->
-<style>
-    .clamped {
-        line-height: 1.5;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .clamped-2 {
-        /* Clamp to 2 lines, ie line-height x 2: */
-        max-height: 3em;
-    }
-
-    .ellipsis {
-        background: #fff;
-        bottom: 0;
-        position: absolute;
-        right: 10px;
-    }
-
-    .fill {
-        background: #fff;
-        height: 100%;
-        position: absolute;
-        width: 100%;
-    }
-</style>
-
 <div data-ng-show="!loading">
     <h1>News
         <button class="btn blue" data-ng-click="openModalNewNews('lg')" data-ng-show="permissions.canAddNews">Create New</button>

@@ -267,6 +267,15 @@
     .faux-table{
         max-height:600px;
         overflow-y:scroll;
+
+        .faux-row{
+            cursor: pointer;
+
+            &.active div.row-item {
+                color: #368DE8;
+                background: #eee;
+            }
+        }
     }
 
     .overlay{
