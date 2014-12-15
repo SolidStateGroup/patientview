@@ -61,10 +61,10 @@
                                     {{result.latestObservation.comparator}}{{result.latestObservation.value}}
                                     <span data-ng-show="result.units && result.latestObservation.value">{{result.units}}</span>
                                 </dt>
-                                <dd data-ng-show="getResultIcon(result)" class="hidden">
+                                <!--<dd data-ng-show="getResultIcon(result)" class="hidden">
                                     <i class="{{getResultIcon(result)}} pull-left"></i>
                                     <span class="pull-left">{{removeMinus(result.valueChange)}}</span>
-                                </dd>
+                                </dd>-->
                             </dl>
                         </div>
                         <div class="result-value" data-ng-show="!result.latestObservation">
