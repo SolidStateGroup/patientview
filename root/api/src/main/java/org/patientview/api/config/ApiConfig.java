@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
@@ -77,5 +78,14 @@ public class ApiConfig {
         javaMailSender.setJavaMailProperties(javaMailProperties);
 
         return javaMailSender;
+    }
+
+    @Bean
+    public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
+        final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+        threadPoolTaskExecutor.setCorePoolSize(1);
+        threadPoolTaskExecutor.setMaxPoolSize(1);
+        threadPoolTaskExecutor.setQueueCapacity(Integer.MAX_VALUE);
+        return threadPoolTaskExecutor;
     }
 }

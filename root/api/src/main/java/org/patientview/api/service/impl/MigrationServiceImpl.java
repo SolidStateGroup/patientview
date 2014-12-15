@@ -1,6 +1,9 @@
 package org.patientview.api.service.impl;
 
+import org.patientview.api.service.GroupRoleService;
 import org.patientview.api.service.MigrationService;
+import org.patientview.api.service.ObservationHeadingService;
+import org.patientview.api.service.ObservationService;
 import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UserMigrationService;
 import org.patientview.api.service.UserService;
@@ -8,18 +11,41 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirDatabaseObservation;
+import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.FhirObservation;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.MigrationUser;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserMigration;
 import org.patientview.persistence.model.enums.MigrationStatus;
+import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.persistence.resource.FhirResource;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityExistsException;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,7 +57,16 @@ import java.util.concurrent.TimeUnit;
 public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceImpl> implements MigrationService {
 
     @Inject
+    private FhirResource fhirResource;
+
+    @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
+
+    @Inject
+    private GroupRoleService groupRoleService;
 
     @Inject
     private UserService userService;
@@ -41,6 +76,19 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
     @Inject
     private UserMigrationService userMigrationService;
+
+    @Inject
+    private ObservationService observationService;
+
+    @Inject
+    private ObservationHeadingService observationHeadingService;
+
+    @Inject
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+    @Inject
+    @Named("patientView1")
+    private DataSource dataSource;
 
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
@@ -181,10 +229,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
             userMigration = userMigrationService.save(userMigration);
 
-            UserMigration userMigration1
-                    = userMigrationService.getByPatientview1Id(userMigration.getPatientview1UserId());
-
-            if (userMigration1.getPatientview2UserId() == null) {
+            if (userMigration.getPatientview2UserId() == null) {
                 userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
                 userMigration.setInformation("Cannot find corresponding PatientView2 user");
                 userMigrationService.save(userMigration);
@@ -194,10 +239,10 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             //LOG.info("2: " + new Date().getTime());
 
             if (!CollectionUtils.isEmpty(migrationUser.getObservations())) {
-                Long userId = userMigration1.getPatientview2UserId();
+                Long pv2UserId = userMigration.getPatientview2UserId();
                 try {
                     //LOG.info("{} migrating {} observations", userId, migrationUser.getObservations().size());
-                    patientService.migrateTestObservations(userId, migrationUser);
+                    patientService.migrateTestObservations(pv2UserId, migrationUser);
 
                     userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
                     userMigration.setInformation(null);
@@ -211,7 +256,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                     throw new MigrationException("Could not migrate patient data: " + e.getMessage());
                 }
                 Date end = new Date();
-                LOG.info(userId + "  migrated " + migrationUser.getObservations().size() + " observations, took "
+                LOG.info(pv2UserId + "  migrated " + migrationUser.getObservations().size() + " observations, took "
                         + Util.getDateDiff(start, end, TimeUnit.SECONDS) + " seconds.");
             } else {
                 userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
@@ -222,5 +267,168 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
             //LOG.info("9: " + new Date().getTime());
         }
+    }
+
+    @Override
+    public void migrateObservationsFast() {
+        threadPoolTaskExecutor.execute(new Runnable() {
+
+            public void run() {
+                doMigration();
+            }
+
+            @Transactional
+            private void doMigration() {
+                Date start = new Date();
+
+                // get observation headings
+                HashMap<String, ObservationHeading> observationHeadingMap = new HashMap<>();
+                for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+                    observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
+                }
+
+                // log in migration user
+                User migrationUser = userService.findByUsernameCaseInsensitive("migration");
+                Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+                for (GroupRole groupRole : groupRoleService.findByUser(migrationUser)) {
+                    grantedAuthorities.add(groupRole);
+                }
+                SecurityContext ctx = new SecurityContextImpl();
+                ctx.setAuthentication(new UsernamePasswordAuthenticationToken(migrationUser, null, grantedAuthorities));
+                SecurityContextHolder.setContext(ctx);
+
+                // get list of pv2 ids to migrate observations for
+                List<Long> pv2ids = userMigrationService.getPatientview2IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
+                pv2ids.addAll(userMigrationService.getPatientview2IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED));
+                LOG.info(pv2ids.size() + " total PATIENT_MIGRATED, OBSERVATIONS_FAILED");
+                Connection connection = null;
+
+                try {
+                    connection = dataSource.getConnection();
+                    for (Long pv2id : pv2ids) {
+
+                        UserMigration userMigration
+                                = userMigrationService.getByPatientview2Id(pv2id);
+                        userMigration.setLastUpdate(new Date());
+                        userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
+                        userMigration = userMigrationService.save(userMigration);
+
+                        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+                        try {
+                            User user = userService.get(pv2id);
+
+                            for (FhirLink fhirLink : fhirLinkRepository.findActiveByUser(user)) {
+
+                                String query = "SELECT testcode, datestamp, prepost, value " +
+                                        "FROM testresult " +
+                                        "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier() +
+                                        "' AND unitcode = '" + fhirLink.getGroup().getCode() + "'";
+
+                                java.sql.Statement statement = connection.createStatement();
+                                ResultSet results = statement.executeQuery(query);
+
+                                while ((results.next())) {
+                                    String testcode = results.getString(1);
+                                    Date datestamp = results.getDate(2);
+                                    String prepost = results.getString(3);
+                                    String value = results.getString(4);
+
+                                    FhirObservation fhirObservation = new FhirObservation();
+                                    fhirObservation.setApplies(datestamp);
+                                    fhirObservation.setComments(prepost);
+                                    fhirObservation.setValue(value);
+                                    ObservationHeading observationHeading
+                                            = observationHeadingMap.get(testcode.toUpperCase());
+
+                                    if (observationHeading != null) {
+                                        fhirDatabaseObservations.add(
+                                                observationService.buildFhirDatabaseObservation(
+                                                        fhirObservation, observationHeading, fhirLink));
+                                    } else {
+                                        throw new MigrationException("ObservationHeading not found: " + testcode);
+                                    }
+                                }
+                            }
+
+                            try {
+                                if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+                                    insertObservations(fhirDatabaseObservations);
+                                }
+
+                                userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
+                                userMigration.setObservationCount(Long.valueOf(fhirDatabaseObservations.size()));
+                                userMigration.setInformation(null);
+                                userMigration.setLastUpdate(new Date());
+                                userMigrationService.save(userMigration);
+                            } catch (FhirResourceException fre) {
+                                userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+                                userMigration.setInformation(fre.getMessage());
+                                userMigration.setLastUpdate(new Date());
+                                userMigrationService.save(userMigration);
+                            }
+
+                        } catch (ResourceNotFoundException rnf) {
+                            LOG.error("user with pv2 id " + pv2id + " not found");
+                        } catch (FhirResourceException fre) {
+                            LOG.error("cannot build observations for user with pv2 id " + pv2id);
+                            userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+                            userMigration.setInformation(fre.getMessage());
+                            userMigration.setLastUpdate(new Date());
+                            userMigrationService.save(userMigration);
+                        } catch (MigrationException me) {
+                            LOG.error("MigrationException for user with pv2 id " + pv2id + ": " + me.getMessage());
+                            userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+                            userMigration.setInformation(me.getMessage());
+                            userMigration.setLastUpdate(new Date());
+                            userMigrationService.save(userMigration);
+                        }
+                    }
+
+                    connection.close();
+                } catch (SQLException e) {
+                    LOG.error("MySQL exception", e);
+                    try {
+                        if (connection != null) {
+                            connection.close();
+                        }
+                    } catch (SQLException e2) {
+                        LOG.error("Cannot close MySQL connection ", e2);
+                    }
+                }
+
+                LOG.info("Migration of Observations took "
+                        + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+            }
+        });
+    }
+
+    private void insertObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
+        throws FhirResourceException {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO observation (logical_id, version_id, resource_type, published, updated, content) ");
+        sb.append("VALUES ");
+
+        for (int i = 0; i < fhirDatabaseObservations.size(); i++) {
+            FhirDatabaseObservation obs = fhirDatabaseObservations.get(i);
+            sb.append("(");
+            sb.append("'").append(obs.getLogicalId().toString()).append("','");
+            sb.append(obs.getVersionId().toString()).append("','");
+            sb.append(obs.getResourceType()).append("','");
+            sb.append(obs.getPublished().toString()).append("','");
+            sb.append(obs.getUpdated().toString()).append("','");
+            sb.append(obs.getContent());
+            sb.append("')");
+            if (i != (fhirDatabaseObservations.size() - 1)) {
+                sb.append(",");
+            }
+        }
+        fhirResource.executeSQL(sb.toString());
+    }
+
+    // Migration Only
+    private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMilliseconds = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
     }
 }

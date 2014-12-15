@@ -112,9 +112,9 @@ public class MedicationServiceImpl extends BaseController<MedicationServiceImpl>
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    medicationstatement ");
-                query.append("WHERE   content->> 'patient' = '{\"display\": \"");
+                query.append("WHERE   content -> 'patient' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
-                query.append("\", \"reference\": \"uuid\"}'");
+                query.append("' ");
 
                 // get list of medication statements
                 List<MedicationStatement> medicationStatements

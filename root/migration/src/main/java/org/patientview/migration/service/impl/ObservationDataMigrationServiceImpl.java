@@ -19,6 +19,7 @@ import org.patientview.service.TestResultManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -53,7 +54,7 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
     private UserMappingDao userMappingDao;
 
     @Inject
-    private ExecutorService observationTaskExecutor;
+    private ThreadPoolTaskExecutor observationTaskExecutor;
 
     private List<Group> groups;
 
@@ -99,10 +100,15 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
 
             // get pv1 user based on id
             User user = userDao.get(patientview1Id);
+            //LOG.info("got user: " + user.getUsername());
+
             if (user != null) {
 
                 // get all user mappings, ignoring those with no/PATIENT unitcode or no nhs number
-                for (UserMapping userMapping : userMappingDao.getAll(user.getUsername())) {
+                List<UserMapping> userMappings = userMappingDao.getAll(user.getUsername());
+                //LOG.info(user.getUsername() + ": got " + userMappings.size() + " usermappings");
+
+                for (UserMapping userMapping : userMappings) {
                     if (StringUtils.isNotEmpty(userMapping.getUnitcode())
                             && !userMapping.getUnitcode().equalsIgnoreCase("PATIENT")
                             && StringUtils.isNotEmpty(userMapping.getNhsno())) {
@@ -110,7 +116,10 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
                         String nhsNo = userMapping.getNhsno();
                         String unitcode = userMapping.getUnitcode();
 
-                        for (TestResult testResult : testResultManager.get(nhsNo, unitcode)) {
+                        List<TestResult> testResults = testResultManager.get(nhsNo, unitcode);
+                        //LOG.info(user.getUsername() + ": got " + testResults.size() + " test results");
+
+                        for (TestResult testResult : testResults) {
                             Group group = getGroupByCode(testResult.getUnitcode());
 
                             if (group != null && StringUtils.isNotEmpty(testResult.getValue())) {
@@ -135,6 +144,7 @@ public class ObservationDataMigrationServiceImpl implements ObservationDataMigra
                     }
                 }
 
+                LOG.info(user.getUsername() + ": total " + migrationUser.getObservations().size() + " observations");
                 observationTaskExecutor.submit(new AsyncMigrateObservationTask(migrationUser));
             }
         }

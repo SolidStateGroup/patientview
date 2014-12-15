@@ -39,7 +39,9 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngSanitize',           // angular sanitize for more html parsing
     'ngCookies',
     'ngResource',
-    'ngRoute'
+    'ngRoute',
+    'angulartics',          // http://luisfarzati.github.io/angulartics/
+    'angulartics.google.analytics'
 ]);
 
 patientviewApp.filter('startFrom', function() {
@@ -170,27 +172,22 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     };
 
     var stripScripts = function (s) {
-        var div = document.createElement('div');
-        div.innerHTML = s;
-        var scripts = div.getElementsByTagName('script');
-        var i = scripts.length;
-        while (i--) {
-            scripts[i].parentNode.removeChild(scripts[i]);
-        }
-        return div.innerHTML;
+        var div = $('<div>').html(s);
+        div.find('script').remove();
+        return div.html();
     };
 
     // global function to parse HTML (used in messaging, news)
     $rootScope.parseHTMLText = function (text) {
         if (text) {
+            // manage line breaks
+            text = text.replace(/(\r\n|\n|\r)/gm, '<br/>');
+
             // strip <script> (otherwise htmlClean crashes)
             text = stripScripts(text);
 
             // remove 'javascript' strings
             text = text.replace('javascript','');
-
-            // manage line breaks
-            text = text.replace(/(\r\n|\n|\r)/gm, '<br/>');
 
             // https://github.com/components/jquery-htmlclean
             // clean html to remove all but certain tags

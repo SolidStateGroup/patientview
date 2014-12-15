@@ -1,6 +1,7 @@
 package org.patientview.importer.controller;
 
 import generated.Patientview;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -114,8 +115,8 @@ public class ImportControllerTest {
         //String fileName = "data/xml/milestone5/SAC02_01439_41737438900.xml";
         //String fileName = "data/xml/SAC02_01436_1111111111_single.xml";
         //String fileName = "data/xml/IMPORTGROUP_1111111111.xml";
-        //String fileName = "data/xml/ECS_1111111111.xml";
-        String fileName = "data/xml/DIA01_1111111111.xml";
+        String fileName = "data/xml/ECS_1111111111.xml";
+        //String fileName = "data/xml/DIA01_1111111111.xml";
         //String fileName = "data/xml/errors/1111111111_damaged.xml";
         //String fileName = "data/xml/errors/abc123_unknown_identifier.xml";
         //String fileName = "data/xml/errors/1111111111_unknown_group.xml";
@@ -134,14 +135,15 @@ public class ImportControllerTest {
     private static org.apache.http.HttpResponse post(String json) throws Exception {
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
-        //String postUrl="https://staging.patientview.org/importer/import";// put in your url
-        String postUrl="http://localhost:8081/importer/import";// put in your url
+        String postUrl="https://staging.patientview.org/importer/import";// put in your url
+        //String postUrl="http://localhost:8081/importer/import";// put in your url
         //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";// put in your url
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
 
         post.setEntity(postingString);
         post.setHeader("Content-type", "application/xml");
-        return httpClient.execute(post);
+        HttpResponse httpResponse = httpClient.execute(post);
+        return httpResponse;
     }
 }

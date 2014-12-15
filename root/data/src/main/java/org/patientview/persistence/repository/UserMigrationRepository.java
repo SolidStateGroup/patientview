@@ -38,4 +38,7 @@ public interface UserMigrationRepository extends CrudRepository<UserMigration, L
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM UserMigration WHERE patientview2UserId = :userId")
     void deleteByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT um.patientview2UserId FROM UserMigration um WHERE um.status = :migrationStatus")
+    List<Long> findPatientview2IdsByStatus(@Param("migrationStatus") MigrationStatus migrationStatus);
 }

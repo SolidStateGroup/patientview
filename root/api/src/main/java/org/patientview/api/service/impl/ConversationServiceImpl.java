@@ -396,7 +396,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             User user = conversationUser.getUser();
 
             // only send messages to other users, not current user and only if user has email address
-            if (!user.equals(getCurrentUser()) && StringUtils.isNotEmpty(user.getEmail())) {
+            if (!user.getId().equals(getCurrentUser().getId()) && StringUtils.isNotEmpty(user.getEmail())) {
 
                 Email email = new Email();
                 email.setSenderEmail(properties.getProperty("smtp.sender.email"));

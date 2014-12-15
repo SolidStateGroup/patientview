@@ -49,9 +49,10 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    condition ");
-                query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+                query.append("WHERE   content -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
-                query.append("\", \"reference\": \"uuid\"}'");
+                query.append("' ");
+
                 conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
             }
         }
@@ -66,9 +67,10 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
         StringBuilder query = new StringBuilder();
         query.append("SELECT  content::varchar ");
         query.append("FROM    condition ");
-        query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+        query.append("WHERE   content -> 'subject' ->> 'display' = '");
         query.append(patientUuid);
-        query.append("\", \"reference\": \"uuid\"}'");
+        query.append("' ");
+
         conditions.addAll(fhirResource.findResourceByQuery(query.toString(), Condition.class));
 
         return conditions;

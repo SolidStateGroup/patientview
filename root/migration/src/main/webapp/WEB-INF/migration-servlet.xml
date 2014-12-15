@@ -95,8 +95,10 @@
           factory-method="newFixedThreadPool" destroy-method="shutdown">
         <constructor-arg value="10"/>
     </bean>
-    <bean id="observationTaskExecutor" class="java.util.concurrent.Executors"
-          factory-method="newFixedThreadPool" destroy-method="shutdown">
-        <constructor-arg value="10"/>
+
+    <bean id="observationTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1" />
+        <property name="maxPoolSize" value="1" />
+        <property name="queueCapacity" value="99999999" />
     </bean>
 </beans>

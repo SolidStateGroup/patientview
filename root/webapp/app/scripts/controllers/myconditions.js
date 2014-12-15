@@ -30,27 +30,28 @@ function ($scope, PatientService, GroupService) {
 
         for (var j = 0; j < patient.fhirObservations.length; j++) {
             var observation = patient.fhirObservations[j];
+            if (observation.name !== 'BLOOD_GROUP') {
+                if (observation.applies >= footCheckup.applies) {
+                    footCheckup.applies = observation.applies;
+                    footCheckup.group = observation.group;
+                    if (observation.bodySite === "LEFT_FOOT") {
+                        footCheckup.leftFoot.group = observation.group;
+                        if (observation.name === "PTPULSE") {
+                            footCheckup.leftFoot.PTPULSE = observation.value;
+                        }
+                        if (observation.name === "DPPULSE") {
+                            footCheckup.leftFoot.DPPULSE = observation.value;
+                        }
+                    }
 
-            if (observation.applies >= footCheckup.applies) {
-                footCheckup.applies = observation.applies;
-                footCheckup.group = observation.group;
-                if (observation.bodySite === "LEFT_FOOT") {
-                    footCheckup.leftFoot.group = observation.group;
-                    if (observation.name === "PTPULSE") {
-                        footCheckup.leftFoot.PTPULSE = observation.value;
-                    }
-                    if (observation.name === "DPPULSE") {
-                        footCheckup.leftFoot.DPPULSE = observation.value;
-                    }
-                }
-
-                if (observation.bodySite === "RIGHT_FOOT") {
-                    footCheckup.rightFoot.group = observation.group;
-                    if (observation.name === "PTPULSE") {
-                        footCheckup.rightFoot.PTPULSE = observation.value;
-                    }
-                    if (observation.name === "DPPULSE") {
-                        footCheckup.rightFoot.DPPULSE = observation.value;
+                    if (observation.bodySite === "RIGHT_FOOT") {
+                        footCheckup.rightFoot.group = observation.group;
+                        if (observation.name === "PTPULSE") {
+                            footCheckup.rightFoot.PTPULSE = observation.value;
+                        }
+                        if (observation.name === "DPPULSE") {
+                            footCheckup.rightFoot.DPPULSE = observation.value;
+                        }
                     }
                 }
             }
@@ -67,33 +68,34 @@ function ($scope, PatientService, GroupService) {
 
         for (var j = 0; j < patient.fhirObservations.length; j++) {
             var observation = patient.fhirObservations[j];
+            if (observation.name !== 'BLOOD_GROUP') {
+                if (observation.applies >= eyeCheckup.applies) {
+                    eyeCheckup.applies = observation.applies;
+                    eyeCheckup.group = observation.group;
+                    if (observation.bodySite === "LEFT_EYE") {
+                        eyeCheckup.leftEye.group = observation.group;
+                        if (observation.name === "MGRADE") {
+                            eyeCheckup.leftEye.MGRADE = observation.value;
+                        }
+                        if (observation.name === "RGRADE") {
+                            eyeCheckup.leftEye.RGRADE = observation.value;
+                        }
+                        if (observation.name === "VA") {
+                            eyeCheckup.leftEye.VA = observation.value;
+                        }
+                    }
 
-            if (observation.applies >= eyeCheckup.applies) {
-                eyeCheckup.applies = observation.applies;
-                eyeCheckup.group = observation.group;
-                if (observation.bodySite === "LEFT_EYE") {
-                    eyeCheckup.leftEye.group = observation.group;
-                    if (observation.name === "MGRADE") {
-                        eyeCheckup.leftEye.MGRADE = observation.value;
-                    }
-                    if (observation.name === "RGRADE") {
-                        eyeCheckup.leftEye.RGRADE = observation.value;
-                    }
-                    if (observation.name === "VA") {
-                        eyeCheckup.leftEye.VA = observation.value;
-                    }
-                }
-
-                if (observation.bodySite === "RIGHT_EYE") {
-                    eyeCheckup.rightEye.group = observation.group;
-                    if (observation.name === "MGRADE") {
-                        eyeCheckup.rightEye.MGRADE = observation.value;
-                    }
-                    if (observation.name === "RGRADE") {
-                        eyeCheckup.rightEye.RGRADE = observation.value;
-                    }
-                    if (observation.name === "VA") {
-                        eyeCheckup.rightEye.VA = observation.value;
+                    if (observation.bodySite === "RIGHT_EYE") {
+                        eyeCheckup.rightEye.group = observation.group;
+                        if (observation.name === "MGRADE") {
+                            eyeCheckup.rightEye.MGRADE = observation.value;
+                        }
+                        if (observation.name === "RGRADE") {
+                            eyeCheckup.rightEye.RGRADE = observation.value;
+                        }
+                        if (observation.name === "VA") {
+                            eyeCheckup.rightEye.VA = observation.value;
+                        }
                     }
                 }
             }

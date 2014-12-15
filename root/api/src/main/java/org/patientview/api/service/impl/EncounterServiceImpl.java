@@ -51,9 +51,10 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT  content::varchar ");
                 query.append("FROM    encounter ");
-                query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+                query.append("WHERE   content -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
-                query.append("\", \"reference\": \"uuid\"}'");
+                query.append("' ");
+
                 encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
             }
         }
@@ -72,9 +73,10 @@ public class EncounterServiceImpl extends BaseController<EncounterServiceImpl> i
         StringBuilder query = new StringBuilder();
         query.append("SELECT  content::varchar ");
         query.append("FROM    encounter ");
-        query.append("WHERE   content->> 'subject' = '{\"display\": \"");
+        query.append("WHERE   content -> 'subject' ->> 'display' = '");
         query.append(patientUuid);
-        query.append("\", \"reference\": \"uuid\"}'");
+        query.append("' ");
+
         encounters.addAll(fhirResource.findResourceByQuery(query.toString(), Encounter.class));
 
         return encounters;

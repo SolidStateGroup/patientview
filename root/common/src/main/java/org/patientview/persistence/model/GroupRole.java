@@ -27,7 +27,8 @@ public class GroupRole extends RangeModel implements GrantedAuthority {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    // todo: FetchType.EAGER is required to get Role from GroupRole in api.Util methods else hibernate proxy exception
+    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 
