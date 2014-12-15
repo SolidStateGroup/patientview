@@ -42,43 +42,47 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
 
         LOG.info("Starting Medication Statement and Medication Process");
 
-        ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
-        int count = 0;
-        int success = 0;
+        if (data.getPatient().getDrugdetails() != null) {
+            ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
+            int count = 0;
+            int success = 0;
 
-        // delete existing
-        deleteBySubjectId(fhirLink.getResourceId());
+            // delete existing
+            deleteBySubjectId(fhirLink.getResourceId());
 
-        for (Drug drug : data.getPatient().getDrugdetails().getDrug()) {
-            MedicationBuilder medicationBuilder = new MedicationBuilder(drug);
-            Medication medication = medicationBuilder.build();
+            for (Drug drug : data.getPatient().getDrugdetails().getDrug()) {
+                MedicationBuilder medicationBuilder = new MedicationBuilder(drug);
+                Medication medication = medicationBuilder.build();
 
-            MedicationStatementBuilder medicationStatementBuilder = new MedicationStatementBuilder(drug);
-            MedicationStatement medicationStatement = medicationStatementBuilder.build();
+                MedicationStatementBuilder medicationStatementBuilder = new MedicationStatementBuilder(drug);
+                MedicationStatement medicationStatement = medicationStatementBuilder.build();
 
-            try {
-                // create medication in FHIR
-                JSONObject storedMedication = fhirResource.create(medication);
+                try {
+                    // create medication in FHIR
+                    JSONObject storedMedication = fhirResource.create(medication);
 
-                // get medication reference and add to medication statement
-                medicationStatement.setMedication(Util.createResourceReference(Util.getResourceId(storedMedication)));
+                    // get medication reference and add to medication statement
+                    medicationStatement.setMedication(Util.createResourceReference(Util.getResourceId(storedMedication)));
 
-                // set patient reference
-                medicationStatement.setPatient(patientReference);
+                    // set patient reference
+                    medicationStatement.setPatient(patientReference);
 
-                // create medication statement in FHIR
-                fhirResource.create(medicationStatement);
+                    // create medication statement in FHIR
+                    fhirResource.create(medicationStatement);
 
-                success += 1;
+                    success += 1;
 
-            } catch (FhirResourceException e) {
-                LOG.error("Unable to build medication/medication statement");
+                } catch (FhirResourceException e) {
+                    LOG.error("Unable to build medication/medication statement");
+                }
+
+                LOG.trace("Finished creating medication statement " + count++);
             }
 
-            LOG.trace("Finished creating medication statement " + count++);
+            LOG.info("Processed {} of {} medication", success, count);
+        } else {
+            LOG.info("No drug details provided");
         }
-
-        LOG.info("Processed {} of {} medication", success, count);
     }
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
