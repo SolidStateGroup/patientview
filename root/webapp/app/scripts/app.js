@@ -282,7 +282,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
                 $rootScope.setUnreadConversationCount();
 
-                $location.path('/dashboard').search('a');
+                $location.path('/patients').search('a');
 
                 delete $rootScope.previousAuthToken;
                 localStorageService.remove('previousAuthToken');
