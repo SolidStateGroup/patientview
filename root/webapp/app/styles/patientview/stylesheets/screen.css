@@ -1388,7 +1388,7 @@ html .clearFooter, body .clearFooter {
 /* line 130, ../sass/_tables.scss */
 .faux-table .faux-row .row-item span {
   display: block;
-  float: right;
+  float: left;
 }
 /* line 135, ../sass/_tables.scss */
 .faux-table .faux-row .row-item.row-break {
