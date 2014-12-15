@@ -27,9 +27,7 @@
         </tr><tr>
             <td>Information</td>
             <td class="result-link">
-                <a href="{{result.infoLink | addhttpFilter}}" target="_blank" data-ng-show="result.infoLink">
-                    {{result.infoLink}}
-                </a>
+                <a href="{{result.infoLink | addhttpFilter}}" target="_blank" data-ng-show="result.infoLink">{{result.infoLink}}</a>
                 <span data-ng-show="!result.infoLink">Not Available</span>
             </td>
         </tr>
