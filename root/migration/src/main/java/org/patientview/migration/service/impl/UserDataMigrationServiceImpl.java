@@ -74,6 +74,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -156,6 +157,10 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     private @Value("${migration.password}") String migrationPassword;
     private @Value("${patientview.api.url}") String patientviewApiUrl;
 
+
+    @Inject
+    private DataSource dataSource;
+
     private void init() throws JsonMigrationException {
         try {
             JsonUtil.setPatientviewApiUrl(patientviewApiUrl);
@@ -201,9 +206,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("--- Starting migration ---");
 
         // testing
-        Group group = getGroupByCode("RJE01");
+        //Group group = getGroupByCode("RJE01");
 
-        //for (Group group : groups) {
+        for (Group group : groups) {
             // temporary remove RJE01
             //if (!group.getCode().equals("RJE01") && !group.getCode().equals("MPGN")) {
                 LOG.info("(Migration) From Group: " + group.getCode());
@@ -242,7 +247,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                     LOG.error("Migration exception: ", e);
                 }
             //}
-       // }
+        }
     }
 
     private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser, Role patientRole) {
@@ -257,7 +262,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         List<UserMapping> userMappings = null;
 
         try {
-            userMappings = userMappingDao.getAll(oldUser.getUsername());
+            userMappings = userMappingDao.getAllNative(oldUser.getUsername());
         } catch (Exception e) {
             LOG.error("Usermapping exception for user " + oldUser.getUsername() + " : " , e);
         }
@@ -324,7 +329,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         identifier.setIdentifierType(getIdentifierType(identifierText));
                         newUser.getIdentifiers().add(identifier);
 
-                        Aboutme aboutMe = aboutMeDao.get(identifierText);
+                        Aboutme aboutMe = aboutMeDao.getNative(identifierText);
                         if (aboutMe != null) {
                             newUser.setUserInformation(new HashSet<UserInformation>());
 
@@ -406,7 +411,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 String nhsNo = newUser.getIdentifiers().iterator().next().getIdentifier();
 
                 List<Patient> pv1PatientRecords = patientDao.getByNhsNo(nhsNo);
-                UktStatus uktStatus = ukTransplantDao.get(nhsNo);
+                UktStatus uktStatus = ukTransplantDao.getNative(nhsNo);
 
                 if (pv1PatientRecords != null) {
                     for (Patient pv1PatientRecord : pv1PatientRecords) {
@@ -1285,7 +1290,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         newUser.setEmailVerified(user.isEmailverified());
 
         try {
-            List<EmailVerification> emailVerifications = emailVerificationDao.getByEmail(user.getEmail());
+            List<EmailVerification> emailVerifications = emailVerificationDao.getByEmailNative(user.getEmail());
             if (CollectionUtils.isNotEmpty(emailVerifications)) {
                 newUser.setVerificationCode(emailVerifications.get(0).getVerificationcode());
             }
