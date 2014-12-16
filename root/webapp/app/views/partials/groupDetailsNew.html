@@ -122,12 +122,20 @@
     </div>
     <div class="link-list-item" data-ng-repeat="contactPoint in editGroup.contactPoints | orderBy:'id'">
         <div class="col-md-1 hidden">{{contactPoint.id}}</div>
-        <div class="col-md-3"><select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select" data-ng-model="contactPoint.contactPointType.id" data-ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3">
+            <select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select"
+                                      data-ng-model="contactPoint.contactPointType.id"
+                                      data-ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes | orderBy:'description'">
+</s         elect></div>
         <div class="col-md-5"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" data-ng-model="contactPoint.content" required></div>
         <div><button type="button" class="btn negative contactPoint-delete-button" data-ng-click="removeContactPoint(groupFormNew, editGroup, contactPoint)">Delete</button></span></div>
     </div>
     <div class="add-form" data-ng-model="newContactPoint">
-        <div class="col-md-3"><select id="group-newContactPoint-type" class="form-control contactPointType-select" data-ng-model="newContactPoint.contactPointTypeId" data-ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes"></select></div>
+        <div class="col-md-3">
+            <select id="group-newContactPoint-type" class="form-control contactPointType-select"
+                    data-ng-model="newContactPoint.contactPointTypeId"
+                    data-ng-options="newContactPointType.id as newContactPointType.description for newContactPointType in contactPointTypes | orderBy:'description'">
+            </select></div>
         <div class="col-md-5"><input type="text" class="form-control" id="group-newContactPoint-content" placeholder="Content" name="newContactPoint" data-ng-model="newContactPoint.content"></div>
         <div class="modal-hack"><button type="button" class="btn blue contactPoint-add-button" data-ng-click="addContactPoint(groupFormNew, editGroup, newContactPoint)" data-ng-disabled="!(newContactPoint.content)">Add</button></div>
     </div>
@@ -191,7 +199,8 @@
         </ul>
         <div class="feature-add-container item-add-container" data-ng-show="editGroup.availableFeatures.length > 0 && permissions.canEditFeatures">
             <div class="custom-select">
-                <select class="form-control feature-select group-select" data-ng-model="featureToAdd" data-ng-options="feature.feature.id as feature.feature.description for feature in editGroup.availableFeatures"></select>
+                <select class="form-control feature-select group-select" data-ng-model="featureToAdd"
+                        data-ng-options="feature.feature.id as feature.feature.description for feature in editGroup.availableFeatures | orderBy:'feature.description'"></select>
             </div>
             <button type="button" class="btn blue feature-add-button pull-left" data-ng-click="addFeature(groupFormNew, editGroup, featureToAdd)">Add</button>
         </div>
