@@ -128,9 +128,13 @@
                     <button type="button" class="btn blue link-update-button" data-ng-click="updateIdentifier($event, userForm, editUser, identifier)">Update</button>
                     <button type="button" class="btn negative link-delete-button" data-ng-click="removeIdentifier(userForm, editUser, identifier)">Delete</button>
                 </div>
-                <div class="col-sm-5"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}"
+                <div class="col-sm-4"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}"
                      placeholder="NHS or CHI Number" name="identifier" data-ng-model="identifier.identifier" required data-ng-disabled="!permissions.canEditPatients"></div>
-                <div class="col-sm-3"><span class="identifier-identifier">{{identifier.identifierType.description}}</span></div>
+                <div class="col-sm-4">
+                    <select id="identifier-identifier" class="form-control"
+                            data-ng-model="identifier.identifierType.id"
+                            data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select>
+                </div>
 
                 <span class="saved-notification" data-ng-show="identifier.saved">&nbsp; Saved Successfully!</span>
             </div>

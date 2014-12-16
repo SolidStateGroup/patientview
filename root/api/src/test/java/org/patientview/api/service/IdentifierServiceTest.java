@@ -392,6 +392,8 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(identifier.getIdentifierType());
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
 
         try {
@@ -435,6 +437,8 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(true);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(identifier.getIdentifierType());
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
 
         try {
@@ -480,6 +484,8 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(identifier.getIdentifierType());
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
 
         identifierService.validate(userIdentifier);
@@ -518,6 +524,8 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(identifier.getIdentifierType());
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
 
         try {
@@ -563,6 +571,8 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(identifier.getIdentifierType());
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
 
         identifierService.validate(userIdentifier);
@@ -601,6 +611,8 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(identifier.getIdentifierType());
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
 
         try {
@@ -646,6 +658,8 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
+        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(identifier.getIdentifierType());
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
 
         identifierService.validate(userIdentifier);

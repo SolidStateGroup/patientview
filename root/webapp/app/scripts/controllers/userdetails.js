@@ -187,7 +187,6 @@ function ($scope, UserService, IdentifierService) {
     };
 
     $scope.addIdentifier = function (form, user, identifier) {
-
         var newIdentifier = _.clone(identifier);
 
         if (newIdentifier.identifierType !== undefined) {

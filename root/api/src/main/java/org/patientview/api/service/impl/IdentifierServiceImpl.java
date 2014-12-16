@@ -10,6 +10,7 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -34,6 +35,9 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private LookupRepository lookupRepository;
 
     private static final String GENERIC_GROUP_CODE = "GENERIC";
     private static final Long CHI_NUMBER_START = 10000010L;
@@ -102,7 +106,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         }
 
         entityIdentifier.setIdentifier(identifier.getIdentifier());
-        entityIdentifier.setIdentifierType(identifier.getIdentifierType());
+        entityIdentifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
         identifierRepository.save(entityIdentifier);
     }
 
@@ -160,12 +164,16 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             }
         }
 
-        // check Identifier doesn't already exist (should only ever be one result returned)
+        // check Identifier doesn't already exist for other user (should only ever be one result returned)
         try {
             List<Identifier> entityIdentifiers = identifierRepository.findByValue(identifier.getIdentifier());
 
             if (!CollectionUtils.isEmpty(entityIdentifiers)) {
-                throw new EntityExistsException("Identifier already exists");
+                for(Identifier entityIdentifier : entityIdentifiers) {
+                    if (!entityIdentifier.getUser().getId().equals(userId)) {
+                        throw new EntityExistsException("Identifier already exists");
+                    }
+                }
             }
         } catch (NonUniqueResultException nure) {
             throw new EntityExistsException("Identifier already exists");
@@ -173,6 +181,8 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
         if (!dummy) {
             try {
+                // handle updating identifier type
+                identifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
                 isValidIdentifier(identifier);
             } catch (ResourceInvalidException rie) {
                 throw new ResourceInvalidException("Invalid " + identifier.getIdentifierType().getDescription()
