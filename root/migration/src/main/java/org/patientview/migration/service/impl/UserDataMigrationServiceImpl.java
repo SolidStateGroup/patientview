@@ -248,6 +248,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 }
             //}
         }
+
+        try {
+            // wait forever until all threads are finished
+            userTaskExecutor.shutdown();
+            userTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
     }
 
     private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser, Role patientRole) {
