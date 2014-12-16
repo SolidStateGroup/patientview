@@ -15,6 +15,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.patientview.api.controller.BaseController;
+import org.patientview.api.model.BaseGroup;
 import org.patientview.api.util.Util;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirObservation;
@@ -197,7 +198,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     }
 
     // gets all latest observations in single query per fhirlink
-    private Map<String, FhirObservation> getLastObservations(final Long userId)
+    private Map<String, org.patientview.api.model.FhirObservation> getLastObservations(final Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -205,7 +206,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        Map<String, FhirObservation> latestObservations = new HashMap<>();
+        Map<String, org.patientview.api.model.FhirObservation> latestObservations = new HashMap<>();
         Map<String, Date> latestObservationDates = new HashMap<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
@@ -227,7 +228,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 for (String[] json : observationValues) {
                     if (!StringUtils.isEmpty(json[0])) {
                         try {
-                            FhirObservation fhirObservation = new FhirObservation();
+                            org.patientview.api.model.FhirObservation fhirObservation
+                                    = new org.patientview.api.model.FhirObservation();
 
                             // remove timezone and parse date
                             String dateString = json[0].replace("\"", "");
@@ -247,7 +249,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                             if (StringUtils.isNotEmpty(json[3])) {
                                 fhirObservation.setComparator(json[3].replace("\"", ""));
                             }
-                            fhirObservation.setGroup(fhirLink.getGroup());
+                            fhirObservation.setGroup(new BaseGroup(fhirLink.getGroup()));
 
                             String code = json[1].replace("\"", "").toUpperCase();
 
@@ -303,7 +305,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             observationData.add(getObservationSummary(specialty, observationHeadings, latestObservations));
         }*/
 
-        Map<String, FhirObservation> latestObservationMap = getLastObservations(user.getId());
+        Map<String, org.patientview.api.model.FhirObservation> latestObservationMap = getLastObservations(user.getId());
 
         for (Group specialty : specialties) {
             observationData.add(getObservationSummaryMap(specialty, observationHeadings, latestObservationMap));
@@ -698,7 +700,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                 if (!observationList.isEmpty()) {
                     FhirObservation latest = observationList.get(0);
-                    transportObservationHeading.setLatestObservation(latest);
+                    transportObservationHeading.setLatestObservation(
+                            new org.patientview.api.model.FhirObservation(latest));
 
                     if (observationList.size() > 1) {
                         transportObservationHeading.setValueChange(
@@ -723,7 +726,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     // note: doesn't return change since last observation, must be retrieved separately
     private ObservationSummary getObservationSummaryMap(Group group, List<ObservationHeading> observationHeadings,
-        Map<String, FhirObservation> latestObservations) throws ResourceNotFoundException, FhirResourceException {
+        Map<String, org.patientview.api.model.FhirObservation> latestObservations) throws ResourceNotFoundException, FhirResourceException {
 
         ObservationSummary observationSummary = new ObservationSummary();
         observationSummary.setPanels(new HashMap<Long, List<org.patientview.api.model.ObservationHeading>>());

@@ -72,4 +72,40 @@ public class FhirObservation {
     public String getBodySite() {
         return bodySite;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setApplies(Date applies) {
+        this.applies = applies;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public void setComparator(String comparator) {
+        this.comparator = comparator;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public void setGroup(BaseGroup group) {
+        this.group = group;
+    }
+
+    public void setTemporaryUuid(String temporaryUuid) {
+        this.temporaryUuid = temporaryUuid;
+    }
+
+    public void setBodySite(String bodySite) {
+        this.bodySite = bodySite;
+    }
 }

@@ -23,12 +23,12 @@ function ($scope, $modal, ObservationService) {
             if (summary.length) {
                 $scope.groupIndex = 0;
                 $scope.currentPage = 1;
-/*
+
                 $scope.summary = summary;
                 $scope.group = summary[$scope.groupIndex].group;
                 $scope.panels = summary[$scope.groupIndex].panels;
                 $scope.panel = $scope.panels[$scope.currentPage];
-*/
+
                 // set up group switcher
                 $scope.groups = [];
                 for (i=0;i<summary.length;i++) {
