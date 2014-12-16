@@ -40,8 +40,9 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngCookies',
     'ngResource',
     'ngRoute',
-    'angulartics',          // http://luisfarzati.github.io/angulartics/
-    'angulartics.google.analytics'
+    'angulartics',          // http://luisfarzati.github.io/angulartics Google analytics
+    'angulartics.google.analytics',
+    'pasvaz.bindonce'       // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
 ]);
 
 patientviewApp.filter('startFrom', function() {
