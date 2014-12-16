@@ -89,7 +89,7 @@
             <label for="group-newLocation-email">Email</label>
         </div>
     </div>
-    <div class="location-list-item cleared-row"  data-ng-repeat="location in editGroup.locations | orderBy:'id'">
+    <div class="location-list-item cleared-row"  data-ng-repeat="location in editGroup.locations | orderBy:['label','name']">
         <div class="col-md-1 hidden">{{location.id}}</div>
         <div class="col-md-1 first-child"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="Label" name="label" data-ng-model="location.label" required></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="Name" name="name" data-ng-model="location.name" required></div>

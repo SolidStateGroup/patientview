@@ -82,7 +82,7 @@
             <label for="group-newLocation-email">Email</label>
         </div>
     </div>
-    <div class="location-list-item cleared-row"  data-ng-repeat="location in editGroup.locations | orderBy:'id'">
+    <div class="location-list-item cleared-row"  data-ng-repeat="location in editGroup.locations | orderBy:['label','name']">
         <div class="col-md-1 hidden">{{location.id}}</div>
         <div class="col-md-1"><input type="text" class="form-control" id="group-location-label-{{location.id}}" placeholder="Label" name="label" data-ng-model="location.label" required></div>
         <div class="col-md-2"><input type="text" class="form-control" id="group-location-name-{{location.id}}" placeholder="Name" name="name" data-ng-model="location.name" required></div>
@@ -126,7 +126,7 @@
             <select id="group-contactPoint-type-{{contactPoint.id}}" class="form-control contactPointType-select"
                                       data-ng-model="contactPoint.contactPointType.id"
                                       data-ng-options="contactPointType.id as contactPointType.description for contactPointType in contactPointTypes | orderBy:'description'">
-</s         elect></div>
+            </select></div>
         <div class="col-md-5"><input type="text" class="form-control" id="group-contactPoint-content-{{contactPoint.id}}" placeholder="Content" name="content" data-ng-model="contactPoint.content" required></div>
         <div><button type="button" class="btn negative contactPoint-delete-button" data-ng-click="removeContactPoint(groupFormNew, editGroup, contactPoint)">Delete</button></span></div>
     </div>
