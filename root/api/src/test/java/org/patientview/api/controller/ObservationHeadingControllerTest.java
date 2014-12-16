@@ -9,10 +9,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ObservationHeadingService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
@@ -22,6 +26,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -219,6 +226,27 @@ public class ObservationHeadingControllerTest {
             fail("Exception: " + e.getMessage());
         }
         verify(observationHeadingService, Mockito.times(1)).getResultClusters();
+    }
+
+    @Test
+    public void testGetAvailableResultTypes() throws ResourceNotFoundException, FhirResourceException {
+
+        User user = TestUtils.createUser("testuser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availableresulttypes" )
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+        verify(observationHeadingService, Mockito.times(1)).getAvailableObservationHeadings(user.getId());
     }
 }
 

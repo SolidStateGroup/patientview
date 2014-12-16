@@ -2,6 +2,7 @@ package org.patientview.api.controller;
 
 import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.api.service.ObservationHeadingService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -90,5 +91,14 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @ResponseBody
     public ResponseEntity<List<ResultCluster>> getResultClusters() {
         return new ResponseEntity<>(observationHeadingService.getResultClusters(), HttpStatus.OK);
+    }
+
+    // Get available result types for user
+    @RequestMapping(value = "/user/{userId}/availableresulttypes", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ObservationHeading>> getResultClusters(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
+        return new ResponseEntity<>(observationHeadingService.getAvailableObservationHeadings(userId), HttpStatus.OK);
     }
 }

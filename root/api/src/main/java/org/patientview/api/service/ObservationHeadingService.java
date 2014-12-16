@@ -1,7 +1,9 @@
 package org.patientview.api.service;
 
 import org.patientview.api.annotation.RoleOnly;
+import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.ObservationHeadingGroup;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
@@ -53,4 +55,8 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     @RoleOnly(roles = { RoleName.PATIENT })
     List<ResultCluster> getResultClusters();
+
+    @UserOnly
+    List<ObservationHeading> getAvailableObservationHeadings(Long userId)
+            throws ResourceNotFoundException, FhirResourceException;
 }

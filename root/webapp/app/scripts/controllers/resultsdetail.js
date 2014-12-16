@@ -20,17 +20,17 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         }
 
         $scope.selectedCode = code;
-        $scope.getObservationHeadings(code);
         $scope.getObservations(code);
+        $scope.getAvailableResultTypes(code, $scope.loggedInUser.id);
     };
 
-    $scope.getObservationHeadings = function(code) {
-        ObservationHeadingService.getAll().then(function(observationHeadings) {
-            $scope.observationHeadings = observationHeadings.content;
+    $scope.getAvailableResultTypes = function(code, userId) {
+        ObservationHeadingService.getAvailableResultTypes(userId).then(function(observationHeadings) {
+            $scope.observationHeadings = observationHeadings;
             $scope.observationHeading = $scope.findObservationHeadingByCode(code);
             $scope.selectedCode = $scope.observationHeading.code;
         }, function() {
-            alert('Error retrieving results');
+            alert('Error retrieving result types');
         });
     };
 

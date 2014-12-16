@@ -2,6 +2,16 @@
 
 angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
     return {
+        getAvailableResultTypes: function(userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/availableresulttypes
+            Restangular.one('user', userId).customGET('availableresulttypes').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getAll: function (getParameters) {
             var deferred = $q.defer();
             // GET /observationheading?page=0&size=5&sortDirection=ASC&sortField=code

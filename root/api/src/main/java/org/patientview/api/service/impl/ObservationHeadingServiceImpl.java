@@ -3,25 +3,36 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.util.Util;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ResultCluster;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityExistsException;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +58,13 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     private ResultClusterRepository resultClusterRepository;
+
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    @Named("fhir")
+    private DataSource dataSource;
 
     public ObservationHeading add(final ObservationHeading observationHeading) {
         if (observationHeadingExists(observationHeading)) {
@@ -146,6 +164,61 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     public List<ResultCluster> getResultClusters() {
         return Util.convertIterable(resultClusterRepository.findAll());
+    }
+
+    @Override
+    public List<ObservationHeading> getAvailableObservationHeadings(Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        List<ObservationHeading> observationHeadings = new ArrayList<>();
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        for (FhirLink fhirLink : user.getFhirLinks()) {
+            if (fhirLink.getActive()) {
+                StringBuilder query = new StringBuilder();
+                query.append("SELECT DISTINCT ON (1) ");
+                query.append("CONTENT -> 'name' -> 'text' ");
+                query.append("FROM   observation ");
+                query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
+                query.append(fhirLink.getResourceId().toString());
+                query.append("' ");
+
+                Connection connection = null;
+                try {
+                    connection = dataSource.getConnection();
+                    java.sql.Statement statement = connection.createStatement();
+                    ResultSet results = statement.executeQuery(query.toString());
+
+                    while ((results.next())) {
+                        String code = results.getString(1).replace("\"","").toLowerCase();
+                        List<ObservationHeading> observationHeadingsByCode
+                                = observationHeadingRepository.findByCode(code);
+                        if (!CollectionUtils.isEmpty(observationHeadingsByCode)
+                                && !observationHeadings.contains(observationHeadingsByCode.get(0))) {
+                            observationHeadings.add(observationHeadingsByCode.get(0));
+                        }
+                    }
+
+                    connection.close();
+                } catch (SQLException e) {
+                    try {
+                        if (connection != null) {
+                            connection.close();
+                        }
+                    } catch (SQLException e2) {
+                        throw new FhirResourceException(e2);
+                    }
+
+                    throw new FhirResourceException(e);
+                }
+            }
+        }
+
+        return observationHeadings;
     }
 
     public void delete(final Long observationHeadingId) {
