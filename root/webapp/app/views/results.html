@@ -44,7 +44,7 @@
             <li class="col-md-3 col-xs-12 result-item-container" data-ng-repeat="result in panel | orderBy:'panelOrder'">
                 <div class="content-panel result-item">
                     <div class="result-header">
-                        <h4>
+                        <h4 bind-once>
                             <a href="" data-ng-click="openObservationHeadingInformation(result)">
                                 <span class="info-link pull-right">About</span>
                             </a>
@@ -53,18 +53,14 @@
                     </div>
 
                     <!--TODO - Make sure the styles are not broken when we have results in dev DB-->
-                    <a href="/#/resultsdetail?code={{result.code}}">
+                    <a href="/#/resultsdetail?code={{result.code}}" bind-once>
                         <div class="result-value" data-ng-show="result.latestObservation">
                             <dl class="result-change">
-                                <dt>
+                                <dt bind-once>
                                     <span data-ng-show="!result.latestObservation.value">Result value not available</span>
                                     {{result.latestObservation.comparator}}{{result.latestObservation.value}}
-                                    <span data-ng-show="result.units && result.latestObservation.value">{{result.units}}</span>
+                                    <span data-ng-show="result.units && result.latestObservation.value" bind-once>{{result.units}}</span>
                                 </dt>
-                                <!--<dd data-ng-show="getResultIcon(result)" class="hidden">
-                                    <i class="{{getResultIcon(result)}} pull-left"></i>
-                                    <span class="pull-left">{{removeMinus(result.valueChange)}}</span>
-                                </dd>-->
                             </dl>
                         </div>
                         <div class="result-value" data-ng-show="!result.latestObservation">
@@ -73,14 +69,14 @@
                     </a>
                     <ul class="unstyled info-list pull-left" data-ng-show="result.latestObservation">
                         <li>
-                            <span class="pull-right" data-ng-show="result.latestObservation.group">{{result.latestObservation.group.name}}</span>
+                            <span class="pull-right" data-ng-show="result.latestObservation.group" bind-once>{{result.latestObservation.group.name}}</span>
                             <span class="pull-right" data-ng-show="!result.latestObservation.group">Unknown</span>
                             <strong>Source:</strong>
                         </li>
-                        <li><span class="pull-right">{{result.latestObservation.applies | date:'dd-MMM-yyyy'}}</span><strong>Showing Result:</strong> </li>
+                        <li><span class="pull-right" bind-once>{{result.latestObservation.applies | date:'dd-MMM-yyyy'}}</span><strong>Showing Result:</strong> </li>
                     </ul>
                     <div class="result-footer">
-                        <a href="/#/resultsdetail?code={{result.code}}"><i class="icon-circle-arrow pull-right"></i>
+                        <a href="/#/resultsdetail?code={{result.code}}" bind-once><i class="icon-circle-arrow pull-right"></i>
                             View More Details
                         </a>
                     </div>
