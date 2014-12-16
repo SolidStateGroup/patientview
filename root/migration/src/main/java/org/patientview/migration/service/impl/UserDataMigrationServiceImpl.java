@@ -182,6 +182,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         List<Long> previouslyMigratedPv1Ids
                 = JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
         previouslyMigratedPv1Ids.addAll(JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.USER_MIGRATED));
+        previouslyMigratedPv1Ids.addAll(JsonUtil.getMigratedPatientview1IdsByStatus(MigrationStatus.OBSERVATIONS_MIGRATED));
 
         // create set of nhs numbers with eye checkup
         eyeCheckupNhsNos = new HashSet<String>();
