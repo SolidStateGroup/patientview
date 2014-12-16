@@ -199,41 +199,49 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         LOG.info("--- Starting migration ---");
 
-        for (Group group : groups) {
+        // testing
+        Group group = getGroupByCode("RJE01");
+
+        //for (Group group : groups) {
             // temporary remove RJE01
-            if (!group.getCode().equals("RJE01") && !group.getCode().equals("MPGN")) {
+            //if (!group.getCode().equals("RJE01") && !group.getCode().equals("MPGN")) {
                 LOG.info("(Migration) From Group: " + group.getCode());
-                List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGp(group.getCode());
-                LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
+                try {
+                    List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGp(group.getCode());
 
-                if (CollectionUtils.isNotEmpty(groupUserIds)) {
-                    for (Long oldUserId : groupUserIds) {
-                        if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
-                            try {
-                                org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+                    LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
 
-                                if (!oldUser.getUsername().endsWith("-GP")) {
-                                    MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+                    if (CollectionUtils.isNotEmpty(groupUserIds)) {
+                        for (Long oldUserId : groupUserIds) {
+                            if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
+                                try {
+                                    org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
 
-                                    if (migrationUser != null) {
-                                        try {
-                                            LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
-                                                    + group.getCode() + " submitting to REST");
-                                            userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
-                                            migratedPv1IdsThisRun.add(oldUser.getId());
-                                        } catch (Exception e) {
-                                            LOG.error("REST submit exception: ", e);
+                                    if (!oldUser.getUsername().endsWith("-GP")) {
+                                        MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+
+                                        if (migrationUser != null) {
+                                            try {
+                                                LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
+                                                        + group.getCode() + " submitting to REST");
+                                                userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                                                migratedPv1IdsThisRun.add(oldUser.getId());
+                                            } catch (Exception e) {
+                                                LOG.error("REST submit exception: ", e);
+                                            }
                                         }
                                     }
+                                } catch (Exception e) {
+                                    LOG.error("Exception: ", e);
                                 }
-                            } catch (Exception e) {
-                                LOG.error("Exception: ", e);
                             }
                         }
                     }
+                } catch (Exception e) {
+                    LOG.error("Migration exception: ", e);
                 }
-            }
-        }
+            //}
+       // }
     }
 
     private MigrationUser createMigrationUser(org.patientview.patientview.model.User oldUser, Role patientRole) {
