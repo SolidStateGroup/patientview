@@ -230,7 +230,7 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="userFeature in user.userFeatures">{{userFeature.feature.description}}</li></ul></div>
+                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="userFeature in user.userFeatures | orderBy:'feature.description'">{{userFeature.feature.description}}</li></ul></div>
                     <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
 
                     <div class="row-item actions">

@@ -72,7 +72,7 @@
             <label class="inner-title">Features</label>
             <p>Features are additional PatientView functions that can be enabled per user account</p>
             <ul class="name-action-list unstyled">
-                <li class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures">
+                <li class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures | orderBy:'feature.description'">
                     <div class="feature-list-name pull-left"><span class="feature-list-name">{{feature.feature.description}}</span></div>
                     <div class="feature-list-delete pull-left"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userForm, editUser, feature)" ><i class="glyphicon glyphicon-remove"></i></a></span></div>
                 </li>
@@ -82,7 +82,8 @@
             <label class="inner-title">Add New Feature </label>
             <div class="add-feature">
                 <button type="button" class="btn blue pull-right feature-add-button" data-ng-click="addFeature(userForm, editUser, editUser.featureToAdd)">Add</button>
-                <select class="form-control feature-select" data-ng-model="editUser.featureToAdd" data-ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures"></select>
+                <select class="form-control feature-select" data-ng-model="editUser.featureToAdd"
+                        data-ng-options="feature.feature.id as feature.feature.description for feature in editUser.availableFeatures | orderBy:'feature.description'"></select>
             </div>
         </div>
     </div>
