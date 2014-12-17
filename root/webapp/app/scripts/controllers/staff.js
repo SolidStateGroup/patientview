@@ -95,6 +95,55 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     };
 }];
 
+// find existing staff modal instance controller
+var FindExistingStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups', 'allowedRoles', 'UserService',
+function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, UserService) {
+    $scope.permissions = permissions;
+    $scope.allGroups = allGroups;
+    $scope.allowedRoles = allowedRoles;
+    $scope.editMode = false;
+    $scope.editUser = {};
+
+    // click Find button
+    $scope.find = function (email) {
+        var i;
+
+        email = email.replace('.','[DOT]');
+
+        UserService.findByEmail(email).then(function(result) {
+            $scope.editUser = result;
+            $scope.existingUser = true;
+            $scope.editMode = true;
+            $scope.warningMessage = 'A staff member with this email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
+            $scope.pagedItems = [];
+
+            // get user existing group/roles from groupRoles
+            $scope.editUser.groups = [];
+            for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                var groupRole = $scope.editUser.groupRoles[i];
+                var group = groupRole.group;
+                group.role = groupRole.role;
+                $scope.editUser.groups.push(group);
+            }
+
+            // set available groups so user can add another group/role to the users existing group roles if required
+            $scope.editUser.availableGroups = $scope.allGroups;
+            for (i = 0; i < $scope.editUser.groups.length; i++) {
+                $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
+            }
+
+            // set available user roles
+            $scope.editUser.roles = $scope.allowedRoles;
+        }, function () {
+            $scope.warningMessage = 'No staff member exists with this email';
+        });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}];
+
 // delete staff modal instance controller
 var DeleteStaffModalInstanceCtrl = ['$scope', '$modalInstance','user','UserService',
 function ($scope, $modalInstance, user, UserService) {
@@ -598,6 +647,47 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.getItems();
             delete $scope.editUser;
 
+        }, function () {
+            $scope.getItems();
+        });
+    };
+
+    // handle opening modal for finding existing staff by email
+    $scope.openModalFindExistingStaff = function (size) {
+        // close any open edit panels
+        for (var i = 0; i < $scope.pagedItems.length; i++) {
+            $scope.pagedItems[i].showEdit = false;
+        }
+        // clear messages
+        $scope.errorMessage = '';
+        $scope.warningMessage = '';
+        $scope.successMessage = '';
+
+        // open modal and pass in required objects for use in modal scope
+        var modalInstance = $modal.open({
+            templateUrl: 'findExistingStaffModal.html',
+            controller: FindExistingStaffModalInstanceCtrl,
+            size: size,
+            backdrop: 'static',
+            resolve: {
+                permissions: function(){
+                    return $scope.permissions;
+                },
+                allGroups: function(){
+                    return $scope.allGroups;
+                },
+                allowedRoles: function(){
+                    return $scope.allowedRoles;
+                },
+                UserService: function(){
+                    return UserService;
+                }
+            }
+        });
+
+        // handle modal close (via button click)
+        modalInstance.result.then(function (user) {
+            // no ok button, do nothing
         }, function () {
             $scope.getItems();
         });

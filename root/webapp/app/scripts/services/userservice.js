@@ -325,6 +325,17 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // find by email
+        findByEmail: function (email) {
+            var deferred = $q.defer();
+            // GET /user/email/{email}
+            Restangular.one('user/email').customGET(email).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

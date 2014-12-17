@@ -256,4 +256,18 @@ public class UserController extends BaseController<UserController> {
             throws ResourceNotFoundException {
         return new ResponseEntity<>(userService.getByIdentifierValue(identifier), HttpStatus.OK);
     }
+
+    // used when searching for existing staff
+    @RequestMapping(value = "/user/email/{email}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<User> getUserByEmail(@PathVariable("email") String email)
+            throws ResourceNotFoundException {
+        User user = userService.getByEmail(email.replace("[DOT]","."));
+        if (user == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+    }
 }

@@ -1,5 +1,8 @@
 <div>
-    <h1 data-ng-show="!loading">Staff <button class="btn blue" data-ng-click="openModalNewStaff('lg')">Create New</button></h1>
+    <h1 data-ng-show="!loading">Staff
+        <button class="btn blue" data-ng-click="openModalNewStaff('lg')">Create New</button>
+        <button class="btn blue" data-ng-click="openModalFindExistingStaff('lg')">Add Existing Staff</button>
+    </h1>
 
     <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
 
@@ -23,6 +26,28 @@
                 <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
                 <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
                 <button class="btn btn-primary" data-ng-click="create()" data-ng-show="!existingUser" data-ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+            </div>
+        </script>
+
+        <!-- existing staff modal (search by email) -->
+        <script type="text/ng-template" id="findExistingStaffModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title" data-ng-show="existingUser">Find Existing Staff User</h3>
+            </div>
+            <div class="modal-body">
+
+                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+
+                <form name="userFormFindByIdentifier" data-ng-show="!existingUser">
+                    <div data-ng-include src="'views/partials/staffDetailsFindExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
+                </form>
+                <form name="userFormExisting" data-ng-show="existingUser">
+                    <div data-ng-include src="'views/partials/staffDetailsExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
             </div>
         </script>
 

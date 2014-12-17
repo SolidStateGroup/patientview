@@ -108,8 +108,8 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
 }];
 
 // find existing patient modal instance controller
-var FindExistingPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService',
-function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, allFeatures, identifierTypes, UserService) {
+var FindExistingPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'allGroups', 'allowedRoles', 'identifierTypes', 'UserService',
+function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRoles, identifierTypes, UserService) {
     $scope.permissions = permissions;
     $scope.allGroups = allGroups;
     $scope.allowedRoles = allowedRoles;
@@ -827,9 +827,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 },
                 allowedRoles: function(){
                     return $scope.allowedRoles;
-                },
-                allFeatures: function(){
-                    return $scope.allFeatures;
                 },
                 identifierTypes: function(){
                     return $scope.identifierTypes;

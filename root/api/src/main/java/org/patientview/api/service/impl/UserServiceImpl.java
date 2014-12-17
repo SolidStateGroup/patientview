@@ -579,11 +579,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public org.patientview.api.model.User getByEmail(String email) {
-        User foundUser = userRepository.findByEmail(email);
-        if (foundUser == null) {
+        List<User> foundUsers = userRepository.findByEmail(email);
+
+        // should only return one
+        if (CollectionUtils.isEmpty(foundUsers)) {
             return null;
         } else {
-            return new org.patientview.api.model.User(foundUser, null);
+            return new org.patientview.api.model.User(foundUsers.get(0), null);
         }
     }
 

@@ -33,7 +33,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE UPPER(u.username) = UPPER(:username)")
     User findByUsernameCaseInsensitive(@Param("username") String username);
 
-    User findByEmail(String email);
+    List<User> findByEmail(String email);
 
         /*
         SQL for AND group ids
