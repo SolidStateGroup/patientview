@@ -213,7 +213,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             //if (!group.getCode().equals("RJE01") && !group.getCode().equals("MPGN")) {
                 LOG.info("(Migration) From Group: " + group.getCode());
                 try {
-                    List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGp(group.getCode());
+                    List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGpNative(group.getCode());
 
                     LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
 
@@ -300,7 +300,9 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                         // is a staff member
                         Role role = null;
-                        List<SpecialtyUserRole> specialtyUserRoles = specialtyUserRoleDao.get(oldUser);
+                        List<SpecialtyUserRole> specialtyUserRoles
+                                = specialtyUserRoleDao.getRolesNative(oldUser.getId());
+
                         // TODO: try and fix this - get the first role and apply it to all group (no group role mapping)
                         // TODO: required hack from original PatientView
                         if (CollectionUtils.isNotEmpty(specialtyUserRoles)) {
