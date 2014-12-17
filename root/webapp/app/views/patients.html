@@ -257,7 +257,8 @@
                         <ul class="unstyled">
                             <li data-ng-repeat="identifier in user.identifiers"
                                 data-ng-show="identifier.identifierType.value !== 'HOSPITAL_NUMBER'">
-                                {{identifier.identifier}}
+                                <span>{{identifier.identifier}}</span>
+                                <span class="small">&nbsp;&nbsp;({{identifier.identifierType.value.substring(0, 3)}})</span>
                             </li>
                         </ul>
                     </div>
