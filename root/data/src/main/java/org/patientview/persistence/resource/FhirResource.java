@@ -670,7 +670,8 @@ public class FhirResource {
             statement.execute(sql);
             connection.close();
         } catch (SQLException e) {
-            LOG.error("SQL exception {}", e);
+            LOG.error("SQL exception: " + sql);
+            LOG.error("SQL exception:", e);
             try {
                 if (connection != null) {
                     connection.close();
