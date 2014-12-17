@@ -677,6 +677,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         entityUser.setEmail(user.getEmail());
         entityUser.setContactNumber(user.getContactNumber());
+        entityUser.setForename(user.getForename());
+        entityUser.setSurname(user.getSurname());
         userRepository.save(entityUser);
 
         // audit email changed
