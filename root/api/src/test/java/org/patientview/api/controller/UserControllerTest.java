@@ -109,7 +109,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @Ignore("JR: 23/10/14, temporarily removed for uat")
+    //@Ignore("JR: 23/10/14, temporarily removed for uat")
     public void testCreateUser() throws ResourceNotFoundException, ResourceForbiddenException {
 
         // current user and security

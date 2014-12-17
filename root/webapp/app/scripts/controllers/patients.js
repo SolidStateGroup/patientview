@@ -12,6 +12,14 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     $scope.identifierTypes = identifierTypes;
     $scope.editMode = false;
 
+    // date of birth
+    $scope.months = UtilService.generateMonths();
+    $scope.years = UtilService.generateYears();
+    $scope.days = UtilService.generateDays();
+    $scope.editUser.selectedYear = '';
+    $scope.editUser.selectedMonth = '';
+    $scope.editUser.selectedDay = '';
+
     // set initial group and feature (avoid blank option)
     if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
         $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
@@ -27,56 +35,61 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     $scope.create = function () {
         var i;
 
-        // generate password
-        var password = UtilService.generatePassword();
-        $scope.editUser.password = password;
+        // check date of birth if entered
+        if (($scope.editUser.selectedDay != '' || $scope.editUser.selectedMonth != '' || $scope.editUser.selectedYear != '')
+            && !UtilService.validationDateNoFuture($scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
+            $scope.errorMessage = 'Please enter a valid date of birth (and not in the future)';
+        } else {
+            // generate password
+            var password = UtilService.generatePassword();
+            $scope.editUser.password = password;
 
-        UserService.create($scope.editUser).then(function(userId) {
-            // successfully created new user
-            UserService.get(userId).then(function(result) {
-                result.isNewUser = true;
-                result.password = password;
-                $modalInstance.close(result);
-            }, function() {
-                alert('Cannot get user (has been created)');
-            });
-        }, function(result) {
-            if (result.status === 409) {
-                // 409 = CONFLICT, means user already exists, provide UI to edit existing user group roles
-                // but only if user has rights to GET user
-
-                UserService.get(result.data).then(function(result) {
-                    $scope.warningMessage = 'A patient member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
-                    $scope.editUser = result;
-                    $scope.existingUser = true;
-                    $scope.editMode = true;
-                    $scope.pagedItems = [];
-
-                    // get user existing group/roles from groupRoles
-                    $scope.editUser.groups = [];
-                    for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
-                        var groupRole = $scope.editUser.groupRoles[i];
-                        var group = groupRole.group;
-                        group.role = groupRole.role;
-                        $scope.editUser.groups.push(group);
-                    }
-
-                    // set available groups so user can add another group/role to the users existing group roles if required
-                    $scope.editUser.availableGroups = $scope.allGroups;
-                    for (i = 0; i < $scope.editUser.groups.length; i++) {
-                        $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
-                    }
-
-                    // set available user roles
-                    $scope.editUser.roles = $scope.allowedRoles;
-                }, function () {
-                    $scope.warningMessage = 'This username is restricted, please try another';
+            UserService.create($scope.editUser).then(function(userId) {
+                UserService.get(userId).then(function(result) {
+                    result.isNewUser = true;
+                    result.password = password;
+                    $modalInstance.close(result);
+                }, function() {
+                    alert('Cannot get user (has been created)');
                 });
-            } else {
-                // Other errors treated as standard errors
-                $scope.errorMessage = 'There was an error: ' + result.data;
-            }
-        });
+            }, function(result) {
+                if (result.status === 409) {
+                    // 409 = CONFLICT, means user already exists, provide UI to edit existing user group roles
+                    // but only if user has rights to GET user
+
+                    UserService.get(result.data).then(function(result) {
+                        $scope.warningMessage = 'A patient member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
+                        $scope.editUser = result;
+                        $scope.existingUser = true;
+                        $scope.editMode = true;
+                        $scope.pagedItems = [];
+
+                        // get user existing group/roles from groupRoles
+                        $scope.editUser.groups = [];
+                        for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                            var groupRole = $scope.editUser.groupRoles[i];
+                            var group = groupRole.group;
+                            group.role = groupRole.role;
+                            $scope.editUser.groups.push(group);
+                        }
+
+                        // set available groups so user can add another group/role to the users existing group roles if required
+                        $scope.editUser.availableGroups = $scope.allGroups;
+                        for (i = 0; i < $scope.editUser.groups.length; i++) {
+                            $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
+                        }
+
+                        // set available user roles
+                        $scope.editUser.roles = $scope.allowedRoles;
+                    }, function () {
+                        $scope.warningMessage = 'This username is restricted, please try another';
+                    });
+                } else {
+                    // Other errors treated as standard errors
+                    $scope.errorMessage = 'There was an error: ' + result.data;
+                }
+            });
+        }
     };
 
     // click Update Existing button, (after finding user already exists)
@@ -479,6 +492,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
         $scope.initFinished = false;
 
+        $scope.months = UtilService.generateMonths();
+        $scope.years = UtilService.generateYears();
+        $scope.days = UtilService.generateDays();
+
         $('body').click(function () {
             $('.child-menu').remove();
         });
@@ -641,6 +658,17 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                     user.userFeatures = [];
                 }
 
+                // set date of birth dropdowns
+                if (user.dateOfBirth != null) {
+                    user.selectedYear = user.dateOfBirth.split('-')[0].toString();
+                    user.selectedMonth = user.dateOfBirth.split('-')[1].toString();
+                    user.selectedDay = user.dateOfBirth.split('-')[2].toString();
+                } else {
+                    user.selectedYear = '';
+                    user.selectedMonth = '';
+                    user.selectedDay = '';
+                }
+
                 // set the user being edited to a clone of the existing user (so only updated in UI on save)
                 $scope.editUser = _.clone(user);
 
@@ -658,34 +686,43 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // Save from edit
     $scope.save = function (editUserForm, user) {
-        UserService.save(user).then(function() {
-            // successfully saved user
-            editUserForm.$setPristine(true);
-            $scope.saved = true;
 
-            // update accordion header for group with data from GET
-            UserService.get(user.id).then(function (successResult) {
-                for (var i = 0; i < $scope.pagedItems.length; i++) {
-                    if ($scope.pagedItems[i].id === successResult.id) {
-                        var headerDetails = $scope.pagedItems[i];
-                        headerDetails.forename = successResult.forename;
-                        headerDetails.surname = successResult.surname;
-                        headerDetails.email = successResult.email;
+        if ((user.selectedDay != '' || user.selectedMonth != '' || user.selectedYear != '')
+            && !UtilService.validationDateNoFuture(user.selectedDay, user.selectedMonth, user.selectedYear)
+            && !(user.selectedDay == '' && user.selectedMonth == '' && user.selectedYear == '')) {
+            alert('Please enter a valid date of birth (and not in the future)');
+        } else {
+            user.dateOfBirth = null;
+            UserService.save(user).then(function () {
+                // successfully saved user
+                editUserForm.$setPristine(true);
+                $scope.saved = true;
+
+                // update accordion header for group with data from GET
+                UserService.get(user.id).then(function (successResult) {
+                    for (var i = 0; i < $scope.pagedItems.length; i++) {
+                        if ($scope.pagedItems[i].id === successResult.id) {
+                            var headerDetails = $scope.pagedItems[i];
+                            headerDetails.forename = successResult.forename;
+                            headerDetails.surname = successResult.surname;
+                            headerDetails.email = successResult.email;
+                            headerDetails.dateOfBirth = successResult.dateOfBirth;
+                        }
                     }
-                }
-            }, function () {
-                alert('Error updating header (saved successfully)');
-            });
+                }, function () {
+                    alert('Error updating header (saved successfully)');
+                });
 
-            $scope.successMessage = 'User saved';
-        }, function (failureResult) {
-            if (failureResult.status === 409) {
-                // conflict (already exists)
-                alert("Cannot save User: " + failureResult.data);
-            } else {
-                alert("Cannot save User: " + failureResult.data);
-            }
-        });
+                $scope.successMessage = 'User saved';
+            }, function (failureResult) {
+                if (failureResult.status === 409) {
+                    // conflict (already exists)
+                    alert("Cannot save User: " + failureResult.data);
+                } else {
+                    alert("Cannot save User: " + failureResult.data);
+                }
+            });
+        }
     };
 
     // handle opening modal (Angular UI Modal http://angular-ui.github.io/bootstrap/)

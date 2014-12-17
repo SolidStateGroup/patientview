@@ -108,8 +108,8 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         // Used when cleaning objects before they are passed to REST service, object fields to keep
         getFields: function (objectType) {
             var fields = [];
-            fields.user = ['id', 'username', 'password', 'email', 'forename', 'surname', 'changePassword', 'locked', 'userFeatures', 'emailVerified', 'verificationCode', 'identifiers', 'contactNumber', 'locked', 'dummy'];
-            fields.userDetails = ['id', 'username', 'email', 'forename', 'surname', 'locked', 'emailVerified', 'dummy', 'contactNumber'];
+            fields.user = ['id', 'username', 'password', 'email', 'forename', 'surname', 'changePassword', 'locked', 'userFeatures', 'emailVerified', 'verificationCode', 'identifiers', 'contactNumber', 'locked', 'dummy', 'dateOfBirth'];
+            fields.userDetails = ['id', 'username', 'email', 'forename', 'surname', 'locked', 'emailVerified', 'dummy', 'contactNumber', 'dateOfBirth'];
             fields.role = ['id','name','description','routes'];
             fields.group = ['id','name','shortName','code','sftpUser','groupType','groupFeatures','routes','links','locations','contactPoints','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode'];
             fields.groupDetails = ['id','name','code','sftpUser','groupType','visibleToJoin','address1','address2','address3','postcode'];

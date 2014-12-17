@@ -87,6 +87,11 @@ function ($q, Restangular, UtilService) {
         save: function (inputUser) {
             var deferred = $q.defer();
 
+            // set date of birth if available
+            if (inputUser.selectedDay && inputUser.selectedMonth && inputUser.selectedYear) {
+                inputUser.dateOfBirth = new Date(inputUser.selectedYear, inputUser.selectedMonth - 1, inputUser.selectedDay);
+            }
+
             // clean user object
             var user = UtilService.cleanObject(inputUser, 'userDetails');
 
@@ -143,6 +148,11 @@ function ($q, Restangular, UtilService) {
                     delete identifier.id;
                 }
                 cleanIdentifiers.push(identifier);
+            }
+
+            // set date of birth if available
+            if (inputUser.selectedDay && inputUser.selectedMonth && inputUser.selectedYear) {
+                inputUser.dateOfBirth = new Date(inputUser.selectedYear, inputUser.selectedMonth - 1, inputUser.selectedDay);
             }
 
             // clean base user object
