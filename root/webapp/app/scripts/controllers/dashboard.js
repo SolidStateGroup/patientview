@@ -50,6 +50,8 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
                         $scope.statisticsDate = statistics.endDate;
                         $scope.lockedUsers = statistics.statistics.LOCKED_USER_COUNT;
                         $scope.inactiveUsers = statistics.statistics.INACTIVE_USER_COUNT;
+                        $scope.totalUsers = statistics.statistics.USER_COUNT;
+                        $scope.activeUsers = $scope.totalUsers - $scope.inactiveUsers;
                     }
 
                     // using highcharts
