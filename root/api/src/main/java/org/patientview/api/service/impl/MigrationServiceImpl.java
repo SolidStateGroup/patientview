@@ -340,13 +340,15 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                     ObservationHeading observationHeading
                                             = observationHeadingMap.get(testcode.toUpperCase());
 
-                                    if (observationHeading != null) {
-                                        fhirDatabaseObservations.add(
-                                                observationService.buildFhirDatabaseObservation(
-                                                        fhirObservation, observationHeading, fhirLink));
-                                    } else {
-                                        throw new MigrationException("ObservationHeading not found: " + testcode);
+                                    if (observationHeading == null) {
+                                        observationHeading = new ObservationHeading();
+                                        observationHeading.setCode(testcode.toUpperCase());
+                                        observationHeading.setName(testcode);
+                                        LOG.info("ObservationHeading not found (adding anyway): " + testcode);
                                     }
+
+                                    fhirDatabaseObservations.add(observationService.buildFhirDatabaseObservation(
+                                                    fhirObservation, observationHeading, fhirLink));
                                 }
                             }
 
@@ -373,12 +375,6 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                             LOG.error("cannot build observations for user with pv2 id " + pv2id);
                             userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
                             userMigration.setInformation(fre.getMessage());
-                            userMigration.setLastUpdate(new Date());
-                            userMigrationService.save(userMigration);
-                        } catch (MigrationException me) {
-                            LOG.error("MigrationException for user with pv2 id " + pv2id + ": " + me.getMessage());
-                            userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
-                            userMigration.setInformation(me.getMessage());
                             userMigration.setLastUpdate(new Date());
                             userMigrationService.save(userMigration);
                         }

@@ -103,7 +103,7 @@ public class MigrationController {
 
     @RequestMapping(value = "/step5-observations", method = RequestMethod.GET)
     public String doStep5Observations(ModelMap modelMap) throws JsonMigrationException {
-        asyncTaskExecutor.submit(new Runnable() {
+        /*asyncTaskExecutor.submit(new Runnable() {
             public void run() {
                 try {
                     Date start = new Date();
@@ -116,7 +116,9 @@ public class MigrationController {
             }
         });
 
-        modelMap.addAttribute("statusMessage", "Started Observation Migration");
+        modelMap.addAttribute("statusMessage", "Started Observation Migration");*/
+
+        modelMap.addAttribute("statusMessage", "Not started: use API based migration instead for performance");
         return "observations";
     }
 
