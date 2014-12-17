@@ -441,6 +441,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // Get users based on current user selected filters etc
     $scope.getItems = function () {
+        $scope.currentPage = 0;
         $scope.loadingMessage = 'Loading Patients';
         $scope.loading = true;
 
