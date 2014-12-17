@@ -60,7 +60,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
                             zoomType: 'xy'
                         },
                         title: {
-                            text: null
+                            text: ''
                         },
                         xAxis: {
                             categories: xAxisCategories,
@@ -101,7 +101,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
                             }
                         ],
                         credits: {
-                            text: null
+                            enabled: false
                         },
                         exporting: {
                             enabled: false

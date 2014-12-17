@@ -93,7 +93,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             },
 
             title : {
-                text : null
+                text: ''
             },
 
             navigator: {
