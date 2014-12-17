@@ -637,7 +637,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             FhirPractitioner practitioner = new FhirPractitioner();
 
             // strip ' from practitioner name
-            practitioner.setName(pv1PatientRecord.getGpname().replace("'",""));
+            practitioner.setName(pv1PatientRecord.getGpname().replace("'","").replace("\n", "").replace("\r", ""));
             if (StringUtils.isNotEmpty(pv1PatientRecord.getGpaddress1())) {
                 practitioner.setAddress1(pv1PatientRecord.getGpaddress1());
             }
