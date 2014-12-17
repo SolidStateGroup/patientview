@@ -506,7 +506,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             patient.setForename(pv1PatientRecord.getForename());
         }
         if (StringUtils.isNotEmpty(pv1PatientRecord.getSurname())) {
-            patient.setSurname(pv1PatientRecord.getSurname());
+            if (pv1PatientRecord.getSurname().equals(".")) {
+                patient.setSurname("");
+            } else {
+                patient.setSurname(pv1PatientRecord.getSurname());
+            }
         }
         if (StringUtils.isNotEmpty(pv1PatientRecord.getSex())) {
             patient.setGender(pv1PatientRecord.getSex());
