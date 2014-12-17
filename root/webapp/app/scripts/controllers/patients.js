@@ -118,7 +118,8 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.editUser = {};
 
     // click Find button
-    $scope.find = function (identifier) {
+    $scope.find = function () {
+        var identifier = $('#identifier').val();
         var i;
 
         UserService.findByIdentifier(identifier).then(function(result) {

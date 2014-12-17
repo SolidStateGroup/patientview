@@ -105,9 +105,9 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.editUser = {};
 
     // click Find button
-    $scope.find = function (email) {
+    $scope.find = function () {
+        var email = $('#email').val();
         var i;
-
         email = email.replace('.','[DOT]');
 
         UserService.findByEmail(email).then(function(result) {
