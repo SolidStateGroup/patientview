@@ -14,9 +14,10 @@ function ($scope, $modal, ObservationService, ObservationHeadingService) {
 
     $scope.init = function() {
         var i;
-        $scope.itemsPerPage = 10;
+        $scope.itemsPerPage = 20;
         $scope.currentPage = 0;
         $scope.loading = true;
+        $scope.observationHeadingCodes = [];
 
         ObservationHeadingService.getAvailableObservationHeadings($scope.loggedInUser.id)
             .then(function(observationHeadings) {
@@ -32,9 +33,26 @@ function ($scope, $modal, ObservationService, ObservationHeadingService) {
     };
 
     $scope.includeObservationHeading = function(code) {
+        if ($.inArray(code, $scope.observationHeadingCodes) === -1) {
+            $scope.observationHeadingCodes.push(code);
+        }
+
+        getObservations();
+    };
+
+    var getObservations = function () {
         $scope.loading = true;
-        ObservationService.getByCode($scope.loggedInUser.id, code).then(function(observations) {
-                $scope.observations = observations;
+
+        var offset = $scope.currentPage * $scope.itemsPerPage;
+
+        ObservationService.getByCodes($scope.loggedInUser.id, $scope.observationHeadingCodes, $scope.itemsPerPage, offset)
+            .then(function(observationsPage) {
+            var data = observationsPage.data;
+            $scope.total = observationsPage.totalElements;
+            $scope.totalPages = observationsPage.totalPages;
+
+            // convert from map to something suitable for display
+
             $scope.loading = false;
         }, function() {
             alert('Error retrieving results');

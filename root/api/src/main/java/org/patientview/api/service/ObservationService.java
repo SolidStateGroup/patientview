@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.api.model.FhirObservation;
+import org.patientview.api.model.FhirObservationPage;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -23,6 +24,11 @@ public interface ObservationService {
     @UserOnly
     @RoleOnly(roles = { RoleName.PATIENT })
     List<FhirObservation> get(Long userId, String code, String orderBy, String orderDirection, Long limit)
+            throws ResourceNotFoundException, FhirResourceException;
+
+    @UserOnly
+    @RoleOnly(roles = { RoleName.PATIENT })
+    FhirObservationPage getMultipleByCode(Long userId, List<String> codes, Long limit, Long offset)
             throws ResourceNotFoundException, FhirResourceException;
 
     @UserOnly

@@ -328,6 +328,7 @@ function ($q, Restangular, UtilService) {
         },
         // find by email
         findByEmail: function (email) {
+            email = email.replace('.','[DOT]');
             var deferred = $q.defer();
             // GET /user/email/{email}
             Restangular.one('user/email').customGET(email).then(function(successResult) {

@@ -35,6 +35,17 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        getByCodes: function (userId, codes, limit, offset) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/observations
+            Restangular.one('user', userId).one('observations').get({'code':codes, 'limit':limit, 'offset':offset})
+                .then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getSummary: function (userId) {
             var deferred = $q.defer();
             // GET /user/{userId}/observations/summary

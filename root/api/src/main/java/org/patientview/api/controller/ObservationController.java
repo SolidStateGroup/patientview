@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.patientview.api.model.FhirObservation;
+import org.patientview.api.model.FhirObservationPage;
 import org.patientview.api.model.ObservationSummary;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.MigrationService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,6 +52,16 @@ public class ObservationController extends BaseController<ObservationController>
         return new ResponseEntity<>(
             observationService.get(userId, code.toUpperCase(), DEFAULT_SORT, DEFAULT_SORT_DIRECTION, null),
             HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/user/{userId}/observations", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<FhirObservationPage> getObservationsByCodes(
+            @PathVariable("userId") Long userId,
+            @RequestParam List<String> code, @RequestParam Long limit, @RequestParam Long offset)
+            throws FhirResourceException, ResourceNotFoundException {
+        return new ResponseEntity<>(
+            observationService.getMultipleByCode(userId, code, limit, offset), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user/{userId}/observations/summary", method = RequestMethod.GET)
