@@ -21,11 +21,11 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
 
         $scope.selectedCode = code;
         $scope.getObservations(code);
-        $scope.getAvailableResultTypes(code, $scope.loggedInUser.id);
+        $scope.getAvailableObservationHeadings(code, $scope.loggedInUser.id);
     };
 
-    $scope.getAvailableResultTypes = function(code, userId) {
-        ObservationHeadingService.getAvailableResultTypes(userId).then(function(observationHeadings) {
+    $scope.getAvailableObservationHeadings = function(code, userId) {
+        ObservationHeadingService.getAvailableObservationHeadings(userId).then(function(observationHeadings) {
             $scope.observationHeadings = observationHeadings;
             $scope.observationHeading = $scope.findObservationHeadingByCode(code);
             $scope.selectedCode = $scope.observationHeading.code;

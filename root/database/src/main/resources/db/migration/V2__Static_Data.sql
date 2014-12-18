@@ -226,6 +226,8 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
   (22, 5, 56,  '/diagnostics', 'views/diagnostics.html','DiagnosticsCtrl', 'Results', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (23, 4, 150,  '/log', 'views/log.html','LogCtrl', 'Log', now(), 1 );
+INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
+  (24, 5, 52,  '/resultstable', 'views/resultstable.html','ResultsTableCtrl', 'Results', now(), 1 );
 
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (1, 1, 1, null, null, now(), 1 );
@@ -299,3 +301,5 @@ INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation
 /* disease group admin */
 INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
   (39, 16, null, 9, null, now(), 1 );
+INSERT INTO PV_Route_Link (Id, Route_Id, Group_Id, Role_Id, Feature_Id, Creation_Date, Created_By) VALUES
+  (40, 24, null, 1, null, now(), 1 );

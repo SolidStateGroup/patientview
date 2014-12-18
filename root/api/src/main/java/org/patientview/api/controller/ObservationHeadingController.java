@@ -94,10 +94,10 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     }
 
     // Get available result types for user
-    @RequestMapping(value = "/user/{userId}/availableresulttypes", method = RequestMethod.GET,
+    @RequestMapping(value = "/user/{userId}/availableobservationheadings", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<ObservationHeading>> getResultClusters(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<ObservationHeading>> getAvailableObservationHeadings(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, FhirResourceException {
         return new ResponseEntity<>(observationHeadingService.getAvailableObservationHeadings(userId), HttpStatus.OK);
     }

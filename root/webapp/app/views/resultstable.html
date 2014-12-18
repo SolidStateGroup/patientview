@@ -1,0 +1,73 @@
+<div data-ng-show="!loading">
+
+    <h1 class="clearfix">
+        <ul class="unstyled inline pull-right">
+            <li><a href="/#/results" class="btn blue pull-right">Back to Results</a></li>
+        </ul>
+        <span>Results Table View</span>
+    </h1>
+
+    <div class="results-header content-panel">
+        <div class="header-icon pull-left">
+            <i class="icon-results-large pull-left"></i>
+        </div>
+        <div class="content-inner clearfix" data-ng-show="observationHeadings.length > 0">
+            <div class="row">
+                <div class="col-md-3">
+                    <h4 class="select-title">Include Result Type:</h4>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control pull-right" data-ng-model="selectedCode"
+                            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                            data-ng-change="includeObservationHeading(selectedCode)" >
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <ul class="unstyled pull-left filter-tags-container">
+                        <li class="all-groups-tag pull-left" data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)">
+                            <span class="label label-info">{{group.name}}</span>&nbsp;
+                        </li>
+                        <li class="all-groups-tag pull-left">TEST</li>
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="content-inner clearfix" data-ng-show="!observationHeadings.length">
+            <div class="row">
+                <div class="col-md-5">
+                    <h4>No results are available</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-panel">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <th>Date</th>
+                    <th>eee</th>
+                    <th>fff</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>12.12.12</td>
+                        <td>1</td>
+                        <td>2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- pagination -->
+    <div ng-include src="'views/partials/pagination.html'"></div>
+
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Results</h3>
+    </div>
+</div>
