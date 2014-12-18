@@ -240,7 +240,7 @@ public class ObservationHeadingControllerTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availableresulttypes" )
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availableobservationheadings" )
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
