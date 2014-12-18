@@ -328,10 +328,13 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                 ResultSet results = statement.executeQuery(query);
 
                                 while ((results.next())) {
-                                    String testcode = results.getString(1).replace("\"","").replace("}","").replace("{","");
+                                    String testcode = results.getString(1)
+                                            .replace("\"","").replace("}","").replace("{","").replace(",","");
                                     Date datestamp = results.getDate(2);
-                                    String prepost = results.getString(3).replace("\"","").replace("}","").replace("{","");
-                                    String value = results.getString(4).replace("\"","").replace("}","").replace("{","");
+                                    String prepost = results.getString(3)
+                                            .replace("\"","").replace("}","").replace("{","").replace(",","");
+                                    String value = results.getString(4)
+                                            .replace("\"","").replace("}","").replace("{","").replace(",","");
 
                                     FhirObservation fhirObservation = new FhirObservation();
                                     fhirObservation.setApplies(datestamp);
