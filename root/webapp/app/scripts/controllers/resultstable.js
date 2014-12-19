@@ -98,6 +98,9 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
                 }
 
                 $scope.pagedItems = pagedItems;
+                if ($scope.totalPages <= $scope.currentPage) {
+                    $scope.currentPage = 0;
+                }
                 $scope.loading = false;
             }, function () {
                 alert('Error retrieving results');
