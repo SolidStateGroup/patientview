@@ -35,6 +35,11 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.initialiseChart = function() {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
         // using highstocks
         $('.chart-content-panel').show();
 
@@ -48,7 +53,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             var observation = $scope.observations[i];
 
             var row = [];
-            row[0] = new Date(observation.applies).getTime();
+            row[0] = observation.applies;
             row[1] = parseFloat(observation.value);
             data.push(row);
 
@@ -117,6 +122,20 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                         $scope.showHideObservationsInTable(minDate, maxDate);
                     }
                 }
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    millisecond: '%H:%M:%S.%L',
+                    second: '%H:%M:%S',
+                    minute: '%H:%M',
+                    hour: '%H:%M',
+                    day: '%e. %b',
+                    week: '%e. %b',
+                    month: '%b \'%y',
+                    year: '%Y'
+                },
+                text: 'ESEMPIO'
             }
         });
         $scope.setRangeInDays(9999);
