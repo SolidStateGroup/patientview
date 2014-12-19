@@ -345,7 +345,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
                                     if (observationHeading == null) {
                                         observationHeading = new ObservationHeading();
-                                        observationHeading.setCode(testcode.toUpperCase());
+                                        observationHeading.setCode(testcode);
                                         observationHeading.setName(testcode);
                                         LOG.info("ObservationHeading not found (adding anyway): " + testcode);
                                     }

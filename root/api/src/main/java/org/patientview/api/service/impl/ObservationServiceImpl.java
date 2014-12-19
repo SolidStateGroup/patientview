@@ -617,7 +617,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         }
 
         CodeableConcept name = new CodeableConcept();
-        name.setTextSimple(observationHeading.getCode().toUpperCase());
+        name.setTextSimple(observationHeading.getCode());
         name.addCoding().setDisplaySimple(observationHeading.getHeading());
         observation.setName(name);
 

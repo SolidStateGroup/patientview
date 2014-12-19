@@ -43,7 +43,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         var minValue = Number.MAX_VALUE;
         var maxValue = Number.MIN_VALUE;
 
-        for (var i = $scope.observations.length -1; i > 0; i--) {
+        for (var i = $scope.observations.length -1; i >= 0; i--) {
 
             var observation = $scope.observations[i];
 
@@ -119,7 +119,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 }
             }
         });
-        $scope.setRangeInDays(1094.75);
+        $scope.setRangeInDays(9999);
+
         $scope.chartLoading = false;
     };
 
@@ -200,10 +201,6 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             }
         }
         return null;
-    };
-
-    $scope.rangeChanged = function (range) {
-        $scope.showHideObservationsInTable(range.start, range.end);
     };
 
     $scope.setRangeInDays = function (days) {

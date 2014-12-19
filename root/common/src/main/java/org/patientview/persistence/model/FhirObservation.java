@@ -47,7 +47,7 @@ public class FhirObservation extends BaseModel {
         }
 
         setTemporaryUuid(UUID.randomUUID().toString());
-        setName(observation.getName().getTextSimple());
+        setName(observation.getName().getTextSimple().toUpperCase());
         setComments(observation.getCommentsSimple());
 
         if (observation.getValue().getClass().equals(Quantity.class)) {

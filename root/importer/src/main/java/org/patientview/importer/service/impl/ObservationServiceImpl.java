@@ -7,7 +7,6 @@ import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
-import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.model.BasicObservation;
 import org.patientview.importer.model.DateRange;
