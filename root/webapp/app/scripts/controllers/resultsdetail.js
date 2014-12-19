@@ -48,7 +48,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             var observation = $scope.observations[i];
 
             var row = [];
-            row[0] = observation.applies;
+            row[0] = new Date(observation.applies).getTime();
             row[1] = parseFloat(observation.value);
             data.push(row);
 
