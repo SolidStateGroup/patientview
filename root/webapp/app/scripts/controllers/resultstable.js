@@ -9,22 +9,34 @@ var ObservationHeadingInfoModalInstanceCtrl = ['$scope','$modalInstance','result
         };
     }];
 
-angular.module('patientviewApp').controller('ResultsTableCtrl', ['$scope', '$modal', 'ObservationService', 'ObservationHeadingService',
-function ($scope, $modal, ObservationService, ObservationHeadingService) {
+angular.module('patientviewApp').controller('ResultsTableCtrl', ['$scope', '$modal', '$filter', 'ObservationService', 'ObservationHeadingService',
+function ($scope, $modal, $filter, ObservationService, ObservationHeadingService) {
 
     $scope.init = function() {
         var i;
+        $scope.initFinished = false;
         $scope.itemsPerPage = 20;
         $scope.currentPage = 0;
         $scope.loading = true;
         $scope.observationHeadingCodes = [];
+        $scope.observationHeadingMap = [];
 
         ObservationHeadingService.getAvailableObservationHeadings($scope.loggedInUser.id)
             .then(function(observationHeadings) {
                 if (observationHeadings.length > 0) {
                     $scope.observationHeadings = observationHeadings;
                     $scope.selectedCode = $scope.observationHeadings[0].code;
+                    for (i = 0; i < $scope.observationHeadings.length; i++) {
+                        $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
+
+                        if ($scope.observationHeadings[i].defaultPanel === 1
+                            && $scope.observationHeadings[i].defaultPanelOrder < 4) {
+                            $scope.observationHeadingCodes.push($scope.observationHeadings[i].code);
+                        }
+                    }
                 }
+                getObservations();
+                $scope.initFinished = true;
                 $scope.loading = false;
         }, function() {
             alert('Error retrieving result types');
@@ -32,35 +44,71 @@ function ($scope, $modal, ObservationService, ObservationHeadingService) {
 
     };
 
+    // update page when currentPage is changed
+    $scope.$watch('currentPage', function(value) {
+        if ($scope.initFinished === true) {
+            $scope.currentPage = value;
+            getObservations();
+        }
+    });
+
     $scope.includeObservationHeading = function(code) {
         if ($.inArray(code, $scope.observationHeadingCodes) === -1) {
             $scope.observationHeadingCodes.push(code);
+            getObservations();
         }
+    };
 
+    $scope.removeObservationHeading = function(code) {
+        $scope.observationHeadingCodes.splice($scope.observationHeadingCodes.indexOf(code), 1);
         getObservations();
     };
 
     var getObservations = function () {
         $scope.loading = true;
-
+        var i;
         var offset = $scope.currentPage * $scope.itemsPerPage;
 
-        ObservationService.getByCodes($scope.loggedInUser.id, $scope.observationHeadingCodes, $scope.itemsPerPage, offset)
-            .then(function(observationsPage) {
-            var data = observationsPage.data;
-            $scope.total = observationsPage.totalElements;
-            $scope.totalPages = observationsPage.totalPages;
+        if ($scope.observationHeadingCodes.length) {
+            ObservationService.getByCodes($scope.loggedInUser.id, $scope.observationHeadingCodes, $scope.itemsPerPage, offset)
+            .then(function (observationsPage) {
+                var data = observationsPage.data;
+                $scope.total = observationsPage.totalElements;
+                $scope.totalPages = observationsPage.totalPages;
 
-            // convert from map to something suitable for display
+                var pagedItems = [];
+                var count = 0;
 
+                // convert from map to something suitable for display
+                for (var key in data) {
+                    var row = [];
+                    var value = data[key];
+
+                    row[0] = $filter('date')(key, 'dd-MMM-yyyy');
+                    for (i = 0; i < $scope.observationHeadingCodes.length; i++) {
+                        var code = $scope.observationHeadingCodes[i].toUpperCase();
+                        if (value[code] !== undefined) {
+                            row[i + 1] = value[code];
+                        } else {
+                            row[i + 1] = null;
+                        }
+                    }
+                    pagedItems[count] = row;
+                    count = count + 1;
+                }
+
+                $scope.pagedItems = pagedItems;
+                $scope.loading = false;
+            }, function () {
+                alert('Error retrieving results');
+                $scope.loading = false;
+            });
+        } else {
             $scope.loading = false;
-        }, function() {
-            alert('Error retrieving results');
-            $scope.loading = false;
-        });
+        }
     };
 
-    $scope.openObservationHeadingInformation = function (result) {
+    $scope.openObservationHeadingInformation = function (code) {
 
         var modalInstance = $modal.open({
             templateUrl: 'views/partials/observationHeadingInfoModal.html',
@@ -69,7 +117,7 @@ function ($scope, $modal, ObservationService, ObservationHeadingService) {
             windowClass: 'results-modal',
             resolve: {
                 result: function(){
-                    return result;
+                    return $scope.observationHeadingMap[code];
                 }
             }
         });

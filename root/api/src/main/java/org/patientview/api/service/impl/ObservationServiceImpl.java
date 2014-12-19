@@ -54,6 +54,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -198,7 +199,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         query.append("AND UPPER(content-> 'name' ->> 'text') IN (");
         query.append(codeString);
         query.append(") ");
-        query.append("ORDER BY content-> 'appliesDateTime' ");
+        query.append("ORDER BY content-> 'appliesDateTime' DESC");
 
         List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
 
@@ -224,7 +225,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         }
 
         // reduce to page size and offset
-        Map<Long, Map<String, org.patientview.api.model.FhirObservation>> output = new TreeMap<>();
+        Map<Long, Map<String, org.patientview.api.model.FhirObservation>> output = new TreeMap<>(Collections.reverseOrder());
         Long count = 0L;
         for (Map.Entry<Long, Map<String, org.patientview.api.model.FhirObservation>> entry : tempMap.entrySet()) {
             if (count >= offset && count < (offset + limit)) {
@@ -233,6 +234,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             count++;
         }
 
+        //tempMap = new TreeMap(Collections.)
         int pages = ((tempMap.entrySet().size() - 1) / limit.intValue()) + 1;
 
         return new FhirObservationPage(output, Long.valueOf(tempMap.entrySet().size()), Long.valueOf(pages));

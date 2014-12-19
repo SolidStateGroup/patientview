@@ -1,3 +1,21 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+    .info-link {
+        color: #00adc6;
+        font-size: 12px;
+        font-weight: normal;
+    }
+</style>
+
 <div data-ng-show="!loading">
 
     <h1 class="clearfix">
@@ -22,17 +40,21 @@
                             data-ng-change="includeObservationHeading(selectedCode)" >
                     </select>
                 </div>
-                <div class="col-md-6">
-                    <ul class="unstyled pull-left filter-tags-container">
-                        <li class="all-groups-tag pull-left" data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)">
-                            <span class="label label-info">{{group.name}}</span>&nbsp;
+                <div class="col-md-10">
+                    <ul class="feature-list unstyled name-action-list">
+                        <li class="feature-list-item" data-ng-repeat="code in observationHeadingCodes">
+                            <div class="feature-list-name pull-left">
+                                <span class="feature-list-name">{{observationHeadingMap[code].heading}}</span>
+                            </div>
+                            <div class="feature-list-delete pull-left">
+                                <a href="" data-ng-click="removeObservationHeading(code)" >
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </a>
+                            </div>
                         </li>
-                        <li class="all-groups-tag pull-left">TEST</li>
                     </ul>
                 </div>
             </div>
-
-
         </div>
         <div class="content-inner clearfix" data-ng-show="!observationHeadings.length">
             <div class="row">
@@ -43,19 +65,28 @@
         </div>
     </div>
 
-    <div class="content-panel">
+    <div class="content-panel" data-ng-show="observationHeadingCodes.length">
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <th>Date</th>
-                    <th>eee</th>
-                    <th>fff</th>
+                    <th data-ng-repeat="code in observationHeadingCodes">
+                        {{observationHeadingMap[code].heading}} &nbsp;
+                        <a href="" data-ng-click="openObservationHeadingInformation(code)">
+                            <span class="info-link">About</span>
+                        </a>
+                    </th>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>12.12.12</td>
-                        <td>1</td>
-                        <td>2</td>
+                    <tr data-ng-repeat="row in pagedItems track by $index">
+                        <td data-ng-repeat="item in row track by $index">
+                            <span ng-if="item === row[0]">
+                                {{item}}
+                            </span>
+                            <span ng-if="item !== row[0]">
+                                {{item.value}}
+                            </span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
