@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('ResultsDetailCtrl',['$scope', '$routeParams', '$location',
-    'ObservationHeadingService', 'ObservationService', '$modal', '$timeout',
-function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, $modal, $timeout) {
+    'ObservationHeadingService', 'ObservationService', '$modal', '$timeout', '$filter',
+function ($scope, $routeParams, $location, ObservationHeadingService, ObservationService, $modal, $timeout, $filter) {
 
     $scope.init = function() {
         $scope.loading = true;
@@ -12,7 +12,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             $location.path('/results');
         }
 
-        // handle single result type from query parameter, todo: multiple result types
+        // handle single result type from query parameter
         var code = $routeParams.code;
 
         if (code instanceof Array) {
@@ -236,9 +236,12 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         $scope.tableObservationsKey = [];
 
         for (var i=0;i<$scope.observations.length;i++) {
-            if (start <= $scope.observations[i].applies && end >= $scope.observations[i].applies) {
-                $scope.tableObservations.push($scope.observations[i]);
-                $scope.tableObservationsKey[$scope.observations[i].applies] = $scope.tableObservations.length - 1;
+            var observation = $scope.observations[i];
+            if (start <= observation.applies && end >= observation.applies) {
+                observation.appliesFormatted = $filter('date')(observation.applies, 'dd-MMM-yyyy HH:mm');
+                observation.appliesFormatted = observation.appliesFormatted.replace(' 00:00', '');
+                $scope.tableObservations.push(observation);
+                $scope.tableObservationsKey[observation.applies] = $scope.tableObservations.length - 1;
             }
         }
 
