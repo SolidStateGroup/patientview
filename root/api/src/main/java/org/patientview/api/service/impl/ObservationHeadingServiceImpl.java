@@ -20,6 +20,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
+import org.patientview.persistence.repository.UserObservationHeadingRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +38,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +55,9 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     private ObservationHeadingRepository observationHeadingRepository;
+
+    @Inject
+    private UserObservationHeadingRepository userObservationHeadingRepository;
 
     @Inject
     private ObservationHeadingGroupRepository observationHeadingGroupRepository;
@@ -273,6 +278,71 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         return observationHeadings;
+    }
+
+    @Override
+    public void saveObservationHeadingSelection(Long userId, String[] codes) throws ResourceNotFoundException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        if (user.getUserObservationHeadings() == null) {
+            user.setUserObservationHeadings(new HashSet<UserObservationHeading>());
+        }
+
+        // create objects from codes passed in
+        Set<UserObservationHeading> userObservationHeadingsToAdd = new HashSet<>();
+        for (String code : codes) {
+            // should only return one
+            List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode(code);
+            if (CollectionUtils.isEmpty(observationHeadings)) {
+                throw new ResourceNotFoundException("Could not find observation heading");
+            }
+
+            UserObservationHeading userObservationHeading
+                    = new UserObservationHeading(user, observationHeadings.get(0));
+            userObservationHeading.setCreated(new Date());
+            userObservationHeading.setCreator(user);
+            userObservationHeadingsToAdd.add(userObservationHeading);
+        }
+
+        // get to delete (current - ones passed in)
+        Set<UserObservationHeading> userObservationHeadingsToDelete
+                = new HashSet<>(user.getUserObservationHeadings());
+        Set<UserObservationHeading> dontDelete = new HashSet<>();
+        for (UserObservationHeading userObservationHeading : userObservationHeadingsToDelete) {
+            for (UserObservationHeading userObservationHeading1 : userObservationHeadingsToAdd) {
+                if (userObservationHeading.getObservationHeading().getCode().equals(
+                        userObservationHeading1.getObservationHeading().getCode())) {
+                    dontDelete.add(userObservationHeading);
+                }
+            }
+        }
+        userObservationHeadingsToDelete.removeAll(dontDelete);
+
+        // only add if not already present
+        for (UserObservationHeading toAdd : userObservationHeadingsToAdd) {
+            boolean found = false;
+            for (UserObservationHeading existing : user.getUserObservationHeadings()) {
+                if (existing.getObservationHeading().getCode().equals(toAdd.getObservationHeading().getCode())) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                user.getUserObservationHeadings().add(toAdd);
+            }
+        }
+
+        // manage deletion
+        for (UserObservationHeading toDelete : userObservationHeadingsToDelete) {
+            userObservationHeadingRepository.delete(toDelete.getId());
+        }
+        user.getUserObservationHeadings().removeAll(userObservationHeadingsToDelete);
+
+        // save updated user
+        userRepository.save(user);
     }
 
     public void delete(final Long observationHeadingId) {

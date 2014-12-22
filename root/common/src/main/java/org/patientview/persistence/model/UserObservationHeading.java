@@ -30,6 +30,11 @@ public class UserObservationHeading extends SimpleAuditModel {
     public UserObservationHeading() {
     }
 
+    public UserObservationHeading(User user, ObservationHeading observationHeading) {
+        this.user = user;
+        this.observationHeading = observationHeading;
+    }
+
     public User getUser() {
         return user;
     }

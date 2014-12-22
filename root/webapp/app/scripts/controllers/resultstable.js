@@ -32,7 +32,6 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
                 }
                 getSavedObservationHeadings();
                 $scope.initFinished = true;
-                $scope.loading = false;
         }, function() {
             alert('Error retrieving result types');
         });
@@ -51,12 +50,23 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
         if ($.inArray(code, $scope.observationHeadingCodes) === -1) {
             $scope.observationHeadingCodes.push(code);
             getObservations();
+            saveObservationHeadingSelection();
         }
     };
 
     $scope.removeObservationHeading = function(code) {
         $scope.observationHeadingCodes.splice($scope.observationHeadingCodes.indexOf(code), 1);
         getObservations();
+        saveObservationHeadingSelection();
+    };
+
+    var saveObservationHeadingSelection = function() {
+        ObservationHeadingService.saveObservationHeadingSelection($scope.loggedInUser.id, $scope.observationHeadingCodes)
+            .then(function (observationHeadings) {
+            }, function () {
+                alert('Could not save observation heading selection');
+                $scope.loading = false;
+            });
     };
 
     var getSavedObservationHeadings = function () {
@@ -71,7 +81,7 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
                 getObservations();
                 $scope.loading = false;
             }, function () {
-                alert('Error retrieving results');
+                alert('Error retrieving observation headings');
                 $scope.loading = false;
             });
     };

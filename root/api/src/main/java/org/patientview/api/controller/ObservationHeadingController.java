@@ -111,4 +111,12 @@ public class ObservationHeadingController extends BaseController<ObservationHead
             throws ResourceNotFoundException, FhirResourceException {
         return new ResponseEntity<>(observationHeadingService.getSavedObservationHeadings(userId), HttpStatus.OK);
     }
+
+    // Store user's selection of observation headings (used in table view)
+    @RequestMapping(value = "/user/{userId}/saveobservationheadingselection", method = RequestMethod.POST)
+    @ResponseBody
+    public void saveObservationHeadingSelection(@PathVariable("userId") Long userId, @RequestBody String[] codes)
+            throws ResourceNotFoundException {
+        observationHeadingService.saveObservationHeadingSelection(userId, codes);
+    }
 }

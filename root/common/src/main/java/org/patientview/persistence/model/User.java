@@ -86,7 +86,7 @@ public class User extends RangeModel implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     private Set<ConversationUser> conversationUsers;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private Set<UserObservationHeading> userObservationHeadings;
 
     @Column(name = "last_login")
