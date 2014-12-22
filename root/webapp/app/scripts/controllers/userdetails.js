@@ -230,7 +230,7 @@ function ($scope, UserService, IdentifierService) {
                         form.$setDirty(true);
                     }
                 }, function (failure) {
-                    alert('Error: ' + failure.data);
+                    alert(failure.data);
                 });
             } else {
                 alert('An Identifier of this type already exists for this user');
@@ -267,7 +267,7 @@ function ($scope, UserService, IdentifierService) {
                 }
             });
         }, function (failure) {
-            alert("Error: " + failure.data);
+            alert(failure.data);
         });
     };
 

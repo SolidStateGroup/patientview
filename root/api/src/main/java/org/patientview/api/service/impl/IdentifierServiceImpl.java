@@ -123,7 +123,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
         if (!CollectionUtils.isEmpty(entityIdentifiers)) {
             if (!(user.getId().equals(entityIdentifiers.get(0).getUser().getId()))) {
-                throw new EntityExistsException("Identifier already exists for another patient");
+                throw new EntityExistsException("A patient with that identifier is already on the system");
             }
         }
 
@@ -171,12 +171,12 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             if (!CollectionUtils.isEmpty(entityIdentifiers)) {
                 for(Identifier entityIdentifier : entityIdentifiers) {
                     if (!entityIdentifier.getUser().getId().equals(userId)) {
-                        throw new EntityExistsException("Identifier already exists");
+                        throw new EntityExistsException("A patient with that identifier is already on the system");
                     }
                 }
             }
         } catch (NonUniqueResultException nure) {
-            throw new EntityExistsException("Identifier already exists");
+            throw new EntityExistsException("A patient with that identifier is already on the system");
         }
 
         if (!dummy) {
