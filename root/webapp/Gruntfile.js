@@ -426,7 +426,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'development',
                         apiEndpoint: 'http://patientview201.apiary-mock.com/api',
-                        reCaptchaPublicKey: ''
+                        reCaptchaPublicKey: '',
+                        buildDateTime: Date.now()
                     }
                 }
             },
@@ -438,7 +439,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api',
-                        reCaptchaPublicKey: ''
+                        reCaptchaPublicKey: '',
+                        buildDateTime: Date.now()
                     }
                 }
             },
@@ -450,7 +452,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://localhost:' + port + '/api',
-                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH'
+                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH',
+                        buildDateTime: Date.now()
                     }
                 }
             },
@@ -462,7 +465,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: '/api',
-                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH'
+                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH',
+                        buildDateTime: Date.now()
                     }
                 }
             },
@@ -474,7 +478,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://10.0.2.2:8080/api',
-                        reCaptchaPublicKey: ''
+                        reCaptchaPublicKey: '',
+                        buildDateTime: Date.now()
                     }
                 }
             },
@@ -486,7 +491,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'development',
                         apiEndpoint: 'http://patientview201.apiary-mock.com/api',
-                        reCaptchaPublicKey: ''
+                        reCaptchaPublicKey: '',
+                        buildDateTime: Date.now()
                     }
                 }
             },
@@ -498,7 +504,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://localhost:8089/api',
-                        reCaptchaPublicKey: ''
+                        reCaptchaPublicKey: '',
+                        buildDateTime: Date.now()
                     }
                 }
             },
@@ -510,7 +517,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api',
-                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH'
+                        reCaptchaPublicKey: '6LcMwP4SAAAAAPEKLkaAAuJpv8H-AvyRm9s0vNEH',
+                        buildDateTime: Date.now()
                     }
                 }
             },
@@ -522,7 +530,8 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'http://patientview2.staging.solidstategroup.com/api',
-                        reCaptchaPublicKey: ''
+                        reCaptchaPublicKey: '',
+                        buildDateTime: Date.now()
                     }
                 }
             }
