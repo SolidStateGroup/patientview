@@ -28,7 +28,7 @@ public class PractitionerBuilder {
 
         if (gp != null) {
             HumanName humanName = new HumanName();
-            humanName.addFamilySimple(gp.getGpname());
+            humanName.addFamilySimple(gp.getGpname().replace("'","''"));
             Enumeration<HumanName.NameUse> nameUse = new Enumeration<>(HumanName.NameUse.usual);
             humanName.setUse(nameUse);
             practitioner.setName(humanName);
