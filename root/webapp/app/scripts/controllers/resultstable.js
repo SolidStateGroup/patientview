@@ -28,14 +28,9 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
                     $scope.selectedCode = $scope.observationHeadings[0].code;
                     for (i = 0; i < $scope.observationHeadings.length; i++) {
                         $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
-
-                        if ($scope.observationHeadings[i].defaultPanel === 1
-                            && $scope.observationHeadings[i].defaultPanelOrder < 4) {
-                            $scope.observationHeadingCodes.push($scope.observationHeadings[i].code);
-                        }
                     }
                 }
-                getObservations();
+                getSavedObservationHeadings();
                 $scope.initFinished = true;
                 $scope.loading = false;
         }, function() {
@@ -62,6 +57,23 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
     $scope.removeObservationHeading = function(code) {
         $scope.observationHeadingCodes.splice($scope.observationHeadingCodes.indexOf(code), 1);
         getObservations();
+    };
+
+    var getSavedObservationHeadings = function () {
+        var i;
+        $scope.loading = true;
+        ObservationHeadingService.getSavedObservationHeadings($scope.loggedInUser.id)
+            .then(function (observationHeadings) {
+                for (i = 0; i < observationHeadings.length; i++) {
+                    $scope.observationHeadingCodes.push(observationHeadings[i].code)
+                }
+
+                getObservations();
+                $scope.loading = false;
+            }, function () {
+                alert('Error retrieving results');
+                $scope.loading = false;
+            });
     };
 
     var getObservations = function () {

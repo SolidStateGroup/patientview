@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -58,5 +59,9 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     @UserOnly
     List<ObservationHeading> getAvailableObservationHeadings(Long userId)
+            throws ResourceNotFoundException, FhirResourceException;
+
+    @UserOnly
+    Set<ObservationHeading> getSavedObservationHeadings(Long userId)
             throws ResourceNotFoundException, FhirResourceException;
 }

@@ -12,6 +12,16 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
             });
             return deferred.promise;
         },
+        getSavedObservationHeadings: function(userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/savedobservationheadings
+            Restangular.one('user', userId).customGET('savedobservationheadings').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getAll: function (getParameters) {
             var deferred = $q.defer();
             // GET /observationheading?page=0&size=5&sortDirection=ASC&sortField=code

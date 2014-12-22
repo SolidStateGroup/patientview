@@ -569,6 +569,16 @@ CREATE TABLE PV_Fhir_Link
   PRIMARY KEY (Id)
 );
 
+CREATE TABLE PV_User_Observation_Heading
+(
+  Id                          BIGINT       NOT NULL,
+  User_Id                     BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Observation_Heading_Id      BIGINT       REFERENCES PV_Observation_Heading (Id) NOT NULL,
+  Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date               TIMESTAMP    NOT NULL,
+  PRIMARY KEY (Id)
+)
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

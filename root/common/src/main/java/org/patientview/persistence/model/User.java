@@ -86,6 +86,9 @@ public class User extends RangeModel implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     private Set<ConversationUser> conversationUsers;
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    private Set<UserObservationHeading> userObservationHeadings;
+
     @Column(name = "last_login")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLogin;
@@ -318,5 +321,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public Set<UserObservationHeading> getUserObservationHeadings() {
+        return userObservationHeadings;
+    }
+
+    public void setUserObservationHeadings(Set<UserObservationHeading> userObservationHeadings) {
+        this.userObservationHeadings = userObservationHeadings;
     }
 }

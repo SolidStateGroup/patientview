@@ -13,6 +13,8 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ObservationHeadingGroup;
 import org.patientview.persistence.model.ResultCluster;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.UserObservationHeading;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
@@ -33,6 +35,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +69,9 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Inject
     @Named("fhir")
     private DataSource dataSource;
+
+    private static final Long FIRST_PANEL = 1l;
+    private static final Long DEFAULT_COUNT = 3l;
 
     public ObservationHeading add(final ObservationHeading observationHeading) {
         if (observationHeadingExists(observationHeading)) {
@@ -215,6 +222,53 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
                     throw new FhirResourceException(e);
                 }
+            }
+        }
+
+        return observationHeadings;
+    }
+
+    @Override
+    public Set<ObservationHeading> getSavedObservationHeadings(Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<ObservationHeading> availableObservationHeadings = getAvailableObservationHeadings(userId);
+        Set<ObservationHeading> observationHeadings = new HashSet<>();
+
+        if (CollectionUtils.isEmpty(user.getUserObservationHeadings())) {
+            // get list of visible specialties for user and get top 3 observation headings
+            for (Group group : Util.convertIterable(groupRepository.findGroupByUser(user))) {
+                if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                    List<ObservationHeadingGroup> observationHeadingGroups
+                            = observationHeadingGroupRepository.findByGroup(group);
+
+                    // sort by panel order
+                    Collections.sort(observationHeadingGroups, new Comparator<ObservationHeadingGroup>() {
+                        @Override
+                        public int compare(ObservationHeadingGroup ohg1, ObservationHeadingGroup ohg2) {
+                            return ohg1.getPanelOrder().compareTo(ohg2.getPanelOrder());
+                        }
+                    });
+
+                    for (ObservationHeadingGroup observationHeadingGroup : observationHeadingGroups) {
+                        if (observationHeadingGroup.getPanel().equals(FIRST_PANEL)
+                                && observationHeadings.size() < DEFAULT_COUNT) {
+                            ObservationHeading observationHeading = observationHeadingGroup.getObservationHeading();
+                            if (availableObservationHeadings.contains(observationHeading)) {
+                                observationHeadings.add(observationHeading);
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            for (UserObservationHeading userObservationHeading : user.getUserObservationHeadings()) {
+                observationHeadings.add(userObservationHeading.getObservationHeading());
             }
         }
 

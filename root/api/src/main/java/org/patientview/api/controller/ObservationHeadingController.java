@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Restful interface for the basic Crud operation for observation (result) headings.
@@ -100,5 +101,14 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     public ResponseEntity<List<ObservationHeading>> getAvailableObservationHeadings(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, FhirResourceException {
         return new ResponseEntity<>(observationHeadingService.getAvailableObservationHeadings(userId), HttpStatus.OK);
+    }
+
+    // Get saved result types for user (used in table view)
+    @RequestMapping(value = "/user/{userId}/savedobservationheadings", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Set<ObservationHeading>> getSavedObservationHeadings(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
+        return new ResponseEntity<>(observationHeadingService.getSavedObservationHeadings(userId), HttpStatus.OK);
     }
 }
