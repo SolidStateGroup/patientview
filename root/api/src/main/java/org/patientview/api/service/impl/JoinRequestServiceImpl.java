@@ -138,21 +138,12 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         email.setSenderName(properties.getProperty("smtp.sender.name"));
         email.setSubject("PatientView - Join Request");
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
-        String date = sdf.format(joinRequest.getDateOfBirth());
-
         StringBuilder body = new StringBuilder();
         body.append("Dear Sir/Madam, <br/><br/>");
         body.append("A patient has made a request on the website to join <a href=\"");
         body.append(properties.getProperty("site.url"));
-        body.append("\">PatientView</a> with the following details: ");
-        body.append("<br/><br/>Forename: ").append(joinRequest.getForename());
-        body.append("<br/>Surname: ").append(joinRequest.getSurname());
-        body.append("<br/>Date of Birth: ").append(date);
-        body.append("<br/>NHS Number: ").append(joinRequest.getNhsNumber());
-        body.append("<br/>Email Address: ").append(joinRequest.getEmail());
-        body.append("<br/>Associated Unit: ").append(joinRequest.getGroup().getName());
-        body.append("<br/><br/> Please verify these details and follow up this request with the patient using your ");
+        body.append("\">PatientView</a>.");
+        body.append("<br/><br/> Please follow up this request with the patient using your ");
         body.append("usual process to consent and add patients to PatientView.");
 
         email.setBody(body.toString());
