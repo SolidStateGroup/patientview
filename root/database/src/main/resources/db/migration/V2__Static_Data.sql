@@ -54,6 +54,10 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (31, now(), 'APPOINTMENT_EMAIL','Appointment Email','1','9');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (32, now(), 'OUT_OF_HOURS_INFO','Out of Hours Information','1','9');
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (33, now(), 'PUBLIC','Public','1','3');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (47, now(), 'HSC_NUMBER','H&SC Number','1','8');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (48, now(), 'HOSPITAL_NUMBER','Hospital Number','1','8');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (49, now(), 'RADAR_NUMBER','Radar Number','1','8');
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (57, now(), 'NON_UK_UNIQUE','Non UK Unique Identifier','1','8');
 
 /* Group Statistics (see AuditActions.java) */
 
@@ -136,10 +140,6 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (56, now(),
 'USER_COUNT','SELECT COUNT(DISTINCT(user_id)) FROM pv_user_group_role WHERE group_id = :groupId','1','10');
-
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (47, now(), 'HSC_NUMBER','H&SC Number','1','8');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (48, now(), 'HOSPITAL_NUMBER','Hospital Number','1','8');
-INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (49, now(), 'RADAR_NUMBER','Radar Number','1','8');
 
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (1, 'Generic', 'Generic', 'Generic', null, 2, false, now(),1, false );
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (2, 'Renal', 'Renal', 'Renal', null, 2, true, now(),1 , true);

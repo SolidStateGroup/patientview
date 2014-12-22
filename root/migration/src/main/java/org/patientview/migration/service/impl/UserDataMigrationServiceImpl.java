@@ -11,7 +11,6 @@ import org.patientview.migration.util.exception.JsonMigrationExistsException;
 import org.patientview.model.Patient;
 import org.patientview.patientview.model.Aboutme;
 import org.patientview.patientview.model.Diagnosis;
-import org.patientview.patientview.model.Diagnostic;
 import org.patientview.patientview.model.EmailVerification;
 import org.patientview.patientview.model.EyeCheckup;
 import org.patientview.patientview.model.FootCheckup;
@@ -20,7 +19,6 @@ import org.patientview.patientview.model.Medicine;
 import org.patientview.patientview.model.SpecialtyUserRole;
 import org.patientview.patientview.model.UktStatus;
 import org.patientview.patientview.model.UserMapping;
-import org.patientview.patientview.model.enums.DiagnosticType;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirContact;
@@ -463,7 +461,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         Long NHS_NUMBER_END = 9000000000L;
 
         try {
-
             // if non numeric then assume is dummy and return type as NHS number
             if (!NumberUtils.isNumber(identifier)) {
                 return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
@@ -485,11 +482,11 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 }
 
                 // others outside range assume dummy and return type as NHS number
-                return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+                return getLookupByName(IdentifierTypes.NON_UK_UNIQUE.toString());
             }
         } catch (Exception e) {
             LOG.error("Identifier type exception with '" + identifier + "'");
-            return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
+            return getLookupByName(IdentifierTypes.NON_UK_UNIQUE.toString());
         }
     }
 
@@ -1176,7 +1173,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 /*FhirIdentifier radarNumber = new FhirIdentifier();
                 radarNumber.setValue("radar" + time.toString());
-                radarNumber.setLabel(IdentifierTypes.RADAR_NUMBER.toString());
+                radarNumber.setLabel(IdentifierTypes.NON_UK_UNIQUE.toString());
                 patient.getIdentifiers().add(radarNumber);*/
 
                     // - practitioner (gp)

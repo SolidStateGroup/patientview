@@ -9,7 +9,8 @@ public enum IdentifierTypes {
     CHI_NUMBER("CHI Number"),
     HSC_NUMBER("H&SC Number"),
     HOSPITAL_NUMBER("Hospital Number"),
-    RADAR_NUMBER("RADAR Number");
+    RADAR_NUMBER("RADAR Number"),
+    NON_UK_UNIQUE("Non UK Unique Identifier");
 
     private String name;
     IdentifierTypes(String name) { this.name = name; }
