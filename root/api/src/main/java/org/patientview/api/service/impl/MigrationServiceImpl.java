@@ -330,7 +330,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                 while ((results.next())) {
                                     String testcode = results.getString(1)
                                             .replace("\"","").replace("}","").replace("{","").replace(",","").replace("'","");
-                                    Date datestamp = results.getDate(2);
+                                    Date datestamp = results.getTimestamp(2);
                                     String prepost = results.getString(3)
                                             .replace("\"","").replace("}","").replace("{","").replace(",","").replace("'","");
                                     String value = results.getString(4)
