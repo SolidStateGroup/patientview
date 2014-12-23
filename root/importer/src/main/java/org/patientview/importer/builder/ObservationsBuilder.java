@@ -1,6 +1,7 @@
 package org.patientview.importer.builder;
 
 import generated.Patientview;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
@@ -399,7 +400,7 @@ public class ObservationsBuilder {
     private CodeableConcept createConcept(Patientview.Patient.Testdetails.Test test) {
         CodeableConcept codeableConcept = new CodeableConcept();
         codeableConcept.setTextSimple(test.getTestcode().value());
-        codeableConcept.addCoding().setDisplaySimple(test.getTestname());
+        codeableConcept.addCoding().setDisplaySimple(StringEscapeUtils.escapeSql(test.getTestname()));
         return codeableConcept;
     }
 
