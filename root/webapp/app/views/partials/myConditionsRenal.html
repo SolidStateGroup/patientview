@@ -58,6 +58,10 @@
                         <td>
                             <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.encounterType === 'TREATMENT'">
                                 {{encounter.status}}
+                                <br data-ng-show="encounter.links.length"/>
+                                <span data-ng-repeat="link in encounter.links">
+                                    <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
+                                </span>
                             </span>
                         </td>
                     </tr>

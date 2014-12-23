@@ -2,6 +2,8 @@ package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.Encounter;
 
+import java.util.Set;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 08/09/2014
@@ -20,6 +22,9 @@ public class FhirEncounter extends BaseModel {
     // only used during migration
     private String identifier;
     private Group group;
+
+    // used during display in UI
+    Set<Link> links;
 
     public FhirEncounter() {
     }
@@ -63,5 +68,13 @@ public class FhirEncounter extends BaseModel {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    public Set<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(Set<Link> links) {
+        this.links = links;
     }
 }

@@ -270,6 +270,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
 
             if (!codes.isEmpty()) {
                 fhirEncounter.setStatus(codes.get(0).getDescription());
+                fhirEncounter.setLinks(codes.get(0).getLinks());
             }
 
             if (fhirEncounter.getEncounterType().contains("TRANSPLANT")) {
