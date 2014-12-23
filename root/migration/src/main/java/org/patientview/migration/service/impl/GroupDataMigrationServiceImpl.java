@@ -791,7 +791,7 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
         // basic details
         group.setName(unit.getName());
         group.setShortName(unit.getShortname());
-        group.setCode(unit.getUnitcode());
+        group.setCode(unit.getUnitcode().toUpperCase());
         group.setVisibleToJoin(unit.isVisible());
         group.setVisible(true);
 
