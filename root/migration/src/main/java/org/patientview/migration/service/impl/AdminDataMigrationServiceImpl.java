@@ -1,7 +1,6 @@
 package org.patientview.migration.service.impl;
 
 import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
@@ -13,7 +12,6 @@ import org.patientview.patientview.model.EdtaCode;
 import org.patientview.patientview.model.ResultHeading;
 import org.patientview.patientview.model.SpecialtyResultHeading;
 import org.patientview.persistence.model.Code;
-import org.patientview.persistence.model.ContactPointType;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.Group;
 import org.patientview.patientview.model.JoinRequest;
@@ -121,20 +119,6 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         }
 
         return newObservationHeading;
-    }
-
-    private ContactPointType callApiGetType(String type) {
-        ContactPointType newLink = null;
-        String url = JsonUtil.pvUrl + "/contactpoint/type/" + type;
-        try {
-            newLink = JsonUtil.jsonRequest(url, ContactPointType.class, null , HttpGet.class, true);
-        } catch (JsonMigrationException jme) {
-            LOG.error("Unable to get contact point: ", jme.getMessage());
-        } catch (JsonMigrationExistsException jee) {
-            LOG.error("Unable to get contact point: ", jee.getMessage());
-        }
-
-        return newLink;
     }
 
     private void sendDummyUnit() {

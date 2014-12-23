@@ -2,6 +2,7 @@ package org.patientview.importer.service.impl;
 
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -47,40 +48,45 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
     public UUID add(final Patientview data) throws FhirResourceException {
 
         LOG.info("Starting Practitioner Process");
-        PractitionerBuilder practitionerBuilder = new PractitionerBuilder(data);
 
-        try {
-            // build FHIR object
-            Practitioner importPractitioner = practitionerBuilder.build();
-            List<Map<String, UUID>> uuids = getUuidsByFamilyName(data.getGpdetails().getGpname());
+        if (data.getGpdetails() != null) {
+            try {
+                // build FHIR object
+                data.getGpdetails().setGpname(StringEscapeUtils.escapeSql(data.getGpdetails().getGpname()));
+                PractitionerBuilder practitionerBuilder = new PractitionerBuilder(data);
+                Practitioner importPractitioner = practitionerBuilder.build();
+                List<Map<String, UUID>> uuids = getUuidsByFamilyName(data.getGpdetails().getGpname());
 
-            if (!uuids.isEmpty()) {
-                // update existing FHIR entities (should be a single row), return reference
-                UUID updatedResourceId = null;
+                if (!uuids.isEmpty()) {
+                    // update existing FHIR entities (should be a single row), return reference
+                    UUID updatedResourceId = null;
 
-                for (Map<String, UUID> objectData : uuids) {
-                    try {
-                        updatedResourceId = objectData.get("logicalId");
-                        Resource practitioner = fhirResource.get(objectData.get("logicalId"), ResourceType.Practitioner);
-                        fhirResource.updateFhirObject(practitioner, objectData.get("logicalId"), objectData.get("versionId"));
-                    } catch (FhirResourceException e) {
-                        LOG.error("Could not update practitioner");
+                    for (Map<String, UUID> objectData : uuids) {
+                        try {
+                            updatedResourceId = objectData.get("logicalId");
+                            Resource practitioner = fhirResource.get(objectData.get("logicalId"), ResourceType.Practitioner);
+                            fhirResource.updateFhirObject(practitioner, objectData.get("logicalId"), objectData.get("versionId"));
+                        } catch (FhirResourceException e) {
+                            LOG.error("Could not update practitioner");
+                        }
                     }
+
+                    LOG.info("Existing Practitioner, " + updatedResourceId);
+                    return updatedResourceId;
+
+                } else {
+                    // create new FHIR object
+                    JSONObject jsonObject = create(importPractitioner);
+                    LOG.info("Processed new Practitioner");
+                    return Util.getResourceId(jsonObject);
                 }
 
-                LOG.info("Existing Practitioner, " + updatedResourceId);
-                return updatedResourceId;
-
-            } else {
-                // create new FHIR object
-                JSONObject jsonObject = create(importPractitioner);
-                LOG.info("Processed new Practitioner");
-                return Util.getResourceId(jsonObject);
+            } catch (FhirResourceException e) {
+                LOG.error("Unable to build practitioner");
+                throw e;
             }
-
-        } catch (FhirResourceException e) {
-            LOG.error("Unable to build practitioner");
-            throw e;
+        } else {
+            return null;
         }
     }
 

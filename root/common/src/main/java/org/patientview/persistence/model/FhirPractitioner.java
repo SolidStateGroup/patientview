@@ -29,7 +29,7 @@ public class FhirPractitioner extends BaseModel {
 
         // name stored in family name
         if (practitioner.getName() != null) {
-            setName(practitioner.getName().getFamily().get(0).getValue());
+            setName(practitioner.getName().getFamily().get(0).getValue().replace("''","'"));
         }
 
         // address from first record, if present
