@@ -542,7 +542,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             nhsNumber.setValue(pv1PatientRecord.getNhsno());
 
             // set label based on contents (NHS/CHI/H&SC
-            nhsNumber.setLabel(getIdentifierType(pv1PatientRecord.getNhsno()).toString());
+            nhsNumber.setLabel(getIdentifierType(pv1PatientRecord.getNhsno()).getValue());
             patient.getIdentifiers().add(nhsNumber);
         }
 
