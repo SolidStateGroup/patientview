@@ -19,6 +19,7 @@ import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserMigration;
+import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.MigrationStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.UserRepository;
@@ -319,10 +320,16 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
                             for (FhirLink fhirLink : fhirLinkRepository.findActiveByUser(user)) {
 
+                                // correctly transfer patient entered results
+                                String groupCode = fhirLink.getGroup().getCode();
+                                if (groupCode.equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+                                    groupCode = "PATIENT";
+                                }
+
                                 String query = "SELECT testcode, datestamp, prepost, value " +
                                         "FROM testresult " +
                                         "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier() +
-                                        "' AND unitcode = '" + fhirLink.getGroup().getCode() + "'";
+                                        "' AND unitcode = '" + groupCode + "'";
 
                                 java.sql.Statement statement = connection.createStatement();
                                 ResultSet results = statement.executeQuery(query);

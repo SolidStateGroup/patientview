@@ -422,6 +422,25 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 }
             }
         }
+
+        // add patient entered results fhirlink
+        Group patientEnteredResultsGroup = groupService.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
+        if (patientEnteredResultsGroup == null) {
+            throw new ResourceNotFoundException("Group for patient entered results does not exist");
+        }
+        Identifier identifier = entityUser.getIdentifiers().iterator().next();
+        Patient patient = buildPatient(entityUser, identifier);
+        JSONObject fhirPatient = fhirResource.create(patient);
+
+        FhirLink fhirLink = new FhirLink();
+        fhirLink.setUser(entityUser);
+        fhirLink.setIdentifier(identifier);
+        fhirLink.setGroup(patientEnteredResultsGroup);
+        fhirLink.setResourceId(FhirResource.getLogicalId(fhirPatient));
+        fhirLink.setVersionId(FhirResource.getVersionId(fhirPatient));
+        fhirLink.setResourceType(ResourceType.Patient.name());
+        fhirLink.setActive(true);
+        fhirLinkService.save(fhirLink);
     }
 
     // fast method, inserts observations in bulk after converting to correct JSON
