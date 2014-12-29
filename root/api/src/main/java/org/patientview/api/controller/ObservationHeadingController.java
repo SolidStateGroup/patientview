@@ -94,7 +94,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
         return new ResponseEntity<>(observationHeadingService.getResultClusters(), HttpStatus.OK);
     }
 
-    // Get available result types for user
+    // Get available result types for user (where results are currently available)
     @RequestMapping(value = "/user/{userId}/availableobservationheadings", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

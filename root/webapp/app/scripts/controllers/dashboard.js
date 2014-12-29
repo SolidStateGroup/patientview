@@ -215,5 +215,37 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
         });
     };
 
+
+    $scope.includeObservationHeading = function(code) {
+        if ($.inArray(code, $scope.observationHeadingCodes) === -1
+            && code !== $scope.blankCode) {
+            $scope.observationHeadingCodes.push(code);
+            getObservations();
+            saveObservationHeadingSelection();
+        }
+    };
+
+    var getAvailableObservationHeadings = function() {
+        ObservationHeadingService.getAvailableObservationHeadings($scope.loggedInUser.id)
+            .then(function(observationHeadings) {
+                if (observationHeadings.length > 0) {
+                    $scope.observationHeadingMap = [];
+                    var blankObservationHeading = {};
+                    blankObservationHeading.code = $scope.blankCode;
+                    blankObservationHeading.heading = ' Please Select..';
+                    observationHeadings.push(blankObservationHeading);
+                    $scope.observationHeadings = observationHeadings;
+                    $scope.selectedCode = 'blank';
+                    for (var i = 0; i < $scope.observationHeadings.length; i++) {
+                        $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
+                    }
+                }
+                getSavedObservationHeadings();
+                $scope.initFinished = true;
+            }, function() {
+                alert('Error retrieving result types');
+            });
+    };
+
     init();
 }]);
