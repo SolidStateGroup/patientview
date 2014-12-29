@@ -853,9 +853,17 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         }
 
         // address
-        if (StringUtils.isNotEmpty(fhirPatient.getAddress1())) {
+        if (StringUtils.isNotEmpty(fhirPatient.getAddress1())
+                || StringUtils.isNotEmpty(fhirPatient.getAddress2())
+                || StringUtils.isNotEmpty(fhirPatient.getAddress3())
+                || StringUtils.isNotEmpty(fhirPatient.getAddress4())
+                || StringUtils.isNotEmpty(fhirPatient.getPostcode())) {
+
             Address address = patient.addAddress();
-            address.addLineSimple(fhirPatient.getAddress1());
+
+            if (StringUtils.isNotEmpty(fhirPatient.getAddress1())) {
+                address.addLineSimple(fhirPatient.getAddress1());
+            }
             if (StringUtils.isNotEmpty(fhirPatient.getAddress2())) {
                 address.setCitySimple(fhirPatient.getAddress2());
             }
