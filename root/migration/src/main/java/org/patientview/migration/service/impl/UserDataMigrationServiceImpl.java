@@ -204,7 +204,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("--- Starting migration ---");
 
         // testing
-        Group group = getGroupByCode("RENALA");
+        Group group = getGroupByCode("RQ617");
 
         //for (Group group : groups) {
             LOG.info("(Migration) From Group: " + group.getCode());
