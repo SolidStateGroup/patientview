@@ -28,7 +28,8 @@ public interface ObservationService {
 
     @UserOnly
     @RoleOnly(roles = { RoleName.PATIENT })
-    FhirObservationPage getMultipleByCode(Long userId, List<String> codes, Long limit, Long offset)
+    FhirObservationPage getMultipleByCode(Long userId, List<String> codes, Long limit,
+                                          Long offset, String orderDirection)
             throws ResourceNotFoundException, FhirResourceException;
 
     @UserOnly

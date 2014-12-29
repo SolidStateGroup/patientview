@@ -35,10 +35,11 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
-        getByCodes: function (userId, codes, limit, offset) {
+        getByCodes: function (userId, codes, limit, offset, orderDirection) {
             var deferred = $q.defer();
             // GET /user/{userId}/observations
-            Restangular.one('user', userId).one('observations').get({'code':codes, 'limit':limit, 'offset':offset})
+            Restangular.one('user', userId).one('observations')
+                .get({'code':codes, 'limit':limit, 'offset':offset, 'orderDirection':orderDirection})
                 .then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {

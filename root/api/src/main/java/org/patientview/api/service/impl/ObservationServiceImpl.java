@@ -150,7 +150,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     }
 
     @Override
-    public FhirObservationPage getMultipleByCode(Long userId, List<String> codes, Long limit, Long offset)
+    public FhirObservationPage getMultipleByCode(Long userId, List<String> codes, Long limit,
+                                                 Long offset, String orderDirection)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -158,7 +159,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
+        if (!(orderDirection.equals("ASC") || orderDirection.equals("DESC"))) {
+            orderDirection = "DESC";
+        }
+
         StringBuilder codeString = new StringBuilder();
         StringBuilder fhirLinkString = new StringBuilder();
 
@@ -199,7 +203,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         query.append("AND UPPER(content-> 'name' ->> 'text') IN (");
         query.append(codeString);
         query.append(") ");
-        query.append("ORDER BY content-> 'appliesDateTime' DESC");
+        query.append("ORDER BY content-> 'appliesDateTime' ");
+        query.append(orderDirection);
 
         List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
 
@@ -224,19 +229,30 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                     new org.patientview.api.model.FhirObservation(fhirObservation));
         }
 
-        // reduce to page size and offset
-        Map<Long, Map<String, org.patientview.api.model.FhirObservation>> output = new TreeMap<>(Collections.reverseOrder());
-        Long count = 0L;
-        for (Map.Entry<Long, Map<String, org.patientview.api.model.FhirObservation>> entry : tempMap.entrySet()) {
-            if (count >= offset && count < (offset + limit)) {
-                output.put(entry.getKey(), entry.getValue());
+        // now reduce
+        Map<Long, Map<String, org.patientview.api.model.FhirObservation>> output;
+        ArrayList<Long> keys = new ArrayList<>(tempMap.keySet());
+        Long count = Long.valueOf(keys.size());
+
+        if (orderDirection.equals("DESC")) {
+            output = new TreeMap<>(Collections.reverseOrder());
+            for (int i=0; i<keys.size(); i++) {
+                if (count >= offset && count < (offset + limit)) {
+                    output.put(keys.get(i), tempMap.get(keys.get(i)));
+                }
+                count--;
             }
-            count++;
+        } else {
+            output = new TreeMap<>();
+            for (int i=keys.size() - 1; i>=0; i--) {
+                if (count >= offset && count < (offset + limit)) {
+                    output.put(keys.get(i), tempMap.get(keys.get(i)));
+                }
+                count--;
+            }
         }
 
-        //tempMap = new TreeMap(Collections.)
         int pages = ((tempMap.entrySet().size() - 1) / limit.intValue()) + 1;
-
         return new FhirObservationPage(output, Long.valueOf(tempMap.entrySet().size()), Long.valueOf(pages));
     }
 

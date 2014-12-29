@@ -14,18 +14,24 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
 
     $scope.init = function() {
         var i;
+        $scope.blankCode = 'blank';
         $scope.initFinished = false;
         $scope.itemsPerPage = 20;
         $scope.currentPage = 0;
         $scope.loading = true;
         $scope.observationHeadingCodes = [];
         $scope.observationHeadingMap = [];
+        $scope.orderDirection = 'DESC';
 
         ObservationHeadingService.getAvailableObservationHeadings($scope.loggedInUser.id)
             .then(function(observationHeadings) {
                 if (observationHeadings.length > 0) {
+                    var blankObservationHeading = {};
+                    blankObservationHeading.code = $scope.blankCode;
+                    blankObservationHeading.heading = ' Please Select..';
+                    observationHeadings.push(blankObservationHeading);
                     $scope.observationHeadings = observationHeadings;
-                    $scope.selectedCode = $scope.observationHeadings[0].code;
+                    $scope.selectedCode = 'blank';
                     for (i = 0; i < $scope.observationHeadings.length; i++) {
                         $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
                     }
@@ -46,8 +52,18 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
         }
     });
 
+    $scope.changeOrderDirection = function() {
+        if ($scope.orderDirection === 'ASC') {
+            $scope.orderDirection = 'DESC';
+        } else {
+            $scope.orderDirection = 'ASC';
+        }
+        getObservations();
+    };
+
     $scope.includeObservationHeading = function(code) {
-        if ($.inArray(code, $scope.observationHeadingCodes) === -1) {
+        if ($.inArray(code, $scope.observationHeadingCodes) === -1
+            && code !== $scope.blankCode) {
             $scope.observationHeadingCodes.push(code);
             getObservations();
             saveObservationHeadingSelection();
@@ -92,8 +108,8 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
         var offset = $scope.currentPage * $scope.itemsPerPage;
 
         if ($scope.observationHeadingCodes.length) {
-            ObservationService.getByCodes($scope.loggedInUser.id, $scope.observationHeadingCodes, $scope.itemsPerPage, offset)
-            .then(function (observationsPage) {
+            ObservationService.getByCodes($scope.loggedInUser.id, $scope.observationHeadingCodes, $scope.itemsPerPage,
+                offset, $scope.orderDirection).then(function (observationsPage) {
                 var data = observationsPage.data;
                 $scope.total = observationsPage.totalElements;
                 $scope.totalPages = observationsPage.totalPages;

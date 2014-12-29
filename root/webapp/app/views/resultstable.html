@@ -72,11 +72,14 @@
         <div class="table-responsive">
             <table class="table">
                 <thead>
-                    <th>Date</th>
+                    <th>
+                        <a href="" data-ng-click="changeOrderDirection()">
+                            Date
+                        </a>
+                    </th>
                     <th data-ng-repeat="code in observationHeadingCodes">
-                        {{observationHeadingMap[code].heading}} &nbsp;
                         <a href="" data-ng-click="openObservationHeadingInformation(code)">
-                            <span class="info-link">About</span>
+                            {{observationHeadingMap[code].heading}}
                         </a>
                     </th>
                 </thead>
