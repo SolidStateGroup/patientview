@@ -145,6 +145,11 @@ function ($scope, $timeout, $modal, AuditService) {
         $scope.currentPage = 0;
         $scope.getItems();
     };
+    $scope.removeSelectedGroup = function (group) {
+        $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
 
     // filter by audit action
     $scope.selectedAuditAction = [];
@@ -165,6 +170,11 @@ function ($scope, $timeout, $modal, AuditService) {
     };
     $scope.removeAllAuditActions = function () {
         $scope.selectedAuditAction = [];
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.removeSelectedAuditAction = function (auditAction) {
+        $scope.selectedAuditAction.splice($scope.selectedAuditAction.indexOf(auditAction), 1);
         $scope.currentPage = 0;
         $scope.getItems();
     };

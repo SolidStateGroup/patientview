@@ -206,6 +206,11 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         $scope.currentPage = 0;
         $scope.getItems();
     };
+    $scope.removeCodeType = function(type) {
+        $scope.selectedCodeType.splice($scope.selectedCodeType.indexOf(type.id), 1);
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
 
     // filter by standard type
     $scope.selectedStandardType = [];
@@ -227,6 +232,11 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
     };
     $scope.removeAllStandardTypes = function () {
         $scope.selectedStandardType = [];
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.removeStandardType = function(type) {
+        $scope.selectedStandardType.splice($scope.selectedStandardType.indexOf(type.id), 1);
         $scope.currentPage = 0;
         $scope.getItems();
     };

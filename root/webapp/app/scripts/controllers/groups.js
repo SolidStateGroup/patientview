@@ -327,6 +327,11 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
         $scope.selectedGroupType = [];
         $scope.getItems();
     };
+    $scope.removeGroupType = function(type) {
+        $scope.selectedGroupType.splice($scope.selectedGroupType.indexOf(type.id), 1);
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
 
     // Group opened for edit
     $scope.opened = function (openedGroup) {

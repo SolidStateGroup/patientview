@@ -95,6 +95,11 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
         $scope.currentPage = 0;
         $scope.getItems();
     };
+    $scope.removeSelectedStatus = function (status) {
+        $scope.selectedStatus.splice($scope.selectedGroup.indexOf(status), 1);
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
 
     // filter by group
     $scope.selectedGroup = [];
@@ -116,6 +121,11 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
     };
     $scope.removeAllSelectedGroup = function () {
         $scope.selectedGroup = [];
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.removeSelectedGroup = function (group) {
+        $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
         $scope.currentPage = 0;
         $scope.getItems();
     };

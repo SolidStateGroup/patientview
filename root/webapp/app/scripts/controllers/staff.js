@@ -257,7 +257,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.currentPage = 0;
         $scope.getItems();
     };
-        
+    $scope.removeSelectedGroup = function (group) {
+        $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+
     // filter users by role
     $scope.selectedRole = [];
     $scope.setSelectedRole = function () {
@@ -278,6 +283,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     };
     $scope.removeAllSelectedRole = function () {
         $scope.selectedRole = [];
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
+    $scope.removeSelectedRole = function (role) {
+        $scope.selectedRole.splice($scope.selectedRole.indexOf(role.id), 1);
         $scope.currentPage = 0;
         $scope.getItems();
     };

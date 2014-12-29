@@ -1,3 +1,15 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
 <h1 data-ng-show="!loading">Join Request Admin</h1>
 <p data-ng-show="!loading">To manage this request list, click Edit and pick a new status when you deal with each.
     Remember to click Save when you have changed a status.</p>
@@ -32,7 +44,7 @@
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                             <li><a data-ng-click="removeAllSelectedGroup()" class="a-filter-group"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
                             <li class="divider"></li>
-                            <li data-ng-repeat="group in allGroups | orderBy:[orderGroups,'name']">
+                            <li data-ng-repeat="group in allGroups | orderBy:[orderGroups,'name']" data-ng-show="group.groupType.value !== 'SPECIALTY'">
                                 <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
                                     <span class="pull-left">{{group.shortName}} ({{group.groupType.description}})</span>
                                     <span data-ng-class="isGroupChecked(group.id)"></span>
@@ -40,12 +52,36 @@
                             </li>
                         </ul>
                     </div>
-
                 </div>
-                <ul class="unstyled pull-left filter-tags-container">
-                    <li class="status-tag pull-left" data-ng-repeat="status in statuses" data-ng-show="isStatusChecked(status)"><span class="label label-info">{{status}}</span>&nbsp;</li>
-                    <li class="all-groups-tag pull-left" data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</li>
-                </ul>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="feature-list unstyled name-action-list">
+                            <li class="feature-list-item" data-ng-repeat="status in statuses"
+                                data-ng-show="isStatusChecked(status)">
+                                <div class="feature-list-name pull-left">
+                                    <span class="feature-list-name">{{status}}</span>
+                                </div>
+                                <div class="feature-list-delete pull-left">
+                                    <a href="" data-ng-click="removeSelectedStatus(status)" >
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="feature-list-item" data-ng-repeat="group in allGroups | orderBy:'name'"
+                                data-ng-show="isGroupChecked(group.id)">
+                                <div class="feature-list-name pull-left">
+                                    <span class="feature-list-name">{{group.name}}</span>
+                                </div>
+                                <div class="feature-list-delete pull-left">
+                                    <a href="" data-ng-click="removeSelectedGroup(group)" >
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

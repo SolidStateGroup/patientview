@@ -388,6 +388,11 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.currentPage = 0;
         $scope.getItems();
     };
+    $scope.removeSelectedGroup = function (group) {
+        $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
+        $scope.currentPage = 0;
+        $scope.getItems();
+    };
 
     $scope.pageCount = function() {
         return Math.ceil($scope.total/$scope.itemsPerPage);

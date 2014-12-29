@@ -1,3 +1,15 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
 <div data-ng-show="!loading">
     <h1>Log</h1>
 
@@ -10,7 +22,6 @@
         </div>
         <div class="panel-footer clearfix">
             <div class="content-inner">
-
                 <form class="form-horizontal" role="form">
                     <div class="pull-right">
                         <div class="col-md-12" data-ng-show="pagedItems.length  > 0">
@@ -122,77 +133,101 @@
                             <button class="btn blue set-date-range" data-ng-click="setDateRange(dateStart, dateEnd)">Set Date Range</button>
                         </div>
                     </div>
-                    <ul class="unstyled pull-left filter-tags-container">
-                        <li class="pull-left" data-ng-repeat="auditAction in auditActions" data-ng-show="isAuditActionChecked(auditAction)"><span class="label label-primary">{{auditAction}}</span></li>
-                        <li class="pull-left" data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id) && group.groupType.value==='DISEASE_GROUP'"><span class="label label-info">{{group.name}}</span></li>
-                        <li class="pull-left" data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id) && group.groupType.value==='UNIT'"><span class="label label-info">{{group.name}}</span>&nbsp;</li>
-                    </ul>
-                    </form>
-                </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="feature-list unstyled name-action-list">
+                                <li class="feature-list-item" data-ng-repeat="group in allGroups | orderBy:'name'"
+                                    data-ng-show="isGroupChecked(group.id)">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{group.name}}</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeSelectedGroup(group)" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="feature-list-item" data-ng-repeat="auditAction in auditActions"
+                                    data-ng-show="isAuditActionChecked(auditAction)">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{auditAction}}</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeSelectedAuditAction(auditAction)" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="log-container" data-ng-show="!loading">
-        <div class="content-panel">
-            <table class="table" data-ng-show="pagedItems.length  > 0 && !loading">
-                <thead class="table-head">
-                <tr>
-                    <th><a href="" data-ng-click="sortBy('creationDate');" class="sort-title">Date <i class="icon-sort pull-right"></i></a></th>
-                    <th>Identifiers</th>
-                    <th>User</th>
-                    <th>Group (Role)</th>
-                    <th>Action</th>
-                    <th>Actor</th>
-                    <th>Information</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr data-ng-repeat="audit in pagedItems">
-                    <td>{{audit.creationDate | date: 'dd-MMM-yyyy HH:mm'}}</td>
-                    <td>
-                        <span data-ng-repeat="identifier in audit.sourceObjectUser.identifiers">
-                            {{identifier.identifier}}
+<div class="log-container" data-ng-show="!loading">
+    <div class="content-panel">
+        <table class="table" data-ng-show="pagedItems.length  > 0 && !loading">
+            <thead class="table-head">
+            <tr>
+                <th><a href="" data-ng-click="sortBy('creationDate');" class="sort-title">Date <i class="icon-sort pull-right"></i></a></th>
+                <th>Identifiers</th>
+                <th>User</th>
+                <th>Group (Role)</th>
+                <th>Action</th>
+                <th>Actor</th>
+                <th>Information</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-ng-repeat="audit in pagedItems">
+                <td>{{audit.creationDate | date: 'dd-MMM-yyyy HH:mm'}}</td>
+                <td>
+                    <span data-ng-repeat="identifier in audit.sourceObjectUser.identifiers">
+                        {{identifier.identifier}}
+                        <br/>
+                    </span>
+                </td>
+                <td>{{audit.username}}</td>
+                <td>
+                    <span data-ng-show="audit.sourceObjectType === 'User'">
+                        <span data-ng-repeat="groupRole in audit.sourceObjectUser.groupRoles"
+                              data-ng-hide="groupRole.group.code === 'Generic' || groupRole.role.name === 'MEMBER'">
+                            {{groupRole.group.shortName}} ({{groupRole.role.description}})
                             <br/>
                         </span>
-                    </td>
-                    <td>{{audit.username}}</td>
-                    <td>
-                        <span data-ng-show="audit.sourceObjectType === 'User'">
-                            <span data-ng-repeat="groupRole in audit.sourceObjectUser.groupRoles"
-                                  data-ng-hide="groupRole.group.code === 'Generic' || groupRole.role.name === 'MEMBER'">
-                                {{groupRole.group.shortName}} ({{groupRole.role.description}})
-                                <br/>
-                            </span>
+                    </span>
+                    <span data-ng-show="audit.sourceObjectType === 'Group'">
+                        <span>
+                            {{audit.sourceObjectGroup.shortName}}
                         </span>
-                        <span data-ng-show="audit.sourceObjectType === 'Group'">
-                            <span>
-                                {{audit.sourceObjectGroup.shortName}}
-                            </span>
-                        </span>
-                    </td>
-                    <td>{{audit.auditActions}}</td>
-                    <td>{{audit.actor.username}}</td>
-                    <td>
-                        <span data-ng-show="audit.group.shortName">Group: {{audit.group.shortName}} <br/></span>
-                        <span data-ng-show="audit.identifier">Identifier: {{audit.identifier}} <br/></span>
-                        <span data-ng-show="audit.information">{{audit.information}}<br/></span>
-                        <span data-ng-show="audit.xml"><a href="" data-ng-click="viewXml(audit)">View XML</a></span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <br/>
+                    </span>
+                </td>
+                <td>{{audit.auditActions}}</td>
+                <td>{{audit.actor.username}}</td>
+                <td>
+                    <span data-ng-show="audit.group.shortName">Group: {{audit.group.shortName}} <br/></span>
+                    <span data-ng-show="audit.identifier">Identifier: {{audit.identifier}} <br/></span>
+                    <span data-ng-show="audit.information">{{audit.information}}<br/></span>
+                    <span data-ng-show="audit.xml"><a href="" data-ng-click="viewXml(audit)">View XML</a></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/>
 
-            <div class="alert alert-warning" data-ng-show="!pagedItems.length && !loading">
-                <p>No log entries found</p>
-            </div>
-
-            <!-- pagination -->
-            <div ng-include src="'views/partials/pagination.html'"></div>
-
+        <div class="alert alert-warning" data-ng-show="!pagedItems.length && !loading">
+            <p>No log entries found</p>
         </div>
+
+        <!-- pagination -->
+        <div ng-include src="'views/partials/pagination.html'"></div>
+
     </div>
+</div>
 
 <div data-ng-show="loading" class="loading">
     <br/><br/>

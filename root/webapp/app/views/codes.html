@@ -1,3 +1,15 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
 <div class="page-content" data-ng-show="!loading">
     <h1>Codes <button class="btn blue" data-ng-click="openModalNewCode('lg')">Create New</button></h1>
 
@@ -71,10 +83,32 @@
                                 </ul>
                             </div>
                         </div>
-                        <ul class="unstyled pull-left filter-tags-container">
-                            <li class="code-type-tags pull-left" data-ng-repeat="type in codeTypes" data-ng-show="isCodeTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span></li>
-                            <li class="standard-type-tags pull-left" data-ng-repeat="type in standardTypes" data-ng-show="isStandardTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span></li>
-                        </ul>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="feature-list unstyled name-action-list">
+                                    <li class="feature-list-item" data-ng-repeat="type in codeTypes | orderBy:'description'" data-ng-show="isCodeTypeChecked(type.id)">
+                                        <div class="feature-list-name pull-left">
+                                            <span class="feature-list-name">{{type.description}}</span>
+                                        </div>
+                                        <div class="feature-list-delete pull-left">
+                                            <a href="" data-ng-click="removeCodeType(type)" >
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                    <li class="feature-list-item" data-ng-repeat="type in standardTypes | orderBy:'description'" data-ng-show="isStandardTypeChecked(type.id)">
+                                        <div class="feature-list-name pull-left">
+                                            <span class="feature-list-name">{{type.description}}</span>
+                                        </div>
+                                        <div class="feature-list-delete pull-left">
+                                            <a href="" data-ng-click="removeStandardType(type)" >
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

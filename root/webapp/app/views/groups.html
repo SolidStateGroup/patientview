@@ -1,3 +1,15 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
 <div data-ng-show="!loading">
     <h1>Groups <button class="btn blue" data-ng-click="openModalNewGroup('lg')" data-ng-show="permissions.canCreateGroup">Create New</button></h1>
     <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
@@ -49,9 +61,23 @@
                                 </ul>
                             </div>
                         </div>
-                        <ul class="unstyled pull-left filter-tags-container">
-                            <li class="pull-left" data-ng-repeat="type in filterGroupTypes" data-ng-show="isGroupTypeChecked(type.id)"><span class="label label-info">{{type.description}}</span>&nbsp;</li>
-                        </ul>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="feature-list unstyled name-action-list">
+                                    <li class="feature-list-item" data-ng-repeat="type in filterGroupTypes | orderBy:'description'" data-ng-show="isGroupTypeChecked(type.id)">
+                                        <div class="feature-list-name pull-left">
+                                            <span class="feature-list-name">{{type.description}}</span>
+                                        </div>
+                                        <div class="feature-list-delete pull-left">
+                                            <a href="" data-ng-click="removeGroupType(type)" >
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

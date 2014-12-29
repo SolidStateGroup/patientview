@@ -1,3 +1,15 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
 <div>
     <h1 data-ng-show="!loading">Staff
         <button class="btn blue" data-ng-click="openModalNewStaff('lg')">Create New</button>
@@ -182,10 +194,33 @@
                             </ul>
                         </div>
                     </div>
-                    <ul class="unstyled pull-left filter-tags-container">
-                        <li class="all-roles-tag pull-left" data-ng-repeat="role in allRoles" data-ng-show="isRoleChecked(role.id)"><span class="label label-info">{{role.description}}</span>&nbsp;</li>
-                        <li class="all-groups-tag pull-left" data-ng-repeat="group in allGroups" data-ng-show="isGroupChecked(group.id)"><span class="label label-info">{{group.name}}</span>&nbsp;</li>
-                    </ul>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="feature-list unstyled name-action-list">
+                                <li class="feature-list-item" data-ng-repeat="group in allGroups | orderBy:'name'" data-ng-show="isGroupChecked(group.id)">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{group.name}}</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeSelectedGroup(group)" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="feature-list-item" data-ng-repeat="role in allRoles | orderBy:'description'" data-ng-show="isRoleChecked(role.id)">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{role.description}}</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeSelectedRole(role)" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
