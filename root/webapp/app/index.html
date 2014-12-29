@@ -46,7 +46,14 @@
         <div class="clearFooter"></div>
         <div class="footer">
             <div class="container">
-                <div class="brand col-md-4"><img src="images/pv-logo-trans.png" alt="patient view"/></div>
+                <div class="brand col-md-4">
+                    <a href="#/dashboard" data-ng-show="authToken">
+                        <img src="images/pv-logo-trans.png" alt="patient view"/>
+                    </a>
+                    <a href="#/main" data-ng-show="!authToken">
+                        <img src="images/pv-logo-trans.png" alt="patient view"/>
+                    </a>
+                </div>
                 <ul class="inline unstyled pull-right legal-links col-md-4">
                     <li><a href="#/privacy">Privacy Policy</a></li>
                     <li><a href="#/terms">Terms &amp; Conditions</a></li>
@@ -65,7 +72,8 @@
                         <a href="http://www.renal.org/" title="Renal Association">
                             <img src="images/renalassoc.png" alt="Renal Association">
                         </a>
-                        <a class="other-partners" href="http://www.rixg.org/patientview/pages/supporters.php">Other partners and supporting groups</a>
+                        <a class="other-partners" href="http://www.rixg.org/patientview/pages/supporters.php">
+                            Other partners and supporting groups</a>
                     </div>
                 </div>
 
