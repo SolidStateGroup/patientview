@@ -210,6 +210,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // multi search
     $scope.search = function() {
+        $scope.searchItems.searchUsername = $('#search-username').val();
+        $scope.searchItems.searchForename = $('#search-forename').val();
+        $scope.searchItems.searchSurname = $('#search-surname').val();
+        $scope.searchItems.searchEmail = $('#search-email').val();
+
         $scope.getItems();
     };
 
