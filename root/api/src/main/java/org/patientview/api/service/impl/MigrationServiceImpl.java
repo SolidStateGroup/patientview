@@ -91,6 +91,8 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     @Named("patientView1")
     private DataSource dataSource;
 
+    private static final String COMMENT_RESULT_HEADING = "resultcomment";
+
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
 
@@ -317,48 +319,90 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                         List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
                         try {
                             User user = userService.get(pv2id);
+                            List<FhirLink> fhirLinks = fhirLinkRepository.findActiveByUser(user);
 
-                            for (FhirLink fhirLink : fhirLinkRepository.findActiveByUser(user)) {
+                            if (!CollectionUtils.isEmpty(fhirLinks)) {
+                                for (FhirLink fhirLink : fhirLinks) {
 
-                                // correctly transfer patient entered results
-                                String groupCode = fhirLink.getGroup().getCode();
-                                if (groupCode.equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
-                                    groupCode = "PATIENT";
-                                }
-
-                                String query = "SELECT testcode, datestamp, prepost, value " +
-                                        "FROM testresult " +
-                                        "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier() +
-                                        "' AND unitcode = '" + groupCode + "'";
-
-                                java.sql.Statement statement = connection.createStatement();
-                                ResultSet results = statement.executeQuery(query);
-
-                                while ((results.next())) {
-                                    String testcode = results.getString(1)
-                                            .replace("\"","").replace("}","").replace("{","").replace(",","").replace("'","");
-                                    Date datestamp = results.getTimestamp(2);
-                                    String prepost = results.getString(3)
-                                            .replace("\"","").replace("}","").replace("{","").replace(",","").replace("'","");
-                                    String value = results.getString(4)
-                                            .replace("\"","").replace("}","").replace("{","").replace(",","").replace("'","");
-
-                                    FhirObservation fhirObservation = new FhirObservation();
-                                    fhirObservation.setApplies(datestamp);
-                                    fhirObservation.setComments(prepost);
-                                    fhirObservation.setValue(value);
-                                    ObservationHeading observationHeading
-                                            = observationHeadingMap.get(testcode.toUpperCase());
-
-                                    if (observationHeading == null) {
-                                        observationHeading = new ObservationHeading();
-                                        observationHeading.setCode(testcode);
-                                        observationHeading.setName(testcode);
-                                        LOG.info("ObservationHeading not found (adding anyway): " + testcode);
+                                    // correctly transfer patient entered results
+                                    String groupCode = fhirLink.getGroup().getCode();
+                                    if (groupCode.equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+                                        groupCode = "PATIENT";
                                     }
 
-                                    fhirDatabaseObservations.add(observationService.buildFhirDatabaseObservation(
-                                                    fhirObservation, observationHeading, fhirLink));
+                                    String query = "SELECT testcode, datestamp, prepost, value " +
+                                            "FROM testresult " +
+                                            "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier() +
+                                            "' AND unitcode = '" + groupCode + "'";
+
+                                    java.sql.Statement statement = connection.createStatement();
+                                    ResultSet results = statement.executeQuery(query);
+
+                                    while ((results.next())) {
+                                        String testcode = results.getString(1)
+                                                .replace("\"", "").replace("}", "").replace("{", "")
+                                                .replace(",", "").replace("'", "");
+                                        Date datestamp = results.getTimestamp(2);
+                                        String prepost = results.getString(3)
+                                                .replace("\"", "").replace("}", "").replace("{", "")
+                                                .replace(",", "").replace("'", "");
+                                        String value = results.getString(4)
+                                                .replace("\"", "").replace("}", "").replace("{", "")
+                                                .replace(",", "").replace("'", "");
+
+                                        FhirObservation fhirObservation = new FhirObservation();
+                                        fhirObservation.setApplies(datestamp);
+                                        fhirObservation.setComments(prepost);
+                                        fhirObservation.setValue(value);
+                                        ObservationHeading observationHeading
+                                                = observationHeadingMap.get(testcode.toUpperCase());
+
+                                        if (observationHeading == null) {
+                                            observationHeading = new ObservationHeading();
+                                            observationHeading.setCode(testcode);
+                                            observationHeading.setName(testcode);
+                                            LOG.info("ObservationHeading not found (adding anyway): " + testcode);
+                                        }
+
+                                        fhirDatabaseObservations.add(observationService.buildFhirDatabaseObservation(
+                                                fhirObservation, observationHeading, fhirLink));
+                                    }
+                                }
+
+                                // result comments in pv1 are not attached to a certain group, so choose FhirLink
+                                // that isn't PATIENT_ENTERED
+                                FhirLink commentFhirLink = null;
+                                for (FhirLink fhirLink : fhirLinks) {
+                                    if (!fhirLink.getGroup().getCode()
+                                            .equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+                                        commentFhirLink = fhirLink;
+                                    }
+                                }
+
+                                if (commentFhirLink != null) {
+                                    String query = "SELECT datestamp, body " +
+                                            "FROM comment " +
+                                            "WHERE nhsno = '" + fhirLinks.get(0).getIdentifier().getIdentifier() + "'";
+
+                                    java.sql.Statement statement = connection.createStatement();
+                                    ResultSet results = statement.executeQuery(query);
+
+                                    while ((results.next())) {
+                                        Date datestamp = results.getTimestamp(1);
+                                        String body = results.getString(2)
+                                                .replace("\"", "").replace("}", "").replace("{", "")
+                                                .replace(",", " ").replace("'", "''");
+
+                                        FhirObservation fhirObservation = new FhirObservation();
+                                        fhirObservation.setApplies(datestamp);
+                                        fhirObservation.setComments(body);
+                                        fhirObservation.setValue(body);
+                                        ObservationHeading observationHeading
+                                                = observationHeadingMap.get(COMMENT_RESULT_HEADING.toUpperCase());
+
+                                        fhirDatabaseObservations.add(observationService.buildFhirDatabaseObservation(
+                                                fhirObservation, observationHeading, commentFhirLink));
+                                    }
                                 }
                             }
 

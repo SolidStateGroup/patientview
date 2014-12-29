@@ -124,9 +124,14 @@ public class GroupStatisticsServiceTest {
 
         // Create dates
         Calendar calendar = Calendar.getInstance();
-        Date startDate = calendar.getTime();
-        calendar.roll(Calendar.MONTH, + 1);
         Date endDate = calendar.getTime();
+        // Get to the first of the month for a starting point
+        calendar.roll(Calendar.DAY_OF_MONTH, -calendar.get(Calendar.DAY_OF_MONTH) + 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startDate = calendar.getTime();
 
         // Create groups
         Group testGroup = TestUtils.createGroup( "testGroup");

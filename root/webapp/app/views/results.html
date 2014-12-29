@@ -1,3 +1,8 @@
+<style>
+    .result-item-container .result-change dt span {
+        font-size: 50px;
+    }
+</style>
 <div data-ng-show="!loading">
     <h1 class="clearfix">
         <ul class="unstyled inline pull-right">
@@ -64,7 +69,12 @@
                             <dl class="result-change">
                                 <dt>
                                     <span data-ng-show="!result.latestObservation.value">Result value not available</span>
-                                    {{result.latestObservation.comparator}}{{result.latestObservation.value}}
+                                    <span data-ng-show="!(result.heading === 'Comment')">
+                                        {{result.latestObservation.comparator}}{{result.latestObservation.value}}
+                                    </span>
+                                    <span data-ng-show="result.heading === 'Comment'">
+                                        Available
+                                    </span>
                                     <span data-ng-show="result.units && result.latestObservation.value">{{result.units}}</span>
                                 </dt>
                             </dl>
