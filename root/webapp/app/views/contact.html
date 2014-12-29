@@ -44,19 +44,26 @@
                                 </p>
                             </div>
                             <div class="panel-body">
-                                <div data-ng-show="group.address1">
+                                <div>
                                     <h4>Address</h4>
                                     <table class="">
-                                        <tr>
-                                            <td>{{group.address1}}<br/>
-                                                {{group.address2}}<br/>
-                                                {{group.address3}}</td>
+                                        <tr data-ng-show="group.address1">
+                                            <td>{{group.address1}}</td>
                                         </tr>
-                                        <tr><td>{{group.postcode}}</td></tr>
+                                        <tr data-ng-show="group.address2">
+                                            <td>{{group.address2}}</td>
+                                        </tr>
+                                        <tr data-ng-show="group.address3">
+                                            <td>{{group.address3}}</td>
+                                        </tr>
+                                        <tr data-ng-show="group.postcode">
+                                            <td>{{group.postcode}}</td>
+                                        </tr>
                                     </table>
                                 </div>
 
                                 <div data-ng-show="group.contactPoints">
+                                    <br/>
                                     <h4>Contact Points</h4>
                                     <table>
                                         <tr data-ng-repeat="contactPoint in group.contactPoints">
