@@ -27,7 +27,7 @@
                             <dl class="conditions-link-list unstyled" data-ng-repeat="code in patient.diagnosisCodes">
                                 <dt><h5>{{code.description}}:</h5></dt>
                                 <dd>
-                                    <span data-ng-repeat="link in code.links">
+                                    <span data-ng-repeat="link in code.links | orderBy:'displayOrder'">
                                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                     </span>
                                 </dd>
@@ -60,7 +60,7 @@
                             <span data-ng-repeat="encounter in patient.fhirEncounters" data-ng-show="encounter.encounterType === 'TREATMENT'">
                                 {{encounter.status}}
                                 <br data-ng-show="encounter.links.length"/>
-                                <span data-ng-repeat="link in encounter.links">
+                                <span data-ng-repeat="link in encounter.links | orderBy:'displayOrder'">
                                     <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
                                 </span>
                             </span>
@@ -129,7 +129,7 @@
                         <tr>
                             <td colspan="2">
                                 <ul>
-                                    <li data-ng-repeat="link in patient.group.links">
+                                    <li data-ng-repeat="link in patient.group.links | orderBy:'displayOrder'">
                                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
                                     </li>
                                 </ul>
