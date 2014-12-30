@@ -54,6 +54,27 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
             });
             return deferred.promise;
         },
+        removeAlertObservationHeading: function(userId, alertObservationHeadingId) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/alertobservationheadings/{alertObservationHeadingId}
+            Restangular.one('user', userId).one('alertobservationheadings', alertObservationHeadingId).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        updateAlertObservationHeading: function(userId, alertObservationHeading) {
+            var deferred = $q.defer();
+            // PUT /user/{userId}/alertobservationheading
+            Restangular.one('user', userId).customPUT(alertObservationHeading, 'alertobservationheading')
+                .then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         getAlertObservationHeadings: function(userId) {
             var deferred = $q.defer();
             // GET /user/{userId}/alertobservationheadings

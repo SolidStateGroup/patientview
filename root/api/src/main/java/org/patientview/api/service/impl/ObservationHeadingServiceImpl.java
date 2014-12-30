@@ -396,13 +396,61 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         newAlertObservationHeading.setUser(user);
         newAlertObservationHeading.setObservationHeading(observationHeading);
         newAlertObservationHeading.setWebAlert(alertObservationHeading.isWebAlert());
-        newAlertObservationHeading.setWebAlertViewed(false);
+        newAlertObservationHeading.setWebAlertViewed(true);
         newAlertObservationHeading.setEmailAlert(alertObservationHeading.isEmailAlert());
         newAlertObservationHeading.setEmailAlertSent(false);
         newAlertObservationHeading.setCreated(new Date());
         newAlertObservationHeading.setCreator(user);
 
         alertObservationHeadingRepository.save(newAlertObservationHeading);
+    }
+
+    @Override
+    public void removeAlertObservationHeading(Long userId, Long alertObservationHeadingId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        AlertObservationHeading alertObservationHeading
+                = alertObservationHeadingRepository.findOne(alertObservationHeadingId);
+        if (alertObservationHeading == null) {
+            throw new ResourceNotFoundException("Could not find alert");
+        }
+
+        if (!user.getId().equals(alertObservationHeading.getUser().getId())) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        alertObservationHeadingRepository.delete(alertObservationHeading);
+    }
+
+    @Override
+    public void updateAlertObservationHeading(Long userId,
+                                              org.patientview.api.model.AlertObservationHeading alertObservationHeading)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        AlertObservationHeading entityAlertObservationHeading
+                = alertObservationHeadingRepository.findOne(alertObservationHeading.getId());
+        if (entityAlertObservationHeading == null) {
+            throw new ResourceNotFoundException("Could not find alert");
+        }
+
+        if (!user.getId().equals(entityAlertObservationHeading.getUser().getId())) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        entityAlertObservationHeading.setWebAlert(alertObservationHeading.isWebAlert());
+        entityAlertObservationHeading.setEmailAlert(alertObservationHeading.isEmailAlert());
+
+        alertObservationHeadingRepository.save(entityAlertObservationHeading);
     }
 
     public void delete(final Long observationHeadingId) {

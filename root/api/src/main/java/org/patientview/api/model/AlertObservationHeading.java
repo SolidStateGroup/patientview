@@ -6,22 +6,34 @@ package org.patientview.api.model;
  */
 public class AlertObservationHeading {
 
+    private Long id;
     private boolean webAlert;
     private boolean webAlertViewed;
     private boolean emailAlert;
     private boolean emailAlertSent;
+    private BaseUser user;
     private ObservationHeading observationHeading;
 
     public AlertObservationHeading(org.patientview.persistence.model.AlertObservationHeading alertObservationHeading) {
+        this.id = alertObservationHeading.getId();
         this.webAlert = alertObservationHeading.isWebAlert();
         this.webAlertViewed = alertObservationHeading.isWebAlertViewed();
         this.emailAlert = alertObservationHeading.isEmailAlert();
         this.emailAlertSent = alertObservationHeading.isEmailAlertSent();
+        this.user = new BaseUser(alertObservationHeading.getUser());
         this.observationHeading = new ObservationHeading(alertObservationHeading.getObservationHeading());
     }
 
     public AlertObservationHeading() {
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public boolean isWebAlert() {
@@ -54,6 +66,14 @@ public class AlertObservationHeading {
 
     public void setEmailAlertSent(boolean emailAlertSent) {
         this.emailAlertSent = emailAlertSent;
+    }
+
+    public BaseUser getUser() {
+        return user;
+    }
+
+    public void setUser(BaseUser user) {
+        this.user = user;
     }
 
     public ObservationHeading getObservationHeading() {

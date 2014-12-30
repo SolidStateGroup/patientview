@@ -3,6 +3,9 @@
     div.alert-list {
         margin-top:60px;
     }
+    input.alert-checkbox {
+        margin-right:7px;
+    }
 </style>
 
 <div class="" data-ng-show="!loading" data-ng-cloak>
@@ -134,12 +137,30 @@
                         </select>
 
                         <div data-ng-show="alertObservationHeadings.length" class="alert-list">
-                            <table>
+                            <table class="table">
+                                <tr>
+                                    <th></th>
+                                    <th colspan="2">How would you like to be notified?</th>
+                                    <th colspan="2"></th>
+                                </tr>
                                 <tr data-ng-repeat="alert in alertObservationHeadings">
-                                    <td>{{alert.observationHeading.heading}}</td>
-                                    <td>{{alert.webAlert}}</td>
-                                    <td>{{alert.emailAlert}}</td>
-                                    <td>{{alert.webAlertViewed}}</td>
+                                    <td>
+                                        <a href="#/resultsdetail?code={{alert.observationHeading.code}}">{{alert.observationHeading.heading}}</a>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" data-ng-model="alert.webAlert" class="alert-checkbox"
+                                               data-ng-change="updateAlertObservationHeading(alert)">Web</input>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" data-ng-model="alert.emailAlert" class="alert-checkbox"
+                                               data-ng-change="updateAlertObservationHeading(alert)">Email</input>
+                                    </td>
+                                    <td>
+                                        <a href="" class="btn btn-danger" data-ng-click="removeAlertObservationHeading(alert.id)">Remove Alert</a>
+                                    </td>
+                                    <td data-ng-show="!alert.webAlertViewed">
+                                        <span class="label label-success"> New Result Available</span>
+                                    </td>
                                 </tr>
                             </table>
                         </div>

@@ -142,11 +142,32 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     }
 
     // add alert for result type for user
-    @RequestMapping(value = "/user/{userId}/alertobservationheading", method = RequestMethod.POST)
+    @RequestMapping(value = "/user/{userId}/alertobservationheading", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void addAlertObservationHeading(
             @PathVariable("userId") Long userId, @RequestBody AlertObservationHeading alertObservationHeading)
             throws ResourceNotFoundException {
                 observationHeadingService.addAlertObservationHeading(userId, alertObservationHeading);
+    }
+
+    // update alert for result type for user
+    @RequestMapping(value = "/user/{userId}/alertobservationheading", method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public void updateAlertObservationHeading(
+            @PathVariable("userId") Long userId, @RequestBody AlertObservationHeading alertObservationHeading)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+                observationHeadingService.updateAlertObservationHeading(userId, alertObservationHeading);
+    }
+
+    // remove alert for results for user
+    @RequestMapping(value = "/user/{userId}/alertobservationheadings/{alertObservationHeadingId}",
+            method = RequestMethod.DELETE)
+    @ResponseBody
+    public void removeAlertObservationHeading(@PathVariable("userId") Long userId,
+            @PathVariable("alertObservationHeadingId") Long alertObservationHeadingId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        observationHeadingService.removeAlertObservationHeading(userId, alertObservationHeadingId);
     }
 }

@@ -221,19 +221,47 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
     // alerts
     $scope.addAlertObservationHeading = function(observationHeadingId) {
 
-        var alertObservationHeading = {};
-        alertObservationHeading.user = {};
-        alertObservationHeading.user.id = $scope.loggedInUser.id;
-        alertObservationHeading.observationHeading = {};
-        alertObservationHeading.observationHeading.id = observationHeadingId;
-        alertObservationHeading.webAlert = true;
-        alertObservationHeading.emailAlert = true;
+        var found = false;
 
-        ObservationHeadingService.addAlertObservationHeading($scope.loggedInUser.id, alertObservationHeading)
-            .then(function() {
+        for (var i=0;i<$scope.alertObservationHeadings.length;i++) {
+            if ($scope.alertObservationHeadings[i].observationHeading.id === observationHeadingId) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            var alertObservationHeading = {};
+            alertObservationHeading.user = {};
+            alertObservationHeading.user.id = $scope.loggedInUser.id;
+            alertObservationHeading.observationHeading = {};
+            alertObservationHeading.observationHeading.id = observationHeadingId;
+            alertObservationHeading.webAlert = true;
+            alertObservationHeading.emailAlert = true;
+
+            ObservationHeadingService.addAlertObservationHeading($scope.loggedInUser.id, alertObservationHeading)
+                .then(function () {
+                    getAlertObservationHeadings();
+                }, function () {
+                    alert('Error adding result alert');
+                });
+        }
+    };
+
+    $scope.removeAlertObservationHeading = function(alertObservationHeadingId) {
+        ObservationHeadingService.removeAlertObservationHeading($scope.loggedInUser.id, alertObservationHeadingId)
+            .then(function () {
                 getAlertObservationHeadings();
-            }, function() {
-                alert('Error adding result alert');
+            }, function () {
+                alert('Error removing result alert');
+            });
+    };
+
+    $scope.updateAlertObservationHeading = function(alertObservationHeading) {
+        ObservationHeadingService.updateAlertObservationHeading($scope.loggedInUser.id, alertObservationHeading)
+            .then(function () {
+                getAlertObservationHeadings();
+            }, function () {
+                alert('Error updating result alert');
             });
     };
 

@@ -399,4 +399,71 @@ public class ObservationHeadingServiceTest {
         observationHeadingService.addAlertObservationHeading(user.getId(), alertObservationHeading);
         verify(alertObservationHeadingRepository, Mockito.times(1)).save(any(AlertObservationHeading.class));
     }
+
+    @Test
+    public void testRemoveAlertObservationHeading() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        AlertObservationHeading alertObservationHeading
+                = new AlertObservationHeading();
+
+        alertObservationHeading.setId(1L);
+        alertObservationHeading.setObservationHeading(observationHeading);
+        alertObservationHeading.setWebAlert(true);
+        alertObservationHeading.setWebAlertViewed(false);
+        alertObservationHeading.setEmailAlert(true);
+        alertObservationHeading.setEmailAlertSent(false);
+        alertObservationHeading.setUser(user);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(alertObservationHeadingRepository.findOne(
+                eq(alertObservationHeading.getId()))).thenReturn(alertObservationHeading);
+
+        observationHeadingService.removeAlertObservationHeading(user.getId(), alertObservationHeading.getId());
+        verify(alertObservationHeadingRepository, Mockito.times(1)).delete(any(AlertObservationHeading.class));
+    }
+
+    @Test
+    public void testUpdateAlertObservationHeading() throws ResourceNotFoundException, ResourceForbiddenException {
+
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        AlertObservationHeading alertObservationHeading
+                = new AlertObservationHeading();
+
+        alertObservationHeading.setId(1L);
+        alertObservationHeading.setObservationHeading(observationHeading);
+        alertObservationHeading.setWebAlert(true);
+        alertObservationHeading.setWebAlertViewed(false);
+        alertObservationHeading.setEmailAlert(true);
+        alertObservationHeading.setEmailAlertSent(false);
+        alertObservationHeading.setUser(user);
+
+        org.patientview.api.model.AlertObservationHeading apiAlertObservationHeading
+                = new org.patientview.api.model.AlertObservationHeading(alertObservationHeading);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(alertObservationHeadingRepository.findOne(
+                eq(alertObservationHeading.getId()))).thenReturn(alertObservationHeading);
+
+        observationHeadingService.updateAlertObservationHeading(user.getId(), apiAlertObservationHeading);
+        verify(alertObservationHeadingRepository, Mockito.times(1)).save(any(AlertObservationHeading.class));
+    }
 }
