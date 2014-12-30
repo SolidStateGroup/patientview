@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
-    'NewsService', 'UtilService', 'MedicationService', 'ObservationService',
-function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService, ObservationService) {
+    'NewsService', 'UtilService', 'MedicationService', 'ObservationService', 'ObservationHeadingService',
+function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService, ObservationService,
+          ObservationHeadingService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -137,6 +138,8 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
             }, function () {
                 alert('Cannot get GP medication status');
             });
+
+            getAvailableObservationHeadings();
         }
 
         // set the list of groups to show in the data grid
@@ -215,35 +218,53 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
         });
     };
 
+    // alerts
+    $scope.addAlertObservationHeading = function(observationHeadingId) {
 
-    $scope.includeObservationHeading = function(code) {
-        if ($.inArray(code, $scope.observationHeadingCodes) === -1
-            && code !== $scope.blankCode) {
-            $scope.observationHeadingCodes.push(code);
-            getObservations();
-            saveObservationHeadingSelection();
-        }
+        var alertObservationHeading = {};
+        alertObservationHeading.user = {};
+        alertObservationHeading.user.id = $scope.loggedInUser.id;
+        alertObservationHeading.observationHeading = {};
+        alertObservationHeading.observationHeading.id = observationHeadingId;
+        alertObservationHeading.webAlert = true;
+        alertObservationHeading.emailAlert = true;
+
+        ObservationHeadingService.addAlertObservationHeading($scope.loggedInUser.id, alertObservationHeading)
+            .then(function() {
+                getAlertObservationHeadings();
+            }, function() {
+                alert('Error adding result alert');
+            });
     };
 
     var getAvailableObservationHeadings = function() {
-        ObservationHeadingService.getAvailableObservationHeadings($scope.loggedInUser.id)
+        ObservationHeadingService.getAvailableAlertObservationHeadings($scope.loggedInUser.id)
             .then(function(observationHeadings) {
                 if (observationHeadings.length > 0) {
                     $scope.observationHeadingMap = [];
                     var blankObservationHeading = {};
-                    blankObservationHeading.code = $scope.blankCode;
+                    blankObservationHeading.id = -1;
                     blankObservationHeading.heading = ' Please Select..';
                     observationHeadings.push(blankObservationHeading);
                     $scope.observationHeadings = observationHeadings;
-                    $scope.selectedCode = 'blank';
+                    $scope.selectedObservationHeadingId = -1;
                     for (var i = 0; i < $scope.observationHeadings.length; i++) {
                         $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
                     }
                 }
-                getSavedObservationHeadings();
+                getAlertObservationHeadings();
                 $scope.initFinished = true;
             }, function() {
                 alert('Error retrieving result types');
+            });
+    };
+
+    var getAlertObservationHeadings = function() {
+        ObservationHeadingService.getAlertObservationHeadings($scope.loggedInUser.id)
+            .then(function(alertObservationHeadings) {
+                $scope.alertObservationHeadings = alertObservationHeadings;
+            }, function() {
+                alert('Error getting result alerts');
             });
     };
 

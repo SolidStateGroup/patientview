@@ -2,6 +2,7 @@
 
 angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
     return {
+        // result table
         getAvailableObservationHeadings: function(userId) {
             var deferred = $q.defer();
             // GET /user/{userId}/availableobservationheadings
@@ -26,6 +27,37 @@ angular.module('patientviewApp').factory('ObservationHeadingService', ['$q', 'Re
             var deferred = $q.defer();
             // GET /user/{userId}/saveobservationheadingselection
             Restangular.one('user', userId).post('saveobservationheadingselection', codes).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        // result alerts
+        getAvailableAlertObservationHeadings: function(userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/availablealertobservationheadings
+            Restangular.one('user', userId).customGET('availablealertobservationheadings').then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        addAlertObservationHeading: function(userId, alertObservationHeading) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/alertobservationheading
+            Restangular.one('user', userId).post('alertobservationheading', alertObservationHeading).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        getAlertObservationHeadings: function(userId) {
+            var deferred = $q.defer();
+            // GET /user/{userId}/alertobservationheadings
+            Restangular.one('user', userId).customGET('alertobservationheadings').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

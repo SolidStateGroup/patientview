@@ -579,6 +579,22 @@ CREATE TABLE PV_User_Observation_Heading
   PRIMARY KEY (Id)
 )
 
+CREATE TABLE PV_Alert_Observation_Heading
+(
+  Id                          BIGINT       NOT NULL,
+  Web_Alert                   BOOLEAN      NOT NULL,
+  Web_Alert_Viewed            BOOLEAN      NOT NULL,
+  Email_Alert                 BOOLEAN      NOT NULL,
+  Email_Alert_Sent            BOOLEAN      NOT NULL,
+  User_Id                     BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Observation_Heading_Id      BIGINT       REFERENCES PV_Observation_Heading (Id) NOT NULL,
+  Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
+  Creation_Date               TIMESTAMP    NOT NULL,
+  Last_Update_Date            TIMESTAMP,
+  Last_Updated_By             BIGINT REFERENCES PV_User (Id),
+  PRIMARY KEY (Id)
+)
+
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
 MINVALUE 1

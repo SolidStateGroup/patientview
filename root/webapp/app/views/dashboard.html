@@ -1,3 +1,10 @@
+<!-- todo: move to main css -->
+<style>
+    div.alert-list {
+        margin-top:60px;
+    }
+</style>
+
 <div class="" data-ng-show="!loading" data-ng-cloak>
     <br/>
     <div class="row">
@@ -113,6 +120,36 @@
                 </div>
             </div>
 
+            <div class="tab-panel-item" data-ng-show="observationHeadings.length">
+                <div class="content-panel">
+                    <div class="panel-intro">
+                        <h3>Result Alerts</h3>
+                    </div>
+                    <div class="content-inner">
+                        <p>If you would like to be notified when a new result arrives, please select it from the dropdown:</p>
+
+                        <select class="form-control pull-right" data-ng-model="selectedObservationHeadingId"
+                                data-ng-options="observationHeading.id as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                                data-ng-change="addAlertObservationHeading(selectedObservationHeadingId)">
+                        </select>
+
+                        <div data-ng-show="alertObservationHeadings.length" class="alert-list">
+                            <table>
+                                <tr data-ng-repeat="alert in alertObservationHeadings">
+                                    <td>{{alert.observationHeading.heading}}</td>
+                                    <td>{{alert.webAlert}}</td>
+                                    <td>{{alert.emailAlert}}</td>
+                                    <td>{{alert.webAlertViewed}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div data-ng-show="!alertObservationHeadings.length" class="alert-list">
+                            <p>No alerts have currently been set up</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div data-ng-show="permissions.isPatient && gpMedicationStatus.available
                 && gpMedicationStatus.optInStatus !== true && gpMedicationStatus.optInHidden !== true">
                 <!-- GP Medicines opt in/out -->
@@ -144,6 +181,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <aside class="col-md-4">

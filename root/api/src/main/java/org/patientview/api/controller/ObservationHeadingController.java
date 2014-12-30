@@ -5,6 +5,7 @@ import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.api.model.AlertObservationHeading;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ResultCluster;
@@ -118,5 +119,34 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     public void saveObservationHeadingSelection(@PathVariable("userId") Long userId, @RequestBody String[] codes)
             throws ResourceNotFoundException {
         observationHeadingService.saveObservationHeadingSelection(userId, codes);
+    }
+
+    // Get result types for user that can be used when setting up alerts
+    @RequestMapping(value = "/user/{userId}/availablealertobservationheadings", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ObservationHeading>> getAvailableAlertObservationHeadings(
+            @PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(
+                observationHeadingService.getAvailableAlertObservationHeadings(userId), HttpStatus.OK);
+    }
+
+    // get alerts for results for user
+    @RequestMapping(value = "/user/{userId}/alertobservationheadings", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<AlertObservationHeading>> getAlertObservationHeading(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(observationHeadingService.getAlertObservationHeadings(userId), HttpStatus.OK);
+    }
+
+    // add alert for result type for user
+    @RequestMapping(value = "/user/{userId}/alertobservationheading", method = RequestMethod.POST)
+    @ResponseBody
+    public void addAlertObservationHeading(
+            @PathVariable("userId") Long userId, @RequestBody AlertObservationHeading alertObservationHeading)
+            throws ResourceNotFoundException {
+                observationHeadingService.addAlertObservationHeading(userId, alertObservationHeading);
     }
 }

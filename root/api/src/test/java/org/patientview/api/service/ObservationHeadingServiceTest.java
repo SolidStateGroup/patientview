@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ObservationHeadingServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.AlertObservationHeading;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -22,6 +23,7 @@ import org.patientview.persistence.model.ResultClusterObservationHeading;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.AlertObservationHeadingRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
@@ -70,6 +72,9 @@ public class ObservationHeadingServiceTest {
 
     @Mock
     ResultClusterRepository resultClusterRepository;
+
+    @Mock
+    AlertObservationHeadingRepository alertObservationHeadingRepository;
 
     @InjectMocks
     ObservationHeadingService observationHeadingService = new ObservationHeadingServiceImpl();
@@ -303,5 +308,95 @@ public class ObservationHeadingServiceTest {
                 results.get(0).getResultClusterObservationHeadings().size());
 
         verify(resultClusterRepository, Mockito.times(1)).findAll();
+    }
+
+
+    @Test
+    public void testGetAvailableAlertObservationHeadings() throws ResourceNotFoundException {
+
+        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        List<ObservationHeading> observationHeadings = new ArrayList<>();
+        observationHeadings.add(observationHeading);
+
+        Page<ObservationHeading> observationHeadingsPage =
+                new PageImpl<>(observationHeadings, pageableAll, observationHeadings.size());
+
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        when(observationHeadingRepository.findAllMinimal(eq(pageableAll))).thenReturn(observationHeadingsPage);
+
+        List<ObservationHeading> result
+                = observationHeadingService.getAvailableAlertObservationHeadings(user.getId());
+        Assert.assertEquals("Should have 1 observation heading", 1, result.size());
+    }
+
+    @Test
+    public void testGetAlertObservationHeadings() throws ResourceNotFoundException {
+
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        AlertObservationHeading alertObservationHeading = new AlertObservationHeading();
+        alertObservationHeading.setUser(user);
+        alertObservationHeading.setObservationHeading(observationHeading);
+        alertObservationHeading.setWebAlert(true);
+        alertObservationHeading.setWebAlertViewed(false);
+        alertObservationHeading.setEmailAlert(true);
+        alertObservationHeading.setEmailAlertSent(false);
+
+        List<AlertObservationHeading> alertObservationHeadings = new ArrayList<>();
+        alertObservationHeadings.add(alertObservationHeading);
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(alertObservationHeadingRepository.findByUser(eq(user))).thenReturn(alertObservationHeadings);
+
+        List<org.patientview.api.model.AlertObservationHeading> result
+                = observationHeadingService.getAlertObservationHeadings(user.getId());
+        Assert.assertEquals("Should have 1 alert observation heading", 1, result.size());
+        verify(alertObservationHeadingRepository, Mockito.times(1)).findByUser(eq(user));
+    }
+
+    @Test
+    public void testAddAlertObservationHeading() throws ResourceNotFoundException {
+
+        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+
+        Group group = TestUtils.createGroup("GROUP1");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        org.patientview.api.model.AlertObservationHeading alertObservationHeading
+                = new org.patientview.api.model.AlertObservationHeading();
+
+        alertObservationHeading.setObservationHeading(
+                new org.patientview.api.model.ObservationHeading(observationHeading));
+        alertObservationHeading.setWebAlert(true);
+        alertObservationHeading.setWebAlertViewed(false);
+        alertObservationHeading.setEmailAlert(true);
+        alertObservationHeading.setEmailAlertSent(false);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(observationHeadingService.get(eq(observationHeading.getId()))).thenReturn(observationHeading);
+
+        observationHeadingService.addAlertObservationHeading(user.getId(), alertObservationHeading);
+        verify(alertObservationHeadingRepository, Mockito.times(1)).save(any(AlertObservationHeading.class));
     }
 }

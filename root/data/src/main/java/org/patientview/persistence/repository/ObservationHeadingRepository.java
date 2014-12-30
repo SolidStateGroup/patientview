@@ -26,7 +26,6 @@ public interface ObservationHeadingRepository extends CrudRepository<Observation
             "oh.normalRange as normalRange, " +
             "oh.units as units, oh.minGraph as minGraph, oh.maxGraph as maxGraph, " +
             "oh.infoLink as infoLink) FROM ObservationHeading oh")
-    //@Query("SELECT oh FROM ObservationHeadingGroup g, IN (g.observationHeading) oh ")
     public Page<ObservationHeading> findAllMinimal(Pageable pageable);
 
     @Query("SELECT oh FROM ObservationHeading oh WHERE oh.code = :code")

@@ -6,6 +6,7 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.AlertObservationHeading;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
@@ -16,6 +17,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserObservationHeading;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.AlertObservationHeadingRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
@@ -61,6 +63,9 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     private ObservationHeadingGroupRepository observationHeadingGroupRepository;
+
+    @Inject
+    private AlertObservationHeadingRepository alertObservationHeadingRepository;
 
     @Inject
     private GroupRepository groupRepository;
@@ -343,6 +348,61 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
         // save updated user
         userRepository.save(user);
+    }
+
+    @Override
+    public List<ObservationHeading> getAvailableAlertObservationHeadings(Long userId)
+            throws ResourceNotFoundException {
+        return observationHeadingRepository.findAllMinimal(new PageRequest(0, Integer.MAX_VALUE)).getContent();
+    }
+
+    @Override
+    public List<org.patientview.api.model.AlertObservationHeading> getAlertObservationHeadings(Long userId)
+            throws ResourceNotFoundException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<AlertObservationHeading> alertObservationHeadings = alertObservationHeadingRepository.findByUser(user);
+        List<org.patientview.api.model.AlertObservationHeading> transportAlertObservationHeadings = new ArrayList<>();
+
+        for (AlertObservationHeading alertObservationHeading : alertObservationHeadings) {
+            transportAlertObservationHeadings.add(
+                    new org.patientview.api.model.AlertObservationHeading(alertObservationHeading));
+        }
+
+        return transportAlertObservationHeadings;
+    }
+
+    @Override
+    public void addAlertObservationHeading(Long userId,
+                                           org.patientview.api.model.AlertObservationHeading alertObservationHeading)
+            throws ResourceNotFoundException {
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        ObservationHeading observationHeading
+                = observationHeadingRepository.findOne(alertObservationHeading.getObservationHeading().getId());
+        if (observationHeading == null) {
+            throw new ResourceNotFoundException("Could not find result type");
+        }
+
+        AlertObservationHeading newAlertObservationHeading = new AlertObservationHeading();
+        newAlertObservationHeading.setUser(user);
+        newAlertObservationHeading.setObservationHeading(observationHeading);
+        newAlertObservationHeading.setWebAlert(alertObservationHeading.isWebAlert());
+        newAlertObservationHeading.setWebAlertViewed(false);
+        newAlertObservationHeading.setEmailAlert(alertObservationHeading.isEmailAlert());
+        newAlertObservationHeading.setEmailAlertSent(false);
+        newAlertObservationHeading.setCreated(new Date());
+        newAlertObservationHeading.setCreator(user);
+
+        alertObservationHeadingRepository.save(newAlertObservationHeading);
     }
 
     public void delete(final Long observationHeadingId) {

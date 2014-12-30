@@ -269,6 +269,48 @@ public class ObservationHeadingControllerTest {
         }
         verify(observationHeadingService, Mockito.times(1)).getSavedObservationHeadings(user.getId());
     }
+
+    @Test
+    public void testGetAvailableAlertObservationHeadings() throws ResourceNotFoundException {
+
+        User user = TestUtils.createUser("testuser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availablealertobservationheadings" )
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+        verify(observationHeadingService, Mockito.times(1)).getAvailableAlertObservationHeadings(user.getId());
+    }
+
+    @Test
+    public void testGetAlertObservationHeadings() throws ResourceNotFoundException {
+
+        User user = TestUtils.createUser("testuser");
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/alertobservationheadings" )
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+        }
+        verify(observationHeadingService, Mockito.times(1)).getAlertObservationHeadings(user.getId());
+    }
 }
 
 

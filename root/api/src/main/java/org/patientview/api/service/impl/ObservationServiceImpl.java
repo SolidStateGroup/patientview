@@ -836,7 +836,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     // note: doesn't return change since last observation, must be retrieved separately
     private ObservationSummary getObservationSummaryMap(Group group, List<ObservationHeading> observationHeadings,
-        Map<String, org.patientview.api.model.FhirObservation> latestObservations) throws ResourceNotFoundException, FhirResourceException {
+        Map<String, org.patientview.api.model.FhirObservation> latestObservations)
+            throws ResourceNotFoundException, FhirResourceException {
 
         ObservationSummary observationSummary = new ObservationSummary();
         observationSummary.setPanels(new HashMap<Long, List<org.patientview.api.model.ObservationHeading>>());
@@ -883,18 +884,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
     private org.patientview.api.model.ObservationHeading buildSummaryHeading(Long panel, Long panelOrder,
                                                                              ObservationHeading observationHeading) {
         org.patientview.api.model.ObservationHeading summaryHeading =
-                new org.patientview.api.model.ObservationHeading();
+                new org.patientview.api.model.ObservationHeading(observationHeading);
 
         summaryHeading.setPanel(panel);
         summaryHeading.setPanelOrder(panelOrder);
-        summaryHeading.setCode(observationHeading.getCode());
-        summaryHeading.setHeading(observationHeading.getHeading());
-        summaryHeading.setName(observationHeading.getName());
-        summaryHeading.setNormalRange(observationHeading.getNormalRange());
-        summaryHeading.setUnits(observationHeading.getUnits());
-        summaryHeading.setMinGraph(observationHeading.getMinGraph());
-        summaryHeading.setMaxGraph(observationHeading.getMaxGraph());
-        summaryHeading.setInfoLink(observationHeading.getInfoLink());
 
         return summaryHeading;
     }

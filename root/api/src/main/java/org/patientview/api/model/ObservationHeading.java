@@ -6,6 +6,7 @@ package org.patientview.api.model;
  */
 public class ObservationHeading {
 
+    private Long id;
     private String code;
     private String heading;
     private String name;
@@ -17,8 +18,35 @@ public class ObservationHeading {
     private Long panel;
     private Long panelOrder;
 
+    // used when retrieving results
     private FhirObservation latestObservation;
     private Double valueChange;
+
+    public ObservationHeading(org.patientview.persistence.model.ObservationHeading observationHeading) {
+        this.id = observationHeading.getId();
+        this.code = observationHeading.getCode();
+        this.heading = observationHeading.getHeading();
+        this.name = observationHeading.getName();
+        this.normalRange = observationHeading.getNormalRange();
+        this.units = observationHeading.getUnits();
+        this.minGraph = observationHeading.getMinGraph();
+        this.maxGraph = observationHeading.getMaxGraph();
+        this.infoLink = observationHeading.getInfoLink();
+        this.panel = observationHeading.getDefaultPanel();
+        this.panelOrder = observationHeading.getDefaultPanelOrder();
+    }
+
+    public ObservationHeading() {
+
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getCode() {
         return code;
