@@ -69,7 +69,7 @@
                             <dl class="result-change">
                                 <dt>
                                     <span data-ng-show="!result.latestObservation.value">Result value not available</span>
-                                    <span data-ng-show="!(result.heading === 'Comment')">
+                                    <span data-ng-show="result.heading !== 'Comment'">
                                         {{result.latestObservation.comparator}}{{result.latestObservation.value}}
                                     </span>
                                     <span data-ng-show="result.heading === 'Comment'">
