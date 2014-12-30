@@ -12,6 +12,7 @@ import org.hl7.fhir.instance.model.HumanName;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceReference;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -124,10 +125,13 @@ public class PatientBuilder {
 
     private Patient addIdentifiers(Patient newPatient, Patientview data) {
         if (data.getPatient().getPersonaldetails() != null) {
-            // NHS Number
-            Identifier nhsNumber = newPatient.addIdentifier();
-            nhsNumber.setLabelSimple(IdentifierTypes.NHS_NUMBER.toString());
-            nhsNumber.setValueSimple(data.getPatient().getPersonaldetails().getNhsno());
+
+            String identifierText = data.getPatient().getPersonaldetails().getNhsno();
+
+            // Identifier
+            Identifier identifier = newPatient.addIdentifier();
+            identifier.setLabelSimple(CommonUtils.getIdentifierType(identifierText).toString());
+            identifier.setValueSimple(identifierText);
 
             // Hospital Number
             Identifier hospitalNumber = newPatient.addIdentifier();

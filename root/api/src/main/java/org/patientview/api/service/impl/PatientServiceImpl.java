@@ -36,6 +36,7 @@ import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.FhirCondition;
 import org.patientview.persistence.model.FhirContact;
@@ -56,7 +57,6 @@ import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
-import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.patientview.persistence.model.enums.TransplantStatus;
@@ -930,7 +930,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 identifier.setCreator(getCurrentUser());
                 identifier.setUser(entityUser);
                 identifier.setIdentifierType(
-                    lookupService.findByTypeAndValue(LookupTypes.IDENTIFIER, IdentifierTypes.NHS_NUMBER.toString()));
+                    lookupService.findByTypeAndValue(LookupTypes.IDENTIFIER,
+                            CommonUtils.getIdentifierType(fhirPatient.getIdentifier()).toString()));
 
                 identifier.setCreator(getCurrentUser());
                 identifier.setUser(entityUser);

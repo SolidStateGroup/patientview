@@ -169,7 +169,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigration.setLastUpdate(new Date());
                 userMigrationService.save(userMigration);
             } catch (Exception e) {
-                LOG.error("Could not migrate patient data: {} {}", e.getClass(), e.getMessage());
+                LOG.error("Could not migrate patient data: {}", e);
                 try {
                     // clean up any data created during failed migration
                     patientService.deleteExistingPatientData(userRepository.findOne(userId).getFhirLinks());

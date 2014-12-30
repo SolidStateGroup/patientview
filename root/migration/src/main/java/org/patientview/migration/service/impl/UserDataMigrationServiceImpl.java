@@ -2,7 +2,7 @@ package org.patientview.migration.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.migration.service.AdminDataMigrationService;
 import org.patientview.migration.service.UserDataMigrationService;
 import org.patientview.migration.util.JsonUtil;
@@ -81,8 +81,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -178,6 +180,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     // migrate all user data, not including observations
     public void migrate() throws JsonMigrationException {
 
+        int maxThreads = 10;
+
+        ExecutorService executorService =
+                new ThreadPoolExecutor(
+                        maxThreads, // core thread pool size
+                        maxThreads, // maximum thread pool size
+                        1, // time to wait before resizing pool
+                        TimeUnit.MINUTES,
+                        new ArrayBlockingQueue<Runnable>(maxThreads, true),
+                        new ThreadPoolExecutor.CallerRunsPolicy());
+
         init();
         Role patientRole = getRoleByName(RoleName.PATIENT);
 
@@ -204,7 +217,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("--- Starting migration ---");
 
         // testing
-        Group group = getGroupByCode("RH8");
+        Group group = getGroupByCode("MPGN");
 
         //for (Group group : groups) {
             LOG.info("(Migration) From Group: " + group.getCode());
@@ -226,7 +239,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                         try {
                                             LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
                                                     + group.getCode() + " submitting to REST");
-                                            userTaskExecutor.submit(new AsyncMigrateUserTask(migrationUser));
+                                            executorService.submit(new AsyncMigrateUserTask(migrationUser));
+
                                             migratedPv1IdsThisRun.add(oldUser.getId());
                                         } catch (Exception e) {
                                             LOG.error("REST submit exception: ", e);
@@ -246,8 +260,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         try {
             // wait forever until all threads are finished
-            userTaskExecutor.shutdown();
-            userTaskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+            executorService.shutdown();
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
@@ -450,41 +464,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
     // to set type of identifier based on numeric range
     private Lookup getIdentifierType(String identifier) {
-        Long CHI_NUMBER_START = 10000010L;
-        Long CHI_NUMBER_END = 3199999999L;
-        Long HSC_NUMBER_START = 3200000010L;
-        Long HSC_NUMBER_END = 3999999999L;
-        Long NHS_NUMBER_START = 4000000000L;
-        Long NHS_NUMBER_END = 9000000000L;
-
-        try {
-            // if non numeric then assume is dummy and return type as NHS number
-            if (!NumberUtils.isNumber(identifier)) {
-                return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
-            } else {
-                Long identifierNumber = Long.getLong(identifier);
-
-                if (identifierNumber != null) {
-                    if (CHI_NUMBER_START <= identifierNumber && identifierNumber <= CHI_NUMBER_END) {
-                        return getLookupByName(IdentifierTypes.CHI_NUMBER.toString());
-                    }
-
-                    if (HSC_NUMBER_START <= identifierNumber && identifierNumber <= HSC_NUMBER_END) {
-                        return getLookupByName(IdentifierTypes.HSC_NUMBER.toString());
-                    }
-
-                    if (NHS_NUMBER_START <= identifierNumber && identifierNumber <= NHS_NUMBER_END) {
-                        return getLookupByName(IdentifierTypes.NHS_NUMBER.toString());
-                    }
-                }
-
-                // others outside range assume dummy and return type as NHS number
-                return getLookupByName(IdentifierTypes.NON_UK_UNIQUE.toString());
-            }
-        } catch (Exception e) {
-            LOG.error("Identifier type exception with '" + identifier + "'");
-            return getLookupByName(IdentifierTypes.NON_UK_UNIQUE.toString());
-        }
+        return getLookupByName(CommonUtils.getIdentifierType(identifier).toString());
     }
 
     private MigrationUser addPatientTableData(MigrationUser migrationUser, Patient pv1PatientRecord,
