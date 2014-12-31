@@ -353,7 +353,27 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Override
     public List<ObservationHeading> getAvailableAlertObservationHeadings(Long userId)
             throws ResourceNotFoundException {
-        return observationHeadingRepository.findAllMinimal(new PageRequest(0, Integer.MAX_VALUE)).getContent();
+
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        List<Group> userGroups = Util.convertIterable(groupRepository.findGroupByUser(user));
+
+        List<ObservationHeading> observationHeadings = findAll();
+
+        Set<ObservationHeading> availableObservationHeadings = new HashSet<>();
+
+        for (ObservationHeading observationHeading : observationHeadings) {
+            for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+                if (userGroups.contains(observationHeadingGroup.getGroup())) {
+                    availableObservationHeadings.add(observationHeading);
+                }
+            }
+        }
+
+        return new ArrayList<>(availableObservationHeadings);
     }
 
     @Override
