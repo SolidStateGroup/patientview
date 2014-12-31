@@ -29,6 +29,7 @@ import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
+import org.patientview.persistence.repository.AlertObservationHeadingRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -100,6 +101,9 @@ public class UserServiceTest {
 
     @Mock
     private UserObservationHeadingRepository userObservationHeadingRepository;
+
+    @Mock
+    private AlertObservationHeadingRepository alertObservationHeadingRepository;
 
     @Mock
     private EmailService emailService;
