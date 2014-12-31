@@ -216,10 +216,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         LOG.info("--- Starting migration ---");
 
-        // testing
-        Group group = getGroupByCode("MPGN");
+        // all groups
+        //List<Group> groupToAdd = groups;
 
-        //for (Group group : groups) {
+        // testing
+        List<Group> groupsToAdd = new ArrayList<Group>();
+        groupsToAdd.add(getGroupByCode("DSF01"));
+        groupsToAdd.add(getGroupByCode("RSC02"));
+        groupsToAdd.add(getGroupByCode("48021"));
+        groupsToAdd.add(getGroupByCode("BANGALORE"));
+
+        for (Group group : groupsToAdd) {
             LOG.info("(Migration) From Group: " + group.getCode());
             try {
                 List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGpNative(group.getCode());
@@ -256,7 +263,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             } catch (Exception e) {
                 LOG.error("Migration exception: ", e);
             }
-        //}
+        }
 
         try {
             // wait forever until all threads are finished
