@@ -66,9 +66,9 @@
 <units>gm/l</units>
 <daterange start="2000-01-01" stop="2013-11-13"/>
 <result>
-<datestamp>2013-11-06T08:00:00</datestamp>
+<datestamp>2013-11-06T13:00:03</datestamp>
     <prepost>PRE</prepost>
-<value>>125.00</value>
+<value>>199.00</value>
 </result>
 <result>
 <datestamp>2013-11-05T08:00:00</datestamp>

@@ -13,6 +13,7 @@ import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.persistence.model.AlertObservationHeading;
 import org.patientview.persistence.model.enums.BodySites;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.slf4j.Logger;
@@ -33,14 +34,15 @@ import java.util.Map;
  * Created on 01/09/2014
  */
 public class ObservationsBuilder {
-    private final Logger LOG = LoggerFactory.getLogger(ObservationsBuilder.class);
 
+    private final Logger LOG = LoggerFactory.getLogger(ObservationsBuilder.class);
     private ResourceReference resourceReference;
     private Patientview results;
     private List<Observation> observations;
     private int success = 0;
     private int count = 0;
     private Map<String, Patientview.Patient.Testdetails.Test.Daterange> dateRanges;
+    private Map<String, AlertObservationHeading> alertObservationHeadingMap;
 
     public ObservationsBuilder(Patientview results, ResourceReference resourceReference) {
         this.results = results;
@@ -58,10 +60,38 @@ public class ObservationsBuilder {
             for (Patientview.Patient.Testdetails.Test test : results.getPatient().getTestdetails().getTest()) {
 
                 dateRanges.put(test.getTestcode().value().toUpperCase(), test.getDaterange());
+                String testCode = test.getTestcode().value().toUpperCase();
+                AlertObservationHeading alert = alertObservationHeadingMap.get(testCode);
+                alert.setUpdated(false);
 
                 for (Patientview.Patient.Testdetails.Test.Result result : test.getResult()) {
                     try {
                         observations.add(createObservation(test, result));
+
+                        // handle alerts
+                        if (alertObservationHeadingMap.containsKey(testCode)) {
+                            if (alert.getLatestObservationDate() == null) {
+                                // is the first time a result has come in for this alert
+                                alert.setLatestObservationDate(
+                                        result.getDatestamp().toGregorianCalendar().getTime());
+                                alert.setLatestObservationValue(result.getValue());
+                                alert.setEmailAlertSent(false);
+                                alert.setWebAlertViewed(false);
+                                alert.setUpdated(true);
+                            } else {
+                                // previous result has been alerted, check if this one is newer
+                                if (alert.getLatestObservationDate().getTime()
+                                        < result.getDatestamp().toGregorianCalendar().getTime().getTime()) {
+                                    alert.setLatestObservationDate(
+                                            result.getDatestamp().toGregorianCalendar().getTime());
+                                    alert.setLatestObservationValue(result.getValue());
+                                    alert.setEmailAlertSent(false);
+                                    alert.setWebAlertViewed(false);
+                                    alert.setUpdated(true);
+                                }
+                            }
+                        }
+
                         success++;
                     } catch (FhirResourceException e) {
                         LOG.error("Invalid data in XML: " + e.getMessage());
@@ -372,7 +402,9 @@ public class ObservationsBuilder {
         Decimal decimal = new Decimal();
 
         // remove all but numeric and . -
-        String resultString = result.getValue().replaceAll("/[^\\d.-]+/", "");
+        //String resultString = result.getValue().replaceAll("/[^\\d.-]+/g", "");
+        String resultString = result.getValue().replaceAll(">","").replaceAll(">=","")
+                .replaceAll("<","").replaceAll("<=","");
 
         // attempt to parse remaining
         NumberFormat decimalFormat = DecimalFormat.getInstance();
@@ -427,15 +459,15 @@ public class ObservationsBuilder {
         return observations;
     }
 
-    public void setObservations(List<Observation> observations) {
-        this.observations = observations;
+    public Map<String, AlertObservationHeading> getAlertObservationHeadingMap() {
+        return alertObservationHeadingMap;
+    }
+
+    public void setAlertObservationHeadingMap(Map<String, AlertObservationHeading> alertObservationHeadingMap) {
+        this.alertObservationHeadingMap = alertObservationHeadingMap;
     }
 
     public Map<String, Patientview.Patient.Testdetails.Test.Daterange> getDateRanges() {
         return dateRanges;
-    }
-
-    public void setDateRanges(Map<String, Patientview.Patient.Testdetails.Test.Daterange> dateRanges) {
-        this.dateRanges = dateRanges;
     }
 }

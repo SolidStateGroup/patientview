@@ -1,8 +1,5 @@
 <!-- todo: move to main css -->
 <style>
-    div.alert-list {
-        margin-top:60px;
-    }
     input.alert-checkbox {
         margin-right:7px;
     }
@@ -127,17 +124,57 @@
                 <div class="content-panel">
                     <div class="panel-intro">
                         <h3>Result Alerts</h3>
+                        <p>Updated when a new result arrives</p>
                     </div>
                     <div class="content-inner">
-                        <p>If you would like to be notified when a new result arrives, please select it from the dropdown:</p>
-
-                        <select class="form-control pull-right" data-ng-model="selectedObservationHeadingId"
-                                data-ng-options="observationHeading.id as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
-                                data-ng-change="addAlertObservationHeading(selectedObservationHeadingId)">
-                        </select>
 
                         <div data-ng-show="alertObservationHeadings.length" class="alert-list">
                             <table class="table">
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Latest Value</th>
+                                    <th>Date</th>
+                                    <th></th>
+                                </tr>
+                                <tr data-ng-repeat="alert in alertObservationHeadings">
+                                    <td>
+                                        <a href="#/resultsdetail?code={{alert.observationHeading.code}}">{{alert.observationHeading.heading}}</a>
+                                    </td>
+                                    <td>
+                                        <span data-ng-show="alert.latestObservationValue">{{alert.latestObservationValue}}</span>
+                                        <span data-ng-show="!alert.latestObservationValue">unknown</span>
+                                    </td>
+                                    <td>
+                                        <span data-ng-show="alert.latestObservationDate">
+                                            {{alert.latestObservationDate | date:'dd-MM-yyyy HH:mm'}}
+                                        </span>
+                                        <span data-ng-show="!alert.latestObservationDate">unknown</span>
+                                    </td>
+                                    <td>
+                                        <span class="label label-success" data-ng-show="!alert.webAlertViewed && alert.webAlert"> New</span>
+                                    </td>
+                                </tr>
+                            </table>
+
+
+                        </div>
+                        <div data-ng-show="!alertObservationHeadings.length" class="alert-list">
+                            <p>No alerts have currently been set up</p>
+                        </div>
+                        <div>
+                            <a href="" data-ng-click="showAlertSettings = !showAlertSettings" class="pull-right"
+                               data-ng-hide="showAlertSettings">Show Alert Settings</a>
+                            <br/>
+                        </div>
+                        <div data-ng-show="showAlertSettings">
+                            <a href="" class="pull-right" data-ng-click="showAlertSettings = !showAlertSettings">Hide Alert Settings</a>
+                            <p>If you would like to be notified when a new result arrives, please select it from the dropdown:</p>
+                            <select class="form-control pull-right" data-ng-model="selectedObservationHeadingId"
+                                    data-ng-options="observationHeading.id as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                                    data-ng-change="addAlertObservationHeading(selectedObservationHeadingId)">
+                            </select>
+                            <br/><br/>
+                            <table class="table" data-ng-show="alertObservationHeadings.length">
                                 <tr>
                                     <th></th>
                                     <th colspan="2">How would you like to be notified?</th>
@@ -158,14 +195,8 @@
                                     <td>
                                         <a href="" class="btn btn-danger" data-ng-click="removeAlertObservationHeading(alert.id)">Remove Alert</a>
                                     </td>
-                                    <td data-ng-show="!alert.webAlertViewed">
-                                        <span class="label label-success"> New Result Available</span>
-                                    </td>
                                 </tr>
                             </table>
-                        </div>
-                        <div data-ng-show="!alertObservationHeadings.length" class="alert-list">
-                            <p>No alerts have currently been set up</p>
                         </div>
                     </div>
                 </div>

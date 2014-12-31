@@ -217,14 +217,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("--- Starting migration ---");
 
         // all groups
-        //List<Group> groupToAdd = groups;
+        List<Group> groupsToAdd = groups;
 
         // testing
-        List<Group> groupsToAdd = new ArrayList<Group>();
+        /*List<Group> groupsToAdd = new ArrayList<Group>();
         groupsToAdd.add(getGroupByCode("DSF01"));
         groupsToAdd.add(getGroupByCode("RSC02"));
         groupsToAdd.add(getGroupByCode("48021"));
-        groupsToAdd.add(getGroupByCode("BANGALORE"));
+        groupsToAdd.add(getGroupByCode("BANGALORE"));*/
 
         for (Group group : groupsToAdd) {
             LOG.info("(Migration) From Group: " + group.getCode());
@@ -235,7 +235,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
                 if (CollectionUtils.isNotEmpty(groupUserIds)) {
                     for (Long oldUserId : groupUserIds) {
-                        if (!migratedPv1IdsThisRun.contains(oldUserId) /*&& !previouslyMigratedPv1Ids.contains(oldUserId)*/) {
+                        if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
                             try {
                                 org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
 

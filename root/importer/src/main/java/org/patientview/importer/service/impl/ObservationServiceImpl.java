@@ -10,8 +10,11 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.model.BasicObservation;
 import org.patientview.importer.model.DateRange;
+import org.patientview.persistence.model.AlertObservationHeading;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
+import org.patientview.persistence.repository.AlertObservationHeadingRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.ObservationService;
 import org.patientview.importer.Utility.Util;
@@ -32,7 +35,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -49,6 +54,12 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     @Named("fhir")
     private BasicDataSource dataSource;
 
+    @Inject
+    private IdentifierRepository identifierRepository;
+
+    @Inject
+    private AlertObservationHeadingRepository alertObservationHeadingRepository;
+
     /**
      * Creates all of the FHIR observation records from the Patientview object. Links then to the PatientReference
      */
@@ -56,14 +67,31 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
         LOG.info("Starting Observation Process");
+
+        // create map to hold user alerts (if present)
+        Map<String, AlertObservationHeading> alertObservationHeadingMap = new HashMap<>();
+        List<org.patientview.persistence.model.Identifier> identifiers
+                = identifierRepository.findByValue(data.getPatient().getPersonaldetails().getNhsno());
+
+        if (!CollectionUtils.isEmpty(identifiers)) {
+            List<AlertObservationHeading> alertObservationHeadings
+                    = alertObservationHeadingRepository.findByUser(identifiers.get(0).getUser());
+            if (!CollectionUtils.isEmpty(alertObservationHeadings)) {
+                for (AlertObservationHeading alert : alertObservationHeadings) {
+                    alertObservationHeadingMap.put(alert.getObservationHeading().getCode().toUpperCase(), alert);
+                }
+            }
+        }
+
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         ObservationsBuilder observationsBuilder = new ObservationsBuilder(data, patientReference);
+        observationsBuilder.setAlertObservationHeadingMap(alertObservationHeadingMap);
         observationsBuilder.build();
 
         LOG.info("Getting Existing Observations");
         List<BasicObservation> observations = getBasicObservationBySubjectId(fhirLink.getResourceId());
 
-        // delete existing observations
+        // get uuids of existing observations to delete
         LOG.info("Deleting Existing Observations");
         List<UUID> observationsUuidsToDelete = new ArrayList<>();
 
@@ -170,6 +198,37 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                 }
             }
             fhirResource.executeSQL(sb.toString());
+
+            // handle updating alerts if present
+            Map<String, AlertObservationHeading> alertMap
+                    = observationsBuilder.getAlertObservationHeadingMap();
+
+            boolean sendAlertEmail = false;
+            String emailAddress = null;
+
+            for (String code : alertMap.keySet()) {
+                AlertObservationHeading alert = alertMap.get(code);
+                if (alert.isUpdated()) {
+                    AlertObservationHeading alertObservationHeading
+                            = alertObservationHeadingRepository.findOne(alert.getId());
+                    alertObservationHeading.setLatestObservationValue(alert.getLatestObservationValue());
+                    alertObservationHeading.setLatestObservationDate(alert.getLatestObservationDate());
+                    alertObservationHeading.setWebAlertViewed(alert.isWebAlertViewed());
+                    alertObservationHeading.setEmailAlertSent(alert.isEmailAlertSent());
+                    alert.setLastUpdate(new Date());
+                    alertObservationHeadingRepository.save(alertObservationHeading);
+
+                    if (alertObservationHeading.isEmailAlert()) {
+                        sendAlertEmail = true;
+                        emailAddress = alertObservationHeading.getUser().getEmail();
+                    }
+                }
+            }
+
+            if (sendAlertEmail && emailAddress != null) {
+                // todo: send email
+                LOG.info("Sending new observations alert email to " + emailAddress);
+            }
         }
 
         LOG.info("Processed {} of {} observations", observationsBuilder.getSuccess(), observationsBuilder.getCount());

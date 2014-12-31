@@ -588,6 +588,8 @@ CREATE TABLE PV_Alert_Observation_Heading
   Email_Alert_Sent            BOOLEAN      NOT NULL,
   User_Id                     BIGINT       REFERENCES PV_User (Id) NOT NULL,
   Observation_Heading_Id      BIGINT       REFERENCES PV_Observation_Heading (Id) NOT NULL,
+  Latest_Observation_Value    TEXT,
+  Latest_Observation_Date     TIMESTAMP,
   Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
   Creation_Date               TIMESTAMP    NOT NULL,
   Last_Update_Date            TIMESTAMP,

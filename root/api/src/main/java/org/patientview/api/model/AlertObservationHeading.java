@@ -1,5 +1,7 @@
 package org.patientview.api.model;
 
+import java.util.Date;
+
 /**
  * Created by jamesr@solidstategroup.com
  * Created on 30/12/2014
@@ -11,6 +13,8 @@ public class AlertObservationHeading {
     private boolean webAlertViewed;
     private boolean emailAlert;
     private boolean emailAlertSent;
+    private String latestObservationValue;
+    private Date latestObservationDate;
     private BaseUser user;
     private ObservationHeading observationHeading;
 
@@ -20,6 +24,8 @@ public class AlertObservationHeading {
         this.webAlertViewed = alertObservationHeading.isWebAlertViewed();
         this.emailAlert = alertObservationHeading.isEmailAlert();
         this.emailAlertSent = alertObservationHeading.isEmailAlertSent();
+        this.latestObservationValue = alertObservationHeading.getLatestObservationValue();
+        this.latestObservationDate = alertObservationHeading.getLatestObservationDate();
         this.user = new BaseUser(alertObservationHeading.getUser());
         this.observationHeading = new ObservationHeading(alertObservationHeading.getObservationHeading());
     }
@@ -66,6 +72,22 @@ public class AlertObservationHeading {
 
     public void setEmailAlertSent(boolean emailAlertSent) {
         this.emailAlertSent = emailAlertSent;
+    }
+
+    public String getLatestObservationValue() {
+        return latestObservationValue;
+    }
+
+    public void setLatestObservationValue(String latestObservationValue) {
+        this.latestObservationValue = latestObservationValue;
+    }
+
+    public Date getLatestObservationDate() {
+        return latestObservationDate;
+    }
+
+    public void setLatestObservationDate(Date latestObservationDate) {
+        this.latestObservationDate = latestObservationDate;
     }
 
     public BaseUser getUser() {

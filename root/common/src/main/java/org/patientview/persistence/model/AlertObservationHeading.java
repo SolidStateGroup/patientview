@@ -8,6 +8,10 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import java.util.Date;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -29,6 +33,13 @@ public class AlertObservationHeading extends AuditModel {
     @Column(name = "email_alert_sent", nullable = false)
     private boolean emailAlertSent;
 
+    @Column(name = "latest_observation_value")
+    private String latestObservationValue;
+
+    @Column(name = "latest_observation_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date latestObservationDate;
+
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,6 +48,10 @@ public class AlertObservationHeading extends AuditModel {
     @OneToOne
     @JoinColumn(name = "observation_heading_id", nullable = false)
     private ObservationHeading observationHeading;
+
+    // used during import
+    @Transient
+    private boolean updated;
 
     public boolean isWebAlert() {
         return webAlert;
@@ -70,6 +85,22 @@ public class AlertObservationHeading extends AuditModel {
         this.emailAlertSent = emailAlertSent;
     }
 
+    public String getLatestObservationValue() {
+        return latestObservationValue;
+    }
+
+    public void setLatestObservationValue(String latestObservationValue) {
+        this.latestObservationValue = latestObservationValue;
+    }
+
+    public Date getLatestObservationDate() {
+        return latestObservationDate;
+    }
+
+    public void setLatestObservationDate(Date latestObservationDate) {
+        this.latestObservationDate = latestObservationDate;
+    }
+
     public User getUser() {
         return user;
     }
@@ -84,5 +115,13 @@ public class AlertObservationHeading extends AuditModel {
 
     public void setObservationHeading(ObservationHeading observationHeading) {
         this.observationHeading = observationHeading;
+    }
+
+    public boolean isUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
     }
 }
