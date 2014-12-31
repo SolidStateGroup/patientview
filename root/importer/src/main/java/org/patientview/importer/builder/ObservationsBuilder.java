@@ -61,8 +61,15 @@ public class ObservationsBuilder {
 
                 dateRanges.put(test.getTestcode().value().toUpperCase(), test.getDaterange());
                 String testCode = test.getTestcode().value().toUpperCase();
+
+                if (alertObservationHeadingMap == null) {
+                    alertObservationHeadingMap = new HashMap<>();
+                }
+
                 AlertObservationHeading alert = alertObservationHeadingMap.get(testCode);
-                alert.setUpdated(false);
+                if (alert != null) {
+                    alert.setUpdated(false);
+                }
 
                 for (Patientview.Patient.Testdetails.Test.Result result : test.getResult()) {
                     try {
