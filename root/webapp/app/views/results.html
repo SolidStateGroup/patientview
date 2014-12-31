@@ -1,5 +1,5 @@
 <style>
-    .result-item-container .result-change dt span {
+    .result-item-container .result-change dt span.result-value {
         font-size: 50px;
     }
 </style>
@@ -69,10 +69,10 @@
                             <dl class="result-change">
                                 <dt>
                                     <span data-ng-show="!result.latestObservation.value">Result value not available</span>
-                                    <span data-ng-show="result.heading !== 'Comment'">
+                                    <span data-ng-show="result.heading !== 'Comment'" class="result-value">
                                         {{result.latestObservation.comparator}}{{result.latestObservation.value}}
                                     </span>
-                                    <span data-ng-show="result.heading === 'Comment'">
+                                    <span data-ng-show="result.heading === 'Comment'" class="result-value">
                                         Available
                                     </span>
                                     <span data-ng-show="result.units && result.latestObservation.value">{{result.units}}</span>
