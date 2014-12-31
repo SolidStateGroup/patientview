@@ -3,6 +3,7 @@ package org.patientview.persistence.repository;
 import org.patientview.persistence.model.AlertObservationHeading;
 import org.patientview.persistence.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -24,4 +25,8 @@ public interface AlertObservationHeadingRepository extends JpaRepository<AlertOb
             "JOIN    aoh.user u " +
             "WHERE   u = :user ")
     public List<AlertObservationHeading> findByUser(@Param("user") User user);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM AlertObservationHeading WHERE user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }

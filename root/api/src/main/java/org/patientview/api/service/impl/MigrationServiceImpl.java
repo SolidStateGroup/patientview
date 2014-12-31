@@ -10,6 +10,7 @@ import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
+import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirDatabaseObservation;
 import org.patientview.persistence.model.FhirLink;
@@ -105,37 +106,41 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
         org.patientview.api.model.User apiUser = userService.getByUsername(user.getUsername());
 
+        // delete user if already exists
         if (apiUser != null) {
-            // todo: deal with updating migration users, currently just get Id of existing
-            userId = apiUser.getId();
-            userMigration = userMigrationService.getByPatientview2Id(userId);
-        } else {
-            // add basic user object
             try {
-                userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_STARTED);
-                userMigration.setInformation(null);
-                userMigration.setCreator(getCurrentUser());
-                userMigration.setLastUpdater(getCurrentUser());
-                userMigration.setLastUpdate(start);
-                userMigration = userMigrationService.save(userMigration);
-
-                // initialise userService if not already done
-                if (userService.getGenericGroup() == null) {
-                    userService.init();
-                }
-
-                userId = userService.add(user);
-
-                // add user information if present (convert from Set to ArrayList)
-                if (!CollectionUtils.isEmpty(user.getUserInformation())) {
-                    userService.addOtherUsersInformation(userId, new ArrayList<>(user.getUserInformation()));
-                }
-            } catch (EntityExistsException e) {
-                userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
-                userMigration.setInformation(e.getMessage());
-                userMigrationService.save(userMigration);
-                throw e;
+                userService.delete(apiUser.getId());
+            } catch (ResourceForbiddenException | FhirResourceException e) {
+                LOG.error("Cannot delete user with id " + apiUser.getId());
+                throw new MigrationException(e);
             }
+        }
+
+        // add basic user object
+        try {
+            userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_STARTED);
+            userMigration.setInformation(null);
+            userMigration.setCreator(getCurrentUser());
+            userMigration.setLastUpdater(getCurrentUser());
+            userMigration.setLastUpdate(start);
+            userMigration = userMigrationService.save(userMigration);
+
+            // initialise userService if not already done
+            if (userService.getGenericGroup() == null) {
+                userService.init();
+            }
+
+            userId = userService.add(user);
+
+            // add user information if present (convert from Set to ArrayList)
+            if (!CollectionUtils.isEmpty(user.getUserInformation())) {
+                userService.addOtherUsersInformation(userId, new ArrayList<>(user.getUserInformation()));
+            }
+        } catch (EntityExistsException e) {
+            userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
+            userMigration.setInformation(e.getMessage());
+            userMigrationService.save(userMigration);
+            throw e;
         }
 
         if (userMigration == null) {
