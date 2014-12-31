@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.hibernate.internal.util.collections.JoinedIterable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -314,15 +315,18 @@ public class ObservationHeadingServiceTest {
     @Test
     public void testGetAvailableAlertObservationHeadings() throws ResourceNotFoundException {
 
-        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Group group = TestUtils.createGroup("GROUP1");
+        List<Group> groupList = new ArrayList<>();
+        groupList.add(group);
+
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
+        observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
+        ObservationHeadingGroup observationHeadingGroup
+                = new ObservationHeadingGroup(observationHeading, group, 1L, 1L);
+        observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
         List<ObservationHeading> observationHeadings = new ArrayList<>();
         observationHeadings.add(observationHeading);
 
-        Page<ObservationHeading> observationHeadingsPage =
-                new PageImpl<>(observationHeadings, pageableAll, observationHeadings.size());
-
-        Group group = TestUtils.createGroup("GROUP1");
         Role role = TestUtils.createRole(RoleName.PATIENT);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -330,7 +334,9 @@ public class ObservationHeadingServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(observationHeadingRepository.findAllMinimal(eq(pageableAll))).thenReturn(observationHeadingsPage);
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(groupRepository.findGroupByUser(eq(user))).thenReturn(groupList);
+        when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
 
         List<ObservationHeading> result
                 = observationHeadingService.getAvailableAlertObservationHeadings(user.getId());
