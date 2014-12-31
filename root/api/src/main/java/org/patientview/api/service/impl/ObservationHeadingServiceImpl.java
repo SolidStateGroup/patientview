@@ -368,6 +368,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         for (ObservationHeading observationHeading : observationHeadings) {
             for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
                 if (userGroups.contains(observationHeadingGroup.getGroup())) {
+                    observationHeading.setObservationHeadingGroups(new HashSet<ObservationHeadingGroup>());
                     availableObservationHeadings.add(observationHeading);
                 }
             }
