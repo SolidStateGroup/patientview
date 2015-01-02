@@ -32,17 +32,13 @@ public class FhirMedicationStatement {
     public FhirMedicationStatement(MedicationStatement medicationStatement, Medication medication, Group group)
             throws FhirResourceException {
 
-        if (medicationStatement.getWhenGiven() == null) {
-            throw new FhirResourceException("Cannot convert FHIR medication statement, missing when given");
+        if (medicationStatement.getWhenGiven() != null) {
+            if (medicationStatement.getWhenGiven().getStartSimple() != null) {
+                DateAndTime date = medicationStatement.getWhenGiven().getStartSimple();
+                setStartDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                        date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
+            }
         }
-
-        if (medicationStatement.getWhenGiven().getStartSimple() == null) {
-            throw new FhirResourceException("Cannot convert FHIR medication statement, missing start date (startDate)");
-        }
-
-        DateAndTime date = medicationStatement.getWhenGiven().getStartSimple();
-        setStartDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
-                date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
 
         if (medication == null) {
             throw new FhirResourceException("Cannot convert FHIR medication statement, missing medication");
