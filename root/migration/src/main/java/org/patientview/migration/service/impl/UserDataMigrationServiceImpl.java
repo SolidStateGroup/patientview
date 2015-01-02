@@ -220,13 +220,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         List<Group> groupsToAdd = groups;
 
         // testing
+        Long oldUserId = 73677L;
+
+        // testing
         /*List<Group> groupsToAdd = new ArrayList<Group>();
         groupsToAdd.add(getGroupByCode("DSF01"));
         groupsToAdd.add(getGroupByCode("RSC02"));
         groupsToAdd.add(getGroupByCode("48021"));
         groupsToAdd.add(getGroupByCode("BANGALORE"));*/
 
-        for (Group group : groupsToAdd) {
+        /*for (Group group : groupsToAdd) {
             LOG.info("(Migration) From Group: " + group.getCode());
             try {
                 List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGpNative(group.getCode());
@@ -234,8 +237,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
 
                 if (CollectionUtils.isNotEmpty(groupUserIds)) {
-                    for (Long oldUserId : groupUserIds) {
-                        if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
+                    for (Long oldUserId : groupUserIds) {*/
+                        if (!migratedPv1IdsThisRun.contains(oldUserId) /*&& !previouslyMigratedPv1Ids.contains(oldUserId)*/) {
                             try {
                                 org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
 
@@ -245,7 +248,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                     if (migrationUser != null) {
                                         try {
                                             LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
-                                                    + group.getCode() + " submitting to REST");
+                                                    /*+ group.getCode()*/ + " submitting to REST");
                                             executorService.submit(new AsyncMigrateUserTask(migrationUser));
 
                                             migratedPv1IdsThisRun.add(oldUser.getId());
@@ -258,12 +261,12 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                                 LOG.error("Exception: ", e);
                             }
                         }
-                    }
+                    /*}
                 }
             } catch (Exception e) {
                 LOG.error("Migration exception: ", e);
             }
-        }
+        }*/
 
         try {
             // wait forever until all threads are finished
