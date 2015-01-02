@@ -220,7 +220,6 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         List<Group> groupsToAdd = groups;
 
         // testing
-        //Long oldUserId = 73677L;
 
         // testing
         /*List<Group> groupsToAdd = new ArrayList<Group>();
@@ -229,42 +228,71 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         groupsToAdd.add(getGroupByCode("48021"));
         groupsToAdd.add(getGroupByCode("BANGALORE"));*/
 
-        for (Group group : groupsToAdd) {
-            LOG.info("(Migration) From Group: " + group.getCode());
-            try {
-                List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGpNative(group.getCode());
+        boolean singleUser = true;
 
-                LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
+        if (!singleUser) {
 
-                if (CollectionUtils.isNotEmpty(groupUserIds)) {
-                    for (Long oldUserId : groupUserIds) {
-                        if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
-                            try {
-                                org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+            for (Group group : groupsToAdd) {
+                LOG.info("(Migration) From Group: " + group.getCode());
+                try {
+                    List<Long> groupUserIds = userDao.getIdsByUnitcodeNoGpNative(group.getCode());
 
-                                if (!oldUser.getUsername().endsWith("-GP")) {
-                                    MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+                    LOG.info("(Migration) From Group: " + group.getCode() + ", " + groupUserIds.size() + " users");
 
-                                    if (migrationUser != null) {
-                                        try {
-                                            LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
-                                                    + group.getCode() + " submitting to REST");
-                                            executorService.submit(new AsyncMigrateUserTask(migrationUser));
+                    if (CollectionUtils.isNotEmpty(groupUserIds)) {
+                        for (Long oldUserId : groupUserIds) {
+                            if (!migratedPv1IdsThisRun.contains(oldUserId) && !previouslyMigratedPv1Ids.contains(oldUserId)) {
+                                try {
+                                    org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
 
-                                            migratedPv1IdsThisRun.add(oldUser.getId());
-                                        } catch (Exception e) {
-                                            LOG.error("REST submit exception: ", e);
+                                    if (!oldUser.getUsername().endsWith("-GP")) {
+                                        MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+
+                                        if (migrationUser != null) {
+                                            try {
+                                                LOG.info("(Migration) User: " + oldUser.getUsername() + " from Group "
+                                                        + group.getCode() + " submitting to REST");
+                                                executorService.submit(new AsyncMigrateUserTask(migrationUser));
+
+                                                migratedPv1IdsThisRun.add(oldUser.getId());
+                                            } catch (Exception e) {
+                                                LOG.error("REST submit exception: ", e);
+                                            }
                                         }
                                     }
+                                } catch (Exception e) {
+                                    LOG.error("Exception: ", e);
                                 }
-                            } catch (Exception e) {
-                                LOG.error("Exception: ", e);
                             }
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.error("Migration exception: ", e);
+                }
+            }
+        } else {
+            LOG.info("--- Single user migration ---");
+            Long oldUserId = 18445L;
+
+            try {
+                org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+
+                if (!oldUser.getUsername().endsWith("-GP")) {
+                    MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
+
+                    if (migrationUser != null) {
+                        try {
+                            LOG.info("(Migration) User: " + oldUser.getUsername() + " submitting to REST");
+                            executorService.submit(new AsyncMigrateUserTask(migrationUser));
+
+                            migratedPv1IdsThisRun.add(oldUser.getId());
+                        } catch (Exception e) {
+                            LOG.error("REST submit exception: ", e);
                         }
                     }
                 }
             } catch (Exception e) {
-                LOG.error("Migration exception: ", e);
+                LOG.error("Exception: ", e);
             }
         }
 
