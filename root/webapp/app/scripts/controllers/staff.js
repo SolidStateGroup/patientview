@@ -214,7 +214,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.searchItems.searchForename = $('#search-forename').val();
         $scope.searchItems.searchSurname = $('#search-surname').val();
         $scope.searchItems.searchEmail = $('#search-email').val();
-
+        $scope.currentPage = 0;
         $scope.getItems();
     };
 

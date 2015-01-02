@@ -345,7 +345,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.searchItems.searchSurname = $('#search-surname').val();
         $scope.searchItems.searchIdentifier = $('#search-identifier').val();
         $scope.searchItems.searchEmail = $('#search-email').val();
-
+        $scope.currentPage = 0;
         $scope.getItems();
     };
 
