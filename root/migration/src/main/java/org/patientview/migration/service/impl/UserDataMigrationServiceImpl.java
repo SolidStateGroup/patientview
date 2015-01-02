@@ -607,14 +607,14 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                 transplant.setIdentifier(pv1PatientRecord.getNhsno());
                 migrationUser.getEncounters().add(transplant);
             }
-            if (StringUtils.isNotEmpty(uktStatus.getPancreas())) {
+            /*if (StringUtils.isNotEmpty(uktStatus.getPancreas())) {
                 FhirEncounter transplant = new FhirEncounter();
                 transplant.setEncounterType(EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString());
                 transplant.setGroup(unit);
                 transplant.setStatus(uktStatus.getPancreas());
                 transplant.setIdentifier(pv1PatientRecord.getNhsno());
                 migrationUser.getEncounters().add(transplant);
-            }
+            }*/
         }
 
         // - practitioner (gp)
