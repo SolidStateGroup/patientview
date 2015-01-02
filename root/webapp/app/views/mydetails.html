@@ -36,10 +36,12 @@
                                     <td>{{patient.fhirPatient.dateOfBirth | date:'dd-MMM-yyyy'}}</td>
                                 </tr>
                                 <tr>
-                                    <td class="forced-width">NHS Number</td>
+                                    <td class="forced-width">NHS/CHI/H&SC Number</td>
                                     <td>
                                         <span data-ng-repeat="identifier in patient.fhirPatient.identifiers"
-                                              data-ng-show="identifier.label === 'NHS_NUMBER'">
+                                              data-ng-show="identifier.label === 'NHS_NUMBER'
+                                              || identifier.label === 'CHI_NUMBER'
+                                              || identifier.label === 'HSC_NUMBER' ">
                                             {{identifier.value}}
                                         </span>
                                     </td>

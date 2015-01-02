@@ -577,7 +577,7 @@ CREATE TABLE PV_User_Observation_Heading
   Created_By                  BIGINT       REFERENCES PV_User (Id) NOT NULL,
   Creation_Date               TIMESTAMP    NOT NULL,
   PRIMARY KEY (Id)
-)
+);
 
 CREATE TABLE PV_Alert_Observation_Heading
 (
@@ -595,7 +595,7 @@ CREATE TABLE PV_Alert_Observation_Heading
   Last_Update_Date            TIMESTAMP,
   Last_Updated_By             BIGINT REFERENCES PV_User (Id),
   PRIMARY KEY (Id)
-)
+);
 
 CREATE SEQUENCE hibernate_sequence
 INCREMENT 1
