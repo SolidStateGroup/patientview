@@ -334,7 +334,15 @@ public class ObservationsBuilder {
         Observation observation = new Observation();
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
-        observation.setValue(createQuantity(result, test));
+        try {
+            observation.setValue(createQuantity(result, test));
+        } catch (FhirResourceException e) {
+            // text based value
+            CodeableConcept valueConcept = new CodeableConcept();
+            valueConcept.setTextSimple(result.getValue());
+            valueConcept.addCoding().setDisplaySimple(result.getValue());
+            observation.setValue(valueConcept);
+        }
         observation.setSubject(resourceReference);
         observation.setName(createConcept(test));
         observation.setApplies(createDateTime(result));
@@ -420,7 +428,8 @@ public class ObservationsBuilder {
             try {
                 decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
             } catch (ParseException nfe) {
-                throw new FhirResourceException("Invalid value for observation: " + result.getValue());
+                throw new FhirResourceException("Invalid value for observation (will try text based): "
+                        + result.getValue());
             }
         } else {
             throw new FhirResourceException("Empty value for observation");
