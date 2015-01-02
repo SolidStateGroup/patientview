@@ -217,18 +217,18 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("--- Starting migration ---");
 
         // all groups
-        List<Group> groupsToAdd = groups;
+        //List<Group> groupsToAdd = groups;
 
         // testing
 
         // testing
-        /*List<Group> groupsToAdd = new ArrayList<Group>();
+        List<Group> groupsToAdd = new ArrayList<Group>();
         groupsToAdd.add(getGroupByCode("DSF01"));
         groupsToAdd.add(getGroupByCode("RSC02"));
         groupsToAdd.add(getGroupByCode("48021"));
-        groupsToAdd.add(getGroupByCode("BANGALORE"));*/
+        groupsToAdd.add(getGroupByCode("BANGALORE"));
 
-        boolean singleUser = true;
+        boolean singleUser = false;
 
         if (!singleUser) {
 
