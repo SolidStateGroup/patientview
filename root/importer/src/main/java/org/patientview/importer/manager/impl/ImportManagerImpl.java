@@ -98,7 +98,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
     @Override
     public void process(Patientview patientview, String xml, Long importerUserId) throws ImportResourceException {
 
-        ResourceReference practitionerReference;
+        ResourceReference practitionerReference = null;
         ResourceReference organizationReference;
 
         try {
@@ -112,7 +112,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             // update Practitioner based on <gpname> (GP details)
             UUID practitionerUuid = practitionerService.add(patientview);
-            practitionerReference = Util.createResourceReference(practitionerUuid);
+            if (practitionerUuid != null) {
+                practitionerReference = Util.createResourceReference(practitionerUuid);
+            }
 
             // update core Patient object based on <nhsno>
             FhirLink fhirLink = patientService.add(patientview, practitionerReference);

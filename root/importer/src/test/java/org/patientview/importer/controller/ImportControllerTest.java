@@ -113,7 +113,8 @@ public class ImportControllerTest {
     String getTestFile() throws IOException, URISyntaxException {
 
         //String fileName = "data/xml/milestone5/SAC02_01439_41737438900.xml";
-        String fileName = "data/xml/SAC02_01436_1111111111.xml";
+        //String fileName = "data/xml/SAC02_01436_1111111111.xml";
+        String fileName = "data/xml/SAC02_01436_1111111111_blankgp.xml";
         //String fileName = "data/xml/SAC02_01436_1111111111_single.xml";
         //String fileName = "data/xml/IMPORTGROUP_1111111111.xml";
         //String fileName = "data/xml/ECS_1111111111.xml";

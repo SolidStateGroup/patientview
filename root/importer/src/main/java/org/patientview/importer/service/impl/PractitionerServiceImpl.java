@@ -3,6 +3,7 @@ package org.patientview.importer.service.impl;
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -51,11 +52,24 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
 
         if (data.getGpdetails() != null) {
             try {
-                // build FHIR object
+
+                // build FHIR object, accounting for blank gp name (replace with address if present)
+                if (StringUtils.isEmpty(data.getGpdetails().getGpname())
+                        && StringUtils.isEmpty(data.getGpdetails().getGpaddress1())) {
+                    LOG.info("Empty GP details, not adding");
+                    return null;
+                }
+
+                if (StringUtils.isEmpty(data.getGpdetails().getGpname())) {
+                    data.getGpdetails().setGpname(data.getGpdetails().getGpaddress1());
+                    LOG.info("Empty GP name, replacing with GP address 1");
+                }
+
                 data.getGpdetails().setGpname(StringEscapeUtils.escapeSql(data.getGpdetails().getGpname()));
                 PractitionerBuilder practitionerBuilder = new PractitionerBuilder(data);
                 Practitioner importPractitioner = practitionerBuilder.build();
-                List<Map<String, UUID>> uuids = getUuidsByFamilyName(data.getGpdetails().getGpname());
+
+                List<Map<String, UUID>> uuids =  getUuidsByFamilyName(data.getGpdetails().getGpname());
 
                 if (!uuids.isEmpty()) {
                     // update existing FHIR entities (should be a single row), return reference
@@ -94,8 +108,8 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         // build query
         StringBuilder query = new StringBuilder();
         query.append("SELECT  version_id, logical_id ");
-        query.append("FROM organization ");
-        query.append("WHERE   content #> '{identifier,0}' -> 'value' = '\"");
+        query.append("FROM practitioner ");
+        query.append("WHERE content -> 'name' #> '{family,0}' = '\"");
         query.append(code);
         query.append("\"' ");
 
