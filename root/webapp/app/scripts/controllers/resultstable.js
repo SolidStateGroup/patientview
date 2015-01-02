@@ -122,7 +122,7 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
                     var row = [];
                     var value = data[key];
 
-                    row[0] = $filter('date')(key, 'dd-MMM-yyyy');
+                    row[0] = $filter('date')(key, 'dd-MMM-yyyy HH:mm').replace(' 00:00','');
                     for (i = 0; i < $scope.observationHeadingCodes.length; i++) {
                         var code = $scope.observationHeadingCodes[i].toUpperCase();
                         if (value[code] !== undefined) {
