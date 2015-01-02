@@ -420,7 +420,7 @@ public class ObservationsBuilder {
             try {
                 decimal.setValue(BigDecimal.valueOf((decimalFormat.parse(resultString)).doubleValue()));
             } catch (ParseException nfe) {
-                throw new FhirResourceException("Invalid value for observation");
+                throw new FhirResourceException("Invalid value for observation: " + result.getValue());
             }
         } else {
             throw new FhirResourceException("Empty value for observation");
