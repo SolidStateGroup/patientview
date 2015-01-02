@@ -2,7 +2,8 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userForm.userName.$error.required">required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-username" placeholder="Username" name="userName" data-ng-model="editUser.username" required></div>
+            <div class=""><input type="text" class="form-control" id="new-user-username" placeholder="Username"
+                                 name="userName" data-ng-model="editUser.username" required maxlength="50"></div>
         </div>
         <div class="col-md-3">
             <label for="new-user-email" class="control-label">Email
@@ -16,11 +17,13 @@
         </div>
         <div class="col-md-3">
             <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userForm.forename.$error.required && !userForm.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename" name="forename" data-ng-model="editUser.forename" required></div>
+            <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename"
+                                 name="forename" data-ng-model="editUser.forename" required></div>
         </div>
         <div class="col-md-3">
             <label for="new-user-surname" class="control-label">Surname <span class="error" data-ng-show="userForm.surname.$error.required && !userForm.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname" name="surname" data-ng-model="editUser.surname" required></div>
+            <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname"
+                                 name="surname" data-ng-model="editUser.surname" required></div>
         </div>
         <input type="hidden" data-ng-model="editUser.contactNumber">
     </div>
