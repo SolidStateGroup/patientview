@@ -3,6 +3,10 @@
     input.alert-checkbox {
         margin-right:7px;
     }
+    a.new-result-notification {
+        color: #fff;
+        cursor: pointer;
+    }
 </style>
 
 <div class="" data-ng-show="!loading" data-ng-cloak>
@@ -123,8 +127,9 @@
             <div class="tab-panel-item" data-ng-show="observationHeadings.length">
                 <div class="content-panel">
                     <div class="panel-intro">
-                        <h3>Result Alerts</h3>
-                        <p>Updated when a new result arrives</p>
+                        <h3>Alerts</h3>
+                        <p>When a new result arrives you might wish to be notified. <br/>Click 'Show Alert Settings' to
+                            select the ones you are interested in.</p>
                     </div>
                     <div class="content-inner">
 
@@ -134,9 +139,9 @@
                                     <th>Type</th>
                                     <th>Latest Value</th>
                                     <th>Date</th>
-                                    <th></th>
+                                    <th>New Result? <br/>(click to hide notification)</th>
                                 </tr>
-                                <tr data-ng-repeat="alert in alertObservationHeadings">
+                                <tr data-ng-repeat="alert in alertObservationHeadings | orderBy:'observationHeading.heading'">
                                     <td>
                                         <a href="#/resultsdetail?code={{alert.observationHeading.code}}">{{alert.observationHeading.heading}}</a>
                                     </td>
@@ -151,15 +156,15 @@
                                         <span data-ng-show="!alert.latestObservationDate">unknown</span>
                                     </td>
                                     <td>
-                                        <span class="label label-success" data-ng-show="!alert.webAlertViewed && alert.webAlert"> New</span>
+                                        <span class="label label-success" data-ng-show="!alert.webAlertViewed && alert.webAlert">
+                                            <a href="" class="new-result-notification" data-ng-click="hideAlertObservationHeadingNotification(alert)">New</a>
+                                        </span>
                                     </td>
                                 </tr>
                             </table>
-
-
                         </div>
                         <div data-ng-show="!alertObservationHeadings.length" class="alert-list">
-                            <p>No alerts have currently been set up</p>
+                            <p>You have not registered for any alerts, would you like to do so now?</p>
                         </div>
                         <div>
                             <a href="" data-ng-click="showAlertSettings = !showAlertSettings" class="pull-right"
@@ -180,13 +185,13 @@
                                     <th colspan="2">How would you like to be notified?</th>
                                     <th colspan="2"></th>
                                 </tr>
-                                <tr data-ng-repeat="alert in alertObservationHeadings">
+                                <tr data-ng-repeat="alert in alertObservationHeadings | orderBy:'observationHeading.heading'">
                                     <td>
                                         <a href="#/resultsdetail?code={{alert.observationHeading.code}}">{{alert.observationHeading.heading}}</a>
                                     </td>
                                     <td>
                                         <input type="checkbox" data-ng-model="alert.webAlert" class="alert-checkbox"
-                                               data-ng-change="updateAlertObservationHeading(alert)">Web</input>
+                                               data-ng-change="updateAlertObservationHeading(alert)">PatientView homepage</input>
                                     </td>
                                     <td>
                                         <input type="checkbox" data-ng-model="alert.emailAlert" class="alert-checkbox"

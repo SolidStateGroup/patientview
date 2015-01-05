@@ -265,6 +265,16 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
             });
     };
 
+    $scope.hideAlertObservationHeadingNotification = function(alertObservationHeading) {
+        alertObservationHeading.webAlertViewed = true;
+        ObservationHeadingService.updateAlertObservationHeading($scope.loggedInUser.id, alertObservationHeading)
+            .then(function () {
+                getAlertObservationHeadings();
+            }, function () {
+                alert('Error updating result alert');
+            });
+    };
+
     var getAvailableObservationHeadings = function() {
         ObservationHeadingService.getAvailableAlertObservationHeadings($scope.loggedInUser.id)
             .then(function(observationHeadings) {

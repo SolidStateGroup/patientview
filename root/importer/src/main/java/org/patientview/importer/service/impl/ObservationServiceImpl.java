@@ -199,12 +199,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             }
             fhirResource.executeSQL(sb.toString());
 
-            // handle updating alerts if present
+            // handle updating alerts if present, emails are sent by scheduled task, not here
             Map<String, AlertObservationHeading> alertMap
                     = observationsBuilder.getAlertObservationHeadingMap();
-
-            boolean sendAlertEmail = false;
-            String emailAddress = null;
 
             for (String code : alertMap.keySet()) {
                 AlertObservationHeading alert = alertMap.get(code);
@@ -217,17 +214,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     alertObservationHeading.setEmailAlertSent(alert.isEmailAlertSent());
                     alert.setLastUpdate(new Date());
                     alertObservationHeadingRepository.save(alertObservationHeading);
-
-                    if (alertObservationHeading.isEmailAlert()) {
-                        sendAlertEmail = true;
-                        emailAddress = alertObservationHeading.getUser().getEmail();
-                    }
                 }
-            }
-
-            if (sendAlertEmail && emailAddress != null) {
-                // todo: send email
-                LOG.info("Sending new observations alert email to " + emailAddress);
             }
         }
 

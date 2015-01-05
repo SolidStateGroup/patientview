@@ -29,4 +29,7 @@ public interface AlertObservationHeadingRepository extends JpaRepository<AlertOb
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM AlertObservationHeading WHERE user.id = :userId")
     void deleteByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT aoh FROM AlertObservationHeading aoh WHERE aoh.emailAlert = true AND aoh.emailAlertSent = false")
+    public List<AlertObservationHeading> findByEmailAlertSetAndNotSent();
 }

@@ -39,22 +39,39 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
+            // if redirect enabled in properties the send to redirect email not actual recipient
+            if (Boolean.parseBoolean(properties.getProperty("email.redirect.enabled"))) {
+                if (email.isBcc()) {
+                    helper.setBcc(properties.getProperty("email.redirect.address").split(","));
+                } else {
+                    helper.setTo(properties.getProperty("email.redirect.address").split(","));
+                }
+            } else {
+                if (email.isBcc()) {
+                    helper.setBcc(email.getRecipients());
+                } else {
+                    helper.setTo(email.getRecipients());
+                }
+            }
+
             try {
                 InternetAddress fromAddress = new InternetAddress(email.getSenderEmail(), email.getSenderName());
                 helper.setFrom(fromAddress);
+
+                if (email.isBcc()) {
+                    fromAddress.setPersonal("PatientView User");
+                    helper.setTo(fromAddress);
+                }
             } catch (UnsupportedEncodingException uee) {
                 helper.setFrom(email.getSenderEmail());
+
+                if (email.isBcc()) {
+                    helper.setTo(email.getSenderEmail());
+                }
             }
 
             helper.setText(properties.getProperty("email.header") + email.getBody()
                     + properties.getProperty("email.footer"), true);
-
-            // if redirect enabled in properties the send to redirect email not actual recipient
-            if (Boolean.parseBoolean(properties.getProperty("email.redirect.enabled"))) {
-                helper.setTo(properties.getProperty("email.redirect.address").split(","));
-            } else {
-                helper.setTo(email.getRecipients());
-            }
 
             try {
                 javaMailSender.send(message);

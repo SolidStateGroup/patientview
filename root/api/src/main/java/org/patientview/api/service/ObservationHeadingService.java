@@ -78,7 +78,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
 
     @UserOnly
     void addAlertObservationHeading(Long userId, AlertObservationHeading alertObservationHeading)
-            throws ResourceNotFoundException;
+            throws ResourceNotFoundException, FhirResourceException;
 
     @UserOnly
     void removeAlertObservationHeading(Long userId, Long alertObservationHeadingId)
@@ -87,4 +87,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
     @UserOnly
     void updateAlertObservationHeading(Long userId, AlertObservationHeading alertObservationHeading)
             throws ResourceNotFoundException, ResourceForbiddenException;
+
+    void sendAlertObservationHeadingEmails();
+
 }

@@ -18,7 +18,8 @@ public class AlertObservationHeading {
     private BaseUser user;
     private ObservationHeading observationHeading;
 
-    public AlertObservationHeading(org.patientview.persistence.model.AlertObservationHeading alertObservationHeading) {
+    public AlertObservationHeading(org.patientview.persistence.model.AlertObservationHeading alertObservationHeading,
+                                   org.patientview.persistence.model.User user) {
         this.id = alertObservationHeading.getId();
         this.webAlert = alertObservationHeading.isWebAlert();
         this.webAlertViewed = alertObservationHeading.isWebAlertViewed();
@@ -26,7 +27,7 @@ public class AlertObservationHeading {
         this.emailAlertSent = alertObservationHeading.isEmailAlertSent();
         this.latestObservationValue = alertObservationHeading.getLatestObservationValue();
         this.latestObservationDate = alertObservationHeading.getLatestObservationDate();
-        this.user = new BaseUser(alertObservationHeading.getUser());
+        this.user = new BaseUser(user);
         this.observationHeading = new ObservationHeading(alertObservationHeading.getObservationHeading());
     }
 

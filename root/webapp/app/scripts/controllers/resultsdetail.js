@@ -28,7 +28,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
         ObservationHeadingService.getAvailableObservationHeadings(userId).then(function(observationHeadings) {
             $scope.observationHeadings = observationHeadings;
             $scope.observationHeading = $scope.findObservationHeadingByCode(code);
-            $scope.selectedCode = $scope.observationHeading.code;
+            $scope.selectedCode = code;
         }, function() {
             alert('Error retrieving result types');
         });

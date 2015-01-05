@@ -1,6 +1,5 @@
 package org.patientview.api.service;
 
-import org.hibernate.internal.util.collections.JoinedIterable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,9 +10,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ObservationHeadingServiceImpl;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.AlertObservationHeading;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -41,12 +42,13 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -76,6 +78,15 @@ public class ObservationHeadingServiceTest {
 
     @Mock
     AlertObservationHeadingRepository alertObservationHeadingRepository;
+
+    @Mock
+    ObservationService observationService;
+
+    @Mock
+    EmailService emailService;
+
+    @Mock
+    Properties properties;
 
     @InjectMocks
     ObservationHeadingService observationHeadingService = new ObservationHeadingServiceImpl();
@@ -377,7 +388,7 @@ public class ObservationHeadingServiceTest {
     }
 
     @Test
-    public void testAddAlertObservationHeading() throws ResourceNotFoundException {
+    public void testAddAlertObservationHeading() throws ResourceNotFoundException, FhirResourceException {
 
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
 
@@ -463,7 +474,7 @@ public class ObservationHeadingServiceTest {
         alertObservationHeading.setUser(user);
 
         org.patientview.api.model.AlertObservationHeading apiAlertObservationHeading
-                = new org.patientview.api.model.AlertObservationHeading(alertObservationHeading);
+                = new org.patientview.api.model.AlertObservationHeading(alertObservationHeading, user);
 
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         when(alertObservationHeadingRepository.findOne(
@@ -472,4 +483,29 @@ public class ObservationHeadingServiceTest {
         observationHeadingService.updateAlertObservationHeading(user.getId(), apiAlertObservationHeading);
         verify(alertObservationHeadingRepository, Mockito.times(1)).save(any(AlertObservationHeading.class));
     }
+
+
+    @Test
+    public void testSendAlertObservationHeadingEmails() throws Exception {
+
+        User user = TestUtils.createUser("testUser");
+        user.setEmail("test@solidstategroup.com");
+
+        AlertObservationHeading alertObservationHeading = new AlertObservationHeading();
+        alertObservationHeading.setEmailAlertSent(false);
+        alertObservationHeading.setEmailAlert(true);
+        alertObservationHeading.setUser(user);
+        alertObservationHeading.setId(1L);
+
+        List<AlertObservationHeading> alertObservationHeadings = new ArrayList<>();
+        alertObservationHeadings.add(alertObservationHeading);
+
+        when(alertObservationHeadingRepository.findByEmailAlertSetAndNotSent()).thenReturn(alertObservationHeadings);
+        when(alertObservationHeadingRepository.findOne(eq(alertObservationHeading.getId()))).thenReturn(alertObservationHeading);
+        observationHeadingService.sendAlertObservationHeadingEmails();
+
+        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+        verify(alertObservationHeadingRepository, Mockito.times(1)).save(any(AlertObservationHeading.class));
+    }
 }
+

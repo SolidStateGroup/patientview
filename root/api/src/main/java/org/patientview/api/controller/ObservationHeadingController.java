@@ -147,7 +147,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @ResponseBody
     public void addAlertObservationHeading(
             @PathVariable("userId") Long userId, @RequestBody AlertObservationHeading alertObservationHeading)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, FhirResourceException {
                 observationHeadingService.addAlertObservationHeading(userId, alertObservationHeading);
     }
 

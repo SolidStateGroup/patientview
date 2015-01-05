@@ -72,7 +72,6 @@ public class StatisticsTaskTest {
         statisticsTask.generatePreviousMonthStatistics();
         verify(groupStatisticService,
                 Mockito.times(1)).generateGroupStatistic(eq(startDate), eq(endDate), eq(StatisticPeriod.MONTH));
-
     }
 
     /**

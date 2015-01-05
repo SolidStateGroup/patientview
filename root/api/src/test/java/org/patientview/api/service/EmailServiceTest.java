@@ -40,4 +40,19 @@ public class EmailServiceTest {
         email.setSenderName("PatientView Team");
         Assert.assertTrue("should have sent email", emailService.sendEmail(email));
     }
+
+    @Ignore("Email should be tested manually")
+    @Test
+    public void testSendEmailBCC() throws MailException, MessagingException {
+        TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
+
+        Email email = new Email();
+        email.setBcc(true);
+        email.setBody("test body");
+        email.setRecipients(new String[]{"nadim@solidstategroup.com", "jamesr@solidstategroup.com"});
+        email.setSubject("BCC test");
+        email.setSenderEmail("no-reply@solidstategroup.com");
+        email.setSenderName("PatientView Team");
+        Assert.assertTrue("should have sent email", emailService.sendEmail(email));
+    }
 }
