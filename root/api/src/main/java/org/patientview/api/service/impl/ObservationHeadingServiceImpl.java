@@ -506,10 +506,11 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         List<AlertObservationHeading> alertObservationHeadings
                 = alertObservationHeadingRepository.findByEmailAlertSetAndNotSent();
 
-        List<String> emailAddresses = new ArrayList<>();
+        Set<String> emailAddresses = new HashSet<>();
 
         for (AlertObservationHeading alertObservationHeading : alertObservationHeadings) {
-            String email = alertObservationHeadingRepository.findOne(alertObservationHeading.getId()).getUser().getEmail();
+            String email =
+                    alertObservationHeadingRepository.findOne(alertObservationHeading.getId()).getUser().getEmail();
             if (StringUtils.isNotEmpty(email)) {
                 emailAddresses.add(email);
             }
