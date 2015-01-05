@@ -5,6 +5,7 @@ import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
+import org.patientview.persistence.model.enums.EncounterTypes;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,9 @@ import java.util.UUID;
 public interface EncounterService {
 
     List<FhirEncounter> get(Long userId, String code) throws ResourceNotFoundException, FhirResourceException;
+
+    List<UUID> getUuidsByUserIdAndType(final Long userId, final EncounterTypes encounterType)
+            throws ResourceNotFoundException, FhirResourceException;
 
     List<Encounter> get(UUID patientUuid) throws FhirResourceException;
 
