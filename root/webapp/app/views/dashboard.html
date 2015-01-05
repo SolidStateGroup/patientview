@@ -147,13 +147,13 @@
                                     </td>
                                     <td>
                                         <span data-ng-show="alert.latestObservationValue">{{alert.latestObservationValue}}</span>
-                                        <span data-ng-show="!alert.latestObservationValue">unknown</span>
+                                        <span data-ng-show="!alert.latestObservationValue">Not Available</span>
                                     </td>
                                     <td>
                                         <span data-ng-show="alert.latestObservationDate">
                                             {{alert.latestObservationDate | date:'dd-MMM-yyyy'}}
                                         </span>
-                                        <span data-ng-show="!alert.latestObservationDate">unknown</span>
+                                        <span data-ng-show="!alert.latestObservationDate">Not Available</span>
                                     </td>
                                     <td>
                                         <span class="label label-success" data-ng-show="!alert.webAlertViewed && alert.webAlert">
