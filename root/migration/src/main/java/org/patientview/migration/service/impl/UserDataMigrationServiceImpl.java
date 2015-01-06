@@ -223,6 +223,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         List<Group> groupsToAdd = new ArrayList<Group>();
         groupsToAdd.add(getGroupByCode("DSF01"));
 
+        LOG.info(groupsToAdd.size() + " Groups");
+
         boolean singleUser = false;
         boolean replaceExisting = true;
 
