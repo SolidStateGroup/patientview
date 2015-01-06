@@ -525,11 +525,11 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             email.setSubject("PatientView - You have new results");
 
             StringBuilder sb = new StringBuilder();
-            sb.append("Dear PatientView user");
+            sb.append("Dear user");
             sb.append(", <br/><br/>New test results have arrived on <a href=\"");
             sb.append(properties.getProperty("site.url"));
             sb.append("\">PatientView</a>");
-            sb.append("<br/><br/>Please login to PatientView to see them.");
+            sb.append("<br/><br/>Please login to see them.<br/>");
             email.setBody(sb.toString());
 
             try {
