@@ -141,15 +141,19 @@ import java.util.UUID;
     }
 
     private String getPostcode(User user) throws FhirResourceException {
-        if (user.getFhirLinks() != null) {
-            for (FhirLink fhirLink : user.getFhirLinks()) {
-                Patient patient = patientService.get(fhirLink.getResourceId());
-                if (patient != null && !CollectionUtils.isEmpty(patient.getAddress())) {
-                    if (StringUtils.isNotEmpty(patient.getAddress().get(0).getZipSimple())) {
-                        return patient.getAddress().get(0).getZipSimple();
+        try {
+            if (user.getFhirLinks() != null) {
+                for (FhirLink fhirLink : user.getFhirLinks()) {
+                    Patient patient = patientService.get(fhirLink.getResourceId());
+                    if (patient != null && !CollectionUtils.isEmpty(patient.getAddress())) {
+                        if (StringUtils.isNotEmpty(patient.getAddress().get(0).getZipSimple())) {
+                            return patient.getAddress().get(0).getZipSimple();
+                        }
                     }
                 }
             }
+        } catch (FhirResourceException e) {
+            // do nothing, could be due to JSON error, missing data etc
         }
 
         return "";
