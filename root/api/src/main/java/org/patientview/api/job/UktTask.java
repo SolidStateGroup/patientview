@@ -37,14 +37,14 @@ public class UktTask {
             uktService.importData();
             LOG.info("UKT import task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
         } catch (UktException e) {
-            LOG.error("UKT import exception");
+            LOG.error("UKT import exception", e);
         }
     }
 
     /**
      * Export UKT data, wiping out existing file contents
      */
-    @Scheduled(cron = "0 0 */1 * * ?") // every hour
+    @Scheduled(cron = "0 */2 * * * ?") // every hour
     public void exportUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         LOG.info("Running UKT export task");
         Date start = new Date();
@@ -52,7 +52,7 @@ public class UktTask {
             uktService.exportData();
             LOG.info("UKT export task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
         } catch (UktException e) {
-            LOG.error("UKT export exception");
+            LOG.error("UKT export exception", e);
         }
     }
 
