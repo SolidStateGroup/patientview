@@ -152,7 +152,7 @@ import java.util.UUID;
                     }
                 }
             }
-        } catch (FhirResourceException e) {
+        } catch (Exception e) {
             // do nothing, could be due to JSON error, missing data etc
         }
 
