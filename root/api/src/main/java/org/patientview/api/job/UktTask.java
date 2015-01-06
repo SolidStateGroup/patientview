@@ -27,25 +27,33 @@ public class UktTask {
     private UktService uktService;
 
     /**
-     * Import UKT data, wiping out existing
+     * Import UKT data, wiping out existing database contents
      */
     @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
     public void importUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         LOG.info("Running UKT import task");
         Date start = new Date();
-        uktService.importData();
-        LOG.info("UKT import task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+        try {
+            uktService.importData();
+            LOG.info("UKT import task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+        } catch (UktException e) {
+            LOG.error("UKT exception: ", e.getMessage());
+        }
     }
 
     /**
-     * Export UKT data, wiping out existing
+     * Export UKT data, wiping out existing file contents
      */
     @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
     public void exportUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         LOG.info("Running UKT export task");
         Date start = new Date();
-        uktService.exportData();
-        LOG.info("UKT export task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+        try {
+            uktService.exportData();
+            LOG.info("UKT export task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+        } catch (UktException e) {
+            LOG.error("UKT exception: ", e.getMessage());
+        }
     }
 
     private long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {

@@ -93,6 +93,27 @@ public class UktServiceTest {
         verify(identifierRepository, Mockito.times(1)).findByValue(eq(identifier.getIdentifier()));
     }
 
+    @Test(expected = UktException.class)
+    public void testImport_nofile() throws ResourceNotFoundException, FhirResourceException, UktException {
+
+        User user = TestUtils.createUser("testUser");
+        LookupType lookupType = TestUtils.createLookupType(LookupTypes.IDENTIFIER);
+        Lookup lookup = TestUtils.createLookup(lookupType, IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        String path = Thread.currentThread().getContextClassLoader().getResource("ukt").getPath();
+
+        when(properties.getProperty("ukt.import.directory")).thenReturn(path);
+        when(properties.getProperty("ukt.import.filename")).thenReturn("WRONGFILE.txt");
+        when(identifierRepository.findByValue(identifier.getIdentifier())).thenReturn(identifiers);
+
+        uktService.importData();
+
+        verify(identifierRepository, Mockito.times(1)).findByValue(eq(identifier.getIdentifier()));
+    }
+
     @Test
     public void testExport() throws ResourceNotFoundException, FhirResourceException, UktException {
 
