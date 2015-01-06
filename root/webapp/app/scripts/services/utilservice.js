@@ -126,7 +126,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.identifier = ['id','identifier','identifierType'];
             fields.newsItem = ['id','heading','story','newsLinks'];
             fields.unitRequest = ['forename','surname', 'nhsNumber','dateOfBirth', 'email'];
-            fields.observationHeading = ['id', 'code','heading', 'name','normalRange', 'units', 'minGraph', 'maxGraph', 'infoLink', 'defaultPanel', 'defaultPanelOrder', 'observationHeadingGroups'];
+            fields.observationHeading = ['id', 'code','heading', 'name','normalRange', 'units', 'minGraph', 'maxGraph', 'infoLink', 'defaultPanel', 'defaultPanelOrder', 'observationHeadingGroups', 'decimalPlaces'];
             fields.observationHeadingGroup = ['id', 'group','panel', 'panelOrder'];
             fields.resultCluster = ['id', 'day','month', 'year', 'hour', 'minute', 'values', 'comments'];
             return fields[objectType];

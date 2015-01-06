@@ -25,6 +25,10 @@
             <td><span data-ng-show="result.normalRange">{{result.normalRange}}</span>
                 <span data-ng-show="!result.normalRange">Not Available</span></td>
         </tr><tr>
+            <td>Decimal Places</td>
+            <td><span data-ng-show="result.decimalPlaces">{{result.decimalPlaces}}</span>
+                <span data-ng-show="!result.decimalPlaces">Not Available</span></td>
+        </tr><tr>
             <td>Information</td>
             <td class="result-link">
                 <a href="{{result.infoLink | addhttpFilter}}" target="_blank" data-ng-show="result.infoLink">{{result.infoLink}}</a>

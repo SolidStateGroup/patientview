@@ -99,6 +99,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Could not find user");
         }
 
+        List<ObservationHeading> observationHeadings = observationHeadingService.findByCode(code);
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
@@ -134,9 +135,29 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
                 List<Observation> observations = fhirResource.findResourceByQuery(query.toString(), Observation.class);
 
+                Long decimalPlaces = null;
+                if (!CollectionUtils.isEmpty(observationHeadings)) {
+                    decimalPlaces = observationHeadings.get(0).getDecimalPlaces();
+                }
+
                 // convert to transport observations
                 for (Observation observation : observations) {
                     FhirObservation fhirObservation = new FhirObservation(observation);
+
+                    // set correct number of decimal places
+                    try {
+                        if (decimalPlaces != null) {
+                            fhirObservation.setValue(
+                                    new BigDecimal(fhirObservation.getValue()).setScale(decimalPlaces.intValue(),
+                                            BigDecimal.ROUND_HALF_UP).toString());
+                        } else {
+                            fhirObservation.setValue(
+                                    new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                        }
+                    } catch (NumberFormatException nfe) {
+                        // do not update if cant convert to double or big decimal (string based value)
+                    }
+
                     Group fhirGroup = fhirLink.getGroup();
                     if (fhirGroup != null) {
                         fhirObservation.setGroup(fhirGroup);
@@ -157,6 +178,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
+        }
+
+        Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
+        for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+            observationHeadingMap.put(observationHeading.getCode().toUpperCase(), observationHeading);
         }
 
         if (!(orderDirection.equals("ASC") || orderDirection.equals("DESC"))) {
@@ -217,6 +243,26 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             FhirObservation fhirObservation = new FhirObservation(observation);
             if (subjectGroupMap.containsKey(observation.getSubject().getDisplaySimple())) {
                 fhirObservation.setGroup(subjectGroupMap.get(observation.getSubject().getDisplaySimple()));
+            }
+
+            // set correct number of decimal places
+            try {
+                ObservationHeading observationHeading = observationHeadingMap.get(fhirObservation.getName());
+                if (observationHeading != null) {
+                    if (observationHeading.getDecimalPlaces() != null) {
+                        fhirObservation.setValue(new BigDecimal(fhirObservation.getValue()).setScale(
+                                observationHeading.getDecimalPlaces().intValue(),
+                                BigDecimal.ROUND_HALF_UP).toString());
+                    } else {
+                        fhirObservation.setValue(
+                                new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                    }
+                } else {
+                    fhirObservation.setValue(
+                            new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                }
+            } catch (NumberFormatException nfe) {
+                // do not update if cant convert to double or big decimal (string based value)
             }
 
             // add to output for this date, overriding this observation type if present
@@ -316,6 +362,11 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             throw new ResourceNotFoundException("Could not find user");
         }
 
+        Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
+        for (ObservationHeading observationHeading : observationHeadingService.findAll()) {
+            observationHeadingMap.put(observationHeading.getCode(), observationHeading);
+        }
+
         Map<String, org.patientview.api.model.FhirObservation> latestObservations = new HashMap<>();
         Map<String, Date> latestObservationDates = new HashMap<>();
 
@@ -323,9 +374,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             if (fhirLink.getActive()) {
                 StringBuilder query = new StringBuilder();
                 query.append("SELECT DISTINCT ON (2) ");
-                query.append("CONTENT -> 'appliesDateTime', CONTENT -> 'name' -> 'text', ");
-                query.append("CONTENT -> 'valueQuantity' -> 'value', ");
-                query.append("CONTENT -> 'valueQuantity' -> 'comparator' ");
+                query.append("CONTENT ->> 'appliesDateTime', ");
+                query.append("CONTENT -> 'name' ->> 'text', ");
+                query.append("CONTENT -> 'valueQuantity' ->> 'value', ");
+                query.append("CONTENT -> 'valueQuantity' ->> 'comparator' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
@@ -342,26 +394,42 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                                     = new org.patientview.api.model.FhirObservation();
 
                             // remove timezone and parse date
-                            String dateString = json[0].replace("\"", "");
+                            String dateString = json[0];
                             XMLGregorianCalendar xmlDate
                                     = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
                             Date date = xmlDate.toGregorianCalendar().getTime();
 
                             fhirObservation.setApplies(date);
-                            fhirObservation.setName(json[1].replace("\"", ""));
+                            fhirObservation.setName(json[1]);
 
+                            // handle decimal points if set for this observation type
                             if (StringUtils.isNotEmpty(json[2])) {
-                                Double valueDouble = Double.parseDouble(json[2]);
-                                DecimalFormat format = new DecimalFormat("0.#");
-                                fhirObservation.setValue(format.format(valueDouble));
+                                try {
+                                    ObservationHeading observationHeading = observationHeadingMap.get(json[1]);
+                                    if (observationHeading != null) {
+                                        if (observationHeading.getDecimalPlaces() != null) {
+                                            fhirObservation.setValue(new BigDecimal(json[2]).setScale(
+                                                    observationHeading.getDecimalPlaces().intValue(),
+                                                    BigDecimal.ROUND_HALF_UP).toString());
+                                        } else {
+                                            fhirObservation.setValue(
+                                                    new DecimalFormat("0.#####").format(Double.valueOf(json[2])));
+                                        }
+                                    } else {
+                                        fhirObservation.setValue(
+                                                new DecimalFormat("0.#####").format(Double.valueOf(json[2])));
+                                    }
+                                } catch (NumberFormatException nfe) {
+                                    fhirObservation.setValue(json[2]);
+                                }
                             }
 
                             if (StringUtils.isNotEmpty(json[3])) {
-                                fhirObservation.setComparator(json[3].replace("\"", ""));
+                                fhirObservation.setComparator(json[3]);
                             }
                             fhirObservation.setGroup(new BaseGroup(fhirLink.getGroup()));
 
-                            String code = json[1].replace("\"", "").toUpperCase();
+                            String code = json[1].toUpperCase();
 
                             if (latestObservationDates.get(code) != null) {
                                 if (latestObservationDates.get(code).getTime() < date.getTime()) {

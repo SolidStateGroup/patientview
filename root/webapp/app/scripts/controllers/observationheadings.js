@@ -182,7 +182,6 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                     $scope.saved = '';
                     $scope.editObservationHeading = _.clone(observationHeading);
                     $scope.editObservationHeading.groups = $scope.groups;
-                    //$scope.editObservationHeading.groupId = $scope.groups[0].id;
                     $scope.editMode = true;
                     openedObservationHeading.editLoading = false;
                 });

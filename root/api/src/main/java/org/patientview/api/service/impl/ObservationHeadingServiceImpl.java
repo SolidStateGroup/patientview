@@ -601,6 +601,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         entity.setInfoLink(input.getInfoLink());
         entity.setDefaultPanel(input.getDefaultPanel());
         entity.setDefaultPanelOrder(input.getDefaultPanelOrder());
+        entity.setDecimalPlaces(input.getDecimalPlaces());
 
         return observationHeadingRepository.save(entity);
     }

@@ -46,6 +46,9 @@ public class ObservationHeading extends AuditModel {
     @Column(name = "default_panel_order")
     private Long defaultPanelOrder;
 
+    @Column(name = "decimal_places")
+    private Long decimalPlaces;
+
     @OneToMany(mappedBy = "observationHeading", cascade = {CascadeType.ALL})
     private Set<ObservationHeadingGroup> observationHeadingGroups = new HashSet<>();
 
@@ -144,6 +147,14 @@ public class ObservationHeading extends AuditModel {
 
     public void setDefaultPanelOrder(Long defaultPanelOrder) {
         this.defaultPanelOrder = defaultPanelOrder;
+    }
+
+    public Long getDecimalPlaces() {
+        return decimalPlaces;
+    }
+
+    public void setDecimalPlaces(Long decimalPlaces) {
+        this.decimalPlaces = decimalPlaces;
     }
 
     public Set<ObservationHeadingGroup> getObservationHeadingGroups() {

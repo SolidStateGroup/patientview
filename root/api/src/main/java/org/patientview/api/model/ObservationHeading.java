@@ -17,6 +17,7 @@ public class ObservationHeading {
     private String infoLink;
     private Long panel;
     private Long panelOrder;
+    private Long decimalPlaces;
 
     // used when retrieving results
     private FhirObservation latestObservation;
@@ -34,6 +35,7 @@ public class ObservationHeading {
         this.infoLink = observationHeading.getInfoLink();
         this.panel = observationHeading.getDefaultPanel();
         this.panelOrder = observationHeading.getDefaultPanelOrder();
+        this.decimalPlaces = observationHeading.getDecimalPlaces();
     }
 
     public ObservationHeading() {
@@ -142,5 +144,13 @@ public class ObservationHeading {
 
     public void setValueChange(Double valueChange) {
         this.valueChange = valueChange;
+    }
+
+    public Long getDecimalPlaces() {
+        return decimalPlaces;
+    }
+
+    public void setDecimalPlaces(Long decimalPlaces) {
+        this.decimalPlaces = decimalPlaces;
     }
 }

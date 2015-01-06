@@ -365,6 +365,7 @@ CREATE TABLE PV_Observation_Heading (
   Info_Link             TEXT,
   Default_Panel         BIGINT,
   Default_Panel_Order   BIGINT,
+  Decimal_Places        BIGINT,
   Creation_Date         TIMESTAMP NOT NULL,
   Created_By            BIGINT REFERENCES PV_User (Id),
   Last_Update_Date      TIMESTAMP,
