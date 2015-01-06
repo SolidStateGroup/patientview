@@ -68,16 +68,16 @@
 
             <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient">
                 <div class="panel-intro">
-                    <h3 data-ng-hide="graphGroups.length > 2 || permissions.isPatient" data-ng-cloak>{{graphGroups[0].name}}
+                    <h3 data-ng-hide="graphGroups.length > 1 || permissions.isPatient" data-ng-cloak>{{graphGroups[0].name}}
                         <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
                     <div class="graph-selector clearfix">
-                        <div class="col-md-2" data-ng-show="graphGroups.length > 2 && !permissions.isPatient">
+                        <div class="col-md-2" data-ng-show="graphGroups.length > 1 && !permissions.isPatient">
                             <h3 class="">Activity</h3>
                         </div>
                         <div class="col-md-6">
                             <select class="form-control" id="graph-select" data-ng-model="graphGroupId"
                                     data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
-                                    data-ng-show="graphGroups.length > 2 && !permissions.isPatient" data-ng-cloak>
+                                    data-ng-show="graphGroups.length > 1 && !permissions.isPatient" data-ng-cloak>
                             </select>
                         </div>
                     </div>

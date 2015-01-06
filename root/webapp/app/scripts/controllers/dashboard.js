@@ -9,7 +9,6 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
     $scope.$watch('graphGroupId', function(newValue) {
 
         if ($scope.permissions && !$scope.permissions.isPatient) {
-            var i;
             $scope.chartLoading = true;
             $('#chart_div').html('');
 
