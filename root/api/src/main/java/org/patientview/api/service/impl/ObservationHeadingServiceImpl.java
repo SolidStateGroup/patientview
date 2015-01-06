@@ -96,8 +96,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Inject
     private Properties properties;
 
-    private static final Long FIRST_PANEL = 1l;
-    private static final Long DEFAULT_COUNT = 3l;
+    private static final Long FIRST_PANEL = 1L;
+    private static final Long DEFAULT_COUNT = 3L;
 
     public ObservationHeading add(final ObservationHeading observationHeading) {
         if (observationHeadingExists(observationHeading)) {
@@ -227,7 +227,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                     ResultSet results = statement.executeQuery(query.toString());
 
                     while ((results.next())) {
-                        String code = results.getString(1).replace("\"","").toLowerCase();
+                        String code = results.getString(1).replace("\"", "").toLowerCase();
                         List<ObservationHeading> observationHeadingsByCode
                                 = observationHeadingRepository.findByCode(code);
                         if (!CollectionUtils.isEmpty(observationHeadingsByCode)

@@ -341,10 +341,10 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                         groupCode = "PATIENT";
                                     }
 
-                                    String query = "SELECT testcode, datestamp, prepost, value " +
-                                            "FROM testresult " +
-                                            "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier() +
-                                            "' AND unitcode = '" + groupCode + "'";
+                                    String query = "SELECT testcode, datestamp, prepost, value "
+                                            + "FROM testresult "
+                                            + "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier()
+                                            + "' AND unitcode = '" + groupCode + "'";
 
                                     java.sql.Statement statement = connection.createStatement();
                                     ResultSet results = statement.executeQuery(query);
@@ -391,9 +391,10 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                 }
 
                                 if (commentFhirLink != null) {
-                                    String query = "SELECT datestamp, body " +
-                                            "FROM comment " +
-                                            "WHERE nhsno = '" + fhirLinks.get(0).getIdentifier().getIdentifier() + "'";
+                                    String query = "SELECT datestamp, body "
+                                            + "FROM comment "
+                                            + "WHERE nhsno = '" + fhirLinks.get(0).getIdentifier().getIdentifier()
+                                            + "'";
 
                                     java.sql.Statement statement = connection.createStatement();
                                     ResultSet results = statement.executeQuery(query);

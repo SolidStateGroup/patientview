@@ -418,8 +418,8 @@ public class ObservationsBuilder {
 
         // remove all but numeric and . -
         //String resultString = result.getValue().replaceAll("/[^\\d.-]+/g", "");
-        String resultString = result.getValue().replaceAll(">","").replaceAll(">=","")
-                .replaceAll("<","").replaceAll("<=","");
+        String resultString = result.getValue().replaceAll(">", "").replaceAll(">=", "")
+                .replaceAll("<", "").replaceAll("<=", "");
 
         // attempt to parse remaining
         NumberFormat decimalFormat = DecimalFormat.getInstance();

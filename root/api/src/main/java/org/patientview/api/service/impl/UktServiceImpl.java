@@ -135,7 +135,7 @@ import java.util.UUID;
             }
             writer.flush();
             writer.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new UktException(e);
         }
     }

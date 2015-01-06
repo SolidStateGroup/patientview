@@ -162,5 +162,5 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
         for (UUID uuid : documentReferenceUuidsToDelete) {
             fhirResource.delete(uuid, ResourceType.DocumentReference);
         }
-    } 
+    }
 }

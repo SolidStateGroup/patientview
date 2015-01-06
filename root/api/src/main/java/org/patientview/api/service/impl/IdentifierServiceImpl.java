@@ -169,7 +169,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             List<Identifier> entityIdentifiers = identifierRepository.findByValue(identifier.getIdentifier());
 
             if (!CollectionUtils.isEmpty(entityIdentifiers)) {
-                for(Identifier entityIdentifier : entityIdentifiers) {
+                for (Identifier entityIdentifier : entityIdentifiers) {
                     if (!entityIdentifier.getUser().getId().equals(userId)) {
                         throw new EntityExistsException("A patient with that identifier is already on the system");
                     }

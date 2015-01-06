@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;

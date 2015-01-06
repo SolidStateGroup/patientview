@@ -263,7 +263,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<User> getUserByEmail(@PathVariable("email") String email)
             throws ResourceNotFoundException {
-        User user = userService.getByEmail(email.replace("[DOT]","."));
+        User user = userService.getByEmail(email.replace("[DOT]", "."));
         if (user == null) {
             throw new ResourceNotFoundException();
         } else {

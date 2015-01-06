@@ -166,7 +166,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         StringBuilder codeString = new StringBuilder();
         StringBuilder fhirLinkString = new StringBuilder();
 
-        for (int i = 0; i < codes.size() ; i++) {
+        for (int i = 0; i < codes.size(); i++) {
             codeString.append("'");
             codeString.append(codes.get(i).toUpperCase());
             codeString.append("'");
@@ -178,7 +178,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
         List<FhirLink> fhirLinks = new ArrayList<>(user.getFhirLinks());
         Map<String, Group> subjectGroupMap = new HashMap<>();
 
-        for (int i = 0; i < fhirLinks.size() ; i++) {
+        for (int i = 0; i < fhirLinks.size(); i++) {
             FhirLink fhirLink = fhirLinks.get(i);
             if (fhirLink.getActive()) {
                 if (!subjectGroupMap.containsKey(fhirLink.getResourceId().toString())) {
@@ -236,7 +236,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
         if (orderDirection.equals("DESC")) {
             output = new TreeMap<>(Collections.reverseOrder());
-            for (int i=0; i<keys.size(); i++) {
+            for (int i = 0; i < keys.size(); i++) {
                 if (count >= offset && count < (offset + limit)) {
                     output.put(keys.get(i), tempMap.get(keys.get(i)));
                 }
@@ -244,7 +244,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             }
         } else {
             output = new TreeMap<>();
-            for (int i=keys.size() - 1; i>=0; i--) {
+            for (int i = keys.size() - 1; i >= 0; i--) {
                 if (count >= offset && count < (offset + limit)) {
                     output.put(keys.get(i), tempMap.get(keys.get(i)));
                 }
