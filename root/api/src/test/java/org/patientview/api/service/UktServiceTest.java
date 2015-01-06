@@ -22,7 +22,6 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -83,9 +82,7 @@ public class UktServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource("ukt");
-
-        String path = xmlPath.getPath();
+        String path = getClass().getResource("/ukt").getPath();
 
         when(properties.getProperty("ukt.import.directory")).thenReturn(path);
         when(properties.getProperty("ukt.import.filename")).thenReturn("uktstatus.gpg.txt");
@@ -106,7 +103,7 @@ public class UktServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        String path = getClass().getClassLoader().getResource("ukt").getPath();
+        String path = getClass().getResource("/ukt").getPath();
 
         when(properties.getProperty("ukt.import.directory")).thenReturn(path);
         when(properties.getProperty("ukt.import.filename")).thenReturn("WRONGFILE.txt");
@@ -131,7 +128,7 @@ public class UktServiceTest {
         List<User> patients = new ArrayList<>();
         patients.add(user);
 
-        String path = getClass().getClassLoader().getResource("ukt").getPath();
+        String path = getClass().getResource("/ukt").getPath();
 
         when(properties.getProperty("ukt.export.directory")).thenReturn(path);
         when(properties.getProperty("ukt.export.filename")).thenReturn("ukt_rpv_export.txt");
