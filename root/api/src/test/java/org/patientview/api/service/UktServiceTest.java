@@ -22,6 +22,7 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -82,7 +83,9 @@ public class UktServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        String path = getClass().getClassLoader().getResource("ukt").getPath();
+        URL xmlPath = Thread.currentThread().getContextClassLoader().getResource("ukt");
+
+        String path = xmlPath.getPath();
 
         when(properties.getProperty("ukt.import.directory")).thenReturn(path);
         when(properties.getProperty("ukt.import.filename")).thenReturn("uktstatus.gpg.txt");
