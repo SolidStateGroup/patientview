@@ -212,4 +212,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                  @Param("featureIds") List<Long> featureIds,
                                  Pageable pageable);
 
+    // used by UKT
+    @Query("SELECT u " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "JOIN u.identifiers i " +
+            "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
+            "GROUP BY u.id")
+    List<User> findAllPatients();
 }

@@ -376,4 +376,26 @@ public class UserRepositoryTest {
         userRepository.save(user);
         Assert.assertTrue("Email should exist", userRepository.emailExists(user.getEmail()));
     }
+
+    @Test
+    public void findAllPatients() {
+        User user = dataTestUtils.createUser("testUser");
+        user.setIdentifiers(new HashSet<Identifier>());
+        Identifier identifier = new Identifier();
+        identifier.setIdentifier("test");
+        identifier.setUser(user);
+        user.getIdentifiers().add(identifier);
+        userRepository.save(user);
+
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+
+        List<User> users = userRepository.findAllPatients();
+
+        Assert.assertEquals("Should be one user returned", 1, users.size());
+    }
 }

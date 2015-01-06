@@ -7,6 +7,7 @@ import org.patientview.api.service.UktService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.exception.UktException;
 import org.patientview.persistence.model.FhirEncounter;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.Identifier;
@@ -14,6 +15,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +24,11 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -32,13 +37,15 @@ import java.util.UUID;
  * Created by jamesr@solidstategroup.com
  * Created on 05/01/2015
  */
-@Service
-public class UktServiceImpl implements UktService {
+@Service public class UktServiceImpl implements UktService {
 
     protected final Logger LOG = LoggerFactory.getLogger(UktService.class);
 
     @Inject
     private IdentifierRepository identifierRepository;
+
+    @Inject
+    private UserRepository userRepository;
 
     @Inject
     private EncounterService encounterService;
@@ -53,7 +60,7 @@ public class UktServiceImpl implements UktService {
     private FhirResource fhirResource;
 
     @Override
-    public void importData() throws ResourceNotFoundException, FhirResourceException {
+    public void importData() throws ResourceNotFoundException, FhirResourceException, UktException {
         String importDirectory = properties.getProperty("ukt.import.directory");
         String importFilename = properties.getProperty("ukt.import.filename");
 
@@ -75,7 +82,43 @@ public class UktServiceImpl implements UktService {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new UktException(e);
+        }
+    }
+
+    @Override
+    public void exportData() throws ResourceNotFoundException, FhirResourceException, UktException {
+        String exportDirectory = properties.getProperty("ukt.export.directory");
+        String exportFilename = properties.getProperty("ukt.export.filename");
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(exportDirectory + "/" + exportFilename, false));
+            List<User> patients = userRepository.findAllPatients();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            for (User user : patients) {
+
+                if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
+                    writer.write(user.getIdentifiers().iterator().next().getIdentifier());
+                    writer.write(",");
+                    writer.write(user.getSurname());
+                    writer.write(",");
+                    writer.write(user.getForename());
+                    writer.write(",");
+                    if (user.getDateOfBirth() != null) {
+                        writer.write(simpleDateFormat.format(user.getDateOfBirth()));
+                    }
+                    writer.write(",");
+                    // todo: postcode?
+                    writer.write(",");
+
+                    writer.newLine();
+                }
+            }
+            writer.flush();
+            writer.close();
+        } catch(Exception e) {
+            throw new UktException(e);
         }
     }
 
