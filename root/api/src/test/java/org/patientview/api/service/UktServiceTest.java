@@ -82,7 +82,7 @@ public class UktServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        String path = Thread.currentThread().getContextClassLoader().getResource("ukt").getPath();
+        String path = getClass().getClassLoader().getResource("ukt").getPath();
 
         when(properties.getProperty("ukt.import.directory")).thenReturn(path);
         when(properties.getProperty("ukt.import.filename")).thenReturn("uktstatus.gpg.txt");
@@ -103,7 +103,7 @@ public class UktServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        String path = Thread.currentThread().getContextClassLoader().getResource("ukt").getPath();
+        String path = getClass().getClassLoader().getResource("ukt").getPath();
 
         when(properties.getProperty("ukt.import.directory")).thenReturn(path);
         when(properties.getProperty("ukt.import.filename")).thenReturn("WRONGFILE.txt");
@@ -128,7 +128,7 @@ public class UktServiceTest {
         List<User> patients = new ArrayList<>();
         patients.add(user);
 
-        String path = Thread.currentThread().getContextClassLoader().getResource("ukt").getPath();
+        String path = getClass().getClassLoader().getResource("ukt").getPath();
 
         when(properties.getProperty("ukt.export.directory")).thenReturn(path);
         when(properties.getProperty("ukt.export.filename")).thenReturn("ukt_rpv_export.txt");
