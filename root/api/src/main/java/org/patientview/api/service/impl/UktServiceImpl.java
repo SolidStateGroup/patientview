@@ -97,22 +97,22 @@ import java.util.UUID;
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
             for (User user : patients) {
-
                 if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
-                    writer.write(user.getIdentifiers().iterator().next().getIdentifier());
-                    writer.write(",");
-                    writer.write(user.getSurname());
-                    writer.write(",");
-                    writer.write(user.getForename());
-                    writer.write(",");
-                    if (user.getDateOfBirth() != null) {
-                        writer.write(simpleDateFormat.format(user.getDateOfBirth()));
+                    for (Identifier identifier : user.getIdentifiers()) {
+                        writer.write(identifier.getIdentifier());
+                        writer.write(",");
+                        writer.write(user.getSurname());
+                        writer.write(",");
+                        writer.write(user.getForename());
+                        writer.write(",");
+                        if (user.getDateOfBirth() != null) {
+                            writer.write(simpleDateFormat.format(user.getDateOfBirth()));
+                        }
+                        writer.write(",");
+                        // todo: postcode?
+                        writer.write(",");
+                        writer.newLine();
                     }
-                    writer.write(",");
-                    // todo: postcode?
-                    writer.write(",");
-
-                    writer.newLine();
                 }
             }
             writer.flush();
