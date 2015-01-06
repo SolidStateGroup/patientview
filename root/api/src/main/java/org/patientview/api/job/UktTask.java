@@ -37,7 +37,7 @@ public class UktTask {
             uktService.importData();
             LOG.info("UKT import task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
         } catch (UktException e) {
-            LOG.error("UKT exception: ", e.getMessage());
+            LOG.error("UKT import exception");
         }
     }
 
@@ -52,7 +52,7 @@ public class UktTask {
             uktService.exportData();
             LOG.info("UKT export task took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
         } catch (UktException e) {
-            LOG.error("UKT exception: ", e.getMessage());
+            LOG.error("UKT export exception");
         }
     }
 

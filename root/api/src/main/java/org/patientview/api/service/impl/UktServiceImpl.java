@@ -70,8 +70,10 @@ import java.util.UUID;
         String importDirectory = properties.getProperty("ukt.import.directory");
         String importFilename = properties.getProperty("ukt.import.filename");
 
+        BufferedReader br = null;
+
         try {
-            BufferedReader br = new BufferedReader(new FileReader(importDirectory + "/" + importFilename));
+            br = new BufferedReader(new FileReader(importDirectory + "/" + importFilename));
             String line;
 
             while ((line = br.readLine()) != null) {
@@ -87,7 +89,16 @@ import java.util.UUID;
                 }
             }
 
+            br.close();
         } catch (IOException e) {
+            LOG.error("IOException, likely cannot read file: " + importDirectory + "/" + importFilename);
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException io) {
+                    throw new UktException(io);
+                }
+            }
             throw new UktException(e);
         }
     }
