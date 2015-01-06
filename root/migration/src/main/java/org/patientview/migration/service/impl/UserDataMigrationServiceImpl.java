@@ -228,7 +228,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         groupsToAdd.add(getGroupByCode("48021"));
         groupsToAdd.add(getGroupByCode("BANGALORE"));
 
-        boolean singleUser = false;
+        boolean singleUser = true;
 
         if (!singleUser) {
 
@@ -272,7 +272,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 18445L;
+            Long oldUserId = 80253L;
 
             try {
                 org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
