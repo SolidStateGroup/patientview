@@ -201,13 +201,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         user.setFailedLogonAttempts(0);
         user.setLastLogin(new Date());
 
-        // set last login from Amazon, or servlet if error
-        try {
-            user.setLastLoginIpAddress(getIp());
-        } catch (Exception e) {
-            user.setLastLoginIpAddress(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-                    .getRequest().getRemoteAddr());
-        }
+        user.setLastLoginIpAddress(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                .getRequest().getRemoteAddr());
 
         userRepository.save(user);
 
@@ -311,25 +306,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             } else {
                 userTokenRepository.setExpiration(authToken, future);
                 return false;
-            }
-        }
-    }
-
-    private static String getIp() throws Exception {
-        URL whatismyip = new URL("http://checkip.amazonaws.com");
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new InputStreamReader(
-                    whatismyip.openStream()));
-            String ip = in.readLine();
-            return ip;
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
