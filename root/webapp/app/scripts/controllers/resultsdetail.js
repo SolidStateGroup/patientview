@@ -109,7 +109,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 name : $scope.selectedObservation.name,
                 data : data,
                 tooltip: {
-                    valueDecimals: 2
+                    valueDecimals: $scope.selectedObservation.decimalPlaces
                 }
             }],
 
