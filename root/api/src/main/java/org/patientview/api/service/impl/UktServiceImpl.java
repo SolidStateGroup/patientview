@@ -1,8 +1,11 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
+import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.api.service.EncounterService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.PatientService;
 import org.patientview.api.service.UktService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
@@ -52,6 +55,9 @@ import java.util.UUID;
 
     @Inject
     private GroupService groupService;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private Properties properties;
@@ -109,7 +115,7 @@ import java.util.UUID;
                             writer.write(simpleDateFormat.format(user.getDateOfBirth()));
                         }
                         writer.write(",");
-                        // todo: postcode?
+                        writer.write(getPostcode(user));
                         writer.write(",");
                         writer.newLine();
                     }
@@ -120,6 +126,21 @@ import java.util.UUID;
         } catch(Exception e) {
             throw new UktException(e);
         }
+    }
+
+    private String getPostcode(User user) throws FhirResourceException {
+        if (user.getFhirLinks() != null) {
+            for (FhirLink fhirLink : user.getFhirLinks()) {
+                Patient patient = patientService.get(fhirLink.getResourceId());
+                if (patient != null && !CollectionUtils.isEmpty(patient.getAddress())) {
+                    if (StringUtils.isNotEmpty(patient.getAddress().get(0).getZipSimple())) {
+                        return patient.getAddress().get(0).getZipSimple();
+                    }
+                }
+            }
+        }
+
+        return "";
     }
 
     private void addKidneyTransplantStatus(User user, String status)
