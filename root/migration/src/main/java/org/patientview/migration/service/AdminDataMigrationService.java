@@ -29,4 +29,6 @@ public interface AdminDataMigrationService {
     Group getGroupByName(String name);
 
     void migrate() throws JsonMigrationException;
+
+    void migrateJoinRequests() throws JsonMigrationException;
 }

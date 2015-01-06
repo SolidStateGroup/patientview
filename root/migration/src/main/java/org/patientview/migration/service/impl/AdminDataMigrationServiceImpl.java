@@ -67,6 +67,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
     private @Value("${migration.password}") String migrationPassword;
     private @Value("${patientview.api.url}") String patientviewApiUrl;
 
+    @Override
     public void init() throws JsonMigrationException {
         try {
             JsonUtil.setPatientviewApiUrl(patientviewApiUrl);
@@ -83,14 +84,19 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         }
     }
 
+    @Override
     public void migrate() throws JsonMigrationException {
         groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
         createCodes(getLookupByName("DIAGNOSIS"), "edtaCode");
         createCodes(getLookupByName("TREATMENT"), "treatment");
         createObservationHeadings();
-        createJoinRequests();
     }
 
+    @Override
+    public void migrateJoinRequests() throws JsonMigrationException {
+        groups = JsonUtil.getGroups(JsonUtil.pvUrl + "/group");
+        createJoinRequests();
+    }
 
     private Code callApiCreateCode(Code code) {
         Code newCode = null;
@@ -257,6 +263,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return null;
     }
 
+    @Override
     public Group getGroupByCode(String code) {
         for (Group group : groups) {
             if (group.getCode().equalsIgnoreCase(code)) {
@@ -266,6 +273,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return null;
     }
 
+    @Override
     public Group getGroupByName(String name) {
         for (Group group : groups) {
             if (group.getName().equalsIgnoreCase(name)) {
@@ -275,6 +283,7 @@ public class AdminDataMigrationServiceImpl implements AdminDataMigrationService 
         return null;
     }
 
+    @Override
     public Role getRoleByName(RoleName name) {
         for (Role role : roles) {
             if (role.getName().equals(name)) {

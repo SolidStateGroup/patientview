@@ -56,7 +56,7 @@ public class MigrationController {
         adminDataMigrationService.init();
         adminDataMigrationService.migrate();
 
-        String status = "Migration of Codes, Result Headings, Join Requests "
+        String status = "Migration of Codes, Result Headings "
                 + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
 
         modelMap.addAttribute("statusMessage", status);
@@ -120,6 +120,19 @@ public class MigrationController {
 
         modelMap.addAttribute("statusMessage", "Not started: use API based migration instead for performance");
         return "observations";
+    }
+
+    @RequestMapping(value = "/step6-join-requests", method = RequestMethod.GET)
+    public String doStep6Joinrequests(ModelMap modelMap) throws JsonMigrationException {
+        Date start = new Date();
+        adminDataMigrationService.init();
+        adminDataMigrationService.migrateJoinRequests();
+
+        String status = "Migration of Join Requests "
+                + " took " + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.";
+
+        modelMap.addAttribute("statusMessage", status);
+        return "staticdata";
     }
 
     @RequestMapping(value = "/bulkusers", method = RequestMethod.GET)
