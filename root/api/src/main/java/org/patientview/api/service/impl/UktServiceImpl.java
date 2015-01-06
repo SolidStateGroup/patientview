@@ -116,18 +116,19 @@ import java.util.UUID;
             for (User user : patients) {
                 if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
                     for (Identifier identifier : user.getIdentifiers()) {
+                        writer.write("\"");
                         writer.write(identifier.getIdentifier());
-                        writer.write(",");
+                        writer.write("\",\"");
                         writer.write(user.getSurname());
-                        writer.write(",");
+                        writer.write("\",\"");
                         writer.write(user.getForename());
-                        writer.write(",");
+                        writer.write("\",\"");
                         if (user.getDateOfBirth() != null) {
                             writer.write(simpleDateFormat.format(user.getDateOfBirth()));
                         }
-                        writer.write(",");
+                        writer.write("\",\"");
                         writer.write(getPostcode(user));
-                        writer.write(",");
+                        writer.write("\"");
                         writer.newLine();
                     }
                 }
