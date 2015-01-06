@@ -24,7 +24,7 @@
                         <td class="forced-width">Diagnosis</td>
                         <td>
                             <dl class="conditions-link-list unstyled" data-ng-repeat="code in patient.diagnosisCodes">
-                                <dt><h5>{{code.description}}:</h5></dt>
+                                <dt><h5>{{code.description}}</h5></dt>
                                 <dd>
                                     <span data-ng-repeat="link in code.links | orderBy:'displayOrder'">
                                         <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a><br/>
