@@ -29,7 +29,7 @@ public class UktTask {
     /**
      * Import UKT data, wiping out existing database contents
      */
-    @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
+    @Scheduled(cron = "0 0 */1 * * ?") // every hour
     public void importUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         LOG.info("Running UKT import task");
         Date start = new Date();
@@ -44,7 +44,7 @@ public class UktTask {
     /**
      * Export UKT data, wiping out existing file contents
      */
-    @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
+    @Scheduled(cron = "0 0 */1 * * ?") // every hour
     public void exportUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         LOG.info("Running UKT export task");
         Date start = new Date();
