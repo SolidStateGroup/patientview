@@ -462,7 +462,6 @@ public class FhirResource {
             // names to ignore
             query.append("AND UPPER(content -> 'name' ->> 'text') NOT IN (");
             for (int i = 0; i < namesToIgnore.size(); i++) {
-                //query.append("'\"").append(namesToIgnore.get(i).toUpperCase()).append("\"'");
                 query.append("'").append(namesToIgnore.get(i).toUpperCase()).append("'");
 
                 if (i != (namesToIgnore.size() - 1)) {
@@ -472,16 +471,6 @@ public class FhirResource {
 
             query.append(") ");
         }
-
-        // todo: better way of getting results? possible slowdown due to large table?
-        /*if (start != null && end != null) {
-            query.append("AND (to_timestamp(content -> 'appliesDateTime') > ");
-            query.append(start);
-            query.append(" AND to_timestamp(content -> 'appliesDateTime') < ");
-            query.append(end);
-            query.append(")");
-        }*/
-
 
         Connection connection = null;
 
