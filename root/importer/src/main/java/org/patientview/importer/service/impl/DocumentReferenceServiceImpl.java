@@ -64,7 +64,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         DocumentReferenceBuilder documentReferenceBuilder = new DocumentReferenceBuilder(data, patientReference);
         List<DocumentReference> documentReferences = documentReferenceBuilder.build();
 
-        LOG.info(nhsno + ": " + documentReferences.size() + " DocumentReference");
+        //LOG.info(nhsno + ": " + documentReferences.size() + " DocumentReference");
 
         // get currently existing DocumentReference by subject Id
         Map<String, Date> existingMap = getExistingDateBySubjectId(fhirLink);
@@ -84,8 +84,12 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
                 // create new DocumentReference
                 try {
-                    LOG.info(nhsno + ": Adding DocumentReference with date "
-                            + newDocumentReference.getCreated().getValue().toString());
+                    if (newDocumentReference.getCreated() != null) {
+                        LOG.info(nhsno + ": Adding DocumentReference with date "
+                                + newDocumentReference.getCreated().getValue().toString());
+                    } else {
+                        LOG.info(nhsno + ": Adding DocumentReference");
+                    }
                     fhirResource.create(newDocumentReference);
                     success++;
                 } catch (FhirResourceException e) {
@@ -107,7 +111,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             throws FhirResourceException, SQLException {
         Map<String, Date> existingMap = new HashMap<>();
 
-        LOG.info(nhsno + ": Getting existing DocumentReferences");
+        //LOG.info(nhsno + ": Getting existing DocumentReferences");
 
         // build query
         StringBuilder query = new StringBuilder();
@@ -146,14 +150,14 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             throw new FhirResourceException(e);
         }
 
-        LOG.info(nhsno + ": " + existingMap.keySet().size() + " existing DocumentReference");
+        //LOG.info(nhsno + ": " + existingMap.keySet().size() + " existing DocumentReference");
         return existingMap;
     }
 
     private List<UUID> getExistingByDate(DocumentReference documentReference, Map<String, Date> existingMap) {
         List<UUID> existingByDate = new ArrayList<>();
 
-        LOG.info(nhsno + ": starting getExistingByDate");
+        //LOG.info(nhsno + ": starting getExistingByDate");
 
         try {
             if (documentReference.getCreated() != null) {
@@ -180,7 +184,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             return existingByDate;
         }
 
-        LOG.info(nhsno + ": getExistingByDate Done");
+        //LOG.info(nhsno + ": getExistingByDate Done");
 
         return existingByDate;
     }
