@@ -142,9 +142,8 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
             allergyService.add(patientview, fhirLink);
 
             Date end = new Date();
-            LOG.info("Finished processing data for NHS number: "
-                    + patientview.getPatient().getPersonaldetails().getNhsno()
-                    + ". Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
+            LOG.info(patientview.getPatient().getPersonaldetails().getNhsno()
+                    + " finished. Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
 
             createAudit(AuditActions.PATIENT_DATA_SUCCESS, patientview.getPatient().getPersonaldetails().getNhsno(),
                     patientview.getCentredetails().getCentrecode(), null, xml, importerUserId);

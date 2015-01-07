@@ -2,12 +2,12 @@ package org.patientview.importer.service.impl;
 
 import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.PractitionerBuilder;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
@@ -65,7 +65,6 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                     LOG.info("Empty GP name, replacing with GP address 1");
                 }
 
-                data.getGpdetails().setGpname(StringEscapeUtils.escapeSql(data.getGpdetails().getGpname()));
                 PractitionerBuilder practitionerBuilder = new PractitionerBuilder(data);
                 Practitioner importPractitioner = practitionerBuilder.build();
 

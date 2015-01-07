@@ -21,7 +21,7 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element maxOccurs="1" minOccurs="1" name="centrecode" type="xs:string"/>
-                            <xs:element maxOccurs="1" minOccurs="1" name="centrename">
+                            <xs:element maxOccurs="1" minOccurs="0" name="centrename">
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
                                         <xs:maxLength value="30"/>
@@ -239,7 +239,7 @@
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
-                            <xs:element maxOccurs="1" minOccurs="1" name="clinicaldetails">
+                            <xs:element maxOccurs="1" minOccurs="0" name="clinicaldetails">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element maxOccurs="1" minOccurs="0" name="rrtstatus" type="rrtstatus"/>
@@ -290,7 +290,7 @@
                                                         </xs:simpleType>
                                                     </xs:element>
                                                     <xs:element maxOccurs="1" minOccurs="1" name="testcode" type="testcode"/>
-                                                    <xs:element maxOccurs="1" minOccurs="1" name="units">
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="units">
                                                         <xs:simpleType>
                                                             <xs:restriction base="xs:string">
                                                                 <xs:maxLength value="20"/>
@@ -468,7 +468,7 @@
             <xs:enumeration value="Extensive Colitis"/>
             <xs:enumeration value="Ileal Crohns"/>
             <xs:enumeration value="Ileo-Colonic Disease"/>
-            <xs:enumeration value="CrohnÕs Colitis"/>
+            <xs:enumeration value="Crohns Colitis"/>
             <xs:enumeration value="Isolated Upper GI Disease"/>
         </xs:restriction>
     </xs:simpleType>

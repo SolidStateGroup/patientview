@@ -1,8 +1,10 @@
 package org.patientview.importer.builder;
 
 import generated.Patientview;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Substance;
+import org.patientview.config.utils.CommonUtils;
 
 /**
  * This maps between parameters from old PatientView and the new PatientView fhir record
@@ -21,14 +23,14 @@ public class SubstanceBuilder {
     public Substance build() {
         Substance substance = new Substance();
 
-        if (allergyData.getAllergytypecode() != null) {
+        if (StringUtils.isNotEmpty(allergyData.getAllergytypecode())) {
             CodeableConcept type = new CodeableConcept();
-            type.setTextSimple(allergyData.getAllergytypecode());
+            type.setTextSimple(CommonUtils.cleanSql(allergyData.getAllergytypecode()));
             substance.setType(type);
         }
 
-        if (allergyData.getAllergysubstance() != null) {
-            substance.setDescriptionSimple(allergyData.getAllergysubstance());
+        if (StringUtils.isNotEmpty(allergyData.getAllergysubstance())) {
+            substance.setDescriptionSimple(CommonUtils.cleanSql(allergyData.getAllergysubstance()));
         }
 
         return substance;

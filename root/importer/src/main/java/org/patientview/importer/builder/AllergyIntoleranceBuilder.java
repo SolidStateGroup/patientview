@@ -1,6 +1,7 @@
 package org.patientview.importer.builder;
 
 import generated.Patientview;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.AllergyIntolerance;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.ResourceReference;
@@ -32,13 +33,13 @@ public class AllergyIntoleranceBuilder {
             allergyIntolerance.setRecordedDateSimple(dateAndTime);
         }
 
-        if (allergyData.getAllergystatus() != null) {
+        if (StringUtils.isNotEmpty(allergyData.getAllergystatus())) {
             if (allergyData.getAllergystatus().equals("Active")) {
                 allergyIntolerance.setStatusSimple(AllergyIntolerance.Sensitivitystatus.confirmed);
             }
         }
 
-        if (allergyData.getAllergyinfosource() != null) {
+        if (StringUtils.isNotEmpty(allergyData.getAllergyinfosource())) {
             if (allergyData.getAllergyinfosource().equals("Patient")) {
                 allergyIntolerance.setRecorder(patientReference);
             }

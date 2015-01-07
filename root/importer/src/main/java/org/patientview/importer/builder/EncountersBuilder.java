@@ -1,11 +1,13 @@
 package org.patientview.importer.builder;
 
 import generated.Patientview;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Identifier;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.enums.EncounterTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,28 +42,31 @@ public class EncountersBuilder {
         if (data.getPatient().getClinicaldetails() != null) {
             // Treatment
             if (data.getPatient().getClinicaldetails().getRrtstatus() != null) {
-                try {
-                    encounters.add(createEncounter(data.getPatient().getClinicaldetails().getRrtstatus().value(),
-                            EncounterTypes.TREATMENT.toString()));
-                    success++;
-                } catch (FhirResourceException e) {
-                    LOG.error("Invalid data in XML: " + e.getMessage());
-                }
+                if (StringUtils.isNotEmpty(data.getPatient().getClinicaldetails().getRrtstatus().value())) {
+                    try {
+                        encounters.add(createEncounter(data.getPatient().getClinicaldetails().getRrtstatus().value(),
+                                EncounterTypes.TREATMENT.toString()));
+                        success++;
+                    } catch (FhirResourceException e) {
+                        LOG.error("Invalid data in XML: " + e.getMessage());
+                    }
 
-                count++;
+                    count++;
+                }
             }
 
             // Transplant Status
             if (data.getPatient().getClinicaldetails().getTpstatus() != null) {
-                try {
-                    encounters.add(createEncounter(data.getPatient().getClinicaldetails().getTpstatus(),
-                            EncounterTypes.TRANSPLANT_STATUS.toString()));
-                    success++;
-                } catch (FhirResourceException e) {
-                    LOG.error("Invalid data in XML: " + e.getMessage());
+                if (StringUtils.isNotEmpty(data.getPatient().getClinicaldetails().getTpstatus())) {
+                    try {
+                        encounters.add(createEncounter(data.getPatient().getClinicaldetails().getTpstatus(),
+                                EncounterTypes.TRANSPLANT_STATUS.toString()));
+                        success++;
+                    } catch (FhirResourceException e) {
+                        LOG.error("Invalid data in XML: " + e.getMessage());
+                    }
+                    count++;
                 }
-
-                count++;
             }
         }
 
@@ -75,7 +80,7 @@ public class EncountersBuilder {
         identifier.setValueSimple(encounterType);
 
         CodeableConcept code = encounter.addType();
-        code.setTextSimple(status);
+        code.setTextSimple(CommonUtils.cleanSql(status));
 
         encounter.setSubject(this.patientReference);
         encounter.setServiceProvider(this.groupReference);

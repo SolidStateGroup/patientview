@@ -13,6 +13,7 @@ import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.AlertObservationHeading;
 import org.patientview.persistence.model.enums.BodySites;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
@@ -334,15 +335,17 @@ public class ObservationsBuilder {
         Observation observation = new Observation();
         observation.setReliability(new Enumeration<>(Observation.ObservationReliability.ok));
         observation.setStatusSimple(Observation.ObservationStatus.registered);
+
         try {
             observation.setValue(createQuantity(result, test));
         } catch (FhirResourceException e) {
             // text based value
             CodeableConcept valueConcept = new CodeableConcept();
-            valueConcept.setTextSimple(result.getValue());
-            valueConcept.addCoding().setDisplaySimple(result.getValue());
+            valueConcept.setTextSimple(CommonUtils.cleanSql(result.getValue()));
+            valueConcept.addCoding().setDisplaySimple(CommonUtils.cleanSql(result.getValue()));
             observation.setValue(valueConcept);
         }
+
         observation.setSubject(resourceReference);
         observation.setName(createConcept(test));
         observation.setApplies(createDateTime(result));
@@ -385,8 +388,15 @@ public class ObservationsBuilder {
                                     Patientview.Patient.Testdetails.Test test) throws FhirResourceException {
         Quantity quantity = new Quantity();
         quantity.setValue(createDecimal(result));
-        quantity.setComparatorSimple(getComparator(result));
-        quantity.setUnitsSimple(test.getUnits());
+
+        Quantity.QuantityComparator comparator = getComparator(result);
+        if (comparator != null) {
+            quantity.setComparatorSimple(comparator);
+        }
+
+        if (StringUtils.isNotEmpty(test.getUnits())) {
+            quantity.setUnitsSimple(test.getUnits());
+        }
         return quantity;
     }
 

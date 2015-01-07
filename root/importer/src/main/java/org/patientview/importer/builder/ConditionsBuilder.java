@@ -2,11 +2,13 @@ package org.patientview.importer.builder;
 
 import generated.Patientview;
 import generated.PvDiagnosis;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,18 +45,20 @@ public class ConditionsBuilder {
             // generic other <diagnosis>
             if (data.getPatient().getClinicaldetails().getDiagnosis() != null) {
                 for (PvDiagnosis diagnosis : data.getPatient().getClinicaldetails().getDiagnosis()) {
-                    try {
-                        conditions.add(createCondition(diagnosis));
-                        success++;
-                    } catch (FhirResourceException e) {
-                        LOG.error("Invalid data in XML: " + e.getMessage());
+                    if (StringUtils.isNotEmpty(diagnosis.getValue())) {
+                        try {
+                            conditions.add(createCondition(diagnosis));
+                            success++;
+                        } catch (FhirResourceException e) {
+                            LOG.error("Invalid data in XML: " + e.getMessage());
+                        }
+                        count++;
                     }
-                    count++;
                 }
             }
 
             // edta diagnosis <diagnosisedta>, linked to codes
-            if (data.getPatient().getClinicaldetails().getDiagnosisedta() != null) {
+            if (StringUtils.isNotEmpty(data.getPatient().getClinicaldetails().getDiagnosisedta())) {
                 try {
                     conditions.add(createCondition(data.getPatient().getClinicaldetails().getDiagnosisedta(),
                             data.getPatient().getClinicaldetails().getDiagnosisdate()));
@@ -76,7 +80,7 @@ public class ConditionsBuilder {
         condition.setNotesSimple(diagnosis.getValue());
 
         CodeableConcept code = new CodeableConcept();
-        code.setTextSimple(diagnosis.getValue());
+        code.setTextSimple(CommonUtils.cleanSql(diagnosis.getValue()));
         condition.setCode(code);
 
         CodeableConcept category = new CodeableConcept();
@@ -90,10 +94,10 @@ public class ConditionsBuilder {
         Condition condition = new Condition();
         condition.setStatusSimple(Condition.ConditionStatus.confirmed);
         condition.setSubject(resourceReference);
-        condition.setNotesSimple(edtaDiagnosis);
+        condition.setNotesSimple(CommonUtils.cleanSql(edtaDiagnosis));
 
         CodeableConcept code = new CodeableConcept();
-        code.setTextSimple(edtaDiagnosis);
+        code.setTextSimple(CommonUtils.cleanSql(edtaDiagnosis));
         condition.setCode(code);
 
         CodeableConcept category = new CodeableConcept();

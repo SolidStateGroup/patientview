@@ -49,10 +49,10 @@ public class PatientBuilder {
         HumanName humanName = newPatient.addName();
         if (data.getPatient().getPersonaldetails() != null) {
             if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getSurname())) {
-                humanName.addFamilySimple(data.getPatient().getPersonaldetails().getSurname());
+                humanName.addFamilySimple(CommonUtils.cleanSql(data.getPatient().getPersonaldetails().getSurname()));
             }
             if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getForename())) {
-                humanName.addGivenSimple(data.getPatient().getPersonaldetails().getForename());
+                humanName.addGivenSimple(CommonUtils.cleanSql(data.getPatient().getPersonaldetails().getForename()));
             }
         }
         Enumeration<HumanName.NameUse> nameUse = new Enumeration(HumanName.NameUse.usual);
@@ -75,7 +75,7 @@ public class PatientBuilder {
             CodeableConcept gender = new CodeableConcept();
             Sex sex = data.getPatient().getPersonaldetails().getSex();
             if (sex != null) {
-                gender.setTextSimple(data.getPatient().getPersonaldetails().getSex().value());
+                gender.setTextSimple(CommonUtils.cleanSql(data.getPatient().getPersonaldetails().getSex().value()));
             }
             gender.addCoding().setDisplaySimple("gender");
             newPatient.setGender(gender);
@@ -84,40 +84,62 @@ public class PatientBuilder {
     }
 
     private Patient createAddress(Patient newPatient, Patientview data) {
-        if (data.getPatient().getPersonaldetails() != null) {
-            Address address = newPatient.addAddress();
-            address.addLineSimple(data.getPatient().getPersonaldetails().getAddress1());
-            address.setCitySimple(data.getPatient().getPersonaldetails().getAddress2());
-            address.setStateSimple(data.getPatient().getPersonaldetails().getAddress3());
-            address.setCountrySimple(data.getPatient().getPersonaldetails().getAddress4());
-            address.setZipSimple(data.getPatient().getPersonaldetails().getPostcode());
+        Patientview.Patient.Personaldetails personaldetails = data.getPatient().getPersonaldetails();
+        if (personaldetails != null) {
+            if (StringUtils.isNotEmpty(personaldetails.getAddress1())
+                    || StringUtils.isNotEmpty(personaldetails.getAddress2())
+                    || StringUtils.isNotEmpty(personaldetails.getAddress3())
+                    || StringUtils.isNotEmpty(personaldetails.getAddress4())
+                    || StringUtils.isNotEmpty(personaldetails.getPostcode())) {
+                Address address = newPatient.addAddress();
+                if (StringUtils.isNotEmpty(personaldetails.getAddress1())) {
+                    address.addLineSimple(CommonUtils.cleanSql(personaldetails.getAddress1()));
+                }
+                if (StringUtils.isNotEmpty(personaldetails.getAddress2())) {
+                    address.setCitySimple(CommonUtils.cleanSql(personaldetails.getAddress2()));
+                }
+                if (StringUtils.isNotEmpty(personaldetails.getAddress3())) {
+                    address.setStateSimple(CommonUtils.cleanSql(personaldetails.getAddress3()));
+                }
+                if (StringUtils.isNotEmpty(personaldetails.getAddress4())) {
+                    address.setCountrySimple(CommonUtils.cleanSql(personaldetails.getAddress4()));
+                }
+                if (StringUtils.isNotEmpty(personaldetails.getPostcode())) {
+                    address.setZipSimple(CommonUtils.cleanSql(personaldetails.getPostcode()));
+                }
+            }
         }
         return newPatient;
     }
 
     private Patient createContactDetails(Patient newPatient, Patientview data) {
-        if (data.getPatient().getPersonaldetails() != null) {
-            Patient.ContactComponent contactComponent = newPatient.addContact();
+        Patientview.Patient.Personaldetails personaldetails = data.getPatient().getPersonaldetails();
+        if (personaldetails != null) {
+            if (StringUtils.isNotEmpty(personaldetails.getMobile())
+                    || StringUtils.isNotEmpty(personaldetails.getTelephone1())
+                    || StringUtils.isNotEmpty(personaldetails.getTelephone2())) {
+                Patient.ContactComponent contactComponent = newPatient.addContact();
 
-            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getMobile())) {
-                Contact contact = contactComponent.addTelecom();
-                contact.setValueSimple(data.getPatient().getPersonaldetails().getMobile());
-                contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
-                contact.setUse(new Enumeration<>(Contact.ContactUse.mobile));
-            }
+                if (StringUtils.isNotEmpty(personaldetails.getMobile())) {
+                    Contact contact = contactComponent.addTelecom();
+                    contact.setValueSimple(CommonUtils.cleanSql(personaldetails.getMobile()));
+                    contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
+                    contact.setUse(new Enumeration<>(Contact.ContactUse.mobile));
+                }
 
-            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getTelephone1())) {
-                Contact contact = contactComponent.addTelecom();
-                contact.setValueSimple(data.getPatient().getPersonaldetails().getTelephone1());
-                contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
-                contact.setUse(new Enumeration<>(Contact.ContactUse.home));
-            }
+                if (StringUtils.isNotEmpty(personaldetails.getTelephone1())) {
+                    Contact contact = contactComponent.addTelecom();
+                    contact.setValueSimple(CommonUtils.cleanSql(personaldetails.getTelephone1()));
+                    contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
+                    contact.setUse(new Enumeration<>(Contact.ContactUse.home));
+                }
 
-            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getTelephone2())) {
-                Contact contact = contactComponent.addTelecom();
-                contact.setValueSimple(data.getPatient().getPersonaldetails().getTelephone2());
-                contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
-                contact.setUse(new Enumeration<>(Contact.ContactUse.home));
+                if (StringUtils.isNotEmpty(personaldetails.getTelephone2())) {
+                    Contact contact = contactComponent.addTelecom();
+                    contact.setValueSimple(CommonUtils.cleanSql(personaldetails.getTelephone2()));
+                    contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
+                    contact.setUse(new Enumeration<>(Contact.ContactUse.home));
+                }
             }
         }
         return  newPatient;
@@ -134,9 +156,12 @@ public class PatientBuilder {
             identifier.setValueSimple(identifierText);
 
             // Hospital Number
-            Identifier hospitalNumber = newPatient.addIdentifier();
-            hospitalNumber.setLabelSimple(IdentifierTypes.HOSPITAL_NUMBER.toString());
-            hospitalNumber.setValueSimple(data.getPatient().getPersonaldetails().getHospitalnumber());
+            if (StringUtils.isNotEmpty(data.getPatient().getPersonaldetails().getHospitalnumber())) {
+                Identifier hospitalNumber = newPatient.addIdentifier();
+                hospitalNumber.setLabelSimple(IdentifierTypes.HOSPITAL_NUMBER.toString());
+                hospitalNumber.setValueSimple(
+                        CommonUtils.cleanSql(data.getPatient().getPersonaldetails().getHospitalnumber()));
+            }
         }
         return newPatient;
     }

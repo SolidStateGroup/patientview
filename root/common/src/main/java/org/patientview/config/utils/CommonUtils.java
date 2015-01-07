@@ -1,6 +1,7 @@
 package org.patientview.config.utils;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 
@@ -57,5 +58,17 @@ public final class CommonUtils {
         } catch (Exception e) {
             return IdentifierTypes.NON_UK_UNIQUE;
         }
+    }
+
+    public static String cleanSql(String input) {
+        if (input == null) {
+            return null;
+        }
+
+        if (StringUtils.isEmpty(input)) {
+            return "";
+        }
+
+        return input.replace("'","''");
     }
 }

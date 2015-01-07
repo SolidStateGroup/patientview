@@ -1,6 +1,7 @@
 package org.patientview.importer.service.impl;
 
 import generated.Patientview;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.AdverseReaction;
 import org.hl7.fhir.instance.model.AllergyIntolerance;
 import org.hl7.fhir.instance.model.CodeableConcept;
@@ -9,6 +10,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.hl7.fhir.instance.model.Substance;
 import org.json.JSONObject;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.Utility.Util;
 import org.patientview.importer.builder.AllergyIntoleranceBuilder;
 import org.patientview.importer.builder.SubstanceBuilder;
@@ -59,10 +61,13 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
             // build AdverseReaction
             AdverseReaction adverseReaction = new AdverseReaction();
             adverseReaction.setSubject(patientReference);
-            AdverseReaction.AdverseReactionSymptomComponent symptomComponent = adverseReaction.addSymptom();
-            CodeableConcept code = new CodeableConcept();
-            code.setTextSimple(allergy.getAllergyreaction());
-            symptomComponent.setCode(code);
+
+            if (StringUtils.isNotEmpty(allergy.getAllergyreaction())) {
+                AdverseReaction.AdverseReactionSymptomComponent symptomComponent = adverseReaction.addSymptom();
+                CodeableConcept code = new CodeableConcept();
+                code.setTextSimple(CommonUtils.cleanSql(allergy.getAllergyreaction()));
+                symptomComponent.setCode(code);
+            }
 
             // build AllergyIntolerance
             AllergyIntoleranceBuilder allergyIntoleranceBuilder
