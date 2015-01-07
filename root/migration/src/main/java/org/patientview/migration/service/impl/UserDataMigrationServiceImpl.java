@@ -1302,7 +1302,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         User newUser = new User();
         newUser.setForename(user.getFirstName());
         newUser.setSurname(user.getLastName());
-        newUser.setChangePassword(user.isFirstlogon()); // todo? should be correct but seems to always be true
+        newUser.setChangePassword(false);
         newUser.setPassword(user.getPassword());
         newUser.setLocked(user.isAccountlocked());
         newUser.setDummy(user.isDummypatient());
