@@ -7,14 +7,13 @@ import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.DocumentReferenceBuilder;
-import org.patientview.importer.model.BasicObservation;
-import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DocumentReferenceService;
 import org.patientview.importer.Utility.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,7 +26,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -71,26 +69,28 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         // get currently existing DocumentReference by subject Id
         Map<String, Date> existingMap = getExistingDateBySubjectId(fhirLink);
 
-        for (DocumentReference newDocumentReference : documentReferences) {
+        if (!CollectionUtils.isEmpty(documentReferences)) {
+            for (DocumentReference newDocumentReference : documentReferences) {
 
-            // delete any existing DocumentReference for this Subject that have same date
-            List<UUID> existingUuids = getExistingByDate(newDocumentReference, existingMap);
-            if (!existingUuids.isEmpty()) {
-                for (UUID existingUuid : existingUuids) {
-                    LOG.info(nhsno + ": Deleting DocumentReference with date "
-                            + newDocumentReference.getCreated().getValue().toString());
-                    fhirResource.delete(existingUuid, ResourceType.DocumentReference);
+                // delete any existing DocumentReference for this Subject that have same date
+                List<UUID> existingUuids = getExistingByDate(newDocumentReference, existingMap);
+                if (!existingUuids.isEmpty()) {
+                    for (UUID existingUuid : existingUuids) {
+                        LOG.info(nhsno + ": Deleting DocumentReference with date "
+                                + newDocumentReference.getCreated().getValue().toString());
+                        fhirResource.delete(existingUuid, ResourceType.DocumentReference);
+                    }
                 }
-            }
 
-            // create new DocumentReference
-            try {
-                LOG.info(nhsno + ": Adding DocumentReference with date "
-                       + newDocumentReference.getCreated().getValue().toString());
-                fhirResource.create(newDocumentReference);
-                success++;
-            } catch (FhirResourceException e) {
-                LOG.error(nhsno + ": Unable to create DocumentReference");
+                // create new DocumentReference
+                try {
+                    LOG.info(nhsno + ": Adding DocumentReference with date "
+                            + newDocumentReference.getCreated().getValue().toString());
+                    fhirResource.create(newDocumentReference);
+                    success++;
+                } catch (FhirResourceException e) {
+                    LOG.error(nhsno + ": Unable to create DocumentReference");
+                }
             }
         }
 
@@ -158,19 +158,26 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                     documentReference.getCreated().getValue().toString());
             Long applies = xmlDate.toGregorianCalendar().getTime().getTime();
 
-            Iterator iter = existingMap.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry keyValue = (Map.Entry) iter.next();
-                Date existing = (Date) keyValue.getValue();
+            for (Map.Entry keyValue : existingMap.entrySet()) {
+                if (keyValue.getValue() != null) {
+                    Date existing = (Date) keyValue.getValue();
 
-                if (applies == existing.getTime()) {
-                    existingByDate.add(UUID.fromString((String) keyValue.getKey()));
+                    //LOG.info(nhsno + ": " + existing.getTime() + " "
+                    //        + applies + " "
+                    //        + (applies == existing.getTime()));
+
+                    if (applies == existing.getTime()) {
+                        existingByDate.add(UUID.fromString((String) keyValue.getKey()));
+                    }
                 }
             }
         } catch (DatatypeConfigurationException e) {
             LOG.error(nhsno + ": Error converting DocumentReference created date");
             return existingByDate;
         }
+
+        LOG.info(nhsno + ": getExistingByDate Done");
+
         return existingByDate;
     }
 }
