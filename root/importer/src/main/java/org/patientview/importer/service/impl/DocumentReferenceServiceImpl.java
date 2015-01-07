@@ -156,22 +156,22 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         LOG.info(nhsno + ": starting getExistingByDate");
 
         try {
-            XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-                    documentReference.getCreated().getValue().toString());
-            Long applies = xmlDate.toGregorianCalendar().getTime().getTime();
+            if (documentReference.getCreated() != null) {
+                XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+                        documentReference.getCreated().getValue().toString());
+                Long applies = xmlDate.toGregorianCalendar().getTime().getTime();
 
-            for (Map.Entry keyValue : existingMap.entrySet()) {
-                if (keyValue.getValue() != null) {
-                    LOG.info(nhsno + ": keyValue = " + keyValue.getValue());
-                    LOG.info(nhsno + ": keyValue string = " + keyValue.getValue().toString());
+                for (Map.Entry keyValue : existingMap.entrySet()) {
+                    if (keyValue.getValue() != null) {
 
-                    Date existing = (Date) keyValue.getValue();
-                    LOG.info(nhsno + ": " + existing.getTime() + " "
-                            + applies + " "
-                            + (applies == existing.getTime()));
+                        Date existing = (Date) keyValue.getValue();
+                        //LOG.info(nhsno + ": " + existing.getTime() + " "
+                        //        + applies + " "
+                        //        + (applies == existing.getTime()));
 
-                    if (applies == existing.getTime()) {
-                        existingByDate.add(UUID.fromString((String) keyValue.getKey()));
+                        if (applies == existing.getTime()) {
+                            existingByDate.add(UUID.fromString((String) keyValue.getKey()));
+                        }
                     }
                 }
             }
