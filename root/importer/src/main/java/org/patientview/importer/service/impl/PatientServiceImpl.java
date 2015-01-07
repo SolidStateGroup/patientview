@@ -1,6 +1,7 @@
 package org.patientview.importer.service.impl;
 
 import generated.Patientview;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -97,11 +98,26 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             fhirLink = addLink(identifier, group, jsonObject);
         }
 
-        // update User date of birth
-        if (patient.getPatient().getPersonaldetails().getDateofbirth() != null) {
+        // update User date of birth, forename, surname (if present in imported data)
+        if (patient.getPatient().getPersonaldetails().getDateofbirth() != null
+                || StringUtils.isNotEmpty(patient.getPatient().getPersonaldetails().getForename())
+                || StringUtils.isNotEmpty(patient.getPatient().getPersonaldetails().getSurname())) {
+
             User entityUser = userRepository.findOne(fhirLink.getUser().getId());
-            entityUser.setDateOfBirth(
-                    patient.getPatient().getPersonaldetails().getDateofbirth().toGregorianCalendar().getTime());
+
+            if (patient.getPatient().getPersonaldetails().getDateofbirth() != null) {
+                entityUser.setDateOfBirth(
+                        patient.getPatient().getPersonaldetails().getDateofbirth().toGregorianCalendar().getTime());
+            }
+
+            if (StringUtils.isNotEmpty(patient.getPatient().getPersonaldetails().getForename())) {
+                entityUser.setForename(patient.getPatient().getPersonaldetails().getForename());
+            }
+
+            if (StringUtils.isNotEmpty(patient.getPatient().getPersonaldetails().getSurname())) {
+                entityUser.setSurname(patient.getPatient().getPersonaldetails().getSurname());
+            }
+
             userRepository.save(entityUser);
         }
 
