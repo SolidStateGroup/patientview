@@ -193,6 +193,17 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } catch (FhirResourceException fre) {
+            LOG.error("Unable to update resource: " + fre.getMessage());
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close connection {}", e2);
+                throw new FhirResourceException(e2.getMessage());
+            }
+            throw fre;
         }
     }
 
