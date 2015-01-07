@@ -998,8 +998,13 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
-    $scope.closeStatistics = function () {
-
+    $scope.printSuccessMessage = function() {
+        var w=window.open();
+        var successMessage = $('#success-message').clone();
+        successMessage.children('.print-success-message').remove();
+        w.document.write(successMessage.html());
+        w.print();
+        w.close();
     };
 
     $scope.init();

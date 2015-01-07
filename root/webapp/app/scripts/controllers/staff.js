@@ -791,8 +791,13 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
     };
 
-    $scope.closeStatistics = function () {
-
+    $scope.printSuccessMessage = function() {
+        var w=window.open();
+        var successMessage = $('#success-message').clone();
+        successMessage.children('.print-success-message').remove();
+        w.document.write(successMessage.html());
+        w.print();
+        w.close();
     };
 
     $scope.init();

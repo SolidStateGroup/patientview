@@ -86,7 +86,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                             fhirResource.updateFhirObject(
                                     practitioner, objectData.get("logicalId"), objectData.get("versionId"));
                         } catch (FhirResourceException e) {
-                            LOG.error(nhsno + ": Could not update practitioner, " + e.getMessage());
+                            LOG.error(nhsno + ": Could not update practitioner, " + e.getMessage(), e);
                         }
                     }
 

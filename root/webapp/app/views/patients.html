@@ -9,6 +9,9 @@
     .feature-list {
         margin-top: 10px;
     }
+    .print-success-message {
+        margin-left: 20px;
+    }
 </style>
 <div data-ng-show="!loading">
     <h1>Patients
@@ -249,7 +252,10 @@
             </div>
         </div>
 
-        <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+        <div class="alert alert-success" data-ng-show="successMessage" id="success-message">
+            {{successMessage}}
+            <a href="" class="print-success-message" data-ng-click="printSuccessMessage()">Print</a>
+        </div>
 
         <!-- data grid -->
         <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
