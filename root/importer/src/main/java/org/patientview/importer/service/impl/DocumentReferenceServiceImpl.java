@@ -76,8 +76,12 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                 List<UUID> existingUuids = getExistingByDate(newDocumentReference, existingMap);
                 if (!existingUuids.isEmpty()) {
                     for (UUID existingUuid : existingUuids) {
-                        LOG.info(nhsno + ": Deleting DocumentReference with date "
-                                + newDocumentReference.getCreated().getValue().toString());
+                        if (newDocumentReference.getCreated() != null) {
+                            LOG.info(nhsno + ": Deleting DocumentReference with date "
+                                    + newDocumentReference.getCreated().getValue().toString());
+                        } else {
+                            LOG.info(nhsno + ": Deleting DocumentReference");
+                        }
                         fhirResource.delete(existingUuid, ResourceType.DocumentReference);
                     }
                 }
