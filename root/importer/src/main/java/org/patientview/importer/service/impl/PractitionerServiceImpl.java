@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.PractitionerBuilder;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
@@ -70,7 +71,8 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                 PractitionerBuilder practitionerBuilder = new PractitionerBuilder(data);
                 Practitioner importPractitioner = practitionerBuilder.build();
 
-                List<Map<String, UUID>> uuids =  getUuidsByFamilyName(data.getGpdetails().getGpname());
+                List<Map<String, UUID>> uuids
+                        = getUuidsByFamilyName(CommonUtils.cleanSql(data.getGpdetails().getGpname()));
 
                 if (!uuids.isEmpty()) {
                     // update existing FHIR entities (should be a single row), return reference
@@ -107,14 +109,18 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         }
     }
 
-    private List<Map<String, UUID>> getUuidsByFamilyName(final String code) throws FhirResourceException {
+    private List<Map<String, UUID>> getUuidsByFamilyName(String code) throws FhirResourceException {
+
+        // handle db stored '' for ' in names e.g. O''DONNEL
+        code = code.replace("'","''");
+
         // build query
         StringBuilder query = new StringBuilder();
         query.append("SELECT  version_id, logical_id ");
         query.append("FROM practitioner ");
-        query.append("WHERE content -> 'name' #> '{family,0}' = '\"");
+        query.append("WHERE content -> 'name' #>> '{family,0}' = '");
         query.append(code);
-        query.append("\"' ");
+        query.append("' ");
 
         // execute and return UUIDs
         try {
