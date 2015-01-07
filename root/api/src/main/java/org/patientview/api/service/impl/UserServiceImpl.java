@@ -821,7 +821,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // convert to lightweight transport objects, create Page and return
         List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(users.getContent());
-        return new PageImpl<>(transportContent, pageable, users.getTotalElements());
+
+        // handle incorrect page size for 1 result (pageable error?)
+        long total = users.getTotalElements();
+        if (users.getTotalPages() == 1) {
+            total = users.getContent().size();
+        }
+
+        return new PageImpl<>(transportContent, pageable, total);
     }
 
     /**
