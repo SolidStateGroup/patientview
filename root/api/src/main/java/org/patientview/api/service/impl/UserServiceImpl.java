@@ -1043,10 +1043,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        try {
-            emailService.sendEmail(getPasswordResetEmail(user, password));
-        } catch (MessagingException | MailException me) {
-            LOG.error("Could not send reset password email {}", me);
+        // only send email if verified
+        if (user.getEmailVerified()) {
+            try {
+                emailService.sendEmail(getPasswordResetEmail(user, password));
+            } catch (MessagingException | MailException me) {
+                LOG.error("Could not send reset password email {}", me);
+            }
         }
 
         user.setPassword(DigestUtils.sha256Hex(password));
