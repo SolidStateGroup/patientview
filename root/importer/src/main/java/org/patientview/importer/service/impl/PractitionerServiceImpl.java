@@ -81,10 +81,8 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                     for (Map<String, UUID> objectData : uuids) {
                         try {
                             updatedResourceId = objectData.get("logicalId");
-                            Resource practitioner
-                                    = fhirResource.get(objectData.get("logicalId"), ResourceType.Practitioner);
                             fhirResource.updateFhirObject(
-                                    practitioner, objectData.get("logicalId"), objectData.get("versionId"));
+                                    importPractitioner, objectData.get("logicalId"), objectData.get("versionId"));
                         } catch (FhirResourceException e) {
                             LOG.error(nhsno + ": Could not update practitioner, " + e.getMessage(), e);
                         }

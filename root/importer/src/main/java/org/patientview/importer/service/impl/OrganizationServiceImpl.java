@@ -77,8 +77,8 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
                 for (Map<String, UUID> objectData : uuids) {
                     try {
                         updatedResourceId = objectData.get("logicalId");
-                        Resource organization = fhirResource.get(objectData.get("logicalId"), ResourceType.Organization);
-                        fhirResource.updateFhirObject(organization, objectData.get("logicalId"), objectData.get("versionId"));
+                        fhirResource.updateFhirObject(
+                                importOrganization, objectData.get("logicalId"), objectData.get("versionId"));
                     } catch (FhirResourceException e) {
                         LOG.error(nhsno + ": Could not update organization: " + e.getMessage(), e);
                     }
