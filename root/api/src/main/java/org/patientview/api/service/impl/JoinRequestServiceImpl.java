@@ -137,15 +137,14 @@ public class JoinRequestServiceImpl extends AbstractServiceImpl<JoinRequestServi
         email.setSenderName(properties.getProperty("smtp.sender.name"));
         email.setSubject("PatientView - Join Request");
 
-        StringBuilder body = new StringBuilder();
-        body.append("Dear Sir/Madam, <br/><br/>");
-        body.append("A patient has made a request on the website to join <a href=\"");
-        body.append(properties.getProperty("site.url"));
-        body.append("\">PatientView</a>.");
-        body.append("<br/><br/> Please follow up this request with the patient using your ");
-        body.append("usual process to consent and add patients to PatientView.");
+        String body = "Dear Sir/Madam, <br/><br/> "
+                + "A patient has made a request on the website to join <a href=\""
+                + properties.getProperty("site.url")
+                + "\">PatientView</a>."
+                + "<br/><br/> Please log in to PatientView to see the details of the request then follow it up "
+                + "using your usual process";
 
-        email.setBody(body.toString());
+        email.setBody(body);
         return email;
     }
 
