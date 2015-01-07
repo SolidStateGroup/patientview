@@ -51,10 +51,15 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         DocumentReferenceBuilder documentReferenceBuilder = new DocumentReferenceBuilder(data, patientReference);
         List<DocumentReference> documentReferences = documentReferenceBuilder.build();
 
+        LOG.info(nhsno + ": " + documentReferences.size() + " DocumentReference");
+
         // get currently existing DocumentReference by subject Id
         Map<UUID, DocumentReference> existingMap = getExistingBySubjectId(fhirLink);
 
         for (DocumentReference newDocumentReference : documentReferences) {
+
+            LOG.info(nhsno + ": Adding DocumentReference with date "
+                    + newDocumentReference.getCreated().getValue().toString());
 
             // delete any existing DocumentReference for this Subject that have same date
             List<UUID> existingUuids = getExistingByDate(newDocumentReference, existingMap);
