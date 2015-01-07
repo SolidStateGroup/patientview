@@ -153,6 +153,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     private List<UUID> getExistingByDate(DocumentReference documentReference, Map<String, Date> existingMap) {
         List<UUID> existingByDate = new ArrayList<>();
 
+        LOG.info(nhsno + ": starting getExistingByDate");
+
         try {
             XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(
                     documentReference.getCreated().getValue().toString());
@@ -160,11 +162,13 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
             for (Map.Entry keyValue : existingMap.entrySet()) {
                 if (keyValue.getValue() != null) {
-                    Date existing = (Date) keyValue.getValue();
+                    LOG.info(nhsno + ": keyValue = " + keyValue.getValue());
+                    LOG.info(nhsno + ": keyValue string = " + keyValue.getValue().toString());
 
-                    //LOG.info(nhsno + ": " + existing.getTime() + " "
-                    //        + applies + " "
-                    //        + (applies == existing.getTime()));
+                    Date existing = (Date) keyValue.getValue();
+                    LOG.info(nhsno + ": " + existing.getTime() + " "
+                            + applies + " "
+                            + (applies == existing.getTime()));
 
                     if (applies == existing.getTime()) {
                         existingByDate.add(UUID.fromString((String) keyValue.getKey()));
