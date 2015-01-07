@@ -26,14 +26,17 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
     @Inject
     private FhirResource fhirResource;
 
+    private String nhsno;
+
     /**
      * Creates all of the FHIR condition records from the Patientview object. Links them to the PatientReference
      */
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         int count = 0;
-        LOG.info("Starting Condition Process");
+        LOG.info(nhsno + ": Starting Condition Process");
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         ConditionsBuilder conditionsBuilder = new ConditionsBuilder(data, patientReference);
 
@@ -41,15 +44,16 @@ public class ConditionServiceImpl extends AbstractServiceImpl<ConditionService> 
         deleteBySubjectId(fhirLink.getResourceId());
 
         for (Condition condition : conditionsBuilder.build()) {
-            LOG.trace("Creating... condition " + count);
+            LOG.trace(nhsno + ": Creating... condition " + count);
             try {
                 fhirResource.create(condition);
             } catch (FhirResourceException e) {
-                LOG.error("Unable to build condition");
+                LOG.error(nhsno + ": Unable to build condition");
             }
-            LOG.trace("Finished creating condition " + count++);
+            LOG.trace(nhsno + ": Finished creating condition " + count++);
         }
-        LOG.info("Processed {} of {} conditions", conditionsBuilder.getSuccess(), conditionsBuilder.getCount());
+        LOG.info(nhsno + ": Processed {} of {} conditions",
+                conditionsBuilder.getSuccess(), conditionsBuilder.getCount());
     }
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {

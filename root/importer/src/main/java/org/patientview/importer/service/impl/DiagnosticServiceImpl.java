@@ -35,6 +35,8 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     @Inject
     private FhirResource fhirResource;
 
+    private String nhsno;
+
     /**
      * Creates all of the FHIR DiagnosticReport and Observation (result) records from the Patientview object.
      * Links them to the PatientReference.
@@ -45,7 +47,8 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        LOG.info("Starting DiagnosticReport and associated Observation (result) Process");
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        LOG.info(nhsno + ": Starting DiagnosticReport and associated Observation (result) Process");
 
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int count = 0;
@@ -98,15 +101,15 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                         success += 1;
 
                     } catch (FhirResourceException e) {
-                        LOG.error("Unable to build Observation (result) or DiagnosticReport");
+                        LOG.error(nhsno + ": Unable to build Observation (result) or DiagnosticReport");
                     }
 
-                    LOG.trace("Finished creating DiagnosticReport " + count++);
+                    LOG.trace(nhsno + ": Finished creating DiagnosticReport " + count++);
                 }
             }
         }
 
-        LOG.info("Processed {} of {} diagnostics", success, count);
+        LOG.info(nhsno + ": Processed {} of {} diagnostics", success, count);
     }
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {

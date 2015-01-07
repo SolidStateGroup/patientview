@@ -43,6 +43,8 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
     @Named("fhir")
     private BasicDataSource dataSource;
 
+    private String nhsno;
+
     /**
      * Creates FHIR organization (unit/centre) record from the Patientview object.
      *
@@ -51,12 +53,13 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
     @Override
     public UUID add(final Patientview data) throws ResourceNotFoundException, FhirResourceException {
 
-        LOG.info("Starting Organization Process");
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        LOG.info(nhsno + ": Starting Organization Process");
 
         // validate that group exists in patientview using persistence module, otherwise throw exception
         if (!groupWithCodeExists(data.getCentredetails().getCentrecode())) {
-            LOG.error("Unable to build organization, group not found");
-            throw new ResourceNotFoundException("Unable to build organization, group not found");
+            LOG.error(nhsno + ": Unable to build organization, group not found");
+            throw new ResourceNotFoundException(nhsno + ": Unable to build organization, group not found");
         }
 
         OrganizationBuilder organizationBuilder = new OrganizationBuilder(data);
@@ -81,17 +84,17 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
                     }
                 }
 
-                LOG.info("Existing Organization, " + updatedResourceId);
+                LOG.info(nhsno + ": Existing Organization, " + updatedResourceId);
                 return updatedResourceId;
             } else {
                 // create new FHIR organization
                 JSONObject jsonObject = create(importOrganization);
-                LOG.info("Processed Organization");
+                LOG.info(nhsno + ": Processed Organization");
                 return Util.getResourceId(jsonObject);
             }
 
         } catch (FhirResourceException e) {
-            LOG.error("Unable to build organization: " + e.getMessage());
+            LOG.error(nhsno + ": Unable to build organization: " + e.getMessage());
             throw e;
         }
     }
@@ -135,7 +138,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
         try {
             return fhirResource.create(organization);
         } catch (Exception e) {
-            LOG.error("Could not build organization resource", e);
+            LOG.error(nhsno + ": Could not build organization resource", e);
             throw new FhirResourceException(e.getMessage());
         }
     }

@@ -30,6 +30,8 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
     @Inject
     private FhirResource fhirResource;
 
+    private String nhsno;
+
     /**
      * Creates all of the FHIR medicationstatement and medication records from the Patientview object.
      * Links them to the PatientReference.
@@ -40,7 +42,8 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        LOG.info("Starting Medication Statement and Medication Process");
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        LOG.info(nhsno + ": Starting Medication Statement and Medication Process");
 
         if (data.getPatient().getDrugdetails() != null) {
             ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
@@ -73,15 +76,15 @@ public class MedicationServiceImpl extends AbstractServiceImpl<MedicationService
                     success += 1;
 
                 } catch (FhirResourceException e) {
-                    LOG.error("Unable to build medication/medication statement");
+                    LOG.error(nhsno + ": Unable to build medication/medication statement");
                 }
 
-                LOG.trace("Finished creating medication statement " + count++);
+                LOG.trace(nhsno + ": Finished creating medication statement " + count++);
             }
 
-            LOG.info("Processed {} of {} medication", success, count);
+            LOG.info(nhsno + ": Processed {} of {} medication", success, count);
         } else {
-            LOG.info("No drug details provided");
+            LOG.info(nhsno + ": No drug details provided");
         }
     }
 

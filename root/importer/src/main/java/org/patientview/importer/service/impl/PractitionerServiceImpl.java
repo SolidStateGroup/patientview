@@ -7,7 +7,6 @@ import org.hl7.fhir.instance.model.Practitioner;
 import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
-import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.PractitionerBuilder;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.PractitionerService;
@@ -40,6 +39,8 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
     @Named("fhir")
     private BasicDataSource dataSource;
 
+    private String nhsno;
+
     /**
      * Creates FHIR practitioner record from the Patientview object.
      *
@@ -48,7 +49,8 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
     @Override
     public UUID add(final Patientview data) throws FhirResourceException {
 
-        LOG.info("Starting Practitioner Process");
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        LOG.info(nhsno + ": Starting Practitioner Process");
 
         if (data.getGpdetails() != null) {
             try {
@@ -56,13 +58,13 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                 // build FHIR object, accounting for blank gp name (replace with address if present)
                 if (StringUtils.isEmpty(data.getGpdetails().getGpname())
                         && StringUtils.isEmpty(data.getGpdetails().getGpaddress1())) {
-                    LOG.info("Empty GP details, not adding");
+                    LOG.info(nhsno + ": Empty GP details, not adding");
                     return null;
                 }
 
                 if (StringUtils.isEmpty(data.getGpdetails().getGpname())) {
                     data.getGpdetails().setGpname(data.getGpdetails().getGpaddress1());
-                    LOG.info("Empty GP name, replacing with GP address 1");
+                    LOG.info(nhsno + ": Empty GP name, replacing with GP address 1");
                 }
 
                 PractitionerBuilder practitionerBuilder = new PractitionerBuilder(data);
@@ -77,25 +79,27 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                     for (Map<String, UUID> objectData : uuids) {
                         try {
                             updatedResourceId = objectData.get("logicalId");
-                            Resource practitioner = fhirResource.get(objectData.get("logicalId"), ResourceType.Practitioner);
-                            fhirResource.updateFhirObject(practitioner, objectData.get("logicalId"), objectData.get("versionId"));
+                            Resource practitioner
+                                    = fhirResource.get(objectData.get("logicalId"), ResourceType.Practitioner);
+                            fhirResource.updateFhirObject(
+                                    practitioner, objectData.get("logicalId"), objectData.get("versionId"));
                         } catch (FhirResourceException e) {
-                            LOG.error("Could not update practitioner");
+                            LOG.error(nhsno + ": Could not update practitioner");
                         }
                     }
 
-                    LOG.info("Existing Practitioner, " + updatedResourceId);
+                    LOG.info(nhsno + ": Existing Practitioner, " + updatedResourceId);
                     return updatedResourceId;
 
                 } else {
                     // create new FHIR object
                     JSONObject jsonObject = create(importPractitioner);
-                    LOG.info("Processed new Practitioner");
+                    LOG.info(nhsno + ": Processed new Practitioner");
                     return Util.getResourceId(jsonObject);
                 }
 
             } catch (FhirResourceException e) {
-                LOG.error("Unable to build practitioner");
+                LOG.error(nhsno + ": Unable to build practitioner");
                 throw e;
             }
         } else {
@@ -138,7 +142,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         try {
             return fhirResource.create(practitioner);
         } catch (Exception e) {
-            LOG.error("Could not build practitioner resource", e);
+            LOG.error(nhsno + ": Could not build practitioner resource", e);
             throw new FhirResourceException(e.getMessage());
         }
     }

@@ -60,13 +60,16 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     @Inject
     private AlertObservationHeadingRepository alertObservationHeadingRepository;
 
+    private String nhsno;
+
     /**
      * Creates all of the FHIR observation records from the Patientview object. Links then to the PatientReference
      */
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        LOG.info("Starting Observation Process");
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        LOG.info(nhsno + ": Starting Observation Process");
 
         // create map to hold user alerts (if present)
         Map<String, AlertObservationHeading> alertObservationHeadingMap = new HashMap<>();
@@ -88,11 +91,11 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         observationsBuilder.setAlertObservationHeadingMap(alertObservationHeadingMap);
         observationsBuilder.build();
 
-        LOG.info("Getting Existing Observations");
+        LOG.info(nhsno + ": Getting Existing Observations");
         List<BasicObservation> observations = getBasicObservationBySubjectId(fhirLink.getResourceId());
 
         // get uuids of existing observations to delete
-        LOG.info("Deleting Existing Observations");
+        LOG.info(nhsno + ": Deleting Existing Observations");
         List<UUID> observationsUuidsToDelete = new ArrayList<>();
 
         for (BasicObservation observation : observations) {
@@ -145,7 +148,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
         int count = 0;
 
-        LOG.info("Creating New Observations");
+        LOG.info(nhsno + ": Creating New Observations");
         List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
 
         for (Observation observation : observationsBuilder.getObservations()) {
@@ -172,9 +175,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                             new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
                 }
             } catch (FhirResourceException e) {
-                LOG.error("Unable to build observation {} " + e.getCause());
+                LOG.error(nhsno + ": Unable to build observation {} " + e.getCause());
             }
-            LOG.trace("Finished creating observation " + count++);
+            LOG.trace(nhsno + ": Finished creating observation " + count++);
         }
 
         // now have collection, manually insert using native SQL
@@ -218,7 +221,8 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             }
         }
 
-        LOG.info("Processed {} of {} observations", observationsBuilder.getSuccess(), observationsBuilder.getCount());
+        LOG.info(nhsno + ": Processed {} of {} observations",
+                observationsBuilder.getSuccess(), observationsBuilder.getCount());
     }
 
     private Date convertDateTime(DateTime dateTime) {

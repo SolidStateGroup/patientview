@@ -31,6 +31,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     @Inject
     private FhirResource fhirResource;
 
+    private String nhsno;
+
     /**
      * Creates all of the FHIR DocumentReference records from the Patientview object.
      * Links them to the Patient by subject.
@@ -41,14 +43,13 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        LOG.info("Starting DocumentReference (letter) Process");
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        LOG.info(nhsno + ": Starting DocumentReference (letter) Process");
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int success = 0;
 
         DocumentReferenceBuilder documentReferenceBuilder = new DocumentReferenceBuilder(data, patientReference);
         List<DocumentReference> documentReferences = documentReferenceBuilder.build();
-        LOG.info("Built {} of {} DocumentReference", documentReferenceBuilder.getSuccess(),
-                documentReferenceBuilder.getCount());
 
         // get currently existing DocumentReference by subject Id
         Map<UUID, DocumentReference> existingMap = getExistingBySubjectId(fhirLink);
@@ -67,11 +68,11 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                 fhirResource.create(newDocumentReference);
                 success++;
             } catch (FhirResourceException e) {
-                LOG.error("Unable to create DocumentReference");
+                LOG.error(nhsno + ": Unable to create DocumentReference");
             }
         }
 
-        LOG.info("Processed {} of {} letters", success, documentReferenceBuilder.getCount());
+        LOG.info(nhsno + ": Processed {} of {} letters", success, documentReferenceBuilder.getCount());
     }
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {
@@ -100,11 +101,10 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         while (iter.hasNext()) {
             Map.Entry keyValue = (Map.Entry)iter.next();
             DocumentReference existing = (DocumentReference) keyValue.getValue();
-            //LOG.debug(documentReference.getCreated().getValue().toString() + " " + existing.getCreated().getValue().toString());
-            if (documentReference.getCreated().getValue().toString().equals(existing.getCreated().getValue().toString())) {
+            if (documentReference.getCreated().getValue().toString().equals(
+                    existing.getCreated().getValue().toString())) {
                 existingByDate.add((UUID) keyValue.getKey());
             }
-            //iter.remove(); // avoids a ConcurrentModificationException
         }
 
         return existingByDate;

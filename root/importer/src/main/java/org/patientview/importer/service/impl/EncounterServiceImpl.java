@@ -28,6 +28,8 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
     @Inject
     private FhirResource fhirResource;
 
+    private String nhsno;
+
     /**
      * Creates FHIR encounter (treatment and transplant details) records from the Patientview object.
      *
@@ -37,25 +39,27 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
     public void add(final Patientview data, final FhirLink fhirLink, final ResourceReference groupReference)
             throws FhirResourceException, SQLException {
 
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         EncountersBuilder encountersBuilder = new EncountersBuilder(data, patientReference, groupReference);
 
-        LOG.info("Starting Encounter Process");
+        LOG.info(nhsno + ": Starting Encounter Process");
 
         // delete existing
         deleteBySubjectId(fhirLink.getResourceId());
 
         int count = 0;
         for (Encounter encounter : encountersBuilder.build()) {
-            LOG.trace("Creating... encounter " + count);
+            LOG.trace(nhsno + ": Creating... encounter " + count);
             try {
                 fhirResource.create(encounter);
             } catch (FhirResourceException e) {
-                LOG.error("Unable to build encounter");
+                LOG.error(nhsno + ": Unable to build encounter");
             }
-            LOG.trace("Finished creating encounter " + count++);
+            LOG.trace(nhsno + ": Finished creating encounter " + count++);
         }
-        LOG.info("Processed {} of {} encounters", encountersBuilder.getSuccess(), encountersBuilder.getCount());
+        LOG.info(nhsno + ": Processed {} of {} encounters", encountersBuilder.getSuccess(),
+                encountersBuilder.getCount());
     }
 
     public void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {

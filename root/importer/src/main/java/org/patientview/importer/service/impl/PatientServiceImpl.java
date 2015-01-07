@@ -51,6 +51,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     @Inject
     private GroupRepository groupRepository;
 
+    private String nhsno;
+
     /**
      * We link fhir records against NHS Number, Unit and User.
      *
@@ -62,7 +64,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     public FhirLink add(final Patientview patient, final ResourceReference practitionerReference)
             throws ResourceNotFoundException, FhirResourceException {
 
-        LOG.info("Starting Patient Data Process");
+        this.nhsno = patient.getPatient().getPersonaldetails().getNhsno();
+        LOG.info(nhsno + ": Starting Patient Data Process");
 
         // Find the identifier which the patient is linked to.
         Identifier identifier = matchPatientByIdentifierValue(patient);
@@ -102,7 +105,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             userRepository.save(entityUser);
         }
 
-        LOG.info("Processed Patient Data for NHS number: " + patient.getPatient().getPersonaldetails().getNhsno());
+        LOG.info(nhsno + ": Processed Patient Data");
         return fhirLink;
     }
 
@@ -111,7 +114,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         Group group = groupRepository.findByCode(patientview.getCentredetails().getCentrecode());
 
         if (group == null) {
-            throw new ResourceNotFoundException("Group not found in PatientView database from imported <centrecode>");
+            throw new ResourceNotFoundException(
+                    nhsno + ": Group not found in PatientView database from imported <centrecode>");
         }
 
         return fhirLinkRepository.findInActiveByUserAndGroup(identifier.getUser(), group);
@@ -125,7 +129,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         FhirLink entityFhirLink = fhirLinkRepository.findOne(fhirlink.getId());
 
         if (entityFhirLink == null) {
-            throw new ResourceNotFoundException("FhirLink not found");
+            throw new ResourceNotFoundException(nhsno + ": FhirLink not found");
         }
 
         fhirLinkRepository.delete(entityFhirLink);
@@ -135,7 +139,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
         try {
             return fhirResource.create(patient);
         } catch (Exception e) {
-            LOG.error("Could not build patient resource", e);
+            LOG.error(nhsno + ": Could not build patient resource", e);
             throw new FhirResourceException(e.getMessage());
         }
     }
@@ -147,7 +151,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 patientview.getPatient().getPersonaldetails().getNhsno());
 
         if (CollectionUtils.isEmpty(identifiers)) {
-            throw new ResourceNotFoundException("The Identifier value is not linked with PatientView");
+            throw new ResourceNotFoundException(nhsno + ": The Identifier value is not linked with PatientView");
         }
 
         return identifiers.get(0);

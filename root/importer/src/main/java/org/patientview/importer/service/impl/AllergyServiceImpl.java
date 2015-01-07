@@ -33,6 +33,8 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
     @Inject
     private FhirResource fhirResource;
 
+    private String nhsno;
+
     /**
      * Creates all of the FHIR AllergyIntolerance, Substance and AdverseReaction from the Patientview allergy objects.
      * Links them to the PatientReference.
@@ -43,7 +45,8 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
-        LOG.info("Starting AllergyIntolerance, Substance and AdverseReaction process (allergy)");
+        this.nhsno = data.getPatient().getPersonaldetails().getNhsno();
+        LOG.info(nhsno + ": Starting AllergyIntolerance, Substance and AdverseReaction process (allergy)");
 
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         int count = 0;
@@ -92,13 +95,13 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
                 success += 1;
 
             } catch (FhirResourceException e) {
-                LOG.error("Unable to build AllergyIntolerance, Substance or AdverseReaction");
+                LOG.error(nhsno + ": Unable to build AllergyIntolerance, Substance or AdverseReaction");
             }
 
-            LOG.trace("Finished creating AllergyIntolerance " + count++);
+            LOG.trace(nhsno + ": Finished creating AllergyIntolerance " + count++);
         }
 
-        LOG.info("Processed {} of {} allergy", success, count);
+        LOG.info(nhsno + ": Processed {} of {} allergy", success, count);
     }
 
     private void deleteBySubjectId(UUID subjectId) throws FhirResourceException, SQLException {

@@ -103,8 +103,7 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
         try {
             Date start = new Date();
-            LOG.info("Starting to process data for NHS number: "
-                    + patientview.getPatient().getPersonaldetails().getNhsno());
+            LOG.info(patientview.getPatient().getPersonaldetails().getNhsno() + ": Starting Import");
 
             // update Organization based on <centrecode> (Unit/centre details)
             UUID organizationUuid = organizationService.add(patientview);
@@ -143,17 +142,17 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             Date end = new Date();
             LOG.info(patientview.getPatient().getPersonaldetails().getNhsno()
-                    + " finished. Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
+                    + ": Finished Import. Took " + getDateDiff(start,end,TimeUnit.SECONDS) + " seconds.");
 
             createAudit(AuditActions.PATIENT_DATA_SUCCESS, patientview.getPatient().getPersonaldetails().getNhsno(),
                     patientview.getCentredetails().getCentrecode(), null, xml, importerUserId);
 
         } catch (FhirResourceException | ResourceNotFoundException | SQLException e) {
             LOG.error(patientview.getPatient().getPersonaldetails().getNhsno()
-                    + ": unable to build patient. Message: " + e.getMessage());
+                    + ": Error, unable to build patient. Message: " + e.getMessage());
 
             throw new ImportResourceException(patientview.getPatient().getPersonaldetails().getNhsno()
-                    + ": " + e.getMessage());
+                    + ": Error, " + e.getMessage());
         }
     }
 
