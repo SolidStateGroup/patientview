@@ -90,10 +90,14 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             throws FhirResourceException, SQLException {
         Map<UUID, DocumentReference> existingMap = new HashMap<>();
 
+        LOG.info(nhsno + ": Getting existing DocumentReference");
+
         for (UUID uuid : fhirResource.getLogicalIdsBySubjectId("documentreference", fhirLink.getResourceId())) {
             DocumentReference existing = (DocumentReference) fhirResource.get(uuid, ResourceType.DocumentReference);
             existingMap.put(uuid, existing);
         }
+
+        LOG.info(nhsno + ": Got existing DocumentReference");
 
         return existingMap;
     }
