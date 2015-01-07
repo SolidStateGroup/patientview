@@ -28,8 +28,11 @@ public class FhirDocumentReference extends BaseModel {
     public FhirDocumentReference(DocumentReference documentReference, Group group)
             throws FhirResourceException {
 
-        if (documentReference.getCreated() == null) {
-            throw new FhirResourceException("Cannot convert FHIR DocumentReference, missing Created");
+        if (documentReference.getCreated() != null) {
+            DateTime created = documentReference.getCreated();
+            DateAndTime date = created.getValue();
+            setDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
+                    date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
         }
 
         if (documentReference.getType() == null) {
@@ -39,11 +42,6 @@ public class FhirDocumentReference extends BaseModel {
         if (documentReference.getDescription() == null) {
             throw new FhirResourceException("Cannot convert FHIR DocumentReference, missing Description (content)");
         }
-
-        DateTime created = documentReference.getCreated();
-        DateAndTime date = created.getValue();
-        setDate(new Date(new GregorianCalendar(date.getYear(), date.getMonth() - 1,
-                date.getDay(), date.getHour(), date.getMinute(), date.getSecond()).getTimeInMillis()));
 
         setType(documentReference.getType().getTextSimple());
         setContent(documentReference.getDescriptionSimple());
