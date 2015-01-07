@@ -1,10 +1,14 @@
 package org.patientview.importer.service.impl;
 
 import generated.Patientview;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.DocumentReferenceBuilder;
+import org.patientview.importer.model.BasicObservation;
+import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DocumentReferenceService;
 import org.patientview.importer.Utility.Util;
@@ -13,8 +17,15 @@ import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +41,10 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
     @Inject
     private FhirResource fhirResource;
+
+    @Inject
+    @Named("fhir")
+    private BasicDataSource dataSource;
 
     private String nhsno;
 
@@ -51,25 +66,27 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         DocumentReferenceBuilder documentReferenceBuilder = new DocumentReferenceBuilder(data, patientReference);
         List<DocumentReference> documentReferences = documentReferenceBuilder.build();
 
-        LOG.info(nhsno + ": " + documentReferences.size() + " DocumentReference");
+        //LOG.info(nhsno + ": " + documentReferences.size() + " DocumentReference");
 
         // get currently existing DocumentReference by subject Id
-        Map<UUID, DocumentReference> existingMap = getExistingBySubjectId(fhirLink);
+        Map<String, Date> existingMap = getExistingDateBySubjectId(fhirLink);
 
         for (DocumentReference newDocumentReference : documentReferences) {
-
-            LOG.info(nhsno + ": Adding DocumentReference with date "
-                    + newDocumentReference.getCreated().getValue().toString());
 
             // delete any existing DocumentReference for this Subject that have same date
             List<UUID> existingUuids = getExistingByDate(newDocumentReference, existingMap);
             if (!existingUuids.isEmpty()) {
-                for (UUID existingUuid : existingUuids)
-                fhirResource.delete(existingUuid, ResourceType.DocumentReference);
+                for (UUID existingUuid : existingUuids) {
+                    //LOG.info(nhsno + ": Deleting DocumentReference with date "
+                    //        + newDocumentReference.getCreated().getValue().toString());
+                    fhirResource.delete(existingUuid, ResourceType.DocumentReference);
+                }
             }
 
             // create new DocumentReference
             try {
+                //LOG.info(nhsno + ": Adding DocumentReference with date "
+                //        + newDocumentReference.getCreated().getValue().toString());
                 fhirResource.create(newDocumentReference);
                 success++;
             } catch (FhirResourceException e) {
@@ -86,41 +103,74 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         }
     }
 
-    private Map<UUID, DocumentReference> getExistingBySubjectId(FhirLink fhirLink)
+    private Map<String, Date> getExistingDateBySubjectId(FhirLink fhirLink)
             throws FhirResourceException, SQLException {
-        Map<UUID, DocumentReference> existingMap = new HashMap<>();
+        Map<String, Date> existingMap = new HashMap<>();
 
-        LOG.info(nhsno + ": Getting existing DocumentReferences");
+        //LOG.info(nhsno + ": Getting existing DocumentReferences");
 
-        List<UUID> existingUuids = fhirResource.getLogicalIdsBySubjectId("documentreference", fhirLink.getResourceId());
+        // build query
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT logical_id, content->>'created' ");
+        query.append("FROM documentreference ");
+        query.append("WHERE content -> 'subject' ->> 'display' = '");
+        query.append(fhirLink.getResourceId());
+        query.append("' ");
 
-        LOG.info(nhsno + ": Got " + existingUuids.size() + " existing DocumentReferences");
+        // execute and return map of logical ids and applies
+        try {
+            Connection connection = dataSource.getConnection();
+            java.sql.Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(query.toString());
 
-        for (UUID uuid : existingUuids) {
+            while ((results.next())) {
+                // remove timezone and parse date
+                try {
+                    Date applies = null;
 
-            LOG.info(nhsno + ": Getting existing DocumentReference " + uuid);
+                    if (StringUtils.isNotEmpty(results.getString(2))) {
+                        String dateString = results.getString(2);
+                        XMLGregorianCalendar xmlDate
+                                = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
+                        applies = xmlDate.toGregorianCalendar().getTime();
+                    }
 
-            DocumentReference existing = (DocumentReference) fhirResource.get(uuid, ResourceType.DocumentReference);
-            existingMap.put(uuid, existing);
+                    existingMap.put(results.getString(1), applies);
+                } catch (DatatypeConfigurationException e) {
+                    LOG.error(nhsno + ": Error getting existing DocumentReference", e);
+                }
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            throw new FhirResourceException(e);
         }
 
+        //LOG.info(nhsno + ": " + existingMap.keySet().size() + " existing DocumentReference");
         return existingMap;
     }
 
-    private List<UUID> getExistingByDate(DocumentReference documentReference,
-                                         Map<UUID, DocumentReference> existingMap) {
+    private List<UUID> getExistingByDate(DocumentReference documentReference, Map<String, Date> existingMap) {
         List<UUID> existingByDate = new ArrayList<>();
 
-        Iterator iter = existingMap.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry keyValue = (Map.Entry)iter.next();
-            DocumentReference existing = (DocumentReference) keyValue.getValue();
-            if (documentReference.getCreated().getValue().toString().equals(
-                    existing.getCreated().getValue().toString())) {
-                existingByDate.add((UUID) keyValue.getKey());
-            }
-        }
+        try {
+            XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+                    documentReference.getCreated().getValue().toString());
+            Long applies = xmlDate.toGregorianCalendar().getTime().getTime();
 
+            Iterator iter = existingMap.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry keyValue = (Map.Entry) iter.next();
+                Date existing = (Date) keyValue.getValue();
+
+                if (applies == existing.getTime()) {
+                    existingByDate.add(UUID.fromString((String) keyValue.getKey()));
+                }
+            }
+        } catch (DatatypeConfigurationException e) {
+            LOG.error(nhsno + ": Error converting DocumentReference created date");
+            return existingByDate;
+        }
         return existingByDate;
     }
 }
