@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.ResourceType;
@@ -28,6 +29,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -106,10 +108,12 @@ import java.util.UUID;
     @Override
     public void exportData() throws ResourceNotFoundException, FhirResourceException, UktException {
         String exportDirectory = properties.getProperty("ukt.export.directory");
+        String tempExportFilename = properties.getProperty("ukt.export.filename") + ".temp";
         String exportFilename = properties.getProperty("ukt.export.filename");
 
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(exportDirectory + "/" + exportFilename, false));
+            BufferedWriter writer
+                    = new BufferedWriter(new FileWriter(exportDirectory + "/" + tempExportFilename, false));
             List<User> patients = userRepository.findAllPatients();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -135,6 +139,11 @@ import java.util.UUID;
             }
             writer.flush();
             writer.close();
+
+            File tempFile = new File(exportDirectory + "/" + tempExportFilename);
+            File exportFile = new File(exportDirectory + "/" + exportFilename);
+            exportFile.delete();
+            FileUtils.copyFile(tempFile, exportFile);
         } catch (Exception e) {
             throw new UktException(e);
         }
