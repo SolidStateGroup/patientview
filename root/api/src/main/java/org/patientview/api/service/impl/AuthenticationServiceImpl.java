@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.Role;
 import org.patientview.api.service.AuditService;
@@ -48,6 +49,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -197,8 +199,20 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         user.setFailedLogonAttempts(0);
         user.setLastLogin(new Date());
 
-        user.setLastLoginIpAddress(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-                .getRequest().getRemoteAddr());
+        // set last login IP address from headers if present
+        HttpServletRequest request
+                = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        String realIp = request.getHeader("X-Real-IP");
+
+        if (StringUtils.isNotEmpty(forwardedFor)) {
+            user.setLastLoginIpAddress(forwardedFor.split(",")[0]);
+        } else if (StringUtils.isNotEmpty(realIp)) {
+            user.setLastLoginIpAddress(realIp);
+        }  else {
+            user.setLastLoginIpAddress(request.getRemoteAddr());
+        }
 
         userRepository.save(user);
 
