@@ -586,8 +586,11 @@
         </xs:annotation>
         <xs:restriction base="xs:string">
             <xs:enumeration value="Male"/>
+            <xs:enumeration value="M"/>
             <xs:enumeration value="Female"/>
+            <xs:enumeration value="F"/>
             <xs:enumeration value="Unknown"/>
+            <xs:enumeration value="U"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="testcode">
