@@ -101,6 +101,7 @@ public class AllergyServiceImpl extends AbstractServiceImpl<AllergyService> impl
             LOG.trace(nhsno + ": Finished creating AllergyIntolerance " + count++);
         }
 
+        LOG.info(nhsno + ": Finished AllergyIntolerance, Substance and AdverseReaction process (allergy)");
         LOG.info(nhsno + ": Processed {} of {} allergy", success, count);
     }
 

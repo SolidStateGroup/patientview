@@ -102,6 +102,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             }
         }
 
+        LOG.info(nhsno + ": Finished DocumentReference (letter) Process");
         LOG.info(nhsno + ": Processed {} of {} letters", success, documentReferenceBuilder.getCount());
     }
 
