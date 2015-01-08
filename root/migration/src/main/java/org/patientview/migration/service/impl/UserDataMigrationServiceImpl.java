@@ -222,6 +222,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         // testing
         List<Group> groupsToAdd = new ArrayList<Group>();
         groupsToAdd.add(getGroupByCode("DSF01"));
+        groupsToAdd.add(getGroupByCode("RSC02"));
 
         LOG.info(groupsToAdd.size() + " Groups");
 
