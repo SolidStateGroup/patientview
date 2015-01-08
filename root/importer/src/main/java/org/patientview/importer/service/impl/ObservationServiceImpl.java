@@ -215,7 +215,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                     alertObservationHeading.setLatestObservationDate(alert.getLatestObservationDate());
                     alertObservationHeading.setWebAlertViewed(alert.isWebAlertViewed());
                     alertObservationHeading.setEmailAlertSent(alert.isEmailAlertSent());
-                    alert.setLastUpdate(new Date());
+                    alertObservationHeading.setLastUpdate(new Date());
                     alertObservationHeadingRepository.save(alertObservationHeading);
                 }
             }
