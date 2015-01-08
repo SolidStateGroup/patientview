@@ -144,6 +144,7 @@ import java.util.UUID;
             File exportFile = new File(exportDirectory + "/" + exportFilename);
             exportFile.delete();
             FileUtils.copyFile(tempFile, exportFile);
+            tempFile.delete();
         } catch (Exception e) {
             throw new UktException(e);
         }
