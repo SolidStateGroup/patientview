@@ -1,0 +1,133 @@
+<div class="hider" data-ng-show="status.open"></div>
+
+<div data-ng-show="!loading && userHasMessagingFeature()">
+    <h1>Messages <button class="btn blue" data-ng-click="openModalNewConversation('lg')">Create New</button></h1>
+    <!-- new conversation modal template -->
+    <script type="text/ng-template" id="newConversationModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Conversation</h3>
+            <p>Select Group and Recipient, then add your Title and Message</p>
+        </div>
+        <div class="modal-body">
+            <form name="conversationFormNew" data-ng-model="newConversation">
+                <div data-ng-include src="'views/partials/conversationDetailsNew.html'" data-ng-controller="ConversationDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()"
+                    data-ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)"
+                    data-ng-show="newConversation.recipients.length">Create New Conversation</button>
+        </div>
+    </script>
+
+    <div>
+        <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+
+        <div class="panel panel-info">
+            <div class="panel-body">
+            <p>Click on <strong>View Messages</strong> to see the full conversation or <strong>Quick Reply</strong> to reply to it. To send a new message, click
+            on <strong>Create New</strong> above. When you send a message, the recipient will receive an email asking them to log in to read
+            it, if they have an email address in the system.</p>
+            <p>Before sending your first message, check that we have the right email address for you in <a href="#/settings">Settings</a></p>
+            </div>
+        </div>
+
+        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="message-item" data-ng-repeat="conversation in pagedItems">
+            <span data-ng-show="hasUnreadMessages(conversation)" class="label label-success pull-right new-message"> New</span>
+            <div class="content-panel">
+                <ul class="pull-right aside-actions unstyled">
+                    <li><a href="" class="aside-link active" data-ng-click="viewMessages(conversation)">View Messages<span class="message-count">{{conversation.messages.length}}</span></a></li>
+                    <li><a href="" class="aside-link qreply" data-ng-click="conversation.quickReplyOpen = !conversation.quickReplyOpen; conversation.showMessages = false">Quick Reply</a></li>
+                </ul>
+                <div class="message-summary">
+                    <h2 class="message-title">
+                        <a href="" class="pull-left" data-ng-click="viewMessages(conversation)">{{conversation.title}}</a>
+                        <span class="recipient pull-left">with:
+                            <span data-ng-repeat="conversationUser in conversation.conversationUsers" data-ng-show="conversationUser.user.id != loggedInUser.id">
+                                {{conversationUser.user.forename}} {{conversationUser.user.surname}}
+                            </span>
+                        </span>
+                    </h2>
+                    <p class="message-type-badge" data-ng-show="conversation.type ==='CONTACT_UNIT'">Patient Support</p>
+                    <div class="last-message">
+                        <h4>Most recent message from: {{conversation.messages[conversation.messages.length-1].user.forename}} {{conversation.messages[conversation.messages.length-1].user.surname}}</h4>
+                        <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
+                        <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="quick-reply content-panel" data-ng-show="conversation.quickReplyOpen">
+                <form class="form-quick-reply">
+                    <label for="quick-reply-input">Quick Reply</label>
+                    <textarea id="quick-reply-input" data-ng-model="conversation.quickReplyContent"></textarea>
+                    <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+                    <br/>
+                    <fieldset>
+                        <div class="btn-group pull-right">
+                            <button class="btn btn-grey" data-ng-click="conversation.quickReplyOpen = false">Cancel</button>
+                            <button class="btn blue" data-ng-click="quickReply(conversation)" data-ng-disabled="!conversation.quickReplyContent.length"><i class="icon-reply"></i> Send</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="quick-reply content-panel" data-ng-show="conversation.showMessages">
+                <div class="message-summary" data-ng-repeat="message in conversation.messages | orderBy:'created'">
+                    <div class="last-message">
+                        <h4 class="message-title">
+                            <span data-ng-show="message.unread" class="label label-success pull-right new-message">New</span>
+                            <span data-ng-show="message.user">{{message.user.forename}} {{message.user.surname}}</span>
+                            <span data-ng-show="!message.user">[Deleted User]</span>
+                        </h4>
+                        <p class="message-content" data-ng-bind-html="parseHTMLText(message.message)"></p>
+                        <p class="date-stamp"><strong>{{message.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
+                    </div>
+                    <hr/>
+                </div>
+
+                <form class="form-quick-reply">
+                    <label for="add-message-input">Add Message</label>
+                    <textarea id="add-message-input" data-ng-model="conversation.addMessageContent"></textarea>
+                    <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+                    <br/>
+                    <fieldset>
+                        <div class="btn-group pull-right">
+                            <button class="btn btn-grey" data-ng-click="viewMessages(conversation)">Close</button>
+                            <button class="btn blue" data-ng-click="addMessage(conversation)" data-ng-disabled="!conversation.addMessageContent.length"><i class="icon-reply"></i> Send</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+
+        <div data-ng-show="pagedItems.length < 1">
+            <h4>No Conversations Found</h4>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="!userHasMessagingFeature()">
+    <h1>Messages</h1>
+    <p>If you require messaging access please contact your group administrator.</p>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Messages</h3>
+    </div>
+</div>

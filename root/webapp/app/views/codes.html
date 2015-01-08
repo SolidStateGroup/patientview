@@ -1,0 +1,174 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
+<div class="page-content" data-ng-show="!loading">
+    <h1>Codes <button class="btn blue" data-ng-click="openModalNewCode('lg')">Create New</button></h1>
+
+    <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+
+    <!-- delete code modal template -->
+    <script type="text/ng-template" id="deleteCodeModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Delete Code</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure? This will delete code <strong>{{code.code}}</strong>.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()">Delete</button>
+        </div>
+    </script>
+
+    <!-- new code modal template -->
+    <script type="text/ng-template" id="newCodeModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Code</h3>
+        </div>
+        <div class="modal-body">
+            <form name="codeFormNew" data-ng-model="editCode">
+                <div data-ng-include src="'views/partials/codeDetailsNew.html'" data-ng-controller="CodeDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()" data-ng-disabled="!codeFormNew.$valid">Create New</button>
+        </div>
+    </script>
+
+    <div data-ng-show="!loading" data-ng-cloak>
+
+        <!-- Filter -->
+        <div class="content-panel filter-panel">
+            <div class="">
+                <div class="search-container">
+                    <i class="icon-search-black"></i>
+                    <input type="text" data-ng-model="searchText" placeholder="Search all fields..." class="form-control input-block-level" />
+                </div>
+            </div>
+            <div class="panel-footer clearfix">
+                <!-- filter by code type -->
+                <div class="content-inner">
+                    <div class="form-horizontal" role="form">
+                        <div class="pull-right" data-ng-show="pagedItems.length  > 0">
+                            <h5>Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
+                        </div>
+                        <div class="select-container pull-left">
+                            <div class="btn-group filter-select" id="filter-code-type" data-ng-class="{open: open1}">
+                                <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Type <span class="caret-container" data-ng-class="{open: open1}"><span class="caret"></span></span></button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                    <li><a data-ng-click="removeAllCodeTypes();" class="a-filter-role clearfix"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                    <li class="divider"></li>
+                                    <li data-ng-repeat="type in codeTypes | orderBy:'description'"> <a data-ng-click="setSelectedCodeType()" class="a-filter-code-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isCodeTypeChecked(type.id)"></span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="select-container pull-left">
+                            <div class="btn-group filter-select" id="filter-standard-type" data-ng-class="{open: open2}">
+                                <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Standard <span class="caret-container"><span class="caret"></span></span></button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                    <li><a data-ng-click="removeAllStandardTypes()" class="a-filter-role clearfix"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                    <li class="divider"></li>
+                                    <li data-ng-repeat="type in standardTypes | orderBy:'description'"> <a data-ng-click="setSelectedStandardType()" class="a-filter-standard-type clearfix"><span class="pull-left">{{type.description}}</span><span data-ng-class="isStandardTypeChecked(type.id)"></span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="feature-list unstyled name-action-list">
+                                    <li class="feature-list-item" data-ng-repeat="type in codeTypes | orderBy:'description'" data-ng-show="isCodeTypeChecked(type.id)">
+                                        <div class="feature-list-name pull-left">
+                                            <span class="feature-list-name">{{type.description}}</span>
+                                        </div>
+                                        <div class="feature-list-delete pull-left">
+                                            <a href="" data-ng-click="removeCodeType(type)" >
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                    <li class="feature-list-item" data-ng-repeat="type in standardTypes | orderBy:'description'" data-ng-show="isStandardTypeChecked(type.id)">
+                                        <div class="feature-list-name pull-left">
+                                            <span class="feature-list-name">{{type.description}}</span>
+                                        </div>
+                                        <div class="feature-list-delete pull-left">
+                                            <a href="" data-ng-click="removeStandardType(type)" >
+                                                <i class="glyphicon glyphicon-remove"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- data grid -->
+        <div class="faux-table five-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
+            <!-- header -->
+            <div class="accordion-title-row table-head">
+                <div class="hidden">ID</div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('codeType');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('standardType');" class="sort-title"><i class="icon-sort pull-right"></i>Standard</a></div>
+                <div class="head-item accordion-title-text "><a data-ng-click="sortBy('description');" class="sort-title"><i class="icon-sort pull-right"></i>Description</a></div>
+                <div class="head-item accordion-title-text "><a class="sort-title"></a></div>
+            </div>
+
+            <!-- body -->
+            <div class="item-header" data-ng-repeat="code in pagedItems">
+                <div class="faux-row">
+                    <div class="row-item hidden">{{code.id}}</div>
+                    <div class="row-item accordion-heading-text">{{code.code}}</div>
+                    <div class="row-item accordion-heading-text">{{code.codeType.description}}</div>
+                    <div class="row-item accordion-heading-text">{{code.standardType.description}}</div>
+                    <div class="row-item accordion-heading-text">{{code.description}}</div>
+                    <div class="row-item actions">
+                        <!-- Edit, Actions dropdown buttons -->
+                        <div class="btn-group pull-right">
+                            <button type="button" class="btn blue edit-button" data-ng-click="opened(code)">Edit</button>
+                            <button type="button" class="btn aquamarine" data-ng-click="clone(code.id, $event)">Copy</button>
+                            <button type="button" class="btn negative" data-ng-click="remove(code.id, $event)">Delete</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- edit pane -->
+                <div class="panel-body" data-ng-show="code.showEdit">
+                    <div data-ng-show="code.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div data-ng-show="!code.editLoading">
+                        <form name="codeForm" class="edit-code">
+                            <div data-ng-include src="'views/partials/codeDetails.html'" data-ng-controller="CodeDetailsCtrl"></div>
+                        </form>
+                        <div class="panel-body-footer"><button class="btn btn-grey close-edit pull-right" data-ng-click="code.showEdit = false">Cancel</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" data-ng-show="pagedItems.length == 0">
+            <div class="col-md-12">
+                <br/>
+                <h4>No codes found</h4>
+            </div>
+        </div>
+
+        <!-- pagination -->
+        <div ng-include src="'views/partials/pagination.html'"></div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Codes</h3>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+#_AnnotationChart_annotationsTd, #annotationsTdContainer, .google-visualization-atl .containerTable .td {
+    display: none;
+}
+.google-visualization-atl.container, #chart_div_AnnotationChart_annotationsTd {
+    border: none;
+}
+.google-visualization-atl .annotationsTdContainer {
+    border-left: 1px solid #fff;
+}
+#chart_div {
+    border:none;
+    width:100%;
+}

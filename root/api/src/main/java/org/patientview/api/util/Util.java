@@ -1,0 +1,228 @@
+package org.patientview.api.util;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.hl7.fhir.instance.model.ResourceReference;
+import org.patientview.api.annotation.GroupMemberOnly;
+import org.patientview.api.annotation.RoleOnly;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
+import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.RoleName;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.CollectionUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Created by james@solidstategroup.com
+ * Created on 05/06/2014
+ */
+public final class Util {
+
+    private Util() { }
+
+    /**
+     * This is convert the Iterable<T> type passed for Spring DAO interface into
+     * a more useful typed List.
+     *
+     * @param iterable
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> convertIterable(Iterable<T> iterable) {
+
+        if (iterable == null) {
+            return Collections.emptyList();
+        }
+
+        List<T> list = new ArrayList<T>();
+        Iterator<T> lookupIterator = iterable.iterator();
+
+        while (lookupIterator.hasNext()) {
+            list.add(lookupIterator.next());
+        }
+        return list;
+
+    }
+
+    // check string appears in enum
+    public static <E extends Enum<E>> boolean isInEnum(String value, Class<E> enumClass) {
+        for (E e : enumClass.getEnumConstants()) {
+            if (e.name().equals(value)) { return true; }
+        }
+        return false;
+    }
+
+    // Retrieve the list of Roles from the annotation.
+    public static RoleName[] getRoles(JoinPoint joinPoint) {
+        final org.aspectj.lang.Signature signature = joinPoint.getStaticPart().getSignature();
+        if (signature instanceof MethodSignature) {
+            final MethodSignature ms = (MethodSignature) signature;
+
+            List<Class> classTypes = new ArrayList<>();
+            classTypes.add(GroupMemberOnly.class);
+            classTypes.add(RoleOnly.class);
+
+            for (Annotation annotation : ms.getMethod().getDeclaredAnnotations()) {
+                if (classTypes.contains(annotation.annotationType())) {
+                    return Util.getRolesFromAnnotation(annotation);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static RoleName[] getRolesFromAnnotation(Annotation annotation) {
+        Method[] methods = annotation.annotationType().getMethods();
+        for (Method method : methods) {
+            String name = method.getName();
+            Class<?> returnType = method.getReturnType();
+            Class<?> componentType = returnType.getComponentType();
+            if (name.equals("roles") && returnType.isArray()
+                    && RoleName.class.isAssignableFrom(componentType)) {
+                RoleName[] features;
+                try {
+                    features = (RoleName[]) (method.invoke(annotation, new Object[] {}));
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                            "Error executing value() method in annotation.getClass().getCanonicalName()", e);
+                }
+                return features;
+            }
+        }
+        throw new RuntimeException("No value() method returning a Roles[] roles was found in annotation "
+                        + annotation.getClass().getCanonicalName());
+    }
+
+    public static <T> List<T> convertAuthorities(Collection<? extends GrantedAuthority>  grantedAuthorities) {
+        List<T> list = new ArrayList<>();
+        for (GrantedAuthority grantedAuthority : grantedAuthorities) {
+            list.add((T) grantedAuthority);
+        }
+        return list;
+    }
+
+    public static boolean doesContainGroupAndRole(Long groupId, RoleName... roleNames) {
+        if (CollectionUtils.isEmpty(getGroupRoles())) {
+            return false;
+        }
+
+        for (GroupRole groupRole : getGroupRoles()) {
+            if (groupRole.getGroup().getId().equals(groupId)) {
+                for (RoleName roleNameArg : roleNames) {
+                    if (groupRole.getRole().getName().equals(roleNameArg)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // used for specialty admins
+    public static boolean doesContainChildGroupAndRole(Long groupId, RoleName roleName) {
+        if (CollectionUtils.isEmpty(getGroupRoles())) {
+            return false;
+        }
+
+        for (GroupRole groupRole : getGroupRoles()) {
+            Group group = groupRole.getGroup();
+            Role role = groupRole.getRole();
+
+            if (role.getName().equals(roleName)) {
+                for (Group childGroup : group.getChildGroups()) {
+                    if (childGroup.getId().equals(groupId)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // used for specialty admins
+    public static boolean doesContainParentGroupAndRole(Long groupId, RoleName roleName) {
+        if (CollectionUtils.isEmpty(getGroupRoles())) {
+            return false;
+        }
+
+        for (GroupRole groupRole : getGroupRoles()) {
+            Group group = groupRole.getGroup();
+            Role role = groupRole.getRole();
+
+            if (role.getName().equals(roleName)) {
+                for (Group parentGroup : group.getParentGroups()) {
+                    if (parentGroup.getId().equals(groupId)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean doesContainRoles(RoleName... roleNames) throws SecurityException {
+
+        if (CollectionUtils.isEmpty(getGroupRoles())) {
+            return false;
+        }
+        for (GroupRole groupRole : getGroupRoles()) {
+            for (RoleName roleNameArg : roleNames) {
+                if (groupRole.getRole().getName().equals(roleNameArg)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+
+    public static List<GroupRole> getGroupRoles() {
+        if (SecurityContextHolder.getContext() == null
+                || SecurityContextHolder.getContext().getAuthentication() == null) {
+            throw new SecurityException("Session is not authenticated");
+        }
+        List<GroupRole> groupRoles = convertAuthorities(
+                SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        return groupRoles;
+    }
+
+    public static User getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("Session is not authenticated");
+        }
+
+        return (User) authentication.getPrincipal();
+    }
+
+    public static ResourceReference createFhirResourceReference(UUID uuid) {
+        ResourceReference resourceReference = new ResourceReference();
+        resourceReference.setDisplaySimple(uuid.toString());
+        resourceReference.setReferenceSimple("uuid");
+        return resourceReference;
+    }
+
+    public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMilliseconds = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
+    }
+}
+

@@ -1,0 +1,34 @@
+<h1 ng-hide="authToken" ng-cloak>Login</h1>
+<div class="content-panel user-settings">
+    <div class="content-inner">
+        <form class="form-horizontal"  ng-hide="authToken" ng-cloak id="login-form" >
+            <div class="form-group">
+                <label for="username" class="col-sm-3 control-label">User Name:</label>
+                <div class="col-sm-4">
+                    <input id="username" name=username" ng-model="username" type="text" class="form-control"  required="" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-sm-3 control-label">Password:</label>
+                <div class="col-sm-4">
+                    <input id="password" name="password" ng-model="password" type="password" class="form-control" required=""/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-12">
+                    <ul class="unstyled inline">
+                        <li><button ng-click="login()" class="btn blue">Log In</button></li>
+                        <li><a href="#/forgottenpassword"><button class="btn blue">Forgotten your password?</button></a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+            <div class="form-group" ng-show="errorMessage">
+                <div class="col-sm-9 col-sm-offset-3 alert alert-danger">
+                    <p><strong>Error logging in</strong> {{errorMessage}}</p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,322 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+    .print-success-message {
+        margin-left: 20px;
+    }
+</style>
+<div>
+    <h1 data-ng-show="!loading">Staff
+        <button class="btn blue" data-ng-click="openModalNewStaff('lg')">Create New</button>
+        <button class="btn blue" data-ng-click="openModalFindExistingStaff('lg')">Add Existing Staff</button>
+    </h1>
+
+    <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
+
+    <div data-ng-show="!fatalErrorMessage && !loading" data-ng-cloak>
+        <!-- new staff modal -->
+        <script type="text/ng-template" id="newStaffModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title" data-ng-show="!existingUser">Create New Staff User</h3>
+                <h3 class="modal-title" data-ng-show="existingUser">Existing Staff User</h3>
+            </div>
+            <div class="modal-body">
+                <form name="userFormNew" data-ng-show="!existingUser">
+                    <div data-ng-include src="'views/partials/staffDetailsNew.html'" data-ng-controller="UserDetailsCtrl"></div>
+                </form>
+                <form name="userFormExisting" data-ng-show="existingUser">
+                    <div data-ng-include src="'views/partials/staffDetailsExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+                <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+                <button class="btn btn-primary" data-ng-click="create()" data-ng-show="!existingUser" data-ng-disabled="!userFormNew.$valid || (!editUser.groupRoles || editUser.groupRoles.length == 0)">Create New</button>
+            </div>
+        </script>
+
+        <!-- existing staff modal (search by email) -->
+        <script type="text/ng-template" id="findExistingStaffModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title" data-ng-show="existingUser">Find Existing Staff User</h3>
+            </div>
+            <div class="modal-body">
+
+                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+                <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
+
+                <form name="userFormFindByIdentifier" data-ng-show="!existingUser">
+                    <div data-ng-include src="'views/partials/staffDetailsFindExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
+                </form>
+                <form name="userFormExisting" data-ng-show="existingUser">
+                    <div data-ng-include src="'views/partials/staffDetailsExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+            </div>
+        </script>
+
+        <!-- delete staff modal -->
+        <script type="text/ng-template" id="deleteStaffModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete Staff User</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure? This will delete user with username <strong>{{user.username}}</strong>.</p>
+            </div>
+            <div class="modal-footer">
+                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+                <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+                <button class="btn btn-primary" data-ng-click="ok()">Delete</button>
+            </div>
+        </script>
+
+        <br/>
+        <div class="content-panel row multi-search">
+            <div class="col-md-1 pull-right">
+                <a class="btn blue" href="" style="margin-top:25px;" data-ng-click="search()">Search</a>
+            </div>
+            <div class="col-md-1 search-intro">
+                <h3><i class="icon-search-black"></i></h3>
+            </div>
+            <div class="col-md-2">
+                <label for="search-surname" class="control-label">Surname</label>
+                <div>
+                    <input type="text" class="form-control" id="search-surname" placeholder="Surname">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label for="search-forename" class="control-label">Forename</label>
+                <div>
+                    <input type="text" class="form-control" id="search-forename" placeholder="Forename">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label for="search-username" class="control-label">Username</label>
+                <div>
+                    <input type="text" class="form-control" id="search-username" placeholder="Username">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label for="search-email" class="control-label">Email</label>
+                <div>
+                    <input type="text" class="form-control" id="search-email" placeholder="Email">
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer clearfix">
+            <div class="content-inner">
+                <div class="form-horizontal" role="form">
+                    <div class="pull-right" data-ng-show="pagedItems.length  > 0">
+                        <h5>Page {{currentPage+1}} of {{totalPages}} <br/> ({{total}} total)</h5>
+                    </div>
+                    <!-- filter by specialty -->
+                    <div class="select-container pull-left" data-ng-show="showSpecialtyFilter">
+                        <div class="btn-group filter-select" id="filter-specialty" dropdown>
+                            <button class="btn dropdown-toggle">
+                                Filter By Specialty <span class="caret-container"><span class="caret"></span></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li>
+                                    <a data-ng-click="removeAllSelectedGroup('SPECIALTY')" class="a-filter-group">
+                                        <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='SPECIALTY'">
+                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                        <span class="pull-left">{{group.shortName}}</span>
+                                        <span data-ng-class="isGroupChecked(group.id)"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- filter by unit -->
+                    <div class="select-container pull-left" data-ng-show="showUnitFilter">
+                        <div class="btn-group filter-select" id="filter-group" dropdown>
+                            <button class="btn dropdown-toggle">
+                                Filter By Unit <span class="caret-container"><span class="caret"></span></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li>
+                                    <a data-ng-click="removeAllSelectedGroup('UNIT')" class="a-filter-group">
+                                        <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='UNIT'">
+                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                        <span class="pull-left">{{group.shortName}}</span>
+                                        <span data-ng-class="isGroupChecked(group.id)"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- filter by disease group -->
+                    <div class="select-container pull-left" data-ng-show="showDiseaseGroupFilter">
+                        <div class="btn-group filter-select" id="filter-diseasegroup" dropdown>
+                            <button class="btn dropdown-toggle">
+                                Filter By Disease Group <span class="caret-container"><span class="caret"></span></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li>
+                                    <a data-ng-click="removeAllSelectedGroup('DISEASE_GROUP')" class="a-filter-group">
+                                        <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='DISEASE_GROUP'">
+                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                        <span class="pull-left">{{group.shortName}}</span>
+                                        <span data-ng-class="isGroupChecked(group.id)"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="select-container pull-left">
+                        <!-- filter by role -->
+                        <div class="btn-group filter-select" id="filter-role" data-ng-class="{open: open2}">
+                            <button class="btn dropdown-toggle" data-ng-click="open2=!open2">Filter By Role <span class="caret-container"><span class="caret"></span></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li><a data-ng-click="removeAllSelectedRole()" class="a-filter-role"><i class="glyphicon glyphicon-remove"></i> Uncheck All</a></li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="role in allRoles | orderBy:'description'"> <a data-ng-click="setSelectedRole()" class="a-filter-role clearfix"><span class="pull-left">{{role.description}}</span><span data-ng-class="isRoleChecked(role.id)"></span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="feature-list unstyled name-action-list">
+                                <li class="feature-list-item" data-ng-repeat="group in allGroups | orderBy:'name'" data-ng-show="isGroupChecked(group.id)">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{group.name}}</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeSelectedGroup(group)" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="feature-list-item" data-ng-repeat="role in allRoles | orderBy:'description'" data-ng-show="isRoleChecked(role.id)">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{role.description}}</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeSelectedRole(role)" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="alert alert-success" data-ng-show="successMessage" id="success-message">
+            {{successMessage}}
+            <a href="" class="print-success-message" data-ng-click="printSuccessMessage()">Print</a>
+        </div>
+        <!-- data grid -->
+        <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
+            <!-- header -->
+            <div class="accordion-title-row table-head">
+                <div class="hidden">ID</div>
+                <div class="head-item accordion-title-text ">
+                    <a data-ng-click="sortBy('surname');" class="sort-title"><i class="icon-sort pull-right"></i>Surname</a>
+                </div>
+                <div class="head-item accordion-title-text ">
+                    <a data-ng-click="sortBy('forename');" class="sort-title"><i class="icon-sort pull-right"></i>Forename</a>
+                </div>
+                <div class="head-item accordion-title-text">Email</div>
+                <div class="head-item accordion-title-text">Group (Role)</div>
+                <div class="head-item accordion-title-text">Features</div>
+                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('lastLogin');" class="sort-title"><i class="icon-sort pull-right"></i>Last Login</a></div>
+                <div class="head-item"><a class="sort-title"> </a></div>
+            </div>
+            <!-- body -->
+            <div class="item-header" data-ng-repeat="user in pagedItems">
+                <div class="faux-row">
+                    <div class="row-item hidden">{{user.id}}</div>
+                    <div class="row-item accordion-heading-text">{{user.surname}}</div>
+                    <div class="row-item accordion-heading-text">{{user.forename}}</div>
+                    <div class="row-item accordion-heading-text row-break"><a href="mailto:{{user.email}}">{{user.email}}</a></div>
+                    <div class="row-item accordion-heading-text">
+                        <ul data-ng-repeat="groupRole in user.groupRoles | orderBy:[orderGroupRoles,'group.name']" class="unstyled"
+                                data-ng-show="groupRole.role.name !== 'MEMBER'">
+                            <li>
+                                <span data-ng-show="groupRole.group.shortName.length">{{groupRole.group.shortName}} ({{groupRole.role.description}})</span>
+                                <span data-ng-show="!groupRole.group.shortName.length">{{groupRole.group.name}} ({{groupRole.role.description}})</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="userFeature in user.userFeatures | orderBy:'feature.description'">{{userFeature.feature.description}}</li></ul></div>
+                    <div class="row-item accordion-heading-text">{{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+
+                    <div class="row-item actions">
+                        <!-- Edit, Actions dropdown buttons -->
+                        <div class="button-dropdown-group">
+                            <button type="button" class="btn blue pull-left edit-button btn-wide" data-ng-click="opened(user)">Edit</button>
+                            <div class="dropdown pull-left">
+                                <button class="btn blue dropdown-toggle" type="button" id="dropdownMenu1">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
+                                    <li data-ng-show="permissions.showDeleteMenuOption"><a href="" data-ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
+                                    <li data-ng-show="permissions.canResetPasswords"><a href="" data-ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
+                                    <li data-ng-hide="user.emailVerified || !permissions.canSendVerificationEmails"><a href="" data-ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- edit pane -->
+                <div class="panel-body" data-ng-show="user.showEdit">
+                    <div data-ng-show="user.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div data-ng-show="!user.editLoading">
+                        <form name="userForm">
+                            <div data-ng-include src="'views/partials/staffDetails.html'" data-ng-controller="UserDetailsCtrl"></div>
+                        </form>
+                        <hr>
+                        <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
+                        <div class="user-save-cancel panel-body-footer">
+                            <button type="button" class="btn btn-grey close-edit pull-right" data-ng-click="user.showEdit = false">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" data-ng-show="pagedItems.length == 0">
+            <div class="col-md-12">
+                <br/>
+                <h4>No staff found</h4>
+            </div>
+        </div>
+
+        <!-- pagination -->
+        <div ng-include src="'views/partials/pagination.html'"></div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Staff</h3>
+    </div>
+</div>

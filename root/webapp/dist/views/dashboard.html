@@ -1,0 +1,152 @@
+<!-- TODO: put in main styles -->
+<style>
+    .clamped {
+        line-height: 1.5;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .clamped-2 {
+        /* Clamp to 2 lines, ie line-height x 2: */
+        max-height: 3em;
+    }
+
+    .ellipsis {
+        background: #fff;
+        bottom: 0;
+        position: absolute;
+        right: 10px;
+    }
+
+    .fill {
+        background: #fff;
+        height: 100%;
+        position: absolute;
+        width: 100%;
+    }
+</style>
+<div class="hider" ng-show="status.open"></div>
+
+<div ng-show="loading" class="container"><br/><br/>
+    <div ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>
+    <div class="" ng-show="!loading" ng-cloak>
+    <h1></h1>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="tab-panel-item">
+                <div class="content-panel">
+                    <ul class="pull-right aside-actions unstyled">
+                        <li><a href="#/messages" class="aside-link active">Unread Messages<span class="message-count">{{unreadConversationCount}}</span></a></li>
+                        <li><a href="#/joinrequestadmin" class="aside-link reply">Join Requests<span class="message-count">{{submittedJoinRequestCount}}</span></a></li>
+                    </ul>
+                    <div class="item-detail row">
+                        <dl class="col-md-4">
+                            <dt>{{loggedInUser.forename}} {{loggedInUser.surname}}</dt>
+                            <dd>Joined {{loggedInUser.created | date:'dd-MMM-yyyy HH:mm'}}</dd>
+                        </dl>
+                        <dl class="col-md-4">
+                            <dt>Last Login</dt>
+                            <dd>{{loggedInUser.lastLogin | date:'dd-MMM-yyyy HH:mm'}}
+                                <span class="sub-text">from {{loggedInUser.lastLoginIpAddress}}</span>
+                            </dd>
+                        </dl>
+                        <dl class="col-md-8">
+                            <dt>Groups (role)</dt>
+                            <dd>
+                                <ul class="unstyled groups-list">
+                                    <li ng-repeat="groupRole in loggedInUser.groupRoles | orderBy:[orderGroupRoles,'group.name']" ng-if="groupRole.role.name !== 'MEMBER'">
+                                        <span>
+                                            {{groupRole.group.name}}
+                                            <span class="light-text">({{groupRole.role.description}})</span>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <h3 ng-hide="graphGroups.length > 2" ng-cloak>{{graphGroups[0].name}} <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
+            <div class="graph-selector clearfix">
+                <div class="col-md-2" ng-show="graphGroups.length > 2">
+                    <h3 class="" for="graph-select">Activity</h3>
+                </div>
+                <div class="col-md-6">
+                    <select class="form-control" id="graph-select" ng-model="graphGroupId"
+                            ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in graphGroups | orderBy:[orderGroups,'name']"
+                            ng-show="graphGroups.length > 2" ng-cloak>
+                    </select>
+                </div>
+            </div>
+            <div class="content-panel" ng-show="!chartLoading">
+                <div google-chart chart="chart" style="{{chart.cssStyle}}"></div>
+            </div>
+            <div class="content-panel" ng-show="chartLoading">
+                <div class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+            </div>
+            <div class="chart-container" ng-show="!chartLoading">
+                <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate}}</span></h3>
+                <div class="tab-panel-item">
+                    <div class="content-panel user-details">
+                        <div class="row">
+                            <dl class="col-md-4">
+                                <dt>Locked Users</dt>
+                                <dd>{{lockedUsers}}</dd>
+                            </dl>
+                            <dl class="col-md-6">
+                                <dt>Inactive Users (no login in 1 month)</dt>
+                                <dd>{{inactiveUsers}}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="col-md-4">
+            <div class="panel-header content-panel lowlight">
+                <h3><span class="badge aqua pull-left"></span>Your Settings</h3>
+            </div>
+            <div class="user-details content-panel">
+                <a href="/#/settings" class="btn blue pull-right">Edit</a>
+                <ul class="unstyled">
+                    <li><h4>Username: {{loggedInUser.username}}</h4></li>
+                    <li ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>
+                    <li ng-show="loggedInUser.contactNumber">Phone: {{loggedInUser.contactNumber}}</li>
+                    <li ng-show="!loggedInUser.contactNumber">Phone: Not Set</li>
+                </ul>
+            </div>
+            <div class="news-container">
+                <div class="panel-header content-panel lowlight">
+                    <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
+                </div>
+                <ul class="unstyled">
+                    <li class="news-item content-panel" ng-repeat="news in newsItems">
+                        <div class="content-inner">
+                            <ul class="unstyled pull-right hidden">
+                                <li ng-repeat="newsLink in news.newsLinks" class="news-link-labels">
+                                    <span class="label label-primary" ng-show="newsLink.group != null">{{newsLink.group.name}} <span>({{newsLink.role.description}})</span></span>
+                                    <span class="label label-success" ng-show="newsLink.role != null && newsLink.group == null && newsLink.role.name != 'GLOBAL_ADMIN'">{{newsLink.role.description}}</span>
+                                </li>
+                            </ul>
+                            <h4>{{news.heading}}</h4>
+                            <p>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                            <div>
+                                <p ng-class="{'clamped': !news.showMore, 'clamped-2': !news.showMore}" class="message-content">
+                                    <span class="text">
+                                        <span ng-bind-html="parseHTMLText(news.story)"></span>
+                                        <span class="ellipsis" ng-hide="news.showMore">
+                                            &nbsp;&nbsp;&nbsp;<a href="" ng-click="news.showMore = true">Show More</a>
+                                        </span>
+                                        <span class="fill" ng-hide="news.showMore"></span>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>
+<br/>

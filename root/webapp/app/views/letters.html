@@ -1,0 +1,60 @@
+<div data-ng-show="!loading">
+    <h1>Letters</h1>
+
+    <div class="content-panel">
+        <div class="content-inner">
+            <p>Letters are only shown when they have been sent by your unit's computer system.</p>
+            <p>It is important to note that letters may be shown here before they have been finally approved and had
+                mistakes corrected. This mainly applies if you are reading letters soon (e.g. within a week) after they
+                have been typed.</p>
+            <p>If you have any concerns you should discuss it at your next clinic appointment, or contact the author of
+                the letter.</p>
+        </div>
+    </div>
+
+    <div class="content-panel">
+        <div class="content-inner">
+
+            <table class="table" data-ng-show="letters.length">
+                <thead class="table-head">
+                <tr>
+                    <th><a href="" data-ng-click="sortBy('date');" class="sort-title">Date</a></th>
+                    <th><a href="" data-ng-click="sortBy('type');" class="sort-title">Type</a></th>
+                    <th><a href="" data-ng-click="sortBy('group.name');" class="sort-title">Source</a></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-ng-repeat="letter in letters | orderBy: predicate :reverse
+                    | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                    <td>{{letter.date | date: 'dd-MMM-yyyy'}}</td>
+                    <td>{{letter.type}}</td>
+                    <td>{{letter.group.name}}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="" class="btn blue" data-ng-click="viewLetter(letter)">View</a>
+                            <a href="" class="btn btn-danger" data-ng-click="deleteLetter(letter)">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div data-ng-show="letters.length > 0">
+                <div pagination on-select-page="setPage(page)" total-items="letters.length"
+                     items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm"
+                     ng-hide="letters.length  < entryLimit "></div>
+            </div>
+
+            <div class="alert alert-warning" data-ng-show="!letters.length">
+                <p>No Letters available</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Letters</h3>
+    </div>
+</div>

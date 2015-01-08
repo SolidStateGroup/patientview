@@ -1,0 +1,114 @@
+/** hero pane **/
+
+.hero-panel {
+    background: url('../../../images/hero-bg.png') 0 0 no-repeat;
+    background-size: cover;
+    -ms-behavior: url(/backgroundsize.min.htc);
+    width: 100%;
+    height: 430px;
+    margin-top: 20px;
+
+    .ie-hero-image{
+        display:none;
+    }
+
+    .hero-pane {
+        height: 100%;
+        color: $white;
+        -webkit-transition: all 0.5s ease-in-out;
+        -moz-transition: all 0.5s ease-in-out;
+        -o-transition: all 0.5s ease-in-out;
+        transition: all 0.5s ease-in-out;
+
+        &.aquamarine {
+            @include bootstrap-color-opacity($aquamarine, 70);
+            &:hover{
+                @include bootstrap-color-opacity($aquamarine, 100);
+                -webkit-transition: all 0.5s ease-in-out;
+                -moz-transition: all 0.5s ease-in-out;
+                -o-transition: all 0.5s ease-in-out;
+                transition: all 0.5s ease-in-out;
+            }
+        }
+
+        &.aqua {
+            @include bootstrap-color-opacity($aqua, 70);
+            &:hover{
+                @include bootstrap-color-opacity($aqua, 100);
+                -webkit-transition: all 0.5s ease-in-out;
+                -moz-transition: all 0.5s ease-in-out;
+                -o-transition: all 0.5s ease-in-out;
+                transition: all 0.5s ease-in-out;
+            }
+        }
+
+        &.blue {
+            @include bootstrap-color-opacity($primary, 70);
+            &:hover{
+                @include bootstrap-color-opacity($primary, 100);
+                -webkit-transition: all 0.5s ease-in-out;
+                -moz-transition: all 0.5s ease-in-out;
+                -o-transition: all 0.5s ease-in-out;
+                transition: all 0.5s ease-in-out;
+            }
+        }
+
+        .pane-content{
+            text-align: center;
+            margin:25% 0;
+            font-weight:100;
+            font-size:2.5rem;
+
+            h2{
+                font-size:7rem;
+            }
+        }
+    }
+}
+
+/** todo BELOW SMALL DESKTOP - review potential need for mobile design **/
+@media only screen
+and (max-width : 1024px) {
+    .hero-panel{
+        height:auto;
+        background:none;
+        margin-top:0;
+
+        .hero-pane{
+            .pane-content{
+                margin:0;
+                padding:10px;
+
+                h2{
+                    font-size:5rem;
+                }
+
+                p{
+                    font-size:1.8rem;
+                }
+
+                > i{
+                    background-position: 50%;
+                    background-size: 100%;
+                    height: 130px;
+                    width: 60px;
+                    float: left;
+                }
+            }
+
+            &.aquamarine {
+                @include bootstrap-color-opacity($aquamarine, 100);
+                @include bootstrap-border-radius(8px 8px 0 0);
+            }
+
+            &.aqua {
+                @include bootstrap-color-opacity($aqua, 100);
+            }
+
+            &.blue {
+                @include bootstrap-color-opacity($primary, 100);
+                @include bootstrap-border-radius(0 0 8px 8px);
+            }
+        }
+    }
+}

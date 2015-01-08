@@ -1,0 +1,140 @@
+.message-item, .tab-panel-item{
+    margin-bottom:20px;
+    position:relative;
+
+    span.new-message{
+        font-size:1.5rem;
+        font-weight:normal;
+        margin-right:20px;
+        position:absolute;
+        top:-10px;
+        left:-10px;
+        z-index:2;
+    }
+
+    .content-panel{
+        position:relative;
+        z-index:1;
+    }
+
+    .quick-reply{
+        width:96%;
+        margin:-15px auto 15px;
+        padding:30px 20px 20px 20px;
+        position:relative;
+        z-index:0;
+
+        label{
+            color:$messagetab;
+        }
+
+        textarea{
+            width:100%;
+            color:$messagedefault;
+            background:$inputbg;
+            border:1px solid $border-default;
+            height:80px;
+        }
+
+        fieldset{
+            margin-top:10px;
+        }
+
+        .message-summary{
+            padding-top:0;
+        }
+    }
+
+    .delete-news{
+        a{
+            background:$error;
+            color:$white;
+            height:72px;
+        }
+    }
+}
+
+.message-summary{
+    padding:20px 20px 0;
+    font-size:1rem;
+
+    .message-title{
+        color:$messagedefault;
+        margin:0;
+        font-size:2rem;
+        font-weight:bold;
+        max-width:84%;
+
+        a{
+            padding-right:10px;
+            width:94%;
+        }
+
+        .recipient{
+            color:$messagetab;
+            font-size:1.5rem;
+            font-weight:normal;
+            margin-top:3px;
+            clear: left;
+            margin-bottom:10px;
+        }
+    }
+
+    .last-message{
+        clear:left;
+        h4{
+            color:$primary;
+            font-size:1.5rem;
+            margin-bottom:0;
+        }
+        .message-content{
+            color:$messagedefault;
+            font-size:1.5rem;
+        }
+        .date-stamp{
+            color:$messagetab;
+            font-size:1.5rem;
+        }
+    }
+}
+
+.message-content{
+    > p {
+        max-height:40px;
+        overflow:hidden;
+    }
+}
+
+.news-date{
+    color:#a8a8a8;
+}
+
+.news-actions{
+    text-align: center;
+}
+
+.message-type-badge{
+    clear: left;
+    background:$aqua;
+    color:$white;
+    font-size:1.4rem;
+    @include bootstrap-border-radius(4px);
+    padding:5px;
+    float:left;
+    position:absolute;
+    top:10px;
+    right:77px;
+}
+
+@media (max-width: $screen-xs-max) {
+
+    .message-summary .message-title{
+        width:80%;
+    }
+    .message-type-badge{
+        position:relative;
+        top:0;
+        right:0;
+    }
+
+}

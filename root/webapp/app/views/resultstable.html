@@ -1,0 +1,105 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
+
+<div data-ng-show="!loading">
+
+    <h1 class="clearfix">
+        <ul class="unstyled inline pull-right">
+            <li><a href="/#/results" class="btn blue pull-right">Back to Results</a></li>
+        </ul>
+        <span>Results Table View</span>
+    </h1>
+    <p>To add more results to the table, select the result code from the dropdown. To remove them, click on 'x' next
+        to the result label in the filter. </p>
+    <p>Your result selection will be saved for your next log in.</p>
+
+    <div class="results-header content-panel">
+        <div class="header-icon pull-left">
+            <i class="icon-results-large pull-left"></i>
+        </div>
+        <div class="content-inner clearfix" data-ng-show="observationHeadings.length > 0">
+            <div class="row">
+                <div class="col-md-3">
+                    <h4 class="select-title">Include Result Type:</h4>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control pull-right" data-ng-model="selectedCode"
+                            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                            data-ng-change="includeObservationHeading(selectedCode)" >
+                    </select>
+                </div>
+                <div class="col-md-10">
+                    <ul class="feature-list unstyled name-action-list">
+                        <li class="feature-list-item" data-ng-repeat="code in observationHeadingCodes">
+                            <div class="feature-list-name pull-left">
+                                <span class="feature-list-name">{{observationHeadingMap[code].heading}}</span>
+                            </div>
+                            <div class="feature-list-delete pull-left">
+                                <a href="" data-ng-click="removeObservationHeading(code)" >
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="content-inner clearfix" data-ng-show="!observationHeadings.length">
+            <div class="row">
+                <div class="col-md-5">
+                    <h4>No results are available</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-panel" data-ng-show="observationHeadingCodes.length">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <th>
+                        <a href="" data-ng-click="changeOrderDirection()">
+                            Date
+                        </a>
+                    </th>
+                    <th data-ng-repeat="code in observationHeadingCodes">
+                        <a href="" data-ng-click="openObservationHeadingInformation(code)">
+                            {{observationHeadingMap[code].heading}}
+                        </a>
+                    </th>
+                </thead>
+                <tbody>
+                    <tr data-ng-repeat="row in pagedItems track by $index">
+                        <td data-ng-repeat="item in row track by $index">
+                            <span ng-if="item === row[0]">
+                                {{item}}
+                            </span>
+                            <span ng-if="item !== row[0]">
+                                {{item.comparator}}{{item.value}}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- pagination -->
+    <div ng-include src="'views/partials/pagination.html'" data-ng-show="observationHeadingCodes.length"></div>
+
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Results</h3>
+    </div>
+</div>

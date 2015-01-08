@@ -1,0 +1,204 @@
+<h1>Medicines</h1>
+
+<div class="content-panel">
+    <div class="content-inner">
+        <p>Medicine lists come from a hospital or your GP’s computer system. Please read the cautions and explanation:</p>
+        <h4>Important</h4>
+        <p>
+            The list of medicines may not be complete or accurate, because (1) Some hospitals do not yet keep full records of
+            medicines for all patients, (2) Changes made in one place may not quickly get to every list. Please point out
+            changes when you next attend an appointment, or send a note or message if it is important. (We may create an easy
+            way to do this).
+        </p>
+        <h4>Two Kinds of List</h4>
+        <p>
+            Most are supposed to list all the different medicines you’re on.  In these lists DOSE shows how to take it,
+            something like “1 daily oral”.  The other kind of list shows all prescriptions written by your GP, so things may
+            appear twice if they have been dispensed twice.  You can spot these because DOSE also has a number in brackets like
+            this: “(20) 1 capsule four times daily”.  The number in brackets is the number of tablets written on the
+            prescription.
+        </p>
+        <p>
+            This link to <a href="http://www.nlm.nih.gov/medlineplus/druginformation.html" target="_blank">Medline Plus</a> is
+            good if you want more information on individual drugs, or on herbs and supplements.
+        </p>
+        <p data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === true && gpMedicationStatus.optOutHidden === true">
+            <a href="" data-ng-click="gpMedicinesShowOptOut()">Opt Out of GP Medication</a>
+        </p>
+        <p data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === false && gpMedicationStatus.optInHidden === true">
+            <a href="" data-ng-click="gpMedicinesShowOptIn()">Opt In to GP Medication</a>
+        </p>
+    </div>
+</div>
+
+<!-- GP Medicines opt in/out -->
+<div class="content-panel" data-ng-show="gpMedicationStatus.available
+    && gpMedicationStatus.optInStatus === true && gpMedicationStatus.optOutHidden !== true">
+    <div class="content-inner alert-success">
+        <div><!-- opted in -->
+            <h4>Medicines from your GP's records</h4>
+            <p>
+                We need your explicit permission to access your GP's records of your medication.
+                <a href="http://www.rixg.org/rpv/ecs-scr.html" target="_blank">(Explain This)</a>
+            </p>
+            <p>You are currently opted in to show medicines from your GP record.</p>
+            <button type="button" class="btn blue" data-ng-click="gpMedicinesOptOut()">Opt Out</button> &nbsp;&nbsp;&nbsp;
+            <a href="" data-ng-click="gpMedicinesHideOptOut()">Hide This Notification</a>
+        </div>
+    </div>
+</div>
+
+<div class="content-panel" data-ng-show="gpMedicationStatus.available
+    && gpMedicationStatus.optInStatus !== true && gpMedicationStatus.optInHidden !== true">
+    <div class="content-inner alert-warning">
+        <div><!-- not opted in -->
+            <h4>Medicines from your GP's records</h4>
+            <p>
+                Please click the Opt In button if you would like PatientView to display the prescription from your GP.
+                This is useful as its usually the most up to date prescription. PatientView can now obtain it for you,
+                with your permission, from your GP's records.
+                <a href="http://www.rixg.org/rpv/ecs-scr.html" target="_blank">(Explain This)</a>
+            </p>
+            <button type="button" class="btn blue" data-ng-click="gpMedicinesOptIn()">Opt In</button> &nbsp;&nbsp;&nbsp;
+            <a href="" data-ng-click="gpMedicinesHideOptIn()">Hide This Notification</a>
+        </div>
+    </div>
+</div>
+<div data-ng-show="!loading">
+    <br/>
+    <div>
+        <h3 data-ng-show="gpMedicationStatus.available
+        && gpMedicationStatus.optInStatus === true">From Your Units</h3>
+        <!-- Filter -->
+        <div class="content-panel filter-panel" ng-show="medicationStatementsNonGp.length">
+            <div class="search-container">
+                <i class="icon-search-black"></i>
+                <input type="text" data-ng-model="searchText" placeholder="Search by medicine name or dose..."
+                       class="form-control input-block-level" />
+            </div>
+            <div class="panel-footer clearfix">
+                <div class="content-inner">
+
+                    <!-- filter by source group -->
+                    <div class="form-horizontal" role="form">
+                        <div class="select-container pull-left">
+                            <div class="btn-group filter-select" id="filter-group-type" data-ng-class="{open: open1}">
+                                <button class="btn dropdown-toggle" data-ng-click="open1=!open1">Filter By Source
+                                    <span class="caret-container"><span class="caret"></span></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                    <li>
+                                        <a data-ng-click="removeAllGroups()" class="a-filter-role">
+                                            <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                        </a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li data-ng-repeat="group in filterGroups | orderBy:['shortName']" data-ng-show="group.code !== 'ECS'">
+                                        <a data-ng-click="setSelectedGroup(group)" class="a-filter-group-type clearfix">
+                                            <span class="pull-left">{{group.shortName}}</span>
+                                            <span data-ng-class="isGroupChecked(group.id)"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <span data-ng-repeat="group in filterGroups" data-ng-show="isGroupChecked(group.id)">
+                            <span class="label label-info">{{group.name}}</span>&nbsp;
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-panel">
+            <div class="content-inner">
+                <div>
+                    <table class="table" data-ng-show="nonGpFiltered.length">
+                        <thead class="table-head">
+                            <tr>
+                                <th><a href="" data-ng-click="sortBy('startDate');" class="sort-title">Start Date</a></th>
+                                <th><a href="" data-ng-click="sortBy('name');" class="sort-title">Medicine Name</a></th>
+                                <th><a href="" data-ng-click="sortBy('dose');" class="sort-title">Dose</a></th>
+                                <th><a href="" data-ng-click="sortBy('group.name');" class="sort-title">Source</a></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="medicationStatement in nonGpFiltered =
+                                (medicationStatementsNonGp | nameAndDoseFilter:searchText | sourceGroupFilter:selectedGroups
+                                | orderBy: predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                                <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
+                                <td>{{medicationStatement.name}}</td>
+                                <td>{{medicationStatement.dose}}</td>
+                                <td>{{medicationStatement.group.name}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div data-ng-show="nonGpFiltered.length > 0">
+                        <div pagination on-select-page="setPage(page)" total-items="nonGpFiltered.length"
+                             items-per-page="entryLimit" ng-model="currentPage" class="pagination-sm"
+                             ng-hide="nonGpFiltered.length  < entryLimit "></div>
+                    </div>
+
+                    <div class="alert alert-warning" data-ng-show="!nonGpFiltered.length">
+                        <p>No medicine information from your units available</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div data-ng-show="gpMedicationStatus.available && gpMedicationStatus.optInStatus === true">
+        <h3>From Your GP</h3>
+        <!-- Filter -->
+        <div class="content-panel filter-panel" ng-show="medicationStatementsGp.length">
+            <div class="search-container">
+                <i class="icon-search-black"></i>
+                <input type="text" data-ng-model="searchTextGp" placeholder="Search by medicine name or dose..."
+                       class="form-control input-block-level" />
+            </div>
+        </div>
+        <div class="content-panel">
+            <div class="content-inner">
+                <div>
+                    <table class="table" data-ng-show="gpFiltered.length">
+                        <thead class="table-head">
+                            <tr>
+                                <th><a href="" data-ng-click="sortByGp('startDate');" class="sort-title">Start Date</a></th>
+                                <th><a href="" data-ng-click="sortByGp('name');" class="sort-title">Medicine Name</a></th>
+                                <th><a href="" data-ng-click="sortByGp('dose');" class="sort-title">Dose</a></th>
+                                <th><a href="" data-ng-click="sortByGp('group.name');" class="sort-title">Source</a></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="medicationStatement in gpFiltered =
+                                (medicationStatementsGp | nameAndDoseFilter:searchTextGp
+                                | orderBy: predicateGp :reverse) | startFrom:(currentPageGp-1)*entryLimit | limitTo:entryLimit">
+                                <td>{{medicationStatement.startDate | date: 'dd-MMM-yyyy'}}</td>
+                                <td>{{medicationStatement.name}}</td>
+                                <td>{{medicationStatement.dose}}</td>
+                                <td>{{medicationStatement.group.name}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div data-ng-show="gpFiltered.length > 0">
+                        <div pagination on-select-page="setPageGp(page)" total-items="gpFiltered.length"
+                             items-per-page="entryLimit" ng-model="currentPageGp" class="pagination-sm"
+                             ng-hide="gpFiltered.length  < entryLimit "></div>
+                    </div>
+
+                    <div class="alert alert-warning" data-ng-show="!gpFiltered.length">
+                        <p>No medicine information from your GP available</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Medicines</h3>
+    </div>
+</div>

@@ -1,0 +1,40 @@
+<h1 data-ng-show="!loading">My Conditions</h1>
+<div class="patient-details" data-ng-show="!loading">
+    <div class="">
+        <div class="">
+            <!-- patient details from FHIR -->
+            <div data-ng-show="specialties && specialties.length > 1">
+                <div class="btn-group-switcher btn-group">
+                    <a href="" data-ng-repeat="specialty in specialties" data-ng-click="changeSpecialty(specialty)"
+                       class="btn" data-ng-class="{active:currentSpecialty.code === specialty.code}">{{specialty.name}}</a>
+                </div>
+            </div>
+            <div data-ng-show="currentSpecialty">
+                <h5 class="hidden">Your conditions as provided by the {{currentSpecialty.name}} specialty</h5>
+                <div data-ng-include src="'views/partials/myConditionsRenal.html'" data-ng-show="currentSpecialty.code === 'Renal'"></div>
+                <div data-ng-include src="'views/partials/myConditionsDiabetes.html'" data-ng-show="currentSpecialty.code === 'Diabetes'"></div>
+                <div data-ng-show="currentSpecialty.code !== 'Renal' && currentSpecialty.code !== 'Diabetes'">
+                    <br/>My Conditions is not currently available for the {{currentSpecialty.name}} specialty
+                </div>
+                <div class="panel panel-default" data-ng-show="currentSpecialty.links">
+                    <div class="panel-heading"><h3>Other Helpful Information</h3></div>
+                    <div class="panel-body">
+                        <ul>
+                            <li data-ng-repeat="link in currentSpecialty.links">
+                                <a href="{{link.link | addhttpFilter}}" target="_blank">{{link.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div data-ng-show="!currentSpecialty">
+                <p>We have not yet received records from any of your units.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Your Conditions</h3>
+    </div>
+</div>

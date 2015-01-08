@@ -1,0 +1,235 @@
+<!-- todo: move to main css -->
+<style>
+    .feature-list-delete {
+        margin-right:10px;
+    }
+    .name-action-list li {
+        height: auto;
+    }
+    .feature-list {
+        margin-top: 10px;
+    }
+</style>
+<div data-ng-show="!loading">
+    <h1>Log</h1>
+
+    <!-- Filter -->
+    <div class="content-panel filter-panel">
+        <div class="search-container">
+            <i class="icon-search-black"></i>
+            <input type="text" data-ng-model="searchText" placeholder="Search by Identifier, User or Actor..."
+                   class="form-control input-block-level" />
+        </div>
+        <div class="panel-footer clearfix">
+            <div class="content-inner">
+                <form class="form-horizontal" role="form">
+                    <div class="pull-right">
+                        <div class="col-md-12" data-ng-show="pagedItems.length  > 0">
+                            <h5 class="pull-right">Page {{currentPage+1}} of {{totalPages}} ({{total}} total)</h5>
+                        </div>
+                    </div>
+                    <!-- filter by unit -->
+                    <div class="select-container pull-left" data-ng-show="unitsAvailable">
+                        <div class="btn-group filter-select" id="filter-group" dropdown>
+                            <button class="btn dropdown-toggle">
+                                Filter By Unit <span class="caret-container"><span class="caret"></span></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li>
+                                    <a data-ng-click="removeAllSelectedGroup('UNIT')" class="a-filter-group">
+                                        <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='UNIT'">
+                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                        <span class="pull-left">{{group.shortName}}</span>
+                                        <span data-ng-class="isGroupChecked(group.id)"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <!-- filter by disease group -->
+                    <div class="select-container pull-left" data-ng-show="diseaseGroupsAvailable">
+                        <div class="btn-group filter-select" id="filter-diseasegroup" dropdown>
+                            <button class="btn dropdown-toggle">
+                                Filter By Other Group <span class="caret-container"><span class="caret"></span></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li>
+                                    <a data-ng-click="removeAllSelectedGroup('DISEASE_GROUP')" class="a-filter-group">
+                                        <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="group in allGroups | orderBy:['shortName']" data-ng-show="group.groupType.value==='DISEASE_GROUP'">
+                                    <a data-ng-click="setSelectedGroup()" class="a-filter-group clearfix">
+                                        <span class="pull-left">{{group.shortName}}</span>
+                                        <span data-ng-class="isGroupChecked(group.id)"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                    <!-- filter by audit action -->
+                    <div class="select-container pull-left">
+                        <div class="btn-group filter-select" id="filter-code-type" dropdown>
+                            <button class="btn dropdown-toggle">
+                                Filter By Action <span class="caret-container"><span class="caret"></span></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <li>
+                                    <a data-ng-click="removeAllAuditActions();">
+                                        <i class="glyphicon glyphicon-remove"></i> Uncheck All
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li data-ng-repeat="auditAction in auditActions | orderBy:'toString()'">
+                                    <a data-ng-click="setSelectedAuditAction(auditAction)" class="a-filter-code-type clearfix">
+                                        <span class="pull-left">{{auditAction}}</span>
+                                        <span data-ng-class="isAuditActionChecked(auditAction)"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                    <!-- datepicker -->
+                    <div class="row pull-left data-range-container">
+                        <div class="col-md-3">
+                            <label for="date-start">Start Date</label>
+                            <p class="input-group">
+                                <input id="date-start" type="text" class="form-control" datepicker-popup="dd-MMM-yyyy"
+                                       ng-model="dateStart" is-open="openedStart"
+                                       datepicker-options="dateOptions"
+                                       ng-required="true" close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-append" ng-click="openStart($event)">
+                                        <i class="glyphicon glyphicon-calendar"></i>
+                                    </button>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date-end">End Date</label>
+                            <p class="input-group">
+                                <input id="date-end" type="text" class="form-control" datepicker-popup="dd-MMM-yyyy"
+                                       ng-model="dateEnd" is-open="openedEnd"
+                                       datepicker-options="dateOptions"
+                                       ng-required="true" close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-append" ng-click="openEnd($event)">
+                                        <i class="glyphicon glyphicon-calendar"></i>
+                                    </button>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn blue set-date-range" data-ng-click="setDateRange(dateStart, dateEnd)">Set Date Range</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="feature-list unstyled name-action-list">
+                                <li class="feature-list-item" data-ng-repeat="group in allGroups | orderBy:'name'"
+                                    data-ng-show="isGroupChecked(group.id)">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{group.name}}</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeSelectedGroup(group)" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="feature-list-item" data-ng-repeat="auditAction in auditActions"
+                                    data-ng-show="isAuditActionChecked(auditAction)">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{auditAction}}</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeSelectedAuditAction(auditAction)" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="log-container" data-ng-show="!loading">
+    <div class="content-panel">
+        <table class="table" data-ng-show="pagedItems.length  > 0 && !loading">
+            <thead class="table-head">
+            <tr>
+                <th><a href="" data-ng-click="sortBy('creationDate');" class="sort-title">Date <i class="icon-sort pull-right"></i></a></th>
+                <th>Identifiers</th>
+                <th>User</th>
+                <th>Group (Role)</th>
+                <th>Action</th>
+                <th>Actor</th>
+                <th>Information</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-ng-repeat="audit in pagedItems">
+                <td>{{audit.creationDate | date: 'dd-MMM-yyyy HH:mm'}}</td>
+                <td>
+                    <span data-ng-repeat="identifier in audit.sourceObjectUser.identifiers">
+                        {{identifier.identifier}}
+                        <br/>
+                    </span>
+                </td>
+                <td>{{audit.username}}</td>
+                <td>
+                    <span data-ng-show="audit.sourceObjectType === 'User'">
+                        <span data-ng-repeat="groupRole in audit.sourceObjectUser.groupRoles"
+                              data-ng-hide="groupRole.group.code === 'Generic' || groupRole.role.name === 'MEMBER'">
+                            {{groupRole.group.shortName}} ({{groupRole.role.description}})
+                            <br/>
+                        </span>
+                    </span>
+                    <span data-ng-show="audit.sourceObjectType === 'Group'">
+                        <span>
+                            {{audit.sourceObjectGroup.shortName}}
+                        </span>
+                    </span>
+                </td>
+                <td>{{audit.auditActions}}</td>
+                <td>{{audit.actor.username}}</td>
+                <td>
+                    <span data-ng-show="audit.group.shortName">Group: {{audit.group.shortName}} <br/></span>
+                    <span data-ng-show="audit.identifier">Identifier: {{audit.identifier}} <br/></span>
+                    <span data-ng-show="audit.information">{{audit.information}}<br/></span>
+                    <span data-ng-show="audit.xml"><a href="" data-ng-click="viewXml(audit)">View XML</a></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/>
+
+        <div class="alert alert-warning" data-ng-show="!pagedItems.length && !loading">
+            <p>No log entries found</p>
+        </div>
+
+        <!-- pagination -->
+        <div ng-include src="'views/partials/pagination.html'"></div>
+
+    </div>
+</div>
+
+<div data-ng-show="loading" class="loading">
+    <br/><br/>
+    <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Log</h3>
+</div>

@@ -1,0 +1,115 @@
+.pagination{
+    &.results{
+        display:block;
+        margin:0 auto;
+        width:200px;
+    }
+}
+
+.tab-panel-item{
+    .aside-actions{
+        height:180px;
+        position:absolute;
+        top:0;
+        right:0;
+        bottom:0;
+
+        &.dashboard{
+            height:190px;
+            li{
+                height:95px;
+            }
+        }
+
+        li{
+            height:75px;
+
+            a{
+                height:100%;
+                line-height:15px;
+                padding-top:15px;
+            }
+        }
+    }
+
+    .item-detail{
+        padding:20px;
+
+        .last-login{
+            width:40%;
+            padding:0;
+        }
+
+        dl{
+            margin-bottom:10px;
+            dt{
+
+            }
+            dd{
+                color:$bluegrey;
+            }
+        }
+    }
+}
+
+.user-details{
+    margin-bottom:20px;
+    padding:20px;
+    min-height:170px;
+
+    h3{
+        margin-top:0;
+    }
+
+    h4{
+        margin-bottom:5px;
+    }
+}
+
+/** MODALS **/
+
+.modal-dialog{
+    width:75%;
+
+    label{
+        font-size:1.5rem;
+    }
+
+    .added-container{
+        margin-top: 30px;
+    }
+
+}
+
+/** GRAPHS **/
+
+.graph-selector{
+
+    h3{
+        margin:0;
+        line-height:35px;
+    }
+}
+
+@media only screen
+and (max-width : 1024px) {
+
+    .tab-panel-item .item-detail{
+        padding:5px 20px;
+    }
+
+    .modal-dialog{
+        width:auto;
+    }
+}
+
+@media (max-width: $screen-xs-max) {
+    .tab-panel-item {
+        .item-detail {
+            .last-login {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+        }
+    }
+}

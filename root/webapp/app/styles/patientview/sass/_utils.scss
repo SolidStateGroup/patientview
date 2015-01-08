@@ -1,0 +1,131 @@
+// UTILITY CLASSES
+// ---------------
+
+// Quick floats
+.pull-right {
+    float: right;
+}
+
+.pull-left {
+    float: left;
+}
+
+// Toggling content
+.hide,
+.hidden {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+// Visibility
+.invisible {
+    visibility: hidden;
+}
+
+// Alignment
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center,
+.centered {
+    text-align: center;
+}
+
+.no-pad {
+    padding: 0;
+}
+
+// Adds a ... when text overflowing container
+.truncate {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+// good old clearfix trick still going strong
+.clearfix {
+    @include bootstrap-clearfix();
+}
+
+ul.unstyled,
+ol.unstyled {
+    margin-left: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.inline {
+    @extend .unstyled;
+
+    > li {
+        display: inline-block;
+
+        &:first-child {
+            padding-left: 0;
+        }
+
+        > a {
+            display: inline-block;
+        }
+    }
+}
+
+.error{
+    color:$error;
+    font-weight:normal;
+}
+
+.no-items{
+    font-style: italic;
+    font-weight: 100;
+}
+
+.loading{
+    text-align:center;
+}
+
+
+
+/** todo revise james' css **/
+
+input.ng-pristine + ul#strength {
+    display:none;
+}
+ul#strength {
+    display:inline;
+    list-style:none;
+    margin:0;
+    margin-left:15px;
+    padding:0;
+    vertical-align:2px;
+}
+.point:last {
+    margin:0 !important;
+}
+.point {
+    background:#DDD;
+    border-radius:2px;
+    display:inline-block;
+    height:5px;
+    margin-right:1px;
+    width:20px;
+}
+#footer {
+    position:fixed;
+    bottom:5px;
+}
+
+//input[type="text"]::-webkit-input-placeholder {   color: #e2e2e2;}
+//input[type="text"]:-moz-placeholder { /* Firefox 18- */color: #e2e2e2;}
+//input[type="text"]::-moz-placeholder {  /* Firefox 19+ */    color: #e2e2e2;}
+//input[type="text"]:-ms-input-placeholder {    color: #e2e2e2;}

@@ -1,0 +1,43 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{result.heading}} Information</h3>
+</div>
+<div class="modal-body">
+    <table class="table">
+        <tbody>
+        <tr>
+            <td>Name</td>
+            <td><span data-ng-show="result.name">{{result.name}}</span>
+                <span data-ng-show="!result.name">Not Available</span></td>
+        </tr><tr>
+            <td>Heading</td>
+            <td><span data-ng-show="result.heading">{{result.heading}}</span>
+                <span data-ng-show="!result.heading">Not Available</span></td>
+        </tr><tr>
+            <td>Code</td>
+            <td><span data-ng-show="result.code">{{result.code}}</span>
+                <span data-ng-show="!result.code">Not Available</span></td>
+        </tr><tr>
+            <td>Units</td>
+            <td><span data-ng-show="result.units">{{result.units}}</span>
+                <span data-ng-show="!result.units">Not Available</span></td>
+        </tr><tr>
+            <td>Normal Range</td>
+            <td><span data-ng-show="result.normalRange">{{result.normalRange}}</span>
+                <span data-ng-show="!result.normalRange">Not Available</span></td>
+        </tr><tr>
+            <td>Decimal Places</td>
+            <td><span data-ng-show="result.decimalPlaces">{{result.decimalPlaces}}</span>
+                <span data-ng-show="!result.decimalPlaces">Not Available</span></td>
+        </tr><tr>
+            <td>Information</td>
+            <td class="result-link">
+                <a href="{{result.infoLink | addhttpFilter}}" target="_blank" data-ng-show="result.infoLink">{{result.infoLink}}</a>
+                <span data-ng-show="!result.infoLink">Not Available</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
+</div>

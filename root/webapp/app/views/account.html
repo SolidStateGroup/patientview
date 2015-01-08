@@ -1,0 +1,131 @@
+<h1>Account Settings</h1>
+
+<div class="content-panel user-settings">
+    <div class="content-inner">
+        <form class="form-horizontal" data-ng-cloak id="account-settings-form">
+
+
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Username:</label>
+
+                <div class="col-sm-4">
+                    <label id="username" type="text" class="form-control disabled" data-ng-bind="userdetails.username"></label>
+                </div>
+            </div>
+
+            <h4>Change Contact Details</h4>
+
+            <p>Confirm your email address by entering the email you wish to use in both boxes below. If there is an email in the
+                first box, then that was entered when your account was created. You may confirm that or use another email of
+                your choice.</p>
+            <p>Please note that the information below does not automatically update the records in your unit.</p>
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">Email:</label>
+
+                <div class="col-sm-4">
+                    <input id="email" name=email" type="text" class="form-control" data-ng-model="userdetails.email" required=""/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmEmail" class="col-sm-2 control-label">Confirm Email:</label>
+                <div class="col-sm-4">
+                    <input id="confirmEmail" name=confirmEmail" type="text" class="form-control"
+                           data-ng-model="userdetails.confirmEmail"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="contactNumber" class="col-sm-2 control-label">Contact Number:</label>
+                <div class="col-sm-4">
+                    <input id="contactNumber" name="contactNumber" type="text" class="form-control"
+                           data-ng-model="userdetails.contactNumber"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="forename" class="col-sm-2 control-label">Forename:</label>
+                <div class="col-sm-4">
+                    <input id="forename" name="forename" type="text" class="form-control"
+                           data-ng-model="userdetails.forename"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="surname" class="col-sm-2 control-label">Surname:</label>
+                <div class="col-sm-4">
+                    <input id="surname" name="surname" type="text" class="form-control"
+                           data-ng-model="userdetails.surname"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4 col-sm-offset-2">
+                    <button data-ng-click="saveSettings()" class="btn blue">Save</button>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="settingsErrorMessage">
+                <div class="col-sm-8 col-sm-offset-2 alert alert-danger">
+                    <p><strong>Error saving settings</strong> {{settingsErrorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="settingsSuccessMessage">
+                <div class="col-sm-8 col-sm-offset-2 alert alert-success">
+                    <p>{{settingsSuccessMessage}}</p>
+                </div>
+            </div>
+        </form>
+
+        <form class="form-horizontal" data-ng-cloak id="account-password-form">
+            <h4>Change Password</h4>
+            <p>When updating your password, check how strong it is using the bar to the right. Basically, a mix of
+                capitals, small letters, numbers and symbols is best, and of course the longer the better.</p>
+            <p><strong>The minimum length for a password is 7 characters.</strong></p>
+            <div class="form-group">
+                <label for="currentPassword" class="col-sm-2 control-label">Current Password:</label>
+                <div class="col-sm-4">
+                    <input id="currentPassword" data-ng-model="userdetails.currentPassword" name="currentPassword" type="password"
+                           class="form-control" required=""/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="newPassword" class="col-sm-2 control-label">New Password:</label>
+                <div class="col-sm-4">
+                    <input id="newPassword" data-ng-model="pw" name="pw" type="password" class="form-control"
+                           required=""/>
+                </div>
+                <div>
+                    <ul id="strengthTest" check-strength="pw"></ul>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="passwordConfirm" class="col-sm-2 control-label">Confirm Password:</label>
+                <div class="col-sm-4">
+                    <input id="passwordConfirm" data-ng-model="userdetails.confirmPassword" name="password" type="password"
+                           class="form-control" required=""/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4 col-sm-offset-2">
+                    <button data-ng-click="savePassword()" class="btn blue"
+                            data-ng-disabled="pw.length < 7 || !(pw === userdetails.confirmPassword)">Update Password
+                    </button>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="passwordErrorMessage">
+                <div class="alert alert-danger">
+                    <p><strong>Error changing password</strong> {{passwordErrorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="passwordSuccessMessage">
+                <div class="col-sm-8 col-sm-offset-2 alert alert-success">
+                    <p>{{passwordSuccessMessage}}</p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

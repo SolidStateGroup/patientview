@@ -1,0 +1,5 @@
+.DS_Store
+.idea/**/*
+webapp/dist/**/*
+**/node_modules
+webapp/dist

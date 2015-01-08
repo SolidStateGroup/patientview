@@ -1,0 +1,68 @@
+.aside-actions{
+    height:140px;
+    margin-bottom:0;
+//    border-left:1px solid $border-default;
+
+    li{
+        a{
+            width:70px;
+            height:70px;
+            display:block;
+            text-align:center;
+            color:$messagetab;
+            font-size:1.125rem;
+            text-decoration:none;
+            padding:10px 10px;
+            background:$lowlight;
+
+            &.reply{
+                line-height:50px;
+            }
+
+            &.active{
+                background:$primary;
+                color:$white;
+            }
+
+            .message-count{
+                font-weight:bold;
+                text-align:center;
+                font-size:1.25rem;
+                display:block;
+            }
+        }
+    }
+}
+
+.groups-list{
+    li{
+        color:$textdefault;
+        margin-right:5px;
+
+        .light-text{
+            font-size:1rem;
+        }
+
+    }
+}
+
+.faux-table .faux-row .row-item{
+    .patient-groups{
+        li{
+            width:100%;
+            float:left;
+
+            span{
+                float:left;
+            }
+        }
+    }
+}
+
+.locations-list{
+    margin-top:20px;
+
+    &:first-child{
+        margin-top:0;
+    }
+}

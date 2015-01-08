@@ -1,0 +1,99 @@
+<div data-ng-show="!loading">
+    <h1>Result Headings <button class="btn blue" data-ng-click="openModalNewObservationHeading('lg')" data-ng-show="permissions.canCreateObservationHeading">Create New</button></h1>
+    <div class="alert alert-danger" data-ng-show="fatalErrorMessage">{{fatalErrorMessage}}</div>
+
+    <div data-ng-show="!fatalErrorMessage && !loading" data-ng-cloak>
+        <!-- new observationHeading modal template -->
+        <script type="text/ng-template" id="newObservationHeadingModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Result Heading</h3>
+            </div>
+            <div class="modal-body">
+                <form name="observationHeadingFormNew" data-ng-model="editObservationHeading">
+                    <div data-ng-include src="'views/partials/observationHeadingDetailsNew.html'" data-ng-controller="ObservationHeadingDetailsCtrl"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+                <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+                <button class="btn blue" data-ng-click="ok()" data-ng-disabled="!observationHeadingFormNew.$valid">Create New</button>
+            </div>
+        </script>
+
+        <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+
+        <!-- data grid -->
+        <div class="faux-table eight-col" data-ng-show="pagedItems.length  > 0">
+            <!-- header -->
+            <div class="accordion-title-row table-head">
+                <div class="hidden">ID</div>
+                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
+                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('heading');" class="sort-title"><i class="icon-sort pull-right"></i>Heading</a></div>
+                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('name');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
+                <div class="head-item accordion-title-text">Normal Range</div>
+                <div class="head-item accordion-title-text">Units</div>
+                <div class="head-item accordion-title-text">Min Value</div>
+                <div class="head-item accordion-title-text">Max Value</div>
+                <div class="head-item accordion-title-text"></div>
+            </div>
+
+            <!-- body -->
+            <div class="item-header" data-ng-repeat="observationHeading in pagedItems">
+                <div class="faux-row">
+                    <div class="row-item hidden">{{observationHeading.id}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.code}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.heading}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.name}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.normalRange}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.units}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.minGraph}}</div>
+                    <div class="row-item accordion-heading-text">{{observationHeading.maxGraph}}</div>
+                    <div class="row-item actions">
+                        <div class="btn-observationHeading">
+                            <button type="button" class="edit-button btn blue" data-ng-click="opened(observationHeading)">Edit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- edit pane -->
+                <div class="panel-body" data-ng-show="observationHeading.showEdit">
+                    <div class="alert alert-danger" data-ng-show="observationHeading.errorMessage && !observationHeading.editLoading">There was an error {{observationHeading.errorMessage}}</div>
+                    <div data-ng-show="observationHeading.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div data-ng-show="!observationHeading.editLoading">
+                        <form name="observationHeadingForm">
+                            <div data-ng-include src="'views/partials/observationHeadingDetails.html'" data-ng-controller="ObservationHeadingDetailsCtrl"></div>
+                        </form>
+                        <hr>
+                        <div class="pull-right"><button class="btn btn-grey close-edit" data-ng-click="observationHeading.showEdit = false">Cancel</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" data-ng-show="pagedItems.length == 0">
+            <div class="col-md-12">
+                <h4>No Result Headings found</h4>
+            </div>
+        </div>
+
+        <!-- pagination -->
+        <div class="col-md-12" data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Result Headings</h3>
+    </div>
+</div>

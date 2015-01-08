@@ -1,0 +1,60 @@
+<div class="form-horizontal" role="form">
+    <div class="form-group">
+        <label for="new-user-username" class="col-sm-2 control-label">Username</label>
+        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-username">{{editUser.username}}</span></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-email" class="col-sm-2 control-label">Email</label>
+        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-email">{{editUser.email}}</span></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-forename" class="col-sm-2 control-label">Forename</label>
+        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-forename">{{editUser.forename}}</span></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-surname" class="col-sm-2 control-label">Surname</label>
+        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-surname">{{editUser.surname}}</span></div>
+    </div>
+    <input type="hidden" data-ng-model="editUser.contactNumber">
+</div>
+
+<div class="row">
+    <div class="col-sm-offset-1 col-sm-11">
+        <div class="added-container">
+            <label class="inner-title">Groups &amp; Roles </label>
+            <p>Choose which groups/roles this user should belong to. More information
+                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+            </p>
+            <br/>
+            <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
+                <li class="group-list-name pull-left"><span class="group-list-name">{{groupRole.group.name}} ({{groupRole.group.groupType.description}})</span></li>
+                <li class="group-list-role pull-left"><span class="bracket">(</span> <span class="group-role">{{groupRole.role.description}}</span> <span class="bracket">)</span></li>
+                <li class="group-list-delete pull-left" data-ng-show="permissions.allGroupsIds[groupRole.group.id]">
+                    <span class="group-list-delete">
+                        <button class="btn negative" id="remove-group-{{groupRole.group.id}}"
+                            data-ng-click="removeGroupRole(userFormExisting, editUser, groupRole)" >Delete</button>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="group-add-container add-container" data-ng-show="allGroups.length > 0 ">
+            <label class="inner-title">Add New Group &amp; Role </label>
+            <div class="select-add-group">
+                <select class="form-control" data-ng-model="editUser.groupToAdd"
+                    data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in allGroups | orderBy:[orderGroups,'name']">
+                </select>
+                <div class="bracket-input">
+                    <span class="bracket pre">(</span>
+                    <select class="form-control" data-ng-model="editUser.selectedRole"
+                        data-ng-options="role.id as role.description for role in editUser.roles | orderBy:'name'">
+                    </select>
+                    <span class="bracket post">)</span>
+                </div>
+                <button type="button" class="btn blue group-add-button"
+                    data-ng-click="addGroupRole(userFormExisting, editUser, editUser.groupToAdd, editUser.selectedRole)"
+                    data-ng-disabled="!editUser.selectedRole">Add</button>
+            </div>
+            <span class="hidden">{{editUser.selectedRole}}</span>
+        </div>
+    </div>
+</div>

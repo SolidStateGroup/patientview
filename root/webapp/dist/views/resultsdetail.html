@@ -1,0 +1,85 @@
+<div class="row">
+    <div class="col-md-6">
+        <h1>Results Detail <small ng-style="{'color':resultColor}" ng-show="!resultsLoading" ng-cloak>{{resultType}}</small></h1>
+        <div ng-show="resultsLoading" class="loading"><br/><br/><img src="images/loading.gif" alt="Loading"/></div>
+        <div id="graphdiv"></div>
+    </div>
+    <div class="col-md-6">
+        <h1>Filter</h1>
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 7}" ng-click="filter(7)">1 Week</button>
+            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 31}"  ng-click="filter(31)">1 Month</button>
+            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 365}"  ng-click="filter(365)">1 Year</button>
+            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 1095}"  ng-click="filter(1095)">3 Years</button>
+            <button type="button" class="btn btn-default" ng-class="{active: dateRange == 3650000}" ng-click="filter(3650000)">All</button>
+        </div>
+        <br/><br/>
+        <div id="tablediv"></div>
+        <div class="alert alert-warning" ng-show="!dataExistsInDateRange && !resultsLoading" ng-cloak>No results available for this date range</div>
+    </div>
+</div>
+<a href="#/results" class="btn btn-grey">Back</a>
+
+
+
+<!--RESULTS DETAIL-->
+<div class="header-select row">
+    <div class=" col-md-7">
+        <a class="pull-right" href="" data-ng-click="openObservationHeadingInformation(result)">
+            <span class="info-link">About</span>
+        </a>
+        <h1>Showing results: <span class="blue">CPA</span></h1>
+    </div>
+    <div class="col-md-5">
+        <select class="pull-right">
+            <option>CPA</option>
+            <option>CPA</option>
+            <option>CPA</option>
+            <option>CPA</option>
+        </select>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-7 result-container clearfix">
+        <div class="result-item-container">
+            <div class="content-panel result-item">
+                <div class="result-header">
+                    <h4>
+                        <a class="pull-right" href="" data-ng-click="openObservationHeadingInformation(result)">
+                            <span class="info-link">About</span>
+                        </a>
+                        ALB
+                    </h4>
+                </div>
+                <div class="result-value">
+                    <dl class="result-change">
+                        <dt>76.17</dt>
+                        <dd><i class="icon-result-up pull-left"></i><span class="pull-left">1.29</span></dd>
+                    </dl>
+                </div>
+                <ul class="unstyled info-list pull-left">
+                    <li><span class="pull-right">EDU123</span><strong>Source:</strong></li>
+                    <li><span class="pull-right">1st July 2014</span><strong>Showing Result:</strong> </li>
+                </ul>
+                <div class="result-footer">
+                    <i class="icon-circle-arrow pull-right"></i>
+                    <p>View More Details</p>
+                </div>
+            </div>
+        </div>
+        <aside class="col-md-5 historical-data">
+            <div class="info-header">
+                <p>Click <i class="icon-graph-tiny"></i> to highlight result</p>
+            </div>
+            <div class="faux-table">
+                <div class="table-head accordion-title-row">
+                    <div class="hidden">ID</div>
+                    <div class="head-item accordion-title-text "><span>Date Taken</span></div>
+                    <div class="head-item accordion-title-text "><span>Date Taken</span></div>
+                    <div class="head-item accordion-title-text "><span>Source</span></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>

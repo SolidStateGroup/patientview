@@ -1,0 +1,7 @@
+{
+    "tomcatUsername": "username",
+    "tomcatPassword": "password",
+    "tomcatPath": "/patientview",
+    "tomcatPort": "8080",
+    "servePort": "9000"
+}

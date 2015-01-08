@@ -1,0 +1,84 @@
+<div class="row edit-code-input">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-3">
+            <label for="code-code" class="control-label">Code <span class="error" data-ng-show="codeForm.code.$error.required"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" data-ng-model="editCode.code" required></div>
+
+        </div>
+        <div class="col-md-3">
+            <label for="code-codeType" class="control-label">Code Type<span class="error" data-ng-show="!editCode.codeTypeId"> *required</span></label>
+            <div class=""><select id="code-codeType" class="form-control codeType-select" data-ng-model="editCode.codeTypeId" data-ng-options="codeType.id as codeType.value for codeType in codeTypes | orderBy:'value'"></select></div>
+
+        </div>
+        <div class="col-md-3">
+            <label for="code-standardType" class="control-label">Standard Type <span class="error" data-ng-show="!editCode.standardTypeId"> *required</span></label>
+            <div class=""><select id="code-standardType" class="form-control codeType-select" data-ng-model="editCode.standardTypeId" data-ng-options="standardType.id as standardType.value for standardType in standardTypes | orderBy:'value'"></select></div>
+
+        </div>
+        <div class="col-md-3">
+            <label for="code-description" class="control-label">Description <span class="error" data-ng-show="codeForm.description.$error.required"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="code-description" placeholder="Description" name="description" data-ng-model="editCode.description" required></div>
+
+        </div>
+    </div>
+</div>
+<button type="button" class="btn blue pull-right" data-ng-click="save(codeForm, editCode)" data-ng-disabled="codeForm.$pristine || !codeForm.$valid">Save</button>
+<span class="saved-notification pull-right" data-ng-show="codeForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+<br/>
+<hr />
+<div class="row">
+    <div class="links-container">
+        <div class="col-md-12">
+            <label>Links</label>
+        </div>
+        <div class="clearfix">
+            <div class="col-md-3">
+                <label>URL</label>
+            </div>
+            <div class="col-md-3">
+                <label>Description</label>
+            </div>
+            <div class="col-md-3">
+                <label data-ng-show="editCode.links.length > 0">Order</label>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+        <div class="link-list-item clearfix" data-ng-repeat="link in editCode.links | orderBy:'displayOrder'">
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="code-link-link-{{link.id}}" placeholder="link" name="link" data-ng-model="link.link" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="code-link-name-{{link.id}}" placeholder="name" name="name" data-ng-model="link.name" required>
+            </div>
+            <div class="col-md-3">
+                <select id="code-link-displayOrder-{{link.id}}" class="form-control" data-ng-model="link.displayOrder">
+                    <option data-ng-repeat="link in editCode.links">{{$index + 1}}</option>
+                </select>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn blue link-update-button" data-ng-click="updateLink($event, codeForm, editCode, link)">Update</button>
+                <button type="button" class="btn negative link-delete-button" data-ng-click="removeLink(codeForm, editCode, link)">Delete</button>
+            </div>
+            <span class="saved-notification" data-ng-show="link.saved">&nbsp; Saved Successfully!</span>
+        </div>
+        <br/>
+
+        <div class="add-link" data-ng-model="newLink">
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="code-newLink-link" placeholder="URL" name="newLink" data-ng-model="newLink.link">
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="code-newLink-name" placeholder="Description" name="newLink" data-ng-model="newLink.name">
+            </div>
+            <div class="col-md-3 hidden">
+                <select id="code-newLink-displayOrder" class="form-control" data-ng-model="newLink.displayOrder" data-ng-init="newLink.displayOrder='1'" >
+                    <option data-ng-show="newLink.displayOrder" data-ng-repeat="link in editCode.links">{{$index + 1}}</option>
+                    <option >{{editCode.links.length + 1}}</option>
+                </select>
+            </div>
+            <div class="">
+                <button type="button" class="btn blue link-add-button" data-ng-click="addLink(codeForm, editCode, newLink)" data-ng-disabled="!(newLink.link && newLink.name)">Add</button>
+            </div>
+        </div>
+    </div>
+</div>

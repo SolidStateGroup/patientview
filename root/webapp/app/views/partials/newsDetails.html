@@ -1,0 +1,82 @@
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="news-heading" class="control-label">Heading <span class="error" data-ng-show="newsForm.heading.$error.required && !newsForm.$pristine"> *required</span></label>
+            <div class=""><input type="text" class="form-control" id="news-heading" placeholder="Heading" name="heading" data-ng-model="editNews.heading" required></div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label for="news-story" class="control-label">Article <span class="error" data-ng-show="newsForm.story.$error.required && !newsForm.$pristine"> *required</span></label>
+            <div class=""><textarea class="form-control" id="news-story" placeholder="Story" name="story" data-ng-model="editNews.story" required></textarea></div>
+        </div>
+    </div>
+</div>
+<div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
+<div class="row">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-12">
+            <label class="control-label">Preview </label>
+            <div class="message-summary">
+                <h2 class="message-title">{{editNews.heading}}
+                    <span data-ng-repeat="newsLink in removeDuplicateNewsLinks(editNews.newsLinks)" class="pull-right news-link-labels">
+                        <span class="label label-primary" data-ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
+                        <span class="label label-success" data-ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
+                    </span>
+                </h2>
+                <div class="last-message">
+                    <p class="message-content" data-ng-bind-html="parseHTMLText(editNews.story)"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br/>
+<button type="button" class="btn blue pull-right" data-ng-click="save(newsForm, editNews)" data-ng-disabled="newsForm.$pristine || !newsForm.$valid">Save</button>
+<span class="saved-notification pull-right" data-ng-show="newsForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+
+<div class="row form-edit-row">
+    <hr/>
+    <div class="col-md-12">
+        <label class="inner-title">Groups &amp; Roles </label>
+        <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="newsLink in editNews.newsLinks" data-ng-hide="newsLink.role.name === 'GLOBAL_ADMIN'">
+            <li class="group-list-name pull-left">
+                <span class="group-list-name" data-ng-show="newsLink.group">{{newsLink.group.name}}</span>
+                <span class="group-list-name" data-ng-show="!newsLink.group.id">All Groups</span>
+            </li>
+            <li class="group-list-role  pull-left">
+                <span class="group-list-role" data-ng-show="newsLink.role">{{newsLink.role.description}}</span>
+                <span class="group-list-role" data-ng-show="!newsLink.role.id">All Roles</span>
+            </li>
+            <li class="group-list-delete pull-left">
+                <span class="group-list-delete">
+                    <button class="btn negative" id="remove-group-{{newsLink.group.id}}" href="" data-ng-click="removeNewsLink(newsForm, editNews, newsLink)" >Delete</button>
+                </span>
+            </li>
+        </ul>
+        <div class="group-add-container">
+            <div class="select-add-group">
+                <select class="form-control" data-ng-model="groupToAdd"
+                        data-ng-options="group.id as group.name + ' &nbsp;(' + group.groupType.description + ')' for group in editNews.allGroups | orderBy:[orderGroups,'name']">
+                </select>
+                <div class="bracket-input">
+                    <span class="bracket pre">(</span>
+                    <select class="form-control" data-ng-model="roleToAdd"
+                            data-ng-options="role.id as role.description for role in editNews.allRoles | orderBy:'description'">
+                    </select>
+                    <span class="bracket post">)</span>
+                </div>
+                <button type="button" class="btn blue group-add-button" data-ng-click="addNewsLink(newsForm, editNews, groupToAdd, roleToAdd)" data-ng-disabled="!roleToAdd">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row form-edit-row">
+    <span data-ng-show="editNews.lastUpdate && editNews.lastUpdater" class="pull-right">
+        Updated {{editNews.lastUpdate | date:'dd-MMM-yyyy HH:mm'}} by {{editNews.lastUpdater.forename}} {{editNews.lastUpdater.surname}}
+    </span>
+</div>

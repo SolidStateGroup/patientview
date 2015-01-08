@@ -1,0 +1,46 @@
+<h1 data-ng-show="!loading"><a href="/#/results" class="btn blue pull-left back-to-results" data-ng-show="!loading"><i class="icon-back-to pull-left"> </i> Back to Results</a> Diagnostics</h1>
+
+<div data-ng-show="!loading">
+
+    <div class="content-panel">
+        <div class="content-inner">
+            <p>The Diagnostics section lists your previous imaging and endoscopy tests direct from the hospital record.</p>
+        </div>
+    </div>
+
+    <div class="content-panel">
+        <div class="content-inner">
+
+            <table class="table" data-ng-show="diagnostics.length">
+                <thead class="table-head">
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Result</th>
+                    <th>Source</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-ng-repeat="diagnostic in diagnostics | orderBy: predicate :reverse">
+                    <td>{{diagnostic.date | date: 'dd-MMM-yyyy HH:mm'}}</td>
+                    <td>{{diagnostic.type}}</td>
+                    <td>{{diagnostic.name}}</td>
+                    <td>{{diagnostic.result.value}}</td>
+                    <td>{{diagnostic.group.name}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-warning" data-ng-show="!diagnostics.length">
+                <p>No Diagnostics information available</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Diagnostics</h3>
+    </div>
+</div>

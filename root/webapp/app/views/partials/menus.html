@@ -1,0 +1,98 @@
+<!-- todo: move to main CSS -->
+<style>
+    .admin-header {
+        padding-left: 210px;
+        padding-top: 10px;
+        color: #940012;
+    }
+</style>
+<div data-ng-show="previousAuthToken && !switchingUser" class="container" data-ng-cloak>
+    <div class="back-to-admin clearfix">
+        <a href="" class="blue pull-left" data-ng-click="switchUserBack()"> <i class="icon-back-to pull-left"></i> Back to Admin Area</a>
+        <p class="admin-header">You are viewing as a patient. Caution with sending messages and entering results.</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="navbar navbar-default content-panel" role="navigation">
+        <div class="navbar-header">
+            <a data-ng-hide="!loggedInUser" class="navbar-brand" href="#/dashboard"><img class="brand" src="images/pv-logo.png" alt="patient view"/></a>
+            <a data-ng-hide="loggedInUser" class="navbar-brand" href="/"><img class="brand" src="images/pv-logo.png" alt="patient view"/></a>
+            <div class="temp-mobile-nav visible-xs pull-right">
+                <ul class="unstyled" data-ng-hide="!loggedInUser">
+                    <li class="help-link">
+                        <a href="/#/help">
+                            <i class="icon-help"></i>
+                            Help
+                        </a>
+                    </li>
+                    <li data-ng-show="loggedInUser.userInformation.groupMessagingEnabled">
+                        <a class="messages-menu-item" data-ng-href="#/conversations">Messages</a>
+                    </li>
+                    <li><a data-ng-href="#/settings">Settings</a></li>
+                    <li><a href="#/logout">Logout</a></li>
+                </ul>
+                <div class="nav-public pull-right" data-ng-hide="loggedInUser">
+                    <ul class="nav navbar-nav navbar-right public pull-left" data-ng-cloak>
+                        <li class="login"><a data-ng-href="#/login" ><i class="icon-login-large pull-left hidden-xs"></i> Sign In</a></li>
+                        <li class="join"><a data-ng-href="#/joinrequest" ><i class="icon-join-large pull-left hidden-xs"></i><span class="hidden-xs"> I want to </span>Join</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <div class="nav-public pull-right" data-ng-hide="loggedInUser">
+                <ul class="nav navbar-nav navbar-right public pull-left" data-ng-cloak>
+                    <li class="login"><a data-ng-href="#/login" ><i class="icon-login-large pull-left"></i> Sign In</a></li>
+                    <li class="join"><a data-ng-href="#/joinrequest" ><i class="icon-join-large pull-left"></i> I want to join</a></li>
+                </ul>
+            </div>
+            <div class="nav-account pull-right" data-ng-hide="!loggedInUser">
+                <i class="icon-account pull-left"></i>
+                <h4>{{ loggedInUser.forename }} {{ loggedInUser.surname }}</h4>
+                <ul class="nav navbar-nav inline account pull-left" data-ng-hide="!loggedInUser" data-ng-cloak>
+                    <li data-ng-repeat="menuitem in routes | menuFilter:'TOP_RIGHT'" ><a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}</a></li>
+                    <li><a data-ng-href="#/settings">Settings</a></li>
+                    <li><a data-ng-href="#/logout" data-ng-hide="!loggedInUser">Log Out</a></li>
+                </ul>
+            </div>
+            <ul class="nav-utils pull-right inline " data-ng-hide="!loggedInUser" data-ng-cloak>
+                <li class="help-item" data-ng-repeat="menuitem in routes | menuFilter:'NAV' | orderBy:'displayOrder'"
+                    data-ng-show="!(menuitem.title === 'Messages')">
+                    <a  data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Feedback'">
+                        <i class="icon-issues"></i>
+                        Report Issues
+                    </a>
+                    <a data-ng-href="#{{menuitem.url}}" data-ng-show="menuitem.title === 'Help'">
+                        <i class="icon-help"></i>
+                        {{menuitem.title}}
+                    </a>
+                </li>
+
+                <li data-ng-show="loggedInUser.userInformation.groupMessagingEnabled">
+                    <a class="messages-menu-item" data-ng-href="#/conversations">
+                        <i class="icon-messages"></i>
+                        Messages
+                        <span data-ng-show="unreadConversationCount > 0" class="badge badge-tiny warning">{{unreadConversationCount}}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="subnav-row">
+        <div class="content-panel clearfix">
+            <div data-ng-hide="!loggedInUser" data-ng-cloak>
+                <ul class="secondary-nav nav nav-pills pull-left">
+                    <li data-ng-repeat="menuitem in routes | menuFilter:'TOP'" data-ng-class="{active: title === menuitem.title}">
+                        <a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}
+                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="badge badge-small warning">{{submittedJoinRequestCount}}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>

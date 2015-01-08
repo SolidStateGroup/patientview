@@ -1,0 +1,109 @@
+<!-- new contact unit modal template -->
+<script type="text/ng-template" id="contactUnitModal.html">
+    <div data-ng-controller="ContactUnitDetailsCtrl">
+        <div class="modal-header">
+            <h3 class="modal-title">Send a Message to {{group.name}}</h3>
+        </div>
+        <div class="modal-body">
+            <form name="contactUnitForm" data-ng-model="conversation">
+                <div data-ng-include src="'views/partials/contactUnitDetails.html'"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()" data-ng-disabled="!contactUnitForm.$valid">Contact Unit</button>
+        </div>
+    </div>
+</script>
+
+<div data-ng-show="!loading">
+    <h1>Contact Your Unit</h1>
+    <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
+    <div class="patient-details">
+        <div class="">
+            <div class="">
+                <div data-ng-show="groups.length">
+                    <div class="details-filter clearfix">
+                        <div class="pull-right">Showing details provided by: &nbsp;&nbsp;
+                        <span data-ng-repeat="group in groups | orderBy:'name'">
+                            <input type="checkbox" value="{{group.shortName}}" data-ng-model="group.selected">
+                            <span class="checkbox-label">{{group.shortName}}</span>
+                        </span>
+                        </div>
+                    </div>
+                    <div data-ng-repeat="group in groups | orderBy:'name'" data-ng-show="group.selected">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3>{{group.name}}</h3>
+                                <br/>
+                                <p>
+                                    Refer to contact details below or
+                                    <a href="" data-ng-click="openModalContactUnit(group)">send a secure message now in PatientView</a>.
+                                    Please check that the email we hold for you is correct so that you will get notification of replies.
+                                </p>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <h4>Address</h4>
+                                    <table class="">
+                                        <tr data-ng-show="group.address1">
+                                            <td>{{group.address1}}</td>
+                                        </tr>
+                                        <tr data-ng-show="group.address2">
+                                            <td>{{group.address2}}</td>
+                                        </tr>
+                                        <tr data-ng-show="group.address3">
+                                            <td>{{group.address3}}</td>
+                                        </tr>
+                                        <tr data-ng-show="group.postcode">
+                                            <td>{{group.postcode}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <div data-ng-show="group.contactPoints">
+                                    <br/>
+                                    <h4>Contact Points</h4>
+                                    <table>
+                                        <tr data-ng-repeat="contactPoint in group.contactPoints">
+                                            <td>{{contactPoint.contactPointType.description}}: &nbsp;&nbsp;</td>
+                                            <td ng-bind-html="addAIfRequired(contactPoint.content)"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <div data-ng-show="group.locations">
+                                    <br/>
+                                    <h4>Additional Locations</h4>
+                                    <div class="locations-list" data-ng-repeat="location in group.locations">
+                                        <strong>{{location.label}}</strong>
+                                        <table>
+                                            <tr><td>Name:</td><td> {{location.name}}</td></tr>
+                                            <tr><td>Phone:</td><td> {{location.phone}}</td></tr>
+                                            <tr><td>Address: &nbsp;&nbsp;</td><td> {{location.address}}</td></tr>
+                                            <tr><td>Web:</td><td ng-bind-html="addAIfRequired(location.web)"></td></tr>
+                                            <tr><td>Email:</td><td ng-bind-html="addAIfRequired(location.email)"></td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div data-ng-show="!group.address1 && !group.contactPoints.length && !group.locations.length">
+                                    <p>There is no contact information available for this group</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div data-ng-show="!groups.length">
+                    <p>You are not a member of any groups you can contact directly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
+    </div>
+</div>

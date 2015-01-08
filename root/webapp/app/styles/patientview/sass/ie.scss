@@ -1,0 +1,125 @@
+/* Welcome to Compass. Use this file to write IE specific override styles.
+ * Import this file using the following HTML or equivalent:
+ * <!--[if IE]>
+ *   <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
+ * <![endif]--> */
+
+.lt-ie9{
+
+    .btn{
+        padding-left:4px;
+        padding-right:4px;
+        min-height:25px;
+    }
+
+    .nav-utils{
+        .help-item{
+            float:left;
+        }
+    }
+
+    .historical-data .overlay{
+        -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";;
+    }
+
+    .navbar-collapse{
+        padding-right:0;
+    }
+
+    .hero-panel{
+        overflow:hidden;
+        position:relative;
+
+        .ie-hero-image{
+            display:block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            min-height: 100%;
+            min-width: 1170px;
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    .navbar-right{
+        label{
+            min-width:100px;
+        }
+    }
+
+    .messages-menu-item{
+        position:relative;
+        float:left;
+
+        i{
+            margin-top:8px;
+        }
+
+        span{
+            position:absolute;
+            top:2px;
+            right:6px;
+            height:15px;
+        }
+    }
+
+    .faux-table .faux-row .actions.row-item {
+        .button-dropdown-group {
+            width:140px;
+
+            .btn{
+                padding-left:8px;
+                padding-right:8px;
+
+                .caret{
+                    margin-right:12px;
+                }
+            }
+
+            .dropdown {
+                > button {
+                    width: 44px;
+                    padding-left:8px;
+                    padding-right:8px;
+
+                    .caret{
+                        margin-right:12px;
+                        float:none;
+                    }
+                }
+            }
+        }
+    }
+
+
+    /** MESSAGES **/
+
+    .message-summary{
+        font-size:12px;
+
+        .message-title{
+            font-size:24px;
+
+            .recipient{
+                font-size:18px;
+            }
+        }
+
+        .last-message{
+            h4{
+                font-size:18px;
+            }
+            .message-content{
+                font-size:18px;
+            }
+            .date-stamp{
+                font-size:18px;
+            }
+        }
+    }
+
+}
+

@@ -1,0 +1,141 @@
+<!-- reCAPTCHA, cant just be included in index.html -->
+<script>
+    var getAngularScope = function() {
+        // get angular scope so can call controller functions
+        return angular.element($("#account-settings-form")).scope();
+    };
+    var reCaptchaCallback = function(response) {
+        getAngularScope().reCaptchaCallback(response);
+    };
+    var onloadCallback = function() {
+        grecaptcha.render('recaptcha', {
+            'sitekey' : getAngularScope().getReCaptchaPublicKey(),
+            'callback' : reCaptchaCallback,
+            'theme' : 'light'
+        });
+    };
+</script>
+
+<script src='https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit' type="text/javascript" async defer></script>
+<h1>Join Request</h1>
+<div class="content-panel user-settings">
+    <div class="content-inner">
+        <form class="form-horizontal" data-ng-cloak id="account-settings-form">
+
+            <div>
+                <p>Please enter your details. Ensure they are accurate since they will be used by your unit's staff to
+                    verify who you are and to contact you to add you to PatientView.</p>
+                <p>If your local unit has PatientView, the message will go to the local PatientView admin. If it
+                    doesn't, we'll send it to someone senior at the unit.
+                    <a href="http://www.rixg.org/developer/pages/how-to/where.php" target="_blank">See if your unit has
+                        PatientView on the map</a></p>
+            </div>
+
+            <div class="form-group">
+                <label for="forename" class="col-md-2 control-label">Forename (required):</label>
+                <div class="col-md-4">
+                    <input id="forename" name="forename" type="text" class="form-control" data-ng-model="joinRequest.forename"
+                           required=""/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="surname" class="col-md-2 control-label">Surname (required):</label>
+                <div class="col-md-4">
+                    <input id="surname" name="surname" type="text" class="form-control" data-ng-model="joinRequest.surname"
+                           required=""/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-2 control-label">Date Of Birth (required):</label>
+                <div class="col-md-4 dob-row">
+                    <div class="col-md-4 day">
+                    Day:<select required="required"
+                                data-ng-model="joinRequest.selectedDay"
+                                data-ng-options="option as option for option in days"
+                                class="form-control"></select>
+                    </div>
+                    <div class="col-md-4">
+                    Month:<select required="required"
+                                  data-ng-model="joinRequest.selectedMonth"
+                                  data-ng-options="option as option for option in months"
+                                  class="form-control"></select>
+                    </div>
+                    <div class="col-md-4 year">
+                    Year:<select required="required"
+                                 data-ng-model="joinRequest.selectedYear"
+                                 data-ng-options="option as option for option in years"
+                                 class="form-control"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="nhsNumber" class="col-md-2 control-label">NHS Number (if known):</label>
+                <div class="col-md-4">
+                    <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" data-ng-model="joinRequest.nhsNumber"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="specialty">Specialty (required):</label>
+                <div class="col-md-4">
+                    <select id="specialty"
+                            required="required"
+                            data-ng-model="joinRequest.specialty"
+                            data-ng-change="refreshUnits()"
+                            data-ng-options="obj.id as obj.name for obj in specialties | orderBy:['name']"
+                            class="form-control"></select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="unit">Unit (required):</label>
+                <div class="col-md-4">
+                    <select id="unit"
+                            required="required"
+                            data-ng-model="joinRequest.unit"
+                            data-ng-options="obj.id as obj.name for obj in units | orderBy:['name']"
+                            class="form-control"
+                            data-ng-show="units.length"></select>
+                    <p data-ng-show="!units.length">You must choose a specialty with units available to join</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="col-md-2 control-label">Email (required):</label>
+                <div class="col-md-4">
+                    <input id="email" name="email" type="text" class="form-control" data-ng-model="joinRequest.email" required=""/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div id="recaptcha" class="col-md-4 col-md-offset-2"></div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4 col-sm-offset-2">
+                    <button data-ng-click="submit()" class="btn blue"
+                            data-ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear
+                            || !joinRequest.email || !units.length || !joinRequest.unit || !joinRequest.captcha">
+                        Submit Request</button>
+                </div>
+            </div>
+            <br/>
+            <div class="alert alert-success" data-ng-show="successMessage">
+                <strong>Thank you for submitting your request to join PatientView. Your selected unit will follow up shortly
+                    with the enrolment forms, after which you will receive your account details.</strong>
+            </div>
+
+            <div class="form-group" data-ng-show="errorMessage">
+                <div class="col-md-12 alert alert-danger">
+                    <p><strong>Error submitting request: &nbsp;</strong>{{errorMessage}}</p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+<div data-ng-show="loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div></div>

@@ -1,0 +1,52 @@
+<h1 data-ng-hide="authToken || loading" data-ng-cloak>Login</h1>
+<div class="content-panel user-settings">
+    <div class="content-inner" data-ng-show="!loading">
+        <form class="form-horizontal"  data-ng-hide="authToken" data-ng-cloak id="login-form" >
+            <div class="form-group">
+                <label for="username" class="col-sm-2 control-label">User Name:</label>
+                <div class="col-sm-4">
+                    <input id="username" name=username" data-ng-model="username" type="text" class="form-control"
+                           required="" placeholder="Enter your username"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-sm-2 control-label">Password:</label>
+                <div class="col-sm-4">
+                    <input id="password" name="password" data-ng-model="password" type="password" class="form-control"
+                           required="" placeholder="Enter your password"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-4 col-sm-offset-2">
+                    <a class="pull-right" href="#/forgottenpassword">Forgotten your password?</a>
+                    <ul class="unstyled inline">
+                        <li><button data-ng-click="login()" class="btn blue">Log In</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="errorMessage">
+                <div class="col-sm-10 col-sm-offset-1 alert alert-danger">
+                    <p><strong>Error logging in</strong> {{errorMessage}}</p>
+                </div>
+            </div>
+            <div class="form-group" data-ng-show="showGpLoginMessage">
+                <div class="col-sm-10 col-sm-offset-1 alert alert-warning">
+                    <p>Based on the username entered, we think you may have a PatientView GP login. While we work on
+                        improvements to the GP experience in PatientView 2, you are kindly requested to login to the
+                        old PatientView website at the following address:
+                        <a href="https://pv1.patientview.org" target="_blank">https://pv1.patientview.org</a>.
+                        Data continues  to be updated at this site exactly as before. Thank you for your patience.</p>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="content-inner" data-ng-show="loading">
+        <div class="container"><br/><br/>
+            <div class="loading">
+                <img src="images/loading.gif" alt="Loading"/>
+                <h3>{{loadingMessage}}</h3>
+            </div>
+            <br/>
+        </div>
+    </div>
+</div>

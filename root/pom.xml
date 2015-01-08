@@ -1,17 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>patientview</groupId>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.0.2.RELEASE</version>
+    </parent>
+
+  <groupId>org.patientview2</groupId>
   <artifactId>root</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>root</name>
   <modules>
     <module>database</module>
-    <module>api</module>
     <module>common</module>
     <module>data</module>
-    <module>webapp</module>
     <module>importer</module>
+    <module>api</module>
   </modules>
+
+    <!-- Add Spring repositories -->
+    <!-- (you don't need this if you are using a .RELEASE version) -->
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <url>http://repo.spring.io/snapshot</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>nexus</id>
+            <name>Solid State Group Repository</name>
+            <url>http://nexus.solidstategroup.com</url>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>http://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-snapshots</id>
+            <url>http://repo.spring.io/snapshot</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <url>http://repo.spring.io/milestone</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <name>Solid State Group Repository</name>
+            <url>http://nexus.solidstategroup.com/content/repositories/snapshots/</url>
+        </repository>
+    </distributionManagement>
+
+    <!--  <build>
+          <plugins>
+              <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>cobertura-maven-plugin</artifactId>
+                  <version>2.5.2</version>
+                  <configuration>
+                      <formats>
+                          <format>xml</format>
+                      </formats>
+                  </configuration>
+                  <executions>
+                      <execution>
+                          <phase>package</phase>
+                          <goals>
+                              <goal>cobertura</goal>
+                          </goals>
+                      </execution>
+                  </executions>
+              </plugin>
+
+          </plugins>
+      </build> -->
+
+<!--      <build>
+     <pluginManagement>
+             <plugins>
+                 <plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-jxr-plugin</artifactId>
+                     <version>2.4</version>
+                 </plugin>
+             </plugins>
+         </pluginManagement>
+         <plugins>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-jxr-plugin</artifactId>
+                 <version>2.4</version>
+             </plugin>
+
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-checkstyle-plugin</artifactId>
+                 <version>2.12.1</version>
+                 <executions>
+                     <execution>
+                         <id>validate</id>
+                         <phase>validate</phase>
+                         <configuration>
+                             <configLocation>config/sun_checks.xml</configLocation>
+                             <encoding>UTF-8</encoding>
+                             <consoleOutput>true</consoleOutput>
+                             <failsOnError>true</failsOnError>
+                         </configuration>
+                         <goals>
+                             <goal>check</goal>
+                         </goals>
+                     </execution>
+                 </executions>
+             </plugin>
+         </plugins>
+     </build>
+
+     <reporting>
+         <plugins>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-jxr-plugin</artifactId>
+                 <version>2.3</version>
+             </plugin>
+         </plugins>
+     </reporting>-->
 </project>

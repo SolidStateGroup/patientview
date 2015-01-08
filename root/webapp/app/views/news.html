@@ -1,0 +1,86 @@
+<div data-ng-show="!loading">
+    <h1>News
+        <button class="btn blue" data-ng-click="openModalNewNews('lg')" data-ng-show="permissions.canAddNews">Create New</button>
+    </h1>
+
+    <!-- new news modal template -->
+    <script type="text/ng-template" id="newNewsModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Create News Item</h3>
+        </div>
+        <div class="modal-body">
+            <form name="newsFormNew" data-ng-model="newNews">
+                <div data-ng-include src="'views/partials/newsDetailsNew.html'" data-ng-controller="NewsDetailsCtrl"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()"
+                    data-ng-disabled="!newsFormNew.$valid || (newNews.groups.length + newNews.roles.length < 1)">Create News Item
+            </button>
+        </div>
+    </script>
+
+    <div data-ng-show="!loading" data-ng-cloak>
+        <div data-ng-show="pagedItems.length > 0 && totalPages > 1">
+            <ul class="pagination">
+                <li data-ng-class="prevPageDisabled()">
+                    <a href data-ng-click="prevPage()">« Prev</a>
+                </li>
+                <li data-ng-repeat="n in range()" data-ng-class="{active: n == currentPage}" data-ng-click="setPage(n)">
+                    <a href>{{n+1}}</a>
+                </li>
+                <li data-ng-class="nextPageDisabled()">
+                    <a href data-ng-click="nextPage()">Next »</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="message-item" data-ng-repeat="news in pagedItems">
+            <div class="content-panel">
+                <ul class="pull-right aside-actions unstyled">
+                    <li><a href="" class="aside-link active" data-ng-click="edit(news)" data-ng-show="news.edit">Edit</a></li>
+                    <li class="delete-news"><a href="" class="aside-link" data-ng-click="remove(news)" data-ng-confirm-click="Are you sure you want to delete this news item?" data-ng-show="news.delete">Delete</a></li>
+                </ul>
+                <div class="message-summary">
+                    <h2 class="message-title"><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a>
+                        <span data-ng-repeat="newsLink in removeDuplicateNewsLinks(news.newsLinks)" class="pull-right news-link-labels">
+                            <span class="label label-primary" data-ng-show="newsLink.group != null && newsLink.group.groupType.value == 'SPECIALTY'">{{newsLink.group.name}}</span>
+                            <span class="label label-success" data-ng-show="newsLink.role != null && newsLink.role.name === 'PUBLIC'">{{newsLink.role.description}}</span>
+                        </span>
+                    </h2>
+                    <div class="last-message">
+                        <p class="date-stamp"><strong>{{news.created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
+                        <p class="message-content">
+                            <span class="text">
+                                <p class="message-content">
+                                    <span class="text">
+                                        <span data-ng-bind-html="parseHTMLText(news.story)"></span>
+                                        <br/>
+                                        <span><a href="" data-ng-click="viewNewsItem(news)">Read Story</a></span>
+                                    </span>
+                                </p>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="quick-reply content-panel" data-ng-show="news.showEdit">
+                <form name="newsForm" data-ng-model="editNews">
+                    <div data-ng-include src="'views/partials/newsDetails.html'" data-ng-controller="NewsDetailsCtrl"></div>
+                </form>
+            </div>
+        </div>
+
+        <div data-ng-show="pagedItems.length < 1">
+            <h4>No News Found</h4>
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="container"><br/><br/>
+    <div data-ng-show="loading" class="loading">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading News</h3>
+    </div>
+</div>

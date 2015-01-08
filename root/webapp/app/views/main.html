@@ -1,0 +1,138 @@
+<!-- further information modal -->
+<script type="text/ng-template" id="furtherInformationModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Further Information</h3>
+    </div>
+    <div class="modal-body">
+        <p>PatientView provides secure access to your blood tests, clinic letters, medicines. You'll find tailored
+            information links, from accurate and reliable sources. PV2 (2015) introduced secure messaging. We hope it
+            will help you manage your condition more effectively.
+        </p>
+        <h4>Who can use PatientView?</h4>
+        <p>Only some place and specialties can use it but this is growing. See the list
+            <a href="http://www.rixg.org/patientview/pages/how-to/where.php" target="_blank">here</a>. If you want to
+            convince your local service to join, you or they might be interested in
+            <a href="http://www.rixg.org/patientview/pages/how-to/become-a-partner.php" target="_blank">becoming a partner</a>, or in
+            <a href="http://www.rixg.org/patientview/pages/how-to/set-up-patientview.php" target="_blank">becoming a new unit of an existing specialty</a>.
+        </p>
+        <h4>How do I Join?</h4>
+        <p>Only some centres can offer this service at present. A list is linked from the front page.</p>
+        <h4>What if I don't use the Internet?</h4>
+        <p>Maybe you have a friend or family member that does? There is often internet access available in public
+            libraries. Please ensure when using a public computer that you always safely logout and close the web
+            browser.</p>
+        <h4>What does it cost?</h4>
+        <p>It is free for patients. Participating centres pay a modest subscription.</p>
+        <h4>Where did it come from?</h4>
+        <p>There is more info about PatientView and its history at
+            <a href="http://www.rixg.org/patientview/" target="_blank">rixg.org/patientview</a>. See
+            <a href="http://www.rixg.org/patientview/pages/about/history.php" target="_blank">History</a>, or
+            <a href="http://www.rixg.org/patientview/pages/how-to/intro-to-rpv.php" target="_blank">Intro to PV</a> first.
+        </p>
+        <h4>If I join, can I change my mind?</h4>
+        <p>Yes you can. If you do, we remove all medical data about you.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-grey" data-ng-click="close()">Close</button>
+    </div>
+</script>
+
+<div class="hero-panel">
+    <img class="ie-hero-image" src="../images/hero-bg-low.jpg" alt="Patient View"/>
+    <div class="hero-pane col-md-4 aquamarine">
+        <div class="pane-content">
+            <i class="icon-hero-manage hero-icon"></i>
+            <h2>Manage</h2>
+            <p>your conditions and medications</p>
+        </div>
+    </div>
+    <div class="hero-pane col-md-4 aqua">
+        <div class="pane-content">
+            <i class="icon-hero-monitor hero-icon"></i>
+            <h2>Monitor</h2>
+            <p>your symptoms and tests</p>
+        </div>
+    </div>
+    <div class="hero-pane col-md-4 blue">
+        <div class="pane-content">
+            <i class="icon-hero-make hero-icon"></i>
+            <h2>Message</h2>
+            <p>your units</p>
+        </div>
+    </div>
+</div>
+<div class="page-content">
+    <div class="content-area">
+        <h2>About Patient View</h2>
+        <p>PatientView shows your latest test results, plus info about diagnosis and treatment. You can view it from
+            anywhere you want, and share your information with anyone you want.</p>
+        <p>Your local unit or health organisation must have joined.  PatientView started out as a service for kidney
+            patients in the UK, but can now work for others too.</p>
+        <p>Information comes directly from existing records, for example hospital and GP records, or may be entered
+            directly or via other apps. Secure messaging functionality is included.</p>
+        <p><a href="" class="btn blue" data-ng-click="furtherInformation();"> Tell Me More</a></p>
+    </div>
+    <div class="row">
+        <div class="user-info col-md-4">
+            <div class="panel-header content-panel lowlight">
+                <h3><span class="badge primary pull-left"><i class="icon-patients"></i></span> For patients</h3>
+            </div>
+            <div class="content-panel">
+                <div class="content-inner">
+                    <h4>Joining PatientView</h4>
+                    <!--<h5>subheading</h5>-->
+                    <ul>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to/where.php" target="_blank">Can I join?</a></li>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to.php" target="_blank">What can it do?</a></li>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to.php" target="_blank">How do I?</a></li>
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <a href="#/joinrequest"><button class="btn blue"><i class="icon-join pull-left"></i> I want to join</button></a>
+                </div>
+            </div>
+        </div>
+        <div class="user-info col-md-4">
+            <div class="panel-header content-panel lowlight">
+                <h3><span class="badge aqua pull-left"><i class="icon-organisations"></i></span> For Organisations</h3>
+            </div>
+            <div class="content-panel">
+                <div class="content-inner">
+                    <h4>What do I need to know?</h4>
+                    <!--<h5>subheading</h5>-->
+                    <ul>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to/become-a-partner.php" target="_blank">Become a partner</a></li>
+                        <li><a href="http://www.rixg.org/patientview/pages/how-to/set-up-patientview.php" target="_blank">Add us to an existing specialty</a></li>
+                        <li><a href="http://www.rixg.org/patientview/pages/admin/links-policy.php" target="_blank">Our info link policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="news-container col-md-4">
+            <div class="panel-header content-panel lowlight">
+                <h3><span class="badge aqua pull-left"><i class="icon-news"></i></span> Latest News</h3>
+            </div>
+            <ul class="unstyled" data-ng-show="newsItems">
+                <li class="news-item content-panel" data-ng-repeat="news in newsItems | orderBy: '-created'">
+                    <div class="content-inner">
+                        <h4><a href="" data-ng-click="viewNewsItem(news)">{{news.heading}}</a></h4>
+                        <p class="news-date">{{news.created | date:'dd-MMM-yyyy HH:mm'}}</p>
+                        <div class="message-content">
+                            <p data-ng-bind-html="parseHTMLText(news.story)"></p>
+                            <div class="news-actions">
+                                <button class="btn blue" href="" data-ng-click="viewNewsItem(news)">Read More</button>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <ul class="unstyled" data-ng-hide="newsItems">
+                <li class="news-item content-panel">
+                    <div class="content-inner">
+                        <h4>No Current News</h4>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
