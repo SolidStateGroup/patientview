@@ -1036,6 +1036,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = findUser(userId);
         user.setChangePassword(Boolean.FALSE);
         user.setPassword(DigestUtils.sha256Hex(password));
+        user.setLocked(Boolean.FALSE);
+        user.setFailedLogonAttempts(0);
         userRepository.save(user);
     }
 
@@ -1061,6 +1063,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         user.setPassword(DigestUtils.sha256Hex(password));
         user.setChangePassword(Boolean.TRUE);
+        user.setLocked(Boolean.FALSE);
+        user.setFailedLogonAttempts(0);
         return new org.patientview.api.model.User(userRepository.save(user), null);
     }
 
