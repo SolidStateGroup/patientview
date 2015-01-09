@@ -32,15 +32,17 @@ function ($scope, PatientService, GroupService) {
             var observation = patient.fhirObservations[j];
             if (observation.name !== 'BLOOD_GROUP') {
                 if (observation.applies >= footCheckup.applies) {
-                    footCheckup.applies = observation.applies;
                     footCheckup.group = observation.group;
                     if (observation.bodySite === "LEFT_FOOT") {
                         footCheckup.leftFoot.group = observation.group;
+                        footCheckup.applies = observation.applies;
                         if (observation.name === "PTPULSE") {
                             footCheckup.leftFoot.PTPULSE = observation.value;
+                            footCheckup.applies = observation.applies;
                         }
                         if (observation.name === "DPPULSE") {
                             footCheckup.leftFoot.DPPULSE = observation.value;
+                            footCheckup.applies = observation.applies;
                         }
                     }
 
@@ -48,9 +50,11 @@ function ($scope, PatientService, GroupService) {
                         footCheckup.rightFoot.group = observation.group;
                         if (observation.name === "PTPULSE") {
                             footCheckup.rightFoot.PTPULSE = observation.value;
+                            footCheckup.applies = observation.applies;
                         }
                         if (observation.name === "DPPULSE") {
                             footCheckup.rightFoot.DPPULSE = observation.value;
+                            footCheckup.applies = observation.applies;
                         }
                     }
                 }
@@ -70,10 +74,10 @@ function ($scope, PatientService, GroupService) {
             var observation = patient.fhirObservations[j];
             if (observation.name !== 'BLOOD_GROUP') {
                 if (observation.applies >= eyeCheckup.applies) {
-                    eyeCheckup.applies = observation.applies;
                     eyeCheckup.group = observation.group;
                     if (observation.bodySite === "LEFT_EYE") {
                         eyeCheckup.leftEye.group = observation.group;
+                        eyeCheckup.applies = observation.applies;
                         if (observation.name === "MGRADE") {
                             eyeCheckup.leftEye.MGRADE = observation.value;
                         }
@@ -87,6 +91,7 @@ function ($scope, PatientService, GroupService) {
 
                     if (observation.bodySite === "RIGHT_EYE") {
                         eyeCheckup.rightEye.group = observation.group;
+                        eyeCheckup.applies = observation.applies;
                         if (observation.name === "MGRADE") {
                             eyeCheckup.rightEye.MGRADE = observation.value;
                         }
