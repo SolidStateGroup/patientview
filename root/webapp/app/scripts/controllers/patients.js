@@ -965,7 +965,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
             modalInstance.result.then(function (successResult) {
                 $scope.successMessage = 'Password reset for ' + user.forename + ' ' + user.surname
-                    + ' (username ' + user.username + '), new password is: "' + successResult.password + '"';
+                    + ' (username "' + user.username + '"), new password is: "' + successResult.password + '"';
             }, function () {
                 // closed
             });
