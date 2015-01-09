@@ -33,6 +33,7 @@ function ($scope, PatientService, GroupService) {
             if (observation.name !== 'BLOOD_GROUP') {
                 if (observation.applies >= footCheckup.applies) {
                     footCheckup.group = observation.group;
+                    footCheckup.location = observation.location;
                     if (observation.bodySite === "LEFT_FOOT") {
                         footCheckup.leftFoot.group = observation.group;
                         footCheckup.applies = observation.applies;
@@ -75,6 +76,8 @@ function ($scope, PatientService, GroupService) {
             if (observation.name !== 'BLOOD_GROUP') {
                 if (observation.applies >= eyeCheckup.applies) {
                     eyeCheckup.group = observation.group;
+                    eyeCheckup.location = observation.location;
+
                     if (observation.bodySite === "LEFT_EYE") {
                         eyeCheckup.leftEye.group = observation.group;
                         eyeCheckup.applies = observation.applies;

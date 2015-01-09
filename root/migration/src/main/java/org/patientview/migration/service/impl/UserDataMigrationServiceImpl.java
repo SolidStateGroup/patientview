@@ -720,6 +720,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         eyeCheckupLeftMGrade.setValue(eyeCheckup.getLeftMGrade());
                         eyeCheckupLeftMGrade.setGroup(unit);
                         eyeCheckupLeftMGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        eyeCheckupLeftMGrade.setLocation(eyeCheckup.getLastRetinalPlace());
                         migrationUser.getObservations().add(eyeCheckupLeftMGrade);
                     }
 
@@ -732,6 +733,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         eyeCheckupLeftRGrade.setValue(eyeCheckup.getLeftRGrade());
                         eyeCheckupLeftRGrade.setGroup(unit);
                         eyeCheckupLeftRGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        eyeCheckupLeftRGrade.setLocation(eyeCheckup.getLastRetinalPlace());
                         migrationUser.getObservations().add(eyeCheckupLeftRGrade);
                     }
 
@@ -744,6 +746,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         eyeCheckupLeftVA.setValue(eyeCheckup.getLeftVA());
                         eyeCheckupLeftVA.setGroup(unit);
                         eyeCheckupLeftVA.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        eyeCheckupLeftVA.setLocation(eyeCheckup.getLastRetinalPlace());
                         migrationUser.getObservations().add(eyeCheckupLeftVA);
                     }
 
@@ -756,6 +759,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         eyeCheckupRightMGrade.setValue(eyeCheckup.getRightMGrade());
                         eyeCheckupRightMGrade.setGroup(unit);
                         eyeCheckupRightMGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        eyeCheckupRightMGrade.setLocation(eyeCheckup.getLastRetinalPlace());
                         migrationUser.getObservations().add(eyeCheckupRightMGrade);
                     }
 
@@ -768,6 +772,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         eyeCheckupRightRGrade.setValue(eyeCheckup.getRightRGrade());
                         eyeCheckupRightRGrade.setGroup(unit);
                         eyeCheckupRightRGrade.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        eyeCheckupRightRGrade.setLocation(eyeCheckup.getLastRetinalPlace());
                         migrationUser.getObservations().add(eyeCheckupRightRGrade);
                     }
 
@@ -780,6 +785,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         eyeCheckupRightVA.setValue(eyeCheckup.getRightVA());
                         eyeCheckupRightVA.setGroup(unit);
                         eyeCheckupRightVA.setApplies(eyeCheckup.getLastRetinalDate().getTime());
+                        eyeCheckupRightVA.setLocation(eyeCheckup.getLastRetinalPlace());
                         migrationUser.getObservations().add(eyeCheckupRightVA);
                     }
                 }
@@ -801,6 +807,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         footCheckupLeftDpPulse.setValue(footCheckup.getLeftDpPulse());
                         footCheckupLeftDpPulse.setGroup(unit);
                         footCheckupLeftDpPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                        footCheckupLeftDpPulse.setLocation(footCheckup.getFootCheckPlace());
                         migrationUser.getObservations().add(footCheckupLeftDpPulse);
                     }
 
@@ -813,6 +820,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         footCheckupLeftPtPulse.setValue(footCheckup.getLeftPtPulse());
                         footCheckupLeftPtPulse.setGroup(unit);
                         footCheckupLeftPtPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                        footCheckupLeftPtPulse.setLocation(footCheckup.getFootCheckPlace());
                         migrationUser.getObservations().add(footCheckupLeftPtPulse);
                     }
 
@@ -825,6 +833,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         footCheckupRightDpPulse.setValue(footCheckup.getRightDpPulse());
                         footCheckupRightDpPulse.setGroup(unit);
                         footCheckupRightDpPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                        footCheckupRightDpPulse.setLocation(footCheckup.getFootCheckPlace());
                         migrationUser.getObservations().add(footCheckupRightDpPulse);
                     }
 
@@ -837,6 +846,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
                         footCheckupRightPtPulse.setValue(footCheckup.getRightPtPulse());
                         footCheckupRightPtPulse.setGroup(unit);
                         footCheckupRightPtPulse.setApplies(footCheckup.getFootCheckDate().getTime());
+                        footCheckupRightPtPulse.setLocation(footCheckup.getFootCheckPlace());
                         migrationUser.getObservations().add(footCheckupRightPtPulse);
                     }
                 }

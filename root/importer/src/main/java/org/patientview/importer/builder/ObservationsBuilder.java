@@ -255,23 +255,22 @@ public class ObservationsBuilder {
 
             for (Patientview.Patient.Eyecheckup.Eye eye : eyecheckup.getEye()) {
 
-
-                BodySites location = null;
+                BodySites bodysite = null;
 
                 if (eye.getSide().equals("left")) {
-                    location = BodySites.LEFT_EYE;
+                    bodysite = BodySites.LEFT_EYE;
                 } else if (eye.getSide().equals("right")) {
-                    location = BodySites.RIGHT_EYE;
+                    bodysite = BodySites.RIGHT_EYE;
                 } else {
                     LOG.error("Eye side is not set, continuing without this observation");
                 }
 
-                if (location != null) {
+                if (bodysite != null) {
                     if (eye.getMgrade() != null) {
                         BodyData bodyData = new BodyData();
                         bodyData.setValue(eye.getMgrade());
                         bodyData.setType(NonTestObservationTypes.MGRADE.toString());
-                        bodyData.setLocation(location.toString());
+                        bodyData.setLocation(bodysite.toString());
                         bodyDatas.add(bodyData);
                     }
 
@@ -279,7 +278,7 @@ public class ObservationsBuilder {
                         BodyData bodyData = new BodyData();
                         bodyData.setValue(eye.getRgrade());
                         bodyData.setType(NonTestObservationTypes.RGRADE.toString());
-                        bodyData.setLocation(location.toString());
+                        bodyData.setLocation(bodysite.toString());
                         bodyDatas.add(bodyData);
                     }
 
@@ -287,7 +286,7 @@ public class ObservationsBuilder {
                         BodyData bodyData = new BodyData();
                         bodyData.setValue(eye.getVa());
                         bodyData.setType(NonTestObservationTypes.VA.toString());
-                        bodyData.setLocation(location.toString());
+                        bodyData.setLocation(bodysite.toString());
                         bodyDatas.add(bodyData);
                     }
                 }
@@ -320,6 +319,9 @@ public class ObservationsBuilder {
                 name.setTextSimple(bodyData.getType());
                 observation.setName(name);
 
+                if (StringUtils.isNotEmpty(eyecheckup.getLocation())) {
+                    observation.setCommentsSimple(eyecheckup.getLocation());
+                }
                 observation.setSubject(resourceReference);
 
                 observations.add(observation);

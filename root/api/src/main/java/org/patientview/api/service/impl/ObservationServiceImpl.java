@@ -758,6 +758,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             observation.setBodySite(bodySite);
         }
 
+        if (StringUtils.isNotEmpty(fhirObservation.getLocation())) {
+            observation.setCommentsSimple(fhirObservation.getLocation());
+        }
+
         return observation;
     }
 

@@ -1,5 +1,6 @@
 package org.patientview.persistence.model;
 
+import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
 import org.hl7.fhir.instance.model.DateTime;
@@ -28,6 +29,9 @@ public class FhirObservation extends BaseModel {
     private Group group;
     private String temporaryUuid;
     private String bodySite;
+
+    // used for foot/eye checkups
+    private String location;
 
     // only used by migration
     private String identifier;
@@ -80,6 +84,11 @@ public class FhirObservation extends BaseModel {
 
         if (observation.getBodySite() != null) {
             setBodySite(observation.getBodySite().getTextSimple());
+        }
+
+        // used for eye/foot checkup
+        if (StringUtils.isNotEmpty(observation.getCommentsSimple())) {
+            setLocation(observation.getCommentsSimple());
         }
     }
 
@@ -145,6 +154,14 @@ public class FhirObservation extends BaseModel {
 
     public void setBodySite(String bodySite) {
         this.bodySite = bodySite;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public String getIdentifier() {
