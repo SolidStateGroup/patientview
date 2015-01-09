@@ -93,7 +93,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private DataSource dataSource;
 
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
-    private static final boolean DELETE_EXISTING = true;
+    private static final boolean DELETE_EXISTING = false;
 
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
@@ -108,17 +108,12 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         org.patientview.api.model.User apiUser = userService.getByUsername(user.getUsername());
 
         // delete user if already exists (expensive, not to be used for live migration)
-        if (apiUser != null) {
-            if (DELETE_EXISTING) {
-                try {
-                    userService.delete(apiUser.getId());
-                } catch (ResourceForbiddenException | FhirResourceException e) {
-                    LOG.error("Cannot delete user with id " + apiUser.getId());
-                    throw new MigrationException(e);
-                }
-            } else {
-                userId = apiUser.getId();
-                userMigration = userMigrationService.getByPatientview2Id(userId);
+        if (apiUser != null && DELETE_EXISTING) {
+            try {
+                userService.delete(apiUser.getId());
+            } catch (ResourceForbiddenException | FhirResourceException e) {
+                LOG.error("Cannot delete user with id " + apiUser.getId());
+                throw new MigrationException(e);
             }
         }
 

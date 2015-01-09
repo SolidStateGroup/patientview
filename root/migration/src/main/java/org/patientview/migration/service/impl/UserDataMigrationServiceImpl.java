@@ -217,17 +217,17 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info("--- Starting migration ---");
 
         // all groups
-        //List<Group> groupsToAdd = groups;
+        List<Group> groupsToAdd = groups;
 
         // testing
-        List<Group> groupsToAdd = new ArrayList<Group>();
-        groupsToAdd.add(getGroupByCode("DSF01"));
-        groupsToAdd.add(getGroupByCode("RSC02"));
+        //List<Group> groupsToAdd = new ArrayList<Group>();
+        //groupsToAdd.add(getGroupByCode("DSF01"));
+        //groupsToAdd.add(getGroupByCode("RSC02"));
 
         LOG.info(groupsToAdd.size() + " Groups");
 
-        boolean singleUser = true;
-        boolean replaceExisting = true;
+        boolean singleUser = false;
+        boolean replaceExisting = false;
 
         if (!singleUser) {
 
