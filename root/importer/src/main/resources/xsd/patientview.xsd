@@ -639,6 +639,10 @@
             <xs:enumeration value="transferrin"/>
             <xs:enumeration value="ironsat"/>
             <xs:enumeration value="urate"/>
+            <xs:enumeration value="testosterone"/>
+            <xs:enumeration value="magnesium"/>
+            <xs:enumeration value="psa"/>
+            <xs:enumeration value="vitd"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="prepost">
