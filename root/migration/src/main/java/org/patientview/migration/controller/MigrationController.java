@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -83,12 +84,33 @@ public class MigrationController {
     }
 
     @RequestMapping(value = "/step4-users", method = RequestMethod.GET)
-    public String doStep4Users(ModelMap modelMap) throws JsonMigrationException {
+    public String doStep4Users(ModelMap modelMap)
+            throws JsonMigrationException {
         asyncTaskExecutor.submit(new Runnable() {
             public void run() {
                 try {
                     Date start = new Date();
-                    userDataMigrationService.migrate();
+                    userDataMigrationService.migrate(null);
+                    LOG.info("Migration of Users took "
+                            + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
+                } catch (JsonMigrationException jme) {
+                    LOG.error("User Migration exception: {}", jme);
+                }
+            }
+        });
+
+        modelMap.addAttribute("statusMessage", "Started User Migration");
+        return "users";
+    }
+
+    @RequestMapping(value = "/step4-users/{groupCode}", method = RequestMethod.GET)
+    public String doStep4UsersSpecificGroup(@PathVariable("groupCode") final String groupCode, ModelMap modelMap)
+            throws JsonMigrationException {
+        asyncTaskExecutor.submit(new Runnable() {
+            public void run() {
+                try {
+                    Date start = new Date();
+                    userDataMigrationService.migrate(groupCode);
                     LOG.info("Migration of Users took "
                             + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
                 } catch (JsonMigrationException jme) {

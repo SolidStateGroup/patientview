@@ -178,7 +178,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
     }
 
     // migrate all user data, not including observations
-    public void migrate() throws JsonMigrationException {
+    public void migrate(String groupCode) throws JsonMigrationException {
 
         int maxThreads = 10;
 
@@ -221,8 +221,16 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         // testing
         List<Group> groupsToAdd = new ArrayList<Group>();
-        groupsToAdd.add(getGroupByCode("R1H00"));
+        //groupsToAdd.add(getGroupByCode("R1H00"));
         //groupsToAdd.add(getGroupByCode("RSC02"));
+
+        // handle user entered group
+        if (StringUtils.isNotEmpty(groupCode)) {
+            Group group = getGroupByCode(groupCode);
+            if (group != null) {
+                groupsToAdd.add(group);
+            }
+        }
 
         LOG.info(groupsToAdd.size() + " Groups");
 
