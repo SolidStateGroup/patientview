@@ -66,15 +66,6 @@
                             </span>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="forced-width">Transplant Status</td>
-                        <td>
-                            <span data-ng-repeat="encounter in patient.fhirEncounters"
-                                  data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS_KIDNEY'">
-                                Kidney: {{encounter.status}}<br/>
-                            </span>
-                        </td>
-                    </tr>
 
                     </tbody>
                 </table>

@@ -11,7 +11,7 @@ public enum TransplantStatus {
     R("Not on list"),
     N("Not on list"),
     O("Not on list"),
-    U("Unknown");
+    U("No status uploaded");
 
     private String name;
     TransplantStatus(String name) { this.name = name; }

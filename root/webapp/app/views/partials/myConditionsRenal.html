@@ -71,7 +71,8 @@
                         <td>
                             <span data-ng-repeat="encounter in patient.fhirEncounters"
                                   data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS_KIDNEY'">
-                                Kidney: {{encounter.status}}<br/>
+                                Kidney: {{encounter.status}} &nbsp;
+                                <a href="http://www.rixg.org/rpv/transplant.html" target="_blank">(Explain This)</a>
                             </span>
                         </td>
                     </tr>
