@@ -235,7 +235,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info(groupsToAdd.size() + " Groups");
 
         boolean singleUser = false;
-        boolean replaceExisting = false;
+        boolean replaceExisting = true;
 
         if (!singleUser) {
 
@@ -282,12 +282,13 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 64144L;
+            Long oldUserId = 77783L;
 
             try {
                 org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);
+                String username = oldUser.getUsername();
 
-                if (!oldUser.getUsername().endsWith("-GP")) {
+                if (!username.endsWith("-GP")) {
                     MigrationUser migrationUser = createMigrationUser(oldUser, patientRole);
 
                     if (migrationUser != null) {
