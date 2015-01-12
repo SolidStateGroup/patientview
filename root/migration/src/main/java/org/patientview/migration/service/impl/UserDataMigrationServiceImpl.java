@@ -651,13 +651,15 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         }
 
         // - practitioner (gp)
-        if (StringUtils.isNotEmpty(pv1PatientRecord.getGpname())) {
+        if (StringUtils.isNotEmpty(pv1PatientRecord.getGpname())
+                || StringUtils.isNotEmpty(pv1PatientRecord.getGpaddress1())) {
             FhirPractitioner practitioner = new FhirPractitioner();
 
-            // strip ' from practitioner name
-            practitioner.setName(pv1PatientRecord.getGpname().replace("'","").replace("\n", "").replace("\r", ""));
+            if (StringUtils.isNotEmpty(pv1PatientRecord.getGpname())) {
+                practitioner.setName(CommonUtils.cleanSql(pv1PatientRecord.getGpname()));
+            }
             if (StringUtils.isNotEmpty(pv1PatientRecord.getGpaddress1())) {
-                practitioner.setAddress1(pv1PatientRecord.getGpaddress1());
+                practitioner.setAddress1(CommonUtils.cleanSql(pv1PatientRecord.getGpaddress1()));
             }
             if (StringUtils.isNotEmpty(pv1PatientRecord.getGpaddress2())) {
                 practitioner.setAddress2(pv1PatientRecord.getGpaddress2());
@@ -1322,7 +1324,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         if (StringUtils.isEmpty(user.getEmail())) {
             newUser.setEmail("");
         } else{
-            newUser.setEmail(user.getEmail());
+            newUser.setEmail(CommonUtils.cleanSql(user.getEmail()));
         }
         newUser.setUsername(user.getUsername());
         newUser.setEmailVerified(user.isEmailverified());
