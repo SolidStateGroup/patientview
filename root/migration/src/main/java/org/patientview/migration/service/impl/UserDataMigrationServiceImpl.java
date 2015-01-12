@@ -226,8 +226,8 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
 
         LOG.info(groupsToAdd.size() + " Groups");
 
-        boolean singleUser = false;
-        boolean replaceExisting = false;
+        boolean singleUser = true;
+        boolean replaceExisting = true;
 
         if (!singleUser) {
 
@@ -274,7 +274,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
             }
         } else {
             LOG.info("--- Single user migration ---");
-            Long oldUserId = 80253L;
+            Long oldUserId = 64144L;
 
             try {
                 org.patientview.patientview.model.User oldUser = userDao.get(oldUserId);

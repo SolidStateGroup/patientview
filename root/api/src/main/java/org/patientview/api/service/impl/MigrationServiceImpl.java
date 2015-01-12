@@ -93,7 +93,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private DataSource dataSource;
 
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
-    private static final boolean DELETE_EXISTING = false;
+    private static final boolean DELETE_EXISTING = true;
 
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
