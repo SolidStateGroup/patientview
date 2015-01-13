@@ -99,7 +99,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
 
         Date start = new Date();
-        UserMigration userMigration;
+        UserMigration userMigration = null;
 
         // get User object from MigrationUser (not patient data)
         User user = migrationUser.getUser();
@@ -138,7 +138,11 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userService.addOtherUsersInformation(userId, new ArrayList<>(user.getUserInformation()));
             }
         } catch (EntityExistsException e) {
-            userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
+            if (userMigration == null) {
+                userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
+            } else {
+                userMigration.setStatus(MigrationStatus.USER_FAILED);
+            }
             userMigration.setCreator(getCurrentUser());
             userMigration.setLastUpdater(getCurrentUser());
             userMigration.setLastUpdate(start);
