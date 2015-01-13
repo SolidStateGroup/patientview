@@ -139,6 +139,9 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             }
         } catch (EntityExistsException e) {
             userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
+            userMigration.setCreator(getCurrentUser());
+            userMigration.setLastUpdater(getCurrentUser());
+            userMigration.setLastUpdate(start);
             userMigration.setInformation(e.getMessage());
             userMigrationService.save(userMigration);
             throw e;

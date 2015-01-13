@@ -340,7 +340,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public Long add(User user) throws EntityExistsException {
 
         if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
-            throw new EntityExistsException("User already exists (username)");
+            throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }
 
         User creator = getCurrentUser();
@@ -471,11 +471,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
-            throw new EntityExistsException("User already exists (username)");
+            throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }
 
         if (userRepository.emailExists(user.getEmail())) {
-            throw new EntityExistsException("User already exists (email)");
+            throw new EntityExistsException("User already exists (email): " + user.getEmail());
         }
 
         return add(user);
