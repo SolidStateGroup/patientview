@@ -275,6 +275,10 @@ hr{
     margin-top:20px;
 }
 
+.print-success-message {
+  margin-left: 20px;
+}
+
 .row aside{
     &>h3{
         margin-top:0;
@@ -302,10 +306,23 @@ ul {
     }
 }
 
+.table-filter-container{
+  .feature-list {
+    margin-top: 10px;
+    li {
+      height: auto;
+      .feature-list-delete{
+        padding:4px;
+      }
+    }
+  }
+}
+
 .name-action-list{
     li{
         height:35px;
         margin-right:5px;
+        height:auto;
 
         & > div{
             color:#585858;

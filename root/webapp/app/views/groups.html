@@ -51,9 +51,9 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 table-filter-container">
                                 <ul class="feature-list unstyled name-action-list">
-                                    <li class="feature-list-item" data-ng-repeat="type in filterGroupTypes | orderBy:'description'" data-ng-show="isGroupTypeChecked(type.id)">
+                                    <li class="feature-list-item pull-left" data-ng-repeat="type in filterGroupTypes | orderBy:'description'" data-ng-show="isGroupTypeChecked(type.id)">
                                         <div class="feature-list-name pull-left">
                                             <span class="feature-list-name">{{type.description}}</span>
                                         </div>

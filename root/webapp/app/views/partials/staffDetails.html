@@ -75,7 +75,7 @@
             <label class="inner-title">Features</label>
             <p>Features are additional PatientView functions that can be enabled per user account</p>
             <ul class="name-action-list unstyled">
-                <li class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures | orderBy:'feature.description'">
+                <li class="feature-list-item pull-left" data-ng-repeat="feature in editUser.userFeatures | orderBy:'feature.description'">
                     <div class="feature-list-name pull-left"><span class="feature-list-name">{{feature.feature.description}}</span></div>
                     <div class="feature-list-delete pull-left"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userForm, editUser, feature)" ><i class="glyphicon glyphicon-remove"></i></a></span></div>
                 </li>
