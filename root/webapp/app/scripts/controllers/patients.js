@@ -327,9 +327,9 @@ function ($scope, $modalInstance, user, UserService) {
 // Patient controller
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$location',
     'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService', 'AuthService', 'localStorageService',
-    'UtilService',
+    'UtilService', '$route',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, UserService, GroupService, RoleService, FeatureService,
-              StaticDataService, AuthService, localStorageService, UtilService) {
+              StaticDataService, AuthService, localStorageService, UtilService, $route) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
@@ -554,77 +554,86 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         // get patient type roles
         var roles = $scope.loggedInUser.userInformation.patientRoles;
 
-        // set roles that can be chosen in UI, only show visible roles
-        for (i = 0; i < roles.length; i++) {
-            role = roles[i];
-            if (role.visible === true) {
-                $scope.allRoles.push(role);
-                $scope.roleIds.push(role.id);
-            }
-        }
+        // handle back button to patients from dashboard
+        if (roles === null) {
+            $rootScope.switchUserBack();
+            $timeout(function(){
+                $route.reload();
+            }, 3000);
+        } else {
 
-        // get logged in user's groups
-        var groups = $scope.loggedInUser.userInformation.userGroups;
-
-        // show error if user is not a member of any groups
-        if (groups.length !== 0) {
-
-            // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
-            for (i = 0; i < groups.length; i++) {
-                group = groups[i];
-                if (group.visible === true) {
-                    $scope.allGroups.push(group);
-                    $scope.permissions.allGroupsIds[group.id] = group.id;
-                    $scope.groupMap[group.id] = group;
-
-                    if (group.groupType.value === 'UNIT') {
-                        $scope.showUnitFilter = true;
-                    } else if (group.groupType.value === 'DISEASE_GROUP') {
-                        $scope.showDiseaseGroupFilter = true;
-                    } else if (group.groupType.value === 'SPECIALTY') {
-                        $scope.showSpecialtyFilter = true;
-                    }
-                }
-            }
-
-            // get list of roles available when user is adding a new Group & Role to patient member
-            // e.g. unit admins cannot add specialty admin roles to patient members
-            roles = $scope.loggedInUser.userInformation.securityRoles;
-            // filter by roleId found previously as PATIENT
-            var allowedRoles = [];
+            // set roles that can be chosen in UI, only show visible roles
             for (i = 0; i < roles.length; i++) {
-                if ($scope.roleIds.indexOf(roles[i].id) != -1) {
-                    allowedRoles.push(roles[i]);
+                role = roles[i];
+                if (role.visible === true) {
+                    $scope.allRoles.push(role);
+                    $scope.roleIds.push(role.id);
                 }
             }
-            $scope.allowedRoles = allowedRoles;
 
-            // get list of features available when user is adding a new Feature to patient members
-            var allFeatures = $scope.loggedInUser.userInformation.patientFeatures;
-            $scope.allFeatures = [];
-            for (i = 0; i < allFeatures.length; i++) {
-                $scope.allFeatures.push({'feature': allFeatures[i]});
-            }
+            // get logged in user's groups
+            var groups = $scope.loggedInUser.userInformation.userGroups;
 
-            // get list of identifier types when user adding identifiers to patient members
-            $scope.identifierTypes = [];
-            StaticDataService.getLookupsByType('IDENTIFIER').then(function(identifierTypes) {
-                if (identifierTypes.length > 0) {
-                    var noHospitalNumber = [];
-                    for (i = 0; i < identifierTypes.length ; i++) {
-                        if (identifierTypes[i].value !== 'HOSPITAL_NUMBER') {
-                            noHospitalNumber.push(identifierTypes[i]);
+            // show error if user is not a member of any groups
+            if (groups.length !== 0) {
+
+                // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
+                for (i = 0; i < groups.length; i++) {
+                    group = groups[i];
+                    if (group.visible === true) {
+                        $scope.allGroups.push(group);
+                        $scope.permissions.allGroupsIds[group.id] = group.id;
+                        $scope.groupMap[group.id] = group;
+
+                        if (group.groupType.value === 'UNIT') {
+                            $scope.showUnitFilter = true;
+                        } else if (group.groupType.value === 'DISEASE_GROUP') {
+                            $scope.showDiseaseGroupFilter = true;
+                        } else if (group.groupType.value === 'SPECIALTY') {
+                            $scope.showSpecialtyFilter = true;
                         }
                     }
-                    $scope.identifierTypes = noHospitalNumber;
                 }
-            });
 
-            $scope.initFinished = true;
-        } else {
-            // no groups found
-            delete $scope.loading;
-            $scope.fatalErrorMessage = 'No user groups found, cannot retrieve patients';
+                // get list of roles available when user is adding a new Group & Role to patient member
+                // e.g. unit admins cannot add specialty admin roles to patient members
+                roles = $scope.loggedInUser.userInformation.securityRoles;
+                // filter by roleId found previously as PATIENT
+                var allowedRoles = [];
+                for (i = 0; i < roles.length; i++) {
+                    if ($scope.roleIds.indexOf(roles[i].id) != -1) {
+                        allowedRoles.push(roles[i]);
+                    }
+                }
+                $scope.allowedRoles = allowedRoles;
+
+                // get list of features available when user is adding a new Feature to patient members
+                var allFeatures = $scope.loggedInUser.userInformation.patientFeatures;
+                $scope.allFeatures = [];
+                for (i = 0; i < allFeatures.length; i++) {
+                    $scope.allFeatures.push({'feature': allFeatures[i]});
+                }
+
+                // get list of identifier types when user adding identifiers to patient members
+                $scope.identifierTypes = [];
+                StaticDataService.getLookupsByType('IDENTIFIER').then(function (identifierTypes) {
+                    if (identifierTypes.length > 0) {
+                        var noHospitalNumber = [];
+                        for (i = 0; i < identifierTypes.length; i++) {
+                            if (identifierTypes[i].value !== 'HOSPITAL_NUMBER') {
+                                noHospitalNumber.push(identifierTypes[i]);
+                            }
+                        }
+                        $scope.identifierTypes = noHospitalNumber;
+                    }
+                });
+
+                $scope.initFinished = true;
+            } else {
+                // no groups found
+                delete $scope.loading;
+                $scope.fatalErrorMessage = 'No user groups found, cannot retrieve patients';
+            }
         }
     };
 
