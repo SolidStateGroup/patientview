@@ -23,22 +23,21 @@
         to the result label in the filter. </p>
     <p>Your result selection will be saved for your next log in.</p>
 
-    <div class="results-header content-panel">
+    <div class="results-header variable content-panel">
         <div class="header-icon pull-left">
             <i class="icon-results-large pull-left"></i>
         </div>
         <div class="content-inner clearfix" data-ng-show="observationHeadings.length > 0">
-            <div class="row">
-                <div class="col-md-3">
-                    <h4 class="select-title">Include Result Type:</h4>
-                </div>
-                <div class="col-md-3">
+            <div class="">
+
+                <h4 class="select-title pull-left">Include Result Type:</h4>
+                <div class="select-result-type pull-left">
                     <select class="form-control pull-right" data-ng-model="selectedCode"
                             data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
                             data-ng-change="includeObservationHeading(selectedCode)" >
                     </select>
                 </div>
-                <div class="col-md-10">
+                <div class="results-filter-list col-md-10 col-sm-9 pull-left">
                     <ul class="feature-list unstyled name-action-list">
                         <li class="feature-list-item" data-ng-repeat="code in observationHeadingCodes">
                             <div class="feature-list-name pull-left">

@@ -79,7 +79,7 @@ hr{
     }
 
     &.chart-container{
-        margin-top:20px;
+        margin-bottom:20px;
         .panel-intro{
             h3{
                 margin:0;
@@ -275,6 +275,10 @@ hr{
     margin-top:20px;
 }
 
+.print-success-message {
+  margin-left: 20px;
+}
+
 .row aside{
     &>h3{
         margin-top:0;
@@ -302,10 +306,23 @@ ul {
     }
 }
 
+.table-filter-container{
+  .feature-list {
+    margin-top: 10px;
+    li {
+      height: auto;
+      .feature-list-delete{
+        padding:4px;
+      }
+    }
+  }
+}
+
 .name-action-list{
     li{
         height:35px;
         margin-right:5px;
+        height:auto;
 
         & > div{
             color:#585858;
@@ -323,6 +340,8 @@ ul {
             background:$inputaddon;
             min-width:35px;
             text-align:center;
+            padding:3px 0 4px 0;
+            line-height:1.5em;
 
             &:hover{
                 background:$error;
@@ -405,7 +424,7 @@ ul {
     font-size: 1.4rem;
     min-height:40px;
     min-width: 34px;
-    line-height:20px;
+    line-height:26px;
 
     &:hover {
         color: $white;
