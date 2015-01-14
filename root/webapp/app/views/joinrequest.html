@@ -31,25 +31,27 @@
                         PatientView on the map</a></p>
             </div>
 
+            <br/>
+
             <div class="form-group">
-                <label for="forename" class="col-md-2 control-label">Forename (required):</label>
-                <div class="col-md-4">
+                <label for="forename" class="col-md-4 control-label">Forename (required):</label>
+                <div class="col-md-5">
                     <input id="forename" name="forename" type="text" class="form-control" data-ng-model="joinRequest.forename"
                            required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="surname" class="col-md-2 control-label">Surname (required):</label>
-                <div class="col-md-4">
+                <label for="surname" class="col-md-4 control-label">Surname (required):</label>
+                <div class="col-md-5">
                     <input id="surname" name="surname" type="text" class="form-control" data-ng-model="joinRequest.surname"
                            required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-md-2 control-label">Date Of Birth (required):</label>
-                <div class="col-md-4 dob-row">
+                <label class="col-md-4 control-label">Date Of Birth (required):</label>
+                <div class="col-md-5 dob-row">
                     <div class="col-md-4 day">
                     Day:<select required="required"
                                 data-ng-model="joinRequest.selectedDay"
@@ -72,15 +74,15 @@
             </div>
 
             <div class="form-group">
-                <label for="nhsNumber" class="col-md-2 control-label">NHS/CHI/H&SC Number (if known):</label>
-                <div class="col-md-4">
+                <label for="nhsNumber" class="col-md-4 control-label">NHS/CHI/H&SC Number if known (10 digits):</label>
+                <div class="col-md-5">
                     <input id="nhsNumber" maxlength="10" name="nhsNumber" type="text" class="form-control" data-ng-model="joinRequest.nhsNumber"/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-md-2 control-label" for="specialty">Specialty (required):</label>
-                <div class="col-md-4">
+                <label class="col-md-4 control-label" for="specialty">Specialty (required):</label>
+                <div class="col-md-5">
                     <select id="specialty"
                             required="required"
                             data-ng-model="joinRequest.specialty"
@@ -91,8 +93,8 @@
             </div>
 
             <div class="form-group">
-                <label class="col-md-2 control-label" for="unit">Unit (required):</label>
-                <div class="col-md-4">
+                <label class="col-md-4 control-label" for="unit">Unit (required):</label>
+                <div class="col-md-5">
                     <select id="unit"
                             required="required"
                             data-ng-model="joinRequest.unit"
@@ -104,18 +106,18 @@
             </div>
 
             <div class="form-group">
-                <label for="email" class="col-md-2 control-label">Email (required):</label>
-                <div class="col-md-4">
+                <label for="email" class="col-md-4 control-label">Email (required):</label>
+                <div class="col-md-5">
                     <input id="email" name="email" type="text" class="form-control" data-ng-model="joinRequest.email" required=""/>
                 </div>
             </div>
 
             <div class="form-group">
-                <div id="recaptcha" class="col-md-4 col-md-offset-2"></div>
+                <div id="recaptcha" class="col-md-5 col-md-offset-4"></div>
             </div>
 
             <div class="form-group">
-                <div class="col-md-4 col-sm-offset-2">
+                <div class="col-md-5 col-sm-offset-4">
                     <button data-ng-click="submit()" class="btn blue"
                             data-ng-disabled="!joinRequest.selectedDay || !joinRequest.selectedMonth || !joinRequest.selectedYear
                             || !joinRequest.email || !units.length || !joinRequest.unit || !joinRequest.captcha">
