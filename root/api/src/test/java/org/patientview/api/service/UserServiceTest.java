@@ -29,7 +29,7 @@ import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.UserInformationTypes;
-import org.patientview.persistence.repository.AlertObservationHeadingRepository;
+import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.GroupRoleRepository;
@@ -62,8 +62,6 @@ import static org.mockito.Mockito.when;
  * Created by james@solidstategroup.com
  * Created on 03/06/2014.
  */
-
-
 public class UserServiceTest {
 
     @Mock
@@ -103,7 +101,7 @@ public class UserServiceTest {
     private UserObservationHeadingRepository userObservationHeadingRepository;
 
     @Mock
-    private AlertObservationHeadingRepository alertObservationHeadingRepository;
+    private AlertRepository alertRepository;
 
     @Mock
     private EmailService emailService;

@@ -4,10 +4,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.patientview.persistence.model.AlertObservationHeading;
+import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.repository.AlertObservationHeadingRepository;
+import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,10 +25,10 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestPersistenceConfig.class})
 @Transactional
-public class AlertObservationHeadingRepositoryTest {
+public class AlertRepositoryTest {
 
     @Inject
-    private AlertObservationHeadingRepository alertObservationHeadingRepository;
+    private AlertRepository alertRepository;
 
     @Inject
     DataTestUtils dataTestUtils;
@@ -44,19 +45,18 @@ public class AlertObservationHeadingRepositoryTest {
         User user = dataTestUtils.createUser("testUser");
         ObservationHeading observationHeading = dataTestUtils.createObservationHeading("observationHeading");
 
-        AlertObservationHeading alertObservationHeading = new AlertObservationHeading();
-        alertObservationHeading.setUser(user);
-        alertObservationHeading.setObservationHeading(observationHeading);
-        alertObservationHeading.setWebAlert(true);
-        alertObservationHeading.setWebAlertViewed(false);
-        alertObservationHeading.setEmailAlert(true);
-        alertObservationHeading.setEmailAlertSent(false);
-        alertObservationHeadingRepository.save(alertObservationHeading);
+        Alert alert = new Alert();
+        alert.setUser(user);
+        alert.setObservationHeading(observationHeading);
+        alert.setWebAlert(true);
+        alert.setWebAlertViewed(false);
+        alert.setEmailAlert(true);
+        alert.setEmailAlertSent(false);
+        alert.setAlertType(AlertTypes.RESULT);
+        alertRepository.save(alert);
 
-        List<AlertObservationHeading> alertObservationHeadings = alertObservationHeadingRepository.findByUser(user);
-        Assert.assertEquals("There should be 1 alert observation heading available", 1,
-                alertObservationHeadings.size());
-        Assert.assertTrue("The alert observation heading should be the one created",
-                alertObservationHeadings.get(0).equals(alertObservationHeading));
+        List<Alert> alerts = alertRepository.findByUser(user);
+        Assert.assertEquals("There should be 1 alert", 1, alerts.size());
+        Assert.assertTrue("The alert should be the one created", alerts.get(0).equals(alert));
     }
 }

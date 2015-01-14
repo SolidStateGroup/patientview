@@ -6,7 +6,6 @@ import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.api.model.AlertObservationHeading;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ResultCluster;
@@ -72,22 +71,5 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
     @UserOnly
     List<ObservationHeading> getAvailableAlertObservationHeadings(Long userId) throws ResourceNotFoundException;
 
-    @UserOnly
-    List<AlertObservationHeading> getAlertObservationHeadings(Long userId)
-            throws ResourceNotFoundException;
-
-    @UserOnly
-    void addAlertObservationHeading(Long userId, AlertObservationHeading alertObservationHeading)
-            throws ResourceNotFoundException, FhirResourceException;
-
-    @UserOnly
-    void removeAlertObservationHeading(Long userId, Long alertObservationHeadingId)
-            throws ResourceNotFoundException, ResourceForbiddenException;
-
-    @UserOnly
-    void updateAlertObservationHeading(Long userId, AlertObservationHeading alertObservationHeading)
-            throws ResourceNotFoundException, ResourceForbiddenException;
-
-    void sendAlertObservationHeadingEmails();
 
 }

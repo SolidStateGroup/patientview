@@ -146,18 +146,18 @@
                                         <a href="#/resultsdetail?code={{alert.observationHeading.code}}">{{alert.observationHeading.heading}}</a>
                                     </td>
                                     <td>
-                                        <span data-ng-show="alert.latestObservationValue">{{alert.latestObservationValue}}</span>
-                                        <span data-ng-show="!alert.latestObservationValue">Not Available</span>
+                                        <span data-ng-show="alert.latestValue">{{alert.latestValue}}</span>
+                                        <span data-ng-show="!alert.latestValue">Not Available</span>
                                     </td>
                                     <td>
-                                        <span data-ng-show="alert.latestObservationDate">
-                                            {{alert.latestObservationDate | date:'dd-MMM-yyyy'}}
+                                        <span data-ng-show="alert.latestDate">
+                                            {{alert.latestDate | date:'dd-MMM-yyyy'}}
                                         </span>
-                                        <span data-ng-show="!alert.latestObservationDate">Not Available</span>
+                                        <span data-ng-show="!alert.latestDate">Not Available</span>
                                     </td>
                                     <td>
                                         <span class="label label-success" data-ng-show="!alert.webAlertViewed && alert.webAlert">
-                                            <a href="" class="new-result-notification" data-ng-click="hideAlertObservationHeadingNotification(alert)">New</a>
+                                            <a href="" class="new-result-notification" data-ng-click="hideAlertNotification(alert)">New</a>
                                         </span>
                                     </td>
                                 </tr>
@@ -191,14 +191,14 @@
                                     </td>
                                     <td>
                                         <input type="checkbox" data-ng-model="alert.webAlert" class="alert-checkbox"
-                                               data-ng-change="updateAlertObservationHeading(alert)">PatientView homepage</input>
+                                               data-ng-change="updateAlert(alert)">PatientView homepage</input>
                                     </td>
                                     <td>
                                         <input type="checkbox" data-ng-model="alert.emailAlert" class="alert-checkbox"
-                                               data-ng-change="updateAlertObservationHeading(alert)">Email</input>
+                                               data-ng-change="updateAlert(alert)">Email</input>
                                     </td>
                                     <td>
-                                        <a href="" class="btn btn-danger" data-ng-click="removeAlertObservationHeading(alert.id)">Remove Alert</a>
+                                        <a href="" class="btn btn-danger" data-ng-click="removeAlert(alert.id)">Remove Alert</a>
                                     </td>
                                 </tr>
                             </table>

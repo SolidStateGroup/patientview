@@ -10,10 +10,11 @@ import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.importer.builder.ObservationsBuilder;
 import org.patientview.importer.model.BasicObservation;
 import org.patientview.importer.model.DateRange;
-import org.patientview.persistence.model.AlertObservationHeading;
+import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.FhirDatabaseObservation;
+import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
-import org.patientview.persistence.repository.AlertObservationHeadingRepository;
+import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.ObservationService;
@@ -58,7 +59,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     private IdentifierRepository identifierRepository;
 
     @Inject
-    private AlertObservationHeadingRepository alertObservationHeadingRepository;
+    private AlertRepository alertRepository;
 
     private String nhsno;
 
@@ -72,23 +73,23 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         LOG.info(nhsno + ": Starting Observation Process");
 
         // create map to hold user alerts (if present)
-        Map<String, AlertObservationHeading> alertObservationHeadingMap = new HashMap<>();
+        Map<String, Alert> currentAlertMap = new HashMap<>();
         List<org.patientview.persistence.model.Identifier> identifiers
                 = identifierRepository.findByValue(data.getPatient().getPersonaldetails().getNhsno());
 
         if (!CollectionUtils.isEmpty(identifiers)) {
-            List<AlertObservationHeading> alertObservationHeadings
-                    = alertObservationHeadingRepository.findByUser(identifiers.get(0).getUser());
-            if (!CollectionUtils.isEmpty(alertObservationHeadings)) {
-                for (AlertObservationHeading alert : alertObservationHeadings) {
-                    alertObservationHeadingMap.put(alert.getObservationHeading().getCode().toUpperCase(), alert);
+            List<Alert> alerts
+                    = alertRepository.findByUserAndAlertType(identifiers.get(0).getUser(), AlertTypes.RESULT);
+            if (!CollectionUtils.isEmpty(alerts)) {
+                for (Alert currentAlert : alerts) {
+                    currentAlertMap.put(currentAlert.getObservationHeading().getCode().toUpperCase(), currentAlert);
                 }
             }
         }
 
         ResourceReference patientReference = Util.createResourceReference(fhirLink.getResourceId());
         ObservationsBuilder observationsBuilder = new ObservationsBuilder(data, patientReference);
-        observationsBuilder.setAlertObservationHeadingMap(alertObservationHeadingMap);
+        observationsBuilder.setAlertMap(currentAlertMap);
         observationsBuilder.build();
 
         LOG.info(nhsno + ": Getting Existing Observations");
@@ -203,20 +204,18 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             fhirResource.executeSQL(sb.toString());
 
             // handle updating alerts if present, emails are sent by scheduled task, not here
-            Map<String, AlertObservationHeading> alertMap
-                    = observationsBuilder.getAlertObservationHeadingMap();
+            Map<String, Alert> alertMap = observationsBuilder.getAlertMap();
 
             for (String code : alertMap.keySet()) {
-                AlertObservationHeading alert = alertMap.get(code);
+                Alert alert = alertMap.get(code);
                 if (alert.isUpdated()) {
-                    AlertObservationHeading alertObservationHeading
-                            = alertObservationHeadingRepository.findOne(alert.getId());
-                    alertObservationHeading.setLatestObservationValue(alert.getLatestObservationValue());
-                    alertObservationHeading.setLatestObservationDate(alert.getLatestObservationDate());
-                    alertObservationHeading.setWebAlertViewed(alert.isWebAlertViewed());
-                    alertObservationHeading.setEmailAlertSent(alert.isEmailAlertSent());
-                    alertObservationHeading.setLastUpdate(new Date());
-                    alertObservationHeadingRepository.save(alertObservationHeading);
+                    Alert entityAlert = alertRepository.findOne(alert.getId());
+                    entityAlert.setLatestValue(alert.getLatestValue());
+                    entityAlert.setLatestDate(alert.getLatestDate());
+                    entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+                    entityAlert.setEmailAlertSent(alert.isEmailAlertSent());
+                    entityAlert.setLastUpdate(new Date());
+                    alertRepository.save(entityAlert);
                 }
             }
         }

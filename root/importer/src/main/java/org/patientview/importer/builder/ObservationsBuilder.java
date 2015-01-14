@@ -14,7 +14,7 @@ import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
-import org.patientview.persistence.model.AlertObservationHeading;
+import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.enums.BodySites;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class ObservationsBuilder {
     private int success = 0;
     private int count = 0;
     private Map<String, Patientview.Patient.Testdetails.Test.Daterange> dateRanges;
-    private Map<String, AlertObservationHeading> alertObservationHeadingMap;
+    private Map<String, Alert> alertMap;
 
     public ObservationsBuilder(Patientview results, ResourceReference resourceReference) {
         this.results = results;
@@ -63,11 +63,11 @@ public class ObservationsBuilder {
                 dateRanges.put(test.getTestcode().value().toUpperCase(), test.getDaterange());
                 String testCode = test.getTestcode().value().toUpperCase();
 
-                if (alertObservationHeadingMap == null) {
-                    alertObservationHeadingMap = new HashMap<>();
+                if (alertMap == null) {
+                    alertMap = new HashMap<>();
                 }
 
-                AlertObservationHeading alert = alertObservationHeadingMap.get(testCode);
+                Alert alert = alertMap.get(testCode);
                 if (alert != null) {
                     alert.setUpdated(false);
                 }
@@ -77,22 +77,20 @@ public class ObservationsBuilder {
                         observations.add(createObservation(test, result));
 
                         // handle alerts
-                        if (alertObservationHeadingMap.containsKey(testCode)) {
-                            if (alert.getLatestObservationDate() == null) {
+                        if (alertMap.containsKey(testCode)) {
+                            if (alert.getLatestDate() == null) {
                                 // is the first time a result has come in for this alert
-                                alert.setLatestObservationDate(
-                                        result.getDatestamp().toGregorianCalendar().getTime());
-                                alert.setLatestObservationValue(result.getValue());
+                                alert.setLatestDate(result.getDatestamp().toGregorianCalendar().getTime());
+                                alert.setLatestValue(result.getValue());
                                 alert.setEmailAlertSent(false);
                                 alert.setWebAlertViewed(false);
                                 alert.setUpdated(true);
                             } else {
                                 // previous result has been alerted, check if this one is newer
-                                if (alert.getLatestObservationDate().getTime()
+                                if (alert.getLatestDate().getTime()
                                         < result.getDatestamp().toGregorianCalendar().getTime().getTime()) {
-                                    alert.setLatestObservationDate(
-                                            result.getDatestamp().toGregorianCalendar().getTime());
-                                    alert.setLatestObservationValue(result.getValue());
+                                    alert.setLatestDate(result.getDatestamp().toGregorianCalendar().getTime());
+                                    alert.setLatestValue(result.getValue());
                                     alert.setEmailAlertSent(false);
                                     alert.setWebAlertViewed(false);
                                     alert.setUpdated(true);
@@ -487,12 +485,12 @@ public class ObservationsBuilder {
         return observations;
     }
 
-    public Map<String, AlertObservationHeading> getAlertObservationHeadingMap() {
-        return alertObservationHeadingMap;
+    public Map<String, Alert> getAlertMap() {
+        return alertMap;
     }
 
-    public void setAlertObservationHeadingMap(Map<String, AlertObservationHeading> alertObservationHeadingMap) {
-        this.alertObservationHeadingMap = alertObservationHeadingMap;
+    public void setAlertMap(Map<String, Alert> alertMap) {
+        this.alertMap = alertMap;
     }
 
     public Map<String, Patientview.Patient.Testdetails.Test.Daterange> getDateRanges() {

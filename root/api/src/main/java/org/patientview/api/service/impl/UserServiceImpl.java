@@ -36,7 +36,7 @@ import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
-import org.patientview.persistence.repository.AlertObservationHeadingRepository;
+import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -131,7 +131,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private UserObservationHeadingRepository userObservationHeadingRepository;
 
     @Inject
-    private AlertObservationHeadingRepository alertObservationHeadingRepository;
+    private AlertRepository alertRepository;
 
     @Inject
     private Properties properties;
@@ -1008,7 +1008,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             userTokenRepository.deleteByUserId(user.getId());
             userMigrationRepository.deleteByUserId(user.getId());
             userObservationHeadingRepository.deleteByUserId(user.getId());
-            alertObservationHeadingRepository.deleteByUserId(user.getId());
+            alertRepository.deleteByUserId(user.getId());
 
             userRepository.delete(user);
         } else {
