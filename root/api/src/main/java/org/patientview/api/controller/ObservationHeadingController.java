@@ -5,7 +5,6 @@ import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.api.model.AlertObservationHeading;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ResultCluster;
@@ -130,44 +129,5 @@ public class ObservationHeadingController extends BaseController<ObservationHead
             throws ResourceNotFoundException {
         return new ResponseEntity<>(
                 observationHeadingService.getAvailableAlertObservationHeadings(userId), HttpStatus.OK);
-    }
-
-    // get alerts for results for user
-    @RequestMapping(value = "/user/{userId}/alertobservationheadings", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<AlertObservationHeading>> getAlertObservationHeading(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(observationHeadingService.getAlertObservationHeadings(userId), HttpStatus.OK);
-    }
-
-    // add alert for result type for user
-    @RequestMapping(value = "/user/{userId}/alertobservationheading", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public void addAlertObservationHeading(
-            @PathVariable("userId") Long userId, @RequestBody AlertObservationHeading alertObservationHeading)
-            throws ResourceNotFoundException, FhirResourceException {
-                observationHeadingService.addAlertObservationHeading(userId, alertObservationHeading);
-    }
-
-    // update alert for result type for user
-    @RequestMapping(value = "/user/{userId}/alertobservationheading", method = RequestMethod.PUT,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public void updateAlertObservationHeading(
-            @PathVariable("userId") Long userId, @RequestBody AlertObservationHeading alertObservationHeading)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-                observationHeadingService.updateAlertObservationHeading(userId, alertObservationHeading);
-    }
-
-    // remove alert for results for user
-    @RequestMapping(value = "/user/{userId}/alertobservationheadings/{alertObservationHeadingId}",
-            method = RequestMethod.DELETE)
-    @ResponseBody
-    public void removeAlertObservationHeading(@PathVariable("userId") Long userId,
-            @PathVariable("alertObservationHeadingId") Long alertObservationHeadingId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        observationHeadingService.removeAlertObservationHeading(userId, alertObservationHeadingId);
     }
 }

@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$modal', '$scope', 'GroupService',
-    'NewsService', 'UtilService', 'MedicationService', 'ObservationService', 'ObservationHeadingService',
+    'NewsService', 'UtilService', 'MedicationService', 'ObservationService', 'ObservationHeadingService', 'AlertService',
 function (UserService, $modal, $scope, GroupService, NewsService, UtilService, MedicationService, ObservationService,
-          ObservationHeadingService) {
+          ObservationHeadingService, AlertService) {
 
     // get graph every time group is changed
     $scope.$watch('graphGroupId', function(newValue) {
@@ -219,7 +219,6 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
 
     // alerts
     $scope.addAlertObservationHeading = function(observationHeadingId) {
-
         var found = false;
 
         for (var i=0;i<$scope.alertObservationHeadings.length;i++) {
@@ -236,41 +235,41 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
             alertObservationHeading.observationHeading.id = observationHeadingId;
             alertObservationHeading.webAlert = true;
             alertObservationHeading.emailAlert = true;
+            alertObservationHeading.alertType = 'RESULT';
 
-            ObservationHeadingService.addAlertObservationHeading($scope.loggedInUser.id, alertObservationHeading)
+            AlertService.addAlert($scope.loggedInUser.id, alertObservationHeading)
                 .then(function () {
-                    getAlertObservationHeadings();
+                    getAlerts();
                 }, function () {
                     alert('Error adding result alert');
                 });
         }
     };
 
-    $scope.removeAlertObservationHeading = function(alertObservationHeadingId) {
-        ObservationHeadingService.removeAlertObservationHeading($scope.loggedInUser.id, alertObservationHeadingId)
+    $scope.removeAlert = function(alertId) {
+        AlertService.removeAlert($scope.loggedInUser.id, alertId)
             .then(function () {
-                getAlertObservationHeadings();
+                getAlerts();
             }, function () {
                 alert('Error removing result alert');
             });
     };
 
-    $scope.updateAlertObservationHeading = function(alertObservationHeading) {
-        ObservationHeadingService.updateAlertObservationHeading($scope.loggedInUser.id, alertObservationHeading)
+    $scope.updateAlert = function(alert) {
+        AlertService.updateAlert($scope.loggedInUser.id, alert)
             .then(function () {
-                getAlertObservationHeadings();
+                getAlerts();
             }, function () {
-                alert('Error updating result alert');
+                alert('Error updating alert');
             });
     };
 
-    $scope.hideAlertObservationHeadingNotification = function(alertObservationHeading) {
-        alertObservationHeading.webAlertViewed = true;
-        ObservationHeadingService.updateAlertObservationHeading($scope.loggedInUser.id, alertObservationHeading)
-            .then(function () {
-                getAlertObservationHeadings();
+    $scope.hideAlertNotification = function(alert) {
+        alert.webAlertViewed = true;
+        AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
+                getAlerts();
             }, function () {
-                alert('Error updating result alert');
+                alert('Error updating alert');
             });
     };
 
@@ -289,15 +288,15 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
                         $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
                     }
                 }
-                getAlertObservationHeadings();
+                getAlerts();
                 $scope.initFinished = true;
             }, function() {
                 alert('Error retrieving result types');
             });
     };
 
-    var getAlertObservationHeadings = function() {
-        ObservationHeadingService.getAlertObservationHeadings($scope.loggedInUser.id)
+    var getAlerts = function() {
+        AlertService.getAlerts($scope.loggedInUser.id, 'RESULT')
             .then(function(alertObservationHeadings) {
                 $scope.alertObservationHeadings = alertObservationHeadings;
             }, function() {

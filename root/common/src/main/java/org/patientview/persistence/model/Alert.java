@@ -1,9 +1,12 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.patientview.persistence.model.enums.AlertTypes;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -15,11 +18,15 @@ import java.util.Date;
 
 /**
  * Created by jamesr@solidstategroup.com
- * Created on 30/12/2014
+ * Created on 14/01/2015
  */
 @Entity
-@Table(name = "pv_alert_observation_heading")
-public class AlertObservationHeading extends AuditModel {
+@Table(name = "pv_alert")
+public class Alert extends AuditModel {
+
+    @Column(name = "alert_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AlertTypes alertType;
 
     @Column(name = "web_alert", nullable = false)
     private boolean webAlert;
@@ -33,25 +40,34 @@ public class AlertObservationHeading extends AuditModel {
     @Column(name = "email_alert_sent", nullable = false)
     private boolean emailAlertSent;
 
-    @Column(name = "latest_observation_value")
-    private String latestObservationValue;
+    @Column(name = "latest_value")
+    private String latestValue;
 
-    @Column(name = "latest_observation_date")
+    @Column(name = "latest_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date latestObservationDate;
+    private Date latestDate;
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // only for result alerts
     @OneToOne
-    @JoinColumn(name = "observation_heading_id", nullable = false)
+    @JoinColumn(name = "observation_heading_id")
     private ObservationHeading observationHeading;
 
     // used during import
     @Transient
     private boolean updated;
+
+    public AlertTypes getAlertType() {
+        return alertType;
+    }
+
+    public void setAlertType(AlertTypes alertType) {
+        this.alertType = alertType;
+    }
 
     public boolean isWebAlert() {
         return webAlert;
@@ -85,20 +101,20 @@ public class AlertObservationHeading extends AuditModel {
         this.emailAlertSent = emailAlertSent;
     }
 
-    public String getLatestObservationValue() {
-        return latestObservationValue;
+    public String getLatestValue() {
+        return latestValue;
     }
 
-    public void setLatestObservationValue(String latestObservationValue) {
-        this.latestObservationValue = latestObservationValue;
+    public void setLatestValue(String latestValue) {
+        this.latestValue = latestValue;
     }
 
-    public Date getLatestObservationDate() {
-        return latestObservationDate;
+    public Date getLatestDate() {
+        return latestDate;
     }
 
-    public void setLatestObservationDate(Date latestObservationDate) {
-        this.latestObservationDate = latestObservationDate;
+    public void setLatestDate(Date latestDate) {
+        this.latestDate = latestDate;
     }
 
     public User getUser() {
