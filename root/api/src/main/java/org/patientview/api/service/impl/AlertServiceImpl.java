@@ -206,10 +206,22 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        entityAlert.setWebAlert(alert.isWebAlert());
-        entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
-        entityAlert.setEmailAlert(alert.isEmailAlert());
-
-        alertRepository.save(entityAlert);
+        if (alert.getAlertType().equals(AlertTypes.RESULT)) {
+            entityAlert.setWebAlert(alert.isWebAlert());
+            entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+            entityAlert.setEmailAlert(alert.isEmailAlert());
+            alertRepository.save(entityAlert);
+        } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
+            if (!alert.isWebAlert() && !alert.isEmailAlert()) {
+                alertRepository.delete(entityAlert);
+            } else {
+                entityAlert.setWebAlert(alert.isWebAlert());
+                entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+                entityAlert.setEmailAlert(alert.isEmailAlert());
+                alertRepository.save(entityAlert);
+            }
+        } else {
+            throw new ResourceNotFoundException("Incorrect alert type");
+        }
     }
 }

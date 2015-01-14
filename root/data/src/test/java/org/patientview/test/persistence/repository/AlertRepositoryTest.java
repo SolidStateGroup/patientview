@@ -59,4 +59,33 @@ public class AlertRepositoryTest {
         Assert.assertEquals("There should be 1 alert", 1, alerts.size());
         Assert.assertTrue("The alert should be the one created", alerts.get(0).equals(alert));
     }
+
+    @Test
+    public void testFindByUserAndType() {
+        User user = dataTestUtils.createUser("testUser");
+        ObservationHeading observationHeading = dataTestUtils.createObservationHeading("observationHeading");
+
+        Alert alert = new Alert();
+        alert.setUser(user);
+        alert.setObservationHeading(observationHeading);
+        alert.setWebAlert(true);
+        alert.setWebAlertViewed(false);
+        alert.setEmailAlert(true);
+        alert.setEmailAlertSent(false);
+        alert.setAlertType(AlertTypes.RESULT);
+        alertRepository.save(alert);
+
+        Alert alert2 = new Alert();
+        alert2.setUser(user);
+        alert2.setWebAlert(true);
+        alert2.setWebAlertViewed(false);
+        alert2.setEmailAlert(true);
+        alert2.setEmailAlertSent(false);
+        alert2.setAlertType(AlertTypes.LETTER);
+        alertRepository.save(alert2);
+
+        List<Alert> alerts = alertRepository.findByUserAndAlertType(user, AlertTypes.RESULT);
+        Assert.assertEquals("There should be 1 alert", 1, alerts.size());
+        Assert.assertTrue("The alert should be the one created", alerts.get(0).equals(alert));
+    }
 }
