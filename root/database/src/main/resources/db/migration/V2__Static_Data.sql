@@ -63,7 +63,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
 /* pv1 "admin add" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (34, now(),
-'ADMIN_GROUP_ROLE_ADD_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''PATIENT_GROUP_ROLE_ADD'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
+'ADMIN_GROUP_ROLE_ADD_COUNT', 'SELECT COUNT(adt.id) FROM pv_audit adt WHERE adt.group_id = :groupId AND adt.action = ''ADMIN_GROUP_ROLE_ADD'' AND adt.creation_date BETWEEN :startDate AND :endDate','1','10');
 
 /* pv1 "email verified" */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (35, now(),
