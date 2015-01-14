@@ -449,6 +449,12 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
             for (i = 0; i < groups.length; i++) {
                 group = groups[i];
+
+                // global admin can see all groups
+                if ($scope.permissions.isSuperAdmin) {
+                    group.visible = true;
+                }
+
                 if (group.visible === true) {
                     $scope.allGroups.push(group);
                     $scope.permissions.allGroupsIds[group.id] = group.id;

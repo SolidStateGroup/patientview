@@ -832,7 +832,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     /**
-     * Get users based on a list of groups and roles
+     * Get users based on a list of groups and roles (only used by conversation service now)
      * @return Page of standard User
      */
     public Page<User> getUsersByGroupsAndRolesNoFilter(GetParameters getParameters)
