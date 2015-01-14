@@ -71,37 +71,40 @@ import java.util.UUID;
     public void importData() throws ResourceNotFoundException, FhirResourceException, UktException {
         String importDirectory = properties.getProperty("ukt.import.directory");
         String importFilename = properties.getProperty("ukt.import.filename");
+        Boolean importEnabled = Boolean.parseBoolean(properties.getProperty("ukt.import.enabled"));
 
-        BufferedReader br = null;
+        if (importEnabled) {
+            BufferedReader br = null;
 
-        try {
-            br = new BufferedReader(new FileReader(importDirectory + "/" + importFilename));
-            String line;
+            try {
+                br = new BufferedReader(new FileReader(importDirectory + "/" + importFilename));
+                String line;
 
-            while ((line = br.readLine()) != null) {
-                String identifier = line.split(" ")[0].trim();
-                String kidneyStatus = line.split(" ")[2].trim();
+                while ((line = br.readLine()) != null) {
+                    String identifier = line.split(" ")[0].trim();
+                    String kidneyStatus = line.split(" ")[2].trim();
 
-                List<Identifier> identifiers = identifierRepository.findByValue(identifier);
-                if (!CollectionUtils.isEmpty(identifiers)) {
-                    User user = identifiers.get(0).getUser();
+                    List<Identifier> identifiers = identifierRepository.findByValue(identifier);
+                    if (!CollectionUtils.isEmpty(identifiers)) {
+                        User user = identifiers.get(0).getUser();
 
-                    deleteExistingUktData(user);
-                    addKidneyTransplantStatus(user, kidneyStatus);
+                        deleteExistingUktData(user);
+                        addKidneyTransplantStatus(user, kidneyStatus);
+                    }
                 }
-            }
 
-            br.close();
-        } catch (IOException e) {
-            LOG.error("IOException, likely cannot read file: " + importDirectory + "/" + importFilename);
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException io) {
-                    throw new UktException(io);
+                br.close();
+            } catch (IOException e) {
+                LOG.error("IOException, likely cannot read file: " + importDirectory + "/" + importFilename);
+                if (br != null) {
+                    try {
+                        br.close();
+                    } catch (IOException io) {
+                        throw new UktException(io);
+                    }
                 }
+                throw new UktException(e);
             }
-            throw new UktException(e);
         }
     }
 
@@ -110,43 +113,46 @@ import java.util.UUID;
         String exportDirectory = properties.getProperty("ukt.export.directory");
         String tempExportFilename = properties.getProperty("ukt.export.filename") + ".temp";
         String exportFilename = properties.getProperty("ukt.export.filename");
+        Boolean exportEnabled = Boolean.parseBoolean(properties.getProperty("ukt.export.enabled"));
 
-        try {
-            BufferedWriter writer
-                    = new BufferedWriter(new FileWriter(exportDirectory + "/" + tempExportFilename, false));
-            List<User> patients = userRepository.findAllPatients();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        if (exportEnabled) {
+            try {
+                BufferedWriter writer
+                        = new BufferedWriter(new FileWriter(exportDirectory + "/" + tempExportFilename, false));
+                List<User> patients = userRepository.findAllPatients();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-            for (User user : patients) {
-                if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
-                    for (Identifier identifier : user.getIdentifiers()) {
-                        writer.write("\"");
-                        writer.write(identifier.getIdentifier());
-                        writer.write("\",\"");
-                        writer.write(user.getSurname());
-                        writer.write("\",\"");
-                        writer.write(user.getForename());
-                        writer.write("\",\"");
-                        if (user.getDateOfBirth() != null) {
-                            writer.write(simpleDateFormat.format(user.getDateOfBirth()));
+                for (User user : patients) {
+                    if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
+                        for (Identifier identifier : user.getIdentifiers()) {
+                            writer.write("\"");
+                            writer.write(identifier.getIdentifier());
+                            writer.write("\",\"");
+                            writer.write(user.getSurname());
+                            writer.write("\",\"");
+                            writer.write(user.getForename());
+                            writer.write("\",\"");
+                            if (user.getDateOfBirth() != null) {
+                                writer.write(simpleDateFormat.format(user.getDateOfBirth()));
+                            }
+                            writer.write("\",\"");
+                            writer.write(getPostcode(user));
+                            writer.write("\"");
+                            writer.newLine();
                         }
-                        writer.write("\",\"");
-                        writer.write(getPostcode(user));
-                        writer.write("\"");
-                        writer.newLine();
                     }
                 }
-            }
-            writer.flush();
-            writer.close();
+                writer.flush();
+                writer.close();
 
-            File tempFile = new File(exportDirectory + "/" + tempExportFilename);
-            File exportFile = new File(exportDirectory + "/" + exportFilename);
-            exportFile.delete();
-            FileUtils.copyFile(tempFile, exportFile);
-            tempFile.delete();
-        } catch (Exception e) {
-            throw new UktException(e);
+                File tempFile = new File(exportDirectory + "/" + tempExportFilename);
+                File exportFile = new File(exportDirectory + "/" + exportFilename);
+                exportFile.delete();
+                FileUtils.copyFile(tempFile, exportFile);
+                tempFile.delete();
+            } catch (Exception e) {
+                throw new UktException(e);
+            }
         }
     }
 

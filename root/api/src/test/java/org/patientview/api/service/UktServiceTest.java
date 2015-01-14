@@ -86,6 +86,7 @@ public class UktServiceTest {
 
         String path = getClass().getResource("/ukt").getPath();
 
+        when(properties.getProperty("ukt.import.enabled")).thenReturn("true");
         when(properties.getProperty("ukt.import.directory")).thenReturn(path);
         when(properties.getProperty("ukt.import.filename")).thenReturn("uktstatus.gpg.txt");
         when(identifierRepository.findByValue(identifier.getIdentifier())).thenReturn(identifiers);
@@ -108,6 +109,7 @@ public class UktServiceTest {
 
         String path = getClass().getResource("/ukt").getPath();
 
+        when(properties.getProperty("ukt.import.enabled")).thenReturn("true");
         when(properties.getProperty("ukt.import.directory")).thenReturn(path);
         when(properties.getProperty("ukt.import.filename")).thenReturn("WRONGFILE.txt");
         when(identifierRepository.findByValue(identifier.getIdentifier())).thenReturn(identifiers);
@@ -134,6 +136,7 @@ public class UktServiceTest {
 
         String path = getClass().getResource("/ukt").getPath();
 
+        when(properties.getProperty("ukt.export.enabled")).thenReturn("true");
         when(properties.getProperty("ukt.export.directory")).thenReturn(path);
         when(properties.getProperty("ukt.export.filename")).thenReturn("ukt_rpv_export.txt");
         when(userRepository.findAllPatients()).thenReturn(patients);
