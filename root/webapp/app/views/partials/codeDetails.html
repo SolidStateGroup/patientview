@@ -2,7 +2,7 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="code-code" class="control-label">Code <span class="error" data-ng-show="codeForm.code.$error.required"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" data-ng-model="editCode.code" required></div>
+            <div class=""><input type="text" class="form-control" id="code-code" placeholder="Code" name="code" data-ng-model="editCode.code" required maxlength="100"></div>
 
         </div>
         <div class="col-md-3">
@@ -17,7 +17,7 @@
         </div>
         <div class="col-md-3">
             <label for="code-description" class="control-label">Description <span class="error" data-ng-show="codeForm.description.$error.required"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="code-description" placeholder="Description" name="description" data-ng-model="editCode.description" required></div>
+            <div class=""><input type="text" class="form-control" id="code-description" placeholder="Description" name="description" data-ng-model="editCode.description" required maxlength="255"></div>
 
         </div>
     </div>

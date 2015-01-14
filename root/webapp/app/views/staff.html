@@ -216,7 +216,7 @@
 
         <div class="alert alert-success" data-ng-show="successMessage" id="success-message">
             {{successMessage}}
-            <a href="" class="print-success-message" data-ng-click="printSuccessMessage()">Print</a>
+            <a href="" class="print-success-message" data-ng-click="printSuccessMessage()" data-ng-show="printSuccessMessage">Print</a>
         </div>
         <!-- data grid -->
         <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>

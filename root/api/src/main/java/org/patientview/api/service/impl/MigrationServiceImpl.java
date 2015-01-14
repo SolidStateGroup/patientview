@@ -93,13 +93,13 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     private DataSource dataSource;
 
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
-    private static final boolean DELETE_EXISTING = false;
+    private static final boolean DELETE_EXISTING = true;
 
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
 
         Date start = new Date();
-        UserMigration userMigration;
+        UserMigration userMigration = null;
 
         // get User object from MigrationUser (not patient data)
         User user = migrationUser.getUser();
@@ -138,7 +138,14 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userService.addOtherUsersInformation(userId, new ArrayList<>(user.getUserInformation()));
             }
         } catch (EntityExistsException e) {
-            userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
+            if (userMigration == null) {
+                userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
+            } else {
+                userMigration.setStatus(MigrationStatus.USER_FAILED);
+            }
+            userMigration.setCreator(getCurrentUser());
+            userMigration.setLastUpdater(getCurrentUser());
+            userMigration.setLastUpdate(start);
             userMigration.setInformation(e.getMessage());
             userMigrationService.save(userMigration);
             throw e;

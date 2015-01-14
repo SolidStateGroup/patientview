@@ -42,7 +42,7 @@ public class AuthController extends BaseController<AuthController> {
     @Inject
     private UserService userService;
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/status", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> testService() {
         return new ResponseEntity<>("API OK", HttpStatus.OK);

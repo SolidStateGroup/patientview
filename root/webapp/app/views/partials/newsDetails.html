@@ -2,7 +2,7 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-12">
             <label for="news-heading" class="control-label">Heading <span class="error" data-ng-show="newsForm.heading.$error.required && !newsForm.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="news-heading" placeholder="Heading" name="heading" data-ng-model="editNews.heading" required></div>
+            <div class=""><input type="text" class="form-control" id="news-heading" placeholder="Heading" name="heading" data-ng-model="editNews.heading" required maxlength="100"></div>
         </div>
     </div>
 </div>

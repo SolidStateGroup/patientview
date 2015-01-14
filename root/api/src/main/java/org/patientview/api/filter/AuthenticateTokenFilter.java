@@ -64,6 +64,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // used for ECS
         publicUrls.add("/ecs/getpatientidentifiers");
 
+        // status for external info
+        publicUrls.add("/status");
+
+
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);
         }
