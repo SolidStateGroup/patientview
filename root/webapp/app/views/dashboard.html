@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient">
+            <div class="content-panel chart-container" data-ng-show="!chartLoading && !permissions.isPatient">
                 <div class="panel-intro">
                     <h3 data-ng-hide="graphGroups.length > 1 || permissions.isPatient" data-ng-cloak>{{graphGroups[0].name}}
                         <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
@@ -82,23 +82,24 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="content-panel" data-ng-hide="permissions.isPatient">
-                <div class="content-inner">
-                    <div id="chart_div"></div>
+                <div class="" data-ng-hide="permissions.isPatient">
+                    <div class="content-inner">
+                        <div id="chart_div"></div>
+                    </div>
                 </div>
             </div>
+
+
 
             <div class="content-panel" data-ng-show="chartLoading && !permissions.isPatient">
                 <div class="loading"><img src="images/loading.gif" alt="Loading"/><br/><br/></div>
             </div>
 
-            <div class="chart-container content-panel" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
+            <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
                 <div class="panel-intro">
                     <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
                 </div>
-                <div class="tab-panel-item">
+                <div class="user-details-container">
                     <div class="user-details">
                         <div class="row">
                             <dl class="col-md-4">
