@@ -377,7 +377,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("CONTENT ->> 'appliesDateTime', ");
                 query.append("CONTENT -> 'name' ->> 'text', ");
                 query.append("CONTENT -> 'valueQuantity' ->> 'value', ");
-                query.append("CONTENT -> 'valueQuantity' ->> 'comparator' ");
+                query.append("CONTENT -> 'valueQuantity' ->> 'comparator', ");
+                query.append("CONTENT -> 'valueCodeableConcept' ->> 'text' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
@@ -421,6 +422,15 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                                     }
                                 } catch (NumberFormatException nfe) {
                                     fhirObservation.setValue(json[2]);
+                                }
+                            } else {
+                                // textual value, trim if larger than size
+                                if (json.length >= 5 && StringUtils.isNotEmpty(json[4])) {
+                                    if (json[4].length() > 8) {
+                                        fhirObservation.setValue(json[4].subSequence(0, 8).toString() + "..");
+                                    } else {
+                                        fhirObservation.setValue(json[4]);
+                                    }
                                 }
                             }
 
