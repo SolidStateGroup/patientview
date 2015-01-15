@@ -6,54 +6,56 @@ function ($scope, UserService, IdentifierService) {
 
     // add group to current group, remove from allowed
     $scope.addGroupRole = function (form, user, groupId, roleId) {
-        if ($scope.editMode) {
-            UserService.addGroupRole(user, groupId, roleId).then(function () {
-                // update accordion header with data from GET
-                UserService.get(user.id).then(function (successResult) {
-                    for(i=0;i<$scope.pagedItems.length;i++) {
-                        if($scope.pagedItems[i].id === user.id) {
-                            var headerDetails = $scope.pagedItems[i];
-                            headerDetails.groupRoles = successResult.groupRoles;
+        if (groupId > 0 && roleId > 0) {
+            if ($scope.editMode) {
+                UserService.addGroupRole(user, groupId, roleId).then(function () {
+                    // update accordion header with data from GET
+                    UserService.get(user.id).then(function (successResult) {
+                        for (i = 0; i < $scope.pagedItems.length; i++) {
+                            if ($scope.pagedItems[i].id === user.id) {
+                                var headerDetails = $scope.pagedItems[i];
+                                headerDetails.groupRoles = successResult.groupRoles;
+                            }
                         }
-                    }
-                    user.groupRoles = successResult.groupRoles;
+                        user.groupRoles = successResult.groupRoles;
+                    }, function () {
+                        alert('Error updating header (saved successfully)');
+                    });
                 }, function () {
-                    alert('Error updating header (saved successfully)');
+                    alert('Error adding group role, may already exist');
                 });
-            }, function () {
-                alert('Error adding group role, may already exist');
-            });
-        } else {
-            var groupRole = {};
-
-            for (i=0;i<$scope.allGroups.length;i++){
-                if ($scope.allGroups[i].id === groupId) {
-                    groupRole.group = $scope.allGroups[i];
-                }
-            }
-
-            for (i=0;i<$scope.allowedRoles.length;i++){
-                if ($scope.allowedRoles[i].id === roleId) {
-                    groupRole.role = $scope.allowedRoles[i];
-                }
-            }
-
-            var canAddGroupRole = true;
-
-            for (i=0;i<user.groupRoles.length;i++) {
-                var existingGroupRole = user.groupRoles[i];
-                if (groupRole.group.id === existingGroupRole.group.id &&
-                    groupRole.role.id === existingGroupRole.role.id) {
-                    canAddGroupRole = false
-                }
-            }
-
-            if (canAddGroupRole) {
-                groupRole.id = Math.floor(Math.random() * (9999)) -10000;
-                user.groupRoles.push(groupRole);
-                form.$setDirty(true)
             } else {
-                alert("Group and Role already exist and cannot be added again")
+                var groupRole = {};
+
+                for (i = 0; i < $scope.allGroups.length; i++) {
+                    if ($scope.allGroups[i].id === groupId) {
+                        groupRole.group = $scope.allGroups[i];
+                    }
+                }
+
+                for (i = 0; i < $scope.allowedRoles.length; i++) {
+                    if ($scope.allowedRoles[i].id === roleId) {
+                        groupRole.role = $scope.allowedRoles[i];
+                    }
+                }
+
+                var canAddGroupRole = true;
+
+                for (i = 0; i < user.groupRoles.length; i++) {
+                    var existingGroupRole = user.groupRoles[i];
+                    if (groupRole.group.id === existingGroupRole.group.id &&
+                        groupRole.role.id === existingGroupRole.role.id) {
+                        canAddGroupRole = false
+                    }
+                }
+
+                if (canAddGroupRole) {
+                    groupRole.id = Math.floor(Math.random() * (9999)) - 10000;
+                    user.groupRoles.push(groupRole);
+                    form.$setDirty(true)
+                } else {
+                    alert("Group and Role already exist and cannot be added again")
+                }
             }
         }
     };
