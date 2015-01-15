@@ -83,7 +83,7 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
                     if (fhirDocumentReference.getDate() != null) {
                         fhirDocumentReferences.add(new FhirDocumentReference(fhirDocumentReference));
                     } else {
-                        fhirDocumentReferencesNoDate.add(new FhirDocumentReference());
+                        fhirDocumentReferencesNoDate.add(new FhirDocumentReference(fhirDocumentReference));
                     }
                 }
             }
