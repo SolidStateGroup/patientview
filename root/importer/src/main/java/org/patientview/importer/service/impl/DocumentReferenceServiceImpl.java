@@ -7,6 +7,10 @@ import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.importer.builder.DocumentReferenceBuilder;
+import org.patientview.persistence.model.Alert;
+import org.patientview.persistence.model.enums.AlertTypes;
+import org.patientview.persistence.repository.AlertRepository;
+import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.importer.service.DocumentReferenceService;
 import org.patientview.importer.Utility.Util;
@@ -41,6 +45,12 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     private FhirResource fhirResource;
 
     @Inject
+    private IdentifierRepository identifierRepository;
+
+    @Inject
+    private AlertRepository alertRepository;
+
+    @Inject
     @Named("fhir")
     private BasicDataSource dataSource;
 
@@ -62,6 +72,18 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         int success = 0;
 
         DocumentReferenceBuilder documentReferenceBuilder = new DocumentReferenceBuilder(data, patientReference);
+
+        // get alert if present
+        List<org.patientview.persistence.model.Identifier> identifiers = identifierRepository.findByValue(this.nhsno);
+
+        if (!CollectionUtils.isEmpty(identifiers)) {
+            List<Alert> alerts
+                    = alertRepository.findByUserAndAlertType(identifiers.get(0).getUser(), AlertTypes.LETTER);
+            if (!CollectionUtils.isEmpty(alerts)) {
+                documentReferenceBuilder.setAlert(alerts.get(0));
+            }
+        }
+
         List<DocumentReference> documentReferences = documentReferenceBuilder.build();
 
         // get currently existing DocumentReference by subject Id
@@ -100,6 +122,17 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                     LOG.error(nhsno + ": Unable to create DocumentReference");
                 }
             }
+        }
+
+        Alert builderAlert = documentReferenceBuilder.getAlert();
+        if (builderAlert != null) {
+            Alert entityAlert = alertRepository.findOne(builderAlert.getId());
+            entityAlert.setLatestValue(builderAlert.getLatestValue());
+            entityAlert.setLatestDate(builderAlert.getLatestDate());
+            entityAlert.setWebAlertViewed(builderAlert.isWebAlertViewed());
+            entityAlert.setEmailAlertSent(builderAlert.isEmailAlertSent());
+            entityAlert.setLastUpdate(new Date());
+            alertRepository.save(entityAlert);
         }
 
         LOG.info(nhsno + ": Finished DocumentReference (letter) Process");

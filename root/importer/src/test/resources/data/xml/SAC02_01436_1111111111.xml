@@ -68,7 +68,7 @@
 <result>
 <datestamp>2013-11-06T13:01:47</datestamp>
     <prepost>PRE</prepost>
-<value>>199.01</value>
+<value>Result not available</value>
 </result>
 <result>
 <datestamp>2013-11-05T08:00:00</datestamp>
@@ -165,7 +165,7 @@ Increased due to infection </drugdose>
 </drugdetails>
 <letterdetails>
 <letter>
-<letterdate>2013-10-23T14:58:50</letterdate>
+<letterdate>2013-10-24T14:58:52</letterdate>
 <lettertype>Clinic Letter</lettertype><lettercontent><![CDATA[This is the contents of a letter]]></lettercontent>
 </letter>
 <letter>

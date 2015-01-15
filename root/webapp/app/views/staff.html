@@ -263,9 +263,9 @@
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
-                                    <li data-ng-show="permissions.showDeleteMenuOption"><a href="" data-ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
                                     <li data-ng-show="permissions.canResetPasswords"><a href="" data-ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
                                     <li data-ng-hide="user.emailVerified || !permissions.canSendVerificationEmails"><a href="" data-ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
+                                    <li data-ng-show="permissions.showDeleteMenuOption"><a href="" data-ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
                                 </ul>
                             </div>
                         </div>

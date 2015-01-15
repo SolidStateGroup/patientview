@@ -184,15 +184,14 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
     };
 
     var saveGpMedicationStatus = function() {
-        MedicationService.saveGpMedicationStatus($scope.loggedInUser.id, $scope.gpMedicationStatus)
-            .then(function() {
-                init();
-                if ($scope.gpMedicationStatus.optInStatus === true) {
-                    $scope.justOptedIn = true;
-                }
-            }, function () {
-                alert('Cannot save GP medication status');
-            });
+        MedicationService.saveGpMedicationStatus($scope.loggedInUser.id, $scope.gpMedicationStatus).then(function() {
+            init();
+            if ($scope.gpMedicationStatus.optInStatus === true) {
+                $scope.justOptedIn = true;
+            }
+        }, function () {
+            alert('Cannot save GP medication status');
+        });
     };
 
     $scope.gpMedicinesOptIn = function() {
@@ -211,7 +210,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
     // Migration only
     $scope.startObservationMigration = function() {
         ObservationService.startObservationMigration().then(function() {
-            //alert('Started observation migration');
+
         }, function () {
             alert('Cannot start observation migration');
         });
@@ -237,40 +236,57 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
             alertObservationHeading.emailAlert = true;
             alertObservationHeading.alertType = 'RESULT';
 
-            AlertService.addAlert($scope.loggedInUser.id, alertObservationHeading)
-                .then(function () {
-                    getAlerts();
-                }, function () {
-                    alert('Error adding result alert');
-                });
+            AlertService.addAlert($scope.loggedInUser.id, alertObservationHeading).then(function () {
+                getAlerts();
+            }, function () {
+                alert('Error adding result alert');
+            });
         }
     };
 
     $scope.removeAlert = function(alertId) {
-        AlertService.removeAlert($scope.loggedInUser.id, alertId)
-            .then(function () {
-                getAlerts();
-            }, function () {
-                alert('Error removing result alert');
-            });
+        AlertService.removeAlert($scope.loggedInUser.id, alertId).then(function () {
+            getAlerts();
+        }, function () {
+            alert('Error removing result alert');
+        });
     };
 
     $scope.updateAlert = function(alert) {
-        AlertService.updateAlert($scope.loggedInUser.id, alert)
-            .then(function () {
+        AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
+            getAlerts();
+        }, function () {
+            alert('Error updating alert');
+        });
+    };
+
+    $scope.updateLetterAlert = function(letterAlert) {
+        if (letterAlert.id === undefined) {
+            letterAlert.user = {};
+            letterAlert.user.id = $scope.loggedInUser.id;
+            letterAlert.alertType = 'LETTER';
+
+            AlertService.addAlert($scope.loggedInUser.id, letterAlert).then(function () {
+                getAlerts();
+            }, function () {
+                alert('Error adding result alert');
+            });
+        } else {
+            AlertService.updateAlert($scope.loggedInUser.id, letterAlert).then(function () {
                 getAlerts();
             }, function () {
                 alert('Error updating alert');
             });
+        }
     };
 
     $scope.hideAlertNotification = function(alert) {
         alert.webAlertViewed = true;
         AlertService.updateAlert($scope.loggedInUser.id, alert).then(function () {
-                getAlerts();
-            }, function () {
-                alert('Error updating alert');
-            });
+            getAlerts();
+        }, function () {
+            alert('Error updating alert');
+        });
     };
 
     var getAvailableObservationHeadings = function() {
@@ -296,11 +312,28 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
     };
 
     var getAlerts = function() {
+
+        delete $scope.alertObservationHeadings;
+        delete $scope.letterAlert;
+
+        // result alerts, multiple
         AlertService.getAlerts($scope.loggedInUser.id, 'RESULT')
             .then(function(alertObservationHeadings) {
                 $scope.alertObservationHeadings = alertObservationHeadings;
             }, function() {
                 alert('Error getting result alerts');
+            });
+
+        // letter alert, should only return one
+        AlertService.getAlerts($scope.loggedInUser.id, 'LETTER')
+            .then(function(alertLetters) {
+                if (alertLetters.length) {
+                    $scope.letterAlert = alertLetters[0];
+                } else {
+                    delete $scope.letterAlert;
+                }
+            }, function() {
+                alert('Error getting letter alerts');
             });
     };
 

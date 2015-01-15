@@ -27,6 +27,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -86,6 +88,13 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
                 }
             }
         }
+
+        // order by date descending
+        Collections.sort(fhirDocumentReferences, new Comparator<FhirDocumentReference>() {
+            public int compare(FhirDocumentReference fdr1, FhirDocumentReference fdr2) {
+                return fdr2.getDate().compareTo(fdr1.getDate());
+            }
+        });
 
         return fhirDocumentReferences;
     }

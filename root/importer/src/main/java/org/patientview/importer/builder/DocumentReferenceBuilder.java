@@ -10,6 +10,7 @@ import org.hl7.fhir.instance.model.DocumentReference;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,7 @@ public class DocumentReferenceBuilder {
     private List<DocumentReference> documentReferences;
     private int success = 0;
     private int count = 0;
+    private Alert alert;
 
     public DocumentReferenceBuilder(Patientview results, ResourceReference resourceReference) {
         this.data = results;
@@ -43,6 +45,28 @@ public class DocumentReferenceBuilder {
             for (Patientview.Patient.Letterdetails.Letter letter : data.getPatient().getLetterdetails().getLetter()) {
                 try {
                     documentReferences.add(createDocumentReference(letter));
+
+                    if (alert == null) {
+                        alert = new Alert();
+                    }
+
+                    if (alert.getLatestDate() == null) {
+                        alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
+                        alert.setLatestValue(letter.getLettertype());
+                        alert.setEmailAlertSent(false);
+                        alert.setWebAlertViewed(false);
+                        alert.setUpdated(true);
+                    } else {
+                        if (alert.getLatestDate().getTime()
+                                < letter.getLetterdate().toGregorianCalendar().getTime().getTime()) {
+                            alert.setLatestDate(letter.getLetterdate().toGregorianCalendar().getTime());
+                            alert.setLatestValue(letter.getLettertype());
+                            alert.setEmailAlertSent(false);
+                            alert.setWebAlertViewed(false);
+                            alert.setUpdated(true);
+                        }
+                    }
+
                     success++;
                 } catch (FhirResourceException e) {
                     LOG.error("Invalid data in XML: " + e.getMessage());
@@ -89,5 +113,13 @@ public class DocumentReferenceBuilder {
 
     public int getCount() {
         return count;
+    }
+
+    public Alert getAlert() {
+        return alert;
+    }
+
+    public void setAlert(Alert alert) {
+        this.alert = alert;
     }
 }

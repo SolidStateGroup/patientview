@@ -55,15 +55,19 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             var row = [];
             row[0] = observation.applies;
             row[1] = parseFloat(observation.value);
-            data.push(row);
 
-            // get min/max values for y-axis
-            if (observation.value > maxValue) {
-                maxValue = observation.value;
-            }
+            // don't display textual results on graph
+            if (!isNaN(row[1])) {
+                data.push(row);
 
-            if (observation.value < minValue) {
-                minValue = observation.value;
+                // get min/max values for y-axis
+                if (observation.value > maxValue) {
+                    maxValue = observation.value;
+                }
+
+                if (observation.value < minValue) {
+                    minValue = observation.value;
+                }
             }
         }
 
@@ -124,16 +128,32 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 }
             },
             xAxis: {
+                minTickInterval: 864000000,
                 type: 'datetime',
                 dateTimeLabelFormats: {
-                    millisecond: '%H:%M:%S.%L',
+                    millisecond: '%H:%M:%S.%L<br/>%Y',
                     second: '%H:%M:%S',
                     minute: '%H:%M',
                     hour: '%H:%M',
-                    day: '%e. %b',
-                    week: '%e. %b',
-                    month: '%b \'%y',
-                    year: '%Y'
+                    day: '%e. %b. %Y',
+                    week: '%e. %b. %Y',
+                    month: '%e. %b. %Y',
+                    year: '%e. %b. %Y'
+                },
+                text: 'ESEMPIO'
+            },
+            tooltip: {
+                minTickInterval: 864000000,
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    millisecond: '%H:%M:%S.%L<br/>%Y',
+                    second: '%H:%M:%S',
+                    minute: '%H:%M',
+                    hour: '%H:%M',
+                    day: '%e. %b. %Y',
+                    week: '%e. %b. %Y',
+                    month: '%e. %b. %Y',
+                    year: '%e. %b. %Y'
                 },
                 text: 'ESEMPIO'
             }
@@ -167,10 +187,8 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
     };
 
     $scope.getResultIcon = function(value) {
-        if (value === undefined) {
-            return null;
-        }
-        if (value === 0) {
+
+        if (value === undefined || value === 0 || value === null || isNaN(value)) {
             return null;
         }
 

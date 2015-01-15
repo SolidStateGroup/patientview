@@ -2,8 +2,10 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.FhirObservation;
+import org.patientview.api.model.FhirDocumentReference;
 import org.patientview.api.service.AlertService;
 import org.patientview.api.service.EmailService;
+import org.patientview.api.service.LetterService;
 import org.patientview.api.service.ObservationService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -47,6 +49,9 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Inject
     private ObservationService observationService;
+
+    @Inject
+    private LetterService letterService;
 
     @Inject
     private EmailService emailService;
@@ -110,6 +115,14 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
                 throw new ResourceNotFoundException("Result type not set");
             }
         } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
+
+            List<FhirDocumentReference> fhirDocumentReferences = letterService.getByUserId(user.getId());
+
+            if (!CollectionUtils.isEmpty(fhirDocumentReferences)) {
+                newAlert.setLatestValue(fhirDocumentReferences.get(0).getType());
+                newAlert.setLatestDate(fhirDocumentReferences.get(0).getDate());
+            }
+
             newAlert.setAlertType(AlertTypes.LETTER);
         } else {
             throw new ResourceNotFoundException("Incorrect alert type");
@@ -206,10 +219,22 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        entityAlert.setWebAlert(alert.isWebAlert());
-        entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
-        entityAlert.setEmailAlert(alert.isEmailAlert());
-
-        alertRepository.save(entityAlert);
+        if (alert.getAlertType().equals(AlertTypes.RESULT)) {
+            entityAlert.setWebAlert(alert.isWebAlert());
+            entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+            entityAlert.setEmailAlert(alert.isEmailAlert());
+            alertRepository.save(entityAlert);
+        } else if (alert.getAlertType().equals(AlertTypes.LETTER)) {
+            if (!alert.isWebAlert() && !alert.isEmailAlert()) {
+                alertRepository.delete(entityAlert);
+            } else {
+                entityAlert.setWebAlert(alert.isWebAlert());
+                entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
+                entityAlert.setEmailAlert(alert.isEmailAlert());
+                alertRepository.save(entityAlert);
+            }
+        } else {
+            throw new ResourceNotFoundException("Incorrect alert type");
+        }
     }
 }
