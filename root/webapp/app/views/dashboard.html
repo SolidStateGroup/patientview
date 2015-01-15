@@ -169,6 +169,7 @@
                             <table class="table">
                                 <tr>
                                     <th>Latest Letter</th>
+                                    <th>Letter Type</th>
                                     <th>New Letter? <br/>(click to hide notification)</th>
                                 </tr>
                                 <tr>
@@ -176,7 +177,13 @@
                                         <span data-ng-show="letterAlert.latestDate">
                                             {{letterAlert.latestDate | date:'dd-MMM-yyyy'}}
                                         </span>
-                                        <span data-ng-show="!alert.latestDate">Not Available</span>
+                                        <span data-ng-show="!letterAlert.latestDate">Not Available</span>
+                                    </td>
+                                    <td>
+                                        <span data-ng-show="letterAlert.latestValue">
+                                            {{letterAlert.latestValue}}
+                                        </span>
+                                        <span data-ng-show="!letterAlert.latestValue">Not Available</span>
                                     </td>
                                     <td>
                                         <span class="label label-success" data-ng-show="!letterAlert.webAlertViewed && letterAlert.webAlert">

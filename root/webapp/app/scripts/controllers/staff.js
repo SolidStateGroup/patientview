@@ -125,6 +125,15 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
                 $scope.editUser.groups.push(group);
             }
 
+            // global admin can see all group roles of globaladmin
+            if ($scope.permissions.isSuperAdmin) {
+                for(var i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                    if ($scope.editUser.groupRoles[i].role.name === 'GLOBAL_ADMIN') {
+                        $scope.editUser.groupRoles[i].group.visible = true;
+                    }
+                }
+            }
+
             // set available groups so user can add another group/role to the users existing group roles if required
             $scope.editUser.availableGroups = $scope.allGroups;
             for (i = 0; i < $scope.editUser.groups.length; i++) {
@@ -551,6 +560,15 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     }
                 } else {
                     user.userFeatures = [];
+                }
+
+                // global admin can see all group roles of globaladmin
+                if ($scope.permissions.isSuperAdmin) {
+                    for(var i = 0; i < user.groupRoles.length; i++) {
+                        if (user.groupRoles[i].role.name === 'GLOBAL_ADMIN') {
+                            user.groupRoles[i].group.visible = true;
+                        }
+                    }
                 }
 
                 // set the user being edited to a clone of the existing user (so only updated in UI on save)

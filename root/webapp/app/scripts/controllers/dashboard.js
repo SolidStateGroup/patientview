@@ -313,6 +313,9 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
 
     var getAlerts = function() {
 
+        delete $scope.alertObservationHeadings;
+        delete $scope.letterAlert;
+
         // result alerts, multiple
         AlertService.getAlerts($scope.loggedInUser.id, 'RESULT')
             .then(function(alertObservationHeadings) {
