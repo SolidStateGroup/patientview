@@ -128,16 +128,32 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
                 }
             },
             xAxis: {
+                minTickInterval: 864000000,
                 type: 'datetime',
                 dateTimeLabelFormats: {
-                    millisecond: '%H:%M:%S.%L',
+                    millisecond: '%H:%M:%S.%L<br/>%Y',
                     second: '%H:%M:%S',
                     minute: '%H:%M',
                     hour: '%H:%M',
-                    day: '%e. %b',
-                    week: '%e. %b',
-                    month: '%b \'%y',
-                    year: '%Y'
+                    day: '%e. %b. %Y',
+                    week: '%e. %b. %Y',
+                    month: '%e. %b. %Y',
+                    year: '%e. %b. %Y'
+                },
+                text: 'ESEMPIO'
+            },
+            tooltip: {
+                minTickInterval: 864000000,
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    millisecond: '%H:%M:%S.%L<br/>%Y',
+                    second: '%H:%M:%S',
+                    minute: '%H:%M',
+                    hour: '%H:%M',
+                    day: '%e. %b. %Y',
+                    week: '%e. %b. %Y',
+                    month: '%e. %b. %Y',
+                    year: '%e. %b. %Y'
                 },
                 text: 'ESEMPIO'
             }
