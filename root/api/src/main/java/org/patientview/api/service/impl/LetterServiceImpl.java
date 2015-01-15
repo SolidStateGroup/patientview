@@ -24,8 +24,6 @@ import org.patientview.persistence.resource.FhirResource;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -51,10 +49,6 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
     @Inject
     private GroupRepository groupRepository;
 
-    @Inject
-    @Named("fhir")
-    private DataSource dataSource;
-
     @Override
     public List<FhirDocumentReference> getByUserId(final Long userId)
             throws ResourceNotFoundException, FhirResourceException {
@@ -65,6 +59,7 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
         }
 
         List<FhirDocumentReference> fhirDocumentReferences = new ArrayList<>();
+        List<FhirDocumentReference> fhirDocumentReferencesNoDate = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
             if (fhirLink.getActive()) {
@@ -84,7 +79,12 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
                     org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference
                             = new org.patientview.persistence.model.FhirDocumentReference(
                             documentReference, fhirLink.getGroup());
-                    fhirDocumentReferences.add(new FhirDocumentReference(fhirDocumentReference));
+
+                    if (fhirDocumentReference.getDate() != null) {
+                        fhirDocumentReferences.add(new FhirDocumentReference(fhirDocumentReference));
+                    } else {
+                        fhirDocumentReferencesNoDate.add(new FhirDocumentReference());
+                    }
                 }
             }
         }
@@ -95,6 +95,8 @@ public class LetterServiceImpl extends BaseController<LetterServiceImpl> impleme
                 return fdr2.getDate().compareTo(fdr1.getDate());
             }
         });
+
+        fhirDocumentReferences.addAll(fhirDocumentReferencesNoDate);
 
         return fhirDocumentReferences;
     }
