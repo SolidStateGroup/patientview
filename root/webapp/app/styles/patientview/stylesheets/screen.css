@@ -2587,61 +2587,70 @@ textarea.form-control.article-content {
   text-decoration: none;
 }
 
-/* line 151, ../sass/_results.scss */
+/* line 150, ../sass/_results.scss */
+.result-heading-title {
+  max-width: 190px;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* line 159, ../sass/_results.scss */
 .specialty-manager .add-container {
   padding-top: 0;
   border-top: 0;
   margin-top: 0;
 }
-/* line 157, ../sass/_results.scss */
+/* line 165, ../sass/_results.scss */
 .specialty-manager .no-label {
   padding-top: 29px;
 }
 
-/* line 165, ../sass/_results.scss */
+/* line 173, ../sass/_results.scss */
 .result-detail-panel .result-item-container {
   width: 100%;
   height: auto;
   padding: 0;
 }
-/* line 170, ../sass/_results.scss */
+/* line 178, ../sass/_results.scss */
 .result-detail-panel .result-item-container .result-value {
   width: 50%;
   float: left;
 }
-/* line 176, ../sass/_results.scss */
+/* line 184, ../sass/_results.scss */
 .result-detail-panel .result-item-container .result-change dd {
   float: left;
 }
-/* line 181, ../sass/_results.scss */
+/* line 189, ../sass/_results.scss */
 .result-detail-panel .result-item-container .result-comment {
   width: 50%;
   padding-top: 15px;
   clear: left;
 }
-/* line 186, ../sass/_results.scss */
+/* line 194, ../sass/_results.scss */
 .result-detail-panel .result-item-container .result-comment label {
   margn-bottom: 0;
 }
-/* line 192, ../sass/_results.scss */
+/* line 200, ../sass/_results.scss */
 .result-detail-panel .info-list {
   width: 50%;
 }
-/* line 195, ../sass/_results.scss */
+/* line 203, ../sass/_results.scss */
 .result-detail-panel .info-list.inline {
   margin-top: 20px;
 }
-/* line 199, ../sass/_results.scss */
+/* line 207, ../sass/_results.scss */
 .result-detail-panel .info-list li {
   width: auto;
   margin-right: 20px;
   font-size: 18px;
 }
-/* line 204, ../sass/_results.scss */
+/* line 212, ../sass/_results.scss */
 .result-detail-panel .info-list li strong {
   color: #585858;
 }
-/* line 212, ../sass/_results.scss */
+/* line 220, ../sass/_results.scss */
 .result-detail-panel .info-header {
   text-align: center;
   padding: 10px;
@@ -2650,72 +2659,72 @@ textarea.form-control.article-content {
   border-radius: 4px 4px 0 0;
   overflow: hidden;
 }
-/* line 217, ../sass/_results.scss */
+/* line 225, ../sass/_results.scss */
 .result-detail-panel .info-header p {
   padding: 0;
   margin: 0;
   color: white;
   font-weight: bold;
 }
-/* line 225, ../sass/_results.scss */
+/* line 233, ../sass/_results.scss */
 .result-detail-panel .faux-table {
   margin-top: 0;
 }
-/* line 229, ../sass/_results.scss */
+/* line 237, ../sass/_results.scss */
 .result-detail-panel .faux-table.three-col .row-item, .result-detail-panel .faux-table.three-col .head-item {
   width: 30.5%;
   text-align: center;
 }
-/* line 233, ../sass/_results.scss */
+/* line 241, ../sass/_results.scss */
 .result-detail-panel .faux-table.three-col .row-item.plot-this, .result-detail-panel .faux-table.three-col .head-item.plot-this {
   width: 40px;
   padding: 0;
   text-align: center;
 }
-/* line 238, ../sass/_results.scss */
+/* line 246, ../sass/_results.scss */
 .result-detail-panel .faux-table.three-col .row-item.plot-this i, .result-detail-panel .faux-table.three-col .head-item.plot-this i {
   margin: 0 auto;
 }
 
-/* line 247, ../sass/_results.scss */
+/* line 255, ../sass/_results.scss */
 .result-graph {
   float: left;
   width: 100%;
   padding: 5px;
 }
 
-/* line 255, ../sass/_results.scss */
+/* line 263, ../sass/_results.scss */
 .header-select > div {
   height: 75px;
 }
-/* line 258, ../sass/_results.scss */
+/* line 266, ../sass/_results.scss */
 .header-select select {
   margin-top: 20px;
 }
-/* line 262, ../sass/_results.scss */
+/* line 270, ../sass/_results.scss */
 .header-select .select-title {
   float: right;
 }
 
-/* line 267, ../sass/_results.scss */
+/* line 275, ../sass/_results.scss */
 .historical-data {
   position: relative;
 }
-/* line 270, ../sass/_results.scss */
+/* line 278, ../sass/_results.scss */
 .historical-data .faux-table {
   max-height: 600px;
   overflow-y: scroll;
 }
-/* line 274, ../sass/_results.scss */
+/* line 282, ../sass/_results.scss */
 .historical-data .faux-table .faux-row {
   cursor: pointer;
 }
-/* line 277, ../sass/_results.scss */
+/* line 285, ../sass/_results.scss */
 .historical-data .faux-table .faux-row.active div.row-item {
   color: #368DE8;
   background: #eee;
 }
-/* line 284, ../sass/_results.scss */
+/* line 292, ../sass/_results.scss */
 .historical-data .overlay {
   position: absolute;
   pointer-events: none;
@@ -2737,64 +2746,64 @@ textarea.form-control.article-content {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='white', GradientType=0);
 }
 
-/* line 297, ../sass/_results.scss */
+/* line 305, ../sass/_results.scss */
 .result-graph .container {
   width: auto;
 }
 
 @media (max-width: 767px) {
-  /* line 305, ../sass/_results.scss */
+  /* line 313, ../sass/_results.scss */
   .header-select > div {
     height: auto;
   }
-  /* line 309, ../sass/_results.scss */
+  /* line 317, ../sass/_results.scss */
   .header-select h1 {
     font-size: 30px;
   }
-  /* line 313, ../sass/_results.scss */
+  /* line 321, ../sass/_results.scss */
   .header-select select {
     margin-bottom: 10px;
     margin-top: 0;
   }
-  /* line 318, ../sass/_results.scss */
+  /* line 326, ../sass/_results.scss */
   .header-select .select-title {
     float: left;
   }
 
-  /* line 322, ../sass/_results.scss */
+  /* line 330, ../sass/_results.scss */
   .results-header {
     height: 185px;
   }
-  /* line 324, ../sass/_results.scss */
+  /* line 332, ../sass/_results.scss */
   .results-header .header-icon {
     display: none;
   }
-  /* line 328, ../sass/_results.scss */
+  /* line 336, ../sass/_results.scss */
   .results-header .form-row {
     width: 100%;
   }
-  /* line 330, ../sass/_results.scss */
+  /* line 338, ../sass/_results.scss */
   .results-header .form-row label, .results-header .form-row select {
     text-align: center;
     width: 100%;
   }
 
-  /* line 339, ../sass/_results.scss */
+  /* line 347, ../sass/_results.scss */
   .result-detail-panel .result-item-container .info-list {
     width: auto;
   }
-  /* line 342, ../sass/_results.scss */
+  /* line 350, ../sass/_results.scss */
   .result-detail-panel .result-item-container .info-list.inline {
     margin-top: 10px;
   }
 }
-/* line 351, ../sass/_results.scss */
+/* line 359, ../sass/_results.scss */
 .select-result-type {
   width: 390px;
   margin-left: 10px;
 }
 
-/* line 357, ../sass/_results.scss */
+/* line 365, ../sass/_results.scss */
 .results-filter-list .feature-list-item {
   float: left;
   margin: 0 5px 5px 0;

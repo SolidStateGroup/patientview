@@ -147,6 +147,14 @@
     }
 }
 
+.result-heading-title{
+  max-width: 190px;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .specialty-manager{
     .add-container{
         padding-top:0;
