@@ -465,7 +465,15 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                 }
 
                 if (group.visible === true) {
-                    $scope.allGroups.push(group);
+                    var minimalGroup = {};
+                    minimalGroup.id = group.id;
+                    minimalGroup.shortName = group.shortName;
+                    minimalGroup.name = group.name;
+                    minimalGroup.groupType = {};
+                    minimalGroup.groupType.value = group.groupType.value;
+                    minimalGroup.groupType.description = group.groupType.description;
+                    $scope.allGroups.push(minimalGroup);
+
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
 

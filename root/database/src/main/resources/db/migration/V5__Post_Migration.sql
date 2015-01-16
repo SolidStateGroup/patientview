@@ -48,3 +48,21 @@ AND pv_group.type_id = 1
 AND pv_user.id NOT IN (
 SELECT user_id FROM pv_feature_user WHERE feature_id = featureIDdmc()
 );
+
+/* messaging for all groups */
+CREATE OR REPLACE FUNCTION featureIDmsg() RETURNS INT AS
+$BODY$
+DECLARE feature_id1 INT;
+BEGIN
+ SELECT ID FROM pv_feature WHERE feature_name = 'MESSAGING' INTO feature_id1;
+ return feature_id1;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+INSERT INTO pv_feature_group (feature_id,group_id,creation_date,created_by)
+SELECT DISTINCT featureIDmsg(), pv_group.id, now(), 1
+FROM pv_group
+WHERE type_id = 1
+AND visible = TRUE
+AND id NOT IN(SELECT group_id FROM pv_feature_group WHERE feature_id = featureIDmsg())

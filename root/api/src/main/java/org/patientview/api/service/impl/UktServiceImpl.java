@@ -168,7 +168,7 @@ import java.util.UUID;
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignore) {
             // do nothing, could be due to JSON error, missing data etc
         }
 

@@ -154,7 +154,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                             fhirObservation.setValue(
                                     new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
                         }
-                    } catch (NumberFormatException nfe) {
+                    } catch (NumberFormatException ignore) {
                         // do not update if cant convert to double or big decimal (string based value)
                     }
 
@@ -261,7 +261,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                     fhirObservation.setValue(
                             new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
                 }
-            } catch (NumberFormatException nfe) {
+            } catch (NumberFormatException ignore) {
                 // do not update if cant convert to double or big decimal (string based value)
             }
 
