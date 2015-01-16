@@ -166,7 +166,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             sb.append(", <br/><br/>New data has arrived on <a href=\"");
             sb.append(properties.getProperty("site.url"));
             sb.append("\">PatientView</a>");
-            sb.append("<br/><br/>Please login to view.<br/>");
+            sb.append("<br/><br/>Please log in to view.<br/>");
             email.setBody(sb.toString());
 
             try {

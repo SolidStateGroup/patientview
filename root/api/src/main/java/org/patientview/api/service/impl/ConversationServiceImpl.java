@@ -411,10 +411,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 sb.append(user.getForename());
                 sb.append(" ");
                 sb.append(user.getSurname());
-                sb.append(", <br/><br/>You have a new message on PatientView.");
-                sb.append("<br/><br/>Please visit <a href=\"");
+                sb.append(", <br/><br/>You have a new message on <a href=\"");
                 sb.append(properties.getProperty("site.url"));
-                sb.append("\">the PatientView website</a> and log in to view your message.");
+                sb.append("\">PatientView</a>");
+                sb.append("<br/><br/>Please log in to view your message.<br/>");
                 email.setBody(sb.toString());
 
                 // try and send but ignore if exception and log
