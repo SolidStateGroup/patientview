@@ -81,6 +81,7 @@ public class ObservationController extends BaseController<ObservationController>
         observationService.addUserResultClusters(userId, userResultClusters);
     }
 
+    /*
     // Migration Only
     @RequestMapping(value = "/migrate/observations", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -99,5 +100,5 @@ public class ObservationController extends BaseController<ObservationController>
         LOG.info("Started API based migration");
         migrationService.migrateObservationsFast();
     }
-
+    */
 }

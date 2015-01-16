@@ -51,6 +51,7 @@ public class ContactPointController extends BaseController<ContactPointControlle
         return new ResponseEntity<>(contactPointService.add(groupId, contactPoint), HttpStatus.CREATED);
     }
 
+    /*
     // used by migration
     @RequestMapping(value = "/contactpoint/type/{type}", method = RequestMethod.GET)
     @ResponseBody
@@ -58,4 +59,5 @@ public class ContactPointController extends BaseController<ContactPointControlle
             throws ResourceInvalidException {
         return new ResponseEntity<>(contactPointService.getContactPointType(type), HttpStatus.OK);
     }
+    */
 }

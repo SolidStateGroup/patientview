@@ -43,11 +43,13 @@ public class JoinRequestController extends BaseController<JoinRequestController>
         joinRequestService.add(joinRequest);
     }
 
+    /*
     @RequestMapping(value = "/migrate/joinrequests", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public void migrateJoinRequests(@RequestBody List<JoinRequest> joinRequests) throws ResourceNotFoundException {
         joinRequestService.migrate(joinRequests);
     }
+    */
 
     @RequestMapping(value = "/joinrequest/statuses", method = RequestMethod.GET)
     @ResponseBody
