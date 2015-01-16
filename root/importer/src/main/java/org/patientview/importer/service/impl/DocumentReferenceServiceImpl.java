@@ -97,12 +97,12 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                 if (!existingUuids.isEmpty()) {
                     for (UUID existingUuid : existingUuids) {
                         // logging for testing only
-                        /*if (newDocumentReference.getCreated() != null) {
+                        if (newDocumentReference.getCreated() != null) {
                             LOG.info(nhsno + ": Deleting DocumentReference with date "
                                     + newDocumentReference.getCreated().getValue().toString());
                         } else {
                             LOG.info(nhsno + ": Deleting DocumentReference");
-                        }*/
+                        }
                         fhirResource.delete(existingUuid, ResourceType.DocumentReference);
                     }
                 }
@@ -110,12 +110,12 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                 // create new DocumentReference
                 try {
                     // logging for testing only
-                    /*if (newDocumentReference.getCreated() != null) {
+                    if (newDocumentReference.getCreated() != null) {
                         LOG.info(nhsno + ": Adding DocumentReference with date "
                                 + newDocumentReference.getCreated().getValue().toString());
                     } else {
                         LOG.info(nhsno + ": Adding DocumentReference");
-                    }*/
+                    }
                     fhirResource.create(newDocumentReference);
                     success++;
                 } catch (FhirResourceException e) {
