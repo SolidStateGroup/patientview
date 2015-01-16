@@ -2415,9 +2415,10 @@ textarea.form-control.article-content {
 /* line 112, ../sass/_messages.scss */
 .news-actions {
   text-align: center;
+  margin-bottom: 10px;
 }
 
-/* line 116, ../sass/_messages.scss */
+/* line 117, ../sass/_messages.scss */
 .message-type-badge {
   clear: left;
   background: #00adc6;
@@ -2434,12 +2435,12 @@ textarea.form-control.article-content {
 }
 
 @media (max-width: 767px) {
-  /* line 131, ../sass/_messages.scss */
+  /* line 132, ../sass/_messages.scss */
   .message-summary .message-title {
     width: 80%;
   }
 
-  /* line 134, ../sass/_messages.scss */
+  /* line 135, ../sass/_messages.scss */
   .message-type-badge {
     position: relative;
     top: 0;
@@ -2886,41 +2887,45 @@ textarea.form-control.article-content {
 .user-details h4 {
   margin-bottom: 5px;
 }
+/* line 66, ../sass/_components.scss */
+.user-details .news-actions {
+  margin-bottom: 10px;
+}
 
 /** MODALS **/
-/* line 69, ../sass/_components.scss */
+/* line 73, ../sass/_components.scss */
 .modal-dialog {
   width: 75%;
 }
-/* line 72, ../sass/_components.scss */
+/* line 76, ../sass/_components.scss */
 .modal-dialog label {
   font-size: 1.5rem;
 }
-/* line 76, ../sass/_components.scss */
+/* line 80, ../sass/_components.scss */
 .modal-dialog .added-container {
   margin-top: 30px;
 }
 
 /** GRAPHS **/
-/* line 86, ../sass/_components.scss */
+/* line 90, ../sass/_components.scss */
 .graph-selector h3 {
   margin: 0;
   line-height: 35px;
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 95, ../sass/_components.scss */
+  /* line 99, ../sass/_components.scss */
   .tab-panel-item .item-detail {
     padding: 5px 20px;
   }
 
-  /* line 99, ../sass/_components.scss */
+  /* line 103, ../sass/_components.scss */
   .modal-dialog {
     width: auto;
   }
 }
 @media (max-width: 767px) {
-  /* line 107, ../sass/_components.scss */
+  /* line 111, ../sass/_components.scss */
   .tab-panel-item .item-detail .last-login {
     padding-left: 15px;
     padding-right: 15px;
