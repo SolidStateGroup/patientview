@@ -30,7 +30,7 @@ public class DocumentReferenceBuilder {
     private List<DocumentReference> documentReferences;
     private int success = 0;
     private int count = 0;
-    private Alert alert;
+    private Alert alert = null;
 
     public DocumentReferenceBuilder(Patientview results, ResourceReference resourceReference) {
         this.data = results;

@@ -127,12 +127,14 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
         Alert builderAlert = documentReferenceBuilder.getAlert();
         if (builderAlert != null) {
             Alert entityAlert = alertRepository.findOne(builderAlert.getId());
-            entityAlert.setLatestValue(builderAlert.getLatestValue());
-            entityAlert.setLatestDate(builderAlert.getLatestDate());
-            entityAlert.setWebAlertViewed(builderAlert.isWebAlertViewed());
-            entityAlert.setEmailAlertSent(builderAlert.isEmailAlertSent());
-            entityAlert.setLastUpdate(new Date());
-            alertRepository.save(entityAlert);
+            if (entityAlert != null) {
+                entityAlert.setLatestValue(builderAlert.getLatestValue());
+                entityAlert.setLatestDate(builderAlert.getLatestDate());
+                entityAlert.setWebAlertViewed(builderAlert.isWebAlertViewed());
+                entityAlert.setEmailAlertSent(builderAlert.isEmailAlertSent());
+                entityAlert.setLastUpdate(new Date());
+                alertRepository.save(entityAlert);
+            }
         }
 
         LOG.info(nhsno + ": Finished DocumentReference (letter) Process");
