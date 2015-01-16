@@ -1190,15 +1190,15 @@ html .clearFooter, body .clearFooter {
 }
 
 @media only screen and (max-width: 1023px) {
-  /* line 257, ../sass/_nav.scss */
+  /* line 258, ../sass/_nav.scss */
   .navbar-header {
     position: relative;
   }
-  /* line 263, ../sass/_nav.scss */
+  /* line 264, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li a {
     text-align: right;
   }
-  /* line 267, ../sass/_nav.scss */
+  /* line 268, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li.help-link {
     position: absolute;
     height: 40px;
@@ -1206,88 +1206,104 @@ html .clearFooter, body .clearFooter {
     right: 70px;
     top: 10px;
   }
-  /* line 274, ../sass/_nav.scss */
+  /* line 275, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li.help-link a {
     height: 40px;
     width: 40px;
     display: block;
     text-align: center;
   }
-  /* line 280, ../sass/_nav.scss */
+  /* line 281, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav ul li.help-link a i {
     display: block;
   }
-  /* line 294, ../sass/_nav.scss */
+  /* line 295, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav .nav-public .public {
     height: 70px;
     margin: 0;
   }
-  /* line 297, ../sass/_nav.scss */
+  /* line 298, ../sass/_nav.scss */
   .navbar-header .temp-mobile-nav .nav-public .public li {
     height: 100%;
     float: left;
     padding-top: 5px;
   }
 
-  /* line 308, ../sass/_nav.scss */
+  /* line 309, ../sass/_nav.scss */
   .navbar-brand .brand {
     height: auto;
   }
-  /* line 311, ../sass/_nav.scss */
+  /* line 312, ../sass/_nav.scss */
   .navbar-brand img {
     height: 28px;
     width: 160px;
   }
-  /* line 315, ../sass/_nav.scss */
+  /* line 316, ../sass/_nav.scss */
   .navbar-brand img.sub-brand {
     width: 50px;
     height: 20px;
   }
 
-  /* line 323, ../sass/_nav.scss */
+  /* line 324, ../sass/_nav.scss */
   .footer .legal-links {
     width: 20%;
   }
-  /* line 325, ../sass/_nav.scss */
+  /* line 326, ../sass/_nav.scss */
   .footer .legal-links li {
     display: block;
     text-align: right;
     line-height: 22px;
   }
-  /* line 331, ../sass/_nav.scss */
+  /* line 332, ../sass/_nav.scss */
   .footer .partner-info {
     width: 46%;
   }
 }
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+  /* line 341, ../sass/_nav.scss */
+  .footer .legal-links {
+    width: 40%;
+  }
+  /* line 343, ../sass/_nav.scss */
+  .footer .legal-links li {
+    display: block;
+    text-align: right;
+    line-height: 22px;
+  }
+  /* line 349, ../sass/_nav.scss */
+  .footer .partner-info {
+    width: 60%;
+  }
+}
 @media (max-width: 767px) {
-  /* line 340, ../sass/_nav.scss */
+  /* line 358, ../sass/_nav.scss */
   .navbar-brand .brand {
     height: auto;
   }
-  /* line 343, ../sass/_nav.scss */
+  /* line 361, ../sass/_nav.scss */
   .navbar-brand img {
     height: 28px;
     width: 130px;
   }
-  /* line 347, ../sass/_nav.scss */
+  /* line 365, ../sass/_nav.scss */
   .navbar-brand img.sub-brand {
     width: 40px;
     height: 15px;
     margin: 7px 0 0 5px;
   }
 
-  /* line 357, ../sass/_nav.scss */
+  /* line 375, ../sass/_nav.scss */
   .temp-mobile-nav .nav-public .public {
     height: 70px;
     margin: 0;
   }
-  /* line 360, ../sass/_nav.scss */
+  /* line 378, ../sass/_nav.scss */
   .temp-mobile-nav .nav-public .public li {
     height: 100%;
     float: left;
     padding-top: 5px;
   }
-  /* line 365, ../sass/_nav.scss */
+  /* line 383, ../sass/_nav.scss */
   .temp-mobile-nav .nav-public .public li a {
     padding-left: 5px;
     padding-right: 5px;
@@ -1295,14 +1311,21 @@ html .clearFooter, body .clearFooter {
     text-align: center;
   }
 
-  /* line 376, ../sass/_nav.scss */
+  /* line 394, ../sass/_nav.scss */
   .nav-account {
     display: none;
   }
 
-  /* line 380, ../sass/_nav.scss */
+  /* line 398, ../sass/_nav.scss */
   .footer .legal-links {
     width: 40%;
+  }
+
+  /* line 402, ../sass/_nav.scss */
+  .footer .partner-info {
+    width: 100%;
+    position: absolute;
+    left: -20px;
   }
 }
 /** Actual Tables **/
