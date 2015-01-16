@@ -33,8 +33,8 @@ public class UktTask {
     /**
      * Import UKT data, wiping out existing database contents
      */
-    @Scheduled(cron = "0 */1 * * * ?") // every minute
-    //@Scheduled(cron = "0 0 2 * * ?") // every day at 02:00
+    //@Scheduled(cron = "0 */1 * * * ?") // every minute
+    @Scheduled(cron = "0 0 2 * * ?") // every day at 02:00
     public void importUktData() throws ResourceNotFoundException, FhirResourceException, UktException {
         Boolean importEnabled = Boolean.parseBoolean(properties.getProperty("ukt.import.enabled"));
 
