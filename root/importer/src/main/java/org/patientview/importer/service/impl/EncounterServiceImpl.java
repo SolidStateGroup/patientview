@@ -72,7 +72,7 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
             if (!CollectionUtils.isEmpty(encounter.getIdentifier())) {
                 String encounterType = encounter.getIdentifier().get(0).getValueSimple();
                 if (!encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_KIDNEY.toString())
-                        || !encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString())) {
+                        && !encounterType.equals(EncounterTypes.TRANSPLANT_STATUS_PANCREAS.toString())) {
                     fhirResource.delete(uuid, ResourceType.Encounter);
                 }
             }
