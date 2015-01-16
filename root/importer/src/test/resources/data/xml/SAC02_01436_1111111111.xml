@@ -65,6 +65,10 @@
 <testcode>hb</testcode>
 <units>gm/l</units>
 <daterange start="2000-01-01" stop="2013-11-13"/>
+    <result>
+        <datestamp>2013-11-07T09:00:00</datestamp>
+        <value>12.40</value>
+    </result>
 <result>
 <datestamp>2013-11-06T13:01:47</datestamp>
     <prepost>PRE</prepost>

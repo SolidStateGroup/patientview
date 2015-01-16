@@ -25,6 +25,8 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -102,9 +104,18 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
                 }
 
                 List<FhirObservation> fhirObservations
-                        = observationService.get(user.getId(), observationHeading.getCode(), "appliesDateTime", "DESC", 1L);
+                    = observationService.get(user.getId(), observationHeading.getCode(), null, null, null);
 
                 if (!CollectionUtils.isEmpty(fhirObservations)) {
+
+                    // order by date desc
+                    Collections.sort(fhirObservations, new Comparator<FhirObservation>() {
+                        @Override
+                        public int compare(FhirObservation o1, FhirObservation o2) {
+                            return o2.getApplies().compareTo(o1.getApplies());
+                        }
+                    });
+
                     newAlert.setLatestValue(fhirObservations.get(0).getValue());
                     newAlert.setLatestDate(fhirObservations.get(0).getApplies());
                 }
