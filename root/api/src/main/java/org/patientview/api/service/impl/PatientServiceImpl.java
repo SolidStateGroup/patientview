@@ -522,7 +522,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 Identifier identifier = identifierMap.get(fhirObservation.getIdentifier());
 
                 if (identifier == null) {
-                    throw new FhirResourceException("Identifier not found");
+                    throw new FhirResourceException("Identifier not found: " + fhirObservation.getIdentifier());
                 }
 
                 FhirLink fhirLink

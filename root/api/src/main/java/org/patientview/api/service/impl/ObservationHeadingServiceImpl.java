@@ -1,17 +1,12 @@
 package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ObservationHeadingService;
-import org.patientview.api.service.ObservationService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.AlertObservationHeading;
-import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.FhirLink;
-import org.patientview.api.model.FhirObservation;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.ObservationHeading;
@@ -21,7 +16,6 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserObservationHeading;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RoleName;
-import org.patientview.persistence.repository.AlertObservationHeadingRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
@@ -31,13 +25,11 @@ import org.patientview.persistence.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -49,7 +41,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -63,12 +54,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         implements ObservationHeadingService {
 
     @Inject
-    private ObservationService observationService;
-
-    @Inject
-    private EmailService emailService;
-
-    @Inject
     private ObservationHeadingRepository observationHeadingRepository;
 
     @Inject
@@ -76,9 +61,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     private ObservationHeadingGroupRepository observationHeadingGroupRepository;
-
-    @Inject
-    private AlertObservationHeadingRepository alertObservationHeadingRepository;
 
     @Inject
     private GroupRepository groupRepository;
@@ -92,9 +74,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Inject
     @Named("fhir")
     private DataSource dataSource;
-
-    @Inject
-    private Properties properties;
 
     private static final Long FIRST_PANEL = 1L;
     private static final Long DEFAULT_COUNT = 3L;
@@ -391,157 +370,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         return new ArrayList<>(availableObservationHeadings);
-    }
-
-    @Override
-    public List<org.patientview.api.model.AlertObservationHeading> getAlertObservationHeadings(Long userId)
-            throws ResourceNotFoundException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        List<AlertObservationHeading> alertObservationHeadings = alertObservationHeadingRepository.findByUser(user);
-        List<org.patientview.api.model.AlertObservationHeading> transportAlertObservationHeadings = new ArrayList<>();
-
-        for (AlertObservationHeading alertObservationHeading : alertObservationHeadings) {
-            transportAlertObservationHeadings.add(
-                    new org.patientview.api.model.AlertObservationHeading(alertObservationHeading, user));
-        }
-
-        return transportAlertObservationHeadings;
-    }
-
-    @Override
-    public void addAlertObservationHeading(Long userId,
-                                           org.patientview.api.model.AlertObservationHeading alertObservationHeading)
-            throws ResourceNotFoundException, FhirResourceException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        ObservationHeading observationHeading
-                = observationHeadingRepository.findOne(alertObservationHeading.getObservationHeading().getId());
-        if (observationHeading == null) {
-            throw new ResourceNotFoundException("Could not find result type");
-        }
-
-        List<FhirObservation> fhirObservations
-                = observationService.get(user.getId(), observationHeading.getCode(), "appliesDateTime", "DESC", 1L);
-
-        AlertObservationHeading newAlertObservationHeading = new AlertObservationHeading();
-
-        if (!CollectionUtils.isEmpty(fhirObservations)) {
-            newAlertObservationHeading.setLatestObservationValue(fhirObservations.get(0).getValue());
-            newAlertObservationHeading.setLatestObservationDate(fhirObservations.get(0).getApplies());
-        }
-
-        newAlertObservationHeading.setUser(user);
-        newAlertObservationHeading.setObservationHeading(observationHeading);
-        newAlertObservationHeading.setWebAlert(alertObservationHeading.isWebAlert());
-        newAlertObservationHeading.setWebAlertViewed(true);
-        newAlertObservationHeading.setEmailAlert(alertObservationHeading.isEmailAlert());
-        newAlertObservationHeading.setEmailAlertSent(true);
-        newAlertObservationHeading.setCreated(new Date());
-        newAlertObservationHeading.setCreator(user);
-
-        alertObservationHeadingRepository.save(newAlertObservationHeading);
-    }
-
-    @Override
-    public void removeAlertObservationHeading(Long userId, Long alertObservationHeadingId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        AlertObservationHeading alertObservationHeading
-                = alertObservationHeadingRepository.findOne(alertObservationHeadingId);
-        if (alertObservationHeading == null) {
-            throw new ResourceNotFoundException("Could not find alert");
-        }
-
-        if (!user.getId().equals(alertObservationHeading.getUser().getId())) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        alertObservationHeadingRepository.delete(alertObservationHeading);
-    }
-
-    @Override
-    public void updateAlertObservationHeading(Long userId,
-                                              org.patientview.api.model.AlertObservationHeading alertObservationHeading)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        AlertObservationHeading entityAlertObservationHeading
-                = alertObservationHeadingRepository.findOne(alertObservationHeading.getId());
-        if (entityAlertObservationHeading == null) {
-            throw new ResourceNotFoundException("Could not find alert");
-        }
-
-        if (!user.getId().equals(entityAlertObservationHeading.getUser().getId())) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        entityAlertObservationHeading.setWebAlert(alertObservationHeading.isWebAlert());
-        entityAlertObservationHeading.setWebAlertViewed(alertObservationHeading.isWebAlertViewed());
-        entityAlertObservationHeading.setEmailAlert(alertObservationHeading.isEmailAlert());
-
-        alertObservationHeadingRepository.save(entityAlertObservationHeading);
-    }
-
-    @Override
-    public void sendAlertObservationHeadingEmails() {
-
-        List<AlertObservationHeading> alertObservationHeadings
-                = alertObservationHeadingRepository.findByEmailAlertSetAndNotSent();
-
-        Set<String> emailAddresses = new HashSet<>();
-
-        for (AlertObservationHeading alertObservationHeading : alertObservationHeadings) {
-            String email =
-                    alertObservationHeadingRepository.findOne(alertObservationHeading.getId()).getUser().getEmail();
-            if (StringUtils.isNotEmpty(email)) {
-                emailAddresses.add(email);
-            }
-        }
-
-        if (!CollectionUtils.isEmpty(emailAddresses)) {
-            Email email = new Email();
-            email.setBcc(true);
-            email.setSenderEmail(properties.getProperty("smtp.sender.email"));
-            email.setSenderName(properties.getProperty("smtp.sender.name"));
-            email.setRecipients(emailAddresses.toArray(new String[emailAddresses.size()]));
-            email.setSubject("PatientView - You have new results");
-
-            StringBuilder sb = new StringBuilder();
-            sb.append("Dear user");
-            sb.append(", <br/><br/>New test results have arrived on <a href=\"");
-            sb.append(properties.getProperty("site.url"));
-            sb.append("\">PatientView</a>");
-            sb.append("<br/><br/>Please login to see them.<br/>");
-            email.setBody(sb.toString());
-
-            try {
-                emailService.sendEmail(email);
-                for (AlertObservationHeading alertObservationHeading : alertObservationHeadings) {
-                    alertObservationHeading.setEmailAlertSent(true);
-                    alertObservationHeadingRepository.save(alertObservationHeading);
-                }
-            } catch (MessagingException | MailException me) {
-                LOG.error("Could not bulk send alert emails: ", me);
-            }
-        }
     }
 
     public void delete(final Long observationHeadingId) {

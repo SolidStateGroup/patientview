@@ -69,7 +69,7 @@ public class MigrationIntegrationTest {
     @Transactional
     @Rollback(false)
     public void test02UserMigration() throws JsonMigrationException {
-        userDataMigrationService.migrate();
+        userDataMigrationService.migrate(null);
     }
 
     /**

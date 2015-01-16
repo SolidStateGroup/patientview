@@ -251,6 +251,7 @@ html, body{
     }
 }
 
+
 @media only screen
 and (max-width : 1023px) {
 
@@ -334,6 +335,23 @@ and (max-width : 1023px) {
     }
 }
 
+@media only screen
+and (min-width : 768px) and (max-width:1023px) {
+  .footer{
+    .legal-links{
+      width:40%;
+      li{
+        display:block;
+        text-align:right;
+        line-height:22px;
+      }
+    }
+    .partner-info{
+      width:60%;
+    }
+  }
+}
+
 @media (max-width: $screen-xs-max) {
 
     .navbar-brand {
@@ -379,6 +397,12 @@ and (max-width : 1023px) {
 
     .footer .legal-links{
         width:40%;
+    }
+
+    .footer .partner-info{
+      width: 100%;
+      position: absolute;
+      left: -20px;
     }
 
 }

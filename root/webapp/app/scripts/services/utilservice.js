@@ -177,7 +177,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         generateYears: function () {
             var years = [];
             years.push('');
-            for (var i=new Date().getFullYear();i>=1920;i--) {
+            for (var i=new Date().getFullYear();i>=1900;i--) {
                 years.push(i);
             }
             return years;

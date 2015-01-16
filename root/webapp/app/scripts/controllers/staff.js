@@ -125,6 +125,15 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
                 $scope.editUser.groups.push(group);
             }
 
+            // global admin can see all group roles of globaladmin
+            if ($scope.permissions.isSuperAdmin) {
+                for(var i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                    if ($scope.editUser.groupRoles[i].role.name === 'GLOBAL_ADMIN') {
+                        $scope.editUser.groupRoles[i].group.visible = true;
+                    }
+                }
+            }
+
             // set available groups so user can add another group/role to the users existing group roles if required
             $scope.editUser.availableGroups = $scope.allGroups;
             for (i = 0; i < $scope.editUser.groups.length; i++) {
@@ -449,8 +458,22 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             // set groups that can be chosen in UI, only show users from visible groups (assuming all users are in generic which is visible==false)
             for (i = 0; i < groups.length; i++) {
                 group = groups[i];
+
+                // global admin can see all groups
+                if ($scope.permissions.isSuperAdmin) {
+                    group.visible = true;
+                }
+
                 if (group.visible === true) {
-                    $scope.allGroups.push(group);
+                    var minimalGroup = {};
+                    minimalGroup.id = group.id;
+                    minimalGroup.shortName = group.shortName;
+                    minimalGroup.name = group.name;
+                    minimalGroup.groupType = {};
+                    minimalGroup.groupType.value = group.groupType.value;
+                    minimalGroup.groupType.description = group.groupType.description;
+                    $scope.allGroups.push(minimalGroup);
+
                     $scope.permissions.allGroupsIds[group.id] = group.id;
                     $scope.groupMap[group.id] = group;
 
@@ -508,6 +531,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // Opened for edit
     $scope.opened = function (openedUser) {
         $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
         $scope.editUser = '';
         $scope.editMode = true;
         $scope.saved = '';
@@ -544,6 +568,15 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                     }
                 } else {
                     user.userFeatures = [];
+                }
+
+                // global admin can see all group roles of globaladmin
+                if ($scope.permissions.isSuperAdmin) {
+                    for(var i = 0; i < user.groupRoles.length; i++) {
+                        if (user.groupRoles[i].role.name === 'GLOBAL_ADMIN') {
+                            user.groupRoles[i].group.visible = true;
+                        }
+                    }
                 }
 
                 // set the user being edited to a clone of the existing user (so only updated in UI on save)
@@ -599,6 +632,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.errorMessage = '';
         $scope.warningMessage = '';
         $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
         $scope.userCreated = '';
 
         // create new user with list of available roles, groups and features
@@ -647,7 +681,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         modalInstance.result.then(function (user) {
             // check if user is newly created
             if (user.isNewUser) {
-                // is a new user
+                $scope.printSuccessMessage = true;
                 $scope.successMessage = 'User successfully created ' +
                     'with username: "' + user.username + '" ' +
                     'and password: "' + user.password + '"';
@@ -676,6 +710,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         $scope.errorMessage = '';
         $scope.warningMessage = '';
         $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
 
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
@@ -710,6 +745,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // delete user
     $scope.deleteUser = function (userId) {
         $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
         // close any open edit panels
         $('.panel-collapse.in').collapse('hide');
 
@@ -728,7 +764,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             });
 
             modalInstance.result.then(function () {
-                // ok, delete from list
+                // closed, refresh list
                 $scope.currentPage = 0;
                 $scope.getItems();
                 $scope.successMessage = 'User successfully deleted';
@@ -741,6 +777,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // reset user password
     $scope.resetUserPassword = function (userId) {
         $scope.successMessage = '';
+        $scope.printSuccessMessage = false;
 
         UserService.get(userId).then(function(user) {
             var modalInstance = $modal.open({
@@ -757,8 +794,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             });
 
             modalInstance.result.then(function (successResult) {
+                $scope.printSuccessMessage = true;
                 $scope.successMessage = 'Password reset for ' + user.forename + ' ' + user.surname
-                    + ' (username ' + user.username + '), new password is: ' + successResult.password;
+                    + ' (username "' + user.username + '"), new password is: "' + successResult.password + '"';
             }, function () {
                 // closed
             });
@@ -767,6 +805,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
 
     // send verification email
     $scope.sendVerificationEmail = function (userId) {
+        $scope.printSuccessMessage = false;
         $scope.successMessage = '';
 
         UserService.get(userId).then(function(user) {

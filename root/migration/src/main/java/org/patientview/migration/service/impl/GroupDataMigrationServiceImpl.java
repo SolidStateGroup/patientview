@@ -299,10 +299,8 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
         try {
             JsonUtil.jsonRequest(featureUrl, GroupRole.class, null, HttpPut.class, true);
-            LOG.info("Success: feature created for group");
         } catch (JsonMigrationException jme) {
             LOG.error("Unable to parent group: ", jme.getMessage());
-
         } catch (JsonMigrationExistsException jee) {
             LOG.error("Unable to parent group: ", jee.getMessage());
         } catch (Exception e) {

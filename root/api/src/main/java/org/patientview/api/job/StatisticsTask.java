@@ -57,10 +57,10 @@ public class StatisticsTask {
     }
 
     /**
-     * Statistics for the current month, run every 10 minutes
+     * Statistics for the current month, run every day at 1am
      */
-    @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
-    //@Scheduled(cron = "0 0 1 * * ?") // every day at 01:00
+    //@Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
+    @Scheduled(cron = "0 0 1 * * ?") // every day at 01:00
     public void generateThisMonthStatistics() {
         Calendar calendar = timer.getCurrentDate();
 
@@ -75,7 +75,7 @@ public class StatisticsTask {
         calendar.set(Calendar.MILLISECOND, 0);
         Date startDate = calendar.getTime();
 
-        LOG.info("Creating statistics (every 10m) for period " + startDate.toString() + " to " + endDate.toString());
+        LOG.info("Creating statistics (every 1am) for period " + startDate.toString() + " to " + endDate.toString());
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
     }
 }

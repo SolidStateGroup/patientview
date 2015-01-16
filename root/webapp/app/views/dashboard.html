@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient">
+            <div class="content-panel chart-container" data-ng-show="!chartLoading && !permissions.isPatient">
                 <div class="panel-intro">
                     <h3 data-ng-hide="graphGroups.length > 1 || permissions.isPatient" data-ng-cloak>{{graphGroups[0].name}}
                         <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
@@ -82,23 +82,24 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="content-panel" data-ng-hide="permissions.isPatient">
-                <div class="content-inner">
-                    <div id="chart_div"></div>
+                <div class="" data-ng-hide="permissions.isPatient">
+                    <div class="content-inner">
+                        <div id="chart_div"></div>
+                    </div>
                 </div>
             </div>
+
+
 
             <div class="content-panel" data-ng-show="chartLoading && !permissions.isPatient">
                 <div class="loading"><img src="images/loading.gif" alt="Loading"/><br/><br/></div>
             </div>
 
-            <div class="chart-container content-panel" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
+            <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
                 <div class="panel-intro">
                     <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
                 </div>
-                <div class="tab-panel-item">
+                <div class="user-details-container">
                     <div class="user-details">
                         <div class="row">
                             <dl class="col-md-4">
@@ -128,12 +129,12 @@
                 <div class="content-panel">
                     <div class="panel-intro">
                         <h3>Alerts</h3>
-                        <p>When a new result arrives you might wish to be notified. <br/>Click 'Show Alert Settings' to
+                        <p>When a new result or letter arrives you might wish to be notified. <br/>Click 'Show Alert Settings' to
                             select the ones you are interested in.</p>
                     </div>
                     <div class="content-inner">
-
                         <div data-ng-show="alertObservationHeadings.length" class="alert-list">
+                            <h4>Result Alerts</h4>
                             <table class="table">
                                 <tr>
                                     <th>Type</th>
@@ -146,24 +147,53 @@
                                         <a href="#/resultsdetail?code={{alert.observationHeading.code}}">{{alert.observationHeading.heading}}</a>
                                     </td>
                                     <td>
-                                        <span data-ng-show="alert.latestObservationValue">{{alert.latestObservationValue}}</span>
-                                        <span data-ng-show="!alert.latestObservationValue">Not Available</span>
+                                        <span data-ng-show="alert.latestValue">{{alert.latestValue}}</span>
+                                        <span data-ng-show="!alert.latestValue">Not Available</span>
                                     </td>
                                     <td>
-                                        <span data-ng-show="alert.latestObservationDate">
-                                            {{alert.latestObservationDate | date:'dd-MMM-yyyy'}}
+                                        <span data-ng-show="alert.latestDate">
+                                            {{alert.latestDate | date:'dd-MMM-yyyy'}}
                                         </span>
-                                        <span data-ng-show="!alert.latestObservationDate">Not Available</span>
+                                        <span data-ng-show="!alert.latestDate">Not Available</span>
                                     </td>
                                     <td>
                                         <span class="label label-success" data-ng-show="!alert.webAlertViewed && alert.webAlert">
-                                            <a href="" class="new-result-notification" data-ng-click="hideAlertObservationHeadingNotification(alert)">New</a>
+                                            <a href="" class="new-result-notification" data-ng-click="hideAlertNotification(alert)">New</a>
                                         </span>
                                     </td>
                                 </tr>
                             </table>
                         </div>
-                        <div data-ng-show="!alertObservationHeadings.length" class="alert-list">
+                        <div data-ng-show="letterAlert">
+                            <h4>Letter Alerts</h4>
+                            <table class="table">
+                                <tr>
+                                    <th>Latest Letter</th>
+                                    <th>Letter Type</th>
+                                    <th>New Letter? <br/>(click to hide notification)</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span data-ng-show="letterAlert.latestDate">
+                                            {{letterAlert.latestDate | date:'dd-MMM-yyyy'}}
+                                        </span>
+                                        <span data-ng-show="!letterAlert.latestDate">Not Available</span>
+                                    </td>
+                                    <td>
+                                        <span data-ng-show="letterAlert.latestValue">
+                                            {{letterAlert.latestValue}}
+                                        </span>
+                                        <span data-ng-show="!letterAlert.latestValue">Not Available</span>
+                                    </td>
+                                    <td>
+                                        <span class="label label-success" data-ng-show="!letterAlert.webAlertViewed && letterAlert.webAlert">
+                                            <a href="" class="new-result-notification" data-ng-click="hideAlertNotification(letterAlert)">New</a>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div data-ng-show="!alertObservationHeadings.length && !letterAlert" class="alert-list">
                             <p>You have not registered for any alerts, would you like to do so now?</p>
                         </div>
                         <div>
@@ -171,8 +201,20 @@
                                data-ng-hide="showAlertSettings">Show Alert Settings</a>
                             <br/>
                         </div>
+
                         <div data-ng-show="showAlertSettings">
-                            <a href="" class="pull-right" data-ng-click="showAlertSettings = !showAlertSettings">Hide Alert Settings</a>
+                            <p><a href="" class="pull-right" data-ng-click="showAlertSettings = !showAlertSettings">Hide Alert Settings</a></p>
+                            <h3>Alert Settings</h3>
+                            <p>If you would like to be notified when a new letter arrives, please select from the following options:</p>
+                            <div>
+                                <input type="checkbox" data-ng-model="letterAlert.webAlert" class="alert-checkbox"
+                                    data-ng-change="updateLetterAlert(letterAlert)">Letter notification on PatientView homepage</input>
+                            </div>
+                            <div>
+                                <input type="checkbox" data-ng-model="letterAlert.emailAlert" class="alert-checkbox"
+                                    data-ng-change="updateLetterAlert(letterAlert)">Letter notifications via Email</input>
+                            </div>
+                            <br/>
                             <p>If you would like to be notified when a new result arrives, please select it from the dropdown:</p>
                             <select class="form-control pull-right" data-ng-model="selectedObservationHeadingId"
                                     data-ng-options="observationHeading.id as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
@@ -191,14 +233,14 @@
                                     </td>
                                     <td>
                                         <input type="checkbox" data-ng-model="alert.webAlert" class="alert-checkbox"
-                                               data-ng-change="updateAlertObservationHeading(alert)">PatientView homepage</input>
+                                               data-ng-change="updateAlert(alert)">PatientView homepage</input>
                                     </td>
                                     <td>
                                         <input type="checkbox" data-ng-model="alert.emailAlert" class="alert-checkbox"
-                                               data-ng-change="updateAlertObservationHeading(alert)">Email</input>
+                                               data-ng-change="updateAlert(alert)">Email</input>
                                     </td>
                                     <td>
-                                        <a href="" class="btn btn-danger" data-ng-click="removeAlertObservationHeading(alert.id)">Remove Alert</a>
+                                        <a href="" class="btn btn-danger" data-ng-click="removeAlert(alert.id)">Remove Alert</a>
                                     </td>
                                 </tr>
                             </table>
@@ -242,7 +284,7 @@
         </div>
 
         <aside class="col-md-4">
-            <div class="panel-header content-panel lowlight">
+            <div class="panel-header user-details-header content-panel lowlight">
                 <h3><span class="badge aqua pull-left"><i class="icon-settings"></i></span>Your Settings</h3>
             </div>
             <div class="user-details content-panel">

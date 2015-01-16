@@ -36,7 +36,7 @@ import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
-import org.patientview.persistence.repository.AlertObservationHeadingRepository;
+import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -131,7 +131,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private UserObservationHeadingRepository userObservationHeadingRepository;
 
     @Inject
-    private AlertObservationHeadingRepository alertObservationHeadingRepository;
+    private AlertRepository alertRepository;
 
     @Inject
     private Properties properties;
@@ -340,7 +340,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public Long add(User user) throws EntityExistsException {
 
         if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
-            throw new EntityExistsException("User already exists (username)");
+            throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }
 
         User creator = getCurrentUser();
@@ -471,11 +471,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         if (userRepository.usernameExistsCaseInsensitive(user.getUsername())) {
-            throw new EntityExistsException("User already exists (username)");
+            throw new EntityExistsException("User already exists (username): " + user.getUsername());
         }
 
         if (userRepository.emailExists(user.getEmail())) {
-            throw new EntityExistsException("User already exists (email)");
+            throw new EntityExistsException("User already exists (email): " + user.getEmail());
         }
 
         return add(user);
@@ -832,7 +832,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     /**
-     * Get users based on a list of groups and roles
+     * Get users based on a list of groups and roles (only used by conversation service now)
      * @return Page of standard User
      */
     public Page<User> getUsersByGroupsAndRolesNoFilter(GetParameters getParameters)
@@ -1008,7 +1008,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             userTokenRepository.deleteByUserId(user.getId());
             userMigrationRepository.deleteByUserId(user.getId());
             userObservationHeadingRepository.deleteByUserId(user.getId());
-            alertObservationHeadingRepository.deleteByUserId(user.getId());
+            alertRepository.deleteByUserId(user.getId());
 
             userRepository.delete(user);
         } else {
@@ -1036,6 +1036,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         User user = findUser(userId);
         user.setChangePassword(Boolean.FALSE);
         user.setPassword(DigestUtils.sha256Hex(password));
+        user.setLocked(Boolean.FALSE);
+        user.setFailedLogonAttempts(0);
         userRepository.save(user);
     }
 
@@ -1061,6 +1063,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         user.setPassword(DigestUtils.sha256Hex(password));
         user.setChangePassword(Boolean.TRUE);
+        user.setLocked(Boolean.FALSE);
+        user.setFailedLogonAttempts(0);
         return new org.patientview.api.model.User(userRepository.save(user), null);
     }
 

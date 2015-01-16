@@ -10,7 +10,7 @@
 
   <groupId>org.patientview2</groupId>
   <artifactId>root</artifactId>
-  <version>0.2-SNAPSHOT</version>
+  <version>2.0.0-RELEASE</version>
   <packaging>pom</packaging>
   <name>root</name>
   <modules>
@@ -62,77 +62,4 @@
         </repository>
     </distributionManagement>
 
-    <!--  <build>
-          <plugins>
-              <plugin>
-                  <groupId>org.codehaus.mojo</groupId>
-                  <artifactId>cobertura-maven-plugin</artifactId>
-                  <version>2.5.2</version>
-                  <configuration>
-                      <formats>
-                          <format>xml</format>
-                      </formats>
-                  </configuration>
-                  <executions>
-                      <execution>
-                          <phase>package</phase>
-                          <goals>
-                              <goal>cobertura</goal>
-                          </goals>
-                      </execution>
-                  </executions>
-              </plugin>
-
-          </plugins>
-      </build> -->
-
-<!--      <build>
-     <pluginManagement>
-             <plugins>
-                 <plugin>
-                     <groupId>org.apache.maven.plugins</groupId>
-                     <artifactId>maven-jxr-plugin</artifactId>
-                     <version>2.4</version>
-                 </plugin>
-             </plugins>
-         </pluginManagement>
-         <plugins>
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-jxr-plugin</artifactId>
-                 <version>2.4</version>
-             </plugin>
-
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-checkstyle-plugin</artifactId>
-                 <version>2.12.1</version>
-                 <executions>
-                     <execution>
-                         <id>validate</id>
-                         <phase>validate</phase>
-                         <configuration>
-                             <configLocation>config/sun_checks.xml</configLocation>
-                             <encoding>UTF-8</encoding>
-                             <consoleOutput>true</consoleOutput>
-                             <failsOnError>true</failsOnError>
-                         </configuration>
-                         <goals>
-                             <goal>check</goal>
-                         </goals>
-                     </execution>
-                 </executions>
-             </plugin>
-         </plugins>
-     </build>
-
-     <reporting>
-         <plugins>
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-jxr-plugin</artifactId>
-                 <version>2.3</version>
-             </plugin>
-         </plugins>
-     </reporting>-->
 </project>

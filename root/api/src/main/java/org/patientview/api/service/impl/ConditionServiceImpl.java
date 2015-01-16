@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.Condition;
+import org.hl7.fhir.instance.model.DateAndTime;
 import org.patientview.api.controller.BaseController;
 import org.patientview.api.service.ConditionService;
 import org.patientview.api.util.Util;
@@ -98,6 +99,11 @@ public class ConditionServiceImpl extends BaseController<ConditionServiceImpl> i
             CodeableConcept category = new CodeableConcept();
             category.setTextSimple(fhirCondition.getCategory());
             condition.setCategory(category);
+        }
+
+        if (fhirCondition.getDate() != null) {
+            DateAndTime dateAndTime = new DateAndTime(fhirCondition.getDate());
+            condition.setDateAssertedSimple(dateAndTime);
         }
 
         fhirResource.create(condition);

@@ -2,11 +2,11 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="group-code" class="control-label">Code <span class="error" data-ng-hide="editGroup.code.length"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" data-ng-model="editGroup.code" data-ng-disabled="!permissions.canEditGroupCode" required ></div>
+            <div class=""><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" data-ng-model="editGroup.code" data-ng-disabled="!permissions.canEditGroupCode" required maxlength="50"></div>
         </div>
         <div class="col-md-3">
             <label for="group-name" class="control-label">Name <span class="error" data-ng-hide="editGroup.name.length"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" data-ng-model="editGroup.name" required></div>
+            <div class=""><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" data-ng-model="editGroup.name" required maxlength="200"></div>
         </div>
         <div class="col-md-3">
             <label for="group-short-name" class="control-label">Short Name (20 characters)<span class="error" data-ng-hide="editGroup.shortName.length"> *required</span></label>
@@ -27,7 +27,7 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="group-sftp-user" class="control-label">SFTP User</label>
-            <input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" data-ng-model="editGroup.sftpUser">
+            <input type="text" class="form-control" id="group-sftp-user" placeholder="SFTP User" name="sftp-user" data-ng-model="editGroup.sftpUser" maxlength="255">
         </div>
     </div>
 </div>
@@ -47,7 +47,7 @@
         </div>
         <div class="col-md-3">
             <label for="group-postcode" class="control-label">Postcode</label>
-            <input type="text" class="form-control" id="group-postcode" placeholder="Postcode" name="postcode" data-ng-model="editGroup.postcode">
+            <input type="text" class="form-control" id="group-postcode" placeholder="Postcode" name="postcode" data-ng-model="editGroup.postcode" maxlength="255">
         </div>
     </div>
 </div>

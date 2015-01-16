@@ -70,7 +70,7 @@
             <input type="checkbox" class="form-control" id="user-emailVerified" name="user-emailVerified"
                    data-ng-model="editUser.emailVerified" data-ng-disabled="true"/>
         </div>
-        <div class="col-md-3 visible-for-col">
+        <div class="col-md-3 visible-for-col hidden">
             <h5 for="user-dummy pull-left" class="control-label">Override Identifier Validation</h5>
             <input type="checkbox" class="form-control" id="user-dummy" name="user-dummy"
                    data-ng-model="editUser.dummy" data-ng-disabled="true"/>
@@ -154,7 +154,7 @@
                     <button type="button" class="btn negative link-delete-button" data-ng-click="removeIdentifier(userForm, editUser, identifier)">Delete</button>
                 </div>
                 <div class="col-sm-4"><input type="text" class="form-control" id="identifier-identifier-{{identifier.id}}"
-                     placeholder="NHS or CHI Number" name="identifier" data-ng-model="identifier.identifier" required data-ng-disabled="!permissions.canEditPatients"></div>
+                     placeholder="Identifier" name="identifier" data-ng-model="identifier.identifier" required data-ng-disabled="!permissions.canEditPatients"></div>
                 <div class="col-sm-4">
                     <select id="identifier-identifier" class="form-control"
                             data-ng-model="identifier.identifierType.id"
@@ -171,7 +171,7 @@
                         data-ng-click="addIdentifier(userForm, editUser, newIdentifier)"
                         data-ng-disabled="!(newIdentifier.identifier && newIdentifier.identifierType)">Add</button>
                 <input type="text" class="form-control" id="identifier-newIdentifier-identifier"
-                       placeholder="NHS or CHI Number" name="newIdentifier" data-ng-model="newIdentifier.identifier">
+                       placeholder="Identifier" name="newIdentifier" data-ng-model="newIdentifier.identifier">
                 <select class="form-control indentifierType-select" data-ng-model="newIdentifier.identifierType"
                         data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select>
             </div>

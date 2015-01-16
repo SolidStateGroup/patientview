@@ -1,18 +1,3 @@
-<!-- todo: move to main css -->
-<style>
-    .feature-list-delete {
-        margin-right:10px;
-    }
-    .name-action-list li {
-        height: auto;
-    }
-    .feature-list {
-        margin-top: 10px;
-    }
-    .print-success-message {
-        margin-left: 20px;
-    }
-</style>
 <div data-ng-show="!loading">
     <h1>Patients
         <button class="btn blue" data-ng-click="openModalNewPatient('lg')" data-ng-show="permissions.canCreatePatients">Create New</button>
@@ -233,9 +218,9 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-12 table-filter-container">
                             <ul class="feature-list unstyled name-action-list">
-                                <li class="feature-list-item" data-ng-repeat="group in allGroups | orderBy:'name'" data-ng-show="isGroupChecked(group.id)">
+                                <li class="feature-list-item pull-left" data-ng-repeat="group in allGroups | orderBy:'name'" data-ng-show="isGroupChecked(group.id)">
                                     <div class="feature-list-name pull-left">
                                         <span class="feature-list-name">{{group.name}}</span>
                                     </div>
@@ -254,7 +239,7 @@
 
         <div class="alert alert-success" data-ng-show="successMessage" id="success-message">
             {{successMessage}}
-            <a href="" class="print-success-message" data-ng-click="printSuccessMessage()">Print</a>
+            <a href="" class="print-success-message" data-ng-click="printSuccessMessage()" data-ng-show="printSuccessMessage">Print</a>
         </div>
 
         <!-- data grid -->
@@ -312,9 +297,9 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-accordion" id="dropdown-toggle-{{user.id}}-menu">
                                     <li><a href="" data-ng-click="viewUser(user.id)" class="dropdown-menu-accordion-item">View Patient</a></li>
-                                    <li data-ng-show="permissions.showDeleteMenuOption"><a href="" data-ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
                                     <li data-ng-show="permissions.canResetPasswords"><a href="" data-ng-click="resetUserPassword(user.id)" class="dropdown-menu-accordion-item">Reset Password</a></li>
                                     <li data-ng-hide="user.emailVerified || !permissions.canSendVerificationEmails" id="li-email-verified-{{user.id}}"><a href="" data-ng-click="sendVerificationEmail(user.id)" class="dropdown-menu-accordion-item">Send Verification Email</a></li>
+                                    <li data-ng-show="permissions.showDeleteMenuOption"><a href="" data-ng-click="deleteUser(user.id)" class="dropdown-menu-accordion-item">Delete</a></li>
                                 </ul>
                             </div>
                         </div>

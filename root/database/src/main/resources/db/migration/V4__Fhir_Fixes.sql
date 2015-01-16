@@ -30,3 +30,6 @@ create INDEX medicationstatement_content_patient_display on medicationstatement 
 create INDEX condition_content_subject_display on condition (( content ->'subject' ->>'display'));
 create INDEX encounter_content_subject_display on encounter (( content ->'subject' ->>'display'));
 
+DROP INDEX documentreference_search_string_on_value_idx;
+DROP INDEX documentreference_sort_on_lower_idx;
+DROP INDEX documentreference_sort_on_upper_idx;

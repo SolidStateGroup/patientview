@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserDataMigrationService {
 
-    void migrate() throws JsonMigrationException;
+    void migrate(String groupCode) throws JsonMigrationException;
 
     void bulkUserCreate(String unitCode1, String unitCode2, Long count, RoleName roleName);
 }

@@ -99,7 +99,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
 
         Date start = new Date();
-        UserMigration userMigration;
+        UserMigration userMigration = null;
 
         // get User object from MigrationUser (not patient data)
         User user = migrationUser.getUser();
@@ -108,17 +108,12 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         org.patientview.api.model.User apiUser = userService.getByUsername(user.getUsername());
 
         // delete user if already exists (expensive, not to be used for live migration)
-        if (apiUser != null) {
-            if (DELETE_EXISTING) {
-                try {
-                    userService.delete(apiUser.getId());
-                } catch (ResourceForbiddenException | FhirResourceException e) {
-                    LOG.error("Cannot delete user with id " + apiUser.getId());
-                    throw new MigrationException(e);
-                }
-            } else {
-                userId = apiUser.getId();
-                userMigration = userMigrationService.getByPatientview2Id(userId);
+        if (apiUser != null && DELETE_EXISTING) {
+            try {
+                userService.delete(apiUser.getId());
+            } catch (ResourceForbiddenException | FhirResourceException e) {
+                LOG.error("Cannot delete user with id " + apiUser.getId());
+                throw new MigrationException(e);
             }
         }
 
@@ -143,7 +138,14 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userService.addOtherUsersInformation(userId, new ArrayList<>(user.getUserInformation()));
             }
         } catch (EntityExistsException e) {
-            userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
+            if (userMigration == null) {
+                userMigration = new UserMigration(migrationUser.getPatientview1Id(), MigrationStatus.USER_FAILED);
+            } else {
+                userMigration.setStatus(MigrationStatus.USER_FAILED);
+            }
+            userMigration.setCreator(getCurrentUser());
+            userMigration.setLastUpdater(getCurrentUser());
+            userMigration.setLastUpdate(start);
             userMigration.setInformation(e.getMessage());
             userMigrationService.save(userMigration);
             throw e;

@@ -2,7 +2,6 @@ package org.patientview.persistence.model;
 
 import org.hl7.fhir.instance.model.Condition;
 import org.hl7.fhir.instance.model.DateAndTime;
-import org.hl7.fhir.instance.model.DateTime;
 
 import java.util.Date;
 import java.util.GregorianCalendar;

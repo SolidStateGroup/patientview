@@ -334,7 +334,7 @@
                                                     <xs:element maxOccurs="1" minOccurs="1" name="drugname">
                                                         <xs:simpleType>
                                                             <xs:restriction base="xs:string">
-                                                                <xs:maxLength value="30"/>
+                                                                <xs:maxLength value="50"/>
                                                             </xs:restriction>
                                                         </xs:simpleType>
                                                     </xs:element>
@@ -355,7 +355,7 @@
                                                     <xs:element maxOccurs="1" minOccurs="1" name="lettertype">
                                                         <xs:simpleType>
                                                             <xs:restriction base="xs:string">
-                                                                <xs:maxLength value="30"/>
+                                                                <xs:maxLength value="50"/>
                                                             </xs:restriction>
                                                         </xs:simpleType>
                                                     </xs:element>
@@ -586,8 +586,11 @@
         </xs:annotation>
         <xs:restriction base="xs:string">
             <xs:enumeration value="Male"/>
+            <xs:enumeration value="M"/>
             <xs:enumeration value="Female"/>
+            <xs:enumeration value="F"/>
             <xs:enumeration value="Unknown"/>
+            <xs:enumeration value="U"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="testcode">
@@ -636,6 +639,10 @@
             <xs:enumeration value="transferrin"/>
             <xs:enumeration value="ironsat"/>
             <xs:enumeration value="urate"/>
+            <xs:enumeration value="testosterone"/>
+            <xs:enumeration value="magnesium"/>
+            <xs:enumeration value="psa"/>
+            <xs:enumeration value="vitd"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="prepost">

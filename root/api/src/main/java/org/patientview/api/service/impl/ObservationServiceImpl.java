@@ -144,18 +144,20 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 for (Observation observation : observations) {
                     FhirObservation fhirObservation = new FhirObservation(observation);
 
-                    // set correct number of decimal places
-                    try {
-                        if (decimalPlaces != null) {
-                            fhirObservation.setValue(
-                                    new BigDecimal(fhirObservation.getValue()).setScale(decimalPlaces.intValue(),
-                                            BigDecimal.ROUND_HALF_UP).toString());
-                        } else {
-                            fhirObservation.setValue(
+                    if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
+                        // set correct number of decimal places
+                        try {
+                            if (decimalPlaces != null) {
+                                fhirObservation.setValue(
+                                        new BigDecimal(fhirObservation.getValue()).setScale(decimalPlaces.intValue(),
+                                                BigDecimal.ROUND_HALF_UP).toString());
+                            } else {
+                                fhirObservation.setValue(
                                     new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                            }
+                        } catch (NumberFormatException ignore) {
+                            // do not update if cant convert to double or big decimal (string based value)
                         }
-                    } catch (NumberFormatException nfe) {
-                        // do not update if cant convert to double or big decimal (string based value)
                     }
 
                     Group fhirGroup = fhirLink.getGroup();
@@ -246,23 +248,25 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             }
 
             // set correct number of decimal places
-            try {
-                ObservationHeading observationHeading = observationHeadingMap.get(fhirObservation.getName());
-                if (observationHeading != null) {
-                    if (observationHeading.getDecimalPlaces() != null) {
-                        fhirObservation.setValue(new BigDecimal(fhirObservation.getValue()).setScale(
-                                observationHeading.getDecimalPlaces().intValue(),
-                                BigDecimal.ROUND_HALF_UP).toString());
+            if (StringUtils.isNotEmpty(fhirObservation.getValue())) {
+                try {
+                    ObservationHeading observationHeading = observationHeadingMap.get(fhirObservation.getName());
+                    if (observationHeading != null) {
+                        if (observationHeading.getDecimalPlaces() != null) {
+                            fhirObservation.setValue(new BigDecimal(fhirObservation.getValue()).setScale(
+                                    observationHeading.getDecimalPlaces().intValue(),
+                                    BigDecimal.ROUND_HALF_UP).toString());
+                        } else {
+                            fhirObservation.setValue(
+                                    new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                        }
                     } else {
                         fhirObservation.setValue(
                                 new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
                     }
-                } else {
-                    fhirObservation.setValue(
-                            new DecimalFormat("0.#####").format(Double.valueOf(fhirObservation.getValue())));
+                } catch (NumberFormatException ignore) {
+                    // do not update if cant convert to double or big decimal (string based value)
                 }
-            } catch (NumberFormatException nfe) {
-                // do not update if cant convert to double or big decimal (string based value)
             }
 
             // add to output for this date, overriding this observation type if present
@@ -377,7 +381,8 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                 query.append("CONTENT ->> 'appliesDateTime', ");
                 query.append("CONTENT -> 'name' ->> 'text', ");
                 query.append("CONTENT -> 'valueQuantity' ->> 'value', ");
-                query.append("CONTENT -> 'valueQuantity' ->> 'comparator' ");
+                query.append("CONTENT -> 'valueQuantity' ->> 'comparator', ");
+                query.append("CONTENT -> 'valueCodeableConcept' ->> 'text' ");
                 query.append("FROM   observation ");
                 query.append("WHERE  CONTENT -> 'subject' ->> 'display' = '");
                 query.append(fhirLink.getResourceId().toString());
@@ -421,6 +426,15 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                                     }
                                 } catch (NumberFormatException nfe) {
                                     fhirObservation.setValue(json[2]);
+                                }
+                            } else {
+                                // textual value, trim if larger than size
+                                if (json.length >= 5 && StringUtils.isNotEmpty(json[4])) {
+                                    if (json[4].length() > 8) {
+                                        fhirObservation.setValue(json[4].subSequence(0, 8).toString() + "..");
+                                    } else {
+                                        fhirObservation.setValue(json[4]);
+                                    }
                                 }
                             }
 
@@ -756,6 +770,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
             CodeableConcept bodySite = new CodeableConcept();
             bodySite.setTextSimple(fhirObservation.getBodySite());
             observation.setBodySite(bodySite);
+        }
+
+        if (StringUtils.isNotEmpty(fhirObservation.getLocation())) {
+            observation.setCommentsSimple(fhirObservation.getLocation());
         }
 
         return observation;

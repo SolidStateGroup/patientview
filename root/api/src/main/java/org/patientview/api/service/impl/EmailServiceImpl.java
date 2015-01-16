@@ -30,6 +30,8 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
     public boolean sendEmail(Email email) throws MailException, MessagingException {
 
+        LOG.info("Email: Preparing to send email");
+
         // only send emails if enabled in properties file
         if (Boolean.parseBoolean(properties.getProperty("email.enabled"))) {
 
@@ -41,6 +43,7 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
             // if redirect enabled in properties the send to redirect email not actual recipient
             if (Boolean.parseBoolean(properties.getProperty("email.redirect.enabled"))) {
+                LOG.info("Email: Email redirect enabled");
                 if (email.isBcc()) {
                     helper.setBcc(properties.getProperty("email.redirect.address").split(","));
                 } else {
@@ -62,27 +65,33 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                     fromAddress.setPersonal("PatientView User");
                     helper.setTo(fromAddress);
                 }
+                LOG.info("Email: Set from " + fromAddress.getPersonal() + " (" + fromAddress.getAddress() + ")");
             } catch (UnsupportedEncodingException uee) {
                 helper.setFrom(email.getSenderEmail());
 
                 if (email.isBcc()) {
                     helper.setTo(email.getSenderEmail());
                 }
+                LOG.info("Email: Set from " + email.getSenderEmail());
             }
 
             helper.setText(properties.getProperty("email.header") + email.getBody()
                     + properties.getProperty("email.footer"), true);
 
             try {
+                LOG.info("Email: Attempting to send email to " + Arrays.toString(email.getRecipients())
+                        + " with subject '" + email.getSubject() + "'");
                 javaMailSender.send(message);
-                LOG.info("Sent email to " + Arrays.toString(email.getRecipients()) + " with subject '"
+                LOG.info("Email: Sent email to " + Arrays.toString(email.getRecipients()) + " with subject '"
                         + email.getSubject() + "'");
                 return true;
             } catch (MailException ex) {
-                LOG.error("Could not send email with subject: " + email.getSubject());
+                LOG.error("Email: Could not send email to " + Arrays.toString(email.getRecipients()) + " with subject '"
+                        + email.getSubject() + "'");
                 throw ex;
             }
         } else {
+            LOG.info("Email: Email sending not enabled");
             return true;
         }
     }

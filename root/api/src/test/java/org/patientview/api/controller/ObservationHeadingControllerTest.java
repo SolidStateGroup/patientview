@@ -8,10 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.patientview.api.model.BaseUser;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
@@ -34,9 +32,9 @@ import java.util.Set;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -291,126 +289,6 @@ public class ObservationHeadingControllerTest {
             fail("Exception: " + e.getMessage());
         }
         verify(observationHeadingService, Mockito.times(1)).getAvailableAlertObservationHeadings(user.getId());
-    }
-
-    @Test
-    public void testGetAlertObservationHeadings() throws ResourceNotFoundException {
-
-        User user = TestUtils.createUser("testuser");
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/alertobservationheadings" )
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
-        verify(observationHeadingService, Mockito.times(1)).getAlertObservationHeadings(user.getId());
-    }
-
-    @Test
-    public void testAddAlertObservationHeading() throws ResourceNotFoundException {
-
-        User user = TestUtils.createUser("testuser");
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
-
-        org.patientview.api.model.AlertObservationHeading alertObservationHeading
-                = new org.patientview.api.model.AlertObservationHeading();
-        alertObservationHeading.setUser(new BaseUser(user));
-        alertObservationHeading.setObservationHeading(
-                new org.patientview.api.model.ObservationHeading(observationHeading));
-        alertObservationHeading.setWebAlert(true);
-        alertObservationHeading.setWebAlertViewed(false);
-        alertObservationHeading.setEmailAlert(true);
-        alertObservationHeading.setEmailAlertSent(false);
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.post("/user/" + user.getId() + "/alertobservationheading")
-                    .content(mapper.writeValueAsString(alertObservationHeading))
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testRemoveAlertObservationHeading() throws ResourceNotFoundException, ResourceForbiddenException {
-
-        User user = TestUtils.createUser("testuser");
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
-
-        org.patientview.api.model.AlertObservationHeading alertObservationHeading
-                = new org.patientview.api.model.AlertObservationHeading();
-        alertObservationHeading.setId(1L);
-        alertObservationHeading.setUser(new BaseUser(user));
-        alertObservationHeading.setObservationHeading(
-                new org.patientview.api.model.ObservationHeading(observationHeading));
-        alertObservationHeading.setWebAlert(true);
-        alertObservationHeading.setWebAlertViewed(false);
-        alertObservationHeading.setEmailAlert(true);
-        alertObservationHeading.setEmailAlertSent(false);
-
-        try {
-            String url = "/user/" + user.getId() + "/alertobservationheadings/" + alertObservationHeading.getId();
-            mockMvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testUpdateAlertObservationHeading() throws ResourceNotFoundException, ResourceForbiddenException {
-
-        User user = TestUtils.createUser("testuser");
-        Group group = TestUtils.createGroup("testGroup");
-        Role role = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
-        Set<GroupRole> groupRoles = new HashSet<>();
-        groupRoles.add(groupRole);
-        TestUtils.authenticateTest(user, groupRoles);
-
-        ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
-
-        org.patientview.api.model.AlertObservationHeading alertObservationHeading
-                = new org.patientview.api.model.AlertObservationHeading();
-        alertObservationHeading.setId(1L);
-        alertObservationHeading.setUser(new BaseUser(user));
-        alertObservationHeading.setObservationHeading(
-                new org.patientview.api.model.ObservationHeading(observationHeading));
-        alertObservationHeading.setWebAlert(true);
-        alertObservationHeading.setWebAlertViewed(false);
-        alertObservationHeading.setEmailAlert(true);
-        alertObservationHeading.setEmailAlertSent(false);
-
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.put("/user/" + user.getId() + "/alertobservationheading")
-                    .content(mapper.writeValueAsString(alertObservationHeading))
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            fail("Exception: " + e.getMessage());
-        }
     }
 }
 

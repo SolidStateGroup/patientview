@@ -7,6 +7,9 @@
     overflow:hidden;
     margin-bottom:20px;
 
+    &.variable{
+      height:auto;
+    }
     .header-icon{
         background:$primary;
         padding:10px;
@@ -142,6 +145,14 @@
             text-decoration:none;
         }
     }
+}
+
+.result-heading-title{
+  max-width: 190px;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .specialty-manager{
@@ -342,4 +353,17 @@
             }
         }
     }
+}
+
+
+.select-result-type {
+  width: 390px;
+  margin-left: 10px;
+}
+.results-filter-list{
+
+  .feature-list-item{
+    float:left;
+    margin:0 5px 5px 0;
+  }
 }

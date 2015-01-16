@@ -53,9 +53,7 @@
 }
 
 .user-details{
-    margin-bottom:20px;
-    padding:20px;
-    min-height:170px;
+    padding:20px 20px 0;
 
     h3{
         margin-top:0;
@@ -63,6 +61,10 @@
 
     h4{
         margin-bottom:5px;
+    }
+
+    .news-actions{
+      margin-bottom:10px;
     }
 }
 

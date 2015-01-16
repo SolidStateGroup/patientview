@@ -18,6 +18,7 @@ import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MessageReadReceipt;
@@ -27,6 +28,7 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.enums.ConversationTypes;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.PatientMessagingFeatureType;
+import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
 import org.patientview.persistence.model.enums.StaffMessagingFeatureType;
@@ -409,10 +411,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 sb.append(user.getForename());
                 sb.append(" ");
                 sb.append(user.getSurname());
-                sb.append(", <br/><br/>You have a new message on PatientView.");
-                sb.append("<br/><br/>Please visit <a href=\"");
+                sb.append(", <br/><br/>You have a new message on <a href=\"");
                 sb.append(properties.getProperty("site.url"));
-                sb.append("\">the PatientView website</a> and log in to view your message.");
+                sb.append("\">PatientView</a>");
+                sb.append("<br/><br/>Please log in to view your message.<br/>");
                 email.setBody(sb.toString());
 
                 // try and send but ignore if exception and log
@@ -828,6 +830,19 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         User entityUser = userRepository.findOne(user.getId());
 
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
+
+            if (groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
+                for (GroupRelationship groupRelationship : groupRole.getGroup().getGroupRelationships()) {
+                    if (groupRelationship.getRelationshipType().equals(RelationshipTypes.CHILD)) {
+                        for (GroupFeature groupFeature : groupRelationship.getObjectGroup().getGroupFeatures()) {
+                            if (groupFeature.getFeature().getName().equals(FeatureType.MESSAGING.toString())) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
             for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {
                 if (groupFeature.getFeature().getName().equals(FeatureType.MESSAGING.toString())) {
                     return true;
@@ -858,16 +873,18 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
 
+            User entityUser = userRepository.findOne(conversationUser.getUser().getId());
+
             // GLOBAL_ADMIN and PATIENT users always have messaging features
-            if (userHasRole(conversationUser.getUser(), RoleName.GLOBAL_ADMIN, RoleName.PATIENT)) {
+            if (userHasRole(entityUser, RoleName.GLOBAL_ADMIN, RoleName.PATIENT)) {
                 usersWithMessagingFeaturesCount++;
-            } else if (userHasStaffMessagingFeatures(conversationUser.getUser())) {
+            } else if (userHasStaffMessagingFeatures(entityUser)) {
                 usersWithMessagingFeaturesCount++;
             }
 
             // check conversation user member of at least one group with messaging enabled
-            if (!userHasRole(conversationUser.getUser(), RoleName.GLOBAL_ADMIN, RoleName.PATIENT)
-                && !userGroupsHaveMessagingFeature(conversationUser.getUser())) {
+            if (!userHasRole(entityUser, RoleName.GLOBAL_ADMIN, RoleName.PATIENT)
+                && !userGroupsHaveMessagingFeature(entityUser)) {
                 return false;
             }
         }

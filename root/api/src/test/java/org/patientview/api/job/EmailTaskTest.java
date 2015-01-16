@@ -6,10 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.service.AlertService;
 import org.patientview.api.service.EmailService;
-import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.service.Timer;
-import org.patientview.persistence.repository.AlertObservationHeadingRepository;
 
 import java.util.Properties;
 
@@ -22,13 +21,10 @@ import static org.mockito.Mockito.verify;
 public class EmailTaskTest {
 
     @Mock
-    AlertObservationHeadingRepository alertObservationHeadingRepository;
-
-    @Mock
     EmailService emailService;
 
     @Mock
-    ObservationHeadingService observationHeadingService;
+    AlertService alertService;
 
     @Mock
     Timer timer;
@@ -46,7 +42,7 @@ public class EmailTaskTest {
 
     @Test
     public void testSendAlertObservationHeadingEmails() throws Exception {
-        emailTask.sendAlertObservationHeadingEmails();
-        verify(observationHeadingService, Mockito.times(1)).sendAlertObservationHeadingEmails();
+        emailTask.sendAlertEmails();
+        verify(alertService, Mockito.times(1)).sendAlertEmails();
     }
 }

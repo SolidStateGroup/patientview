@@ -47,7 +47,7 @@
                         <td class="forced-width">Other Conditions</td>
                         <td>
                             <ul class="unstyled">
-                                <li data-ng-repeat="condition in patient.fhirConditions" data-ng-show="condition.category === 'diagnosis'">
+                                <li data-ng-repeat="condition in patient.fhirConditions" data-ng-show="condition.category === 'DIAGNOSIS'">
                                     {{condition.notes}}
                                 </li>
                             </ul>
@@ -66,15 +66,6 @@
                             </span>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="forced-width">Transplant Status</td>
-                        <td>
-                            <span data-ng-repeat="encounter in patient.fhirEncounters"
-                                  data-ng-show="encounter.encounterType === 'TRANSPLANT_STATUS_KIDNEY'">
-                                Kidney: {{encounter.status}}<br/>
-                            </span>
-                        </td>
-                    </tr>
 
                     </tbody>
                 </table>
@@ -84,8 +75,13 @@
                     <tbody>
                     <tr><td colspan="2"><h4>Feet</h4></td></tr>
                     <tr>
-                        <td colspan="2"><strong>Last recorded {{patient.footCheckup.applies | date:'dd-MMM-yyyy'}}
-                            by {{patient.footCheckup.group.name}}</strong></td>
+                        <td colspan="2">
+                            <strong>
+                                <span>Last recorded {{patient.footCheckup.applies | date:'dd-MMM-yyyy'}},</span>
+                                <span data-ng-show="patient.footCheckup.location"> recorded at {{patient.footCheckup.location}},</span>
+                                <span>information provided by {{patient.footCheckup.group.name}}</span>
+                            </strong>
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>Left</strong></td>
@@ -105,8 +101,13 @@
                     <tbody>
                     <tr><td colspan="2"><h4>Eyes</h4></td></tr>
                     <tr>
-                        <td colspan="2"><strong>Last recorded {{patient.eyeCheckup.applies | date:'dd-MMM-yyyy'}}
-                            by {{patient.eyeCheckup.group.name}}</strong></td>
+                        <td colspan="2">
+                            <strong>
+                                <span>Last recorded {{patient.eyeCheckup.applies | date:'dd-MMM-yyyy'}},</span>
+                                <span data-ng-show="patient.eyeCheckup.location"> recorded at {{patient.eyeCheckup.location}},</span>
+                                <span>information provided by {{patient.eyeCheckup.group.name}}</span>
+                            </strong>
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>Left</strong></td>
