@@ -56,6 +56,14 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
                     $scope.editUser.groups = [];
                     for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
                         var groupRole = $scope.editUser.groupRoles[i];
+
+                        // global admin can see all group roles of globaladmin
+                        if ($scope.permissions.isSuperAdmin) {
+                            if (groupRole.role.name === 'GLOBAL_ADMIN') {
+                                groupRole.group.visible = true;
+                            }
+                        }
+
                         var group = groupRole.group;
                         group.role = groupRole.role;
                         $scope.editUser.groups.push(group);

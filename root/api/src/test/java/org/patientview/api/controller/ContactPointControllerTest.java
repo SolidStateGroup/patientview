@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -61,6 +62,7 @@ public class ContactPointControllerTest {
      * Fail: Doesn't return OK.
      */
     @Test
+    @Ignore("Only used for migration")
     public void testGetContactPointType() throws ResourceInvalidException {
         String type = "testType";
 

@@ -170,7 +170,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
             email.setSenderEmail(properties.getProperty("smtp.sender.email"));
             email.setSenderName(properties.getProperty("smtp.sender.name"));
             email.setRecipients(emailAddresses.toArray(new String[emailAddresses.size()]));
-            email.setSubject("PatientView - You have new results");
+            email.setSubject("PatientView - You have new data");
 
             StringBuilder sb = new StringBuilder();
             sb.append("Dear Sir/Madam");

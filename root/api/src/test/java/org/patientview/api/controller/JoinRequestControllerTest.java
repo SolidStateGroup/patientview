@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -91,6 +92,7 @@ public class JoinRequestControllerTest {
     }
 
     @Test
+    @Ignore("Only used for migration")
     public void testMigrateJoinRequests() {
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setId(1L);
