@@ -32,9 +32,9 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
 
             // strip preceding 0 on dates if present
-            day = parseInt(day.toString());
-            month = parseInt(month.toString());
-            year = parseInt(year.toString());
+            day = parseInt(day.toString(), 10);
+            month = parseInt(month.toString(), 10);
+            year = parseInt(year.toString(), 10);
 
             if (isNaN(day) || isNaN(month) || isNaN(year)) {
                 return false;
@@ -66,15 +66,14 @@ angular.module('patientviewApp').factory('UtilService', [function () {
 
         validationDateNoFuture: function (day, month, year) {
 
-
             if (day === undefined || month === undefined || year === undefined) {
                 return false;
             }
 
             // strip preceding 0 on dates if present
-            day = parseInt(day.toString());
-            month = parseInt(month.toString());
-            year = parseInt(year.toString());
+            day = parseInt(day.toString(), 10);
+            month = parseInt(month.toString(), 10);
+            year = parseInt(year.toString(), 10);
 
             if (isNaN(day) || isNaN(month) || isNaN(year)) {
                 return false;

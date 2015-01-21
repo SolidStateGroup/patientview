@@ -347,6 +347,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         user.setCreator(creator);
         // Everyone should change their password at login
         user.setChangePassword(Boolean.TRUE);
+        user.setDeleted(Boolean.FALSE);
 
         // booleans
         if (user.getLocked() == null) {
