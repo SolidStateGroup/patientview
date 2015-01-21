@@ -138,14 +138,9 @@ public class AuthenticationServiceTest {
         UserToken userToken = new UserToken();
         userToken.setUser(user);
 
-        try {
-            when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
-            when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
-            authenticationService.authenticate(user.getUsername(), password);
-        } catch (Exception e) {
-            Assert.fail("This call should not fail: " + e.getMessage());
-            e.printStackTrace();
-        }
+        when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+        when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+        authenticationService.authenticate(user.getUsername(), password);
     }
 
     /**
