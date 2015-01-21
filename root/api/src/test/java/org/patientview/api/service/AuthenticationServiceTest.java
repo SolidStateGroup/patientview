@@ -103,7 +103,37 @@ public class AuthenticationServiceTest {
         user.setUsername("testUsername");
         user.setPassword(DigestUtils.sha256Hex(password));
         user.setEmailVerified(true);
-        user.setLocked(Boolean.FALSE);
+        user.setLocked(false);
+        user.setDeleted(false);
+
+        UserToken userToken = new UserToken();
+        userToken.setUser(user);
+
+        try {
+            when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
+            when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
+            authenticationService.authenticate(user.getUsername(), password);
+        } catch (Exception e) {
+            Assert.fail("This call should not fail: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Test: Test that the authentication service and handled the password match.
+     * Fail: The method cannot validation the user.
+     */
+    @Test(expected = AuthenticationServiceException.class)
+    public void testAuthenticate_deleted() {
+
+        String password = "doNotShow";
+
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setPassword(DigestUtils.sha256Hex(password));
+        user.setEmailVerified(true);
+        user.setLocked(false);
+        user.setDeleted(true);
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);
@@ -218,6 +248,7 @@ public class AuthenticationServiceTest {
         user.setPassword(DigestUtils.sha256Hex(password));
         user.setEmailVerified(Boolean.TRUE);
         user.setLocked(Boolean.TRUE);
+        user.setDeleted(false);
 
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), password);
@@ -237,6 +268,7 @@ public class AuthenticationServiceTest {
         user.setEmailVerified(Boolean.TRUE);
         user.setLocked(Boolean.FALSE);
         user.setFailedLogonAttempts(3);
+        user.setDeleted(false);
 
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         authenticationService.authenticate(user.getUsername(), "NotThePasswordWanted");
