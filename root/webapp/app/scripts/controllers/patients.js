@@ -160,7 +160,8 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
 var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','user','UserService','allGroups','allRoles','$q',
     function ($scope, $modalInstance, permissions, user, UserService, allGroups, allRoles, $q) {
         var i, j, inMyGroups = false, notMyGroupCount = 0;
-        $scope.successMessage = $scope.errorMessage = '';
+        $scope.successMessage = '';
+        $scope.errorMessage = '';
         $scope.user = user;
 
         // check if user can be removed from groups associated with logged in user
@@ -340,6 +341,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // multi search
     $scope.search = function() {
+        delete $scope.successMessage;
         $scope.searchItems.searchUsername = $('#search-username').val();
         $scope.searchItems.searchForename = $('#search-forename').val();
         $scope.searchItems.searchSurname = $('#search-surname').val();
@@ -351,6 +353,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // update page when currentPage is changed
     $scope.$watch('currentPage', function(value) {
+        delete $scope.successMessage;
         if ($scope.initFinished === true) {
             $scope.currentPage = value;
             $scope.getItems();
@@ -360,6 +363,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     // filter users by group
     $scope.selectedGroup = [];
     $scope.setSelectedGroup = function () {
+        delete $scope.successMessage;
         var id = this.group.id;
         if (_.contains($scope.selectedGroup, id)) {
             $scope.selectedGroup = _.without($scope.selectedGroup, id);
@@ -376,6 +380,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         return false;
     };
     $scope.removeAllSelectedGroup = function (groupType) {
+        delete $scope.successMessage;
         var newSelectedGroupList = [];
 
         for (var i=0; i<$scope.selectedGroup.length; i++) {
@@ -389,6 +394,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         $scope.getItems();
     };
     $scope.removeSelectedGroup = function (group) {
+        delete $scope.successMessage;
         $scope.selectedGroup.splice($scope.selectedGroup.indexOf(group.id), 1);
         $scope.currentPage = 0;
         $scope.getItems();
@@ -449,6 +455,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     };
 
     $scope.sortBy = function(sortField) {
+        delete $scope.successMessage;
         $scope.currentPage = 0;
         if ($scope.sortField !== sortField) {
             $scope.sortDirection = 'ASC';
@@ -714,6 +721,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // Save from edit
     $scope.save = function (editUserForm, user) {
+        delete $scope.successMessage;
 
         if ((user.selectedDay != '' || user.selectedMonth != '' || user.selectedYear != '')
             && !UtilService.validationDateNoFuture(user.selectedDay, user.selectedMonth, user.selectedYear)
