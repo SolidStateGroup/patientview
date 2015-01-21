@@ -173,6 +173,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new UsernameNotFoundException("Incorrect username or password");
         }
 
+        if (user.getDeleted()) {
+            throw new AuthenticationServiceException("This account has been deleted");
+        }
+
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
             auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
                     user.getId(), AuditObjectTypes.User, null);

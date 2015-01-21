@@ -67,7 +67,11 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "date_of_birth")
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
-
+    
+    // only for staff users
+    @Column(name = "deleted")
+    private Boolean deleted;
+    
     @Transient
     private String name;
 
@@ -329,5 +333,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setUserObservationHeadings(Set<UserObservationHeading> userObservationHeadings) {
         this.userObservationHeadings = userObservationHeadings;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 }

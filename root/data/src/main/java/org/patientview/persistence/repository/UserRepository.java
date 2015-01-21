@@ -35,23 +35,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByEmail(String email);
 
-        /*
-        SQL for AND group ids
-
-        SELECT
-          u.ID, u.surname, count(UGR.group_ID)
-          FROM pv_user u
-         JOIN pv_user_group_role UGR ON u.ID = UGR.user_ID
-         WHERE UGR.role_id IN (1)
-        AND UGR.group_ID IN (2467239,2467263)
-        AND ((UPPER(u.username) LIKE '%E%')
-        OR (UPPER(u.forename) LIKE '%E%')
-        OR (UPPER(u.surname) LIKE '%E%')
-        OR (UPPER(u.email) LIKE '%E%') )
-         GROUP BY u.ID, u.surname
-         HAVING Count(UGR.group_id) = 2
-     */
-
     @Query("SELECT u " +
            "FROM User u " +
            "JOIN u.groupRoles gr " +
@@ -63,6 +46,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "AND (UPPER(u.surname) LIKE :searchSurname) " +
            "AND (UPPER(u.email) LIKE :searchEmail) " +
            "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) " +
+            "AND u.deleted = false " +
             "GROUP BY u.id " +
             "HAVING COUNT(gr) = :groupCount")
     Page<User> findPatientByGroupsRolesAnd(@Param("searchUsername") String searchUsername,
@@ -84,6 +68,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "AND (UPPER(u.forename) LIKE :searchForename) " +
            "AND (UPPER(u.surname) LIKE :searchSurname) " +
            "AND (UPPER(u.email) LIKE :searchEmail) " +
+           "AND u.deleted = false " +
            "GROUP BY u.id " +
             "HAVING COUNT(gr) = :groupCount")
     Page<User> findStaffByGroupsRolesAnd(@Param("searchUsername") String searchUsername,
@@ -106,6 +91,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND (UPPER(u.surname) LIKE :searchSurname) " +
             "AND (UPPER(u.email) LIKE :searchEmail) " +
             "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) " +
+            "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findPatientByGroupsRoles(@Param("searchUsername") String searchUsername,
                                         @Param("searchForename") String searchForename,
@@ -125,6 +111,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND (UPPER(u.forename) LIKE :searchForename) " +
             "AND (UPPER(u.surname) LIKE :searchSurname) " +
             "AND (UPPER(u.email) LIKE :searchEmail) " +
+            "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findStaffByGroupsRoles(@Param("searchUsername") String searchUsername,
                                       @Param("searchForename") String searchForename,
@@ -139,6 +126,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "JOIN u.identifiers i " +
             "WHERE gr.role.id IN :roleIds " +
             "AND gr.group.id IN :groupIds " +
+            "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findPatientByGroupsRolesNoFilter(@Param("groupIds") List<Long> groupIds,
                                         @Param("roleIds") List<Long> roleIds,
@@ -149,6 +137,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "JOIN u.groupRoles gr " +
             "WHERE gr.role.id IN :roleIds " +
             "AND gr.group.id IN :groupIds " +
+            "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findStaffByGroupsRolesNoFilter(@Param("groupIds") List<Long> groupIds,
                                       @Param("roleIds") List<Long> roleIds,
@@ -158,6 +147,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "FROM User u " +
             "JOIN u.groupRoles gr " +
             "WHERE (gr.group.id) IN (:groupIds) " +
+            "AND u.deleted = false " +
             "GROUP BY u.id " +
             "HAVING COUNT(gr) = :groupCount")
     List<User> findGroupTest(@Param("groupIds") List<Long> groupIds,
@@ -169,6 +159,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "JOIN u.userFeatures uf " +
             "WHERE gr.group = :userGroup " +
             "AND uf.feature = :feature " +
+            "AND u.deleted = false " +
             "GROUP BY u.id")
     List<User> findByGroupAndFeature(@Param("userGroup") Group userGroup, @Param("feature") Feature feature);
 
@@ -184,6 +175,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "OR (UPPER(u.forename) LIKE :filterText) " +
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText)) " +
+            "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findStaffByGroupsRolesFeatures(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
@@ -205,6 +197,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "OR (UPPER(u.surname) LIKE :filterText) " +
            "OR (UPPER(u.email) LIKE :filterText) " +
            "OR (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :filterText))) " +
+            "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findPatientByGroupsRolesFeatures(@Param("filterText") String filterText,
                                  @Param("groupIds") List<Long> groupIds,
@@ -218,6 +211,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "JOIN u.groupRoles gr " +
             "JOIN u.identifiers i " +
             "WHERE gr.role.name = org.patientview.persistence.model.enums.RoleName.PATIENT " +
+            "AND u.deleted = false " +
             "GROUP BY u.id")
     List<User> findAllPatients();
 }
