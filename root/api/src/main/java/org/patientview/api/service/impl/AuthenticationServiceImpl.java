@@ -307,6 +307,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Override
     public boolean sessionExpired(String authToken) {
+        
+        if (authToken == null) {
+            return true;
+        }
+        
         // set expired to 30 mins in future, throw exception if expiration is set and before now
         Date now = new Date();
         Date future = new Date(now.getTime() + sessionLength);
