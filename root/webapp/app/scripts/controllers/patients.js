@@ -753,9 +753,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             }, function (failureResult) {
                 if (failureResult.status === 409) {
                     // conflict (already exists)
-                    alert("Cannot save User: " + failureResult.data);
+                    alert('Cannot save User: ' + failureResult.data);
                 } else {
-                    alert("Cannot save User: " + failureResult.data);
+                    alert('Cannot save User: ' + failureResult.data);
                 }
             });
         }
@@ -877,7 +877,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
 
         // handle modal close (via button click)
-        modalInstance.result.then(function (user) {
+        modalInstance.result.then(function () {
             // no ok button, do nothing
         }, function () {
             $scope.getItems();
@@ -964,12 +964,12 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                 delete $rootScope.switchingUser;
 
             }, function() {
-                alert("Error receiving user information");
+                alert('Error receiving user information');
                 $scope.loading = false;
             });
 
         }, function() {
-            alert("Cannot view patient");
+            alert('Cannot view patient');
             $scope.loading = false;
             delete $rootScope.switchingUser;
         });

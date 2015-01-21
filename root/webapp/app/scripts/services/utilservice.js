@@ -56,7 +56,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
 
             // validate leap years (more robust)
-            var input = new Date(month+"/"+day+"/"+year);
+            var input = new Date(month+'/'+day+'/'+year);
             if (month !== input.getMonth()+1) {
                 return false;
             }
@@ -96,7 +96,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             }
 
             // validate leap years (more robust)
-            var input = new Date(month+"/"+day+"/"+year);
+            var input = new Date(month+'/'+day+'/'+year);
             if (month !== input.getMonth()+1) {
                 return false;
             }
@@ -143,8 +143,8 @@ angular.module('patientviewApp').factory('UtilService', [function () {
         },
 
         getMonthText: function(month) {
-            var monthNames = [ "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December" ];
+            var monthNames = [ 'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December' ];
             return monthNames[parseInt(month)];
         },
 

@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('PasswordChangeCtrl', ['RouteService','UserService', 'AuthService',
-    '$scope', '$rootScope', 'UtilService', 'localStorageService','$interval','$location',
-    function (RouteService,UserService,AuthService,$scope,$rootScope,UtilService,localStorageService,$interval,$location) {
+    '$scope', '$rootScope', 'UtilService', 'localStorageService',
+    function (RouteService,UserService,AuthService,$scope,$rootScope,UtilService,localStorageService) {
 
     $scope.userdetails = $rootScope.loggedInUser;
 

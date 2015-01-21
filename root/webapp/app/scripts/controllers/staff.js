@@ -135,7 +135,7 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
 
             // global admin can see all group roles of globaladmin
             if ($scope.permissions.isSuperAdmin) {
-                for(var i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                for(i = 0; i < $scope.editUser.groupRoles.length; i++) {
                     if ($scope.editUser.groupRoles[i].role.name === 'GLOBAL_ADMIN') {
                         $scope.editUser.groupRoles[i].group.visible = true;
                     }
@@ -633,9 +633,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         }, function (failureResult) {
             if (failureResult.status === 409) {
                 // conflict (already exists)
-                alert("Cannot save User: " + failureResult.data);
+                alert('Cannot save User: ' + failureResult.data);
             } else {
-                alert("Cannot save User: " + failureResult.data);
+                alert('Cannot save User: ' + failureResult.data);
             }
         });
     };
@@ -753,7 +753,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         });
 
         // handle modal close (via button click)
-        modalInstance.result.then(function (user) {
+        modalInstance.result.then(function () {
             // no ok button, do nothing
         }, function () {
             $scope.getItems();

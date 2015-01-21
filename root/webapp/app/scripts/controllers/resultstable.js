@@ -24,20 +24,20 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
         $scope.orderDirection = 'DESC';
 
         ObservationHeadingService.getAvailableObservationHeadings($scope.loggedInUser.id)
-            .then(function(observationHeadings) {
-                if (observationHeadings.length > 0) {
-                    var blankObservationHeading = {};
-                    blankObservationHeading.code = $scope.blankCode;
-                    blankObservationHeading.heading = ' Please Select..';
-                    observationHeadings.push(blankObservationHeading);
-                    $scope.observationHeadings = observationHeadings;
-                    $scope.selectedCode = 'blank';
-                    for (i = 0; i < $scope.observationHeadings.length; i++) {
-                        $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
-                    }
+        .then(function(observationHeadings) {
+            if (observationHeadings.length > 0) {
+                var blankObservationHeading = {};
+                blankObservationHeading.code = $scope.blankCode;
+                blankObservationHeading.heading = ' Please Select..';
+                observationHeadings.push(blankObservationHeading);
+                $scope.observationHeadings = observationHeadings;
+                $scope.selectedCode = 'blank';
+                for (i = 0; i < $scope.observationHeadings.length; i++) {
+                    $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
                 }
-                getSavedObservationHeadings();
-                $scope.initFinished = true;
+            }
+            getSavedObservationHeadings();
+            $scope.initFinished = true;
         }, function() {
             alert('Error retrieving result types');
         });
@@ -78,11 +78,11 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
 
     var saveObservationHeadingSelection = function() {
         ObservationHeadingService.saveObservationHeadingSelection($scope.loggedInUser.id, $scope.observationHeadingCodes)
-            .then(function (observationHeadings) {
-            }, function () {
-                alert('Could not save observation heading selection');
-                $scope.loading = false;
-            });
+        .then(function () {
+        }, function () {
+            alert('Could not save observation heading selection');
+            $scope.loading = false;
+        });
     };
 
     var getSavedObservationHeadings = function () {
@@ -91,7 +91,7 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
         ObservationHeadingService.getSavedObservationHeadings($scope.loggedInUser.id)
             .then(function (observationHeadings) {
                 for (i = 0; i < observationHeadings.length; i++) {
-                    $scope.observationHeadingCodes.push(observationHeadings[i].code)
+                    $scope.observationHeadingCodes.push(observationHeadings[i].code);
                 }
 
                 getObservations();

@@ -275,7 +275,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         $event.stopPropagation();
         $scope.successMessage = '';
 
-        CodeService.clone(codeId).then(function(code) {
+        CodeService.clone(codeId).then(function() {
             $scope.successMessage = 'Successfully copied code';
             $scope.getItems();
         });
@@ -372,7 +372,7 @@ function ($scope, $timeout, $modal, CodeService, StaticDataService) {
         }, function(failureResult) {
             if (failureResult.status === 409) {
                 // conflict, code already exists
-                alert('Cannot save Code, another Code with the same code exists')
+                alert('Cannot save Code, another Code with the same code exists');
             } else {
                 alert('There has been an error saving');
             }

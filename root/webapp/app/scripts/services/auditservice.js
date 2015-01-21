@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').factory('AuditService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
+angular.module('patientviewApp').factory('AuditService', ['$q', 'Restangular', function ($q, Restangular) {
     return {
         getAll: function (getParameters) {
             var deferred = $q.defer();

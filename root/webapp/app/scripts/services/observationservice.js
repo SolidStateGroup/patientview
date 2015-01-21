@@ -66,7 +66,7 @@ function ($q, Restangular, UtilService) {
 
                 for (var key in userResultCluster.values) {
                     if (userResultCluster.values.hasOwnProperty(key)) {
-                        values.push({"id":key,"value":userResultCluster.values[key]});
+                        values.push({'id':key, 'value':userResultCluster.values[key]});
                     }
                 }
 

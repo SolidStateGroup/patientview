@@ -98,5 +98,5 @@ function (GroupService,JoinRequestService,StaticDataService,$scope,$rootScope,Ut
 
     $scope.getReCaptchaPublicKey = function() {
         return ENV.reCaptchaPublicKey;
-    }
+    };
 }]);

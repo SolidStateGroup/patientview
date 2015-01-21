@@ -42,7 +42,7 @@ function ($scope, $modal, ObservationService) {
 
         }, function () {
             alert('Cannot get results summary');
-        })
+        });
     };
 
     $scope.changeGroup = function(groupId) {
@@ -77,7 +77,7 @@ function ($scope, $modal, ObservationService) {
         value = Math.abs(value);
 
         // now round to at most 2 dp
-        value = +(Math.round(value + "e+2")  + "e-2");
+        value = +(Math.round(value + 'e+2')  + 'e-2');
 
         return value;
     };
@@ -104,13 +104,13 @@ function ($scope, $modal, ObservationService) {
     };
 
     $scope.getPanelResultTitles = function(panel) {
-        var text = "", i;
-        var sortedResultSummaries = _.sortBy(panel, "panelOrder");
+        var text = '', i;
+        var sortedResultSummaries = _.sortBy(panel, 'panelOrder');
 
         for (i=0;i<sortedResultSummaries.length;i++) {
             text += sortedResultSummaries[i].heading;
             if (i !== sortedResultSummaries.length-1) {
-                text+= ", ";
+                text+= ', ';
             }
         }
 

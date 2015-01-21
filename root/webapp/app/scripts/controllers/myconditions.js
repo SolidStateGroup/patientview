@@ -34,26 +34,26 @@ function ($scope, PatientService, GroupService) {
                 if (observation.applies >= footCheckup.applies) {
                     footCheckup.group = observation.group;
                     footCheckup.location = observation.location;
-                    if (observation.bodySite === "LEFT_FOOT") {
+                    if (observation.bodySite === 'LEFT_FOOT') {
                         footCheckup.leftFoot.group = observation.group;
                         footCheckup.applies = observation.applies;
-                        if (observation.name === "PTPULSE") {
+                        if (observation.name === 'PTPULSE') {
                             footCheckup.leftFoot.PTPULSE = observation.value;
                             footCheckup.applies = observation.applies;
                         }
-                        if (observation.name === "DPPULSE") {
+                        if (observation.name === 'DPPULSE') {
                             footCheckup.leftFoot.DPPULSE = observation.value;
                             footCheckup.applies = observation.applies;
                         }
                     }
 
-                    if (observation.bodySite === "RIGHT_FOOT") {
+                    if (observation.bodySite === 'RIGHT_FOOT') {
                         footCheckup.rightFoot.group = observation.group;
-                        if (observation.name === "PTPULSE") {
+                        if (observation.name === 'PTPULSE') {
                             footCheckup.rightFoot.PTPULSE = observation.value;
                             footCheckup.applies = observation.applies;
                         }
-                        if (observation.name === "DPPULSE") {
+                        if (observation.name === 'DPPULSE') {
                             footCheckup.rightFoot.DPPULSE = observation.value;
                             footCheckup.applies = observation.applies;
                         }
@@ -78,30 +78,30 @@ function ($scope, PatientService, GroupService) {
                     eyeCheckup.group = observation.group;
                     eyeCheckup.location = observation.location;
 
-                    if (observation.bodySite === "LEFT_EYE") {
+                    if (observation.bodySite === 'LEFT_EYE') {
                         eyeCheckup.leftEye.group = observation.group;
                         eyeCheckup.applies = observation.applies;
-                        if (observation.name === "MGRADE") {
+                        if (observation.name === 'MGRADE') {
                             eyeCheckup.leftEye.MGRADE = observation.value;
                         }
-                        if (observation.name === "RGRADE") {
+                        if (observation.name === 'RGRADE') {
                             eyeCheckup.leftEye.RGRADE = observation.value;
                         }
-                        if (observation.name === "VA") {
+                        if (observation.name === 'VA') {
                             eyeCheckup.leftEye.VA = observation.value;
                         }
                     }
 
-                    if (observation.bodySite === "RIGHT_EYE") {
+                    if (observation.bodySite === 'RIGHT_EYE') {
                         eyeCheckup.rightEye.group = observation.group;
                         eyeCheckup.applies = observation.applies;
-                        if (observation.name === "MGRADE") {
+                        if (observation.name === 'MGRADE') {
                             eyeCheckup.rightEye.MGRADE = observation.value;
                         }
-                        if (observation.name === "RGRADE") {
+                        if (observation.name === 'RGRADE') {
                             eyeCheckup.rightEye.RGRADE = observation.value;
                         }
-                        if (observation.name === "VA") {
+                        if (observation.name === 'VA') {
                             eyeCheckup.rightEye.VA = observation.value;
                         }
                     }
@@ -168,7 +168,7 @@ function ($scope, PatientService, GroupService) {
             $scope.currentSpecialty = $scope.specialties[0];
             getAllPublic();
         } else {
-            alert("Error getting specialties");
+            alert('Error getting specialties');
         }
     };
 

@@ -359,7 +359,7 @@ function ($scope, GroupService, LinkService, LocationService, ContactPointServic
                 alert('Error saving contactPoint');
             });
         } else {
-            contactPoint.id = (new Date).getTime() * -1;
+            contactPoint.id = (new Date()).getTime() * -1;
             contactPoint.contactPointType = _.findWhere($scope.contactPointTypes, {id: contactPoint.contactPointTypeId});
             group.contactPoints.push(_.clone(contactPoint));
             delete contactPoint.id;

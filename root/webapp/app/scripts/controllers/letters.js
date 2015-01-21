@@ -46,7 +46,7 @@ function ($scope, $modal, LetterService) {
         }, function () {
             alert('Cannot get letters');
             $scope.loading = false;
-        })
+        });
     };
 
     // open modal (view)

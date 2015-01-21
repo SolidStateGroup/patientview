@@ -64,7 +64,7 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
         $scope.conversation.title = value.description;
         $scope.conversation.anonymous = value.anonymous;
         $scope.conversation.staffFeature = value.staffFeature;
-    }
+    };
 }];
 
 
@@ -81,7 +81,7 @@ function ($scope, $modal, GroupService, ConversationService) {
 
                 if (page.content[i].groupType.value === 'UNIT') {
                     page.content[i].selected = true;
-                    $scope.groups.push(page.content[i])
+                    $scope.groups.push(page.content[i]);
                 }
             }
 
@@ -132,7 +132,7 @@ function ($scope, $modal, GroupService, ConversationService) {
         } else {
             return true;
         }
-    }
+    };
 
     $scope.addAIfRequired = function (text) {
         if (text !== null && text !== undefined) {

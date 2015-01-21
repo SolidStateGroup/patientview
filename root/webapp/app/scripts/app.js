@@ -134,7 +134,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             $routeProviderReference.otherwise({ 'redirectTo': '/'});
             $route.reload();
         } else {
-            alert("You must have cookies enabled to use PatientView");
+            alert('You must have cookies enabled to use PatientView');
         }
     };
 
@@ -284,10 +284,10 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 delete $rootScope.previousAuthToken;
                 localStorageService.remove('previousAuthToken');
             }, function() {
-                alert("Error receiving user information");
+                alert('Error receiving user information');
             });
         }, function() {
-            alert("Cannot view patient");
+            alert('Cannot view patient');
         });
     };
 

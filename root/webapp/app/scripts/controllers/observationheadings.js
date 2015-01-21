@@ -1,8 +1,8 @@
 'use strict';
 
 // new observationHeading modal instance controller
-var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editObservationHeading', 'ObservationHeadingService', 'GroupService',
-    function ($scope, $rootScope, $modalInstance, editObservationHeading, ObservationHeadingService, GroupService) {
+var NewObservationHeadingModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'editObservationHeading', 'ObservationHeadingService',
+    function ($scope, $rootScope, $modalInstance, editObservationHeading, ObservationHeadingService) {
         $scope.editObservationHeading = editObservationHeading;
         $scope.editMode = false;
         $scope.editObservationHeading.observationHeadingGroups = [];
