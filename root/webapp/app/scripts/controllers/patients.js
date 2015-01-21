@@ -1031,13 +1031,19 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         });
     };
 
-    $scope.printSuccessMessage = function() {
-        var w=window.open();
-        var successMessage = $('#success-message').clone();
-        successMessage.children('.print-success-message').remove();
-        w.document.write(successMessage.html());
-        w.print();
-        w.close();
+    $scope.printSuccessMessageCompat = function() {
+        // ie8 compatibility
+        var printContent = $('#success-message').clone();
+        printContent.children('.print-success-message').remove();
+        var windowUrl = 'PatientView';
+        var uniqueName = new Date();
+        var windowName = 'Print' + uniqueName.getTime();
+        var printWindow = window.open(windowUrl, windowName, 'left=50000,top=50000,width=0,height=0');
+        printWindow.document.write(printContent.html());
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
     };
 
     $scope.init();
