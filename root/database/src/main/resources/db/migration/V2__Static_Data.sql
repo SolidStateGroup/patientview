@@ -139,7 +139,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (56, now(),
-'USER_COUNT','SELECT COUNT(DISTINCT(user_id)) FROM pv_user_group_role WHERE group_id = :groupId AND u.deleted = false','1','10');
+'USER_COUNT','SELECT COUNT(DISTINCT(ugr.user_id)) FROM pv_user_group_role ugr, pv_user u WHERE ugr.group_id = :groupId AND ugr.user_id = u.id AND u.deleted = false','1','10');
 
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (1, 'Generic', 'Generic', 'Generic', null, 2, false, now(),1, false );
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (2, 'Renal', 'Renal', 'Renal', null, 2, true, now(),1 , true);
