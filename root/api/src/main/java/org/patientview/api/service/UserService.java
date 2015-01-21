@@ -58,7 +58,7 @@ public interface UserService {
 
     User get(Long userId) throws ResourceNotFoundException;
 
-    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void delete(Long userId) throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     org.patientview.api.model.User getUser(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
