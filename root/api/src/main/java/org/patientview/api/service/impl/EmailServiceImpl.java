@@ -30,7 +30,7 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
     public boolean sendEmail(Email email) throws MailException, MessagingException {
 
-        LOG.info("Email: Preparing to send email");
+        //LOG.info("Email: Preparing to send email");
 
         // only send emails if enabled in properties file
         if (Boolean.parseBoolean(properties.getProperty("email.enabled"))) {
@@ -65,22 +65,22 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
                     fromAddress.setPersonal("PatientView User");
                     helper.setTo(fromAddress);
                 }
-                LOG.info("Email: Set from " + fromAddress.getPersonal() + " (" + fromAddress.getAddress() + ")");
+                //LOG.info("Email: Set from " + fromAddress.getPersonal() + " (" + fromAddress.getAddress() + ")");
             } catch (UnsupportedEncodingException uee) {
                 helper.setFrom(email.getSenderEmail());
 
                 if (email.isBcc()) {
                     helper.setTo(email.getSenderEmail());
                 }
-                LOG.info("Email: Set from " + email.getSenderEmail());
+                //LOG.info("Email: Set from " + email.getSenderEmail());
             }
 
             helper.setText(properties.getProperty("email.header") + email.getBody()
                     + properties.getProperty("email.footer"), true);
 
             try {
-                LOG.info("Email: Attempting to send email to " + Arrays.toString(email.getRecipients())
-                        + " with subject '" + email.getSubject() + "'");
+                //LOG.info("Email: Attempting to send email to " + Arrays.toString(email.getRecipients())
+                //        + " with subject '" + email.getSubject() + "'");
                 javaMailSender.send(message);
                 LOG.info("Email: Sent email to " + Arrays.toString(email.getRecipients()) + " with subject '"
                         + email.getSubject() + "'");
