@@ -562,9 +562,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void deleteFhirLinks(Long userId) {
+        
+        Set<Long> fhirLinkIdentifierIds = new HashSet<>();
+        
         User user = userRepository.findOne(userId);
-        for (FhirLink fhirLink : user.getFhirLinks()) {
-            fhirLinkRepository.delete(fhirLink.getId());
+        if (user.getFhirLinks() != null) {
+            for (FhirLink fhirLink : user.getFhirLinks()) {
+                fhirLinkIdentifierIds.add(fhirLink.getIdentifier().getId());
+                fhirLinkRepository.delete(fhirLink.getId());
+            }
+
+            for (Long id : fhirLinkIdentifierIds) {
+                identifierRepository.delete(id);
+            }
         }
 
         user.setFhirLinks(new HashSet<FhirLink>());
@@ -967,7 +977,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         throw new ResourceNotFoundException("No Users found");
     }
 
-    public void delete(Long userId)
+    public void delete(Long userId, boolean forceDelete)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         User user = findUser(userId);
@@ -998,7 +1008,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 patientService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
-            if (isPatient) {
+            if (isPatient || forceDelete) {
                 // patient, delete from conversations and associated messages, other non user tables
                 conversationService.deleteUserFromConversations(user);
                 auditService.deleteUserFromAudit(user);
@@ -1006,6 +1016,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 userMigrationRepository.deleteByUserId(user.getId());
                 userObservationHeadingRepository.deleteByUserId(user.getId());
                 alertRepository.deleteByUserId(user.getId());
+                deleteFhirLinks(user.getId());
                 userRepository.delete(user);
             } else {
                 // staff member, mark as deleted

@@ -201,7 +201,7 @@ public class UserControllerTest {
             fail("Exception: " + e.getMessage());
         }
 
-        verify(userService, Mockito.times(1)).delete(eq(staffUser.getId()));
+        verify(userService, Mockito.times(1)).delete(eq(staffUser.getId()), eq(false));
     }
 
     /**

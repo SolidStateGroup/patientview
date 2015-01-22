@@ -510,7 +510,7 @@ public class UserServiceTest {
         when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
         when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
 
-        userService.delete(staffUser.getId());
+        userService.delete(staffUser.getId(), false);
         verify(userRepository, Mockito.times(1)).delete(any(User.class));
     }
 
@@ -541,7 +541,7 @@ public class UserServiceTest {
         when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
         when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
 
-        userService.delete(staffUser.getId());
+        userService.delete(staffUser.getId(), false);
         verify(userRepository, Mockito.times(0)).delete(any(User.class));
     }
 

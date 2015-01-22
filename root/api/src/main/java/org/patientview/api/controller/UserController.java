@@ -109,7 +109,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public void deleteUser(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        userService.delete(userId);
+        userService.delete(userId, false);
     }
 
     // Creating new user in UI
