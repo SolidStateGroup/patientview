@@ -97,6 +97,8 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
         for (Unit unit : unitDao.getAll(false)) {
 
+            LOG.info(unit.getUnitcode() + ": starting group");
+
             // only copy units of the right sourcetype
             if (unit.getSourceType().equalsIgnoreCase("renalunit")
                     || unit.getSourceType().equalsIgnoreCase("diabetesunit")
@@ -134,9 +136,11 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
                     if (parentGroup != null && group != null) {
                         callApiCreateParentGroup(group, parentGroup);
                     } else {
-                        LOG.error("Unable to find parent group");
+                        LOG.error(unit.getUnitcode() + ": Unable to find parent group");
                     }
                 }
+
+                LOG.info(unit.getUnitcode() + ": finished group");
             }
         }
     }
@@ -177,7 +181,19 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
         statisticTypeMap.put("unique logon",
                 getLookupByName(GroupStatisticLookupValues.UNIQUE_LOGGED_ON_COUNT.toString()));
 
-        for (Group group : groups) {
+        // restricted group list, testing only
+        List<Group> groupsToAdd = new ArrayList<Group>();
+        Group groupToAdd = getGroupByCode("RRBBV");
+        
+        if (groupToAdd != null) {
+            groupsToAdd.add(groupToAdd);
+        }
+        
+        if(CollectionUtils.isEmpty(groupsToAdd)) {
+            LOG.info("No groups found, not migrating statistics");
+        }
+        
+        for (Group group : groupsToAdd) {
             if (!group.getCode().equals("Generic")) {
                 List<GroupStatistic> statistics = new ArrayList<GroupStatistic>();
                 List<UnitStat> unitStats = unitManager.getUnitStatsForUnit(group.getCode());
@@ -222,6 +238,8 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
                             statistics.add(groupStatistic);
                         }
                     }
+                } else {
+                    LOG.info(group.getCode() + ": group statistics empty");
                 }
 
                 List<PatientCount> patientCounts = patientCountDao.get(group.getCode(), "patient");
@@ -265,13 +283,19 @@ public class GroupDataMigrationServiceImpl implements GroupDataMigrationService 
 
                         statistics.add(groupStatistic);
                     }
+                } else {
+                    LOG.info(group.getCode() + ": patient statistics empty");
                 }
 
                 if (CollectionUtils.isNotEmpty(statistics)) {
                     callApiCreateGroupStatistics(group, statistics);
+                } else {
+                    LOG.info(group.getCode() + ": statistics empty, not migrating");
                 }
             }
         }
+        
+        LOG.info("Group statistics finished");
     }
 
     @Override
