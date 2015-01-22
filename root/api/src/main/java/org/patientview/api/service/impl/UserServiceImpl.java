@@ -566,13 +566,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Set<Long> fhirLinkIdentifierIds = new HashSet<>();
         
         User user = userRepository.findOne(userId);
-        for (FhirLink fhirLink : user.getFhirLinks()) {
-            fhirLinkIdentifierIds.add(fhirLink.getIdentifier().getId());
-            fhirLinkRepository.delete(fhirLink.getId());
-        }
-        
-        for(Long id : fhirLinkIdentifierIds) {
-            identifierRepository.delete(id);
+        if (user.getFhirLinks() != null) {
+            for (FhirLink fhirLink : user.getFhirLinks()) {
+                fhirLinkIdentifierIds.add(fhirLink.getIdentifier().getId());
+                fhirLinkRepository.delete(fhirLink.getId());
+            }
+
+            for (Long id : fhirLinkIdentifierIds) {
+                identifierRepository.delete(id);
+            }
         }
 
         user.setFhirLinks(new HashSet<FhirLink>());
