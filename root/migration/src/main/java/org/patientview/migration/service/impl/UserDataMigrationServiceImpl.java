@@ -236,7 +236,7 @@ public class UserDataMigrationServiceImpl implements UserDataMigrationService {
         LOG.info(groupsToAdd.size() + " Groups");
 
         boolean singleUser = false;
-        boolean replaceExisting = false;
+        boolean replaceExisting = true;
 
         if (!singleUser) {
 
