@@ -977,7 +977,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         throw new ResourceNotFoundException("No Users found");
     }
 
-    public void delete(Long userId)
+    public void delete(Long userId, boolean forceDelete)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         User user = findUser(userId);
@@ -1008,7 +1008,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 patientService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
-            if (isPatient) {
+            if (isPatient || forceDelete) {
                 // patient, delete from conversations and associated messages, other non user tables
                 conversationService.deleteUserFromConversations(user);
                 auditService.deleteUserFromAudit(user);

@@ -110,7 +110,8 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         // delete user if already exists (expensive, not to be used for live migration)
         if (apiUser != null && DELETE_EXISTING) {
             try {
-                userService.delete(apiUser.getId());
+                LOG.info("Deleting existing user with id " + apiUser.getId());
+                userService.delete(apiUser.getId(), true);
             } catch (ResourceForbiddenException | FhirResourceException e) {
                 LOG.error("Cannot delete user with id " + apiUser.getId());
                 throw new MigrationException(e);
