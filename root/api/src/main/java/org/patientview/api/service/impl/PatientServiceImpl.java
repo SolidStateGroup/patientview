@@ -168,28 +168,31 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 if (fhirLink.getActive() && !Util.isInEnum(fhirLink.getGroup().getCode(), HiddenGroupCodes.class)) {
                     Patient fhirPatient = get(fhirLink.getResourceId());
 
-                    Practitioner fhirPractitioner = null;
-                    if (fhirPatient.getCareProvider() != null && !fhirPatient.getCareProvider().isEmpty()) {
-                        fhirPractitioner
-                            = getPractitioner(UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
+                    if (fhirPatient != null) {
+                        Practitioner fhirPractitioner = null;
+                        if (fhirPatient.getCareProvider() != null && !fhirPatient.getCareProvider().isEmpty()) {
+                            fhirPractitioner
+                                = getPractitioner(
+                                    UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
+                        }
+
+                        org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
+                                fhirPractitioner, fhirLink.getGroup());
+
+                        // set conditions
+                        patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
+
+                        // set encounters
+                        patient = setEncounters(patient, encounterService.get(fhirLink.getResourceId()));
+
+                        // set edta diagnosis if present based on available codes
+                        patient = setDiagnosisCodes(patient);
+
+                        // set non test observations
+                        patient = setNonTestObservations(patient, fhirLink);
+
+                        patients.add(patient);
                     }
-
-                    org.patientview.api.model.Patient patient = new org.patientview.api.model.Patient(fhirPatient,
-                            fhirPractitioner, fhirLink.getGroup());
-
-                    // set conditions
-                    patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
-
-                    // set encounters
-                    patient = setEncounters(patient, encounterService.get(fhirLink.getResourceId()));
-
-                    // set edta diagnosis if present based on available codes
-                    patient = setDiagnosisCodes(patient);
-
-                    // set non test observations
-                    patient = setNonTestObservations(patient, fhirLink);
-
-                    patients.add(patient);
                 }
             }
         }
