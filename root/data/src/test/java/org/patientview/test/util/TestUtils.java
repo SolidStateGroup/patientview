@@ -88,6 +88,7 @@ public final class TestUtils {
         user.setEmailVerified(true);
         user.setPassword("doNotShow");
         user.setGroupRoles(new HashSet<GroupRole>());
+        user.setDeleted(Boolean.FALSE);
         return user;
     }
 

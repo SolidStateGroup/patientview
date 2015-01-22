@@ -61,12 +61,17 @@
                         <span class="recipient pull-left">with:
                             <span data-ng-repeat="conversationUser in conversation.conversationUsers" data-ng-show="conversationUser.user.id != loggedInUser.id">
                                 {{conversationUser.user.forename}} {{conversationUser.user.surname}}
+                                <span data-ng-show="conversationUser.user.deleted"> (deleted)</span>
                             </span>
                         </span>
                     </h2>
                     <p class="message-type-badge" data-ng-show="conversation.type ==='CONTACT_UNIT'">Patient Support</p>
                     <div class="last-message">
-                        <h4>Most recent message from: {{conversation.messages[conversation.messages.length-1].user.forename}} {{conversation.messages[conversation.messages.length-1].user.surname}}</h4>
+                        <h4>Most recent message from: 
+                            {{conversation.messages[conversation.messages.length-1].user.forename}} 
+                            {{conversation.messages[conversation.messages.length-1].user.surname}}
+                            <span data-ng-show="conversation.messages[conversation.messages.length-1].user.deleted"> (deleted)</span>
+                        </h4>
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
                         <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
                     </div>
@@ -91,7 +96,10 @@
                     <div class="last-message">
                         <h4 class="message-title">
                             <span data-ng-show="message.unread" class="label label-success pull-right new-message">New</span>
-                            <span data-ng-show="message.user">{{message.user.forename}} {{message.user.surname}}</span>
+                            <span data-ng-show="message.user">
+                                {{message.user.forename}} {{message.user.surname}}
+                                <span data-ng-show="message.user.deleted"> (deleted)</span>
+                            </span>
                             <span data-ng-show="!message.user">[Deleted User]</span>
                         </h4>
                         <p class="message-content" data-ng-bind-html="parseHTMLText(message.message)"></p>

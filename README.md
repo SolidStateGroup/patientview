@@ -6,12 +6,41 @@ this information with anyone they want, and view it from anywhere in the world. 
 launched for patients of Renal Units, but has expanded to be able to show information for others too. It requires your 
 local unit to have joined. (e.g. renal unit, diabetes unit, IBD unit)
 
+PatientView 2 (PV2) is a complete rewrite of the original PatientView (PV1) with the aim of creating a more modern tool 
+for patients and staff while allowing future improvements to be easily integrated.
+
 Technology
 ==========
 
-PatientView (PV) uses [PostgreSQL](http://www.postgresql.org/) for data storage in two distinct databases. PV data 
+PatientView 2 (PV2) uses [PostgreSQL](http://www.postgresql.org/) for data storage in two distinct databases. PV data 
 related to users, configuration and non patient data is stored in the "patientview" database. Patient specific data is 
 stored in a specific version of the [FHIR](http://hl7.org/implement/standards/fhir/) database schema.
 
 The SQL creation scripts for creation of a standard database are located in 
 /root/database/src/main/resources/db/migration
+
+Active Development
+==================
+
+Active development is either on develop or branches off develop to be merged in via pull request. The develop branch is
+considered the latest version of the code but may include incomplete features or code.
+
+New release branches are named after their version number, e.g. 2.0.1-RELEASE. When a release is finalised a new branch
+is created and then merged into master, so master is considered the latest stable release.
+
+Database
+========
+
+[PostgreSQL](http://www.postgresql.org/) 9.4 must be used as FHIR requires JSONB support. Two separate databases are 
+used, each with their own user. For an example .properties file containing database options (and others) see
+/root/api/src/main/resources/conf/local-api.properties.
+
+The main SQL files used to build the 'patientview' and 'fhir' databases prior to running PV2 are:
+
+- V1__Create_Schema.sql (table structure for 'patientview' database)
+- V2__Static_Data.sql (static data for 'patientview' database, used throughout PV, including example accounts)
+- V3__fhirbase--1.0.sql (specific version of 'fhir' database for patientview)
+- V4__Fhir_Fixes.sql (updates to 'fhir' database to avoid issues and improve performance)
+- V5__Post_Migration.sql (only used once migration has taken place from PV1)
+
+Note that migration is a one time task from PV1 and is not required to set up PV2.

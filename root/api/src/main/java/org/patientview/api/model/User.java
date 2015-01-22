@@ -75,6 +75,7 @@ public class User extends BaseUser {
         }
 
         setIdentifiers(user.getIdentifiers());
+        setDeleted(user.getDeleted());
     }
 
     public String getEmail() {

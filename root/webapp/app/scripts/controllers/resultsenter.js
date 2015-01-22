@@ -65,11 +65,11 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
 
     $scope.save = function() {
         ObservationService.saveResultClusters($scope.loggedInUser.id, $scope.userResultClusters).then(function() {
-            $scope.successMessage = "Results successfully sent to PatientView. If required, more results can be added below.";
+            $scope.successMessage = 'Results successfully sent to PatientView. If required, more results can be added below.';
             $scope.userResultClusters = [];
         }, function () {
             alert('Cannot save your results');
-        })
+        });
     };
 
     $scope.userDataValid = function () {
@@ -108,7 +108,7 @@ function ($scope, ObservationService, ObservationHeadingService, UtilService) {
             $scope.loading = false;
         }, function () {
             alert('Cannot get result clusters');
-        })
+        });
     };
 
     init();

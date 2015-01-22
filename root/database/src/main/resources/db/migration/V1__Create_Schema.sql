@@ -16,6 +16,7 @@ CREATE TABLE PV_User
   Contact_Number   VARCHAR(50),
   Last_Login       TIMESTAMP,
   Last_Login_Ip_Address    VARCHAR(50),
+  Deleted          BOOLEAN      NOT NULL DEFAULT FALSE,
   Start_Date       DATE         NOT NULL,
   End_Date         DATE,
   Creation_Date    TIMESTAMP    NOT NULL,

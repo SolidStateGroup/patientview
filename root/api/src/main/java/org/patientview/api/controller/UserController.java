@@ -95,14 +95,14 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.getApiUsersByGroupsAndRoles(getParameters), HttpStatus.OK);
     }
 
-    /*
+
     // required by migration
     @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<User> getUserByUsername(@RequestParam("username") String username) {
         return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
     }
-    */
+
 
     // permanently delete user (NOT just remove from all groups)
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE)
@@ -132,7 +132,6 @@ public class UserController extends BaseController<UserController> {
         }
     }
 
-    /*
     // Migration Only, are migrating passwords so create user with no password encryption
     @RequestMapping(value = "/migrate/user", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -151,7 +150,7 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userMigrationService.getPatientview1IdsByStatus(
                 MigrationStatus.valueOf(migrationStatus)), HttpStatus.OK);
     }
-    */
+
 
     @RequestMapping(value = "/user", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

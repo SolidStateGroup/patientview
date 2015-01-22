@@ -40,8 +40,8 @@ function (GroupService, JoinRequestService, StaticDataService, $scope, $rootScop
             }
 
             // if present set selected status to SUBMITTED
-            if (statuses.indexOf("SUBMITTED")) {
-                $scope.setSelectedStatus("SUBMITTED");
+            if (statuses.indexOf('SUBMITTED')) {
+                $scope.setSelectedStatus('SUBMITTED');
             }
 
             $scope.initFinished = true;

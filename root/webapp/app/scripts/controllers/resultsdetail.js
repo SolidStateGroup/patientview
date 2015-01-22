@@ -203,7 +203,7 @@ function ($scope, $routeParams, $location, ObservationHeadingService, Observatio
             value = Math.abs(value);
 
             // now round to at most 2 dp
-            value = +(Math.round(value + "e+2")  + "e-2");
+            value = +(Math.round(value + 'e+2')  + 'e-2');
 
             return value;
         } else {

@@ -106,6 +106,26 @@ public class UserRepositoryTest {
     }
 
     @Test
+    public void findStaffByGroupsRoles_deleted() {
+        User user = dataTestUtils.createUser("testUser");
+        user.setDeleted(true);
+        Group group = dataTestUtils.createGroup("testGroup");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+
+        Long[] groupIdsArr = {group.getId()};
+        Long[] roleIdsArr = {role.getId()};
+
+        Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", "%%", "%%", "%%", Arrays.asList(groupIdsArr)
+                , Arrays.asList(roleIdsArr), 1L, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be no users returned", 0, users.getContent().size());
+    }
+
+    @Test
     public void findStaffByGroupsRoles_multiple() {
         User user = dataTestUtils.createUser("testUser");
         Group group = dataTestUtils.createGroup("testGroup");
@@ -137,6 +157,41 @@ public class UserRepositoryTest {
                 , Arrays.asList(roleIdsArr), 2L, new PageRequest(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 user returned", 2, users.getContent().size());
+    }
+
+    @Test
+    public void findStaffByGroupsRoles_multiple_deleted() {
+        User user = dataTestUtils.createUser("testUser");
+        user.setDeleted(true);
+        Group group = dataTestUtils.createGroup("testGroup");
+        Role role = dataTestUtils.createRole(RoleName.GLOBAL_ADMIN, RoleType.STAFF);
+
+        User user2 = dataTestUtils.createUser("test2User");
+        Group group2 = dataTestUtils.createGroup("test2Group");
+
+        User user3 = dataTestUtils.createUser("test3User");
+        Group group3 = dataTestUtils.createGroup("test3Group");
+
+        // no (deleted)
+        dataTestUtils.createGroupRole(user, group, role);
+        dataTestUtils.createGroupRole(user, group2, role);
+
+        // no
+        dataTestUtils.createGroupRole(user2, group2, role);
+        dataTestUtils.createGroupRole(user2, group3, role);
+
+        // yes
+        dataTestUtils.createGroupRole(user3, group, role);
+        dataTestUtils.createGroupRole(user3, group2, role);
+        dataTestUtils.createGroupRole(user3, group3, role);
+
+        Long[] groupIdsArr = {group.getId(), group2.getId()};
+        Long[] roleIdsArr = {role.getId()};
+
+        Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", "%%", "%%", "%%", Arrays.asList(groupIdsArr)
+                , Arrays.asList(roleIdsArr), 2L, new PageRequest(0, Integer.MAX_VALUE));
+
+        Assert.assertEquals("Should be 1 user returned", 1, users.getContent().size());
     }
 
     @Test

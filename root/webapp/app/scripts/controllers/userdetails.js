@@ -45,7 +45,7 @@ function ($scope, UserService, IdentifierService) {
                     var existingGroupRole = user.groupRoles[i];
                     if (groupRole.group.id === existingGroupRole.group.id &&
                         groupRole.role.id === existingGroupRole.role.id) {
-                        canAddGroupRole = false
+                        canAddGroupRole = false;
                     }
                 }
 
@@ -54,7 +54,7 @@ function ($scope, UserService, IdentifierService) {
                     user.groupRoles.push(groupRole);
                     form.$setDirty(true)
                 } else {
-                    alert("Group and Role already exist and cannot be added again")
+                    alert('Group and Role already exist and cannot be added again');
                 }
             }
         }
@@ -220,7 +220,7 @@ function ($scope, UserService, IdentifierService) {
 
                         }, function (failureResult) {
                             if (failureResult.status === 409) {
-                                alert(failureResult.data)
+                                alert(failureResult.data);
                             } else {
                                 alert('There has been an error saving');
                             }
@@ -263,7 +263,7 @@ function ($scope, UserService, IdentifierService) {
                 });
             }, function(failureResult) {
                 if (failureResult.status === 409) {
-                    alert(failureResult.data)
+                    alert(failureResult.data);
                 } else {
                     alert('There has been an error saving');
                 }
@@ -278,7 +278,7 @@ function ($scope, UserService, IdentifierService) {
 
             // must always have at least one identifier
             if (user.identifiers.length < 2) {
-                alert("Must have at least one identifier");
+                alert('Must have at least one identifier');
             } else {
                 IdentifierService.remove(identifier).then(function () {
 

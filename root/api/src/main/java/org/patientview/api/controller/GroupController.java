@@ -114,7 +114,7 @@ public class GroupController extends BaseController<GroupController> {
         return new ResponseEntity<>(groupStatisticService.getMonthlyGroupStatistics(groupId), HttpStatus.OK);
     }
 
-    /*
+
     // migration only
     @RequestMapping(value = "/group/{groupId}/migratestatistics", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -123,7 +123,7 @@ public class GroupController extends BaseController<GroupController> {
             throws ResourceNotFoundException {
         groupStatisticService.migrateStatistics(groupId, statistics);
     }
-    */
+
 
     // Second stage of forgotten password, if username or email have been forgotten
     @RequestMapping(value = "/public/passwordrequest/group/{groupId}", method = RequestMethod.POST)

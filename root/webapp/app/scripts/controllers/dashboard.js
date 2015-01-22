@@ -148,7 +148,7 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
         _.remove($scope.graphGroups, {code: 'Generic'});
 
         for(i=0;i<$scope.graphGroups.length;i++) {
-                $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
+            $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
         }
 
         // set group (avoid blank option)

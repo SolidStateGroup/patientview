@@ -484,7 +484,39 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDeleteUser() throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
+    public void testDeleteUser_patient() throws ResourceNotFoundException, ResourceForbiddenException,
+            FhirResourceException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.SPECIALTY_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to delete
+        User staffUser = TestUtils.createUser("patient");
+        Role staffRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+
+        userService.delete(staffUser.getId());
+        verify(userRepository, Mockito.times(1)).delete(any(User.class));
+    }
+
+    @Test
+    public void testDeleteUser_staff() throws ResourceNotFoundException, ResourceForbiddenException,
+            FhirResourceException {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -510,7 +542,7 @@ public class UserServiceTest {
         when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
 
         userService.delete(staffUser.getId());
-        verify(userRepository, Mockito.times(1)).delete(any(User.class));
+        verify(userRepository, Mockito.times(0)).delete(any(User.class));
     }
 
     @Test

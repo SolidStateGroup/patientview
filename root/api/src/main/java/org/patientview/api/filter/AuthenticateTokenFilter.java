@@ -107,7 +107,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             chain.doFilter(request, response);
         } else {
             if (!authenticateRequest(httpRequest)) {
-                LOG.info("Request is not authenticated");
+                //LOG.info("Request is not authenticated");
                 redirectFailedAuthentication((HttpServletResponse) response);
                 return;
             }
@@ -123,7 +123,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         try {
             if (authenticationService.sessionExpired(authToken)) {
-                LOG.info("Session Expired");
+                //LOG.info("Session Expired");
                 authenticationService.logout(authToken);
                 return false;
             }

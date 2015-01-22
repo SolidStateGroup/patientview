@@ -347,6 +347,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         user.setCreator(creator);
         // Everyone should change their password at login
         user.setChangePassword(Boolean.TRUE);
+        user.setDeleted(Boolean.FALSE);
 
         // booleans
         if (user.getLocked() == null) {
@@ -981,14 +982,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 }
 
                 // audit removal (apart from MEMBER)
-                if (!role.getName().equals(RoleName.MEMBER)) {
-                    if (isPatient) {
-                        auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, user.getUsername(),
-                                getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
-                    } else {
-                        auditService.createAudit(AuditActions.ADMIN_GROUP_ROLE_DELETE, user.getUsername(),
-                                getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
-                    }
+                if (!role.getName().equals(RoleName.MEMBER) && isPatient) {
+                    auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, user.getUsername(),
+                            getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
                 }
             }
 
@@ -1002,15 +998,20 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 patientService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
-            // delete from conversations and associated messages, other non user tables
-            conversationService.deleteUserFromConversations(user);
-            auditService.deleteUserFromAudit(user);
-            userTokenRepository.deleteByUserId(user.getId());
-            userMigrationRepository.deleteByUserId(user.getId());
-            userObservationHeadingRepository.deleteByUserId(user.getId());
-            alertRepository.deleteByUserId(user.getId());
-
-            userRepository.delete(user);
+            if (isPatient) {
+                // patient, delete from conversations and associated messages, other non user tables
+                conversationService.deleteUserFromConversations(user);
+                auditService.deleteUserFromAudit(user);
+                userTokenRepository.deleteByUserId(user.getId());
+                userMigrationRepository.deleteByUserId(user.getId());
+                userObservationHeadingRepository.deleteByUserId(user.getId());
+                alertRepository.deleteByUserId(user.getId());
+                userRepository.delete(user);
+            } else {
+                // staff member, mark as deleted
+                user.setDeleted(true);
+                userRepository.save(user);
+            }
         } else {
             throw new ResourceForbiddenException("Forbidden");
         }

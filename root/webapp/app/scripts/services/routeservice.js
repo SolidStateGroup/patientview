@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('patientviewApp').factory('RouteService', ['$q', 'Restangular', function ($q, Restangular) {
+angular.module('patientviewApp').factory('RouteService', [function () {
     return {
         getVerifyRoute: function() {
             return {

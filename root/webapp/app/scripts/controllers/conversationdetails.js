@@ -9,14 +9,14 @@ function ($scope, ConversationService) {
 
         ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
 
-            var element = document.getElementById("conversation-add-recipient");
+            var element = document.getElementById('conversation-add-recipient');
             if (element !== null) {
                 element.parentNode.removeChild(element);
             }
 
             var blankOption = '<option></option>';
 
-            <!-- pure text, ie8 performance requires this -->
+            // pure text, ie8 performance requires this
             $('#recipient-select-container')
                 .html('<select class="form-control recipient-select" id="conversation-add-recipient" onchange="recipientSelectChange()">'
                 + blankOption + recipientOptions + '</select>');
@@ -34,8 +34,8 @@ function ($scope, ConversationService) {
     };
 
     $scope.addRecipient = function (form, conversation) {
-        var userId = $("#conversation-add-recipient option").filter(":selected").val();
-        var userDescription = $("#conversation-add-recipient option").filter(":selected").text();
+        var userId = $('#conversation-add-recipient option').filter(':selected').val();
+        var userDescription = $('#conversation-add-recipient option').filter(':selected').text();
         var found = false;
         var i;
 

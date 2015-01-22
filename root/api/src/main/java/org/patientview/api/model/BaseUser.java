@@ -14,6 +14,9 @@ public class BaseUser {
     private String surname;
     private Date dateOfBirth;
 
+    // only staff users
+    private Boolean deleted;
+
     public BaseUser() {
 
     }
@@ -24,6 +27,7 @@ public class BaseUser {
         setForename(user.getForename());
         setSurname(user.getSurname());
         setDateOfBirth(user.getDateOfBirth());
+        setDeleted(user.getDeleted());
     }
 
     public BaseUser(org.patientview.api.model.User user) {
@@ -32,6 +36,7 @@ public class BaseUser {
         setForename(user.getForename());
         setSurname(user.getSurname());
         setDateOfBirth(user.getDateOfBirth());
+        setDeleted(user.getDeleted());
     }
 
     public Long getId() {
@@ -72,5 +77,13 @@ public class BaseUser {
 
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 }

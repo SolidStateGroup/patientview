@@ -173,6 +173,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new UsernameNotFoundException("Incorrect username or password");
         }
 
+        if (user.getDeleted()) {
+            throw new AuthenticationServiceException("This account has been deleted");
+        }
+
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
             auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
                     user.getId(), AuditObjectTypes.User, null);
@@ -303,6 +307,11 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Override
     public boolean sessionExpired(String authToken) {
+        
+        if (authToken == null) {
+            return true;
+        }
+        
         // set expired to 30 mins in future, throw exception if expiration is set and before now
         Date now = new Date();
         Date future = new Date(now.getTime() + sessionLength);

@@ -14,7 +14,7 @@ function ($scope, DiagnosticService) {
         }, function () {
             alert('Cannot get diagnostics');
             $scope.loading = false;
-        })
+        });
     };
 
     init();
