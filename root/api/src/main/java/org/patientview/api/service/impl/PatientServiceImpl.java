@@ -169,7 +169,7 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                     Patient fhirPatient = get(fhirLink.getResourceId());
 
                     Practitioner fhirPractitioner = null;
-                    if (!fhirPatient.getCareProvider().isEmpty()) {
+                    if (fhirPatient.getCareProvider() != null && !fhirPatient.getCareProvider().isEmpty()) {
                         fhirPractitioner
                             = getPractitioner(UUID.fromString(fhirPatient.getCareProvider().get(0).getDisplaySimple()));
                     }
