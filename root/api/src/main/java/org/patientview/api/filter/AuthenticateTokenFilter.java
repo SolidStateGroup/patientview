@@ -67,6 +67,8 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         // status for external info
         publicUrls.add("/status");
 
+        // Swagger.io API documentation
+        publicUrls.add("/api-docs");
 
         for (String publicUrl : this.publicUrls) {
             LOG.info("publicUrls: " + publicUrl);

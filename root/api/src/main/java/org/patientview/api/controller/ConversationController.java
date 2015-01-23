@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.Conversation;
 import org.patientview.api.model.Message;
@@ -33,6 +34,7 @@ import java.util.List;
  * Created on 05/08/2014.
  */
 @RestController
+@ExcludeFromApiDoc
 public class ConversationController extends BaseController<ConversationController> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConversationController.class);

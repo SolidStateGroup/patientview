@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.model.UnitRequest;
@@ -31,6 +32,7 @@ import java.util.List;
  * Created on 03/06/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class GroupController extends BaseController<GroupController> {
 
     @Inject

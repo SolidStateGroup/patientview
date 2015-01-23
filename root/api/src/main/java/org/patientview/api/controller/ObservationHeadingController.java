@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.FhirResourceException;
@@ -30,6 +31,7 @@ import java.util.Set;
  * Created on 11/09/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class ObservationHeadingController extends BaseController<ObservationHeadingController> {
 
     @Inject

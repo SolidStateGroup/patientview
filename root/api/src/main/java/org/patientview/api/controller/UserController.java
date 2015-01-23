@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.service.MigrationService;
 import org.patientview.api.service.UserMigrationService;
@@ -40,6 +41,7 @@ import java.util.List;
  * Created on 03/06/2014.
  */
 @RestController
+@ExcludeFromApiDoc
 public class UserController extends BaseController<UserController> {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);

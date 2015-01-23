@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.FhirObservationPage;
 import org.patientview.api.model.ObservationSummary;
@@ -81,8 +82,8 @@ public class ObservationController extends BaseController<ObservationController>
         observationService.addUserResultClusters(userId, userResultClusters);
     }
 
-
     // Migration Only
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/migrate/observations", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -93,6 +94,7 @@ public class ObservationController extends BaseController<ObservationController>
     }
 
     // Migration Only
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/migrate/observationsfast", method = RequestMethod.GET)
     @ResponseBody
     public void migrateObservationsFast()
@@ -100,5 +102,4 @@ public class ObservationController extends BaseController<ObservationController>
         LOG.info("Started API based migration");
         migrationService.migrateObservationsFast();
     }
-
 }

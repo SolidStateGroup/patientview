@@ -42,6 +42,13 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
+        <!-- Swagger.io -->
+        <repository>
+            <id>jcenter-release</id>
+            <name>jcenter</name>
+            <url>http://oss.jfrog.org/artifactory/oss-release-local/</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>

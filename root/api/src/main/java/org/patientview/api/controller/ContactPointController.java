@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ContactPointService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -23,6 +24,7 @@ import javax.inject.Inject;
  * Created on 30/07/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class ContactPointController extends BaseController<ContactPointController> {
 
     @Inject

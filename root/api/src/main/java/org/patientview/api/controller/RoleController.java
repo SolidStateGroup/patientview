@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.RoleService;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.enums.RoleType;
@@ -20,6 +21,7 @@ import java.util.List;
  * Created on 06/06/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class RoleController extends BaseController<RoleController> {
 
     @Inject

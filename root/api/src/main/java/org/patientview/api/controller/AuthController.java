@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
 import org.patientview.api.model.ForgottenCredentials;
 import org.patientview.api.model.UserToken;
@@ -42,6 +43,7 @@ public class AuthController extends BaseController<AuthController> {
     @Inject
     private UserService userService;
 
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/status", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> testService() {
@@ -83,7 +85,6 @@ public class AuthController extends BaseController<AuthController> {
     }
 
     // populate userToken with user information (security roles, groups etc) performed after login
-    // todo: requires security
     @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
     public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
             throws AuthenticationServiceException, ResourceForbiddenException {
@@ -91,6 +92,7 @@ public class AuthController extends BaseController<AuthController> {
     }
 
     // Stage 1 of Forgotten Password, user knows username and email
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public void forgottenPassword(@RequestBody ForgottenCredentials credentials)

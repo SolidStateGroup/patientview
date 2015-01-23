@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.CodeService;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
@@ -25,6 +26,7 @@ import javax.persistence.EntityExistsException;
  * Created on 26/06/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class CodeController extends BaseController<CodeController> {
 
     @Inject

@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.model.Audit;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
  * Created on 12/11/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class AuditController extends BaseController<AuditController> {
 
     @Inject
