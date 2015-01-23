@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Created on 23/07/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class ErrorController extends BaseController<ErrorController> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ErrorController.class);

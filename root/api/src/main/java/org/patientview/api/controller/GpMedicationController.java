@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.GpMedicationStatus;
 import org.patientview.api.service.GpMedicationService;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -42,6 +43,7 @@ public class GpMedicationController extends BaseController<GpMedicationControlle
         gpMedicationService.saveGpMedicationStatus(userId, gpMedicationStatus);
     }
 
+    @ExcludeFromApiDoc
     @RequestMapping(value = "/ecs/getpatientidentifiers", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<String>> getEceIdentifiers(

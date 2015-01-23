@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Alert;
 import org.patientview.api.service.AlertService;
 import org.patientview.config.exception.FhirResourceException;
@@ -26,6 +27,7 @@ import java.util.List;
  * Created on 14/01/2015
  */
 @RestController
+@ExcludeFromApiDoc
 public class AlertController extends BaseController<AlertController> {
 
     @Inject

@@ -3,6 +3,7 @@ package org.patientview;
 import org.patientview.api.config.ApiConfig;
 import org.patientview.api.config.CacheConfig;
 import org.patientview.api.config.SecurityConfig;
+import org.patientview.api.config.SwaggerConfig;
 import org.patientview.persistence.config.PersistenceConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -22,7 +23,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @EnableAspectJAutoProxy
 @EnableAutoConfiguration(exclude = AopAutoConfiguration.class)
-@Import({ ApiConfig.class, PersistenceConfig.class, SecurityConfig.class, CacheConfig.class })
+@Import({ ApiConfig.class, PersistenceConfig.class, SecurityConfig.class, CacheConfig.class, SwaggerConfig.class })
 public class Api extends SpringBootServletInitializer {
 
     private static Class<Api> applicationClass = Api.class;

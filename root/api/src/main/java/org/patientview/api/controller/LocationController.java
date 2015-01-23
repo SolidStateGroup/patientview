@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.LocationService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
  * Created on 30/07/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class LocationController extends BaseController<LocationController> {
 
     @Inject

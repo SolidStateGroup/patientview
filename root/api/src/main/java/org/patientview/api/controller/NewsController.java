@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import org.apache.commons.lang.StringUtils;
+import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.NewsService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -27,6 +28,7 @@ import javax.inject.Inject;
  * Created on 20/06/2014
  */
 @RestController
+@ExcludeFromApiDoc
 public class NewsController extends BaseController<NewsController> {
 
     @Inject

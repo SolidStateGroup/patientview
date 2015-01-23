@@ -70,7 +70,6 @@
                         <h4>Most recent message from: 
                             {{conversation.messages[conversation.messages.length-1].user.forename}} 
                             {{conversation.messages[conversation.messages.length-1].user.surname}}
-                            <span data-ng-show="conversation.messages[conversation.messages.length-1].user.deleted"> (deleted)</span>
                         </h4>
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
                         <p class="date-stamp"><strong>{{conversation.messages[conversation.messages.length-1].created | date:'dd-MMM-yyyy HH:mm'}}</strong></p>
