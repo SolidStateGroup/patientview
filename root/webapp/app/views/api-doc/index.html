@@ -30,6 +30,7 @@
         url = url[1];
       } else {
         url = myUrl.replace(":9000","") + "/api/api-docs" ;
+        //url = "http://localhost:8080/api/api-docs" ;
       }
       window.swaggerUi = new SwaggerUi({
         url: url,

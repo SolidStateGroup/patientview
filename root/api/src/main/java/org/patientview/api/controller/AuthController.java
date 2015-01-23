@@ -1,5 +1,6 @@
 package org.patientview.api.controller;
 
+import com.wordnik.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
@@ -50,15 +51,8 @@ public class AuthController extends BaseController<AuthController> {
         return new ResponseEntity<>("API OK", HttpStatus.OK);
     }
 
-    // switch to previous user using previous auth token
-    @CacheEvict(value = "unreadConversationCount", allEntries = true)
-    @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
-            @PathVariable("userId") Long userId) throws AuthenticationServiceException {
-        return new ResponseEntity<>(authenticationService.switchBackFromUser(userId, token), HttpStatus.OK);
-    }
-
     // switch to another user by authenticating and returning token
+    @ApiOperation(value = "Switch User", notes = "Switch to a patient, equivalent to logging in as that user")
     @CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/auth/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchUser(@PathVariable("userId") Long userId)
@@ -66,8 +60,38 @@ public class AuthController extends BaseController<AuthController> {
         return new ResponseEntity<>(authenticationService.switchToUser(userId), HttpStatus.OK);
     }
 
+    // switch to previous user using previous auth token
+    @ApiOperation(value = "Switch to Previous User", notes = "Switch back to original user after viewing a patient")
+    @CacheEvict(value = "unreadConversationCount", allEntries = true)
+    @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
+                                                       @PathVariable("userId") Long userId) 
+            throws AuthenticationServiceException {
+        return new ResponseEntity<>(authenticationService.switchBackFromUser(userId, token), HttpStatus.OK);
+    }
+
+    // populate userToken with user information (security roles, groups etc) performed after login
+    @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user " +
+            "information and static data")
+    @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
+    public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
+            throws AuthenticationServiceException, ResourceForbiddenException {
+        return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
+    }
+
+    // Stage 1 of Forgotten Password, user knows username and email
+    @ExcludeFromApiDoc
+    @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void forgottenPassword(@RequestBody ForgottenCredentials credentials)
+            throws ResourceNotFoundException, MailException, MessagingException  {
+        userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail());
+    }
+
+    @ApiOperation(value = "Log In", notes = "Authenticate using username and password, returns " +
+            "token, which must be added to X-Auth-Token in header of all future requests")
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> authenticate(@RequestBody Credentials credentials)
+    public ResponseEntity<String> logIn(@RequestBody Credentials credentials)
             throws UsernameNotFoundException, AuthenticationServiceException {
 
         if (StringUtils.isEmpty(credentials.getUsername())) {
@@ -84,25 +108,10 @@ public class AuthController extends BaseController<AuthController> {
                 credentials.getUsername(), credentials.getPassword()), HttpStatus.OK);
     }
 
-    // populate userToken with user information (security roles, groups etc) performed after login
-    @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
-    public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
-            throws AuthenticationServiceException, ResourceForbiddenException {
-        return new ResponseEntity<>(authenticationService.getUserInformation(token), HttpStatus.OK);
-    }
-
-    // Stage 1 of Forgotten Password, user knows username and email
-    @ExcludeFromApiDoc
-    @RequestMapping(value = "/auth/forgottenpassword", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void forgottenPassword(@RequestBody ForgottenCredentials credentials)
-            throws ResourceNotFoundException, MailException, MessagingException  {
-        userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail());
-    }
-
+    @ApiOperation(value = "Log Out", notes = "Log Out")
     @RequestMapping(value = "/auth/logout/{token}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteToken(@PathVariable("token") String token) throws AuthenticationServiceException {
+    public void logOut(@PathVariable("token") String token) throws AuthenticationServiceException {
         authenticationService.logout(token);
     }
 }
