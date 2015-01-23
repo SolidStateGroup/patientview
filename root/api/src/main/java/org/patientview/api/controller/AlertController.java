@@ -27,6 +27,7 @@ import java.util.List;
  * Created on 14/01/2015
  */
 @RestController
+@ExcludeFromApiDoc
 public class AlertController extends BaseController<AlertController> {
 
     @Inject
