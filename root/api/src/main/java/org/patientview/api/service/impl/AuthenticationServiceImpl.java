@@ -173,6 +173,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new UsernameNotFoundException("Incorrect username or password");
         }
 
+        if (user.getLocked()) {
+            throw new AuthenticationServiceException("This account is locked");
+        }
+
         if (user.getDeleted()) {
             throw new AuthenticationServiceException("This account has been deleted");
         }
@@ -184,9 +188,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("Incorrect username or password");
         }
 
-        if (user.getLocked()) {
-            throw new AuthenticationServiceException("This account is locked");
-        }
 
         Date now = new Date();
 
