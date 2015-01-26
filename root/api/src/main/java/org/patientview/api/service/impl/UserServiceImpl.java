@@ -1166,6 +1166,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
 
             // Hash the password and save user
+            user.setLocked(Boolean.FALSE);
             user.setFailedLogonAttempts(0);
             user.setPassword(DigestUtils.sha256Hex(password));
             userRepository.save(user);
