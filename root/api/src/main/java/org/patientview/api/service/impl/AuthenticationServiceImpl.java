@@ -476,6 +476,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         ++failedLogonAttempts;
         if (failedLogonAttempts > maximumLoginAttempts) {
             user.setLocked(Boolean.TRUE);
+
+            auditService.createAudit(AuditActions.ACCOUNT_LOCKED, user.getUsername(), user,
+                    user.getId(), AuditObjectTypes.User, null);
         }
 
         user.setFailedLogonAttempts(failedLogonAttempts);
