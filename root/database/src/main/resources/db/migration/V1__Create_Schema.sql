@@ -10,6 +10,7 @@ CREATE TABLE PV_User
   Email            VARCHAR(200) NOT NULL,
   Forename         VARCHAR(500) NOT NULL,
   Surname          VARCHAR(500) NOT NULL,
+  Role_Description VARCHAR(50),
   Date_Of_Birth    DATE,
   Verification_Code    VARCHAR(200),
   Email_Verified   BOOL         NOT NULL DEFAULT FALSE,

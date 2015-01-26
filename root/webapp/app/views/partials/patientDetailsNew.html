@@ -1,24 +1,24 @@
 <div class="form-horizontal row" role="form">
     <div class="col-md-3">
         <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userFormNew.userName.$error.required && !userFormNew.$pristine">required</span></label>
-        <div class=""><input type="text" class="form-control" id="new-user-username" placeholder="Username"
+        <div><input type="text" class="form-control" id="new-user-username" placeholder="Username"
                              name="userName" data-ng-model="editUser.username" required maxlength="50"></div>
     </div>
     <div class="col-md-3">
         <label for="new-user-email" class="control-label">Email <span class="error" data-ng-show="userFormNew.email.$error.required && !userFormNew.$pristine">required</span>
             <span class="error" data-ng-show="userFormNew.email.$error.email && !userFormNew.$pristine">invalid</span></label>
-        <div class=""><input type="email" class="form-control" id="new-user-email" placeholder="Email"
+        <div><input type="email" class="form-control" id="new-user-email" placeholder="Email"
                              name="email" data-ng-model="editUser.email" required></div>
         <div>Don't have an email? <a href="http://www.rixg.org/patientview/pages/admin/unit-admin.php#addnew" target="_blank">Click for info</a></div>
     </div>
     <div class="col-md-3">
         <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userFormNew.forename.$error.required && !userFormNew.$pristine">required</span></label>
-        <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename"
+        <div><input type="text" class="form-control" id="new-user-forename" placeholder="Forename"
                              name="forename" data-ng-model="editUser.forename" required></div>
     </div>
     <div class="col-md-3">
         <label for="new-user-surname" class="control-label">Surname <span class="error" data-ng-show="userFormNew.surname.$error.required && !userFormNew.$pristine">required</span></label>
-        <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname"
+        <div><input type="text" class="form-control" id="new-user-surname" placeholder="Surname"
                              name="surname" data-ng-model="editUser.surname" required></div>
     </div>
 </div>

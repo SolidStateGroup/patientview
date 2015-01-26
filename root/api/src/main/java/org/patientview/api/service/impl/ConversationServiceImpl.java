@@ -746,6 +746,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                         sb.append(")");
                     }
 
+                    if (StringUtils.isNotEmpty(baseUser.getRoleDescription())) {
+                        sb.append(" (");
+                        sb.append(baseUser.getRoleDescription());
+                        sb.append(")");
+                    }
+
                     sb.append("</option>");
                 }
 
