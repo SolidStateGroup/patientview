@@ -91,6 +91,58 @@
 <value>12.90</value>
 </result>
 </test>
+<test>
+<testname>creatinine</testname>
+<testcode>creatinine</testcode>
+<units></units>
+<daterange start="2000-01-01" stop="2013-11-13"/>
+    <result>
+        <datestamp>2013-11-07T09:00:00</datestamp>
+        <value>112.40</value>
+    </result>
+<result>
+<datestamp>2013-11-05T08:00:00</datestamp>
+<value>123.00</value>
+</result>
+<result>
+<datestamp>2013-11-02T08:00:00</datestamp>
+<value>113.20</value>
+</result>
+<result>
+<datestamp>2013-11-01T08:00:00</datestamp>
+<value>112.40</value>
+</result>
+<result>
+<datestamp>2013-10-31T00:00:00</datestamp>
+<value>112.90</value>
+</result>
+</test>
+<test>
+<testname>urea</testname>
+<testcode>urea</testcode>
+<units></units>
+<daterange start="2000-01-01" stop="2013-11-13"/>
+    <result>
+        <datestamp>2013-11-07T09:00:00</datestamp>
+        <value>112.40</value>
+    </result>
+<result>
+<datestamp>2013-11-05T08:00:00</datestamp>
+<value>123.00</value>
+</result>
+<result>
+<datestamp>2013-11-02T08:00:00</datestamp>
+<value>113.20</value>
+</result>
+<result>
+<datestamp>2013-11-01T08:00:00</datestamp>
+<value>112.40</value>
+</result>
+<result>
+<datestamp>2013-10-31T00:00:00</datestamp>
+<value>112.90</value>
+</result>
+</test>
 </testdetails>
 
 <drugdetails>

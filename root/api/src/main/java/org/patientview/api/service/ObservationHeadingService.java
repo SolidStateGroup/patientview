@@ -62,7 +62,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
             throws ResourceNotFoundException, FhirResourceException;
 
     @UserOnly
-    Set<ObservationHeading> getSavedObservationHeadings(Long userId)
+    List<ObservationHeading> getSavedObservationHeadings(Long userId)
             throws ResourceNotFoundException, FhirResourceException;
 
     @UserOnly

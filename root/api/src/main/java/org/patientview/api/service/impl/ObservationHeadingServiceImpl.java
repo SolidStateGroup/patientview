@@ -234,7 +234,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     }
 
     @Override
-    public Set<ObservationHeading> getSavedObservationHeadings(Long userId)
+    public List<ObservationHeading> getSavedObservationHeadings(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
         User user = userRepository.findOne(userId);
@@ -243,7 +243,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         List<ObservationHeading> availableObservationHeadings = getAvailableObservationHeadings(userId);
-        Set<ObservationHeading> observationHeadings = new HashSet<>();
+        List<ObservationHeading> observationHeadings = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(user.getUserObservationHeadings())) {
             // get list of visible specialties for user and get top 3 observation headings
@@ -272,7 +272,16 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                 }
             }
         } else {
-            for (UserObservationHeading userObservationHeading : user.getUserObservationHeadings()) {
+            List<UserObservationHeading> userObservationHeadings = new ArrayList<>(user.getUserObservationHeadings());
+
+            // order by date added descending
+            Collections.sort(userObservationHeadings, new Comparator<UserObservationHeading>() {
+                public int compare(UserObservationHeading uoh1, UserObservationHeading uoh2) {
+                    return uoh1.getCreated().compareTo(uoh2.getCreated());
+                }
+            });
+            
+            for (UserObservationHeading userObservationHeading : userObservationHeadings) {
                 observationHeadings.add(userObservationHeading.getObservationHeading());
             }
         }
