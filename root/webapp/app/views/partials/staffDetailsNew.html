@@ -26,6 +26,14 @@
         <div><input type="text" class="form-control" id="new-user-role-description" placeholder="Role Description"
                              name="roleDescription" data-ng-model="editUser.roleDescription" maxlength="50"></div>
     </div>
+    <div class="col-md-3 visible-for-col">
+        <h5 for="new-user-locked pull-left" class="control-label">Locked</h5>
+        <input type="checkbox" class="form-control" id="new-user-locked" name="new-user-locked" data-ng-model="editUser.locked"/>
+    </div>
+    <div class="col-md-3 visible-for-col">
+        <h5 for="new-user-emailVerified pull-left" class="control-label">Email Address Verified</h5>
+        <input type="checkbox" class="form-control" id="new-user-emailVerified" name="new-user-emailVerified" data-ng-model="editUser.emailVerified" data-ng-disabled="true"/>
+    </div>
 </div>
 
 <div class="row">
