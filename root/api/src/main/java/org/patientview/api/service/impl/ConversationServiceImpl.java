@@ -226,7 +226,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversations.add(new org.patientview.api.model.Conversation(anonymiseConversation(conversation)));
         }
 
-        return new PageImpl<>(conversations, pageable, conversations.size());
+        return new PageImpl<>(conversations, pageable, conversationPage.getTotalElements());
     }
 
     public void addMessage(Long conversationId, org.patientview.api.model.Message message)
