@@ -348,48 +348,85 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         creator = userRepository.findOne(creator.getId());
         User entityUser = findEntityUser(userId);
+        
+        // handle comments to central PatientView support (sent via standard contact mechanism in UI but does not 
+        // create a conversation, simply emails address set in properties
+        if (conversation.getStaffFeature().equals(FeatureType.CENTRAL_SUPPORT_CONTACT)) {
+            sendNewCentralSupportEmail(entityUser, conversation);
+        } else {
+            // create new conversation
+            Conversation newConversation = new Conversation();
+            newConversation.setTitle(conversation.getTitle());
+            newConversation.setImageData(conversation.getImageData());
+            newConversation.setOpen(conversation.getOpen());
+            newConversation.setRating(conversation.getRating());
+            newConversation.setStatus(conversation.getStatus());
+            newConversation.setType(conversation.getType());
+            newConversation.setStaffFeature(conversation.getStaffFeature());
+            newConversation.setGroupId(conversation.getGroupId());
 
-        // create new conversation
-        Conversation newConversation = new Conversation();
-        newConversation.setTitle(conversation.getTitle());
-        newConversation.setImageData(conversation.getImageData());
-        newConversation.setOpen(conversation.getOpen());
-        newConversation.setRating(conversation.getRating());
-        newConversation.setStatus(conversation.getStatus());
-        newConversation.setType(conversation.getType());
-        newConversation.setStaffFeature(conversation.getStaffFeature());
-        newConversation.setGroupId(conversation.getGroupId());
+            // get first message from passed in conversation
+            Iterator iter = conversation.getMessages().iterator();
+            Message message = (Message) iter.next();
 
-        // get first message from passed in conversation
-        Iterator iter = conversation.getMessages().iterator();
-        Message message = (Message) iter.next();
+            // set message properties and add to conversation
+            Message newMessage = new Message();
+            newMessage.setUser(entityUser);
+            newMessage.setConversation(newConversation);
+            newMessage.setMessage(message.getMessage());
+            newMessage.setType(message.getType());
+            newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
+            newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
 
-        // set message properties and add to conversation
-        Message newMessage = new Message();
-        newMessage.setUser(entityUser);
-        newMessage.setConversation(newConversation);
-        newMessage.setMessage(message.getMessage());
-        newMessage.setType(message.getType());
-        newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
-        newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
+            List<Message> messageSet = new ArrayList<>();
+            messageSet.add(newMessage);
+            newConversation.setMessages(messageSet);
 
-        List<Message> messageSet = new ArrayList<>();
-        messageSet.add(newMessage);
-        newConversation.setMessages(messageSet);
+            // set conversation users
+            Set<ConversationUser> conversationUsers = createEntityConversationUserSet(conversation.getConversationUsers(),
+                    newConversation, creator);
+            newConversation.setConversationUsers(conversationUsers);
 
-        // set conversation users
-        Set<ConversationUser> conversationUsers = createEntityConversationUserSet(conversation.getConversationUsers(),
-                newConversation, creator);
-        newConversation.setConversationUsers(conversationUsers);
+            // send email notification to conversation users
+            sendNewMessageEmails(conversationUsers);
 
-        // send email notification to conversation users
-        sendNewMessageEmails(conversationUsers);
+            // set updated, used in UI to order conversations
+            newConversation.setLastUpdate(new Date());
 
-        // set updated, used in UI to order conversations
-        newConversation.setLastUpdate(new Date());
+            // persist conversation
+            conversationRepository.save(newConversation);
+        }
+    }
 
-        // persist conversation
-        conversationRepository.save(newConversation);
+    private void sendNewCentralSupportEmail(User entityUser, Conversation conversation) {
+        Email email = new Email();
+        email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+        email.setSenderName(properties.getProperty("smtp.sender.name"));
+        email.setSubject("PatientView - New Central Support Comment");
+        email.setRecipients(new String[]{properties.getProperty("central.support.contact.email")});
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Dear Central Support for PatientView, <br/><br/>You have a new comment from ");
+        sb.append(entityUser.getForename());
+        sb.append(" ");
+        sb.append(entityUser.getSurname());
+        sb.append(" (<a href=\"mailto:");
+        sb.append(entityUser.getEmail());
+        sb.append("\">");
+        sb.append(entityUser.getEmail());
+        sb.append("</a>)");
+        sb.append("<br/><br/>Subject: <br/>");
+        sb.append(conversation.getTitle());
+        sb.append("<br/><br/>Content: <br/>");
+        sb.append(conversation.getMessages().get(0).getMessage());
+        email.setBody(sb.toString());
+
+        // try and send but ignore if exception and log
+        try {
+            emailService.sendEmail(email);
+        } catch (MailException | MessagingException me) {
+            LOG.error("Cannot send email: {}", me);
+        }
     }
 
     private void sendNewMessageEmails(Set<ConversationUser> conversationUsers) {

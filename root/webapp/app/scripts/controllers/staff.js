@@ -12,6 +12,13 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     $scope.identifierTypes = identifierTypes;
     $scope.editMode = false;
 
+    // hide 'CENTRAL_SUPPORT_CONTACT'
+    for (var i = 0; i < $scope.editUser.availableFeatures.length; i++) {
+        if ($scope.editUser.availableFeatures[i].feature.name === 'CENTRAL_SUPPORT_CONTACT') {
+            $scope.editUser.availableFeatures.splice(i, 1);
+        }
+    }
+    
     // set initial group and feature (avoid blank option)
     if ($scope.editUser.availableGroups && $scope.editUser.availableGroups.length > 0) {
         $scope.editUser.groupToAdd = $scope.editUser.availableGroups[0].id;
@@ -579,6 +586,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                         for (var k = 0; k < user.availableFeatures.length; k++) {
                             if (user.userFeatures[j].feature.id === user.availableFeatures[k].feature.id) {
                                 user.availableFeatures.splice(k, 1);
+                            } else if (user.availableFeatures[k].feature.name === 'CENTRAL_SUPPORT_CONTACT') {
+                                // hide 'CENTRAL_SUPPORT_CONTACT'
+                                user.availableFeatures.splice(k, 1);                                
                             }
                         }
                     }
