@@ -658,6 +658,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setDummy(user.getDummy());
         entityUser.setContactNumber(user.getContactNumber());
         entityUser.setDateOfBirth(user.getDateOfBirth());
+        entityUser.setRoleDescription(user.getRoleDescription());
         entityUser = userRepository.save(entityUser);
 
         // audit changed
@@ -1165,6 +1166,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
 
             // Hash the password and save user
+            user.setLocked(Boolean.FALSE);
+            user.setFailedLogonAttempts(0);
             user.setPassword(DigestUtils.sha256Hex(password));
             userRepository.save(user);
         } else {

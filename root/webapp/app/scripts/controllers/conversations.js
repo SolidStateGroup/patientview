@@ -327,5 +327,11 @@ angular.module('patientviewApp').controller('ConversationsCtrl',['$scope', '$mod
 
         return false;
     };
-
+        
+    $scope.getLastMessageUser = function(conversation) {
+        var message = conversation.messages[conversation.messages.length-1];
+        if (message != null) {
+            return message.user;            
+        }
+    }
 }]);

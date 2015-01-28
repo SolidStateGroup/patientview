@@ -10,8 +10,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -56,6 +59,10 @@ public class Group extends AuditModel {
 
     @Column(name = "postcode")
     private String postcode;
+
+    @Column(name = "last_import_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastImportDate;
 
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "type_id")
@@ -252,6 +259,14 @@ public class Group extends AuditModel {
 
     public void setPostcode(String postcode) {
         this.postcode = postcode;
+    }
+
+    public Date getLastImportDate() {
+        return lastImportDate;
+    }
+
+    public void setLastImportDate(Date lastImportDate) {
+        this.lastImportDate = lastImportDate;
     }
 
     @JsonIgnore

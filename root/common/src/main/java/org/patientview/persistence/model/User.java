@@ -72,6 +72,10 @@ public class User extends RangeModel implements UserDetails {
     @Column(name = "deleted")
     private Boolean deleted;
     
+    // only for staff users
+    @Column(name = "role_description")
+    private String roleDescription;    
+    
     @Transient
     private String name;
 
@@ -341,5 +345,13 @@ public class User extends RangeModel implements UserDetails {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getRoleDescription() {
+        return roleDescription;
+    }
+
+    public void setRoleDescription(String roleDescription) {
+        this.roleDescription = roleDescription;
     }
 }

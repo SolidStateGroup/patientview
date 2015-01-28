@@ -2,7 +2,7 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userForm.userName.$error.required">required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-username" placeholder="Username"
+            <div><input type="text" class="form-control" id="new-user-username" placeholder="Username"
                                  name="userName" data-ng-model="editUser.username" required maxlength="50"></div>
         </div>
         <div class="col-md-3">
@@ -10,22 +10,40 @@
                 <span class="error" data-ng-show="userForm.email.$error.required">required</span>
                 <span class="error" data-ng-show="userForm.email.$error.email && !userForm.$pristine">invalid</span>
             </label>
-            <div class="">
+            <div>
                 <input type="email" class="form-control" id="new-user-email" placeholder="Email" name="email"
                         data-ng-model="editUser.email" required>
             </div>
         </div>
         <div class="col-md-3">
             <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userForm.forename.$error.required && !userForm.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename"
+            <div><input type="text" class="form-control" id="new-user-forename" placeholder="Forename"
                                  name="forename" data-ng-model="editUser.forename" required></div>
         </div>
         <div class="col-md-3">
             <label for="new-user-surname" class="control-label">Surname <span class="error" data-ng-show="userForm.surname.$error.required && !userForm.$pristine"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname"
+            <div><input type="text" class="form-control" id="new-user-surname" placeholder="Surname"
                                  name="surname" data-ng-model="editUser.surname" required></div>
         </div>
         <input type="hidden" data-ng-model="editUser.contactNumber">
+    </div>
+</div>
+<div class="row edit-staff">
+    <div class="form-horizontal" role="form">
+        <div class="col-md-3">
+            <label for="new-user-role-description" class="control-label">Role Description</label>
+            <div><input type="text" class="form-control" id="new-user-role-description" placeholder="Role Description"
+                             name="roleDescription" data-ng-model="editUser.roleDescription" maxlength="50"></div>
+        </div>
+        <div class="col-md-3 visible-for-col">
+            <h5 for="user-locked pull-left" class="control-label">Locked</h5>
+            <input type="checkbox" class="form-control" id="user-locked" name="user-locked" data-ng-model="editUser.locked"/>
+        </div>
+        <div class="col-md-3 visible-for-col">
+            <h5 for="user-emailVerified pull-left" class="control-label">Email Address Verified</h5>
+            <input type="checkbox" class="form-control" id="user-emailVerified" name="user-emailVerified"
+                   data-ng-model="editUser.emailVerified" data-ng-disabled="true"/>
+        </div>
     </div>
 </div>
 <button type="button" class="btn blue pull-right form-save" data-ng-click="save(userForm, editUser)" data-ng-disabled="userForm.$pristine || !userForm.$valid">Save</button>

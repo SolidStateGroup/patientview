@@ -65,30 +65,62 @@
 <testcode>hb</testcode>
 <units>gm/l</units>
 <daterange start="2000-01-01" stop="2013-11-13"/>
-    <result>
-        <datestamp>2013-11-07T09:00:00</datestamp>
-        <value>12.40</value>
-    </result>
 <result>
 <datestamp>2013-11-06T13:01:47</datestamp>
     <prepost>PRE</prepost>
-<value>Result not available</value>
+<value>Result not available™</value>
 </result>
+</test>
+<test>
+<testname>creatinine</testname>
+<testcode>creatinine</testcode>
+<units></units>
+<daterange start="2000-01-01" stop="2013-11-13"/>
+    <result>
+        <datestamp>2013-11-07T09:00:00</datestamp>
+        <value>112.40</value>
+    </result>
 <result>
 <datestamp>2013-11-05T08:00:00</datestamp>
 <value>123.00</value>
 </result>
 <result>
 <datestamp>2013-11-02T08:00:00</datestamp>
-<value>13.20</value>
+<value>113.20</value>
 </result>
 <result>
 <datestamp>2013-11-01T08:00:00</datestamp>
-<value>12.40</value>
+<value>112.40</value>
 </result>
 <result>
 <datestamp>2013-10-31T00:00:00</datestamp>
-<value>12.90</value>
+<value>112.90</value>
+</result>
+</test>
+<test>
+<testname>urea</testname>
+<testcode>urea</testcode>
+<units></units>
+<daterange start="2000-01-01" stop="2013-11-13"/>
+    <result>
+        <datestamp>2013-11-07T09:00:00</datestamp>
+        <value>112.40</value>
+    </result>
+<result>
+<datestamp>2013-11-05T08:00:00</datestamp>
+<value>123.00</value>
+</result>
+<result>
+<datestamp>2013-11-02T08:00:00</datestamp>
+<value>113.20</value>
+</result>
+<result>
+<datestamp>2013-11-01T08:00:00</datestamp>
+<value>112.40</value>
+</result>
+<result>
+<datestamp>2013-10-31T00:00:00</datestamp>
+<value>112.90</value>
 </result>
 </test>
 </testdetails>
@@ -96,74 +128,8 @@
 <drugdetails>
 <drug>
 <drugstartdate>2013-10-30</drugstartdate>
-<drugname>Bisoprolol</drugname>
+<drugname>Bisoprolol™</drugname>
 <drugdose>5 mg. Tablet/s Oral Daily </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-10-28T15:49:41</drugstartdate>
-<drugname>Furosemide.</drugname>
-<drugdose>40 mg. Tablet/s Oral In the morning  </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-10-25T15:47:58</drugstartdate>
-<drugname>Prednisone</drugname>
-<drugdose>10 mg. Tablet/s Oral Daily EC DUE TO GI effects
-Increased due to infection </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-10-23</drugstartdate>
-<drugname>Alendronate sodium</drugname>
-<drugdose>70 mg. Tablet/s Oral weekly. Sundays </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-09-23</drugstartdate>
-<drugname>Mycophenolate Mofetil</drugname>
-<drugdose>250 mg. Tablet/s Oral 2 x per day- </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-07-29</drugstartdate>
-<drugname>Solifenacin Succinate</drugname>
-<drugdose>5 mg. Tablet/s Oral Daily </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-07-26</drugstartdate>
-<drugname>Sertraline</drugname>
-<drugdose>50 mg. Tablet/s Oral Daily </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-05-01</drugstartdate>
-<drugname>Citalopram</drugname>
-<drugdose>20 mg. Tablet/s Oral </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-03-07</drugstartdate>
-<drugname>Cefalexin</drugname>
-<drugdose>250 mg. Capsules Oral Daily </drugdose>
-</drug>
-<drug>
-<drugstartdate>2013-01-21</drugstartdate>
-<drugname>Ranitidine</drugname>
-<drugdose>150 mg. Tablet/s Oral 2 x per day.. Started by Dr Tejwani </drugdose>
-</drug>
-<drug>
-<drugstartdate>2012-12-31</drugstartdate>
-<drugname>Cyclizine</drugname>
-<drugdose>50 mg. Tablet/s Oral 3 x per day if necessary </drugdose>
-</drug>
-<drug>
-<drugstartdate>2012-12-10</drugstartdate>
-<drugname>Paracetamol</drugname>
-<drugdose>1 g. Tablet/s Oral 4 x per day if necessary </drugdose>
-</drug>
-<drug>
-<drugstartdate>2012-10-26</drugstartdate>
-<drugname>Dihydrocodeine</drugname>
-<drugdose>30 mg. Tablet/s Oral when necessary For pain at night </drugdose>
-</drug>
-<drug>
-<drugstartdate>2012-10-23T11:24:40</drugstartdate>
-<drugname>Tacrolimus (Prograf)</drugname>
-<drugdose>0.5 mg. Capsules Oral 2 x per day.. hAD BEEN REDUCED ON ADMISSION </drugdose>
 </drug>
 
 </drugdetails>

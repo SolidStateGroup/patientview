@@ -20,6 +20,20 @@
         <label for="new-user-surname" class="col-sm-2 control-label">Surname</label>
         <div class="col-sm-9"><span type="text" class="form-control" id="new-user-surname">{{editUser.surname}}</span></div>
     </div>
+    <div class="form-group">
+        <label for="new-user-role-description" class="col-sm-2 control-label">Role Description</label>
+        <div class="col-sm-9"><span type="text" class="form-control" id="new-user-role-description">{{editUser.roleDescription}}</span></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-locked" class="col-sm-2 control-label">Locked</label>
+        <div class="col-sm-9"><input type="checkbox" id="new-user-locked" name="new-user-locked"
+                                     data-ng-model="editUser.locked" data-ng-disabled="true"/></div>
+    </div>
+    <div class="form-group">
+        <label for="new-user-email-verified" class="col-sm-2 control-label">Email Address Verified</label>
+        <div class="col-sm-9"><input type="checkbox" id="new-user-email-verified"
+                                     data-ng-model="editUser.emailVerified" data-ng-disabled="true"/></div>
+    </div>
     <input type="hidden" data-ng-model="editUser.contactNumber">
 </div>
 

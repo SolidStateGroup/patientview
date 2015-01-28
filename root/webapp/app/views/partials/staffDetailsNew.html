@@ -1,23 +1,38 @@
 <div class="form-horizontal row" role="form">
     <div class="col-md-3">
         <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userFormNew.userName.$error.required && !userFormNew.$pristine">required</span></label>
-        <div class=""><input type="text" class="form-control" id="new-user-username" placeholder="Username"
+        <div><input type="text" class="form-control" id="new-user-username" placeholder="Username"
                              name="userName" data-ng-model="editUser.username" required maxlength="50"></div>
     </div>
     <div class="col-md-3">
         <label for="new-user-email" class="control-label">Email <span class="error" data-ng-show="userFormNew.email.$error.required && !userFormNew.$pristine">required</span> <span class="error" data-ng-show="userFormNew.email.$error.email && !userFormNew.$pristine">invalid</span></label>
-        <div class=""><input type="email" class="form-control" id="new-user-email" placeholder="Email"
+        <div><input type="email" class="form-control" id="new-user-email" placeholder="Email"
                              name="email" data-ng-model="editUser.email" required></div>
     </div>
     <div class="col-md-3">
         <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userFormNew.forename.$error.required && !userFormNew.$pristine">required</span></label>
-        <div class=""><input type="text" class="form-control" id="new-user-forename" placeholder="Forename"
+        <div><input type="text" class="form-control" id="new-user-forename" placeholder="Forename"
                              name="forename" data-ng-model="editUser.forename" required></div>
     </div>
     <div class="col-md-3">
         <label for="new-user-surname" class="control-label">Surname <span class="error" data-ng-show="userFormNew.surname.$error.required && !userFormNew.$pristine">required</span></label>
-        <div class=""><input type="text" class="form-control" id="new-user-surname" placeholder="Surname"
+        <div><input type="text" class="form-control" id="new-user-surname" placeholder="Surname"
                              name="surname" data-ng-model="editUser.surname" required></div>
+    </div>
+</div>
+<div class="form-horizontal row" role="form">
+    <div class="col-md-3">
+        <label for="new-user-role-description" class="control-label">Role Description </label>
+        <div><input type="text" class="form-control" id="new-user-role-description" placeholder="Role Description"
+                             name="roleDescription" data-ng-model="editUser.roleDescription" maxlength="50"></div>
+    </div>
+    <div class="col-md-3 visible-for-col">
+        <h5 for="new-user-locked pull-left" class="control-label">Locked</h5>
+        <input type="checkbox" class="form-control" id="new-user-locked" name="new-user-locked" data-ng-model="editUser.locked"/>
+    </div>
+    <div class="col-md-3 visible-for-col">
+        <h5 for="new-user-emailVerified pull-left" class="control-label">Email Address Verified</h5>
+        <input type="checkbox" class="form-control" id="new-user-emailVerified" name="new-user-emailVerified" data-ng-model="editUser.emailVerified" data-ng-disabled="true"/>
     </div>
 </div>
 
@@ -71,10 +86,6 @@
                     <div class="feature-list-delete pull-left"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userFormNew, editUser, feature)" ><i class="glyphicon glyphicon-remove"></i></a></span></div>
                 </li>
             </ul>
-            <!--<div class="feature-list-item" data-ng-repeat="feature in editUser.userFeatures | orderBy:'feature.description'">-->
-                <!--<div class="feature-list-name"><span class="feature-list-name">{{feature.feature.description}}</span></div>-->
-                <!--<div class="feature-list-delete"><span class="feature-list-delete"><a id="remove-feature-modal-{{feature.id}}" href="" data-ng-click="removeFeature(userFormNew, editUser, feature)" >Delete</a></span></div>-->
-            <!--</div>-->
         </div>
         <div class="feature-add-container add-container" data-ng-show="editUser.availableFeatures.length > 0 ">
             <label class="inner-title">Add New Feature </label>

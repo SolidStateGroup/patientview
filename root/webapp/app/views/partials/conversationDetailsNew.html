@@ -6,7 +6,6 @@
 </script>
 
 <div data-ng-show="!modalLoading" xmlns="http://www.w3.org/1999/html">
-
     <div data-ng-show="conversationGroups.length > 0">
         <div class="row" data-ng-show="newConversation.recipients.length">
             <div class="form-horizontal" role="form">
@@ -59,7 +58,7 @@
                     <label for="conversation-title" class="control-label">Title
                         <span class="error" data-ng-show="conversationFormNew.title.$error.required && !conversationFormNew.$pristine"> *required</span>
                     </label>
-                    <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title"
+                    <div><input type="text" class="form-control" id="conversation-title" placeholder="Title"
                                          name="title" data-ng-model="newConversation.title"
                                          data-ng-disabled="!newConversation.availableRecipients.length && !newConversation.recipients.length" required maxlength="200"></div>
                 </div>
@@ -82,7 +81,6 @@
     <div data-ng-show="!conversationGroups.length">
         <p>You do not belong to any group with messaging enabled.</p>
     </div>
-
 </div>
 
 <div data-ng-show="modalLoading" class="row"><br/>

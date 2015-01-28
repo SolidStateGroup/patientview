@@ -25,6 +25,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
+import org.patientview.persistence.repository.GroupRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -72,6 +73,9 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
     @Inject
     private AuditService auditService;
+    
+    @Inject
+    private GroupRepository groupRepository;
 
     @Override
     public void validate(Patientview patientview) throws ImportResourceException {
@@ -146,6 +150,8 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
 
             createAudit(AuditActions.PATIENT_DATA_SUCCESS, patientview.getPatient().getPersonaldetails().getNhsno(),
                     patientview.getCentredetails().getCentrecode(), null, xml, importerUserId);
+            
+            updateGroupLastImportDate(patientview.getCentredetails().getCentrecode());
 
         } catch (FhirResourceException | ResourceNotFoundException | SQLException e) {
             LOG.error(patientview.getPatient().getPersonaldetails().getNhsno()
@@ -160,7 +166,6 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         long diffInMilliseconds = date2.getTime() - date1.getTime();
         return timeUnit.convert(diffInMilliseconds, TimeUnit.MILLISECONDS);
     }
-
 
     private void createAudit(AuditActions auditActions, String identifier, String unitCode,
                              String information, String xml, Long importerUserId) {
@@ -191,5 +196,13 @@ public class ImportManagerImpl extends AbstractServiceImpl<ImportManager> implem
         }
 
         auditService.save(audit);
+    }
+    
+    private void updateGroupLastImportDate(String groupCode) {
+        Group group = groupRepository.findByCode(groupCode);
+        if (group != null) {
+            group.setLastImportDate(new Date());
+            groupRepository.save(group);
+        }
     }
 }

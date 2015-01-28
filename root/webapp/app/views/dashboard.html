@@ -9,7 +9,7 @@
     }
 </style>
 
-<div class="" data-ng-show="!loading" data-ng-cloak>
+<div data-ng-show="!loading" data-ng-cloak>
     <br/>
     <div class="row">
         <div class="col-md-8">
@@ -72,7 +72,7 @@
                         <span class="light-text">&nbsp;&nbsp;{{graphGroups[0].groupType.description}}</span></h3>
                     <div class="graph-selector clearfix">
                         <div class="col-md-2" data-ng-show="graphGroups.length > 1 && !permissions.isPatient">
-                            <h3 class="">Activity</h3>
+                            <h3>Activity</h3>
                         </div>
                         <div class="col-md-6">
                             <select class="form-control" id="graph-select" data-ng-model="graphGroupId"
@@ -82,7 +82,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="" data-ng-hide="permissions.isPatient">
+                <div data-ng-hide="permissions.isPatient">
                     <div class="content-inner">
                         <div id="chart_div"></div>
                     </div>
