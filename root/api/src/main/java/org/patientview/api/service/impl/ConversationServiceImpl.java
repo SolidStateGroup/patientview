@@ -351,7 +351,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         
         // handle comments to central PatientView support (sent via standard contact mechanism in UI but does not 
         // create a conversation, simply emails address set in properties
-        if (conversation.getStaffFeature().equals(FeatureType.CENTRAL_SUPPORT_CONTACT)) {
+        if (conversation.getStaffFeature() != null 
+                && conversation.getStaffFeature().equals(FeatureType.CENTRAL_SUPPORT_CONTACT)) {
             sendNewCentralSupportEmail(entityUser, conversation);
         } else {
             // create new conversation
