@@ -13,7 +13,7 @@ function ($scope, $rootScope, $modalInstance, ConversationService, group) {
     $scope.contactOptions.push({'id':1, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Feedback to my unit (public)'});
     $scope.contactOptions.push({'id':2, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': true, 'description':'Feedback to my unit (anonymous)'});
     $scope.contactOptions.push({'id':3, 'staffFeature': 'UNIT_TECHNICAL_CONTACT', 'anonymous': false, 'description':'Comments about PatientView for the system administrators'});
-    $scope.contactOptions.push({'id':4, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Other'});
+    $scope.contactOptions.push({'id':4, 'staffFeature': 'PATIENT_SUPPORT_CONTACT', 'anonymous': false, 'description':'Other comments to your local PatientView administrator'});
     $scope.selectedContactOption = $scope.contactOptions[-1];
     $scope.modalLoading = false;
 

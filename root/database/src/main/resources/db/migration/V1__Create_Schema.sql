@@ -81,6 +81,7 @@ CREATE TABLE PV_Group
   Address_2        TEXT,
   Address_3        TEXT,
   Postcode         VARCHAR(255),
+  Last_Import_Date TIMESTAMP,
   Creation_Date    TIMESTAMP NOT NULL,
   Created_By       BIGINT REFERENCES PV_User (Id),
   Last_Update_Date TIMESTAMP,

@@ -37,14 +37,12 @@
                             <div class="panel-heading">
                                 <h3>{{group.name}}</h3>
                                 <br/>
-                                <p>
-                                    Refer to contact details below or
-                                    <a href="" data-ng-click="openModalContactUnit(group)">send a secure message now in PatientView</a>.
-                                    Please check that the email we hold for you is correct so that you will get notification of replies.
-                                </p>
+                                <p>You can send messages to your PatientView Admin if info is wrong or missing. 
+                                    Or send <strong>anonymous feedback</strong> or choose from other options.</p>
+                                <p><a href="" class="btn blue" data-ng-click="openModalContactUnit(group)">Send Message Now</a></p>
                             </div>
                             <div class="panel-body">
-                                <div>
+                                <div data-ng-show="group.address1 || group.address2 || group.address3 || group.postcode">
                                     <h4>Address</h4>
                                     <table>
                                         <tr data-ng-show="group.address1">
@@ -89,6 +87,7 @@
                                 </div>
 
                                 <div data-ng-show="!group.address1 && !group.contactPoints.length && !group.locations.length">
+                                    <br/>
                                     <p>There is no contact information available for this group</p>
                                 </div>
                             </div>

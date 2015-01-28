@@ -84,7 +84,7 @@
                 <div class="head-item accordion-title-text" data-ng-show="!permissions.sortByGroupType">Type</div>
                 <div class="head-item accordion-title-text">Parent Groups</div>
                 <div class="head-item accordion-title-text">Features</div>
-                <div class="head-item accordion-title-text">Last Import</div>
+                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('lastImportDate');" class="sort-title"><i class="icon-sort pull-right"></i>Last Import</a></div>
                 <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
             </div>
 
@@ -100,7 +100,7 @@
                     <div class="row-item accordion-heading-text">{{group.groupType.description}}</div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="group in group.parentGroups">{{group.name}}</li></ul></div>
                     <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="groupFeature in group.groupFeatures">{{groupFeature.feature.description}}</li></ul></div>
-                    <div >{{group.lastImport}}</div>
+                    <div >{{group.lastImportDate | date:'dd-MM-yyyy HH:mm'}}</div>
                     <div class="row-item actions">
                         <!-- Stats, Edit buttons -->
                         <div class="btn-group">
