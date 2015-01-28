@@ -109,7 +109,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @RequestMapping(value = "/user/{userId}/savedobservationheadings", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Set<ObservationHeading>> getSavedObservationHeadings(@PathVariable("userId") Long userId)
+    public ResponseEntity<List<ObservationHeading>> getSavedObservationHeadings(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, FhirResourceException {
         return new ResponseEntity<>(observationHeadingService.getSavedObservationHeadings(userId), HttpStatus.OK);
     }

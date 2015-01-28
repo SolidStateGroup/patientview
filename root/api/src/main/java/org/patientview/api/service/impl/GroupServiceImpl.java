@@ -138,9 +138,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Override
     public List<org.patientview.api.model.Group> findAllPublic() {
-        /*List<org.patientview.api.model.Group> groups = convertToTransportGroups(
-                addParentAndChildGroups(groupRepository.findAllVisibleToJoin()));*/
-
         List<org.patientview.api.model.Group> groups = convertToTransportGroups(
                 addParentAndChildGroups(groupRepository.findAll()));
 
@@ -151,6 +148,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             group.setChildGroups(null);
             group.setLinks(null);
             group.setLocations(null);
+            group.setLastImportDate(null);
         }
 
         return groups;
@@ -252,13 +250,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         return groupRepository.findByCode(group.getCode()) != null;
     }
 
-    /**
-     * TODO remove links, relationships, locations, and features SPRINT 2
-     *
-     * @param group
-     * @return
-     * @throws javax.persistence.EntityExistsException
-     */
     public Long add(Group group) throws EntityExistsException {
         Group newGroup;
 
@@ -416,13 +407,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     // Attached the relationship of children groups and parents groups onto Transient objects
     public List<Group> addParentAndChildGroups(List<Group> groups) {
-
         for (Group group : groups) {
             addSingleParentAndChildGroup(group);
         }
-
         return groups;
-
     }
 
     public void addParentGroup(Long groupId, Long parentGroupId) {
@@ -723,7 +711,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                 direction = Sort.Direction.DESC;
             }
 
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+            pageable = new PageRequest(pageConverted, sizeConverted, 
+                    new Sort(new Sort.Order(direction, sortField)));
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
         }

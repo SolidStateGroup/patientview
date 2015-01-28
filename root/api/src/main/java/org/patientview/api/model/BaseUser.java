@@ -17,6 +17,9 @@ public class BaseUser {
     // only staff users
     private Boolean deleted;
 
+    // onyl staff users
+    private String roleDescription;
+
     public BaseUser() {
 
     }
@@ -28,6 +31,7 @@ public class BaseUser {
         setSurname(user.getSurname());
         setDateOfBirth(user.getDateOfBirth());
         setDeleted(user.getDeleted());
+        setRoleDescription(user.getRoleDescription());
     }
 
     public BaseUser(org.patientview.api.model.User user) {
@@ -37,6 +41,7 @@ public class BaseUser {
         setSurname(user.getSurname());
         setDateOfBirth(user.getDateOfBirth());
         setDeleted(user.getDeleted());
+        setRoleDescription(user.getRoleDescription());
     }
 
     public Long getId() {
@@ -85,5 +90,13 @@ public class BaseUser {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getRoleDescription() {
+        return roleDescription;
+    }
+
+    public void setRoleDescription(String roleDescription) {
+        this.roleDescription = roleDescription;
     }
 }

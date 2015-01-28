@@ -97,6 +97,7 @@ public class QueueProcessor extends DefaultConsumer {
             } catch (ImportResourceException ire) {
                 LOG.error(ire.getMessage());
                 createAudit(AuditActions.PATIENT_DATA_FAIL, null, null, ire.getMessage(), message);
+                sendErrorEmail(ire.getMessage());
                 fail = true;
             }
 
@@ -105,6 +106,7 @@ public class QueueProcessor extends DefaultConsumer {
                 String errorMessage = "Identifier not set in XML";
                 LOG.error(errorMessage);
                 createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL, null, null, errorMessage, message);
+                sendErrorEmail(errorMessage);
                 fail = true;
             }
 
@@ -114,6 +116,7 @@ public class QueueProcessor extends DefaultConsumer {
                 LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + ": " + errorMessage);
                 createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
                         patient.getPatient().getPersonaldetails().getNhsno(), null, errorMessage, message);
+                sendErrorEmail(errorMessage);
                 fail = true;
             }
 
@@ -123,11 +126,18 @@ public class QueueProcessor extends DefaultConsumer {
                     LOG.info(patient.getPatient().getPersonaldetails().getNhsno() + ": received");
                     importManager.validate(patient);
                 } catch (ImportResourceException ire) {
-                    LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + ": failed validation");
+                    String errorMessage = patient.getPatient().getPersonaldetails().getNhsno() 
+                            + " ("
+                            + patient.getCentredetails().getCentrecode()
+                            + "): failed validation, "
+                            + ire.getMessage();
+                    LOG.error(errorMessage);
 
                     createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
                             patient.getPatient().getPersonaldetails().getNhsno(),
                             patient.getCentredetails().getCentrecode(), ire.getMessage(), message);
+                    
+                    sendErrorEmail(errorMessage);
 
                     fail = true;
                 }
@@ -138,10 +148,17 @@ public class QueueProcessor extends DefaultConsumer {
                 try {
                     importManager.process(patient, message, importerUserId);
                 } catch (ImportResourceException ire) {
-                    LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + ": could not add, {}", ire);
+                    String errorMessage = patient.getPatient().getPersonaldetails().getNhsno()
+                            + " ("
+                            + patient.getCentredetails().getCentrecode()
+                            + "): could not add. " 
+                            + ire.getMessage();
+                    LOG.error(errorMessage, ire);
                     createAudit(AuditActions.PATIENT_DATA_FAIL,
                             patient.getPatient().getPersonaldetails().getNhsno(),
                             patient.getCentredetails().getCentrecode(), ire.getMessage(), message);
+
+                    sendErrorEmail(errorMessage);
                 }
             }
         }
@@ -181,5 +198,9 @@ public class QueueProcessor extends DefaultConsumer {
         }
 
         auditService.save(audit);
+    }
+    
+    private void sendErrorEmail(String errorMessage) {
+        
     }
 }

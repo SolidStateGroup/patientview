@@ -2,15 +2,15 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
             <label for="group-code" class="control-label">Code <span class="error" data-ng-hide="editGroup.code.length"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" data-ng-model="editGroup.code" data-ng-disabled="!permissions.canEditGroupCode" required maxlength="50"></div>
+            <div><input type="text" class="form-control" id="group-code" placeholder="Code" name="code" data-ng-model="editGroup.code" data-ng-disabled="!permissions.canEditGroupCode" required maxlength="50"></div>
         </div>
         <div class="col-md-3">
             <label for="group-name" class="control-label">Name <span class="error" data-ng-hide="editGroup.name.length"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" data-ng-model="editGroup.name" required maxlength="200"></div>
+            <div><input type="text" class="form-control" id="group-name" placeholder="Name" name="name" data-ng-model="editGroup.name" required maxlength="200"></div>
         </div>
         <div class="col-md-3">
             <label for="group-short-name" class="control-label">Short Name (20 characters)<span class="error" data-ng-hide="editGroup.shortName.length"> *required</span></label>
-            <div class=""><input type="text" class="form-control" id="group-short-name" placeholder="Short Name" name="shortName" data-ng-model="editGroup.shortName" maxlength="20"></div>
+            <div><input type="text" class="form-control" id="group-short-name" placeholder="Short Name" name="shortName" data-ng-model="editGroup.shortName" maxlength="20"></div>
         </div>
         <div class="col-md-3">
             <label for="group-groupType" class="control-label">Group Type <span class="error" data-ng-show="!editGroup.groupTypeId"> *required</span></label>

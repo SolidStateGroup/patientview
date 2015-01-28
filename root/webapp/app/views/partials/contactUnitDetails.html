@@ -3,7 +3,7 @@
         <div class="form-horizontal" role="form">
             <div class="col-md-12">
                 <label for="conversation-contact-option" class="control-label">What is the message about? <span class="error" data-ng-show="!selectedContactOption || selectedContactOption < 0">(please select)</span></label>
-                <div class="">
+                <div>
                     <select class="form-control" id="conversation-contact-option" data-ng-model="selectedContactOption"
                           data-ng-options="contactOption as contactOption.description for contactOption in contactOptions"
                           data-ng-change="contactOptionChanged(selectedContactOption)"></select>
@@ -17,7 +17,7 @@
         <div class="form-horizontal" role="form">
             <div class="col-md-12">
                 <label for="conversation-title" class="control-label">Subject <span class="error" data-ng-show="contactUnitForm.title.$error.required && !contactUnitForm.$pristine"> *required</span></label>
-                <div class=""><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" data-ng-model="conversation.title" required></div>
+                <div><input type="text" class="form-control" id="conversation-title" placeholder="Title" name="title" data-ng-model="conversation.title" required></div>
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
         <div class="form-horizontal" role="form">
             <div class="col-md-12">
                 <label for="conversation-message" class="control-label">Message <span class="error" data-ng-show="contactUnitForm.message.$error.required && !contactUnitForm.$pristine"> *required</span></label>
-                <div class=""><textarea class="form-control" id="conversation-message" placeholder="Message" name="message" data-ng-model="conversation.message" required></textarea></div>
+                <div><textarea class="form-control" id="conversation-message" placeholder="Message" name="message" data-ng-model="conversation.message" required></textarea></div>
             </div>
         </div>
     </div>
