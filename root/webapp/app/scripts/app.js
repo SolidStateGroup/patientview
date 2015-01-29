@@ -290,6 +290,10 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
             alert('Cannot view patient');
         });
     };
+        
+    $rootScope.showTestHeader = function() {
+        return window.location.href.indexOf('local') > -1;
+    };
 
     // get auth token
     var authToken = localStorageService.get('authToken');
@@ -374,4 +378,5 @@ $('html').click(function(e){
         tableElement.find('.faux-row').removeClass('dull');
         tableElement.find('.edit-button').removeClass('editing');
     }
+
 });

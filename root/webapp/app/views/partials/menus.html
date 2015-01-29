@@ -6,6 +6,12 @@
         color: #940012;
     }
 </style>
+
+<div class="alert alert-danger" data-ng-show="showTestHeader()">
+    <h1 align="center">THIS IS A TEST WEBSITE AND DOES NOT HAVE UP TO DATE DATA</h1>
+    <h1 align="center">Please visit <a href="https://www.patientview.org">www.patientview.org</a> </h1>
+</div>
+        
 <div data-ng-show="previousAuthToken && !switchingUser" class="container" data-ng-cloak>
     <div class="back-to-admin clearfix">
         <a href="" class="blue pull-left" data-ng-click="switchUserBack()"> <i class="icon-back-to pull-left"></i> Back to Admin Area</a>

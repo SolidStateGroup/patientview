@@ -124,6 +124,12 @@
                         Submit Request</button>
                 </div>
             </div>
+
+            <div class="alert alert-danger" data-ng-show="showTestHeader()">
+                <h1 align="center">THIS IS A TEST WEBSITE, YOU CANNOT JOIN</h1>
+                <h1 align="center">Please visit <a href="https://www.patientview.org">www.patientview.org</a> </h1>
+            </div>
+            
             <br/>
             <div class="alert alert-success" data-ng-show="successMessage">
                 <strong>Thank you for submitting your request to join PatientView. Your selected unit will follow up shortly
