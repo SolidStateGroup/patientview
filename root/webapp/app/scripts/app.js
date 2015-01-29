@@ -69,6 +69,9 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     function($rootScope, $timeout, $location, $cookieStore, $cookies, $sce, localStorageService, Restangular, $route,
              RouteService, ENV, ConversationService, JoinRequestService, UserService, AuthService) {
 
+    // fastclick to remove 300ms delay on touch devices: https://github.com/ftlabs/fastclick
+    FastClick.attach(document.body);
+        
     $rootScope.ieTestMode = false;
     $rootScope.apiEndpoint = ENV.apiEndpoint;
     $rootScope.buildDateTime = ENV.buildDateTime;
