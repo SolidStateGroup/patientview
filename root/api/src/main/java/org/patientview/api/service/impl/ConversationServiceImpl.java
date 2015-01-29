@@ -407,7 +407,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         email.setRecipients(new String[]{properties.getProperty("central.support.contact.email")});
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Dear Central Support for PatientView, <br/><br/>You have a new comment from ");
+        sb.append("Dear PatientView Support, <br/><br/>You have a new comment from ");
         sb.append(entityUser.getForename());
         sb.append(" ");
         sb.append(entityUser.getSurname());
@@ -415,10 +415,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         sb.append(entityUser.getEmail());
         sb.append("\">");
         sb.append(entityUser.getEmail());
-        sb.append("</a>)");
-        sb.append("<br/><br/>Subject: <br/>");
-        sb.append(conversation.getTitle());
-        sb.append("<br/><br/>Content: <br/>");
+        sb.append("</a>)<br/><br/>Content: <br/>");
         sb.append(conversation.getMessages().get(0).getMessage());
         email.setBody(sb.toString());
 
