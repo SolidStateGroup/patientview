@@ -711,8 +711,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             if (user.isNewUser) {
                 $scope.printSuccessMessage = true;
                 $scope.successMessage = 'User successfully created ' +
-                    'with username: "' + user.username + '" ' +
-                    'and password: "' + user.password + '"';
+                    'with username: ' + user.username + ' ' +
+                    'and password: ' + user.password;
                 $scope.userCreated = true;
             } else {
                 // is an already existing user, likely updated group roles
@@ -824,7 +824,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             modalInstance.result.then(function (successResult) {
                 $scope.printSuccessMessage = true;
                 $scope.successMessage = 'Password reset for ' + user.forename + ' ' + user.surname
-                    + ' (username "' + user.username + '"), new password is: "' + successResult.password + '"';
+                    + ' (username: ' + user.username + '), new password is: ' + successResult.password;
             }, function () {
                 // closed
             });

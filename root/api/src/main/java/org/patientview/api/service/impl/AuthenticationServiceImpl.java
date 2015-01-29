@@ -180,6 +180,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (user.getDeleted()) {
             throw new AuthenticationServiceException("This account has been deleted");
         }
+        
+        // strip spaces from beginning and end of password
+        password = password.trim();
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
             auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
