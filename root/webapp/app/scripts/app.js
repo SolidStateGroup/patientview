@@ -292,7 +292,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     };
         
     $rootScope.showTestHeader = function() {
-        return window.location.href.indexOf('local') > -1;
+        return window.location.href.indexOf('test.patientview') > -1;
     };
 
     // get auth token
