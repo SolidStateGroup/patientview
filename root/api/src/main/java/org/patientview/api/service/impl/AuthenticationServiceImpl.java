@@ -191,11 +191,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("Incorrect username or password");
         }
 
-
         Date now = new Date();
-
-        auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
-                user.getId(), AuditObjectTypes.User, null);
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);
@@ -223,6 +219,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         userRepository.save(user);
+
+        auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
+                user.getId(), AuditObjectTypes.User, null);
 
         return userToken.getToken();
     }
