@@ -49,6 +49,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FhirObservation;
 import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.MigrationUser;
 import org.patientview.persistence.model.ObservationHeading;
@@ -56,6 +57,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.CodeTypes;
 import org.patientview.persistence.model.enums.DiagnosisTypes;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
+import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
@@ -139,6 +141,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     // used during migration
     private HashMap<String, ObservationHeading> observationHeadingMap;
     private static final String GENDER_CODING = "gender";
+    private static final String RENAL_GROUP_CODE = "Renal";
+    private static final String GEN_CODE = "GEN";
 
     @Override
     public List<org.patientview.api.model.Patient> get(final Long userId, final List<Long> groupIds)
@@ -182,8 +186,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                         // set conditions
                         patient = setConditions(patient, conditionService.get(fhirLink.getResourceId()));
 
-                        // set encounters
-                        patient = setEncounters(patient, encounterService.get(fhirLink.getResourceId()));
+                        // set encounters (treatment)
+                        patient = setEncounters(patient, encounterService.get(fhirLink.getResourceId()), user);
 
                         // set edta diagnosis if present based on available codes
                         patient = setDiagnosisCodes(patient);
@@ -260,8 +264,9 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
     }
 
     private org.patientview.api.model.Patient setEncounters(org.patientview.api.model.Patient patient,
-                                              List<Encounter> encounters) throws FhirResourceException {
+                                              List<Encounter> encounters, User user) throws FhirResourceException {
 
+        boolean hasTreatment = false;
         patient.setFhirEncounters(new ArrayList<FhirEncounter>());
 
         // replace fhirEncounter type field with a more useful description if it exists in codes
@@ -286,6 +291,31 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
 
             patient.getFhirEncounters().add(fhirEncounter);
+            
+            if (fhirEncounter.getEncounterType().equals(EncounterTypes.TREATMENT.toString())) {
+                hasTreatment = true;
+            }
+        }
+        
+        // Card #314 if no treatment type encounter exists and patient is member of renal specialty, add GEN
+        if (!hasTreatment) {
+            boolean isMemberOfRenal = false;
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (groupRole.getGroup().getCode().equals(RENAL_GROUP_CODE)) {
+                    isMemberOfRenal = true;
+                }
+            }
+            if (isMemberOfRenal) {
+                List<Code> codes = codeService.findAllByCodeAndType(GEN_CODE,
+                        lookupService.findByTypeAndValue(LookupTypes.CODE_TYPE, CodeTypes.TREATMENT.toString()));
+                if (!CollectionUtils.isEmpty(codes)) {
+                    FhirEncounter fhirEncounter = new FhirEncounter();
+                    fhirEncounter.setEncounterType(EncounterTypes.TREATMENT.toString());
+                    fhirEncounter.setLinks(codes.get(0).getLinks());
+                    fhirEncounter.setStatus(codes.get(0).getDescription());
+                    patient.getFhirEncounters().add(fhirEncounter);
+                }
+            }
         }
 
         return patient;
