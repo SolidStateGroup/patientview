@@ -77,7 +77,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     $rootScope.buildDateTime = ENV.buildDateTime;
 
     // rebuild routes from cookie, allow refresh of page
-    var buildRoute = function() {
+    $rootScope.buildRoute = function() {
         var data = { 'default': '/' };
         data.routes = [];
         var menu = localStorageService.get('routes');
@@ -233,7 +233,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     };
 
     $rootScope.$on('$locationChangeStart', function() {
-        buildRoute();
+        $rootScope.buildRoute();
     });
 
     $rootScope.$on('$routeChangeSuccess', function(event, currentRoute) {
