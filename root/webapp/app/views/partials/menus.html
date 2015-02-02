@@ -93,7 +93,7 @@
                 <ul class="secondary-nav nav nav-pills pull-left">
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP'" data-ng-class="{active: title === menuitem.title}">
                         <a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}
-                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="badge badge-small warning">{{submittedJoinRequestCount}}</span>
+                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0"> ({{submittedJoinRequestCount}})</span>
                         </a>
                     </li>
                 </ul>
