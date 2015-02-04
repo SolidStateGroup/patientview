@@ -62,6 +62,8 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -136,12 +138,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private Properties properties;
 
+    @Inject
+    private EntityManager entityManager;
+    
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
     private Group genericGroup;
     private Role memberRole;
-
 
     @PostConstruct
     public void init() {
@@ -766,8 +770,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (sortDirection.equals("DESC")) {
                 direction = Sort.Direction.DESC;
             }
+            
+            Sort.Order order = new Sort.Order(direction, sortField, Sort.NullHandling.NULLS_LAST);
+            Sort sort = new Sort(order);
 
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
+            pageable = new PageRequest(pageConverted, sizeConverted, sort);
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
@@ -808,8 +815,41 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
 
+        // Testing to avoid NULL in PostgreSQL being larger than any value when sorting
+        Query query = entityManager.createQuery("SELECT u " +
+                "FROM User u " +
+                "JOIN u.groupRoles gr " +
+                "JOIN u.identifiers i " +
+                "WHERE gr.role.id IN :roleIds " +
+                "AND gr.group.id IN :groupIds " +
+                "AND (UPPER(u.username) LIKE :searchUsername) " +
+                "AND (UPPER(u.forename) LIKE :searchForename) " +
+                "AND (UPPER(u.surname) LIKE :searchSurname) " +
+                "AND (UPPER(u.email) LIKE :searchEmail) " +
+                "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) " +
+                "AND u.deleted = false " +
+                "" +
+                " GROUP BY u.id " +
+                "ORDER BY u." + sortField + " " + sortDirection + " NULLS FIRST");
+        query.setParameter("searchUsername", searchUsername);
+        query.setParameter("searchForename", searchForename);
+        query.setParameter("searchSurname", searchSurname);
+        query.setParameter("searchEmail", searchEmail);
+        query.setParameter("searchIdentifier", searchIdentifier);
+        query.setParameter("groupIds", groupIds);
+        query.setParameter("roleIds", roleIds);
+        //query.setFirstResult(sizeConverted * (pageConverted + 1));
+        //query.setMaxResults(sizeConverted);
+        List<User> userList = query.getResultList();
+        long total = userList.size();
+        userList = userList.subList(
+            sizeConverted * (pageConverted + 1), sizeConverted * (pageConverted + 1) + sizeConverted);
+
+        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(userList);
+        return new PageImpl<>(transportContent, pageable, total);
+
         // todo: consider rewrite to avoid large number of parameters
-        if (andGroups) {
+        /*if (andGroups) {
             if (!staff && patient) {
                 users = userRepository.findPatientByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
                         searchEmail, searchIdentifier, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
@@ -840,7 +880,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             total = users.getContent().size();
         }
 
-        return new PageImpl<>(transportContent, pageable, total);
+        return new PageImpl<>(transportContent, pageable, total);*/
+
     }
 
     /**
