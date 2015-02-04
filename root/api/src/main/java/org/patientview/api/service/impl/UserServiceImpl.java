@@ -840,10 +840,35 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         query.setParameter("searchIdentifier", searchIdentifier);
         query.setParameter("groupIds", groupIds);
         query.setParameter("roleIds", roleIds);
-        query.setFirstResult(sizeConverted * (pageConverted + 1));
+        if (pageConverted == 0) {
+            query.setFirstResult(0);
+        } else {
+            query.setFirstResult((sizeConverted * (pageConverted + 1)) - sizeConverted);
+        }
         query.setMaxResults(sizeConverted);
         List<User> userList = query.getResultList();
-        long total = userList.size();
+
+        Query query2 = entityManager.createQuery("SELECT count(distinct u)  " +
+                "FROM User u " +
+                "JOIN u.groupRoles gr " +
+                "JOIN u.identifiers i " +
+                "WHERE gr.role.id IN :roleIds " +
+                "AND gr.group.id IN :groupIds " +
+                "AND (UPPER(u.username) LIKE :searchUsername) " +
+                "AND (UPPER(u.forename) LIKE :searchForename) " +
+                "AND (UPPER(u.surname) LIKE :searchSurname) " +
+                "AND (UPPER(u.email) LIKE :searchEmail) " +
+                "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) " +
+                "AND u.deleted = false ");
+        query2.setParameter("searchUsername", searchUsername);
+        query2.setParameter("searchForename", searchForename);
+        query2.setParameter("searchSurname", searchSurname);
+        query2.setParameter("searchEmail", searchEmail);
+        query2.setParameter("searchIdentifier", searchIdentifier);
+        query2.setParameter("groupIds", groupIds);
+        query2.setParameter("roleIds", roleIds);
+
+        Long total = (Long) query2.getSingleResult();
         //userList = userList.subList(
         //    sizeConverted * (pageConverted + 1), sizeConverted * (pageConverted + 1) + sizeConverted);
 
