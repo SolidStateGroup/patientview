@@ -816,6 +816,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
 
         // Testing to avoid NULL in PostgreSQL being larger than any value when sorting
+        
+        
         Query query = entityManager.createQuery("SELECT u " +
                 "FROM User u " +
                 "JOIN u.groupRoles gr " +
@@ -838,12 +840,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         query.setParameter("searchIdentifier", searchIdentifier);
         query.setParameter("groupIds", groupIds);
         query.setParameter("roleIds", roleIds);
-        //query.setFirstResult(sizeConverted * (pageConverted + 1));
-        //query.setMaxResults(sizeConverted);
+        query.setFirstResult(sizeConverted * (pageConverted + 1));
+        query.setMaxResults(sizeConverted);
         List<User> userList = query.getResultList();
         long total = userList.size();
-        userList = userList.subList(
-            sizeConverted * (pageConverted + 1), sizeConverted * (pageConverted + 1) + sizeConverted);
+        //userList = userList.subList(
+        //    sizeConverted * (pageConverted + 1), sizeConverted * (pageConverted + 1) + sizeConverted);
 
         List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(userList);
         return new PageImpl<>(transportContent, pageable, total);
