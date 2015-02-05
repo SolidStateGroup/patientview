@@ -89,8 +89,6 @@
                 </div>
             </div>
 
-
-
             <div class="content-panel" data-ng-show="chartLoading && !permissions.isPatient">
                 <div class="loading"><img src="images/loading.gif" alt="Loading"/><br/><br/></div>
             </div>
@@ -98,27 +96,44 @@
             <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
                 <div class="panel-intro">
                     <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
+                    <p>Values are calculated daily, please click to see more, numbers are Total (Staff/Patient) counts</p>
                 </div>
                 <div class="user-details-container">
                     <div class="user-details">
                         <div class="row">
                             <dl class="col-md-4">
                                 <dt>Total Users</dt>
-                                <dd>{{totalUsers}}</dd>
+                                <dd>
+                                    {{totalUsers}} 
+                                    (<a href="#/staff?groupId={{graphGroupId}}">{{totalStaff}}</a> /
+                                    <a href="#/patients?groupId={{graphGroupId}}">{{totalPatients}}</a>)
+                                </dd>
                             </dl>
                             <dl class="col-md-6">
                                 <dt>Locked Users</dt>
-                                <dd>{{lockedUsers}}</dd>
+                                <dd>
+                                    {{lockedUsers}} 
+                                    (<a href="#/staff?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedStaff}}</a> /
+                                    <a href="#/patients?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedPatients}}</a>)
+                                </dd>
                             </dl>
                         </div>
                         <div class="row">
                             <dl class="col-md-4">
                                 <dt>Active Users</dt>
-                                <dd>{{activeUsers}}</dd>
+                                <dd>
+                                    {{activeUsers}}
+                                    (<a href="#/staff?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activeStaff}}</a> /
+                                    <a href="#/patients?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activePatients}}</a>)
+                                </dd>
                             </dl>
                             <dl class="col-md-6">
                                 <dt>Inactive Users (no login in 1 month)</dt>
-                                <dd>{{inactiveUsers}}</dd>
+                                <dd>
+                                    {{inactiveUsers}}
+                                    (<a href="#/staff?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactiveStaff}}</a> /
+                                    <a href="#/patients?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactivePatients}}</a>)
+                                </dd>
                             </dl>
                         </div>
                     </div>

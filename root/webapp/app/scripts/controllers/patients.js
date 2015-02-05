@@ -1,7 +1,5 @@
 'use strict';
 
-// todo: consider controllers in separate files
-
 // new patient modal instance controller
 var NewPatientModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService', 'UtilService',
 function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService, UtilService) {
@@ -326,10 +324,10 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Patient controller
-angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$location',
+angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$location', '$routeParams',
     'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService', 'AuthService', 'localStorageService',
     'UtilService', '$route',
-    function ($rootScope, $scope, $compile, $modal, $timeout, $location, UserService, GroupService, RoleService, FeatureService,
+    function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService, RoleService, FeatureService,
               StaticDataService, AuthService, localStorageService, UtilService, $route) {
 
     $scope.itemsPerPage = 10;
@@ -338,6 +336,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
     $scope.searchItems = {};
+    $scope.selectedGroup = [];
 
     // multi search
     $scope.search = function() {
@@ -361,7 +360,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     });
 
     // filter users by group
-    $scope.selectedGroup = [];
     $scope.setSelectedGroup = function () {
         delete $scope.successMessage;
         var id = this.group.id;
@@ -490,7 +488,6 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // Get users based on current user selected filters etc
     $scope.getItems = function () {
-        $scope.loadingMessage = 'Loading Patients';
         $scope.loading = true;
 
         var getParameters = {};
@@ -507,6 +504,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
         getParameters.searchEmail = $scope.searchItems.searchEmail;
 
+        // for filtering users by status (e.g. locked, active, inactive)
+        getParameters.statusFilter = $scope.statusFilter;
+
         if ($scope.selectedGroup.length > 0) {
             getParameters.groupIds = $scope.selectedGroup;
         } else {
@@ -519,13 +519,19 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
             delete $scope.loading;
+        }, function() {
+            alert("Error retrieving users");
+            delete $scope.loading;
         });
     };
 
     // Init
     $scope.init = function () {
-
         $scope.initFinished = false;
+        $scope.statusFilter = $routeParams.statusFilter;
+        if ($routeParams.groupId !== undefined && !isNaN($routeParams.groupId)) {
+            $scope.selectedGroup.push(Number($routeParams.groupId));
+        }
 
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears();

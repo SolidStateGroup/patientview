@@ -36,6 +36,7 @@ import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.model.enums.StatusFilter;
 import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
@@ -66,6 +67,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -810,6 +812,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 patient = true;
             }
         }
+        
+        StatusFilter statusFilter = null;
+        
+        // get status filter for filtering users by status (e.g. locked, active, inactive)
+        if (Util.isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
+            statusFilter = StatusFilter.valueOf(getParameters.getStatusFilter());
+        }
 
         // Todo: improve this when a more recent Hibernate fixes Sort.NullHandling for PostgreSQL 
         // This avoids the default setting of NULL in PostgreSQL being larger than any value when sorting
@@ -831,6 +840,35 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             sql.append("AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) ");
         }
         sql.append("AND u.deleted = false ");
+        
+        // locked users
+        if (statusFilter != null && statusFilter.equals(StatusFilter.LOCKED)) {
+            sql.append("AND u.locked = true ");
+        }
+        
+        // active users (one month)
+        if (statusFilter != null && statusFilter.equals(StatusFilter.ACTIVE)) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.roll(Calendar.MONTH, -1);
+            Date startDate = calendar.getTime();
+            sql.append("AND u.lastLogin BETWEEN '");
+            sql.append(startDate.toString());
+            sql.append("' AND '" );
+            sql.append(new Date().toString());
+            sql.append("' ");
+        }
+
+        // inactive users (one month)
+        if (statusFilter != null && statusFilter.equals(StatusFilter.INACTIVE)) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.roll(Calendar.MONTH, -1);
+            Date startDate = calendar.getTime();
+            sql.append("AND (u.lastLogin NOT BETWEEN '");
+            sql.append(startDate.toString());
+            sql.append("' AND '" );
+            sql.append(new Date().toString());
+            sql.append("' OR u.lastLogin = NULL) ");
+        }
         
         StringBuilder sortOrder = new StringBuilder();
 

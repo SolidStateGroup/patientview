@@ -218,6 +218,11 @@
             {{successMessage}}
             <a href="" class="print-success-message" data-ng-click="printSuccessMessage()" data-ng-show="printSuccessMessage">Print</a>
         </div>
+        
+        <div data-ng-show="statusFilter.length">
+            <h3>Showing {{statusFilter.toLowerCase()}} staff only</h3>
+        </div>
+
         <!-- data grid -->
         <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
             <!-- header -->

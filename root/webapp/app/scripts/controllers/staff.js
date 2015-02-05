@@ -1,7 +1,5 @@
 'use strict';
 
-// todo: consider controllers in separate files
-
 // new staff modal instance controller
 var NewStaffModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'permissions', 'newUser', 'allGroups', 'allowedRoles', 'allFeatures', 'identifierTypes', 'UserService', 'UtilService',
 function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, allowedRoles, allFeatures, identifierTypes, UserService, UtilService) {
@@ -224,8 +222,8 @@ function ($scope, $modalInstance, user, UserService) {
 }];
 
 // Staff controller
-angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 'UserService', 'UtilService',
-    function ($rootScope, $scope, $compile, $modal, $timeout, UserService, UtilService) {
+angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', '$routeParams', 'UserService', 'UtilService',
+    function ($rootScope, $scope, $compile, $modal, $timeout, $routeParams, UserService, UtilService) {
 
     $scope.itemsPerPage = 10;
     $scope.currentPage = 0;
@@ -233,6 +231,8 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     $scope.sortDirection = 'ASC';
     $scope.initFinished = false;
     $scope.searchItems = {};
+    $scope.selectedRole = [];
+    $scope.selectedGroup = [];
 
     // multi search
     $scope.search = function() {
@@ -255,7 +255,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     });
 
     // filter users by group
-    $scope.selectedGroup = [];
     $scope.setSelectedGroup = function () {
         delete $scope.successMessage;
         var id = this.group.id;
@@ -295,7 +294,6 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     };
 
     // filter users by role
-    $scope.selectedRole = [];
     $scope.setSelectedRole = function () {
         var id = this.role.id;
         if (_.contains($scope.selectedRole, id)) {
@@ -428,6 +426,9 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         getParameters.searchIdentifier = $scope.searchItems.searchIdentifier;
         getParameters.searchEmail = $scope.searchItems.searchEmail;
 
+        // for filtering users by status (e.g. locked, active, inactive)
+        getParameters.statusFilter = $scope.statusFilter;
+
         if ($scope.selectedGroup.length > 0) {
             getParameters.groupIds = $scope.selectedGroup;
         } else {
@@ -445,19 +446,26 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
             $scope.total = page.totalElements;
             $scope.totalPages = page.totalPages;
             delete $scope.loading;
+        }, function() {
+            alert("Error retrieving users");
+            delete $scope.loading;
         });
     };
 
     // Init
     $scope.init = function () {
-
         $scope.initFinished = false;
+        $scope.statusFilter = $routeParams.statusFilter;
+        if ($routeParams.groupId !== undefined && !isNaN($routeParams.groupId)) {
+            $scope.selectedGroup.push(Number($routeParams.groupId));
+        }
 
         $('body').click(function () {
             $('.child-menu').remove();
         });
 
         var i, role, group;
+        $scope.loadingMessage = 'Loading Staff';
         $scope.loading = true;
         $scope.allGroups = [];
         $scope.allRoles = [];

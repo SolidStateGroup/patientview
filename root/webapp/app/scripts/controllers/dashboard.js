@@ -49,9 +49,20 @@ function (UserService, $modal, $scope, GroupService, NewsService, UtilService, M
 
                         $scope.statisticsDate = statistics.endDate;
                         $scope.lockedUsers = statistics.statistics.LOCKED_USER_COUNT;
+                        $scope.lockedPatients = statistics.statistics.LOCKED_PATIENT_COUNT;
+                        $scope.lockedStaff = $scope.lockedUsers - $scope.lockedPatients;
+                        
                         $scope.inactiveUsers = statistics.statistics.INACTIVE_USER_COUNT;
+                        $scope.inactivePatients = statistics.statistics.INACTIVE_PATIENT_COUNT;
+                        $scope.inactiveStaff = $scope.inactiveUsers - $scope.inactivePatients;
+                        
                         $scope.totalUsers = statistics.statistics.USER_COUNT;
+                        $scope.totalPatients = statistics.statistics.PATIENT_COUNT;
+                        $scope.totalStaff = $scope.totalUsers - $scope.totalPatients;
+                        
                         $scope.activeUsers = $scope.totalUsers - $scope.inactiveUsers;
+                        $scope.activeStaff = $scope.totalStaff - $scope.inactiveStaff;
+                        $scope.activePatients = $scope.totalPatients - $scope.inactivePatients;
                     }
 
                     // using highcharts
