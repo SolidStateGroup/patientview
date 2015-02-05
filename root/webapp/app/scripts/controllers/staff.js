@@ -891,6 +891,11 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
         w.print();
         w.close();
     };
+        
+    $scope.removeStatusFilter = function() {
+        delete $scope.statusFilter;
+        $scope.getItems();
+    };
 
     $scope.init();
 }]);

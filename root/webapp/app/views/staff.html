@@ -206,6 +206,16 @@
                                         </a>
                                     </div>
                                 </li>
+                                <li class="feature-list-item pull-left" data-ng-show="statusFilter.length">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{statusFilter}} staff only</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeStatusFilter()" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -217,10 +227,6 @@
         <div class="alert alert-success" data-ng-show="successMessage" id="success-message">
             {{successMessage}}
             <a href="" class="print-success-message" data-ng-click="printSuccessMessage()" data-ng-show="printSuccessMessage">Print</a>
-        </div>
-        
-        <div data-ng-show="statusFilter.length">
-            <h3>Showing {{statusFilter.toLowerCase()}} staff only</h3>
         </div>
 
         <!-- data grid -->

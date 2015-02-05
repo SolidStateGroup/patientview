@@ -1069,5 +1069,10 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
         printWindow.close();
     };
 
+    $scope.removeStatusFilter = function() {
+        delete $scope.statusFilter;
+        $scope.getItems();
+    };
+
     $scope.init();
 }]);
