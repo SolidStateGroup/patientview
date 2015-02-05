@@ -71,7 +71,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         if (StringUtils.isEmpty(filterText)) {
             filterText = "%%";
         } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
+            filterText = "%" + filterText.trim().toUpperCase() + "%";
         }
 
         if (ArrayUtils.isNotEmpty(codeTypes) && ArrayUtils.isNotEmpty(standardTypes)) {

@@ -722,7 +722,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         if (StringUtils.isEmpty(filterText)) {
             filterText = "%%";
         } else {
-            filterText = "%" + filterText.toUpperCase() + "%";
+            filterText = "%" + filterText.trim().toUpperCase() + "%";
         }
         Page<Group> groupPage;
         User user = userRepository.findOne(userId);

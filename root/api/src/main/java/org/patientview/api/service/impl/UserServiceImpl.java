@@ -786,15 +786,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // handle searching by field (username, forename, surname, identifier, email)
         String searchUsername = getParameters.getSearchUsername();
-        searchUsername = StringUtils.isEmpty(searchUsername) ? "%%" : "%" + searchUsername.toUpperCase() + "%";
+        searchUsername = StringUtils.isEmpty(searchUsername) ? "%%" : "%" + searchUsername.trim().toUpperCase() + "%";
         String searchForename = getParameters.getSearchForename();
-        searchForename = StringUtils.isEmpty(searchForename) ? "%%" : "%" + searchForename.toUpperCase() + "%";
+        searchForename = StringUtils.isEmpty(searchForename) ? "%%" : "%" + searchForename.trim().toUpperCase() + "%";
         String searchSurname = getParameters.getSearchSurname();
-        searchSurname = StringUtils.isEmpty(searchSurname) ? "%%" : "%" + searchSurname.toUpperCase() + "%";
+        searchSurname = StringUtils.isEmpty(searchSurname) ? "%%" : "%" + searchSurname.trim().toUpperCase() + "%";
         String searchIdentifier = getParameters.getSearchIdentifier();
-        searchIdentifier = StringUtils.isEmpty(searchIdentifier) ? "%%" : "%" + searchIdentifier.toUpperCase() + "%";
+        searchIdentifier 
+                = StringUtils.isEmpty(searchIdentifier) ? "%%" : "%" + searchIdentifier.trim().toUpperCase() + "%";
         String searchEmail = getParameters.getSearchEmail();
-        searchEmail = StringUtils.isEmpty(searchEmail) ? "%%" : "%" + searchEmail.toUpperCase() + "%";
+        searchEmail = StringUtils.isEmpty(searchEmail) ? "%%" : "%" + searchEmail.trim().toUpperCase() + "%";
 
         // isolate into either staff or patient queries (staff do not consider identifier)
         boolean staff = false;
