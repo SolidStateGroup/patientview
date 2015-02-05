@@ -206,8 +206,8 @@ function ($scope, $timeout, $modal, AuditService) {
         getParameters.auditActions = $scope.selectedAuditAction;
         getParameters.sortField = $scope.sortField;
         getParameters.sortDirection = $scope.sortDirection;
-        getParameters.start = $scope.dateStart.getTime();
-        getParameters.end = $scope.dateEnd.getTime();
+        getParameters.start = new Date($scope.dateStart.getTime()).setHours(0,0,0,0);
+        getParameters.end = new Date($scope.dateEnd.getTime()).setHours(23,59,59,999);
 
         AuditService.getAll(getParameters).then(function(page) {
             $scope.pagedItems = page.content;
