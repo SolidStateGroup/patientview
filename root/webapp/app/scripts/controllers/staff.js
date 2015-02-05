@@ -30,8 +30,6 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
 
     // click Create New button
     $scope.create = function () {
-        var i;
-
         // generate password
         var password = UtilService.generatePassword();
         $scope.editUser.password = password;
@@ -47,44 +45,8 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
             });
         }, function(result) {
             if (result.status === 409) {
-                // 409 = CONFLICT, means user already exists, provide UI to edit existing user group roles
-                // but only if user has rights to GET user
-
-                UserService.get(result.data).then(function(result) {
-                    $scope.warningMessage = 'A staff member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
-                    $scope.editUser = result;
-                    $scope.existingUser = true;
-                    $scope.editMode = true;
-                    $scope.pagedItems = [];
-
-                    // get user existing group/roles from groupRoles
-                    $scope.editUser.groups = [];
-                    for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
-                        var groupRole = $scope.editUser.groupRoles[i];
-
-                        // global admin can see all group roles of globaladmin
-                        if ($scope.permissions.isSuperAdmin) {
-                            if (groupRole.role.name === 'GLOBAL_ADMIN') {
-                                groupRole.group.visible = true;
-                            }
-                        }
-
-                        var group = groupRole.group;
-                        group.role = groupRole.role;
-                        $scope.editUser.groups.push(group);
-                    }
-
-                    // set available groups so user can add another group/role to the users existing group roles if required
-                    $scope.editUser.availableGroups = $scope.allGroups;
-                    for (i = 0; i < $scope.editUser.groups.length; i++) {
-                        $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
-                    }
-
-                    // set available user roles
-                    $scope.editUser.roles = $scope.allowedRoles;
-                }, function () {
-                    $scope.warningMessage = 'This username is restricted, please try another';
-                });
+                // 409 = CONFLICT, means user already exists
+                $scope.warningMessage = 'A staff member with this username or email already exists. Please choose an alternative or search for an existing staff member if you want to add them to your group';
             } else {
                 // Other errors treated as standard errors
                 $scope.errorMessage = 'There was an error: ' + result.data;
