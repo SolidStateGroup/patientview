@@ -22,6 +22,7 @@ public class PostgresCustomDialect extends PostgreSQL9Dialect {
     }
 
     /*
+    // Todo: fix Sort.NullHandling in Hibernate with PostgreSQL, this is copied from the MySQL dialect
     @Override
     public String renderOrderByElement(String expression, String collation, String order, NullPrecedence nulls) {
         final StringBuilder orderByElement = new StringBuilder();

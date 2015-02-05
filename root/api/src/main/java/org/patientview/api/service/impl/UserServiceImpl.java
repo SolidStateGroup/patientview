@@ -64,6 +64,7 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -773,7 +774,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             
             Sort.Order order = new Sort.Order(direction, sortField, Sort.NullHandling.NULLS_LAST);
             Sort sort = new Sort(order);
-
             pageable = new PageRequest(pageConverted, sizeConverted, sort);
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
@@ -815,24 +815,82 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
 
-        // Testing to avoid NULL in PostgreSQL being larger than any value when sorting
+        // Todo: improve this when a more recent Hibernate fixes Sort.NullHandling for PostgreSQL 
+        // This avoids the default setting of NULL in PostgreSQL being larger than any value when sorting
+        // Note: this is not optimal (two queries) but is due to Hibernate not considering Sort.NullHandling with the
+        // PostgreSQL dialect (see commented out code in PostgresCustomDialect.java)        
         
+        StringBuilder sql = new StringBuilder();        
+        sql.append("FROM User u ");
+        sql.append("JOIN u.groupRoles gr ");
+        sql.append("JOIN u.identifiers i ");
+        sql.append("WHERE gr.role.id IN :roleIds ");
+        sql.append("AND gr.group.id IN :groupIds ");
+        sql.append("AND (UPPER(u.username) LIKE :searchUsername) ");
+        sql.append("AND (UPPER(u.forename) LIKE :searchForename) ");
+        sql.append("AND (UPPER(u.surname) LIKE :searchSurname) ");
+        sql.append("AND (UPPER(u.email) LIKE :searchEmail) ");
+        sql.append("AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) ");
+        sql.append("AND u.deleted = false ");
         
-        Query query = entityManager.createQuery("SELECT u " +
-                "FROM User u " +
-                "JOIN u.groupRoles gr " +
-                "JOIN u.identifiers i " +
-                "WHERE gr.role.id IN :roleIds " +
-                "AND gr.group.id IN :groupIds " +
-                "AND (UPPER(u.username) LIKE :searchUsername) " +
-                "AND (UPPER(u.forename) LIKE :searchForename) " +
-                "AND (UPPER(u.surname) LIKE :searchSurname) " +
-                "AND (UPPER(u.email) LIKE :searchEmail) " +
-                "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) " +
-                "AND u.deleted = false " +
-                "" +
-                " GROUP BY u.id " +
-                "ORDER BY u." + sortField + " " + sortDirection + " NULLS FIRST");
+
+        StringBuilder sortOrder = new StringBuilder();
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            sortOrder.append("ORDER BY ");
+            boolean fieldExists = false;
+            boolean fieldIsString = false;
+
+            Field[] fields = User.class.getDeclaredFields();
+            for (Field f:fields) {
+                if (f.getName().equalsIgnoreCase(sortField)) {
+                    fieldExists = true;
+                    if (f.getType().equals(String.class)) {
+                        fieldIsString = true;
+                    }
+                }
+            }
+
+            if (!fieldExists) {
+                throw new ResourceNotFoundException("Incorrect search field");
+            }
+
+            if (fieldIsString) {
+                sortOrder.append("UPPER(u.");
+                sortOrder.append(sortField);
+                sortOrder.append(") ");
+            } else {
+                sortOrder.append("u.");
+                sortOrder.append(sortField);
+            }
+            
+            sortOrder.append(" ");
+            sortOrder.append(sortDirection);
+            
+            if (sortDirection.equals("DESC")) {
+                sortOrder.append(" NULLS LAST");
+            } else {
+                sortOrder.append(" NULLS FIRST");                
+            }
+        }
+        
+        StringBuilder userListSql = new StringBuilder("SELECT u ");
+        //StringBuilder userCountSql = new StringBuilder("SELECT count(distinct u) ");
+        StringBuilder userCountSql = new StringBuilder("SELECT u.id ");
+        userListSql.append(sql);
+        userCountSql.append(sql);
+        
+        userListSql.append(" GROUP BY u.id ");
+        userCountSql.append(" GROUP BY u.id ");
+
+        if (andGroups) {
+            userListSql.append("HAVING COUNT(gr) = :groupCount ");
+            userCountSql.append("HAVING COUNT(gr) = :groupCount ");
+        }        
+        
+        userListSql.append(sortOrder);
+        
+        Query query = entityManager.createQuery(userListSql.toString());
         query.setParameter("searchUsername", searchUsername);
         query.setParameter("searchForename", searchForename);
         query.setParameter("searchSurname", searchSurname);
@@ -840,35 +898,34 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         query.setParameter("searchIdentifier", searchIdentifier);
         query.setParameter("groupIds", groupIds);
         query.setParameter("roleIds", roleIds);
+        query.setMaxResults(sizeConverted);
+
+        if (andGroups) {
+            query.setParameter("groupCount", Long.valueOf(groupIds.size()));
+        }
+
         if (pageConverted == 0) {
             query.setFirstResult(0);
         } else {
             query.setFirstResult((sizeConverted * (pageConverted + 1)) - sizeConverted);
         }
-        query.setMaxResults(sizeConverted);
+
         List<User> userList = query.getResultList();
 
-        Query query2 = entityManager.createQuery("SELECT count(distinct u)  " +
-                "FROM User u " +
-                "JOIN u.groupRoles gr " +
-                "JOIN u.identifiers i " +
-                "WHERE gr.role.id IN :roleIds " +
-                "AND gr.group.id IN :groupIds " +
-                "AND (UPPER(u.username) LIKE :searchUsername) " +
-                "AND (UPPER(u.forename) LIKE :searchForename) " +
-                "AND (UPPER(u.surname) LIKE :searchSurname) " +
-                "AND (UPPER(u.email) LIKE :searchEmail) " +
-                "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) " +
-                "AND u.deleted = false ");
-        query2.setParameter("searchUsername", searchUsername);
-        query2.setParameter("searchForename", searchForename);
-        query2.setParameter("searchSurname", searchSurname);
-        query2.setParameter("searchEmail", searchEmail);
-        query2.setParameter("searchIdentifier", searchIdentifier);
-        query2.setParameter("groupIds", groupIds);
-        query2.setParameter("roleIds", roleIds);
+        Query countQuery = entityManager.createQuery(userCountSql.toString());
+        countQuery.setParameter("searchUsername", searchUsername);
+        countQuery.setParameter("searchForename", searchForename);
+        countQuery.setParameter("searchSurname", searchSurname);
+        countQuery.setParameter("searchEmail", searchEmail);
+        countQuery.setParameter("searchIdentifier", searchIdentifier);
+        countQuery.setParameter("groupIds", groupIds);
+        countQuery.setParameter("roleIds", roleIds);
 
-        Long total = (Long) query2.getSingleResult();
+        if (andGroups) {
+            countQuery.setParameter("groupCount", Long.valueOf(groupIds.size()));
+        }
+
+        int total = countQuery.getResultList().size();//.getSingleResult();
         //userList = userList.subList(
         //    sizeConverted * (pageConverted + 1), sizeConverted * (pageConverted + 1) + sizeConverted);
 
