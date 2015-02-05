@@ -727,6 +727,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Get users based on a list of groups and roles
+     * todo: fix this for PostgreSQL and hibernate nullhandling to avoid multiple queries
      * @return Page of api User
      */
     public Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
@@ -756,7 +757,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             groupIds = getUserGroupIds();
         }
 
-        List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
+        // get pagination details, including sorting
         String size = getParameters.getSize();
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
@@ -766,36 +767,32 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
 
+        // todo: it is the Sort.NullHandling.NULLS_FIRST etc that is not picked up by hibernate
         if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
             if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
+                pageable = new PageRequest(pageConverted, sizeConverted,
+                        new Sort(new Sort.Order(Sort.Direction.DESC, sortField, Sort.NullHandling.NULLS_FIRST)));
+            } else {
+                pageable = new PageRequest(pageConverted, sizeConverted,
+                        new Sort(new Sort.Order(Sort.Direction.ASC, sortField, Sort.NullHandling.NULLS_LAST)));
             }
-            
-            Sort.Order order = new Sort.Order(direction, sortField, Sort.NullHandling.NULLS_LAST);
-            Sort sort = new Sort(order);
-            pageable = new PageRequest(pageConverted, sizeConverted, sort);
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
-        // handle searching by field
+        // handle searching by field (username, forename, surname, identifier, email)
         String searchUsername = getParameters.getSearchUsername();
         searchUsername = StringUtils.isEmpty(searchUsername) ? "%%" : "%" + searchUsername.toUpperCase() + "%";
-
         String searchForename = getParameters.getSearchForename();
         searchForename = StringUtils.isEmpty(searchForename) ? "%%" : "%" + searchForename.toUpperCase() + "%";
-
         String searchSurname = getParameters.getSearchSurname();
         searchSurname = StringUtils.isEmpty(searchSurname) ? "%%" : "%" + searchSurname.toUpperCase() + "%";
-
         String searchIdentifier = getParameters.getSearchIdentifier();
         searchIdentifier = StringUtils.isEmpty(searchIdentifier) ? "%%" : "%" + searchIdentifier.toUpperCase() + "%";
-
         String searchEmail = getParameters.getSearchEmail();
         searchEmail = StringUtils.isEmpty(searchEmail) ? "%%" : "%" + searchEmail.toUpperCase() + "%";
 
-        // isolate into either staff, patient or both queries (staff or patient much quicker as no outer join)
+        // isolate into either staff or patient queries (staff do not consider identifier)
         boolean staff = false;
         boolean patient = false;
 
@@ -805,6 +802,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             roleMap.put(role.getId(), role);
         }
 
+        List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
         for (Long roleId : roleIds) {
             if (roleMap.get(roleId).getRoleType().getValue().equals(RoleType.STAFF)) {
                 staff = true;
@@ -813,27 +811,27 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
-
         // Todo: improve this when a more recent Hibernate fixes Sort.NullHandling for PostgreSQL 
         // This avoids the default setting of NULL in PostgreSQL being larger than any value when sorting
         // Note: this is not optimal (two queries) but is due to Hibernate not considering Sort.NullHandling with the
-        // PostgreSQL dialect (see commented out code in PostgresCustomDialect.java)        
-        
+        // PostgreSQL dialect (see commented out code in PostgresCustomDialect.java)                
         StringBuilder sql = new StringBuilder();        
         sql.append("FROM User u ");
         sql.append("JOIN u.groupRoles gr ");
-        sql.append("JOIN u.identifiers i ");
+        if (!staff && patient) {
+            sql.append("JOIN u.identifiers i ");
+        }
         sql.append("WHERE gr.role.id IN :roleIds ");
         sql.append("AND gr.group.id IN :groupIds ");
         sql.append("AND (UPPER(u.username) LIKE :searchUsername) ");
         sql.append("AND (UPPER(u.forename) LIKE :searchForename) ");
         sql.append("AND (UPPER(u.surname) LIKE :searchSurname) ");
         sql.append("AND (UPPER(u.email) LIKE :searchEmail) ");
-        sql.append("AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) ");
+        if (!staff && patient) {
+            sql.append("AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) ");
+        }
         sql.append("AND u.deleted = false ");
         
-
         StringBuilder sortOrder = new StringBuilder();
 
         if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
@@ -841,6 +839,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             boolean fieldExists = false;
             boolean fieldIsString = false;
 
+            // check type of field by name (e.g. surname = String)
             Field[] fields = User.class.getDeclaredFields();
             for (Field f:fields) {
                 if (f.getName().equalsIgnoreCase(sortField)) {
@@ -855,6 +854,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 throw new ResourceNotFoundException("Incorrect search field");
             }
 
+            // make ordering case insensitive
             if (fieldIsString) {
                 sortOrder.append("UPPER(u.");
                 sortOrder.append(sortField);
@@ -876,11 +876,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         
         StringBuilder userListSql = new StringBuilder("SELECT u ");
         //StringBuilder userCountSql = new StringBuilder("SELECT count(distinct u) ");
+        // todo: heavy query, needs rewriting to be a count, difficult with JPA using HAVING clause
         StringBuilder userCountSql = new StringBuilder("SELECT u.id ");
-        userListSql.append(sql);
-        userCountSql.append(sql);
         
+        userListSql.append(sql);      
         userListSql.append(" GROUP BY u.id ");
+        userCountSql.append(sql);
         userCountSql.append(" GROUP BY u.id ");
 
         if (andGroups) {
@@ -895,7 +896,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         query.setParameter("searchForename", searchForename);
         query.setParameter("searchSurname", searchSurname);
         query.setParameter("searchEmail", searchEmail);
-        query.setParameter("searchIdentifier", searchIdentifier);
+        if (!staff && patient) {
+            query.setParameter("searchIdentifier", searchIdentifier);
+        }
         query.setParameter("groupIds", groupIds);
         query.setParameter("roleIds", roleIds);
         query.setMaxResults(sizeConverted);
@@ -917,7 +920,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         countQuery.setParameter("searchForename", searchForename);
         countQuery.setParameter("searchSurname", searchSurname);
         countQuery.setParameter("searchEmail", searchEmail);
-        countQuery.setParameter("searchIdentifier", searchIdentifier);
+        if (!staff && patient) {
+            countQuery.setParameter("searchIdentifier", searchIdentifier);
+        }
         countQuery.setParameter("groupIds", groupIds);
         countQuery.setParameter("roleIds", roleIds);
 
@@ -925,47 +930,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             countQuery.setParameter("groupCount", Long.valueOf(groupIds.size()));
         }
 
-        int total = countQuery.getResultList().size();//.getSingleResult();
-        //userList = userList.subList(
-        //    sizeConverted * (pageConverted + 1), sizeConverted * (pageConverted + 1) + sizeConverted);
-
         List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(userList);
-        return new PageImpl<>(transportContent, pageable, total);
-
-        // todo: consider rewrite to avoid large number of parameters
-        /*if (andGroups) {
-            if (!staff && patient) {
-                users = userRepository.findPatientByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
-                        searchEmail, searchIdentifier, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
-            }
-
-            if (staff && !patient) {
-                users = userRepository.findStaffByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
-                        searchEmail, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
-            }
-        } else {
-            if (!staff && patient) {
-                users = userRepository.findPatientByGroupsRoles(searchUsername, searchForename, searchSurname,
-                        searchEmail, searchIdentifier, groupIds, roleIds, pageable);
-            }
-
-            if (staff && !patient) {
-                users = userRepository.findStaffByGroupsRoles(searchUsername, searchForename, searchSurname,
-                        searchEmail, groupIds, roleIds, pageable);
-            }
-        }
-
-        // convert to lightweight transport objects, create Page and return
-        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(users.getContent());
-
-        // handle incorrect page size for 1 result (pageable error?)
-        long total = users.getTotalElements();
-        if (users.getTotalPages() == 1) {
-            total = users.getContent().size();
-        }
-
-        return new PageImpl<>(transportContent, pageable, total);*/
-
+        return new PageImpl<>(transportContent, pageable, countQuery.getResultList().size());
     }
 
     /**
