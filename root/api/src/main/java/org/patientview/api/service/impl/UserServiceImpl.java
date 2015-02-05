@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
+import org.joda.time.DateTime;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.AuditService;
@@ -67,7 +68,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -147,6 +147,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
+    // note: used in stats, set in SQL pv_lookup_value.description
+    private static final int INACTIVE_MONTH_LIMIT = 3;
     private Group genericGroup;
     private Role memberRole;
 
@@ -846,28 +848,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             sql.append("AND u.locked = true ");
         }
         
-        // active users (one month)
+        boolean dateRange = false;
+        
+        // active users (INACTIVE_MONTH_LIMIT months)
         if (statusFilter != null && statusFilter.equals(StatusFilter.ACTIVE)) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.roll(Calendar.MONTH, -1);
-            Date startDate = calendar.getTime();
-            sql.append("AND u.lastLogin BETWEEN '");
-            sql.append(startDate.toString());
-            sql.append("' AND '" );
-            sql.append(new Date().toString());
-            sql.append("' ");
+            sql.append("AND u.lastLogin BETWEEN :startDate AND :endDate ");
+            dateRange = true;
         }
 
-        // inactive users (one month)
+        // inactive users (INACTIVE_MONTH_LIMIT months)
         if (statusFilter != null && statusFilter.equals(StatusFilter.INACTIVE)) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.roll(Calendar.MONTH, -1);
-            Date startDate = calendar.getTime();
-            sql.append("AND (u.lastLogin NOT BETWEEN '");
-            sql.append(startDate.toString());
-            sql.append("' AND '" );
-            sql.append(new Date().toString());
-            sql.append("' OR u.lastLogin = NULL) ");
+            sql.append("AND (u.lastLogin NOT BETWEEN :startDate AND :endDate OR u.lastLogin = NULL) ");
+            dateRange = true;
         }
         
         StringBuilder sortOrder = new StringBuilder();
@@ -913,7 +905,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         
         StringBuilder userListSql = new StringBuilder("SELECT u ");
-        //StringBuilder userCountSql = new StringBuilder("SELECT count(distinct u) ");
         // todo: heavy query, needs rewriting to be a count, difficult with JPA using HAVING clause
         StringBuilder userCountSql = new StringBuilder("SELECT u.id ");
         
@@ -930,6 +921,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         userListSql.append(sortOrder);
         
         Query query = entityManager.createQuery(userListSql.toString());
+        Query countQuery = entityManager.createQuery(userCountSql.toString());
+
         query.setParameter("searchUsername", searchUsername);
         query.setParameter("searchForename", searchForename);
         query.setParameter("searchSurname", searchSurname);
@@ -939,21 +932,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         query.setParameter("groupIds", groupIds);
         query.setParameter("roleIds", roleIds);
-        query.setMaxResults(sizeConverted);
 
-        if (andGroups) {
-            query.setParameter("groupCount", Long.valueOf(groupIds.size()));
-        }
-
-        if (pageConverted == 0) {
-            query.setFirstResult(0);
-        } else {
-            query.setFirstResult((sizeConverted * (pageConverted + 1)) - sizeConverted);
-        }
-
-        List<User> userList = query.getResultList();
-
-        Query countQuery = entityManager.createQuery(userCountSql.toString());
         countQuery.setParameter("searchUsername", searchUsername);
         countQuery.setParameter("searchForename", searchForename);
         countQuery.setParameter("searchSurname", searchSurname);
@@ -965,10 +944,28 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         countQuery.setParameter("roleIds", roleIds);
 
         if (andGroups) {
+            query.setParameter("groupCount", Long.valueOf(groupIds.size()));
             countQuery.setParameter("groupCount", Long.valueOf(groupIds.size()));
         }
 
-        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(userList);
+        query.setMaxResults(sizeConverted);
+        
+        if (pageConverted == 0) {
+            query.setFirstResult(0);
+        } else {
+            query.setFirstResult((sizeConverted * (pageConverted + 1)) - sizeConverted);
+        }
+        
+        if (dateRange) {
+            DateTime now = new DateTime();
+            DateTime startDate = now.minusMonths(INACTIVE_MONTH_LIMIT);
+            query.setParameter("startDate", startDate.toDate());
+            query.setParameter("endDate", now.toDate());
+            countQuery.setParameter("startDate", startDate.toDate());
+            countQuery.setParameter("endDate", now.toDate());
+        }
+
+        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(query.getResultList());
         return new PageImpl<>(transportContent, pageable, countQuery.getResultList().size());
     }
 
