@@ -139,8 +139,8 @@ public class ImportControllerTest {
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
 
         //String postUrl="https://production.patientview.org/importer/import";
-        //String postUrl="https://staging.patientview.org/importer/import";
-        String postUrl="http://localhost:8081/importer/import";
+        String postUrl="https://test.patientview.org/importer/import";
+        //String postUrl="http://localhost:8081/importer/import";
         //String postUrl="http://diabetes-pv.dev.solidstategroup.com/importer/import";
         HttpPost post = new HttpPost(postUrl);
         StringEntity postingString = new StringEntity(json);
