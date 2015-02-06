@@ -4,8 +4,6 @@ import generated.Patientview;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Practitioner;
-import org.hl7.fhir.instance.model.Resource;
-import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.importer.builder.PractitionerBuilder;
@@ -44,8 +42,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
 
     /**
      * Creates FHIR practitioner record from the Patientview object.
-     *
-     * @param data
+     * @param data Generated object from XML containing data to import
      */
     @Override
     public UUID add(final Patientview data) throws FhirResourceException {
@@ -72,7 +69,8 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                 Practitioner importPractitioner = practitionerBuilder.build();
 
                 List<Map<String, UUID>> uuids
-                        = getUuidsByFamilyName(CommonUtils.cleanSql(data.getGpdetails().getGpname()));
+                        = getUuidsByFamilyNameAndAddress1(CommonUtils.cleanSql(data.getGpdetails().getGpname()),
+                        CommonUtils.cleanSql(data.getGpdetails().getGpaddress1()));
 
                 if (!uuids.isEmpty()) {
                     // update existing FHIR entities (should be a single row), return reference
@@ -107,18 +105,27 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         }
     }
 
-    private List<Map<String, UUID>> getUuidsByFamilyName(String code) throws FhirResourceException {
+    private List<Map<String, UUID>> getUuidsByFamilyNameAndAddress1(String familyName, String address1) 
+            throws FhirResourceException {
 
         // handle db stored '' for ' in names e.g. O''DONNEL
-        code = code.replace("'","''");
+        familyName = familyName.replace("'","''");
+        address1 = address1.replace("'","''");
 
         // build query
         StringBuilder query = new StringBuilder();
         query.append("SELECT  version_id, logical_id ");
         query.append("FROM practitioner ");
         query.append("WHERE content -> 'name' #>> '{family,0}' = '");
-        query.append(code);
+        query.append(familyName);
         query.append("' ");
+        if (StringUtils.isNotEmpty(address1)) {
+            query.append("AND content -> 'address' #>> '{line,0}' = '");
+            query.append(address1);
+            query.append("' ");
+        } else {
+            query.append("AND (content -> 'address' #>> '{line,0}') IS NULL");
+        }
 
         // execute and return UUIDs
         try {
@@ -151,5 +158,3 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         }
     }
 }
-
-
