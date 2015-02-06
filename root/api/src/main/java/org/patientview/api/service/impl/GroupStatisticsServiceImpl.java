@@ -113,12 +113,8 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         groupStatistic.setStartDate(startDate);
         groupStatistic.setEndDate(endDate);
         groupStatistic.setStatisticPeriod(statisticPeriod);
-        
-        int count = 0;
 
         for (Group group : groupRepository.findAll()) {
-            LOG.info(count + ": Statistics for " + group.getShortName() + " " + group.getCode());
-
             groupStatisticRepository.deleteByGroupStartDateAndPeriod(group, startDate, statisticPeriod);
             groupStatistic.setGroup(group);
 
@@ -148,8 +144,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
                 groupStatisticRepository.save(groupStatistic);
                 groupStatistic = createGroupStatistic(groupStatistic, group);
             }
-            
-            count +=1;
         }
     }
 
