@@ -595,28 +595,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException {
-        User user = userRepository.findOne(userId);        
-        String fileName = "";
-        
-        try {
-            fileName = file.getOriginalFilename();
-            byte[] bytes = file.getBytes();
-            if (bytes == null || bytes.length == 0) {
-                throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
-            }
-            
-            String base64 = new String(Base64.encode(bytes));
-            user.setPicture(base64);
-            userRepository.save(user);
-
-            return "Uploaded '" + fileName + "' (" + bytes.length + " bytes, " + base64.length() + " char)";
-        } catch (IOException e) {
-            throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
-        }
-    }
-
-    @Override
     public org.patientview.api.model.User getByUsername(String username) {
         User foundUser = userRepository.findByUsernameCaseInsensitive(username);
         if (foundUser == null) {
@@ -818,7 +796,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         String searchSurname = getParameters.getSearchSurname();
         searchSurname = StringUtils.isEmpty(searchSurname) ? "%%" : "%" + searchSurname.trim().toUpperCase() + "%";
         String searchIdentifier = getParameters.getSearchIdentifier();
-        searchIdentifier 
+        searchIdentifier
                 = StringUtils.isEmpty(searchIdentifier) ? "%%" : "%" + searchIdentifier.trim().toUpperCase() + "%";
         String searchEmail = getParameters.getSearchEmail();
         searchEmail = StringUtils.isEmpty(searchEmail) ? "%%" : "%" + searchEmail.trim().toUpperCase() + "%";
@@ -841,19 +819,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 patient = true;
             }
         }
-        
+
         StatusFilter statusFilter = null;
-        
+
         // get status filter for filtering users by status (e.g. locked, active, inactive)
         if (Util.isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
             statusFilter = StatusFilter.valueOf(getParameters.getStatusFilter());
         }
 
-        // Todo: improve this when a more recent Hibernate fixes Sort.NullHandling for PostgreSQL 
+        // Todo: improve this when a more recent Hibernate fixes Sort.NullHandling for PostgreSQL
         // This avoids the default setting of NULL in PostgreSQL being larger than any value when sorting
         // Note: this is not optimal (two queries) but is due to Hibernate not considering Sort.NullHandling with the
-        // PostgreSQL dialect (see commented out code in PostgresCustomDialect.java)                
-        StringBuilder sql = new StringBuilder();        
+        // PostgreSQL dialect (see commented out code in PostgresCustomDialect.java)
+        StringBuilder sql = new StringBuilder();
         sql.append("FROM User u ");
         sql.append("JOIN u.groupRoles gr ");
         if (!staff && patient) {
@@ -869,14 +847,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             sql.append("AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) ");
         }
         sql.append("AND u.deleted = false ");
-        
+
         // locked users
         if (statusFilter != null && statusFilter.equals(StatusFilter.LOCKED)) {
             sql.append("AND u.locked = true ");
         }
-        
+
         boolean dateRange = false;
-        
+
         // active users (INACTIVE_MONTH_LIMIT months)
         if (statusFilter != null && statusFilter.equals(StatusFilter.ACTIVE)) {
             sql.append("AND u.lastLogin BETWEEN :startDate AND :endDate ");
@@ -888,7 +866,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             sql.append("AND (u.lastLogin NOT BETWEEN :startDate AND :endDate OR u.lastLogin = NULL) ");
             dateRange = true;
         }
-        
+
         StringBuilder sortOrder = new StringBuilder();
 
         if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
@@ -920,22 +898,22 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 sortOrder.append("u.");
                 sortOrder.append(sortField);
             }
-            
+
             sortOrder.append(" ");
             sortOrder.append(sortDirection);
-            
+
             if (sortDirection.equals("DESC")) {
                 sortOrder.append(" NULLS LAST");
             } else {
-                sortOrder.append(" NULLS FIRST");                
+                sortOrder.append(" NULLS FIRST");
             }
         }
-        
+
         StringBuilder userListSql = new StringBuilder("SELECT u ");
         // todo: heavy query, needs rewriting to be a count, difficult with JPA using HAVING clause
         StringBuilder userCountSql = new StringBuilder("SELECT u.id ");
-        
-        userListSql.append(sql);      
+
+        userListSql.append(sql);
         userListSql.append(" GROUP BY u.id ");
         userCountSql.append(sql);
         userCountSql.append(" GROUP BY u.id ");
@@ -943,10 +921,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (andGroups) {
             userListSql.append("HAVING COUNT(gr) = :groupCount ");
             userCountSql.append("HAVING COUNT(gr) = :groupCount ");
-        }        
-        
+        }
+
         userListSql.append(sortOrder);
-        
+
         Query query = entityManager.createQuery(userListSql.toString());
         Query countQuery = entityManager.createQuery(userCountSql.toString());
 
@@ -976,13 +954,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         query.setMaxResults(sizeConverted);
-        
+
         if (pageConverted == 0) {
             query.setFirstResult(0);
         } else {
             query.setFirstResult((sizeConverted * (pageConverted + 1)) - sizeConverted);
         }
-        
+
         if (dateRange) {
             DateTime now = new DateTime();
             DateTime startDate = now.minusMonths(INACTIVE_MONTH_LIMIT);
@@ -1488,5 +1466,27 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public void setMemberRole(Role memberRole) {
         this.memberRole = memberRole;
+    }
+
+    @Override
+    public String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException {
+        User user = userRepository.findOne(userId);
+        String fileName = "";
+
+        try {
+            fileName = file.getOriginalFilename();
+            byte[] bytes = file.getBytes();
+            if (bytes == null || bytes.length == 0) {
+                throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
+            }
+
+            String base64 = new String(Base64.encode(bytes));
+            user.setPicture(base64);
+            userRepository.save(user);
+
+            return "Uploaded '" + fileName + "' (" + bytes.length + " bytes, " + base64.length() + " char)";
+        } catch (IOException e) {
+            throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
+        }
     }
 }

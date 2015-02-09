@@ -280,7 +280,7 @@ public class UserController extends BaseController<UserController> {
 
     // changing the picture associated with a user account
     @RequestMapping(value = "/user/{userId}/picture", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.TEXT_PLAIN_VALUE)
     @ResponseBody
     public ResponseEntity<String> changePicture(@PathVariable("userId") Long userId,
                               @RequestParam("file") MultipartFile file)

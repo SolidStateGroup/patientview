@@ -85,11 +85,12 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     };
 
     var uploader = $scope.uploader = new FileUploader({
-        url: '/api/user/' + $scope.loggedInUser.id + '/picture',
-        headers: {'X-Auth-Token':$rootScope.authToken}
+        // note: ie8 cannot pass custom headers so must be added as query parameter
+        url: '/api/user/' + $scope.loggedInUser.id + '/picture?token=' + $rootScope.authToken,
+        headers: {'X-Auth-Token': $rootScope.authToken}
     });
 
-    uploader.onAfterAddingFile = function() {
+   uploader.onAfterAddingFile = function() {
         uploader.uploadAll();
         uploader.queue = [];
     };
