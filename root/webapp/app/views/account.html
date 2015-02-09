@@ -3,26 +3,20 @@
 <div class="content-panel user-settings">
     <div class="content-inner">
         <form class="form-horizontal" data-ng-cloak id="account-settings-form">
-
-
-
             <div class="form-group">
                 <label class="col-sm-2 control-label">Username:</label>
-
                 <div class="col-sm-4">
                     <label id="username" type="text" class="form-control disabled" data-ng-bind="userdetails.username"></label>
                 </div>
             </div>
 
             <h4>Change Contact Details</h4>
-
             <p>Confirm your email address by entering the email you wish to use in both boxes below. If there is an email in the
                 first box, then that was entered when your account was created. You may confirm that or use another email of
                 your choice.</p>
             <p>Please note that the information below does not automatically update the records in your unit.</p>
             <div class="form-group">
                 <label for="email" class="col-sm-2 control-label">Email:</label>
-
                 <div class="col-sm-4">
                     <input id="email" name=email" type="text" class="form-control" data-ng-model="userdetails.email" required=""/>
                 </div>
@@ -124,6 +118,42 @@
             <div class="form-group" data-ng-show="passwordSuccessMessage">
                 <div class="col-sm-8 col-sm-offset-2 alert alert-success">
                     <p>{{passwordSuccessMessage}}</p>
+                </div>
+            </div>
+        </form>
+
+        <form class="form-horizontal" id="foo" data-ng-upload="bar(content)" method="post" action="{{'/api/user/' + loggedInUser.id + '/picture'}}" name="foo">
+            <h4>Your Photo on PatientView</h4>
+            <p>If you choose to upload a photo to PatientView it will only be seen by staff with the ability to view 
+                your PatientView records. Images will be resized if they are too large but please try and keep them 
+                under 5MB in size.</p>
+            
+            <div class="form-group">
+                <div class="col-sm-10 col-md-offset-2">
+                    <img data-ng-src="{{'data:image/png;base64,' + userdetails.picture}}"/>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="uploadPicture" class="col-sm-2 control-label" data-ng-show="!userdetails.picture">
+                    Choose An Image To Upload <br/>(less than 5MB):
+                </label>
+                <label for="uploadPicture" class="col-sm-2 control-label" data-ng-show="userdetails.picture">
+                    Choose An Alternative Image To Upload <br/>(less than 5MB):
+                </label>
+
+                <div class="col-sm-4">
+                    <br/>
+                    <input type="file" data-nv-file-select data-uploader="uploader"/>
+                </div>
+            </div>
+            <div class="form-group hidden">
+                <label for="uploadPicture" class="col-sm-2 control-label"></label>
+                <div class="col-sm-4">
+                    <button type="button" id="uploadPicture" class="btn btn-success btn-s" 
+                            data-ng-click="uploader.uploadAll()" data-ng-disabled="!uploader.getNotUploadedItems().length">
+                        <span class="glyphicon glyphicon-upload"></span> Upload
+                    </button>
                 </div>
             </div>
         </form>

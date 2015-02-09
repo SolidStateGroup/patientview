@@ -34,6 +34,9 @@ public class User extends BaseUser {
 
     // FHIR
     private Date fhirDateOfBirth;
+    
+    // picture, in base64
+    private String picture;
 
     public User() {
 
@@ -77,6 +80,7 @@ public class User extends BaseUser {
         setIdentifiers(user.getIdentifiers());
         setDeleted(user.getDeleted());
         setRoleDescription(user.getRoleDescription());
+        setPicture(user.getPicture());
     }
 
     public String getEmail() {
@@ -198,5 +202,13 @@ public class User extends BaseUser {
 
     public void setChangePassword(Boolean changePassword) {
         this.changePassword = changePassword;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

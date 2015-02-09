@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService', 'UserService', 'AuthService', '$scope', '$rootScope', 'UtilService',
-    function (localStorageService, UserService, AuthService, $scope, $rootScope, UtilService) {
+angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService', 'UserService', 'AuthService', '$scope', '$rootScope', 'UtilService', 'FileUploader',
+    function (localStorageService, UserService, AuthService, $scope, $rootScope, UtilService, FileUploader) {
 
     $scope.pw ='';
 
@@ -82,5 +82,26 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
                 }
             });
         }
+    };
+
+    var uploader = $scope.uploader = new FileUploader({
+        url: '/api/user/' + $scope.loggedInUser.id + '/picture',
+        headers: {'X-Auth-Token':$rootScope.authToken}
+    });
+
+    uploader.onAfterAddingFile = function() {
+        uploader.uploadAll();
+        uploader.queue = [];
+    };
+
+    uploader.onErrorItem = function(fileItem, response, status, headers) {
+        alert(response);
+    };
+
+    uploader.onCompleteAll = function() {
+        UserService.get($rootScope.loggedInUser.id).then(function(data) {
+            $scope.userdetails = data;
+            $scope.userdetails.confirmEmail = $scope.userdetails.email;
+        });
     };
 }]);

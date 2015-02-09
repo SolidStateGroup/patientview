@@ -5,6 +5,7 @@ import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.mail.MailException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
@@ -136,4 +138,7 @@ public interface UserService {
     boolean currentUserCanSwitchToUser(User user);
 
     void deleteFhirLinks(Long userId);
+    
+    @UserOnly
+    String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException;
 }

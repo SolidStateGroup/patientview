@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.joda.time.DateTime;
 import org.patientview.api.model.BaseGroup;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.ConversationService;
@@ -56,9 +57,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -66,6 +69,7 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
@@ -588,6 +592,28 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         user.setFhirLinks(new HashSet<FhirLink>());
         userRepository.save(user);
+    }
+
+    @Override
+    public String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException {
+        User user = userRepository.findOne(userId);        
+        String fileName = "";
+        
+        try {
+            fileName = file.getOriginalFilename();
+            byte[] bytes = file.getBytes();
+            if (bytes == null || bytes.length == 0) {
+                throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
+            }
+            
+            String base64 = new String(Base64.encode(bytes));
+            user.setPicture(base64);
+            userRepository.save(user);
+
+            return "Uploaded '" + fileName + "' (" + bytes.length + " bytes, " + base64.length() + " char)";
+        } catch (IOException e) {
+            throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
+        }
     }
 
     @Override

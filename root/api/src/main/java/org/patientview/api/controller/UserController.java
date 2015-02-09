@@ -9,6 +9,7 @@ import org.patientview.api.service.UserService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -274,5 +276,15 @@ public class UserController extends BaseController<UserController> {
         } else {
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
+    }
+
+    // changing the picture associated with a user account
+    @RequestMapping(value = "/user/{userId}/picture", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> changePicture(@PathVariable("userId") Long userId,
+                              @RequestParam("file") MultipartFile file)
+            throws ResourceInvalidException {
+        return new ResponseEntity<>(userService.addPicture(userId, file), HttpStatus.OK);
     }
 }

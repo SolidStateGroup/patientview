@@ -42,7 +42,8 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngRoute',
     'angulartics',          // http://luisfarzati.github.io/angulartics Google analytics
     'angulartics.google.analytics',
-    'pasvaz.bindonce'       // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
+    'pasvaz.bindonce',       // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
+    'angularFileUpload'     // https://github.com/nervgh/angular-file-upload
 ]);
 
 patientviewApp.filter('startFrom', function() {
