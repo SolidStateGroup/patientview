@@ -51,8 +51,10 @@ public class FhirPatient extends BaseModel {
         // date of birth if present
         DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
         if (fhirDateOfBirth != null) {
-            setDateOfBirth(new Date(new GregorianCalendar(fhirDateOfBirth.getYear(), fhirDateOfBirth.getMonth() - 1,
-                    fhirDateOfBirth.getDay()).getTimeInMillis()));
+            dateOfBirth = new Date(fhirDateOfBirth.toCalendar().getTimeInMillis());
+
+            // account for FHIR incorrectly converting calendar month
+            dateOfBirth.setMonth(dateOfBirth.getMonth()-1);
         }
 
         // gender/sex
