@@ -1,3 +1,7 @@
+<div data-ng-show="editUser.picture.length" class="row text-center edit-staff">
+    <img data-ng-src="{{'/api/user/' + editUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
+</div>
+
 <div class="row edit-staff">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">

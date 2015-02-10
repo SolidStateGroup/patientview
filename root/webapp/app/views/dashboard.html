@@ -7,6 +7,9 @@
         color: #fff;
         cursor: pointer;
     }
+    .user-picture {
+        max-width: 100%;
+    }
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -305,6 +308,9 @@
                 <h3><span class="badge aqua pull-left"><i class="icon-settings"></i></span>Your Settings</h3>
             </div>
             <div class="user-details content-panel">
+                <div data-ng-show="loggedInUser.picture.length">
+                    <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
+                </div>
                 <ul class="unstyled">
                     <li><h4>Username: {{loggedInUser.username}}</h4></li>
                     <li data-ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>
