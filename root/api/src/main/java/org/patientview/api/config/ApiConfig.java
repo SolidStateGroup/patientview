@@ -94,7 +94,9 @@ public class ApiConfig {
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
         commonsMultipartResolver.setDefaultEncoding("utf-8");
-        commonsMultipartResolver.setMaxUploadSize(5000000); // 5MB
+        //commonsMultipartResolver.setMaxUploadSize(5000000); // 5MB
+        commonsMultipartResolver.setMaxUploadSize(1048576); // 1MB
+        //commonsMultipartResolver.setMaxUploadSize(50000); // 50K
         return commonsMultipartResolver;
     }
 }

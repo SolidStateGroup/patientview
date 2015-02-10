@@ -4,6 +4,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     function (localStorageService, UserService, AuthService, $scope, $rootScope, UtilService, FileUploader) {
 
     $scope.pw ='';
+    $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture?token=' + $rootScope.authToken;
 
     if ($rootScope.loggedInUser == null) {
         $rootScope.logout();
@@ -13,7 +14,6 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         $scope.userdetails = data;
         $scope.userdetails.confirmEmail = $scope.userdetails.email;
         // use date parameter (not used in Spring controller) to force refresh of picture by angular after upload
-        $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture?token=' + $rootScope.authToken;
         $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
     });
 
@@ -90,13 +90,22 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     // configure basic angular-file-upload    
     var uploader = $scope.uploader = new FileUploader({
         // note: ie8 cannot pass custom headers so must be added as query parameter
-        url: '/api/user/' + $scope.loggedInUser.id + '/picture?token=' + $rootScope.authToken,
+        url: $scope.userPicture,
         headers: {'X-Auth-Token': $rootScope.authToken}
+    });
+
+    uploader.filters.push({
+        name: 'imageFilter',
+        fn: function(item /*{File|FileLikeObject}*/, options) {
+            var type = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|';
+            return '|jpg|png|jpeg|bmp|gif|'.indexOf(type) !== -1;
+        }
     });
 
     // callback after user selects a file
     uploader.onAfterAddingFile = function() {
         $scope.uploadError = false;
+        delete $scope.uploadErrorMessage;
         uploader.uploadAll();
         uploader.queue = [];
     };
@@ -104,7 +113,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     // callback if there is a problem with an image
     uploader.onErrorItem = function(fileItem, response, status, headers) {
         $scope.uploadError = true;
-        alert(response);
+        $scope.uploadErrorMessage = 'There was an error uploading your image file, please check that the file size is less than 1MB';
     };
     
     // when all uploads complete, if no error then force refresh of image by appending current date as parameter
