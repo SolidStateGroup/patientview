@@ -64,12 +64,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
@@ -151,8 +157,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
-    // note: used in stats, set in SQL pv_lookup_value.description
+    // used in stats, set in SQL pv_lookup_value.description
     private static final int INACTIVE_MONTH_LIMIT = 3;
+    // used for image resizing
+    private static final int MAXIMUM_IMAGE_WIDTH = 400;
     private Group genericGroup;
     private Role memberRole;
 
@@ -1479,12 +1487,33 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (bytes == null || bytes.length == 0) {
                 throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
             }
+            
+            // resize to maximum width MAXIMUM_IMAGE_WIDTH
+            InputStream in = new ByteArrayInputStream(bytes);
+            BufferedImage buf = ImageIO.read(in);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            Double aspect = Double.valueOf(buf.getHeight()) / Double.valueOf(buf.getWidth());
+            int width = buf.getWidth();
+            int height = buf.getHeight();
+                        
+            if (buf.getWidth() > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightl = MAXIMUM_IMAGE_WIDTH * aspect;
+                height = heightl.intValue();
+            }
 
-            String base64 = new String(Base64.encodeBase64(bytes));
+            Image thumbnail = buf.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            BufferedImage bufferedThumbnail = new BufferedImage(thumbnail.getWidth(null),
+                    thumbnail.getHeight(null), BufferedImage.TYPE_INT_RGB);
+            bufferedThumbnail.getGraphics().drawImage(thumbnail, 0, 0, null);
+            ImageIO.write(bufferedThumbnail, "jpeg", bos);
+
+            byte[] out = bos.toByteArray();
+
+            String base64 = new String(Base64.encodeBase64(out));
             user.setPicture(base64);
             userRepository.save(user);
-
-            return "Uploaded '" + fileName + "' (" + bytes.length + " bytes, " + base64.length() + " char)";
+            return "Uploaded '" + fileName + "' (" + out.length + " bytes, " + base64.length() + " char)";
         } catch (IOException e) {
             throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
         }
