@@ -298,6 +298,10 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
     $rootScope.showTestHeader = function() {
         return window.location.href.indexOf('test.patientview') > -1;
     };
+        
+    $rootScope.getCurrentTime = function() {
+        return new Date();
+    };
 
     // get auth token
     var authToken = localStorageService.get('authToken');
