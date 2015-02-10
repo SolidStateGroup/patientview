@@ -1514,7 +1514,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             user.setPicture(base64);
             userRepository.save(user);
             return "Uploaded '" + fileName + "' (" + out.length + " bytes, " + base64.length() + " char)";
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
         }
     }

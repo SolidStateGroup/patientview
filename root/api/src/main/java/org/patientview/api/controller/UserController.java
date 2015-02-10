@@ -295,9 +295,13 @@ public class UserController extends BaseController<UserController> {
     public HttpEntity<byte[]> getPicture(@PathVariable("userId") Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         byte[] picture = userService.getPicture(userId);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG); //or what ever type it is
-        headers.setContentLength(picture.length);
-        return new HttpEntity<>(picture, headers);
+        if (picture != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG); //or what ever type it is
+            headers.setContentLength(picture.length);
+            return new HttpEntity<>(picture, headers);
+        } else {
+            return new HttpEntity<>(null, null);
+        }
     }
 }
