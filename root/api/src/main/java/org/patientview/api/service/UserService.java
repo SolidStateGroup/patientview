@@ -141,4 +141,6 @@ public interface UserService {
     
     @UserOnly
     String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException;
+
+    byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 }

@@ -20,6 +20,8 @@ import org.patientview.persistence.model.enums.MigrationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -286,5 +288,16 @@ public class UserController extends BaseController<UserController> {
                               @RequestParam("file") MultipartFile file)
             throws ResourceInvalidException {
         return new ResponseEntity<>(userService.addPicture(userId, file), HttpStatus.OK);
+    }
+
+    // get user picture
+    @RequestMapping(value = "/user/{userId}/picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+    public HttpEntity<byte[]> getPicture(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        byte[] picture = userService.getPicture(userId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG); //or what ever type it is
+        headers.setContentLength(picture.length);
+        return new HttpEntity<>(picture, headers);
     }
 }

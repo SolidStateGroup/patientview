@@ -1,3 +1,10 @@
+<!-- todo: put in main css -->
+<style>
+    .user-picture{
+        max-width: 500px;
+    }    
+</style>
+
 <h1>Account Settings</h1>
 
 <div class="content-panel user-settings">
@@ -6,7 +13,7 @@
             <div class="form-group">
                 <label class="col-sm-2 control-label">Username:</label>
                 <div class="col-sm-4">
-                    <label id="username" type="text" class="form-control disabled" data-ng-bind="userdetails.username"></label>
+                    <label id="username" class="form-control disabled" data-ng-bind="userdetails.username"></label>
                 </div>
             </div>
 
@@ -106,7 +113,8 @@
             <div class="form-group">
                 <div class="col-md-4 col-sm-offset-2">
                     <button data-ng-click="savePassword()" class="btn blue"
-                            data-ng-disabled="pw.length < 7 || !(pw === userdetails.confirmPassword)">Update Password
+                            data-ng-disabled="pw.length < 7 || !(pw === userdetails.confirmPassword) || userdetails.confirmPassword.length < 7">
+                        Update Password
                     </button>
                 </div>
             </div>
@@ -131,7 +139,7 @@
 
             <div class="form-group" data-ng-show="userdetails.picture">
                 <div class="col-sm-10 col-md-offset-2">
-                    <img data-ng-src="{{'data:image/png;base64,' + userdetails.picture}}" src="">
+                    <img data-ng-src="{{datedUserPicture}}" class="user-picture">
                 </div>
             </div>
 

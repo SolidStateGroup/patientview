@@ -57,11 +57,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -1480,13 +1480,29 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
             }
 
-            String base64 = new String(Base64.encode(bytes));
+            String base64 = new String(Base64.encodeBase64(bytes));
             user.setPicture(base64);
             userRepository.save(user);
 
             return "Uploaded '" + fileName + "' (" + bytes.length + " bytes, " + base64.length() + " char)";
         } catch (IOException e) {
             throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
+        }
+    }
+
+    @Override
+    public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+        if (StringUtils.isNotEmpty(user.getPicture())) {
+            return Base64.decodeBase64(user.getPicture());
+        } else {
+            return null;
         }
     }
 }

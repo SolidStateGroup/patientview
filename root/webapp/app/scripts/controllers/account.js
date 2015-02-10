@@ -12,6 +12,9 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     UserService.get($rootScope.loggedInUser.id).then(function(data) {
         $scope.userdetails = data;
         $scope.userdetails.confirmEmail = $scope.userdetails.email;
+        // use date parameter (not used in Spring controller) to force refresh of picture by angular after upload
+        $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture?token=' + $rootScope.authToken;
+        $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
     });
 
     $scope.saveSettings = function () {
@@ -84,25 +87,32 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         }
     };
 
+    // configure basic angular-file-upload    
     var uploader = $scope.uploader = new FileUploader({
         // note: ie8 cannot pass custom headers so must be added as query parameter
         url: '/api/user/' + $scope.loggedInUser.id + '/picture?token=' + $rootScope.authToken,
         headers: {'X-Auth-Token': $rootScope.authToken}
     });
 
-   uploader.onAfterAddingFile = function() {
+    // callback after user selects a file
+    uploader.onAfterAddingFile = function() {
+        $scope.uploadError = false;
         uploader.uploadAll();
         uploader.queue = [];
     };
-
+    
+    // callback if there is a problem with an image
     uploader.onErrorItem = function(fileItem, response, status, headers) {
+        $scope.uploadError = true;
         alert(response);
     };
-
+    
+    // when all uploads complete, if no error then force refresh of image by appending current date as parameter
     uploader.onCompleteAll = function() {
-        UserService.get($rootScope.loggedInUser.id).then(function(data) {
-            $scope.userdetails = data;
-            $scope.userdetails.confirmEmail = $scope.userdetails.email;
-        });
+        if (!$scope.uploadError) {
+            $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
+        } else {
+            // error during upload
+        }
     };
 }]);
