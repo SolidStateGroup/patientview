@@ -10,12 +10,16 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         $rootScope.logout();
     }
 
-    UserService.get($rootScope.loggedInUser.id).then(function(data) {
-        $scope.userdetails = data;
-        $scope.userdetails.confirmEmail = $scope.userdetails.email;
-        // use date parameter (not used in Spring controller) to force refresh of picture by angular after upload
-        $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
-    });
+    var getUser = function() {
+        UserService.get($rootScope.loggedInUser.id).then(function (data) {
+            $scope.userdetails = data;
+            $scope.userdetails.confirmEmail = $scope.userdetails.email;
+            // use date parameter (not used in Spring controller) to force refresh of picture by angular after upload
+            $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
+        });
+    };
+        
+    getUser();
 
     $scope.saveSettings = function () {
         // If the email field has been changed validate emails
@@ -119,7 +123,8 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     // when all uploads complete, if no error then force refresh of image by appending current date as parameter
     uploader.onCompleteAll = function() {
         if (!$scope.uploadError) {
-            $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
+            $rootScope.loggedInUser.picture = "new";
+            getUser();
         } else {
             // error during upload
         }
