@@ -126,7 +126,7 @@
         <form class="form-horizontal" id="imageForm" name="imageForm">
             <h4>Your Photo on PatientView</h4>
             <p>If you choose to upload a photo to PatientView it will only be seen by staff with the ability to view
-                your PatientView records. Images will be resized if they are too large but must be under 1MB in size.</p>
+                your PatientView records. Images will be resized if they are too large but must be under 10MB in size.</p>
             <div class="form-group" data-ng-show="userdetails.picture">
                 <div class="col-sm-10 col-md-offset-2">
                     <img data-ng-src="{{datedUserPicture}}" class="user-picture" src="">
@@ -134,10 +134,10 @@
             </div>
             <div class="form-group">
                 <label for="choosePicture" class="col-sm-4 control-label" data-ng-show="!userdetails.picture">
-                    Choose An Image To Upload <br/>(less than 1MB):
+                    Choose An Image To Upload:
                 </label>
                 <label for="choosePicture" class="col-sm-4 control-label" data-ng-show="userdetails.picture">
-                    Choose An Alternative Image To Upload <br/>(less than 1MB):
+                    Choose An Alternative Image To Upload:
                 </label>
 
                 <div class="col-sm-8">
