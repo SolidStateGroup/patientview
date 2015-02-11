@@ -23,6 +23,13 @@
 
     <dependencies>
 
+        <!-- for extracting exif data from images -->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+        
         <!-- required for sort order null handling -->
         <dependency>
             <groupId>org.springframework.data</groupId>

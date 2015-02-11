@@ -1,13 +1,14 @@
 package org.patientview.api.service.impl;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.joda.time.DateTime;
 import org.patientview.api.model.BaseGroup;
-import org.patientview.api.util.DumpImageMetaData;
-import org.patientview.config.exception.ResourceInvalidException;
-import org.patientview.persistence.model.Email;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -17,9 +18,11 @@ import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
@@ -62,19 +65,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.apache.commons.codec.binary.Base64;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.stream.ImageInputStream;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.awt.*;
+import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -84,7 +85,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -1491,49 +1491,30 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (bytes == null || bytes.length == 0) {
                 throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
             }
-            
-            // resize to maximum width MAXIMUM_IMAGE_WIDTH
+
             InputStream in = new ByteArrayInputStream(bytes);
             BufferedImage buf = ImageIO.read(in);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            Double aspect = Double.valueOf(buf.getHeight()) / Double.valueOf(buf.getWidth());
-            int width = buf.getWidth();
-            int height = buf.getHeight();
-                        
-            if (buf.getWidth() > MAXIMUM_IMAGE_WIDTH) {
-                width = MAXIMUM_IMAGE_WIDTH;
-                Double heightl = MAXIMUM_IMAGE_WIDTH * aspect;
-                height = heightl.intValue();
-            }
-            String[] properties = buf.getPropertyNames();
-            LOG.info("",properties);
-            Image thumbnail = buf.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-            BufferedImage bufferedThumbnail = new BufferedImage(thumbnail.getWidth(null),
-                    thumbnail.getHeight(null), BufferedImage.TYPE_INT_RGB);
-            bufferedThumbnail.getGraphics().drawImage(thumbnail, 0, 0, null);
-            ImageIO.write(bufferedThumbnail, "jpeg", bos);
-
-            ///// metadata
-            InputStream is = file.getInputStream();
-            ImageInputStream iis = ImageIO.createImageInputStream(is);
-            Iterator iter = ImageIO.getImageReaders(iis);
-            if (iter.hasNext()) {
-                while (iter.hasNext()) {
-                    ImageReader reader = (ImageReader) iter.next();
-                    reader.setInput(iis, true);
-
-                    // read metadata of first image
-                    IIOMetadata metadata = reader.getImageMetadata(0);
-                    DumpImageMetaData.dumpMetadata(metadata);
-
-                    metadata = reader.getStreamMetadata();
-                    if (metadata != null) {
-                        System.out.println("Stream metadata");
-                        DumpImageMetaData.dumpMetadata(metadata);
-                    }
-                }
-            }
             
+            // detect orientation if set in exif (ipad etc) and rotate image
+            Metadata metadata = ImageMetadataReader.readMetadata(file.getInputStream());
+            ExifIFD0Directory exifDirectory = metadata.getDirectory(ExifIFD0Directory.class);
+
+            if (exifDirectory != null && exifDirectory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                switch (orientation) {
+                    case 6:                        
+                        buf = transformImage(buf, true);
+                        break;
+                    default:
+                        buf = transformImage(buf, false);
+                        break;
+                }
+            } else {
+                buf = transformImage(buf, false);
+            }
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ImageIO.write(buf, "jpeg", bos);
             byte[] out = bos.toByteArray();
             String base64 = new String(Base64.encodeBase64(out));
             user.setPicture(base64);
@@ -1543,6 +1524,41 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
         }
     }
+
+    protected BufferedImage transformImage(BufferedImage image, boolean rotate90Degrees)
+    {
+        Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
+        int w = image.getWidth();
+        int h = image.getHeight();
+        
+        if (rotate90Degrees) {
+            AffineTransform tx = new AffineTransform();
+            tx.rotate(1.57079633, w / 2 * aspect, h / 2);
+
+            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+            image = op.filter(image, null);
+
+            if (w * aspect > MAXIMUM_IMAGE_WIDTH) {
+                w = MAXIMUM_IMAGE_WIDTH;
+                Double heightl = MAXIMUM_IMAGE_WIDTH / aspect;
+                h = heightl.intValue();
+            }
+        } else {
+            if (w > MAXIMUM_IMAGE_WIDTH) {
+                w = MAXIMUM_IMAGE_WIDTH;
+                Double heightl = MAXIMUM_IMAGE_WIDTH * aspect;
+                h = heightl.intValue();
+            }
+        }
+        
+        Image scaledImage = image.getScaledInstance(w, h, Image.SCALE_SMOOTH);
+        BufferedImage bufferedScaledImage = new BufferedImage(scaledImage.getWidth(null),
+                scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        bufferedScaledImage.getGraphics().drawImage(scaledImage, 0, 0, null);
+
+        return bufferedScaledImage;
+    }
+    
     @Override
     public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
