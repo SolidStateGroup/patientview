@@ -34,7 +34,7 @@ package org.patientview.api.util;
  * @author Kevin Hunter
  *
  */
-public class DumpImageMetaData
+public final class DumpImageMetaData
 {
     private static String getFileExtension(File file)
     {
@@ -185,32 +185,6 @@ public class DumpImageMetaData
             {
                 processFile(file);
             }
-        }
-    }
-
-    public static void main(String[] args)
-    {
-        try
-        {
-            for (int i = 0; i < args.length; i++)
-            {
-                File fileOrDirectory = new File(args[i]);
-
-                if (fileOrDirectory.isFile())
-                {
-                    processFile(fileOrDirectory);
-                }
-                else
-                {
-                    processDirectory(fileOrDirectory);
-                }
-            }
-
-            System.out.println("\nDone");
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
         }
     }
 }
