@@ -109,6 +109,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     // callback after user selects a file
     uploader.onAfterAddingFile = function() {
         $scope.uploadError = false;
+        $scope.uploadingPicture = true;
         delete $scope.uploadErrorMessage;
         uploader.uploadAll();
         uploader.queue = [];
@@ -118,15 +119,18 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     uploader.onErrorItem = function(fileItem, response, status, headers) {
         $scope.uploadError = true;
         $scope.uploadErrorMessage = 'There was an error uploading your image file, please check that the file size is less than 1MB';
+        $scope.uploadingPicture = false;
     };
     
     // when all uploads complete, if no error then force refresh of image by appending current date as parameter
     uploader.onCompleteAll = function() {
         if (!$scope.uploadError) {
             $rootScope.loggedInUser.picture = "new";
+            $scope.uploadingPicture = false;
             getUser();
         } else {
             // error during upload
+            $scope.uploadingPicture = false;
         }
     };
 }]);
