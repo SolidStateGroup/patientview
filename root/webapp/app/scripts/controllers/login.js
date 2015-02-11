@@ -54,6 +54,8 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                     alert("Error retrieving routes, please contact PatientView support");
                     $location.path('/logout');
                 }
+
+                $rootScope.startTimers();
             }, function(result) {
                 if (result.data) {
                     $scope.errorMessage = ' - ' + result.data;

@@ -335,7 +335,40 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
     $rootScope.initialised = true;
     $rootScope.endPoint = ENV.apiEndpoint;
+        
+    // client based timeouts, will log you out of back end in 60 minutes
+    $rootScope.timoutWarning = 3480000;     // 55 minutes
+    $rootScope.timoutNow = 3480000;         // 58 minutes
+    //$rootScope.timoutWarning = 5000;     // 5s
+    //$rootScope.timoutNow = 10000;         // 10s
 
+    $("#timeout").hide();
+
+    // Show idle timeout warning dialog.
+    var idleWarning = function IdleWarning() {
+        $("#timeout").show();
+    };
+
+    // Logout the user.
+    var idleTimeout = function IdleTimeout() {
+        window.location = '/#/logout';
+    };
+
+    // Start timers.
+    $rootScope.startTimers = function() {
+        if ($rootScope.authToken) {
+            $rootScope.warningTimer = setTimeout(idleWarning, $rootScope.timoutWarning);
+            $rootScope.timeoutTimer = setTimeout(idleTimeout, $rootScope.timoutNow);
+        }
+    };
+        
+    // Reset timers.
+    $rootScope.resetTimeoutTimers = function() {
+        clearTimeout($rootScope.warningTimer);
+        clearTimeout($rootScope.timeoutTimer);
+        $rootScope.startTimers();
+        $("#timeout").hide();
+    };
 }]);
 
 $('html').click(function(e){
@@ -386,5 +419,7 @@ $('html').click(function(e){
         tableElement.find('.faux-row').removeClass('dull');
         tableElement.find('.edit-button').removeClass('editing');
     }
-
+    
+    var scope = angular.element($('#timeout')).scope();
+    scope.resetTimeoutTimers();
 });
