@@ -166,7 +166,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throws UsernameNotFoundException, AuthenticationServiceException {
 
         LOG.debug("Authenticating user: {}", username);
-
+        
+        // trim username (ipad adds space if you tap space after username to auto enter details)
+        username = username.trim();
         User user = userRepository.findByUsernameCaseInsensitive(username);
 
         if (user == null) {
