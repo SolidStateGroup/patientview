@@ -1518,18 +1518,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             ImageInputStream iis = ImageIO.createImageInputStream(is);
             Iterator iter = ImageIO.getImageReaders(iis);
             if (iter.hasNext()) {
-                ImageReader reader = (ImageReader) iter.next();
-                reader.setInput(iis, true);
+                while (iter.hasNext()) {
+                    ImageReader reader = (ImageReader) iter.next();
+                    reader.setInput(iis, true);
 
-                // read metadata of first image
-                IIOMetadata metadata = reader.getImageMetadata(0);
-                DumpImageMetaData.dumpMetadata(metadata);
-
-                metadata = reader.getStreamMetadata();
-                if (metadata != null)
-                {
-                    System.out.println("Stream metadata");
+                    // read metadata of first image
+                    IIOMetadata metadata = reader.getImageMetadata(0);
                     DumpImageMetaData.dumpMetadata(metadata);
+
+                    metadata = reader.getStreamMetadata();
+                    if (metadata != null) {
+                        System.out.println("Stream metadata");
+                        DumpImageMetaData.dumpMetadata(metadata);
+                    }
                 }
             }
             
