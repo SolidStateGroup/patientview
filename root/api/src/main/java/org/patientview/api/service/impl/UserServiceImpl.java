@@ -1487,15 +1487,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         try {
             fileName = file.getOriginalFilename();
-            byte[] bytes = file.getBytes();
-            if (bytes == null || bytes.length == 0) {
+            byte[] inputBytes = file.getBytes();
+            if (inputBytes == null || inputBytes.length == 0) {
                 throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
             }
 
-            InputStream in = new ByteArrayInputStream(bytes);
-            BufferedImage buf = ImageIO.read(in);
+            InputStream inputStream = new ByteArrayInputStream(inputBytes);
+            BufferedImage bufferedImage = ImageIO.read(inputStream);
             
-            // detect orientation if set in exif (ipad etc) and rotate image
+            // detect orientation if set in exif (ipad etc) and rotate image then resize to MAXIMUM_IMAGE_WIDTH
             Metadata metadata = ImageMetadataReader.readMetadata(file.getInputStream());
             ExifIFD0Directory exifDirectory = metadata.getDirectory(ExifIFD0Directory.class);
 
@@ -1503,26 +1503,29 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
                 switch (orientation) {
                     case 3:
-                        buf = transformImage(buf, 180);
+                        bufferedImage = transformImage(bufferedImage, 180);
                         break;
-                    case 6:                        
-                        buf = transformImage(buf, 90);
+                    case 6:
+                        bufferedImage = transformImage(bufferedImage, 90);
                         break;
                     default:
-                        buf = transformImage(buf, 0);
+                        bufferedImage = transformImage(bufferedImage, 0);
                         break;
                 }
             } else {
-                buf = transformImage(buf, 0);
+                bufferedImage = transformImage(bufferedImage, 0);
             }
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ImageIO.write(buf, "jpeg", bos);
-            byte[] out = bos.toByteArray();
-            String base64 = new String(Base64.encodeBase64(out));
-            user.setPicture(base64);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "jpeg", byteArrayOutputStream);
+            byte[] outputBytes = byteArrayOutputStream.toByteArray();
+            String outputBase64 = new String(Base64.encodeBase64(outputBytes));
+            user.setPicture(outputBase64);
             userRepository.save(user);
-            return "Uploaded '" + fileName + "' (" + out.length + " bytes, " + base64.length() + " char)";
+
+            inputStream.close();
+            byteArrayOutputStream.close();
+            return "Uploaded '" + fileName + "' (" + outputBytes.length + " bytes, " + outputBase64.length() + " char)";
         } catch (Exception e) {
             throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
         }
@@ -1531,42 +1534,39 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     protected BufferedImage transformImage(BufferedImage image, int angle)
     {
         Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
-        int w = image.getWidth();
-        int h = image.getHeight();
+        int width = image.getWidth();
+        int height = image.getHeight();
+        AffineTransform transform = new AffineTransform();
         
         if (angle == 90) {
-            AffineTransform tx = new AffineTransform();
-            tx.rotate(1.57079633, w / 2 * aspect, h / 2);
-
-            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+            transform.rotate(Math.toRadians(angle), width / 2 * aspect, height / 2);
+            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
             image = op.filter(image, null);
 
-            if (w * aspect > MAXIMUM_IMAGE_WIDTH) {
-                w = MAXIMUM_IMAGE_WIDTH;
-                Double heightl = MAXIMUM_IMAGE_WIDTH / aspect;
-                h = heightl.intValue();
+            if (width * aspect > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH / aspect;
+                height = heightDouble.intValue();
             }
         } else if (angle == 180) {
-            AffineTransform tx = new AffineTransform();
-            tx.rotate(3.14159265, w / 2, h / 2);
-
-            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+            transform.rotate(Math.toRadians(angle), width / 2, height / 2);
+            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
             image = op.filter(image, null);
 
-            if (w > MAXIMUM_IMAGE_WIDTH) {
-                w = MAXIMUM_IMAGE_WIDTH;
-                Double heightl = MAXIMUM_IMAGE_WIDTH * aspect;
-                h = heightl.intValue();
+            if (width > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
+                height = heightDouble.intValue();
             }
         } else {
-            if (w > MAXIMUM_IMAGE_WIDTH) {
-                w = MAXIMUM_IMAGE_WIDTH;
-                Double heightl = MAXIMUM_IMAGE_WIDTH * aspect;
-                h = heightl.intValue();
+            if (width > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
+                height = heightDouble.intValue();
             }
         }
         
-        Image scaledImage = image.getScaledInstance(w, h, Image.SCALE_SMOOTH);
+        Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         BufferedImage bufferedScaledImage = new BufferedImage(scaledImage.getWidth(null),
                 scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
         bufferedScaledImage.getGraphics().drawImage(scaledImage, 0, 0, null);
