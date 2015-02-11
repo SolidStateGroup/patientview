@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
 import org.joda.time.DateTime;
 import org.patientview.api.model.BaseGroup;
+import org.patientview.api.util.DumpImageMetaData;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.persistence.model.Email;
 import org.patientview.api.service.AuditService;
@@ -65,6 +66,9 @@ import org.apache.commons.codec.binary.Base64;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.ImageInputStream;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
@@ -74,13 +78,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -1501,15 +1505,35 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 Double heightl = MAXIMUM_IMAGE_WIDTH * aspect;
                 height = heightl.intValue();
             }
-
+            String[] properties = buf.getPropertyNames();
+            LOG.info("",properties);
             Image thumbnail = buf.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             BufferedImage bufferedThumbnail = new BufferedImage(thumbnail.getWidth(null),
                     thumbnail.getHeight(null), BufferedImage.TYPE_INT_RGB);
             bufferedThumbnail.getGraphics().drawImage(thumbnail, 0, 0, null);
             ImageIO.write(bufferedThumbnail, "jpeg", bos);
 
-            byte[] out = bos.toByteArray();
+            ///// metadata
+            InputStream is = file.getInputStream();
+            ImageInputStream iis = ImageIO.createImageInputStream(is);
+            Iterator iter = ImageIO.getImageReaders(iis);
+            if (iter.hasNext()) {
+                ImageReader reader = (ImageReader) iter.next();
+                reader.setInput(iis, true);
 
+                // read metadata of first image
+                IIOMetadata metadata = reader.getImageMetadata(0);
+                DumpImageMetaData.dumpMetadata(metadata);
+
+                metadata = reader.getStreamMetadata();
+                if (metadata != null)
+                {
+                    System.out.println("Stream metadata");
+                    DumpImageMetaData.dumpMetadata(metadata);
+                }
+            }
+            
+            byte[] out = bos.toByteArray();
             String base64 = new String(Base64.encodeBase64(out));
             user.setPicture(base64);
             userRepository.save(user);
@@ -1518,7 +1542,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
         }
     }
-
     @Override
     public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
