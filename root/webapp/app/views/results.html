@@ -19,7 +19,7 @@
         </div>
         <div class="content-inner clearfix">
             <form id="search-patient-results">
-                <div class="form-row pull-right">
+                <div class="form-row pull-right" data-ng-show="groups.length > 1">
                     <label for="specialty-select">Select Specialty: </label>
                     <select class="form-control" data-ng-model="selectedGroup"
                             data-ng-options="group.id as group.name for group in groups"
