@@ -1502,15 +1502,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (exifDirectory != null && exifDirectory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
                 switch (orientation) {
+                    case 3:
+                        buf = transformImage(buf, 180);
+                        break;
                     case 6:                        
-                        buf = transformImage(buf, true);
+                        buf = transformImage(buf, 90);
                         break;
                     default:
-                        buf = transformImage(buf, false);
+                        buf = transformImage(buf, 0);
                         break;
                 }
             } else {
-                buf = transformImage(buf, false);
+                buf = transformImage(buf, 0);
             }
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -1525,13 +1528,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    protected BufferedImage transformImage(BufferedImage image, boolean rotate90Degrees)
+    protected BufferedImage transformImage(BufferedImage image, int angle)
     {
         Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
         int w = image.getWidth();
         int h = image.getHeight();
         
-        if (rotate90Degrees) {
+        if (angle == 90) {
             AffineTransform tx = new AffineTransform();
             tx.rotate(1.57079633, w / 2 * aspect, h / 2);
 
@@ -1541,6 +1544,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (w * aspect > MAXIMUM_IMAGE_WIDTH) {
                 w = MAXIMUM_IMAGE_WIDTH;
                 Double heightl = MAXIMUM_IMAGE_WIDTH / aspect;
+                h = heightl.intValue();
+            }
+        } else if (angle == 180) {
+            AffineTransform tx = new AffineTransform();
+            tx.rotate(3.14159265, w / 2, h / 2);
+
+            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+            image = op.filter(image, null);
+
+            if (w > MAXIMUM_IMAGE_WIDTH) {
+                w = MAXIMUM_IMAGE_WIDTH;
+                Double heightl = MAXIMUM_IMAGE_WIDTH * aspect;
                 h = heightl.intValue();
             }
         } else {
