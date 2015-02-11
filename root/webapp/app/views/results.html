@@ -10,7 +10,7 @@
         <li><a href="/#/resultsenter" class="btn blue pull-right">Enter Your Own Results</a></li>
     </ul>
     <span>Results</span>
-
+        <a href="/#/resultstable" class="btn btn-danger"><i class="glyphicon glyphicon-align-justify"></i> &nbsp; Table View</a>
     </h1>
 
     <div class="results-header content-panel">
@@ -39,11 +39,8 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
-            <a href="/#/resultstable" class="btn blue pull-right"><i class="glyphicon glyphicon-align-justify"></i> &nbsp; Table View</a>
-        </div>
-        <div class="col-md-6">
-            <ul class="pagination results pull-left">
+        <div class="center-block">
+            <ul class="pagination results">
                 <li data-ng-repeat="(key, panel) in panels" data-ng-class="{active: currentPage == key}" data-ng-click="changePanel(key)">
                     <a href="" data-toggle="tooltip" data-placement="top" title="{{getPanelResultTitles(panel)}}">{{key}}</a>
                 </li>
