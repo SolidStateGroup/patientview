@@ -64,14 +64,14 @@ public class PractitionerBuilder {
             if (StringUtils.isNotEmpty(gp.getGptelephone())) {
                 Contact contact = practitioner.addTelecom();
                 contact.setSystem(new Enumeration<>(Contact.ContactSystem.phone));
-                contact.setValueSimple(gp.getGptelephone());
+                contact.setValueSimple(CommonUtils.cleanSql(gp.getGptelephone()));
                 contact.setUse(new Enumeration<>(Contact.ContactUse.work));
             }
 
             if (StringUtils.isNotEmpty(gp.getGpemail())) {
                 Contact contact = practitioner.addTelecom();
                 contact.setSystem(new Enumeration<>(Contact.ContactSystem.email));
-                contact.setValueSimple(CommonUtils.cleanSql(gp.getGpemail()));
+                contact.setValueSimple(CommonUtils.cleanSql(CommonUtils.cleanSql(gp.getGpemail())));
                 contact.setUse(new Enumeration<>(Contact.ContactUse.work));
             }
         }

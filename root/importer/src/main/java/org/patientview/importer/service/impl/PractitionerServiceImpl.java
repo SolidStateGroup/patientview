@@ -69,8 +69,13 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                 Practitioner importPractitioner = practitionerBuilder.build();
 
                 List<Map<String, UUID>> uuids
-                        = getUuidsByFamilyNameAndAddress1(CommonUtils.cleanSql(data.getGpdetails().getGpname()),
-                        CommonUtils.cleanSql(data.getGpdetails().getGpaddress1()));
+                        = getUuids(CommonUtils.cleanSql(data.getGpdetails().getGpname()),
+                        CommonUtils.cleanSql(data.getGpdetails().getGpaddress1()),
+                        CommonUtils.cleanSql(data.getGpdetails().getGpaddress2()),
+                        CommonUtils.cleanSql(data.getGpdetails().getGpaddress3()),
+                        CommonUtils.cleanSql(data.getGpdetails().getGpaddress4()),
+                        CommonUtils.cleanSql(data.getGpdetails().getGppostcode()),
+                        CommonUtils.cleanSql(data.getGpdetails().getGptelephone()));
 
                 if (!uuids.isEmpty()) {
                     // update existing FHIR entities (should be a single row), return reference
@@ -105,27 +110,67 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         }
     }
 
-    private List<Map<String, UUID>> getUuidsByFamilyNameAndAddress1(String familyName, String address1) 
+    private List<Map<String, UUID>> getUuids(String familyName, String address1, String address2, String address3, 
+                                             String address4, String postcode, String telephone) 
             throws FhirResourceException {
 
-        // handle db stored '' for ' in names e.g. O''DONNEL
-        familyName = familyName.replace("'","''");
-        address1 = address1.replace("'","''");
-
-        // build query
+        // build query, handle db stored '' for ' in text e.g. O''DONNEL
         StringBuilder query = new StringBuilder();
         query.append("SELECT  version_id, logical_id ");
         query.append("FROM practitioner ");
         query.append("WHERE content -> 'name' #>> '{family,0}' = '");
-        query.append(familyName);
+        query.append(familyName.replace("'","''"));
         query.append("' ");
+        
         if (StringUtils.isNotEmpty(address1)) {
             query.append("AND content -> 'address' #>> '{line,0}' = '");
-            query.append(address1);
+            query.append(address1.replace("'","''"));
             query.append("' ");
         } else {
             query.append("AND (content -> 'address' #>> '{line,0}') IS NULL");
         }
+
+        if (StringUtils.isNotEmpty(address2)) {
+            query.append("AND content -> 'address' ->> 'city' = '");
+            query.append(address2.replace("'","''"));
+            query.append("' ");
+        } else {
+            query.append("AND (content -> 'address' ->> 'city') IS NULL ");
+        }
+
+        if (StringUtils.isNotEmpty(address3)) {
+            query.append("AND content -> 'address' ->> 'state' = '");
+            query.append(address3.replace("'","''"));
+            query.append("' ");
+        } else {
+            query.append("AND (content -> 'address' ->> 'state') IS NULL ");
+        }
+
+        if (StringUtils.isNotEmpty(address4)) {
+            query.append("AND content -> 'address' ->> 'country' = '");
+            query.append(address4.replace("'","''"));
+            query.append("' ");
+        } else {
+            query.append("AND (content -> 'address' ->> 'country') IS NULL ");
+        }
+
+        if (StringUtils.isNotEmpty(postcode)) {
+            query.append("AND content -> 'address' ->> 'zip' = '");
+            query.append(postcode.replace("'","''"));
+            query.append("' ");
+        } else {
+            query.append("AND (content -> 'address' ->> 'zip') IS NULL ");
+        }
+        
+        if (StringUtils.isNotEmpty(telephone)) {
+            query.append("AND content #> '{telecom,0}' ->> 'value' = '");
+            query.append(telephone.replace("'","''"));
+            query.append("' ");
+        } else {
+            query.append("AND (content #> '{telecom,0}' ->> 'value') IS NULL ");
+        }
+        
+        LOG.info(query.toString());
 
         // execute and return UUIDs
         try {
