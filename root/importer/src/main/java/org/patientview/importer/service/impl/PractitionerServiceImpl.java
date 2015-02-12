@@ -127,7 +127,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
             query.append(address1.replace("'","''"));
             query.append("' ");
         } else {
-            query.append("AND (content -> 'address' #>> '{line,0}') IS NULL");
+            query.append("AND (content -> 'address' #>> '{line,0}') IS NULL ");
         }
 
         if (StringUtils.isNotEmpty(address2)) {
