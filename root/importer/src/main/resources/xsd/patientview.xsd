@@ -339,6 +339,14 @@
                                                         </xs:simpleType>
                                                     </xs:element>
                                                     <xs:element maxOccurs="1" minOccurs="1" name="drugdose" type="xs:string"/>
+                                                    <xs:element maxOccurs="1" minOccurs="0" name="code">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="codetype" type="xs:string"/>
+                                                                <xs:element maxOccurs="1" minOccurs="0" name="codevalue" type="xs:string"/>
+                                                            </xs:sequence>
+                                                        </xs:complexType>
+                                                    </xs:element>
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
