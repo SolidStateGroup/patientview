@@ -1503,6 +1503,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             if (exifDirectory != null && exifDirectory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                LOG.info("" + orientation);
                 switch (orientation) {
                     case 3:
                         bufferedImage = transformImage(bufferedImage, ONE_HUNDRED_AND_EIGHTY);
@@ -1510,7 +1511,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     case 6:
                         bufferedImage = transformImage(bufferedImage, NINETY);
                         break;
-                    case 9:
+                    case 8:
                         bufferedImage = transformImage(bufferedImage, TWO_HUNDRED_AND_SEVENTY);
                         break;
                     default:
@@ -1563,15 +1564,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 height = heightDouble.intValue();
             }
         } else if (angle == TWO_HUNDRED_AND_SEVENTY) {
-            transform.rotate(Math.toRadians(angle), width / 2 * aspect, height / 2);
-            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-            image = op.filter(image, null);
-
-            if (width * aspect > MAXIMUM_IMAGE_WIDTH) {
-                width = MAXIMUM_IMAGE_WIDTH;
-                Double heightDouble = MAXIMUM_IMAGE_WIDTH / aspect;
-                height = heightDouble.intValue();
-            }
+            image = transformImage(image, 180);
+            image = transformImage(image, 90);
+            Double widthDouble = image.getWidth() * aspect;
+            width = widthDouble.intValue();
+            height = image.getHeight();
         } else {
             if (width > MAXIMUM_IMAGE_WIDTH) {
                 width = MAXIMUM_IMAGE_WIDTH;
@@ -1579,7 +1576,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 height = heightDouble.intValue();
             }
         }
-
+        
         Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         BufferedImage bufferedScaledImage = new BufferedImage(scaledImage.getWidth(null),
                 scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
@@ -1587,7 +1584,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         return bufferedScaledImage;
     }
-
+    
     @Override
     public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
