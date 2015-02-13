@@ -33,6 +33,8 @@ public class ApiConfig {
     @Inject
     private Properties properties;
 
+    final private static int TEN_MB = 10485760;
+
     //TODO this just gets the "name" of the enum
     // remove and implement JSON shape object
     @Bean
@@ -96,7 +98,7 @@ public class ApiConfig {
         commonsMultipartResolver.setDefaultEncoding("utf-8");
         //commonsMultipartResolver.setMaxUploadSize(5000000); // 5MB
         //commonsMultipartResolver.setMaxUploadSize(1048576); // 1MB
-        commonsMultipartResolver.setMaxUploadSize(10485760); // 10MB
+        commonsMultipartResolver.setMaxUploadSize(TEN_MB); // 10MB
         //commonsMultipartResolver.setMaxUploadSize(50000); // 50K
         return commonsMultipartResolver;
     }

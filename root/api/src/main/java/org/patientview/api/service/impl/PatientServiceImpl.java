@@ -291,12 +291,12 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
             }
 
             patient.getFhirEncounters().add(fhirEncounter);
-            
+
             if (fhirEncounter.getEncounterType().equals(EncounterTypes.TREATMENT.toString())) {
                 hasTreatment = true;
             }
         }
-        
+
         // Card #314 if no treatment type encounter exists and patient is member of renal specialty, add GEN
         if (!hasTreatment) {
             boolean isMemberOfRenal = false;

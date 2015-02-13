@@ -68,7 +68,7 @@ public class Group extends BaseGroup {
                 getLinks().add(link);
             }
         }
-        
+
         setLastImportDate(group.getLastImportDate());
     }
 

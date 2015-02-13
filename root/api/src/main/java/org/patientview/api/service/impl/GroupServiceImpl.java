@@ -711,8 +711,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                 direction = Sort.Direction.DESC;
             }
 
-            pageable = new PageRequest(pageConverted, sizeConverted, 
-                    new Sort(new Sort.Order(direction, sortField)));
+            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
         }

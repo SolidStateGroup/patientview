@@ -65,14 +65,14 @@ public class AuthController extends BaseController<AuthController> {
     @CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/auth/{token}/switchuser/{userId}", method = RequestMethod.GET)
     public ResponseEntity<String> switchToPreviousUser(@PathVariable("token") String token,
-                                                       @PathVariable("userId") Long userId) 
+                                                       @PathVariable("userId") Long userId)
             throws AuthenticationServiceException {
         return new ResponseEntity<>(authenticationService.switchBackFromUser(userId, token), HttpStatus.OK);
     }
 
     // populate userToken with user information (security roles, groups etc) performed after login
-    @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user " +
-            "information and static data")
+    @ApiOperation(value = "Get User Information", notes = "Once logged in and have a token, get all relevant user "
+            + "information and static data")
     @RequestMapping(value = "/auth/{token}/userinformation", method = RequestMethod.GET)
     public ResponseEntity<UserToken> getUserInformation(@PathVariable("token") String token)
             throws AuthenticationServiceException, ResourceForbiddenException {
@@ -88,8 +88,8 @@ public class AuthController extends BaseController<AuthController> {
         userService.resetPasswordByUsernameAndEmail(credentials.getUsername(), credentials.getEmail());
     }
 
-    @ApiOperation(value = "Log In", notes = "Authenticate using username and password, returns " +
-            "token, which must be added to X-Auth-Token in header of all future requests")
+    @ApiOperation(value = "Log In", notes = "Authenticate using username and password, returns "
+            + "token, which must be added to X-Auth-Token in header of all future requests")
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> logIn(@RequestBody Credentials credentials)
             throws UsernameNotFoundException, AuthenticationServiceException {
