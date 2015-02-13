@@ -88,7 +88,8 @@
                     <fieldset>
                         <div class="btn-group pull-right">
                             <button class="btn btn-grey" data-ng-click="conversation.quickReplyOpen = false">Cancel</button>
-                            <button class="btn blue" data-ng-click="quickReply(conversation)" data-ng-disabled="!conversation.quickReplyContent.length"><i class="icon-reply"></i> Send</button>
+                            <button class="btn blue" data-ng-click="quickReply(conversation)" 
+                                    data-ng-disabled="!conversation.quickReplyContent.length"><i class="icon-reply"></i> Send</button>
                         </div>
                     </fieldset>
                 </form>
@@ -112,6 +113,7 @@
                 </div>
 
                 <form class="form-quick-reply">
+                    <div class="alert alert-success" data-ng-show="conversation.successMessage">{{conversation.successMessage}}</div>
                     <label for="add-message-input">Add Message</label>
                     <textarea id="add-message-input" data-ng-model="conversation.addMessageContent"></textarea>
                     <div data-ng-include src="'views/partials/htmlHelp.html'" class="help-text"></div>
@@ -119,7 +121,9 @@
                     <fieldset>
                         <div class="btn-group pull-right">
                             <button class="btn btn-grey" data-ng-click="viewMessages(conversation)">Close</button>
-                            <button class="btn blue" data-ng-click="addMessage(conversation)" data-ng-disabled="!conversation.addMessageContent.length"><i class="icon-reply"></i> Send</button>
+                            <button class="btn blue" data-ng-click="addMessage(conversation)" data-ng-disabled="!conversation.addMessageContent.length">
+                                <i class="icon-reply"></i> Send
+                            </button>
                         </div>
                     </fieldset>
                 </form>

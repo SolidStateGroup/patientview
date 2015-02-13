@@ -1,10 +1,14 @@
 package org.patientview.api.service.impl;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
+import org.joda.time.DateTime;
 import org.patientview.api.model.BaseGroup;
-import org.patientview.persistence.model.Email;
 import org.patientview.api.service.AuditService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.EmailService;
@@ -14,9 +18,11 @@ import org.patientview.api.service.UserService;
 import org.patientview.api.util.Util;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
@@ -36,6 +42,7 @@ import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
+import org.patientview.persistence.model.enums.StatusFilter;
 import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.FeatureRepository;
 import org.patientview.persistence.repository.FhirLinkRepository;
@@ -57,11 +64,23 @@ import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -136,12 +155,18 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private Properties properties;
 
+    @Inject
+    private EntityManager entityManager;
+    
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
+    // used in stats, set in SQL pv_lookup_value.description
+    private static final int INACTIVE_MONTH_LIMIT = 3;
+    // used for image resizing
+    private static final int MAXIMUM_IMAGE_WIDTH = 400;
     private Group genericGroup;
     private Role memberRole;
-
 
     @PostConstruct
     public void init() {
@@ -722,6 +747,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Get users based on a list of groups and roles
+     * todo: fix this for PostgreSQL and hibernate nullhandling to avoid multiple queries
      * @return Page of api User
      */
     public Page<org.patientview.api.model.User> getApiUsersByGroupsAndRoles(GetParameters getParameters)
@@ -751,7 +777,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             groupIds = getUserGroupIds();
         }
 
-        List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
+        // get pagination details, including sorting
         String size = getParameters.getSize();
         String page = getParameters.getPage();
         String sortField = getParameters.getSortField();
@@ -761,34 +787,33 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
 
+        // todo: it is the Sort.NullHandling.NULLS_FIRST etc that is not picked up by hibernate
         if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
-            Sort.Direction direction = Sort.Direction.ASC;
             if (sortDirection.equals("DESC")) {
-                direction = Sort.Direction.DESC;
+                pageable = new PageRequest(pageConverted, sizeConverted,
+                        new Sort(new Sort.Order(Sort.Direction.DESC, sortField, Sort.NullHandling.NULLS_FIRST)));
+            } else {
+                pageable = new PageRequest(pageConverted, sizeConverted,
+                        new Sort(new Sort.Order(Sort.Direction.ASC, sortField, Sort.NullHandling.NULLS_LAST)));
             }
-
-            pageable = new PageRequest(pageConverted, sizeConverted, new Sort(new Sort.Order(direction, sortField)));
         } else {
             pageable = new PageRequest(pageConverted, sizeConverted);
         }
 
-        // handle searching by field
+        // handle searching by field (username, forename, surname, identifier, email)
         String searchUsername = getParameters.getSearchUsername();
-        searchUsername = StringUtils.isEmpty(searchUsername) ? "%%" : "%" + searchUsername.toUpperCase() + "%";
-
+        searchUsername = StringUtils.isEmpty(searchUsername) ? "%%" : "%" + searchUsername.trim().toUpperCase() + "%";
         String searchForename = getParameters.getSearchForename();
-        searchForename = StringUtils.isEmpty(searchForename) ? "%%" : "%" + searchForename.toUpperCase() + "%";
-
+        searchForename = StringUtils.isEmpty(searchForename) ? "%%" : "%" + searchForename.trim().toUpperCase() + "%";
         String searchSurname = getParameters.getSearchSurname();
-        searchSurname = StringUtils.isEmpty(searchSurname) ? "%%" : "%" + searchSurname.toUpperCase() + "%";
-
+        searchSurname = StringUtils.isEmpty(searchSurname) ? "%%" : "%" + searchSurname.trim().toUpperCase() + "%";
         String searchIdentifier = getParameters.getSearchIdentifier();
-        searchIdentifier = StringUtils.isEmpty(searchIdentifier) ? "%%" : "%" + searchIdentifier.toUpperCase() + "%";
-
+        searchIdentifier
+                = StringUtils.isEmpty(searchIdentifier) ? "%%" : "%" + searchIdentifier.trim().toUpperCase() + "%";
         String searchEmail = getParameters.getSearchEmail();
-        searchEmail = StringUtils.isEmpty(searchEmail) ? "%%" : "%" + searchEmail.toUpperCase() + "%";
+        searchEmail = StringUtils.isEmpty(searchEmail) ? "%%" : "%" + searchEmail.trim().toUpperCase() + "%";
 
-        // isolate into either staff, patient or both queries (staff or patient much quicker as no outer join)
+        // isolate into either staff or patient queries (staff do not consider identifier)
         boolean staff = false;
         boolean patient = false;
 
@@ -798,6 +823,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             roleMap.put(role.getId(), role);
         }
 
+        List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
         for (Long roleId : roleIds) {
             if (roleMap.get(roleId).getRoleType().getValue().equals(RoleType.STAFF)) {
                 staff = true;
@@ -806,41 +832,158 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             }
         }
 
-        Page<User> users = new PageImpl<>(new ArrayList<User>(), new PageRequest(0, Integer.MAX_VALUE), 0);
+        StatusFilter statusFilter = null;
 
-        // todo: consider rewrite to avoid large number of parameters
+        // get status filter for filtering users by status (e.g. locked, active, inactive)
+        if (Util.isInEnum(getParameters.getStatusFilter(), StatusFilter.class)) {
+            statusFilter = StatusFilter.valueOf(getParameters.getStatusFilter());
+        }
+
+        // Todo: improve this when a more recent Hibernate fixes Sort.NullHandling for PostgreSQL
+        // This avoids the default setting of NULL in PostgreSQL being larger than any value when sorting
+        // Note: this is not optimal (two queries) but is due to Hibernate not considering Sort.NullHandling with the
+        // PostgreSQL dialect (see commented out code in PostgresCustomDialect.java)
+        StringBuilder sql = new StringBuilder();
+        sql.append("FROM User u ");
+        sql.append("JOIN u.groupRoles gr ");
+        if (!staff && patient) {
+            sql.append("JOIN u.identifiers i ");
+        }
+        sql.append("WHERE gr.role.id IN :roleIds ");
+        sql.append("AND gr.group.id IN :groupIds ");
+        sql.append("AND (UPPER(u.username) LIKE :searchUsername) ");
+        sql.append("AND (UPPER(u.forename) LIKE :searchForename) ");
+        sql.append("AND (UPPER(u.surname) LIKE :searchSurname) ");
+        sql.append("AND (UPPER(u.email) LIKE :searchEmail) ");
+        if (!staff && patient) {
+            sql.append("AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) ");
+        }
+        sql.append("AND u.deleted = false ");
+
+        // locked users
+        if (statusFilter != null && statusFilter.equals(StatusFilter.LOCKED)) {
+            sql.append("AND u.locked = true ");
+        }
+
+        boolean dateRange = false;
+
+        // active users (INACTIVE_MONTH_LIMIT months)
+        if (statusFilter != null && statusFilter.equals(StatusFilter.ACTIVE)) {
+            sql.append("AND u.lastLogin BETWEEN :startDate AND :endDate ");
+            dateRange = true;
+        }
+
+        // inactive users (INACTIVE_MONTH_LIMIT months)
+        if (statusFilter != null && statusFilter.equals(StatusFilter.INACTIVE)) {
+            sql.append("AND (u.lastLogin NOT BETWEEN :startDate AND :endDate OR u.lastLogin = NULL) ");
+            dateRange = true;
+        }
+
+        StringBuilder sortOrder = new StringBuilder();
+
+        if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
+            sortOrder.append("ORDER BY ");
+            boolean fieldExists = false;
+            boolean fieldIsString = false;
+
+            // check type of field by name (e.g. surname = String)
+            Field[] fields = User.class.getDeclaredFields();
+            for (Field f:fields) {
+                if (f.getName().equalsIgnoreCase(sortField)) {
+                    fieldExists = true;
+                    if (f.getType().equals(String.class)) {
+                        fieldIsString = true;
+                    }
+                }
+            }
+
+            if (!fieldExists) {
+                throw new ResourceNotFoundException("Incorrect search field");
+            }
+
+            // make ordering case insensitive
+            if (fieldIsString) {
+                sortOrder.append("UPPER(u.");
+                sortOrder.append(sortField);
+                sortOrder.append(") ");
+            } else {
+                sortOrder.append("u.");
+                sortOrder.append(sortField);
+            }
+
+            sortOrder.append(" ");
+            sortOrder.append(sortDirection);
+
+            if (sortDirection.equals("DESC")) {
+                sortOrder.append(" NULLS LAST");
+            } else {
+                sortOrder.append(" NULLS FIRST");
+            }
+        }
+
+        StringBuilder userListSql = new StringBuilder("SELECT u ");
+        // todo: heavy query, needs rewriting to be a count, difficult with JPA using HAVING clause
+        StringBuilder userCountSql = new StringBuilder("SELECT u.id ");
+
+        userListSql.append(sql);
+        userListSql.append(" GROUP BY u.id ");
+        userCountSql.append(sql);
+        userCountSql.append(" GROUP BY u.id ");
+
         if (andGroups) {
-            if (!staff && patient) {
-                users = userRepository.findPatientByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
-                        searchEmail, searchIdentifier, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
-            }
+            userListSql.append("HAVING COUNT(gr) = :groupCount ");
+            userCountSql.append("HAVING COUNT(gr) = :groupCount ");
+        }
 
-            if (staff && !patient) {
-                users = userRepository.findStaffByGroupsRolesAnd(searchUsername, searchForename, searchSurname,
-                        searchEmail, groupIds, roleIds, Long.valueOf(groupIds.size()), pageable);
-            }
+        userListSql.append(sortOrder);
+
+        Query query = entityManager.createQuery(userListSql.toString());
+        Query countQuery = entityManager.createQuery(userCountSql.toString());
+
+        query.setParameter("searchUsername", searchUsername);
+        query.setParameter("searchForename", searchForename);
+        query.setParameter("searchSurname", searchSurname);
+        query.setParameter("searchEmail", searchEmail);
+        if (!staff && patient) {
+            query.setParameter("searchIdentifier", searchIdentifier);
+        }
+        query.setParameter("groupIds", groupIds);
+        query.setParameter("roleIds", roleIds);
+
+        countQuery.setParameter("searchUsername", searchUsername);
+        countQuery.setParameter("searchForename", searchForename);
+        countQuery.setParameter("searchSurname", searchSurname);
+        countQuery.setParameter("searchEmail", searchEmail);
+        if (!staff && patient) {
+            countQuery.setParameter("searchIdentifier", searchIdentifier);
+        }
+        countQuery.setParameter("groupIds", groupIds);
+        countQuery.setParameter("roleIds", roleIds);
+
+        if (andGroups) {
+            query.setParameter("groupCount", Long.valueOf(groupIds.size()));
+            countQuery.setParameter("groupCount", Long.valueOf(groupIds.size()));
+        }
+
+        query.setMaxResults(sizeConverted);
+
+        if (pageConverted == 0) {
+            query.setFirstResult(0);
         } else {
-            if (!staff && patient) {
-                users = userRepository.findPatientByGroupsRoles(searchUsername, searchForename, searchSurname,
-                        searchEmail, searchIdentifier, groupIds, roleIds, pageable);
-            }
-
-            if (staff && !patient) {
-                users = userRepository.findStaffByGroupsRoles(searchUsername, searchForename, searchSurname,
-                        searchEmail, groupIds, roleIds, pageable);
-            }
+            query.setFirstResult((sizeConverted * (pageConverted + 1)) - sizeConverted);
         }
 
-        // convert to lightweight transport objects, create Page and return
-        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(users.getContent());
-
-        // handle incorrect page size for 1 result (pageable error?)
-        long total = users.getTotalElements();
-        if (users.getTotalPages() == 1) {
-            total = users.getContent().size();
+        if (dateRange) {
+            DateTime now = new DateTime();
+            DateTime startDate = now.minusMonths(INACTIVE_MONTH_LIMIT);
+            query.setParameter("startDate", startDate.toDate());
+            query.setParameter("endDate", now.toDate());
+            countQuery.setParameter("startDate", startDate.toDate());
+            countQuery.setParameter("endDate", now.toDate());
         }
 
-        return new PageImpl<>(transportContent, pageable, total);
+        List<org.patientview.api.model.User> transportContent = convertUsersToTransportUsers(query.getResultList());
+        return new PageImpl<>(transportContent, pageable, countQuery.getResultList().size());
     }
 
     /**
@@ -1335,5 +1478,115 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     public void setMemberRole(Role memberRole) {
         this.memberRole = memberRole;
+    }
+
+    @Override
+    public String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException {
+        User user = userRepository.findOne(userId);
+        String fileName = "";
+
+        try {
+            fileName = file.getOriginalFilename();
+            byte[] inputBytes = file.getBytes();
+            if (inputBytes == null || inputBytes.length == 0) {
+                throw new ResourceInvalidException("Failed to upload " + fileName + ": empty");
+            }
+
+            InputStream inputStream = new ByteArrayInputStream(inputBytes);
+            BufferedImage bufferedImage = ImageIO.read(inputStream);
+            
+            // detect orientation if set in exif (ipad etc) and rotate image then resize to MAXIMUM_IMAGE_WIDTH
+            Metadata metadata = ImageMetadataReader.readMetadata(file.getInputStream());
+            ExifIFD0Directory exifDirectory = metadata.getDirectory(ExifIFD0Directory.class);
+
+            if (exifDirectory != null && exifDirectory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                switch (orientation) {
+                    case 3:
+                        bufferedImage = transformImage(bufferedImage, 180);
+                        break;
+                    case 6:
+                        bufferedImage = transformImage(bufferedImage, 90);
+                        break;
+                    default:
+                        bufferedImage = transformImage(bufferedImage, 0);
+                        break;
+                }
+            } else {
+                bufferedImage = transformImage(bufferedImage, 0);
+            }
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "jpeg", byteArrayOutputStream);
+            byte[] outputBytes = byteArrayOutputStream.toByteArray();
+            String outputBase64 = new String(Base64.encodeBase64(outputBytes));
+            user.setPicture(outputBase64);
+            userRepository.save(user);
+
+            inputStream.close();
+            byteArrayOutputStream.close();
+            return "Uploaded '" + fileName + "' (" + outputBytes.length + " bytes, " + outputBase64.length() + " char)";
+        } catch (Exception e) {
+            throw new ResourceInvalidException("Failed to upload " + fileName + ": " + e.getMessage());
+        }
+    }
+
+    protected BufferedImage transformImage(BufferedImage image, int angle)
+    {
+        Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
+        int width = image.getWidth();
+        int height = image.getHeight();
+        AffineTransform transform = new AffineTransform();
+        
+        if (angle == 90) {
+            transform.rotate(Math.toRadians(angle), width / 2 * aspect, height / 2);
+            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+            image = op.filter(image, null);
+
+            if (width * aspect > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH / aspect;
+                height = heightDouble.intValue();
+            }
+        } else if (angle == 180) {
+            transform.rotate(Math.toRadians(angle), width / 2, height / 2);
+            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+            image = op.filter(image, null);
+
+            if (width > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
+                height = heightDouble.intValue();
+            }
+        } else {
+            if (width > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
+                height = heightDouble.intValue();
+            }
+        }
+        
+        Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage bufferedScaledImage = new BufferedImage(scaledImage.getWidth(null),
+                scaledImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        bufferedScaledImage.getGraphics().drawImage(scaledImage, 0, 0, null);
+
+        return bufferedScaledImage;
+    }
+    
+    @Override
+    public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        if (!currentUserCanGetUser(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+        if (StringUtils.isNotEmpty(user.getPicture())) {
+            return Base64.decodeBase64(user.getPicture());
+        } else {
+            return null;
+        }
     }
 }

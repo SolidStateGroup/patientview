@@ -206,6 +206,16 @@
                                         </a>
                                     </div>
                                 </li>
+                                <li class="feature-list-item pull-left" data-ng-show="statusFilter.length">
+                                    <div class="feature-list-name pull-left">
+                                        <span class="feature-list-name">{{statusFilter}} staff only</span>
+                                    </div>
+                                    <div class="feature-list-delete pull-left">
+                                        <a href="" data-ng-click="removeStatusFilter()" >
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </a>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -218,6 +228,7 @@
             {{successMessage}}
             <a href="" class="print-success-message" data-ng-click="printSuccessMessage()" data-ng-show="printSuccessMessage">Print</a>
         </div>
+
         <!-- data grid -->
         <div class="faux-table seven-col" data-ng-show="pagedItems.length  > 0" data-ng-cloak>
             <!-- header -->
@@ -282,7 +293,7 @@
                         <hr>
                         <div class="last-login pull-left" data-ng-show="user.lastLogin">Last login: {{user.lastLogin | date:'dd-MMM-yyyy HH:mm'}}</div>
                         <div class="user-save-cancel panel-body-footer">
-                            <button type="button" class="btn btn-grey close-edit pull-right" data-ng-click="user.showEdit = false">Cancel</button>
+                            <button type="button" class="btn btn-grey close-edit pull-right" data-ng-click="user.showEdit = false">Close</button>
                         </div>
                     </div>
                 </div>

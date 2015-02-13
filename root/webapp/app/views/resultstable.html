@@ -9,6 +9,9 @@
     .feature-list {
         margin-top: 10px;
     }
+    .table, .table-responsive {
+        overflow-x: scroll;
+    }
 </style>
 
 <div data-ng-show="!loading">
@@ -32,7 +35,7 @@
                 <h4 class="select-title pull-left">Include Result Type:</h4>
                 <div class="select-result-type pull-left">
                     <select class="form-control pull-right" data-ng-model="selectedCode"
-                            data-ng-options="observationHeading.code as observationHeading.heading for observationHeading in observationHeadings | orderBy:'heading'"
+                            data-ng-options="observationHeading.code as observationHeading.name for observationHeading in observationHeadings | orderBy:'name'"
                             data-ng-change="includeObservationHeading(selectedCode)" >
                     </select>
                 </div>
@@ -40,7 +43,7 @@
                     <ul class="feature-list unstyled name-action-list">
                         <li class="feature-list-item" data-ng-repeat="code in observationHeadingCodes">
                             <div class="feature-list-name pull-left">
-                                <span class="feature-list-name">{{observationHeadingMap[code].heading}}</span>
+                                <span class="feature-list-name">{{observationHeadingMap[code].name}}</span>
                             </div>
                             <div class="feature-list-delete pull-left">
                                 <a href="" data-ng-click="removeObservationHeading(code)" >
@@ -72,19 +75,20 @@
                     </th>
                     <th data-ng-repeat="code in observationHeadingCodes">
                         <a href="" data-ng-click="openObservationHeadingInformation(code)">
-                            {{observationHeadingMap[code].heading}}
+                            {{observationHeadingMap[code].name}}
                         </a>
                     </th>
                 </thead>
                 <tbody>
                     <tr data-ng-repeat="row in pagedItems track by $index">
                         <td data-ng-repeat="item in row track by $index">
-                            <span ng-if="item === row[0]">
+                            <span ng-if="item === row[0]" >
                                 {{item}}
                             </span>
                             <span ng-if="item !== row[0]">
-                                {{item.comparator}}{{item.value}}
+                                <strong>{{item.comparator}}{{item.value}}</strong>
                             </span>
+                            <span class="small" data-ng-show="item.group">&nbsp;({{item.group.shortName}})</span>
                         </td>
                     </tr>
                 </tbody>

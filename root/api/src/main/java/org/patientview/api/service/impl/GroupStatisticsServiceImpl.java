@@ -115,7 +115,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
         groupStatistic.setStatisticPeriod(statisticPeriod);
 
         for (Group group : groupRepository.findAll()) {
-
             groupStatisticRepository.deleteByGroupStartDateAndPeriod(group, startDate, statisticPeriod);
             groupStatistic.setGroup(group);
 
@@ -145,7 +144,6 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
                 groupStatisticRepository.save(groupStatistic);
                 groupStatistic = createGroupStatistic(groupStatistic, group);
             }
-
         }
     }
 

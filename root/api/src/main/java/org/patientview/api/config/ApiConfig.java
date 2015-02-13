@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
@@ -87,5 +88,16 @@ public class ApiConfig {
         threadPoolTaskExecutor.setMaxPoolSize(1);
         threadPoolTaskExecutor.setQueueCapacity(Integer.MAX_VALUE);
         return threadPoolTaskExecutor;
+    }
+
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
+        commonsMultipartResolver.setDefaultEncoding("utf-8");
+        //commonsMultipartResolver.setMaxUploadSize(5000000); // 5MB
+        //commonsMultipartResolver.setMaxUploadSize(1048576); // 1MB
+        commonsMultipartResolver.setMaxUploadSize(10485760); // 10MB
+        //commonsMultipartResolver.setMaxUploadSize(50000); // 50K
+        return commonsMultipartResolver;
     }
 }

@@ -5,16 +5,14 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import generated.Patientview;
+import org.apache.commons.lang.StringUtils;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.importer.Utility.Util;
 import org.patientview.importer.exception.ImportResourceException;
 import org.patientview.importer.manager.ImportManager;
-import org.patientview.importer.Utility.Util;
 import org.patientview.importer.service.AuditService;
-import org.patientview.persistence.model.Audit;
-import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.User;
+import org.patientview.importer.service.EmailService;
 import org.patientview.persistence.model.enums.AuditActions;
-import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -45,6 +43,9 @@ public class QueueProcessor extends DefaultConsumer {
 
     @Inject
     private AuditService auditService;
+
+    @Inject
+    private EmailService emailService;
 
     private Channel channel;
 
@@ -88,7 +89,6 @@ public class QueueProcessor extends DefaultConsumer {
         }
 
         public void run() {
-
             boolean fail = false;
 
             // Unmarshall XML to Patient object
@@ -96,8 +96,9 @@ public class QueueProcessor extends DefaultConsumer {
                 patient = Util.unmarshallPatientRecord(message);
             } catch (ImportResourceException ire) {
                 LOG.error(ire.getMessage());
-                createAudit(AuditActions.PATIENT_DATA_FAIL, null, null, ire.getMessage(), message);
-                sendErrorEmail(ire.getMessage());
+                auditService.createAudit(AuditActions.PATIENT_DATA_FAIL, null, null, 
+                        ire.getMessage(), message, importerUserId);
+                emailService.sendErrorEmail(ire.getMessage(), null, null);
                 fail = true;
             }
 
@@ -105,18 +106,22 @@ public class QueueProcessor extends DefaultConsumer {
             if (!fail && patient.getPatient().getPersonaldetails().getNhsno() == null) {
                 String errorMessage = "Identifier not set in XML";
                 LOG.error(errorMessage);
-                createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL, null, null, errorMessage, message);
-                sendErrorEmail(errorMessage);
+                auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL, null, null, 
+                        errorMessage, message, importerUserId);
+                emailService.sendErrorEmail(errorMessage, null, patient.getCentredetails().getCentrecode());
                 fail = true;
             }
 
             // if group not set
-            if (!fail && patient.getCentredetails() == null) {
+            if ((!fail && patient.getCentredetails() == null)
+                    || (!fail && patient.getCentredetails() != null 
+                    && StringUtils.isEmpty(patient.getCentredetails().getCentrecode()))) {
                 String errorMessage = "Group not set in XML";
                 LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + ": " + errorMessage);
-                createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
-                        patient.getPatient().getPersonaldetails().getNhsno(), null, errorMessage, message);
-                sendErrorEmail(errorMessage);
+                auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
+                        patient.getPatient().getPersonaldetails().getNhsno(), null, errorMessage, 
+                        message, importerUserId);
+                emailService.sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(), null);
                 fail = true;
             }
 
@@ -129,15 +134,17 @@ public class QueueProcessor extends DefaultConsumer {
                     String errorMessage = patient.getPatient().getPersonaldetails().getNhsno() 
                             + " ("
                             + patient.getCentredetails().getCentrecode()
-                            + "): failed validation, "
+                            + "): Failed validation, "
                             + ire.getMessage();
                     LOG.error(errorMessage);
 
-                    createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
+                    auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
                             patient.getPatient().getPersonaldetails().getNhsno(),
-                            patient.getCentredetails().getCentrecode(), ire.getMessage(), message);
+                            patient.getCentredetails().getCentrecode(), ire.getMessage(), message, importerUserId);
                     
-                    sendErrorEmail(errorMessage);
+                    emailService.sendErrorEmail(ire.getMessage(),
+                            patient.getPatient().getPersonaldetails().getNhsno(),
+                            patient.getCentredetails().getCentrecode());
 
                     fail = true;
                 }
@@ -154,11 +161,12 @@ public class QueueProcessor extends DefaultConsumer {
                             + "): could not add. " 
                             + ire.getMessage();
                     LOG.error(errorMessage, ire);
-                    createAudit(AuditActions.PATIENT_DATA_FAIL,
+                    auditService.createAudit(AuditActions.PATIENT_DATA_FAIL,
                             patient.getPatient().getPersonaldetails().getNhsno(),
-                            patient.getCentredetails().getCentrecode(), ire.getMessage(), message);
+                            patient.getCentredetails().getCentrecode(), ire.getMessage(), message, importerUserId);
 
-                    sendErrorEmail(errorMessage);
+                    emailService.sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(),
+                            patient.getCentredetails().getCentrecode());
                 }
             }
         }
@@ -167,40 +175,5 @@ public class QueueProcessor extends DefaultConsumer {
     public void handleDelivery(String customerTag, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] body)
             throws IOException {
         executor.submit(new PatientTask(new String(body)));
-    }
-
-    private void createAudit(AuditActions auditActions, String identifier, String unitCode,
-                             String information, String xml) {
-
-        Audit audit = new Audit();
-        audit.setAuditActions(auditActions);
-        audit.setActorId(importerUserId);
-        audit.setInformation(information);
-        audit.setXml(xml);
-
-        // attempt to set identifier and user being imported from identifier
-        if (identifier != null) {
-            audit.setIdentifier(identifier);
-            User patientUser = auditService.getUserByIdentifier(identifier);
-            if (patientUser != null) {
-                audit.setSourceObjectId(patientUser.getId());
-                audit.setSourceObjectType(AuditObjectTypes.User);
-                audit.setUsername(patientUser.getUsername());
-            }
-        }
-
-        // attempt to set group doing the importing
-        if (unitCode != null) {
-            Group group = auditService.getGroupByCode(unitCode);
-            if (group != null) {
-                audit.setGroup(group);
-            }
-        }
-
-        auditService.save(audit);
-    }
-    
-    private void sendErrorEmail(String errorMessage) {
-        
     }
 }

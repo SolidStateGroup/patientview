@@ -166,7 +166,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throws UsernameNotFoundException, AuthenticationServiceException {
 
         LOG.debug("Authenticating user: {}", username);
-
+        
+        // trim username (ipad adds space if you tap space after username to auto enter details)
+        username = username.trim();
         User user = userRepository.findByUsernameCaseInsensitive(username);
 
         if (user == null) {
@@ -180,6 +182,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (user.getDeleted()) {
             throw new AuthenticationServiceException("This account has been deleted");
         }
+        
+        // strip spaces from beginning and end of password
+        password = password.trim();
 
         if (!user.getPassword().equals(DigestUtils.sha256Hex(password))) {
             auditService.createAudit(AuditActions.LOGON_FAIL, user.getUsername(), user,
@@ -188,11 +193,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new AuthenticationServiceException("Incorrect username or password");
         }
 
-
         Date now = new Date();
-
-        auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
-                user.getId(), AuditObjectTypes.User, null);
 
         UserToken userToken = new UserToken();
         userToken.setUser(user);
@@ -220,6 +221,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
 
         userRepository.save(user);
+
+        auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
+                user.getId(), AuditObjectTypes.User, null);
 
         return userToken.getToken();
     }

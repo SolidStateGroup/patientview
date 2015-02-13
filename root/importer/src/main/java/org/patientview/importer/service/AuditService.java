@@ -1,9 +1,7 @@
 package org.patientview.importer.service;
 
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.patientview.persistence.model.Audit;
-import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.AuditActions;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,14 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface AuditService {
-
-    Audit save(Audit audit);
-
+    
     Long getImporterUserId() throws ResourceNotFoundException;
 
-    User getUserByIdentifier(String identifier);
-
-    Group getGroupByCode(String unitCode);
+    void createAudit(AuditActions auditActions, String identifier, String unitCode,
+                     String information, String xml, Long importerUserId);
 }
-
-

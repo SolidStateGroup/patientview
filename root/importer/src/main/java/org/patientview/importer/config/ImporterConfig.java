@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.inject.Inject;
@@ -79,5 +80,25 @@ public class ImporterConfig {
     @Bean
     public ExecutorService executorServiceBean() {
         return Executors.newFixedThreadPool(20);
+    }
+
+    @Bean
+    public JavaMailSenderImpl javaMailSender() {
+        final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+
+        javaMailSender.setHost(properties.getProperty("smtp.host"));
+        javaMailSender.setUsername(properties.getProperty("smtp.username"));
+        javaMailSender.setPassword(properties.getProperty("smtp.password"));
+
+        Properties javaMailProperties = new Properties();
+        javaMailProperties.setProperty("mail.debug", properties.getProperty("mail.debug"));
+        javaMailProperties.setProperty("mail.smtp.auth", properties.getProperty("mail.smtp.auth"));
+        javaMailProperties.setProperty("mail.smtp.ssl.enable", properties.getProperty("mail.smtp.ssl.enable"));
+        javaMailProperties.setProperty("mail.smtp.starttls.enable",
+                properties.getProperty("mail.smtp.starttls.enable"));
+        javaMailProperties.setProperty("mail.smtp.port", properties.getProperty("mail.smtp.port"));
+        javaMailSender.setJavaMailProperties(javaMailProperties);
+
+        return javaMailSender;
     }
 }

@@ -28,6 +28,9 @@ public class GetParameters {
     private String searchSurname;
     private String searchIdentifier;
     private String searchEmail;
+    
+    // for filtering users by status (e.g. locked, active, inactive)
+    private String statusFilter;
 
     public GetParameters() {
     }
@@ -190,5 +193,13 @@ public class GetParameters {
 
     public void setSearchEmail(String searchEmail) {
         this.searchEmail = searchEmail;
+    }
+
+    public String getStatusFilter() {
+        return statusFilter;
+    }
+
+    public void setStatusFilter(String statusFilter) {
+        this.statusFilter = statusFilter;
     }
 }

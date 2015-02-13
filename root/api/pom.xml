@@ -22,6 +22,20 @@
     </properties>
 
     <dependencies>
+
+        <!-- for extracting exif data from images -->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+        
+        <!-- required for sort order null handling -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+            <version>1.7.2.RELEASE</version>
+        </dependency>
         
         <!-- Swagger.io, for API documentation, see https://github.com/martypitt/swagger-springmvc -->
         <dependency>
@@ -154,7 +168,6 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.8.0</version>
         </dependency>
-
 
         <dependency>
             <groupId>commons-discovery</groupId>

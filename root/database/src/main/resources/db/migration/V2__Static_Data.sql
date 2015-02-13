@@ -131,7 +131,7 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (54, now(),
-'INACTIVE_USER_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN :startDate AND :endDate) OR u.last_login IS NULL) AND u.deleted = false','1','10');
+'INACTIVE_USER_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN LOCALTIMESTAMP - INTERVAL ''3 months'' AND LOCALTIMESTAMP) OR u.last_login IS NULL) AND u.deleted = false','1','10');
 
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (55, now(),
@@ -140,6 +140,14 @@ INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, l
 /* new in pv2 */
 INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (56, now(),
 'USER_COUNT','SELECT COUNT(DISTINCT(ugr.user_id)) FROM pv_user_group_role ugr, pv_user u WHERE ugr.group_id = :groupId AND ugr.user_id = u.id AND u.deleted = false','1','10');
+
+/* new in pv2 */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (58, now(),
+'INACTIVE_PATIENT_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND (NOT (u.last_login BETWEEN LOCALTIMESTAMP - INTERVAL ''3 months'' AND LOCALTIMESTAMP) OR u.last_login IS NULL) AND u.deleted = false AND gr.role_id = 1','1','10');
+
+/* new in pv2 */
+INSERT INTO pv_lookup_value(id, creation_date, value, description, created_by, lookup_type_id) VALUES (59, now(),
+'LOCKED_PATIENT_COUNT', 'SELECT COUNT(u.id) FROM pv_user u, pv_user_group_role gr WHERE gr.group_id = :groupId AND gr.user_id = u.id AND u.locked = true AND u.deleted = false AND gr.role_id = 1','1','10');
 
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (1, 'Generic', 'Generic', 'Generic', null, 2, false, now(),1, false );
 INSERT INTO pv_group(id, Group_Name, Group_Short_Name, Code, Sftp_User, Type_Id, Visible, Creation_Date,Created_By, Visible_To_Join) VALUES (2, 'Renal', 'Renal', 'Renal', null, 2, true, now(),1 , true);
@@ -171,6 +179,7 @@ INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (6, 'PATIENT_SUPPORT_CONTACT', 'Patient Support Contact', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (7, 'DEFAULT_MESSAGING_CONTACT', 'Default Messaging Contact', now(), now(), 1);
 INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (8, 'KEEP_ALL_DATA', 'Keep All Data', now(), now(), 1);
+INSERT INTO pv_feature (id, feature_name, description, start_date, creation_date, created_by) VALUES (9, 'CENTRAL_SUPPORT_CONTACT', 'Central Support Contact', now(), now(), 1);
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (1, 1, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (2, 1, 15);
@@ -181,6 +190,7 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (11, 6, 15)
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (12, 7, 15);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (13, 8, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (14, 4, 16);
+INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (15, 9, 15);
 
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 4, 10,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );

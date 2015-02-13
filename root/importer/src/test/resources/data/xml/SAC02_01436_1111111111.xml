@@ -13,8 +13,8 @@
 <centretelephone>01563 521133</centretelephone>
 </centredetails>
 <gpdetails>
-<gpname>O'DONNEL</gpname>
-<gpaddress1>Templehill Surgery</gpaddress1>
+<gpname>O'DONNEL2</gpname>
+<gpaddress1>O'DONNEL</gpaddress1>
 <gpaddress2>23 Templehill</gpaddress2>
 <gpaddress3>Troon</gpaddress3>
 <gpaddress4>Ayrshire</gpaddress4>
@@ -25,7 +25,7 @@
 <personaldetails>
 <surname>patbsur</surname>
 <forename>patbfore</forename>
-<dateofbirth>1944-09-27</dateofbirth>
+<dateofbirth>1944-01-01</dateofbirth>
 <sex>Female</sex>
 <nhsno>1111111111</nhsno>
 <hospitalnumber>125634</hospitalnumber>

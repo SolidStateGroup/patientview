@@ -6,6 +6,17 @@
         color: #940012;
     }
 </style>
+
+<div class="alert alert-danger" id="timeout" data-ng-show="authToken">
+    <p align="center">YOU ARE ABOUT TO BE LOGGED OUT FOR INACTIVITY</p>
+    <p align="center">Please <a href="" data-ng-click="resetTimeoutTimers()">CLICK HERE</a> to stay logged in.</p>
+</div>
+        
+<div class="alert alert-danger" data-ng-show="showTestHeader()">
+    <p align="center">THIS IS A COPY OF PATIENTVIEW USED FOR TESTING - PLEASE LOG IN AT THE MAIN SITE</p>
+    <p align="center">Please visit <a href="https://www.patientview.org">www.patientview.org</a></p>
+</div>
+        
 <div data-ng-show="previousAuthToken && !switchingUser" class="container" data-ng-cloak>
     <div class="back-to-admin clearfix">
         <a href="" class="blue pull-left" data-ng-click="switchUserBack()"> <i class="icon-back-to pull-left"></i> Back to Admin Area</a>
@@ -87,7 +98,7 @@
                 <ul class="secondary-nav nav nav-pills pull-left">
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP'" data-ng-class="{active: title === menuitem.title}">
                         <a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}
-                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="badge badge-small warning">{{submittedJoinRequestCount}}</span>
+                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0"> ({{submittedJoinRequestCount}})</span>
                         </a>
                     </li>
                 </ul>

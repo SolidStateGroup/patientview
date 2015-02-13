@@ -7,6 +7,9 @@
         color: #fff;
         cursor: pointer;
     }
+    .user-picture {
+        max-width: 100%;
+    }
 </style>
 
 <div data-ng-show="!loading" data-ng-cloak>
@@ -89,8 +92,6 @@
                 </div>
             </div>
 
-
-
             <div class="content-panel" data-ng-show="chartLoading && !permissions.isPatient">
                 <div class="loading"><img src="images/loading.gif" alt="Loading"/><br/><br/></div>
             </div>
@@ -98,27 +99,44 @@
             <div class="content-panel" data-ng-show="!chartLoading && !permissions.isPatient && statisticsDate">
                 <div class="panel-intro">
                     <h3>Statistics for '{{allGroups[graphGroupId].name}}' <span class="light-text">&nbsp;&nbsp;updated {{statisticsDate | date:'dd-MMM-yyyy'}}</span></h3>
+                    <p>Values are calculated daily, please click to see more, numbers are Total (Staff/Patient) counts</p>
                 </div>
                 <div class="user-details-container">
                     <div class="user-details">
                         <div class="row">
                             <dl class="col-md-4">
                                 <dt>Total Users</dt>
-                                <dd>{{totalUsers}}</dd>
+                                <dd>
+                                    {{totalUsers}} 
+                                    (<a href="#/staff?groupId={{graphGroupId}}">{{totalStaff}}</a> /
+                                    <a href="#/patients?groupId={{graphGroupId}}">{{totalPatients}}</a>)
+                                </dd>
                             </dl>
                             <dl class="col-md-6">
                                 <dt>Locked Users</dt>
-                                <dd>{{lockedUsers}}</dd>
+                                <dd>
+                                    {{lockedUsers}} 
+                                    (<a href="#/staff?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedStaff}}</a> /
+                                    <a href="#/patients?statusFilter=LOCKED&groupId={{graphGroupId}}">{{lockedPatients}}</a>)
+                                </dd>
                             </dl>
                         </div>
                         <div class="row">
                             <dl class="col-md-4">
                                 <dt>Active Users</dt>
-                                <dd>{{activeUsers}}</dd>
+                                <dd>
+                                    {{activeUsers}}
+                                    (<a href="#/staff?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activeStaff}}</a> /
+                                    <a href="#/patients?statusFilter=ACTIVE&groupId={{graphGroupId}}">{{activePatients}}</a>)
+                                </dd>
                             </dl>
                             <dl class="col-md-6">
-                                <dt>Inactive Users (no login in 1 month)</dt>
-                                <dd>{{inactiveUsers}}</dd>
+                                <dt>Inactive Users (no login in 3 months)</dt>
+                                <dd>
+                                    {{inactiveUsers}}
+                                    (<a href="#/staff?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactiveStaff}}</a> /
+                                    <a href="#/patients?statusFilter=INACTIVE&groupId={{graphGroupId}}">{{inactivePatients}}</a>)
+                                </dd>
                             </dl>
                         </div>
                     </div>
@@ -129,8 +147,6 @@
                 <div class="content-panel">
                     <div class="panel-intro">
                         <h3>Alerts</h3>
-                        <p>When a new result or letter arrives you might wish to be notified. <br/>Click 'Show Alert Settings' to
-                            select the ones you are interested in.</p>
                     </div>
                     <div class="content-inner">
                         <div data-ng-show="alertObservationHeadings.length" class="alert-list">
@@ -192,6 +208,10 @@
                                     </td>
                                 </tr>
                             </table>
+                        </div>
+                        <div>
+                            <p>When a new result or letter arrives you might wish to be notified. <br/>Click 'Show Alert Settings' to
+                                select the ones you are interested in.</p>
                         </div>
                         <div data-ng-show="!alertObservationHeadings.length && !letterAlert" class="alert-list">
                             <p>You have not registered for any alerts, would you like to do so now?</p>
@@ -288,6 +308,9 @@
                 <h3><span class="badge aqua pull-left"><i class="icon-settings"></i></span>Your Settings</h3>
             </div>
             <div class="user-details content-panel">
+                <div data-ng-show="loggedInUser.picture.length">
+                    <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
+                </div>
                 <ul class="unstyled">
                     <li><h4>Username: {{loggedInUser.username}}</h4></li>
                     <li data-ng-show="loggedInUser.email">Email: {{loggedInUser.email}}</li>

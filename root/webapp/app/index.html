@@ -58,7 +58,7 @@
                 <ul class="inline unstyled pull-right legal-links col-md-4">
                     <li><a href="#/privacy">Privacy Policy</a></li>
                     <li><a href="#/terms">Terms &amp; Conditions</a></li>
-                    <li>Patient View 2014 &copy;</li>
+                    <li>Patient View {{getCurrentTime().getFullYear()}} &copy;</li>
                     <li>Version: {{buildDateTime | date:'yyyy.MM.dd.HH.ss'}}</li>
                 </ul>
                 <div class="partner-info col-md-4">
@@ -120,7 +120,11 @@
         <script src="bower_components/highstock-release/highcharts-more.js"></script>
         <script src="bower_components/highstock-release/modules/exporting.js"></script>
         <script src="bower_components/angular-bindonce/bindonce.js"></script>
+        <script src="bower_components/fastclick/lib/fastclick.js"></script>
+        <script src="bower_components/angular-file-upload/angular-file-upload.js"></script>
         <!-- endbower -->
+        <!-- required for ie8 and file upload, not included by bower by default -->
+        <script src="bower_components/es5-shim/es5-sham.js"></script>
         <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->

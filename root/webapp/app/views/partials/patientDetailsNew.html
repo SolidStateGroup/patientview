@@ -26,22 +26,28 @@
 <br/>
 <div class="row">
     <div class="col-md-6">
-        <label class="control-label">Date Of Birth</label>
+        <label class="control-label">Date Of Birth  </label>
         <div class="dob-row">
             <div class="col-md-4 day">
-                Day:<select data-ng-model="editUser.selectedDay"
+                Day:
+                <span class="error" data-ng-show="!editUser.selectedDay && !userFormNew.$pristine">required</span>
+                <select data-ng-model="editUser.selectedDay"
                             data-ng-options="option as option for option in days"
-                            class="form-control"></select>
+                            class="form-control" required></select>
             </div>
             <div class="col-md-4">
-                Month:<select data-ng-model="editUser.selectedMonth"
+                Month:
+                <span class="error" data-ng-show="!editUser.selectedMonth && !userFormNew.$pristine">required</span>
+                <select data-ng-model="editUser.selectedMonth"
                               data-ng-options="option as option for option in months"
-                              class="form-control"></select>
+                              class="form-control" required></select>
             </div>
             <div class="col-md-4 year">
-                Year:<select data-ng-model="editUser.selectedYear"
+                Year:
+                <span class="error" data-ng-show="!editUser.selectedYear && !userFormNew.$pristine">required</span>
+                <select data-ng-model="editUser.selectedYear"
                              data-ng-options="option as option for option in years"
-                             class="form-control"></select>
+                             class="form-control" required></select>
             </div>
         </div>
     </div>

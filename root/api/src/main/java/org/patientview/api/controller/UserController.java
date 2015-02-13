@@ -9,6 +9,7 @@ import org.patientview.api.service.UserService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.persistence.model.GetParameters;
@@ -19,6 +20,8 @@ import org.patientview.persistence.model.enums.MigrationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -273,6 +277,31 @@ public class UserController extends BaseController<UserController> {
             throw new ResourceNotFoundException();
         } else {
             return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+    }
+
+    // changing the picture associated with a user account
+    @RequestMapping(value = "/user/{userId}/picture", method = RequestMethod.POST,
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    @ResponseBody
+    public ResponseEntity<String> changePicture(@PathVariable("userId") Long userId,
+                              @RequestParam("file") MultipartFile file)
+            throws ResourceInvalidException {
+        return new ResponseEntity<>(userService.addPicture(userId, file), HttpStatus.OK);
+    }
+
+    // get user picture
+    @RequestMapping(value = "/user/{userId}/picture", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+    public HttpEntity<byte[]> getPicture(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        byte[] picture = userService.getPicture(userId);
+        if (picture != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG); //or what ever type it is
+            headers.setContentLength(picture.length);
+            return new HttpEntity<>(picture, headers);
+        } else {
+            return new HttpEntity<>(null, null);
         }
     }
 }
