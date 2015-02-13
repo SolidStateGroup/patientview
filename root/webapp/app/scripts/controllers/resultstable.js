@@ -29,9 +29,10 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
                 var blankObservationHeading = {};
                 blankObservationHeading.code = $scope.blankCode;
                 blankObservationHeading.heading = ' Please Select..';
+                blankObservationHeading.name = ' Please Select..';
                 observationHeadings.push(blankObservationHeading);
                 $scope.observationHeadings = observationHeadings;
-                $scope.selectedCode = 'blank';
+                $scope.selectedCode = $scope.blankCode;
                 for (i = 0; i < $scope.observationHeadings.length; i++) {
                     $scope.observationHeadingMap[$scope.observationHeadings[i].code] = $scope.observationHeadings[i];
                 }
@@ -68,12 +69,14 @@ function ($scope, $modal, $filter, ObservationService, ObservationHeadingService
             getObservations();
             saveObservationHeadingSelection();
         }
+        $scope.selectedCode = $scope.blankCode;
     };
 
     $scope.removeObservationHeading = function(code) {
         $scope.observationHeadingCodes.splice($scope.observationHeadingCodes.indexOf(code), 1);
         getObservations();
         saveObservationHeadingSelection();
+        $scope.selectedCode = $scope.blankCode;
     };
 
     var saveObservationHeadingSelection = function() {
