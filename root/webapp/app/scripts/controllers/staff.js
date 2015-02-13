@@ -417,7 +417,14 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
     // Init
     $scope.init = function () {
         $scope.initFinished = false;
-        $scope.statusFilter = $routeParams.statusFilter;
+
+        if ($routeParams.statusFilter !== undefined) {
+            var allowedStatusFilters = ['ACTIVE', 'INACTIVE', 'LOCKED'];
+            if (allowedStatusFilters.indexOf($routeParams.statusFilter.toUpperCase()) > -1) {
+                $scope.statusFilter = $routeParams.statusFilter;
+            }
+        }
+        
         if ($routeParams.groupId !== undefined && !isNaN($routeParams.groupId)) {
             $scope.selectedGroup.push(Number($routeParams.groupId));
         }

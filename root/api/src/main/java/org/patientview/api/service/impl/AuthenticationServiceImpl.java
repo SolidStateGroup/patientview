@@ -166,7 +166,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throws UsernameNotFoundException, AuthenticationServiceException {
 
         LOG.debug("Authenticating user: {}", username);
-        
+
         // trim username (ipad adds space if you tap space after username to auto enter details)
         username = username.trim();
         User user = userRepository.findByUsernameCaseInsensitive(username);
@@ -182,7 +182,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (user.getDeleted()) {
             throw new AuthenticationServiceException("This account has been deleted");
         }
-        
+
         // strip spaces from beginning and end of password
         password = password.trim();
 
@@ -312,11 +312,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Override
     public boolean sessionExpired(String authToken) {
-        
         if (authToken == null) {
             return true;
         }
-        
+
         // set expired to 30 mins in future, throw exception if expiration is set and before now
         Date now = new Date();
         Date future = new Date(now.getTime() + sessionLength);

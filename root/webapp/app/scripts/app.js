@@ -239,6 +239,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
 
     $rootScope.$on('$routeChangeSuccess', function(event, currentRoute) {
         $rootScope.title = currentRoute.title;
+        $rootScope.resetTimeoutTimers();
     });
 
     $rootScope.$on('$viewContentLoaded', function(){

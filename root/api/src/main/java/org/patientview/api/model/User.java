@@ -35,7 +35,7 @@ public class User extends BaseUser {
 
     // FHIR
     private Date fhirDateOfBirth;
-    
+
     // picture, in base64
     private String picture;
 
@@ -80,7 +80,7 @@ public class User extends BaseUser {
         setIdentifiers(user.getIdentifiers());
         setDeleted(user.getDeleted());
         setRoleDescription(user.getRoleDescription());
-        
+
         // old method uses base64 to display image, doesn't work in ie8 so just return size as string
         if (StringUtils.isNotEmpty(user.getPicture())) {
             setPicture(Integer.toString(user.getPicture().length()));
