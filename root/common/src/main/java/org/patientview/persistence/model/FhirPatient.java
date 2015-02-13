@@ -7,7 +7,6 @@ import org.hl7.fhir.instance.model.Identifier;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -19,6 +18,7 @@ public class FhirPatient extends BaseModel {
     private String forename;
     private String surname;
     private Date dateOfBirth;
+    private String dateOfBirthNoTime;
     private String gender;
     private String address1;
     private String address2;
@@ -51,10 +51,8 @@ public class FhirPatient extends BaseModel {
         // date of birth if present
         DateAndTime fhirDateOfBirth = patient.getBirthDateSimple();
         if (fhirDateOfBirth != null) {
-            dateOfBirth = new Date(fhirDateOfBirth.toCalendar().getTimeInMillis());
-
-            // account for FHIR incorrectly converting calendar month
-            dateOfBirth.setMonth(dateOfBirth.getMonth()-1);
+            dateOfBirth = fhirDateOfBirth.toCalendar().getTime();
+            dateOfBirthNoTime = fhirDateOfBirth.toString().split("T")[0];
         }
 
         // gender/sex
@@ -208,5 +206,13 @@ public class FhirPatient extends BaseModel {
 
     public void setPractitioner(FhirPractitioner practitioner) {
         this.practitioner = practitioner;
+    }
+
+    public String getDateOfBirthNoTime() {
+        return dateOfBirthNoTime;
+    }
+
+    public void setDateOfBirthNoTime(String dateOfBirthNoTime) {
+        this.dateOfBirthNoTime = dateOfBirthNoTime;
     }
 }
