@@ -348,10 +348,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         User creator = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         creator = userRepository.findOne(creator.getId());
         User entityUser = findEntityUser(userId);
-        
-        // handle comments to central PatientView support (sent via standard contact mechanism in UI but does not 
+
+        // handle comments to central PatientView support (sent via standard contact mechanism in UI but does not
         // create a conversation, simply emails address set in properties
-        if (conversation.getStaffFeature() != null 
+        if (conversation.getStaffFeature() != null
                 && conversation.getStaffFeature().equals(FeatureType.CENTRAL_SUPPORT_CONTACT)) {
             sendNewCentralSupportEmail(entityUser, conversation);
         } else {
@@ -384,8 +384,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newConversation.setMessages(messageSet);
 
             // set conversation users
-            Set<ConversationUser> conversationUsers = createEntityConversationUserSet(conversation.getConversationUsers(),
-                    newConversation, creator);
+            Set<ConversationUser> conversationUsers 
+                    = createEntityConversationUserSet(conversation.getConversationUsers(), newConversation, creator);
             newConversation.setConversationUsers(conversationUsers);
 
             // send email notification to conversation users

@@ -5,6 +5,11 @@
         padding-top: 10px;
         color: #940012;
     }
+    .label-join-request {
+        margin-left: 10px;
+        position: relative;
+        top: -2px;
+    }
 </style>
 
 <div class="alert alert-danger" id="timeout" data-ng-show="authToken">
@@ -98,7 +103,9 @@
                 <ul class="secondary-nav nav nav-pills pull-left">
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP'" data-ng-class="{active: title === menuitem.title}">
                         <a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}
-                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0"> ({{submittedJoinRequestCount}})</span>
+                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="label label-warning label-join-request"> 
+                                {{submittedJoinRequestCount}}
+                            </span>
                         </a>
                     </li>
                 </ul>

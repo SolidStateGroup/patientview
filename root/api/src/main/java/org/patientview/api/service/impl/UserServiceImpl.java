@@ -157,7 +157,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private EntityManager entityManager;
-    
+
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
@@ -165,6 +165,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private static final int INACTIVE_MONTH_LIMIT = 3;
     // used for image resizing
     private static final int MAXIMUM_IMAGE_WIDTH = 400;
+    private static final int ONE_HUNDRED_AND_EIGHTY = 180;
+    private static final int TWO_HUNDRED_AND_SEVENTY = 270;
+    private static final int NINETY = 90;
     private Group genericGroup;
     private Role memberRole;
 
@@ -587,9 +590,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void deleteFhirLinks(Long userId) {
-        
         Set<Long> fhirLinkIdentifierIds = new HashSet<>();
-        
+
         User user = userRepository.findOne(userId);
         if (user.getFhirLinks() != null) {
             for (FhirLink fhirLink : user.getFhirLinks()) {
@@ -1494,19 +1496,23 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             InputStream inputStream = new ByteArrayInputStream(inputBytes);
             BufferedImage bufferedImage = ImageIO.read(inputStream);
-            
+
             // detect orientation if set in exif (ipad etc) and rotate image then resize to MAXIMUM_IMAGE_WIDTH
             Metadata metadata = ImageMetadataReader.readMetadata(file.getInputStream());
             ExifIFD0Directory exifDirectory = metadata.getDirectory(ExifIFD0Directory.class);
 
             if (exifDirectory != null && exifDirectory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                LOG.info("" + orientation);
                 switch (orientation) {
                     case 3:
-                        bufferedImage = transformImage(bufferedImage, 180);
+                        bufferedImage = transformImage(bufferedImage, ONE_HUNDRED_AND_EIGHTY);
                         break;
                     case 6:
-                        bufferedImage = transformImage(bufferedImage, 90);
+                        bufferedImage = transformImage(bufferedImage, NINETY);
+                        break;
+                    case 8:
+                        bufferedImage = transformImage(bufferedImage, TWO_HUNDRED_AND_SEVENTY);
                         break;
                     default:
                         bufferedImage = transformImage(bufferedImage, 0);
@@ -1531,14 +1537,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    protected BufferedImage transformImage(BufferedImage image, int angle)
-    {
+    protected BufferedImage transformImage(BufferedImage image, int angle) {
         Double aspect = Double.valueOf(image.getHeight()) / Double.valueOf(image.getWidth());
         int width = image.getWidth();
         int height = image.getHeight();
         AffineTransform transform = new AffineTransform();
-        
-        if (angle == 90) {
+
+        if (angle == NINETY) {
             transform.rotate(Math.toRadians(angle), width / 2 * aspect, height / 2);
             AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
             image = op.filter(image, null);
@@ -1548,7 +1553,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 Double heightDouble = MAXIMUM_IMAGE_WIDTH / aspect;
                 height = heightDouble.intValue();
             }
-        } else if (angle == 180) {
+        } else if (angle == ONE_HUNDRED_AND_EIGHTY) {
             transform.rotate(Math.toRadians(angle), width / 2, height / 2);
             AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
             image = op.filter(image, null);
@@ -1558,6 +1563,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
                 height = heightDouble.intValue();
             }
+        } else if (angle == TWO_HUNDRED_AND_SEVENTY) {
+            image = transformImage(image, 180);
+            image = transformImage(image, 90);
+            Double widthDouble = image.getWidth() * aspect;
+            width = widthDouble.intValue();
+            height = image.getHeight();
         } else {
             if (width > MAXIMUM_IMAGE_WIDTH) {
                 width = MAXIMUM_IMAGE_WIDTH;

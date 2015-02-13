@@ -170,6 +170,7 @@ import java.util.UUID;
             }
         } catch (Exception ignore) {
             // do nothing, could be due to JSON error, missing data etc
+            return "";
         }
 
         return "";
