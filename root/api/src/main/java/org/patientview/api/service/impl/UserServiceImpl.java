@@ -166,6 +166,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     // used for image resizing
     private static final int MAXIMUM_IMAGE_WIDTH = 400;
     private static final int ONE_HUNDRED_AND_EIGHTY = 180;
+    private static final int TWO_HUNDRED_AND_SEVENTY = 270;
     private static final int NINETY = 90;
     private Group genericGroup;
     private Role memberRole;
@@ -1509,6 +1510,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     case 6:
                         bufferedImage = transformImage(bufferedImage, NINETY);
                         break;
+                    case 9:
+                        bufferedImage = transformImage(bufferedImage, TWO_HUNDRED_AND_SEVENTY);
+                        break;
                     default:
                         bufferedImage = transformImage(bufferedImage, 0);
                         break;
@@ -1556,6 +1560,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             if (width > MAXIMUM_IMAGE_WIDTH) {
                 width = MAXIMUM_IMAGE_WIDTH;
                 Double heightDouble = MAXIMUM_IMAGE_WIDTH * aspect;
+                height = heightDouble.intValue();
+            }
+        } else if (angle == TWO_HUNDRED_AND_SEVENTY) {
+            transform.rotate(Math.toRadians(angle), width / 2 * aspect, height / 2);
+            AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+            image = op.filter(image, null);
+
+            if (width * aspect > MAXIMUM_IMAGE_WIDTH) {
+                width = MAXIMUM_IMAGE_WIDTH;
+                Double heightDouble = MAXIMUM_IMAGE_WIDTH / aspect;
                 height = heightDouble.intValue();
             }
         } else {
