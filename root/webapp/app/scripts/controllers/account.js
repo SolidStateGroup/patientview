@@ -133,4 +133,13 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             $scope.uploadingPicture = false;
         }
     };
+        
+    $scope.deletePicture = function() {
+        UserService.deletePicture($rootScope.loggedInUser.id).then(function (data) {
+            delete $rootScope.loggedInUser.picture;
+            getUser();
+        }, function () {
+           alert('Error removing photo');
+        });
+    };
 }]);

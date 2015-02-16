@@ -1609,4 +1609,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         return (userRepository.findByUsernameCaseInsensitive(username) != null);
     }
+
+    @Override
+    public void deletePicture(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        user.setPicture(null);
+        userRepository.save(user);
+    }
 }

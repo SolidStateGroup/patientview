@@ -538,4 +538,26 @@ public class UserControllerTest {
             fail("Exception throw");
         }
     }
+
+    @Test
+    public void testDeletePicture() throws ResourceNotFoundException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/user/" + user.getId() + "/picture"))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        }
+        catch (Exception e) {
+            fail("Exception: " + e.getCause());
+        }
+    }
 }

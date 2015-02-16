@@ -360,6 +360,17 @@ function ($q, Restangular, UtilService) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
+        },
+        // Delete picture associated with user
+        deletePicture: function (userId) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/picture
+            Restangular.one('user', userId).one('picture').remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
         }
     };
 }]);

@@ -319,6 +319,13 @@ public class UserController extends BaseController<UserController> {
         }
     }
 
+    // delete picture associated with a user account
+    @RequestMapping(value = "/user/{userId}/picture", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deletePicture(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
+        userService.deletePicture(userId);
+    }
+
     // used when searching for existing staff
     @RequestMapping(value = "/user/usernameexists/{username}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)

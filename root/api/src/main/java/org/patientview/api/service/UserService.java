@@ -148,4 +148,7 @@ public interface UserService {
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
             RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
     boolean usernameExists(String username);
+
+    @UserOnly
+    void deletePicture(Long userId) throws ResourceNotFoundException;
 }
