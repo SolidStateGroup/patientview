@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 
 /**
+ * RESTful interface for the basic Crud operation for ContactPoints, a property of Groups.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 30/07/2014
  */
@@ -30,27 +32,34 @@ public class ContactPointController extends BaseController<ContactPointControlle
     @Inject
     private ContactPointService contactPointService;
 
+    /**
+     * Add a new ContactPoint to a Group 
+     * @param groupId ID of Group to add ContactPoint to
+     * @param contactPoint ContactPoint object containing all required properties
+     * @return ContactPoint, newly created (consider only returning ID or HTTP OK)
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<ContactPoint> add(@PathVariable("groupId") Long groupId,
+                                            @RequestBody ContactPoint contactPoint)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        return new ResponseEntity<>(contactPointService.add(groupId, contactPoint), HttpStatus.CREATED);
+    }
+
+    /**
+     * Delete a ContactPoint given an ID. 
+     * @param contactPointId ID of ContactPoint to delete.
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/contactpoint/{contactPointId}", method = RequestMethod.DELETE)
     @ResponseBody
     public void delete(@PathVariable("contactPointId") Long contactPointId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         contactPointService.delete(contactPointId);
-    }
-
-    @RequestMapping(value = "/contactpoint", method = RequestMethod.PUT)
-    @ResponseBody
-    public void save(@RequestBody ContactPoint contactPoint)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        contactPointService.save(contactPoint);
-    }
-
-    @RequestMapping(value = "/group/{groupId}/contactpoints", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<ContactPoint> add(@PathVariable("groupId") Long groupId,
-                                                        @RequestBody ContactPoint contactPoint)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(contactPointService.add(groupId, contactPoint), HttpStatus.CREATED);
     }
 
     // used by migration
@@ -59,5 +68,18 @@ public class ContactPointController extends BaseController<ContactPointControlle
     public ResponseEntity<ContactPointType> getContactPointType(@PathVariable(value = "type") String type)
             throws ResourceInvalidException {
         return new ResponseEntity<>(contactPointService.getContactPointType(type), HttpStatus.OK);
+    }
+
+    /**
+     * Save an updated ContactPoint
+     * @param contactPoint ContactPoint object to save
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/contactpoint", method = RequestMethod.PUT)
+    @ResponseBody
+    public void save(@RequestBody ContactPoint contactPoint)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        contactPointService.save(contactPoint);
     }
 }

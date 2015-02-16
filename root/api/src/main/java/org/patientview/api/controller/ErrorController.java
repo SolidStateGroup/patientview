@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * Not currently used, originally to manage redirects from authentication failures.
+ *
+ * @deprecated
  * Created by james@solidstategroup.com
  * Created on 23/07/2014
  */

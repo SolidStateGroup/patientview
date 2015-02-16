@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 
 /**
+ * RESTful interface for retrieving Audit (log) information.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 12/11/2014
  */
@@ -27,11 +29,18 @@ public class AuditController extends BaseController<AuditController> {
     @Inject
     private AuditService auditService;
 
+    /**
+     * Gets a Page of Audit information, with pagination parameters passed in as GetParameters
+     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size 
+     * of page etc
+     * @return Page containing a number of Audit objects, each of which has a Date, Action etc
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/audit", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Page<Audit>> findAll(GetParameters getParameters)
             throws ResourceNotFoundException, ResourceForbiddenException {
-
         return new ResponseEntity<>(auditService.findAll(getParameters), HttpStatus.OK);
     }
 }

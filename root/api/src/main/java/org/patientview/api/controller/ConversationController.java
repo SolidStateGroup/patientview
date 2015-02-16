@@ -8,8 +8,6 @@ import org.patientview.api.model.Message;
 import org.patientview.api.service.ConversationService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -30,6 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * RESTful interface for Conversations and Messages, including unread count. Conversations have Message objects as
+ * children and can be associated with multiple Users. 
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014.
  */
@@ -37,11 +38,30 @@ import java.util.List;
 @ExcludeFromApiDoc
 public class ConversationController extends BaseController<ConversationController> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConversationController.class);
-
     @Inject
     private ConversationService conversationService;
 
+    /**
+     * Add a Message to an existing Conversation.
+     * @param conversationId ID of Conversation to add Message to
+     * @param message Message object
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/conversation/{conversationId}/messages", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void addMessage(@PathVariable("conversationId") Long conversationId, @RequestBody Message message)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        conversationService.addMessage(conversationId, message);
+    }
+
+    /**
+     * Get a Conversation, including Messages given a Conversation ID.
+     * @param conversationId ID of Conversation to retrieve
+     * @return
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/conversation/{conversationId}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<org.patientview.api.model.Conversation> getConversation(
@@ -50,6 +70,16 @@ public class ConversationController extends BaseController<ConversationControlle
         return new ResponseEntity<>(conversationService.findByConversationId(conversationId), HttpStatus.OK);
     }
 
+    /**
+     * Get a Page of Conversation objects given a User (who is a member of the Conversations). Note: simplified
+     * pagination using just page size and page number as parameters.
+     * @param userId ID of User to retrieve Conversations for
+     * @param size Integer size of page (for pagination)
+     * @param page Integer page number (for pagination)
+     * @return Page of Conversation objects
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @CacheEvict(value = "unreadConversationCount", allEntries = true)
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,7 +88,6 @@ public class ConversationController extends BaseController<ConversationControlle
             @PathVariable("userId") Long userId, @RequestParam(value = "size", required = false) String size,
             @RequestParam(value = "page", required = false) String page)
             throws ResourceNotFoundException, ResourceForbiddenException {
-
         Integer pageConverted = null, sizeConverted = null;
         PageRequest pageable;
 
@@ -76,19 +105,19 @@ public class ConversationController extends BaseController<ConversationControlle
             pageable = new PageRequest(0, Integer.MAX_VALUE);
         }
 
-        LOG.debug("Request has been received for conversations of userId : {}", userId);
         return new ResponseEntity<>(conversationService.findByUserId(userId, pageable), HttpStatus.OK);
     }
 
-    @Cacheable(value = "unreadConversationCount")
-    @RequestMapping(value = "/user/{userId}/conversations/unreadcount", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Long> getUnreadConversationCount(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
-    }
-
+    /**
+     * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new 
+     * Conversation to populate the dropdown of available recipients after a Group is selected. 
+     * Note: not currently used due to speed concerns when rendering large lists client-side in ie8. 
+     * @param userId ID of User retrieving available Conversation recipients
+     * @param groupId ID of Group to find available Conversation recipients for
+     * @return Object containing Lists of BaseUser organised by Role
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/user/{userId}/conversations/recipients", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -98,21 +127,45 @@ public class ConversationController extends BaseController<ConversationControlle
         return new ResponseEntity<>(conversationService.getRecipients(userId, groupId), HttpStatus.OK);
     }
 
+    /**
+     * Fast method of returning available Conversation recipients when a User has selected a Group in the UI.
+     * Note: returns HTML as a String to avoid performance issues in ie8
+     * @param userId ID of User retrieving available Conversation recipients
+     * @param groupId ID of Group to find available Conversation recipients for
+     * @return HTML String for dropdown select
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/user/{userId}/conversations/recipientsfast", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> getRecipientsFast(@PathVariable("userId") Long userId,
-                                             @RequestParam(value = "groupId", required = false) Long groupId)
+            @RequestParam(value = "groupId", required = false) Long groupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(conversationService.getRecipientsFast(userId, groupId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/conversation/{conversationId}/messages", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void addMessage(@PathVariable("conversationId") Long conversationId, @RequestBody Message message)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        conversationService.addMessage(conversationId, message);
+    /**
+     * Get the number of unread Messages (those with no read receipt) for a User.
+     * @param userId ID of User to find number of unread messages for
+     * @return Long containing number of unread messages
+     * @throws ResourceNotFoundException
+     */
+    @Cacheable(value = "unreadConversationCount")
+    @RequestMapping(value = "/user/{userId}/conversations/unreadcount", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Long> getUnreadConversationCount(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(conversationService.getUnreadConversationCount(userId), HttpStatus.OK);
     }
 
+    /**
+     * Create a new conversation, including recipients and associated Message.
+     * @param userId ID of User creating Conversation
+     * @param conversation Conversation object containing all required properties and first Message content
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/user/{userId}/conversations", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public void newConversation(@PathVariable("userId") Long userId,
@@ -121,6 +174,13 @@ public class ConversationController extends BaseController<ConversationControlle
         conversationService.addConversation(userId, conversation);
     }
 
+    /**
+     * Add a read receipt for a Message given the Message and User IDs.
+     * @param messageId ID of Message to add read receipt for
+     * @param userId ID of User who has read the Message
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/message/{messageId}/readreceipt/{userId}", method = RequestMethod.PUT)
     @ResponseBody
     public void addMessageReadReceipt(@PathVariable("messageId") Long messageId, @PathVariable("userId") Long userId)
