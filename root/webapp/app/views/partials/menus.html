@@ -90,7 +90,7 @@
                     <a class="messages-menu-item" data-ng-href="#/conversations">
                         <i class="icon-messages"></i>
                         Messages
-                        <span data-ng-show="unreadConversationCount > 0" class="badge badge-tiny warning">{{unreadConversationCount}}</span>
+                        <span data-ng-show="unreadConversationCount > 0" class="label label-warning">{{unreadConversationCount}}</span>
                     </a>
                 </li>
             </ul>
@@ -103,9 +103,8 @@
                 <ul class="secondary-nav nav nav-pills pull-left">
                     <li data-ng-repeat="menuitem in routes | menuFilter:'TOP'" data-ng-class="{active: title === menuitem.title}">
                         <a data-ng-href="#{{menuitem.url}}">{{menuitem.title}}
-                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" class="label label-warning label-join-request"> 
-                                {{submittedJoinRequestCount}}
-                            </span>
+                            <span data-ng-if="menuitem.title === 'Join Requests' && submittedJoinRequestCount > 0" 
+                                  class="label label-warning label-join-request">{{submittedJoinRequestCount}}</span>
                         </a>
                     </li>
                 </ul>
