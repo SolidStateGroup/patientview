@@ -14,7 +14,7 @@
             <span class="error" data-ng-show="userFormNew.email.$error.email && !userFormNew.$pristine">invalid</span></label>
         <div><input type="email" class="form-control" id="new-user-email" placeholder="Email"
                              name="email" data-ng-model="editUser.email" required></div>
-        <div>Don't have an email? <a href="http://www.rixg.org/patientview/pages/admin/unit-admin.php#addnew" target="_blank">Click for info</a></div>
+        <div>Don't have an email? <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Add_a_new_patient" target="_blank">Click for info</a></div>
     </div>
     <div class="col-md-3">
         <label for="new-user-forename" class="control-label">Forename <span class="error" data-ng-show="userFormNew.forename.$error.required && !userFormNew.$pristine">required</span></label>
@@ -80,8 +80,9 @@
     <div class="col-md-6 grey-right-border">
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles <span class="error" data-ng-show="(!editUser.groupRoles || editUser.groupRoles.length == 0) && !userFormNew.$pristine">Please add a group and role for this patient</span></label>
-            <p>Choose which groups/roles this user should belong to. More information
-                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+            <p>Choose which groups/roles this user should belong to. 
+                <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#How_to_manage_patients" target="_blank">
+                    More information here.</a>
             </p>
             <br/>
             <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">

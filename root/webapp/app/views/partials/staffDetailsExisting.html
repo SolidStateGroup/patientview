@@ -45,8 +45,9 @@
     <div class="col-sm-offset-1 col-sm-11">
         <div class="added-container">
             <label class="inner-title">Groups &amp; Roles </label>
-            <p>Choose which groups/roles this user should belong to. More information
-                <a href="http://www.rixg.org/patientview/pages/admin.php" target="_blank">here</a>
+            <p>Choose which groups/roles this user should belong to.
+                <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#How_to_manage_staff" target="_blank">
+                    About staff roles and features.</a>
             </p>
             <br/>
             <ul class="group-list-item unstyled inline clearfix" data-ng-repeat="groupRole in editUser.groupRoles | orderBy:'group.name'" data-ng-hide="(groupRole.group.visible === false) || (groupRole.role.visible === false)">
