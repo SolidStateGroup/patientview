@@ -105,7 +105,7 @@ public class UserController extends BaseController<UserController> {
     // required by migration
     @RequestMapping(value = "/user/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<User> getUserByUsername(@RequestParam("username") String username) {
+    public ResponseEntity<User> getUserByUsernameMigration(@RequestParam("username") String username) {
         return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
     }
 
@@ -266,6 +266,20 @@ public class UserController extends BaseController<UserController> {
         return new ResponseEntity<>(userService.getByIdentifierValue(identifier), HttpStatus.OK);
     }
 
+    // used when searching for existing staff/patients
+    @RequestMapping(value = "/user/username/{username}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username)
+            throws ResourceNotFoundException {
+        User user = userService.getByUsername(username.replace("[DOT]", "."));
+        if (user == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+    }
+
     // used when searching for existing staff
     @RequestMapping(value = "/user/email/{email}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -303,5 +317,13 @@ public class UserController extends BaseController<UserController> {
         } else {
             return new HttpEntity<>(null, null);
         }
+    }
+
+    // used when searching for existing staff
+    @RequestMapping(value = "/user/usernameexists/{username}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Boolean> usernameExists(@PathVariable("username") String username) {
+        return new ResponseEntity<>(userService.usernameExists(username), HttpStatus.OK);
     }
 }

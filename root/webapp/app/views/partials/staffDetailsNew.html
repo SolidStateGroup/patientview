@@ -3,9 +3,15 @@
         <label for="new-user-username" class="control-label">Username <span class="error" data-ng-show="userFormNew.userName.$error.required && !userFormNew.$pristine">required</span></label>
         <div><input type="text" class="form-control" id="new-user-username" placeholder="Username"
                              name="userName" data-ng-model="editUser.username" required maxlength="50"></div>
+        <div data-ng-show="editUser.username.length">
+            <span class="text-success" data-ng-show="editUser.usernameChecked && !editUser.usernameExists">Username OK</span>
+            <span class="text-danger" data-ng-show="editUser.usernameChecked && editUser.usernameExists">Username in use</span>
+            <a href="" class="pull-right" data-ng-click="checkUsername()">Check Username</a>
+        </div>
     </div>
     <div class="col-md-3">
-        <label for="new-user-email" class="control-label">Email <span class="error" data-ng-show="userFormNew.email.$error.required && !userFormNew.$pristine">required</span> <span class="error" data-ng-show="userFormNew.email.$error.email && !userFormNew.$pristine">invalid</span></label>
+        <label for="new-user-email" class="control-label">Email <span class="error" data-ng-show="userFormNew.email.$error.required && !userFormNew.$pristine">required</span>
+            <span class="error" data-ng-show="userFormNew.email.$error.email && !userFormNew.$pristine">invalid</span></label>
         <div><input type="email" class="form-control" id="new-user-email" placeholder="Email"
                              name="email" data-ng-model="editUser.email" required></div>
     </div>

@@ -29,10 +29,27 @@ function ($scope, $rootScope, $modalInstance, permissions, newUser, allGroups, a
     // set role to first
     $scope.editUser.selectedRole = $scope.allowedRoles[0].id;
 
+    // check username is not already in use
+    $scope.checkUsername = function () {
+        UserService.checkUsernameExists($scope.editUser.username).then(function (usernameExists) {
+            $scope.editUser.usernameChecked = true;
+            if (usernameExists === 'true') {
+                $scope.editUser.usernameExists = true;
+            } else {
+                $scope.editUser.usernameExists = false;
+            }
+        }, function (errorResult) {
+            alert("Error: " + errorResult.data);
+        });
+    };
+
+    // clear username check when username is changed
+    $scope.$watch('editUser.username', function () {
+        $scope.editUser.usernameChecked = false;
+    });
+
     // click Create New button
     $scope.create = function () {
-        var i;
-
         // check date of birth if entered
         if (($scope.editUser.selectedDay != '' || $scope.editUser.selectedMonth != '' || $scope.editUser.selectedYear != '')
             && !UtilService.validationDateNoFuture($scope.editUser.selectedDay, $scope.editUser.selectedMonth, $scope.editUser.selectedYear)) {
@@ -87,38 +104,62 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     $scope.editMode = false;
     $scope.editUser = {};
 
-    // click Find button
-    $scope.find = function () {
-        var identifier = $('#identifier').val();
-        var i;
+    // click Find by username button
+    $scope.findByUsername = function () {
+        UserService.findByUsername($('#username').val()).then(function(result) {
+            showUserOnScreen(result, "username");
+        }, function () {
+            $scope.warningMessage = 'No patient exists with this username';
+        });
+    };
 
-        UserService.findByIdentifier(identifier).then(function(result) {
-            $scope.editUser = result;
-            $scope.existingUser = true;
-            $scope.editMode = true;
-            $scope.warningMessage = 'A patient member with this username or email already exists. Add them to your group if required, then close this window. You can then edit their details normally as they will appear in the refreshed list.';
-            $scope.pagedItems = [];
-
-            // get user existing group/roles from groupRoles
-            $scope.editUser.groups = [];
-            for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
-                var groupRole = $scope.editUser.groupRoles[i];
-                var group = groupRole.group;
-                group.role = groupRole.role;
-                $scope.editUser.groups.push(group);
-            }
-
-            // set available groups so user can add another group/role to the users existing group roles if required
-            $scope.editUser.availableGroups = $scope.allGroups;
-            for (i = 0; i < $scope.editUser.groups.length; i++) {
-                $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups, _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
-            }
-
-            // set available user roles
-            $scope.editUser.roles = $scope.allowedRoles;
+    // click Find by username button
+    $scope.findByIdentifier = function () {
+        UserService.findByIdentifier($('#identifier').val()).then(function(result) {
+            showUserOnScreen(result, "identifier");
         }, function () {
             $scope.warningMessage = 'No patient exists with this identifier';
         });
+    };
+
+    var showUserOnScreen = function (result, searchType) {
+        $scope.editUser = result;
+        $scope.existingUser = true;
+        $scope.editMode = true;
+        $scope.warningMessage = 'A user with this '
+            + searchType
+            + ' already exists. Add them to your group if required, then close this window. '
+            + 'You can then edit their details normally as they will appear in the refreshed list.';
+        $scope.pagedItems = [];
+        var i;
+
+        // get user existing group/roles from groupRoles
+        $scope.editUser.groups = [];
+        for (i = 0; i < $scope.editUser.groupRoles.length; i++) {
+            var groupRole = $scope.editUser.groupRoles[i];
+            var group = groupRole.group;
+            group.role = groupRole.role;
+            $scope.editUser.groups.push(group);
+        }
+
+        // global admin can see all group roles of globaladmin
+        if ($scope.permissions.isSuperAdmin) {
+            for(i = 0; i < $scope.editUser.groupRoles.length; i++) {
+                if ($scope.editUser.groupRoles[i].role.name === 'GLOBAL_ADMIN') {
+                    $scope.editUser.groupRoles[i].group.visible = true;
+                }
+            }
+        }
+
+        // set available groups so user can add another group/role to the users existing group roles if required
+        $scope.editUser.availableGroups = $scope.allGroups;
+        for (i = 0; i < $scope.editUser.groups.length; i++) {
+            $scope.editUser.availableGroups = _.without($scope.editUser.availableGroups,
+                _.findWhere($scope.editUser.availableGroups, {id: $scope.editUser.groups[i].id}));
+        }
+
+        // set available user roles
+        $scope.editUser.roles = $scope.allowedRoles;
     };
 
     $scope.cancel = function () {

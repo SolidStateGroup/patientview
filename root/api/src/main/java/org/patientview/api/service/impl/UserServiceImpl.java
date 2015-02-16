@@ -1600,4 +1600,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             return null;
         }
     }
+
+    @Override
+    public boolean usernameExists(String username) {
+        if (StringUtils.isEmpty(username)) {
+            return false;
+        }
+
+        return (userRepository.findByUsernameCaseInsensitive(username) != null);
+    }
 }

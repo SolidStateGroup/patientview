@@ -49,17 +49,17 @@
             <div class="col-md-4 day">
                 Day:<select data-ng-model="editUser.selectedDay"
                             data-ng-options="option.toString() as option for option in days"
-                            class="form-control"></select>
+                            class="form-control" data-ng-disabled="!permissions.canEditPatients"></select>
             </div>
             <div class="col-md-4">
                 Month:<select data-ng-model="editUser.selectedMonth"
                               data-ng-options="option.toString() as option for option in months"
-                              class="form-control"></select>
+                              class="form-control" data-ng-disabled="!permissions.canEditPatients"></select>
             </div>
             <div class="col-md-4 year">
                 Year:<select data-ng-model="editUser.selectedYear"
                              data-ng-options="option.toString() as option for option in years"
-                             class="form-control"></select>
+                             class="form-control" data-ng-disabled="!permissions.canEditPatients"></select>
             </div>
         </div>
     </div>
@@ -165,7 +165,8 @@
                 <div class="col-sm-4">
                     <select id="identifier-identifier" class="form-control"
                             data-ng-model="identifier.identifierType.id"
-                            data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"></select>
+                            data-ng-options="identifierType.id as identifierType.description for identifierType in identifierTypes"
+                            data-ng-disabled="!permissions.canEditPatients"></select>
                 </div>
 
                 <span class="saved-notification" data-ng-show="identifier.saved">&nbsp; Saved Successfully!</span>

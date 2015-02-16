@@ -38,6 +38,7 @@ public interface UserService {
     @RoleOnly
     Group getGenericGroup();
 
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     org.patientview.api.model.User getByUsername(String username);
 
     User findByUsernameCaseInsensitive(String username);
@@ -143,4 +144,8 @@ public interface UserService {
     String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException;
 
     byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+    
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
+            RoleName.STAFF_ADMIN, RoleName.DISEASE_GROUP_ADMIN })
+    boolean usernameExists(String username);
 }
