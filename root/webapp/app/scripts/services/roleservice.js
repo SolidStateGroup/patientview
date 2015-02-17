@@ -9,13 +9,6 @@ angular.module('patientviewApp').factory('RoleService', ['$q', 'Restangular',
                     deferred.resolve(res);
                 });
                 return deferred.promise;
-            },
-            getByType: function (roleType) {
-                var deferred = $q.defer();
-                Restangular.all('role').getList({'type':roleType}).then(function(res) {
-                    deferred.resolve(res);
-                });
-                return deferred.promise;
             }
         };
     }]);

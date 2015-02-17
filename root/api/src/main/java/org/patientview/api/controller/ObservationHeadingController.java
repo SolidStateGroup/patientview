@@ -24,7 +24,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
- * Restful interface for the basic Crud operation for observation (result) headings.
+ * Restful interface for managing ObservationHeading (result headings). Results are mapped to these ObservationHeading
+ * by Code. 
  *
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
@@ -36,21 +37,11 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @Inject
     private ObservationHeadingService observationHeadingService;
 
-    @RequestMapping(value = "/observationheading", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Page<ObservationHeading>> findAll(GetParameters getParameters) {
-        return new ResponseEntity<>(observationHeadingService.findAll(getParameters), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/observationheading/{observationHeadingId}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<ObservationHeading> get(@PathVariable("observationHeadingId") Long observationHeadingId)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(observationHeadingService.get(observationHeadingId), HttpStatus.OK);
-    }
-
+    /**
+     * Create a new ObservationHeading. 
+     * @param observationHeading ObservationHeading to create
+     * @return ObservationHeading, newly created (note: consider only returning ID)
+     */
     @RequestMapping(value = "/observationheading", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -58,12 +49,16 @@ public class ObservationHeadingController extends BaseController<ObservationHead
         return new ResponseEntity<>(observationHeadingService.add(observationHeading), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/observationheading", method = RequestMethod.PUT)
-    @ResponseBody
-    public void save(@RequestBody ObservationHeading observationHeading) throws ResourceNotFoundException  {
-        observationHeadingService.save(observationHeading);
-    }
-
+    /**
+     * Add properties to assign an ObservationHeading to a Group, used when organising results summary and what order
+     * results appear to a User by default for each specialty. Properties are panel and panel order on results page.
+     * @param observationHeadingId ID of ObservationHeading (result type)
+     * @param groupId ID of Group to configure properties for
+     * @param panel Panel on which to show this result type
+     * @param panelOrder Order on panel to show this result type
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(
             value = "/observationheading/{observationHeadingId}/group/{groupId}/panel/{panel}/panelorder/{panelOrder}",
             method = RequestMethod.POST)
@@ -74,54 +69,40 @@ public class ObservationHeadingController extends BaseController<ObservationHead
         observationHeadingService.addObservationHeadingGroup(observationHeadingId, groupId, panel, panelOrder);
     }
 
-    @RequestMapping(value = "/observationheadinggroup", method = RequestMethod.PUT)
-    @ResponseBody
-    public void updateObservationHeadingGroup(@RequestBody ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        observationHeadingService.updateObservationHeadingGroup(observationHeadingGroup);
-    }
-
-    @RequestMapping(value = "/observationheadinggroup/{observationHeadingGroupId}", method = RequestMethod.DELETE)
-    @ResponseBody
-    public void removeObservationHeadingGroup(@PathVariable("observationHeadingGroupId") Long observationHeadingGroupId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        observationHeadingService.removeObservationHeadingGroup(observationHeadingGroupId);
-    }
-
-    // ResultCluster for patient entered results
-    @RequestMapping(value = "/resultclusters", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<List<ResultCluster>> getResultClusters() {
-        return new ResponseEntity<>(observationHeadingService.getResultClusters(), HttpStatus.OK);
-    }
-
-    // Get available result types for user (where results are currently available)
-    @RequestMapping(value = "/user/{userId}/availableobservationheadings", method = RequestMethod.GET,
+    /**
+     * Get a Page of ObservationHeading given GetParameters.
+     * @param getParameters GetParameters object for pagination/filter properties defined in UI, including page number, 
+     * size etc
+     * @return Page of ObservationHeading objects
+     */
+    @RequestMapping(value = "/observationheading", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<ObservationHeading>> getAvailableObservationHeadings(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException, FhirResourceException {
-        return new ResponseEntity<>(observationHeadingService.getAvailableObservationHeadings(userId), HttpStatus.OK);
+    public ResponseEntity<Page<ObservationHeading>> findAll(GetParameters getParameters) {
+        return new ResponseEntity<>(observationHeadingService.findAll(getParameters), HttpStatus.OK);
     }
 
-    // Get saved result types for user (used in table view)
-    @RequestMapping(value = "/user/{userId}/savedobservationheadings", method = RequestMethod.GET,
+    /**
+     * Get an ObservationHeading. 
+     * @param observationHeadingId ID of ObservationHeading to get
+     * @return ObservationHeading object
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/observationheading/{observationHeadingId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<ObservationHeading>> getSavedObservationHeadings(@PathVariable("userId") Long userId)
-            throws ResourceNotFoundException, FhirResourceException {
-        return new ResponseEntity<>(observationHeadingService.getSavedObservationHeadings(userId), HttpStatus.OK);
-    }
-
-    // Store user's selection of observation headings (used in table view)
-    @RequestMapping(value = "/user/{userId}/saveobservationheadingselection", method = RequestMethod.POST)
-    @ResponseBody
-    public void saveObservationHeadingSelection(@PathVariable("userId") Long userId, @RequestBody String[] codes)
+    public ResponseEntity<ObservationHeading> get(@PathVariable("observationHeadingId") Long observationHeadingId)
             throws ResourceNotFoundException {
-        observationHeadingService.saveObservationHeadingSelection(userId, codes);
+        return new ResponseEntity<>(observationHeadingService.get(observationHeadingId), HttpStatus.OK);
     }
-
-    // Get result types for user that can be used when setting up alerts
+    
+    /**
+     * Get available ObservationHeadings (result types) for a User that can be used when setting up alerts for new 
+     * results, typically all ObservationHeadings are returned as User can set up alerts for all result types.
+     * @param userId ID of User to retrieve available ObservationHeadings for setting up alerts
+     * @return List of ObservationHeading objects
+     * @throws ResourceNotFoundException
+     */
     @RequestMapping(value = "/user/{userId}/availablealertobservationheadings", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -130,5 +111,98 @@ public class ObservationHeadingController extends BaseController<ObservationHead
             throws ResourceNotFoundException {
         return new ResponseEntity<>(
                 observationHeadingService.getAvailableAlertObservationHeadings(userId), HttpStatus.OK);
+    }
+    
+    /**
+     * Get available ObservationHeading (result types) for a User, where results are currently available.
+     * @param userId ID of User to retrieve ObservationHeadings where results are currently available
+     * @return List of ObservationHeading objects
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @RequestMapping(value = "/user/{userId}/availableobservationheadings", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ObservationHeading>> getAvailableObservationHeadings(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
+        return new ResponseEntity<>(observationHeadingService.getAvailableObservationHeadings(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Get the available ResultCluster (groups of result types available to Users when entering their own results).
+     * @return List of ResultCluster objects
+     */
+    @RequestMapping(value = "/resultclusters", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ResultCluster>> getResultClusters() {
+        return new ResponseEntity<>(observationHeadingService.getResultClusters(), HttpStatus.OK);
+    }
+    
+    /**
+     * Get a List of the User selected ObservationHeadings, used in results table view when Users choose which results 
+     * to show in the table. 
+     * @param userId ID of User to retrieve saved ObservationHeadings as specified in results table view
+     * @return List of ObservationHeading objects
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    @RequestMapping(value = "/user/{userId}/savedobservationheadings", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<ObservationHeading>> getSavedObservationHeadings(@PathVariable("userId") Long userId)
+            throws ResourceNotFoundException, FhirResourceException {
+        return new ResponseEntity<>(observationHeadingService.getSavedObservationHeadings(userId), HttpStatus.OK);
+    }
+
+    /**
+     * Remove the relationship between an ObservationHeading and a specific Group (specialty), used when setting up the 
+     * results panel and panel order for the default results view. 
+     * @param observationHeadingGroupId ID of the ObservationHeadingGroup to remove
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/observationheadinggroup/{observationHeadingGroupId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void removeObservationHeadingGroup(@PathVariable("observationHeadingGroupId") Long observationHeadingGroupId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        observationHeadingService.removeObservationHeadingGroup(observationHeadingGroupId);
+    }
+
+    /**
+     * Update an ObservationHeading. 
+     * @param observationHeading ObservationHeading to update
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/observationheading", method = RequestMethod.PUT)
+    @ResponseBody
+    public void save(@RequestBody ObservationHeading observationHeading) throws ResourceNotFoundException  {
+        observationHeadingService.save(observationHeading);
+    }
+    
+    /**
+     * Store a User's selection of ObservationHeadings to show in the results table view.
+     * @param userId ID of User for which a selection of ObservationHeadings are to be saved 
+     * @param codes List of Codes representing the ObservationHeadings to be associated with a User's results table view
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/{userId}/saveobservationheadingselection", method = RequestMethod.POST)
+    @ResponseBody
+    public void saveObservationHeadingSelection(@PathVariable("userId") Long userId, @RequestBody String[] codes)
+            throws ResourceNotFoundException {
+        observationHeadingService.saveObservationHeadingSelection(userId, codes);
+    }
+
+    /**
+     * Update an ObservationHeadingGroup representing Group specific panel, panel order properties for 
+     * ObservationHeadings shown on the default results view.
+     * @param observationHeadingGroup ObservationHeadingGroup to update
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/observationheadinggroup", method = RequestMethod.PUT)
+    @ResponseBody
+    public void updateObservationHeadingGroup(@RequestBody ObservationHeadingGroup observationHeadingGroup)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        observationHeadingService.updateObservationHeadingGroup(observationHeadingGroup);
     }
 }

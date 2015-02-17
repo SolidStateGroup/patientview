@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 
 /**
+ * RESTful interface for management of Links (typically web links), attached to Groups and Codes.
+ *  
  * Created by james@solidstategroup.com
  * Created on 15/07/2014
  */
@@ -28,19 +30,29 @@ public class LinkController extends BaseController<LinkController> {
     @Inject
     private LinkService linkService;
 
-    @RequestMapping(value = "/link/{linkId}", method = RequestMethod.DELETE)
+    /**
+     * Add a Link to a Code. 
+     * @param codeId ID of Code to add Link to
+     * @param link Link object to add to Code
+     * @return Link object, newly created (note: consider just returning ID)
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST
+            , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public void delete(@PathVariable("linkId") Long linkId)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        linkService.delete(linkId);
+    public ResponseEntity<Link> addCodeLink(@PathVariable("codeId") Long codeId, @RequestBody Link link)
+            throws ResourceNotFoundException {
+        return new ResponseEntity<>(linkService.addCodeLink(codeId, link), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/link", method = RequestMethod.PUT)
-    @ResponseBody
-    public void save(@RequestBody Link link) throws ResourceNotFoundException, ResourceForbiddenException {
-        linkService.save(link);
-    }
-
+    /**
+     * Add a Link to a Group. 
+     * @param groupId ID of Group to add Link to
+     * @param link Link object to add to Group
+     * @return Link object, newly created (note: consider just returning ID)
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
     @RequestMapping(value = "/group/{groupId}/links", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -49,11 +61,28 @@ public class LinkController extends BaseController<LinkController> {
         return new ResponseEntity<>(linkService.addGroupLink(groupId, link), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/code/{codeId}/links", method = RequestMethod.POST
-            , produces = MediaType.APPLICATION_JSON_VALUE)
+    /**
+     * Delete a Link.
+     * @param linkId ID of Link to delete
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/link/{linkId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Link> addCodeLink(@PathVariable("codeId") Long codeId, @RequestBody Link link)
-            throws ResourceNotFoundException {
-        return new ResponseEntity<>(linkService.addCodeLink(codeId, link), HttpStatus.CREATED);
+    public void delete(@PathVariable("linkId") Long linkId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        linkService.delete(linkId);
+    }
+
+    /**
+     * Update a Link.
+     * @param link Link object to update
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     */
+    @RequestMapping(value = "/link", method = RequestMethod.PUT)
+    @ResponseBody
+    public void save(@RequestBody Link link) throws ResourceNotFoundException, ResourceForbiddenException {
+        linkService.save(link);
     }
 }
