@@ -5,6 +5,7 @@ import org.patientview.persistence.model.BaseModel;
 import java.util.Date;
 
 /**
+ * Audit, represents logs of User, importer and other actions.
  * Created by jamesr@solidstategroup.com
  * Created on 12/11/2014
  */
@@ -31,7 +32,6 @@ public class Audit extends BaseModel {
     private BaseGroup sourceObjectGroup;
 
     public Audit() {
-
     }
 
     public Audit(org.patientview.persistence.model.Audit audit) {

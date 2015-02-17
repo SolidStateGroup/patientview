@@ -1,6 +1,7 @@
 package org.patientview.api.model;
 
 /**
+ * Credentials, representing a simple username, password object used when resetting passwords.
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */

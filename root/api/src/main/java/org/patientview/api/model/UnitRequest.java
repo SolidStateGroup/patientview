@@ -5,6 +5,9 @@ import org.patientview.persistence.model.Group;
 import java.util.Date;
 
 /**
+ * UnitRequest, representing the information required when a User has forgotten their login details. Note: not currently
+ * used due to privacy concerns about sending patient identifiable information via email, consider moving to secure
+ * messaging via the built in PatientView messaging system.
  * Created by james@solidstategroup.com
  * Created on 19/08/2014
  */

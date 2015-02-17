@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import java.util.Properties;
 
 /**
+ * Base configuration for API
  * Created by james@solidstategroup.com
  * Created on 03/06/2014.
  */
@@ -63,6 +64,10 @@ public class ApiConfig {
         return AuditAspect.aspectOf();
     }
 
+    /**
+     * Configure JavaMailSender, used when sending emails. 
+     * @return JavaMailSenderImpl with properties set from environment specific .properties file
+     */
     @Bean
     public JavaMailSenderImpl javaMailSender() {
         final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
@@ -83,6 +88,10 @@ public class ApiConfig {
         return javaMailSender;
     }
 
+    /**
+     * Configure ThreadPoolTaskExecutor used by migration process when migrating observations quickly from PatientView1
+     * @return ThreadPoolTaskExecutor
+     */
     @Bean
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
@@ -92,6 +101,10 @@ public class ApiConfig {
         return threadPoolTaskExecutor;
     }
 
+    /**
+     * Configure CommonsMultipartResolver for use when receiving MultiPartFile uploads
+     * @return CommonsMultipartResolver
+     */
     @Bean
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();

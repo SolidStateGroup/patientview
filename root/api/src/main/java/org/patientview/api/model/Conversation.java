@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Conversation, representing a conversation between a number of Users, containing multiple Messages.
  * Created by jamesr@solidstategroup.com
  * Created on 24/09/2014
  */
@@ -27,7 +28,6 @@ public class Conversation {
     private Long groupId;
 
     public Conversation() {
-
     }
 
     public Conversation(org.patientview.persistence.model.Conversation conversation) {

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Message, representing messages that form the contents of a Conversation between Users.
  * Created by jamesr@solidstategroup.com
  * Created on 19/09/2014
  */
@@ -20,7 +21,6 @@ public class Message {
     private Set<MessageReadReceipt> readReceipts;
 
     public Message() {
-
     }
 
     public Message(org.patientview.persistence.model.Message message) {

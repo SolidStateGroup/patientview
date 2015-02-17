@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Patient, representing several patient related objects, retrieved from FHIR and associated with certain Groups.
  * Created by jamesr@solidstategroup.com
  * Created on 03/09/2014
  */

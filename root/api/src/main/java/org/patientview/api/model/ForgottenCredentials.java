@@ -1,6 +1,7 @@
 package org.patientview.api.model;
 
 /**
+ * ForgottenCredentials, used when a User has forgotten their password but can provide their username and email.
  * Created by james@solidstategroup.com
  * Created on 19/08/2014
  */

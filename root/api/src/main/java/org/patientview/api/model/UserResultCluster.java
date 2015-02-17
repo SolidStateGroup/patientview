@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import java.util.List;
 
 /**
+ * UserResultCluster, representing a collection of User entered results.
  * Created by jamesr@solidstategroup.com
  * Created on 01/09/2014
  */

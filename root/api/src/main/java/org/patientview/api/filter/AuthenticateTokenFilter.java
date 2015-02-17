@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to get the filter from the request. Lookup the token and add the user into the security context
+ * Class to get the filter from the request. Lookup the token and add the user into the security context.
  *
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
@@ -38,6 +38,9 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private List<String> publicUrls = new ArrayList<>();
 
+    /**
+     * Set up publicly available URLs 
+     */
     @PostConstruct
     public void init() {
         LOG.info("Authentication token filter initialised");
@@ -75,6 +78,11 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         }
     }
 
+    /**
+     * Check if path is publicly available (no login required) 
+     * @param path String path to check is publicly available
+     * @return true if publicly available, false if not
+     */
     private boolean isPublicPath(String path) {
         for (String publicUrl : this.publicUrls) {
             if (path.contains(publicUrl)) {
@@ -85,8 +93,7 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
     }
 
     /**
-     * This is the method to authorize the user to use the service is spring.
-     *
+     * This is the method to authorize the user to use the service in spring.
      * @param request servlet request
      * @param response servlet response
      * @param chain filter chain
@@ -95,7 +102,6 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
      */
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
-
         HttpServletRequest httpRequest = this.getAsHttpRequest(request);
         String path = httpRequest.getRequestURI();
 
@@ -109,7 +115,6 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
             chain.doFilter(request, response);
         } else {
             if (!authenticateRequest(httpRequest)) {
-                //LOG.info("Request is not authenticated");
                 redirectFailedAuthentication((HttpServletResponse) response);
                 return;
             }
@@ -117,7 +122,12 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         }
     }
 
-    // Set the authentication in the security context
+    /**
+     * Set the authentication in the security context, returning false if authentication request fails due to session
+     * expiration (will log out if expired) or failed authentication due to incorrect authentication token
+     * @param httpServletRequest HttpServletRequest
+     * @return true if request is authenticated, false if not
+     */
     private boolean authenticateRequest(HttpServletRequest httpServletRequest) {
         String authToken = this.extractAuthTokenFromRequest(httpServletRequest);
         PreAuthenticatedAuthenticationToken authenticationToken =
@@ -125,7 +135,6 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
         try {
             if (authenticationService.sessionExpired(authToken)) {
-                //LOG.info("Session Expired");
                 authenticationService.logout(authToken);
                 return false;
             }
@@ -139,6 +148,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         }
     }
 
+    /**
+     * Sends unauthorised response to client if authentication has failed 
+     * @param response HttpServletResponse passed in to send error
+     */
     private void redirectFailedAuthentication(HttpServletResponse response) {
         try {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
@@ -148,6 +161,10 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         }
     }
 
+    /**
+     * Set authentication manager, only required due to Spring Boot bug with delegating proxy
+     * @param servletRequest ServletRequest
+     */
     private void setAuthenticationManager(ServletRequest servletRequest) {
         if (authenticationService == null) {
             WebApplicationContext webApplicationContext =
@@ -156,6 +173,11 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         }
     }
 
+    /**
+     * Convert ServletRequest to HttpServletRequest, throwing exception if not a HTTP request
+     * @param request ServletRequest to convert to HttpServletRequest
+     * @return HttpServletRequest converted from ServletRequest
+     */
     private HttpServletRequest getAsHttpRequest(ServletRequest request) {
         if (!(request instanceof HttpServletRequest)) {
             throw new RuntimeException("Expecting an HTTP request");
@@ -163,9 +185,14 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
         return (HttpServletRequest) request;
     }
 
+    /**
+     * Retrieve the String authentication token from a request, either as a header or if header not found, from a 
+     * request parameter
+     * @param httpRequest HttpServletRequest to extract authentication token from
+     * @return String authentication token
+     */
     private String extractAuthTokenFromRequest(HttpServletRequest httpRequest) {
         String authToken = httpRequest.getHeader("X-Auth-Token");
-        /* If token not found get it from request parameter */
         if (authToken == null) {
             authToken = httpRequest.getParameter("token");
         }

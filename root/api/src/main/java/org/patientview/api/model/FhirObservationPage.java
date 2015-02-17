@@ -3,10 +3,9 @@ package org.patientview.api.model;
 import java.util.Map;
 
 /**
+ * FhirObservationPage, representing a Page of Observations, used when returning Observations searched for by code.
  * Created by jamesr@solidstategroup.com
  * Created on 28/10/2014
- *
- * Used when returning observation search by code
  */
 public class FhirObservationPage {
 

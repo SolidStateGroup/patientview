@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * NewsItem, representing an item of news and its visibility to Users through a List of NewsLinks.
  * Created by jamesr@solidstategroup.com
  * Created on 14/10/2014
  */
@@ -21,7 +22,6 @@ public class NewsItem {
     private boolean delete;
 
     public NewsItem() {
-
     }
 
     public NewsItem(org.patientview.persistence.model.NewsItem newsItem) {

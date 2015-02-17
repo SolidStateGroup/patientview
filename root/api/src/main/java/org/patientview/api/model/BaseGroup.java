@@ -3,6 +3,7 @@ package org.patientview.api.model;
 import org.patientview.persistence.model.Lookup;
 
 /**
+ * BaseGroup, representing the minimum information required for Groups.
  * Created by jamesr@solidstategroup.com
  * Created on 27/08/2014
  */
@@ -17,7 +18,6 @@ public class BaseGroup {
     private Lookup groupType;
 
     public BaseGroup() {
-
     }
 
     public BaseGroup(org.patientview.persistence.model.Group group) {

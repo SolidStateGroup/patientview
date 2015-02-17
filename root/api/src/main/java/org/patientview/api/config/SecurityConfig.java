@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 /**
+ * Security configuration, Spring Security not used as security is managed through filters and authentication tokens.
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
