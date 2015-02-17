@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * RESTful interface for management and retrieval of observations (test results), stored in FHIR.
- *  
+ *
  * Created by james@solidstategroup.com
  * Created on 03/09/2014
  */
@@ -49,7 +49,7 @@ public class ObservationController extends BaseController<ObservationController>
 
     /**
      * Used when Users enter their own results on the Enter Own Results page, takes a list of UserResultCluster and
-     * stores in FHIR under the PATIENT_ENTERED Group. 
+     * stores in FHIR under the PATIENT_ENTERED Group.
      * @param userId ID of User to store patient entered results
      * @param userResultClusters List of UserResultCluster objects used to represent a number of user entered results
      * @throws ResourceNotFoundException
@@ -82,7 +82,7 @@ public class ObservationController extends BaseController<ObservationController>
     }
 
     /**
-     * Get FhirObservationPage representing multiple different observations by Code for a User. 
+     * Get FhirObservationPage representing multiple different observations by Code for a User.
      * @param userId ID of User to retrieve observations for
      * @param code List of Codes defining the types of observations to retrieve
      * @param limit Number of observations to retrieve

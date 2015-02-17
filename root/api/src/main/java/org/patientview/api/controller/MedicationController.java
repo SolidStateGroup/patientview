@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * RESTful interface for retrieving medication information for patient Users, stored in FHIR.
- *  
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 29/09/2014
  */

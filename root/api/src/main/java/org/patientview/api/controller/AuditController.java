@@ -30,8 +30,8 @@ public class AuditController extends BaseController<AuditController> {
     private AuditService auditService;
 
     /**
-     * Gets a Page of Audit information, with pagination parameters passed in as GetParameters
-     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size 
+     * Gets a Page of Audit information, with pagination parameters passed in as GetParameters.
+     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
      * of page etc
      * @return Page containing a number of Audit objects, each of which has a Date, Action etc
      * @throws ResourceNotFoundException

@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * RESTful interface for Conversations and Messages, including unread count. Conversations have Message objects as
- * children and can be associated with multiple Users. 
+ * children and can be associated with multiple Users.
  *
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014.
@@ -109,9 +109,9 @@ public class ConversationController extends BaseController<ConversationControlle
     }
 
     /**
-     * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new 
-     * Conversation to populate the dropdown of available recipients after a Group is selected. 
-     * Note: not currently used due to speed concerns when rendering large lists client-side in ie8. 
+     * Get a list of potential message recipients, mapped by User role. Used in UI by user when creating a new
+     * Conversation to populate the dropdown of available recipients after a Group is selected.
+     * Note: not currently used due to speed concerns when rendering large lists client-side in ie8.
      * @param userId ID of User retrieving available Conversation recipients
      * @param groupId ID of Group to find available Conversation recipients for
      * @return Object containing Lists of BaseUser organised by Role

@@ -25,8 +25,8 @@ import java.util.List;
 
 /**
  * RESTful interface for managing JoinRequests, where members of the public who are not currently Users in PatientView
- * can apply to join. 
- *  
+ * can apply to join.
+ *
  * Created by james@solidstategroup.com
  * Created on 30/07/2014
  */

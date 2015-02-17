@@ -64,7 +64,7 @@ public class NewsController extends BaseController<NewsController> {
 
     /**
      * Add a Group and Role to a NewsItem, making it visible to Users with that specific Group and Role. Adds a
-     * NewsLink with Group and Role set. 
+     * NewsLink with Group and Role set.
      * @param groupId ID of Group to make NewsItem visible for
      * @param roleId ID of Role Users must be a member of to see NewsItem
      * @param newsItemId ID of NewsItem to make visible to Group and Role
@@ -175,7 +175,7 @@ public class NewsController extends BaseController<NewsController> {
     }
 
     /**
-     * Remove a Group from a news item, making it invisible to that Group. 
+     * Remove a Group from a news item, making it invisible to that Group.
      * @param newsItemId ID of NewsItem to hide from Group
      * @param groupId ID of Group to hide NewsItem from
      * @throws ResourceNotFoundException
@@ -189,8 +189,8 @@ public class NewsController extends BaseController<NewsController> {
     }
 
     /**
-     * Delete a NewsLink from a NewsItem, removing visibility for the Group and/or Role set in that NewsLink from the 
-     * NewsItem. 
+     * Delete a NewsLink from a NewsItem, removing visibility for the Group and/or Role set in that NewsLink from the
+     * NewsItem.
      * @param newsItemId ID of NewsItem to remove NewsLink from
      * @param newsLinkId ID of NewsLink to remove from NewsItem
      * @throws ResourceNotFoundException
@@ -204,7 +204,7 @@ public class NewsController extends BaseController<NewsController> {
     }
 
     /**
-     * Remove visibility of a NewsItem for a specific Role. 
+     * Remove visibility of a NewsItem for a specific Role.
      * @param newsItemId ID of NewsItem to hide from a Role
      * @param roleId ID of a Role to hide the NewsItem from
      * @throws ResourceNotFoundException

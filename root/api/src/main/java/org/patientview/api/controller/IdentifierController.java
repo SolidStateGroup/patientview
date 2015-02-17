@@ -20,8 +20,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 
 /**
- * RESTful interface for managing User Identifiers (NHS/CHI number etc), including validation. Identifiers must be 
- * unique and are currently only used for patient Users. 
+ * RESTful interface for managing User Identifiers (NHS/CHI number etc), including validation. Identifiers must be
+ * unique and are currently only used for patient Users.
  *
  * Created by jamesr@solidstategroup.com
  * Created on 04/08/2014
@@ -33,7 +33,7 @@ public class IdentifierController extends BaseController<IdentifierController> {
     private IdentifierService identifierService;
 
     /**
-     * Add an Identifier to a User, checking if not already in use by another User 
+     * Add an Identifier to a User, checking if not already in use by another User.
      * @param userId ID of User to add Identifier to
      * @param identifier String Identifier to add
      * @return Identifier object, newly created (Note: consider returning ID or HTTP OK)
@@ -50,7 +50,7 @@ public class IdentifierController extends BaseController<IdentifierController> {
     }
 
     /**
-     * Delete an Identifier given an ID 
+     * Delete an Identifier given an ID.
      * @param identifierId ID of Identifier to delete
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -63,7 +63,7 @@ public class IdentifierController extends BaseController<IdentifierController> {
     }
 
     /**
-     * Get an Identifier given and ID
+     * Get an Identifier given an ID.
      * @param identifierId ID of Identifier to retrieve
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -76,7 +76,7 @@ public class IdentifierController extends BaseController<IdentifierController> {
     }
 
     /**
-     * Save an updated Identifier 
+     * Save an updated Identifier.
      * @param identifier Identifier to update
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -90,7 +90,7 @@ public class IdentifierController extends BaseController<IdentifierController> {
     }
 
     /**
-     * Validate an Identifier, e.g. NHS Number must be within certain range
+     * Validate an Identifier, e.g. NHS Number must be within certain range.
      * @param userIdentifier UserIdentifier object containing required information to validate Identifier value
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException

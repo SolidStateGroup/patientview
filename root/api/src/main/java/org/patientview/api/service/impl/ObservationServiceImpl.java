@@ -88,6 +88,10 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
 
     private static final Logger LOG = LoggerFactory.getLogger(ObservationServiceImpl.class);
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
+    private static final int THREE = 3;
+    private static final int FOUR = 4;
+    private static final int FIVE = 5;
+    private static final int EIGHT = 8;
 
     @Override
     public List<org.patientview.api.model.FhirObservation> get(final Long userId, final String code,
@@ -157,6 +161,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                             }
                         } catch (NumberFormatException ignore) {
                             // do not update if cant convert to double or big decimal (string based value)
+                            LOG.trace("NumberFormatException", ignore);
                         }
                     }
 
@@ -266,6 +271,7 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                     }
                 } catch (NumberFormatException ignore) {
                     // do not update if cant convert to double or big decimal (string based value)
+                    LOG.trace("NumberFormatException", ignore);
                 }
             }
 
@@ -429,17 +435,17 @@ public class ObservationServiceImpl extends BaseController<ObservationServiceImp
                                 }
                             } else {
                                 // textual value, trim if larger than size
-                                if (json.length >= 5 && StringUtils.isNotEmpty(json[4])) {
-                                    if (json[4].length() > 8) {
-                                        fhirObservation.setValue(json[4].subSequence(0, 8).toString() + "..");
+                                if (json.length >= FIVE && StringUtils.isNotEmpty(json[FOUR])) {
+                                    if (json[FOUR].length() > EIGHT) {
+                                        fhirObservation.setValue(json[FOUR].subSequence(0, EIGHT).toString() + "..");
                                     } else {
-                                        fhirObservation.setValue(json[4]);
+                                        fhirObservation.setValue(json[FOUR]);
                                     }
                                 }
                             }
 
-                            if (StringUtils.isNotEmpty(json[3])) {
-                                fhirObservation.setComparator(json[3]);
+                            if (StringUtils.isNotEmpty(json[THREE])) {
+                                fhirObservation.setComparator(json[THREE]);
                             }
                             fhirObservation.setGroup(new BaseGroup(fhirLink.getGroup()));
 

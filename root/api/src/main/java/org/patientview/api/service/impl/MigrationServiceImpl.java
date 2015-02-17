@@ -94,6 +94,8 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
 
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
     private static final boolean DELETE_EXISTING = true;
+    private static final int THREE = 3;
+    private static final int FOUR = 4;
 
     public Long migrateUser(MigrationUser migrationUser)
             throws EntityExistsException, ResourceNotFoundException, MigrationException {
@@ -357,10 +359,10 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                                                 .replace("\"", "").replace("}", "").replace("{", "")
                                                 .replace(",", "").replace("'", "");
                                         Date datestamp = results.getTimestamp(2);
-                                        String prepost = results.getString(3)
+                                        String prepost = results.getString(THREE)
                                                 .replace("\"", "").replace("}", "").replace("{", "")
                                                 .replace(",", "").replace("'", "");
-                                        String value = results.getString(4)
+                                        String value = results.getString(FOUR)
                                                 .replace("\"", "").replace("}", "").replace("{", "")
                                                 .replace(",", "").replace("'", "");
 

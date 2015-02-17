@@ -33,7 +33,8 @@ public class CodeController extends BaseController<CodeController> {
     private CodeService codeService;
 
     /**
-     * Make a copy of an existing Code, typically to avoid having to re-enter large amounts of similar information in UI
+     * Make a copy of an existing Code, typically to avoid having to re-enter large amounts of similar information in
+     * UI.
      * @param codeId ID of Code to clone
      * @return Code object, newly created based on another Code (note: consider only returning ID or HTTP OK)
      */
@@ -44,7 +45,7 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
-     * Delete a Code 
+     * Delete a Code.
      * @param codeId ID of Code to delete
      */
     @RequestMapping(value = "/code/{codeId}", method = RequestMethod.DELETE)
@@ -54,8 +55,8 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
-     * Get a Page of Code object, with pagination parameters (page, size of page etc) passed in as GetParameters object 
-     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size 
+     * Get a Page of Code object, with pagination parameters (page, size of page etc) passed in as GetParameters object.
+     * @param getParameters GetParameters object for pagination properties defined in UI, including page number, size
      * of page etc
      * @return Page of Code objects
      */
@@ -66,7 +67,7 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
-     * Get a single Code given an ID
+     * Get a single Code given an ID.
      * @param codeId ID of Code to retrieve
      * @return Code object
      * @throws ResourceNotFoundException
@@ -78,7 +79,7 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
-     * Create a new Code
+     * Create a new Code.
      * @param code Code object containing all required properties
      * @return Code object, newly created (note: consider only returning ID or HTTP OK)
      * @throws ResourceNotFoundException
@@ -92,7 +93,7 @@ public class CodeController extends BaseController<CodeController> {
     }
 
     /**
-     * Update an existing Code
+     * Update an existing Code.
      * @param code Code object with updated properties
      * @return Code object, updated (note: consider only returning ID or HTTP OK)
      * @throws ResourceNotFoundException

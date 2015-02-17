@@ -25,7 +25,7 @@ import java.util.List;
 
 /**
  * Restful interface for managing ObservationHeading (result headings). Results are mapped to these ObservationHeading
- * by Code. 
+ * by Code.
  *
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
@@ -38,7 +38,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     private ObservationHeadingService observationHeadingService;
 
     /**
-     * Create a new ObservationHeading. 
+     * Create a new ObservationHeading.
      * @param observationHeading ObservationHeading to create
      * @return ObservationHeading, newly created (note: consider only returning ID)
      */
@@ -71,7 +71,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
 
     /**
      * Get a Page of ObservationHeading given GetParameters.
-     * @param getParameters GetParameters object for pagination/filter properties defined in UI, including page number, 
+     * @param getParameters GetParameters object for pagination/filter properties defined in UI, including page number,
      * size etc
      * @return Page of ObservationHeading objects
      */
@@ -83,7 +83,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     }
 
     /**
-     * Get an ObservationHeading. 
+     * Get an ObservationHeading.
      * @param observationHeadingId ID of ObservationHeading to get
      * @return ObservationHeading object
      * @throws ResourceNotFoundException
@@ -95,9 +95,9 @@ public class ObservationHeadingController extends BaseController<ObservationHead
             throws ResourceNotFoundException {
         return new ResponseEntity<>(observationHeadingService.get(observationHeadingId), HttpStatus.OK);
     }
-    
+
     /**
-     * Get available ObservationHeadings (result types) for a User that can be used when setting up alerts for new 
+     * Get available ObservationHeadings (result types) for a User that can be used when setting up alerts for new
      * results, typically all ObservationHeadings are returned as User can set up alerts for all result types.
      * @param userId ID of User to retrieve available ObservationHeadings for setting up alerts
      * @return List of ObservationHeading objects
@@ -112,7 +112,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
         return new ResponseEntity<>(
                 observationHeadingService.getAvailableAlertObservationHeadings(userId), HttpStatus.OK);
     }
-    
+
     /**
      * Get available ObservationHeading (result types) for a User, where results are currently available.
      * @param userId ID of User to retrieve ObservationHeadings where results are currently available
@@ -137,10 +137,10 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     public ResponseEntity<List<ResultCluster>> getResultClusters() {
         return new ResponseEntity<>(observationHeadingService.getResultClusters(), HttpStatus.OK);
     }
-    
+
     /**
-     * Get a List of the User selected ObservationHeadings, used in results table view when Users choose which results 
-     * to show in the table. 
+     * Get a List of the User selected ObservationHeadings, used in results table view when Users choose which results
+     * to show in the table.
      * @param userId ID of User to retrieve saved ObservationHeadings as specified in results table view
      * @return List of ObservationHeading objects
      * @throws ResourceNotFoundException
@@ -155,8 +155,8 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     }
 
     /**
-     * Remove the relationship between an ObservationHeading and a specific Group (specialty), used when setting up the 
-     * results panel and panel order for the default results view. 
+     * Remove the relationship between an ObservationHeading and a specific Group (specialty), used when setting up the
+     * results panel and panel order for the default results view.
      * @param observationHeadingGroupId ID of the ObservationHeadingGroup to remove
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -169,7 +169,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     }
 
     /**
-     * Update an ObservationHeading. 
+     * Update an ObservationHeading.
      * @param observationHeading ObservationHeading to update
      * @throws ResourceNotFoundException
      */
@@ -178,10 +178,10 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     public void save(@RequestBody ObservationHeading observationHeading) throws ResourceNotFoundException  {
         observationHeadingService.save(observationHeading);
     }
-    
+
     /**
      * Store a User's selection of ObservationHeadings to show in the results table view.
-     * @param userId ID of User for which a selection of ObservationHeadings are to be saved 
+     * @param userId ID of User for which a selection of ObservationHeadings are to be saved
      * @param codes List of Codes representing the ObservationHeadings to be associated with a User's results table view
      * @throws ResourceNotFoundException
      */
@@ -193,7 +193,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     }
 
     /**
-     * Update an ObservationHeadingGroup representing Group specific panel, panel order properties for 
+     * Update an ObservationHeadingGroup representing Group specific panel, panel order properties for
      * ObservationHeadings shown on the default results view.
      * @param observationHeadingGroup ObservationHeadingGroup to update
      * @throws ResourceNotFoundException

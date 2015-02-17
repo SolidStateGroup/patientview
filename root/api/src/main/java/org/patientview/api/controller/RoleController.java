@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
- * RESTful interface to get Role information. Note: only used by News component of front end, consider refactoring to 
+ * RESTful interface to get Role information. Note: only used by News component of front end, consider refactoring to
  * use properties set in user information retrieved after login as for other static data.
  *
  * Created by james@solidstategroup.com
@@ -31,7 +31,7 @@ public class RoleController extends BaseController<RoleController> {
     private RoleService roleService;
 
     /**
-     * Get a List of Roles, optionally by specifying type of Role to retrieve (staff or patient etc)
+     * Get a List of Roles, optionally by specifying type of Role to retrieve (staff or patient etc).
      * @param type Optional type of Role to retrieve
      * @param request HttpServletRequest used to determine if type is passed as request parameter
      * @return List of Role objects

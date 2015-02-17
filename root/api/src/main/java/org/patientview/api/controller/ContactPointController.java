@@ -33,7 +33,7 @@ public class ContactPointController extends BaseController<ContactPointControlle
     private ContactPointService contactPointService;
 
     /**
-     * Add a new ContactPoint to a Group 
+     * Add a new ContactPoint to a Group.
      * @param groupId ID of Group to add ContactPoint to
      * @param contactPoint ContactPoint object containing all required properties
      * @return ContactPoint, newly created (consider only returning ID or HTTP OK)
@@ -50,7 +50,7 @@ public class ContactPointController extends BaseController<ContactPointControlle
     }
 
     /**
-     * Delete a ContactPoint given an ID. 
+     * Delete a ContactPoint given an ID.
      * @param contactPointId ID of ContactPoint to delete.
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -71,7 +71,7 @@ public class ContactPointController extends BaseController<ContactPointControlle
     }
 
     /**
-     * Save an updated ContactPoint
+     * Save an updated ContactPoint.
      * @param contactPoint ContactPoint object to save
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException

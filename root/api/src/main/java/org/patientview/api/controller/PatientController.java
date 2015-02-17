@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * RESTful interface for retrieving the patient records associated with a User, retrieved from FHIR.
- *  
+ *
  * Created by james@solidstategroup.com
  * Created on 03/09/2014
  */
@@ -28,7 +28,7 @@ public class PatientController  extends BaseController<PatientController> {
     private PatientService patientService;
 
     /**
-     * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data. 
+     * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
      * Produces a larger object containing all the properties required to populate My Details and My Conditions pages.
      * @param userId ID of User to retrieve patient record for
      * @param groupIds IDs of Groups to retrieve patient records from

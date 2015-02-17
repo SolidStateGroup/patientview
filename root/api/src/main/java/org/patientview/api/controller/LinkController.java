@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 /**
  * RESTful interface for management of Links (typically web links), attached to Groups and Codes.
- *  
+ *
  * Created by james@solidstategroup.com
  * Created on 15/07/2014
  */
@@ -31,7 +31,7 @@ public class LinkController extends BaseController<LinkController> {
     private LinkService linkService;
 
     /**
-     * Add a Link to a Code. 
+     * Add a Link to a Code.
      * @param codeId ID of Code to add Link to
      * @param link Link object to add to Code
      * @return Link object, newly created (note: consider just returning ID)
@@ -46,7 +46,7 @@ public class LinkController extends BaseController<LinkController> {
     }
 
     /**
-     * Add a Link to a Group. 
+     * Add a Link to a Group.
      * @param groupId ID of Group to add Link to
      * @param link Link object to add to Group
      * @return Link object, newly created (note: consider just returning ID)

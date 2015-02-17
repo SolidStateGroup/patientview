@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * RESTful interface for patient letters, stored in FHIR and imported by multiple Groups.
- *  
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 07/10/2014
  */

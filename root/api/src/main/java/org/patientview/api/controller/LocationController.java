@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 /**
  * RESTful interface for management of Locations, attached to Groups.
- *  
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 30/07/2014
  */
@@ -31,7 +31,7 @@ public class LocationController extends BaseController<LocationController> {
     private LocationService locationService;
 
     /**
-     * Add a Location to a Group. 
+     * Add a Location to a Group.
      * @param groupId ID of Group to add Location to
      * @param location Location to add
      * @return Location object, newly created (note: consider just returning ID)
@@ -48,7 +48,7 @@ public class LocationController extends BaseController<LocationController> {
     }
 
     /**
-     * Delete a Location. 
+     * Delete a Location.
      * @param locationId ID of Location to delete
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException

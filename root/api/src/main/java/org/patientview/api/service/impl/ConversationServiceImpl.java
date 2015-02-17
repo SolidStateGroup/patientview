@@ -384,7 +384,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newConversation.setMessages(messageSet);
 
             // set conversation users
-            Set<ConversationUser> conversationUsers 
+            Set<ConversationUser> conversationUsers
                     = createEntityConversationUserSet(conversation.getConversationUsers(), newConversation, creator);
             newConversation.setConversationUsers(conversationUsers);
 

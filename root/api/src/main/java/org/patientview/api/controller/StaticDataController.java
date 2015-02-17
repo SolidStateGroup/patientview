@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * RESTful interface for retrieving static data such as Lookups or Features. Note: consider refactoring to remove this,
  * it is not heavily used by the front end as now storing most static data in user information retrieved after login.
- *  
+ *
  * Created by james@solidstategroup.com
  * Created on 05/06/2014
  */

@@ -64,7 +64,7 @@ public class UserController extends BaseController<UserController> {
     private static final int MINIMUM_PASSWORD_LENGTH = 7;
 
     /**
-     * Add a Feature to a User. 
+     * Add a Feature to a User.
      * @param userId ID of User to add Feature to
      * @param featureId ID of Feature to add to User
      * @throws ResourceNotFoundException
@@ -78,7 +78,7 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
-     * Add UserInformation to a User, used when a patient adds More About Me etc.  
+     * Add UserInformation to a User, used when a patient adds More About Me etc.
      * @param userId ID of User to add UserInformation to
      * @param userInformation UserInformation to add to a User
      * @throws ResourceNotFoundException
@@ -90,7 +90,7 @@ public class UserController extends BaseController<UserController> {
                                @RequestBody List<UserInformation> userInformation) throws ResourceNotFoundException {
         userService.addInformation(userId, userInformation);
     }
-    
+
     /**
      * Add a Group and associated Role to a User.
      * @param userId ID of User to add Group and Role to
@@ -102,7 +102,8 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.PUT)
     @ResponseBody
     public void addGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
-                             @PathVariable("roleId") Long roleId) throws ResourceNotFoundException, ResourceForbiddenException {
+                             @PathVariable("roleId") Long roleId)
+            throws ResourceNotFoundException, ResourceForbiddenException {
         userService.addGroupRole(userId, groupId, roleId);
     }
 
@@ -131,7 +132,7 @@ public class UserController extends BaseController<UserController> {
         userService.changePassword(userId, credentials.getPassword());
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    
+
     /**
      * Change the picture associated with a User account.
      * @param userId ID of User to change picture
@@ -147,7 +148,7 @@ public class UserController extends BaseController<UserController> {
             throws ResourceInvalidException {
         return new ResponseEntity<>(userService.addPicture(userId, file), HttpStatus.OK);
     }
-    
+
     /**
      * Create a new User.
      * @param user User object containing all required information
@@ -175,7 +176,7 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
-     * Remove a Feature from a User. 
+     * Remove a Feature from a User.
      * @param userId User to remove Feature from
      * @param featureId Feature to remove from User
      * @throws ResourceNotFoundException
@@ -199,11 +200,11 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/group/{groupId}/role/{roleId}", method = RequestMethod.DELETE)
     @ResponseBody
     public void deleteGroupRole(@PathVariable("userId") Long userId, @PathVariable("groupId") Long groupId,
-                                @PathVariable("roleId") Long roleId) 
+                                @PathVariable("roleId") Long roleId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         userService.deleteGroupRole(userId, groupId, roleId);
     }
-    
+
     /**
      * Delete the picture associated with a User.
      * @param userId ID of User to delete picture from
@@ -214,9 +215,9 @@ public class UserController extends BaseController<UserController> {
     public void deletePicture(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
         userService.deletePicture(userId);
     }
-    
+
     /**
-     * Delete a User, currently patient Users are deleted permanently, staff are marked as deleted. 
+     * Delete a User, currently patient Users are deleted permanently, staff are marked as deleted.
      * @param userId ID of User to delete
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
@@ -241,7 +242,7 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
-     * Get a User's picture, returned as byte[] to allow direct viewing in browser when set as img source. 
+     * Get a User's picture, returned as byte[] to allow direct viewing in browser when set as img source.
      * @param userId ID of User to retrieve picture for
      * @return byte[] binary picture data
      * @throws ResourceNotFoundException
@@ -260,7 +261,7 @@ public class UserController extends BaseController<UserController> {
             return new HttpEntity<>(null, null);
         }
     }
-    
+
     /**
      * Get a User.
      * @param userId ID of User to retrieve
@@ -283,7 +284,7 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
-     * Get UserInformation (About Me etc) associated with a User. 
+     * Get UserInformation (About Me etc) associated with a User.
      * @param userId ID of User to retrieve UserInformation for
      * @return List of UserInformation
      * @throws ResourceNotFoundException
@@ -295,7 +296,7 @@ public class UserController extends BaseController<UserController> {
             throws ResourceNotFoundException {
         return new ResponseEntity<>(userService.getInformation(userId), HttpStatus.OK);
     }
-    
+
     /**
      * Get a User by Identifier value, used when searching for existing patients.
      * @param identifier Identifier value used to search for Users
@@ -309,7 +310,7 @@ public class UserController extends BaseController<UserController> {
             throws ResourceNotFoundException {
         return new ResponseEntity<>(userService.getByIdentifierValue(identifier), HttpStatus.OK);
     }
-    
+
     /**
      * Get a User by username, used when searching for existing staff/patients.
      * @param username String username used to search for Users
@@ -347,7 +348,7 @@ public class UserController extends BaseController<UserController> {
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
     }
-    
+
     /**
      * Get Users from multiple Groups, Roles based on GetParameters to filter and support pagination.
      * @param getParameters GetParameter object containing preferences for search, filter, pagination
@@ -371,7 +372,7 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
-     * Remove all Group membership and associated Roles for a User, used when 'deleting' a User when the KEEP_ALL_DATA 
+     * Remove all Group membership and associated Roles for a User, used when 'deleting' a User when the KEEP_ALL_DATA
      * Feature is available on one of their groups. Note: consider refactoring to manage this within the service.
      * @param userId ID of User to remove all Groups and associated Roles from
      * @throws ResourceNotFoundException
@@ -381,7 +382,7 @@ public class UserController extends BaseController<UserController> {
     public void removeAllGroupRoles(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
         userService.removeAllGroupRoles(userId);
     }
-    
+
     /**
      * Reset a User's password, done by Users for other staff or patients.
      * @param userId ID of User to reset password for
@@ -407,7 +408,7 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
-     * Send verification email to a User in order to validate their email address is correct. 
+     * Send verification email to a User in order to validate their email address is correct.
      * @param userId
      * @return
      * @throws ResourceNotFoundException
@@ -441,7 +442,7 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
-     * Update a User. 
+     * Update a User.
      * @param user User to update
      * @throws EntityExistsException
      * @throws ResourceNotFoundException

@@ -44,8 +44,8 @@ public class GroupController extends BaseController<GroupController> {
     private GroupStatisticService groupStatisticService;
 
     /**
-     * Get a Page of Groups that are allowed relationship Groups given a User ID and their permissions. Allowed 
-     * relationship Groups are those that can be added as parents or children to existing groups by that User. Some 
+     * Get a Page of Groups that are allowed relationship Groups given a User ID and their permissions. Allowed
+     * relationship Groups are those that can be added as parents or children to existing groups by that User. Some
      * Users may be able to add children to any Group but others are restricted. Note: consider refactor.
      * @param userId ID of User to get allowed relationship Groups
      * @return Page of allowed relationship Groups
@@ -59,7 +59,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Add a Group as a child Group to another Group, defining a parent -> child relationship, e.g. Specialty -> Unit. 
+     * Add a Group as a child Group to another Group, defining a parent -> child relationship, e.g. Specialty -> Unit.
      * @param groupId ID of parent Group to add child Group to
      * @param childGroupId ID of child Group to be added
      */
@@ -70,7 +70,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Add a Feature to a Group. 
+     * Add a Feature to a Group.
      * @param groupId ID of Group to add Feature to
      * @param featureId ID of Feature to add
      */
@@ -82,7 +82,7 @@ public class GroupController extends BaseController<GroupController> {
 
     /**
      * Add a Group as a parent Group of another Group, defining a parent -> child relationship, e.g. Specialty -> Unit.
-     * Note: consider consolidating with addChildGroup() method. 
+     * Note: consider consolidating with addChildGroup() method.
      * @param groupId ID of child Group to be added
      * @param parentGroupId ID of parent Group to add child Group to
      */
@@ -94,7 +94,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Create a Group. 
+     * Create a Group.
      * @param group Group object containing all required properties
      * @return Long ID of Group created successfully
      */
@@ -104,7 +104,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Remove a child Group from a parent Group. 
+     * Remove a child Group from a parent Group.
      * @param groupId ID of parent Group to remove child Group from
      * @param childGroupId ID of child Group to remove from parent Group
      */
@@ -115,7 +115,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Remove a Feature from a Group. 
+     * Remove a Feature from a Group.
      * @param groupId ID of Group to remove Feature from
      * @param featureId ID of Feature to remove
      */
@@ -126,7 +126,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Remove a parent Group from a child Group. Note: consider consolidating with deleteChildGroup() method. 
+     * Remove a parent Group from a child Group. Note: consider consolidating with deleteChildGroup() method.
      * @param groupId ID of child Group to remove from parent Group
      * @param parentGroupId ID of parent Group to remove child Group from
      */
@@ -137,7 +137,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Get a single Group. 
+     * Get a single Group.
      * @param groupId ID of Group to get
      * @return Group object
      * @throws SecurityException
@@ -162,7 +162,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Get publicly available information about all Groups. 
+     * Get publicly available information about all Groups.
      * @return List of publicly available Group objects
      */
     @RequestMapping(value = "/public/group", method = RequestMethod.GET)
@@ -172,9 +172,9 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Get list of Groups with MESSAGING Feature and Users that can be contacted by a User. On creating Conversation, 
-     * where a User must select from a list of available Groups and then select a recipient. 
-     * @param userId ID of User to retrieve 
+     * Get list of Groups with MESSAGING Feature and Users that can be contacted by a User. On creating Conversation,
+     * where a User must select from a list of available Groups and then select a recipient.
+     * @param userId ID of User to retrieve
      * @return List of BaseGroup containing minimal information on the Groups that can be contacted
      * @throws ResourceNotFoundException
      */
@@ -186,7 +186,7 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Get statistics for a Group given an ID. 
+     * Get statistics for a Group given an ID.
      * @param groupId ID of the Group to retrieve statistics for
      * @return List of GroupStatisticTO objects with monthly statistics for a Group
      * @throws ResourceNotFoundException
@@ -201,9 +201,9 @@ public class GroupController extends BaseController<GroupController> {
     }
 
     /**
-     * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc 
+     * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc.
      * @param userId ID of User retrieving Groups
-     * @param getParameters GetParameters object containing filters, page size, number etc 
+     * @param getParameters GetParameters object containing filters, page size, number etc
      * @return Page of Group objects
      */
     @RequestMapping(value = "/user/{userId}/groups", method = RequestMethod.GET,
@@ -218,7 +218,7 @@ public class GroupController extends BaseController<GroupController> {
      * Get a Page of Groups that a User can access, given GetParameters for filters, page size, number etc. This
      * includes all information on each Group so may return a large JSON object. Used on Contact Your Unit page.
      * @param userId ID of User retrieving Groups
-     * @param getParameters GetParameters object containing filters, page size, number etc 
+     * @param getParameters GetParameters object containing filters, page size, number etc
      * @return Page of Group objects
      */
     @RequestMapping(value = "/user/{userId}/groups/alldetails", method = RequestMethod.GET,
@@ -241,14 +241,14 @@ public class GroupController extends BaseController<GroupController> {
     /**
      * Used when a User does not know their username or password and must enter other patient identifiable information.
      * Sends an email to an appropriate staff member given the Group selected by the user. Note: this is deprecated as
-     * considered unsafe to send patient identifiable information over email. May be re-enabled using 
-     * Conversations to Group staff rather than sending emails. 
+     * considered unsafe to send patient identifiable information over email. May be re-enabled using
+     * Conversations to Group staff rather than sending emails.
      * @param groupId ID of Group to send email to about User being unable to remember username or email
      * @param unitRequest UnitRequest object containing typical patient identifying information, name, identifier etc
      * @throws ResourceNotFoundException
      * @throws MailException
      * @throws MessagingException
-     */    
+     */
     @RequestMapping(value = "/public/passwordrequest/group/{groupId}", method = RequestMethod.POST)
     @ResponseBody
     public void passwordRequest(@PathVariable("groupId") Long groupId, @RequestBody UnitRequest unitRequest)
